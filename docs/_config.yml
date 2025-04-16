@@ -1,0 +1,39 @@
+title: maths
+description:  C++ 20 classes for maths written (mostly) by Seb James
+baseurl: "/" # the subpath of your site, e.g. /blog
+github_username:  sebsjames
+
+url: https://sebsjames.github.io/maths
+
+theme: just-the-docs
+#theme: minima
+#theme: jekyll-theme-minima
+#theme: jekyll-theme-minimal
+#theme: jekyll-theme-architect
+#theme: jekyll-theme-cayman
+#theme: jekyll-theme-dinky
+#theme: jekyll-theme-hacker
+#theme: jekyll-theme-leap-day
+#theme: jekyll-theme-merlot
+#theme: jekyll-theme-midnight
+#theme: jekyll-theme-modernist
+#theme: jekyll-theme-slate
+#theme: jekyll-theme-tactile
+#theme: jekyll-theme-time-machine
+
+plugins:
+  - jekyll-feed
+  - jekyll-default-layout
+
+
+# Exclude from processing.
+# The following items will not be processed, by default. Create a custom list
+# to override the default setting.
+# exclude:
+#   - Gemfile
+#   - Gemfile.lock
+#   - node_modules
+#   - vendor/bundle/
+#   - vendor/cache/
+#   - vendor/gems/
+#   - vendor/ruby/
