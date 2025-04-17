@@ -6,11 +6,24 @@
 
 #include <type_traits>
 #include <cmath>
+#include <cstdint>
 #include <limits>
+#include <bitset>
 #include <morph/mathconst.h>
 #include <morph/constexpr_math.h> // constexpr math functions from Keith O'Hara
 #include <morph/range.h>
+#include <morph/vec.h>
 #include <iostream> // debug
+
+namespace morph
+{
+    enum class rotation_sense : uint32_t
+    {
+        colinear,
+        clockwise,
+        anticlockwise
+    };
+}
 
 namespace morph::algo
 {
@@ -186,5 +199,112 @@ namespace morph::algo
         return morph::algo::real_spherical_harmonic<T, UI, I>(l, m, morph::algo::Nlm<T, UI, I>(l, m), phi, theta);
     }
 #endif // __APPLE__
+
+    //! Compute orientation of three points which form a triangle pqr.
+    //! \return 0 if co-linear, 1 if clockwise; 2 if anticlockwise
+    //! Algorithm, which uses slopes, taken from
+    //! https://www.geeksforgeeks.org/orientation-3-ordered-points/
+    template<typename T>
+    rotation_sense orientation (const morph::vec<T, 2>& p,
+                                const morph::vec<T, 2>& q,
+                                const morph::vec<T, 2>& r)
+    {
+        T val = (q[1] - p[1]) * (r[0] - q[0])  -  (q[0] - p[0]) * (r[1] - q[1]);
+        if (val == T{0}) { return rotation_sense::colinear; }
+        return (val > T{0}) ? rotation_sense::clockwise : rotation_sense::anticlockwise;
+    }
+
+    // Given three colinear points p, q, r, the function checks if
+    // point q lies on line segment 'pr'. Copied from:
+    // https://www.geeksforgeeks.org/check-if-two-given-line-segments-intersect/
+    template<typename T>
+    static bool onsegment (const morph::vec<T, 2>& p,
+                           const morph::vec<T, 2>& q,
+                           const morph::vec<T, 2>& r)
+    {
+        return (q[0] <= std::max(p[0], r[0]) && q[0] >= std::min(p[0], r[0])
+                && q[1] <= std::max(p[1], r[1]) && q[1] >= std::min(p[1], r[1]));
+    }
+
+    /*!
+     * Do the line segments p1-q1 and p2-q2 intersect? Are they instead colinear? Return these
+     * booleans in a bitset (bit0: intersection, bit1: colinear)
+     *
+     * \param p1 Start of line segment 1
+     * \param q1 End of line segment 1
+     * \param p2 Start of line segment 2
+     * \param q2 End of line segment 2
+     *
+     * \return A bitset whose bit 0 indicates if the lines intersect and whose bit 1 indicates
+     * if the lines are colinear
+     */
+    template<typename T>
+    static std::bitset<2> segments_intersect (const morph::vec<T, 2>& p1, const morph::vec<T, 2> q1,
+                                              const morph::vec<T, 2>& p2, const morph::vec<T, 2> q2)
+    {
+        constexpr bool debug_this = false;
+        if constexpr (debug_this) {
+            std::cout << "Testing intersection for " << p1 << "->" << q1
+                      << " and " << p2 << "->" << q2 << std::endl;
+        }
+        std::bitset<2> rtn;
+        morph::rotation_sense p1q1p2 = morph::algo::orientation (p1, q1, p2);
+        morph::rotation_sense p1q1q2 = morph::algo::orientation (p1, q1, q2);
+        morph::rotation_sense p2q2p1 = morph::algo::orientation (p2, q2, p1);
+        morph::rotation_sense p2q2q1 = morph::algo::orientation (p2, q2, q1);
+        if (p1q1p2 != p1q1q2 && p2q2p1 != p2q2q1) { // They intersect
+            rtn.set(0, true);
+        } else { // Are they colinear?
+            if constexpr (debug_this) {
+                std::cout << "Test colinearity... epsilon is " << std::numeric_limits<T>::epsilon() << "\n";
+                if (p1q1p2 == morph::rotation_sense::colinear) {
+                    std::cout << "p1q1p2 rotn sense is colinear. On segment? "
+                              << (morph::algo::onsegment (p1, p2, q1) ? "T" : "F") << std::endl;
+                } else if (p1q1q2 == morph::rotation_sense::colinear) {
+                    std::cout << "p1q1q2 rotn sense is colinear On segment? "
+                              << (morph::algo::onsegment (p1, q2, q1) ? "T" : "F") << std::endl;
+                } else if (p2q2p1 == morph::rotation_sense::colinear) {
+                    std::cout << "p2q2p1 rotn sense is colinear On segment? "
+                              << (morph::algo::onsegment (p2, p1, q2) ? "T" : "F") << std::endl;
+                } else if (p2q2q1 == morph::rotation_sense::colinear) {
+                    std::cout << "p2q2q1 rotn sense is colinear On segment? "
+                              << (morph::algo::onsegment (p2, q1, q2) ? "T" : "F") << std::endl;
+                } else {
+                    std::cout << "NO rotn sense is colinear\n";
+                }
+            }
+            if (p1q1p2 == morph::rotation_sense::colinear && morph::algo::onsegment (p1, p2, q1)) { rtn.set(1, true); }
+            else if (p1q1q2 == morph::rotation_sense::colinear && morph::algo::onsegment (p1, q2, q1)) { rtn.set(1, true); }
+            else if (p2q2p1 == morph::rotation_sense::colinear && morph::algo::onsegment (p2, p1, q2)) { rtn.set(1, true); }
+            else if (p2q2q1 == morph::rotation_sense::colinear && morph::algo::onsegment (p2, q1, q2)) { rtn.set(1, true); }
+        }
+        if constexpr (debug_this) { std::cout << "return " << rtn << std::endl; }
+        return rtn;
+    }
+
+    /*!
+     * Find the coordinate of the crossing point of the two line segments p1-q1 and p2-q2,
+     * *assuming* the segments intersect. Call this *after* you have used
+     * algo::segments_intersect!
+     *
+     * \param p1 Start of line segment 1
+     * \param q1 End of line segment 1
+     * \param p2 Start of line segment 2
+     * \param q2 End of line segment 2
+     *
+     * \return Coordinate of the crossing point
+     */
+    template<typename T>
+    static morph::vec<T, 2> crossing_point (const morph::vec<T, 2>& p1, const morph::vec<T, 2>& q1,
+                                            const morph::vec<T, 2>& p2, const morph::vec<T, 2>& q2)
+    {
+        morph::vec<T, 2> p = p1;
+        morph::vec<T, 2> r = p1 - q1;
+        morph::vec<T, 2> q = p2;
+        morph::vec<T, 2> s = p2 - q2;
+        auto t = (q - p).cross(s / r.cross(s));
+        morph::vec<T, 2> cross_point = p + t * r;
+        return cross_point;
+    }
 
 } // morph::math
