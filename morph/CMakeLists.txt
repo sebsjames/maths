@@ -22,7 +22,8 @@ install(
   mat44.h
   MathAlgo.h
   mathconst.h
-  math.h
+  algo.h
+  boxfilter.h
   MathImpl.h
 #  NM_Simplex.h
   quaternion.h
