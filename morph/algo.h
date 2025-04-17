@@ -307,4 +307,63 @@ namespace morph::algo
         return cross_point;
     }
 
+
+    //! Bubble sort, high to low, order is returned in indices, values are left unchanged
+    template<typename T>
+    static void bubble_sort_hi_to_lo (const std::vector<T>& values, std::vector<unsigned int>& indices)
+    {
+        std::vector<T> vcopy = values;
+
+        // Init indices to be a sequence
+        for (unsigned int i = 0; i < indices.size(); ++i) { indices[i] = i; }
+
+        T value = T{0};
+        unsigned int index = 0u;
+        unsigned int jplus = 0u;
+        for (unsigned int i = 0u; i < vcopy.size(); ++i) {
+            for (unsigned int j = 0u; j < vcopy.size()-1u; ++j) {
+                jplus = j+1;
+                if (vcopy[j] < vcopy[jplus]) {
+                    // Swap value in the copy
+                    value = vcopy[j];
+                    vcopy[j] = vcopy[jplus];
+                    vcopy[jplus] = value;
+                    // Swap index too
+                    index = indices[j];
+                    indices[j] = indices[jplus];
+                    indices[jplus] = index;
+                }
+            }
+        }
+    }
+
+    //! Bubble sort, low to high, order is returned in indices, values are left unchanged
+    template<typename T>
+    static void bubble_sort_lo_to_hi (const std::vector<T>& values, std::vector<unsigned int>& indices)
+    {
+        std::vector<T> vcopy = values;
+
+        // Init indices to be a sequence
+        for (unsigned int i = 0; i < indices.size(); ++i) { indices[i] = i; }
+
+        T value = T{0};
+        unsigned int index = 0u;
+        unsigned int jplus = 0u;
+        for (unsigned int i = 0u; i < vcopy.size(); ++i) {
+            for (unsigned int j = 0u; j < vcopy.size()-1u; ++j) {
+                jplus = j+1;
+                if (vcopy[j] > vcopy[jplus]) {
+                    // Swap value in the copy
+                    value = vcopy[j];
+                    vcopy[j] = vcopy[jplus];
+                    vcopy[jplus] = value;
+                    // Swap index too
+                    index = indices[j];
+                    indices[j] = indices[jplus];
+                    indices[jplus] = index;
+                }
+            }
+        }
+    }
+
 } // morph::math
