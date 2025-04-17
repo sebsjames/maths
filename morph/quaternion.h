@@ -172,7 +172,7 @@ namespace morph {
         }
 
         //! Rotate a vector v_r by this quaternion, returning the resulting rotated vector
-        template <typename Fy=F, std::size_t N = 3, std::enable_if_t<(N==3||N==4), int> = 0>
+        template <typename Fy=F, std::size_t N = 3> requires (N == 3 || N == 4)
         constexpr morph::vec<F, N> operator* (const morph::vec<Fy, N>& v_r) const noexcept
         {
             // Do the rotation by extracting the rotation matrix and then rotating.

@@ -61,7 +61,7 @@ namespace morph::math
     static constexpr int sqrt_max_iter = 100;
 
     // constexpr capable abs for use until C++23 (and beyond)
-    template<class T, std::enable_if_t<std::is_arithmetic_v<T>>...>
+    template<class T> requires std::is_arithmetic_v<T>
     constexpr auto abs (const T& x) noexcept { return x < T{0} ? -x : x; }
 
     namespace internal // is_odd/even
@@ -225,12 +225,12 @@ namespace morph::math
                                         pow_integral_compute_recur (base * base, val, exp_term / 2)) :
                     (exp_term == T2{1} ? val * base : val));
         }
-        template<typename T1, typename T2, typename std::enable_if<std::is_signed<T2>::value>::type* = nullptr>
+        template<typename T1, typename T2> requires std::is_signed_v<T2>
         constexpr T1 pow_integral_sgn_check (const T1 base, const T2 exp_term) noexcept
         {
             return (exp_term < T2{0} ? T1{1} / pow_integral_compute (base, -exp_term) : pow_integral_compute_recur (base, T1{1}, exp_term));
         }
-        template<typename T1, typename T2, typename std::enable_if<!std::is_signed<T2>::value>::type* = nullptr>
+        template<typename T1, typename T2> requires (!std::is_signed_v<T2>)
         constexpr T1 pow_integral_sgn_check (const T1 base, const T2 exp_term) noexcept { return (pow_integral_compute_recur (base, T1{1}, exp_term)); }
 
         template<typename T1, typename T2>
@@ -245,10 +245,10 @@ namespace morph::math
                     pow_integral_sgn_check (base, exp_term));
         }
 
-        template<typename T1, typename T2, typename std::enable_if<std::is_integral<T2>::value>::type* = nullptr>
+        template<typename T1, typename T2> requires std::is_integral_v<T2>
         constexpr T1 pow_integral_type_check (const T1 base, const T2 exp_term) noexcept { return pow_integral_compute (base,exp_term); }
 
-        template<typename T1, typename T2, typename std::enable_if<!std::is_integral<T2>::value>::type* = nullptr>
+        template<typename T1, typename T2> requires (!std::is_integral_v<T2>)
         constexpr T1 pow_integral_type_check (const T1 base, const T2 exp_term) noexcept
         {
             return pow_integral_compute (base, static_cast<int64_t>(exp_term));
@@ -465,15 +465,13 @@ namespace morph::math
         template<typename T>
         constexpr T pow_dbl (const T base, const T exp_term) noexcept { return exp (exp_term * log(base)); }
 
-        template<typename T1, typename T2, typename TC = common_t<T1, T2>,
-                 typename std::enable_if<!std::is_integral<T2>::value>::type* = nullptr>
+        template<typename T1, typename T2, typename TC = common_t<T1, T2>> requires (!std::is_integral_v<T2>)
         constexpr TC pow_check (const T1 base, const T2 exp_term) noexcept
         {
             return (base < T1{0} ? std::numeric_limits<TC>::quiet_NaN() : pow_dbl (static_cast<TC>(base), static_cast<TC>(exp_term)));
         }
 
-        template<typename T1, typename T2, typename TC = common_t<T1, T2>,
-                 typename std::enable_if<std::is_integral<T2>::value>::type* = nullptr>
+        template<typename T1, typename T2, typename TC = common_t<T1, T2>> requires std::is_integral_v<T2>
         constexpr TC pow_check (const T1 base, const T2 exp_term) noexcept { return pow_integral (base, exp_term); }
 
     }

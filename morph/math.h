@@ -145,7 +145,8 @@ namespace morph::math
     }
 
     // Compute the normalization function N^l_m. If invalid l<0 is passed, return 0.
-    template <typename T, typename UI, typename I, typename std::enable_if< std::is_integral<UI>{} && !std::is_signed<UI>{} && std::is_integral<I>{} && std::is_signed<I>{}, bool>::type = true >
+    template <typename T, typename UI, typename I>
+    requires (std::is_integral_v<UI> && !std::is_signed_v<UI> && std::is_integral_v<I> && std::is_signed_v<I>)
     T Nlm (const UI l, const I m)
     {
         using mc = morph::mathconst<T>;
@@ -155,7 +156,8 @@ namespace morph::math
 
 #ifndef __APPLE__ // There is no std::assoc_legendre on Mac, apparently
     //! Wraps std::assoc_legendre, allowing signed m (abs(m) always passed to std::assoc_legendre)
-    template <typename T, typename UI, typename I, typename std::enable_if< std::is_integral<UI>{} && !std::is_signed<UI>{} && std::is_integral<I>{} && std::is_signed<I>{}, bool>::type = true >
+    template <typename T, typename UI, typename I>
+    requires (std::is_integral_v<UI> && !std::is_signed_v<UI> && std::is_integral_v<I> && std::is_signed_v<I>)
     T Plm (const UI l, const I m, const T x)
     {
         unsigned int absm = m >= 0 ? static_cast<unsigned int>(m) : static_cast<unsigned int>(-m);
@@ -163,7 +165,8 @@ namespace morph::math
     }
 
     //! Compute the real spherical harmonic function with pre-computed normalization term Nlm.
-    template <typename T, typename UI, typename I, typename std::enable_if< std::is_integral<UI>{} && !std::is_signed<UI>{} && std::is_integral<I>{} && std::is_signed<I>{}, bool>::type = true >
+    template <typename T, typename UI, typename I>
+    requires (std::is_integral_v<UI> && !std::is_signed_v<UI> && std::is_integral_v<I> && std::is_signed_v<I>)
     T real_spherical_harmonic (const UI l, const I m, const T nlm, const T phi, const T theta)
     {
         using mc = morph::mathconst<T>;
