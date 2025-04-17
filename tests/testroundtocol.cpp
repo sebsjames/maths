@@ -1,5 +1,5 @@
 #include <iostream>
-#include <morph/math.h>
+#include <morph/algo.h>
 
 template <typename F>
 bool different (F f1, F f2) { return std::abs(f1 - f2) > std::numeric_limits<F>::epsilon(); }
@@ -13,63 +13,63 @@ int main()
 
     float f = 1.2345f;
     std::cout << "\nTest " << tnum << ": " <<  f << std::endl;
-    float fr = morph::math::round_to_col (f, -2);
+    float fr = morph::algo::round_to_col (f, -2);
     std::cout << "fr: " << fr << std::endl;
     if (different(fr, 1.23f)) { std::cout << "Fail " << tnum << std::endl; --rtn; }
     ++tnum;
 
     f = 1.2345f;
     std::cout << "\nTest " << tnum << ": " <<  f << std::endl;
-    fr = morph::math::round_to_col (f, -6);
+    fr = morph::algo::round_to_col (f, -6);
     std::cout << "fr: " << fr << std::endl;
     if (different(fr, 1.2345f)) { std::cout << "Fail " << tnum << std::endl; --rtn; }
     ++tnum;
 
     f = 1.2345f;
     std::cout << "\nTest " << tnum << ": " <<  f << std::endl;
-    fr = morph::math::round_to_col (f, 0);
+    fr = morph::algo::round_to_col (f, 0);
     std::cout << "fr: " << fr << std::endl;
     if (different(fr, 1.0f)) { std::cout << "Fail " << tnum << std::endl; --rtn; }
     ++tnum;
 
     f = 1000.01f;
     std::cout << "\nTest " << tnum << ": " <<  f << std::endl;
-    fr = morph::math::round_to_col (f, -2);
+    fr = morph::algo::round_to_col (f, -2);
     std::cout << "fr: " << fr << std::endl;
     if (different(fr, 1000.01f)) { std::cout << "Fail " << tnum << std::endl; --rtn; }
     ++tnum;
 
     f = -0.0106f;
     std::cout << "\nTest " << tnum << ": " <<  f << std::endl;
-    fr = morph::math::round_to_col (f, -4);
+    fr = morph::algo::round_to_col (f, -4);
     std::cout << "fr: " << fr << std::endl;
     if (different(fr, -0.0106f)) { std::cout << "Fail " << tnum << std::endl; --rtn; }
     ++tnum;
 
     f = 0.0105f;
     std::cout << "\nTest " << tnum << ": " <<  f << std::endl;
-    fr = morph::math::round_to_col (f, -4);
+    fr = morph::algo::round_to_col (f, -4);
     std::cout << "fr: " << fr << std::endl;
     if (different(fr, 0.0105f)) { std::cout << "Fail " << tnum << std::endl; --rtn; }
     ++tnum;
 
     f = 0.0105f;
     std::cout << "\nTest " << tnum << ": " <<  f << std::endl;
-    fr = morph::math::round_to_col (f, -5);
+    fr = morph::algo::round_to_col (f, -5);
     std::cout << "fr: " << fr << std::endl;
     if (different(fr, 0.0105f)) { std::cout << "Fail " << tnum << std::endl; --rtn; }
     ++tnum;
 
     f = 0.01050004f;
     std::cout << "\nTest " << tnum << ": " <<  f << std::endl;
-    fr = morph::math::round_to_col (f, -4);
+    fr = morph::algo::round_to_col (f, -4);
     std::cout << "fr: " << fr << std::endl;
     if (different(fr, 0.0105f)) { std::cout << "Fail " << tnum << std::endl; --rtn; }
     ++tnum;
 
     f = 0.01049993f;
     std::cout << "\nTest " << tnum << ": " <<  f << std::endl;
-    fr = morph::math::round_to_col (f, -4);
+    fr = morph::algo::round_to_col (f, -4);
     std::cout << "fr: " << fr << std::endl;
     if (different(fr, 0.0105f)) { std::cout << "Fail " << tnum << std::endl; --rtn; }
     ++tnum;

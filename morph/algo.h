@@ -1,9 +1,7 @@
-// Namespaced mathematical algorithms
-
 #pragma once
 
 /*
- * Maths in a morph::math namespace
+ * Miscellaneous algorithms
  */
 
 #include <type_traits>
@@ -14,7 +12,7 @@
 #include <morph/range.h>
 #include <iostream> // debug
 
-namespace morph::math
+namespace morph::algo
 {
     // Find the significant base10 columns in a floating point number of type F Return a
     // range whose max is the order of magnitude of the largest base10 column and whose
@@ -83,7 +81,7 @@ namespace morph::math
     template <typename F> requires std::is_floating_point_v<F>
     constexpr int significant_figs (const F& f)
     {
-        morph::range<int> sc = morph::math::significant_cols<F> (f);
+        morph::range<int> sc = morph::algo::significant_cols<F> (f);
         return sc.span();
     }
 
@@ -151,7 +149,7 @@ namespace morph::math
     {
         using mc = morph::mathconst<T>;
         I absm = m < I{0} ? -m : m;
-        return std::sqrt ( mc::one_over_four_pi * (T{2} * static_cast<T>(l) + T{1}) * (morph::math::factorial<T, I>(l - absm) / morph::math::factorial<T, I>(l + absm)));
+        return std::sqrt ( mc::one_over_four_pi * (T{2} * static_cast<T>(l) + T{1}) * (morph::algo::factorial<T, I>(l - absm) / morph::algo::factorial<T, I>(l + absm)));
     }
 
 #ifndef __APPLE__ // There is no std::assoc_legendre on Mac, apparently
@@ -172,11 +170,11 @@ namespace morph::math
         using mc = morph::mathconst<T>;
         T ylm = T{0};
         if (m > I{0}) {
-            ylm = mc::root_2 * nlm * std::cos (m * phi) * morph::math::Plm<T, UI, I> (l, m, std::cos (theta));
+            ylm = mc::root_2 * nlm * std::cos (m * phi) * morph::algo::Plm<T, UI, I> (l, m, std::cos (theta));
         } else if (m < I{0}) {
-            ylm = mc::root_2 * nlm * std::sin (-m * phi) * morph::math::Plm<T, UI, I> (l, -m, std::cos (theta));
+            ylm = mc::root_2 * nlm * std::sin (-m * phi) * morph::algo::Plm<T, UI, I> (l, -m, std::cos (theta));
         } else { // m == 0
-            ylm = nlm * morph::math::Plm<T, UI, I> (l, I{0}, std::cos (theta));
+            ylm = nlm * morph::algo::Plm<T, UI, I> (l, I{0}, std::cos (theta));
         }
         return ylm;
     }
@@ -185,7 +183,7 @@ namespace morph::math
     template <typename T, typename UI, typename I>
     T real_spherical_harmonic (const UI l, const I m, const T phi, const T theta)
     {
-        return morph::math::real_spherical_harmonic<T, UI, I>(l, m, morph::math::Nlm<T, UI, I>(l, m), phi, theta);
+        return morph::algo::real_spherical_harmonic<T, UI, I>(l, m, morph::algo::Nlm<T, UI, I>(l, m), phi, theta);
     }
 #endif // __APPLE__
 
