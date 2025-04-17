@@ -13,7 +13,6 @@
 #include <string>
 #include <sstream>
 #include <type_traits>
-#include <concepts>
 #include <numeric>
 #include <limits>
 #include <iomanip>
