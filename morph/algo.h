@@ -428,4 +428,21 @@ namespace morph::algo
         return morph::vec<T, 2>{m, c};
     }
 
-} // morph::math
+    //! Compute distance^2 from p1 to p2 (N dimensions, std::array args)
+    template<typename T, std::size_t N>
+    static T distance_sq (const std::array<T, N> p1, const std::array<T, N> p2) {
+        T sos = T{0};
+        for (std::size_t i = 0; i < N; ++i) {
+            T pdiff = p2[i] - p1[i];
+            sos += pdiff * pdiff;
+        }
+        return sos;
+    }
+
+    //! Compute distance from p1 to p2 (N dimensions, std::array args)
+    template<typename T, std::size_t N>
+    static T distance (const std::array<T, N> p1, const std::array<T, N> p2) {
+        return std::sqrt (algo::distance_sq (p1, p2));
+    }
+
+} // morph::algo
