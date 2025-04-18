@@ -25,45 +25,6 @@
 #include <morph/vec.h>
 #include <morph/vvec.h>
 
-namespace morph::tools
-{
-    /*!
-     * Split a string of values into a vector using the separator string (not char)
-     * passed in as "separator". If ignoreTrailingEmptyVal is true, then a trailing
-     * separator with nothing after it will NOT cause an additional empty value in
-     * the returned vector. See also splitStringWithEncs
-     */
-    std::vector<std::string> stringToVector (const std::string& s,
-                                             const std::string& separator,
-                                             const bool ignoreTrailingEmptyVal = true)
-    {
-        if (separator.empty()) {
-            throw std::runtime_error ("Can't split the string; the separator is empty.");
-        }
-        std::vector<std::string> theVec;
-        std::string entry("");
-        std::string::size_type sepLen = separator.size();
-        std::string::size_type a=0, b=0;
-        while (a < s.size() && (b = s.find (separator, a)) != std::string::npos) {
-            entry = s.substr (a, b-a);
-            theVec.push_back (entry);
-            a=b+sepLen;
-        }
-        // Last one has no separator
-        if (a < s.size()) {
-            b = s.size();
-            entry = s.substr (a, b-a);
-            theVec.push_back (entry);
-        } else {
-            if (!ignoreTrailingEmptyVal) {
-                theVec.push_back ("");
-            }
-        }
-
-        return theVec;
-    }
-}
-
 #ifdef _MSC_VER
 #define __PRETTY_FUNCTION__ __FUNCSIG__
 #endif
@@ -763,13 +724,49 @@ namespace morph {
         }
 
         /*!
+         * Split a string of values into a vector using the separator string (not char)
+         * passed in as "separator". If ignoreTrailingEmptyVal is true, then a trailing
+         * separator with nothing after it will NOT cause an additional empty value in
+         * the returned vector. See also splitStringWithEncs
+         */
+        std::vector<std::string> stringToVector (const std::string& s,
+                                                 const std::string& separator,
+                                                 const bool ignoreTrailingEmptyVal = true)
+        {
+            if (separator.empty()) {
+                throw std::runtime_error ("Can't split the string; the separator is empty.");
+            }
+            std::vector<std::string> theVec;
+            std::string entry("");
+            std::string::size_type sepLen = separator.size();
+            std::string::size_type a=0, b=0;
+            while (a < s.size() && (b = s.find (separator, a)) != std::string::npos) {
+                entry = s.substr (a, b-a);
+                theVec.push_back (entry);
+                a=b+sepLen;
+            }
+            // Last one has no separator
+            if (a < s.size()) {
+                b = s.size();
+                entry = s.substr (a, b-a);
+                theVec.push_back (entry);
+            } else {
+                if (!ignoreTrailingEmptyVal) {
+                    theVec.push_back ("");
+                }
+            }
+
+            return theVec;
+        }
+
+        /*!
          * Given a path like /a/b/c, verify and if necessary create group a, then verify
          * and if necessary create group b so that the dataset c can be succesfully
          * created.
          */
         void process_groups (const char* path)
         {
-            std::vector<std::string> pbits = morph::tools::stringToVector (path, "/");
+            std::vector<std::string> pbits = this->stringToVector (path, "/");
             unsigned int numgroups = pbits.size() - 1;
             if (numgroups > 1) { // There's always the first, empty (root) group
                 std::string groupstr("");
