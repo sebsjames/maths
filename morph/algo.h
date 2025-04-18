@@ -366,4 +366,66 @@ namespace morph::algo
         }
     }
 
+    //! Return mean and sum of squared deviations from the mean
+    template < template <typename, typename> typename C, typename T, typename Al=std::allocator<T> >
+    static morph::vec<T, 2> meansos (const C<T, Al>& values)
+    {
+        morph::vec<T, 2> meansos = {T{0},T{0}};
+        if (values.empty()) { return meansos; }
+        for (T val : values) { meansos[0] += val; }
+        meansos[0] /= values.size();
+
+        for (T val : values) {
+            // Add up sum of squared deviations
+            meansos[1] += ((val-meansos[0])*(val-meansos[0]));
+        }
+
+        return meansos;
+    }
+
+    //! Covariance of two sets of numbers
+    template < template <typename, typename> typename C, typename T, typename Al=std::allocator<T> >
+    static T covariance (const C<T, Al>& x, const C<T, Al>& y)
+    {
+        if (x.empty() || y.empty()) { throw std::runtime_error ("x or y is empty."); }
+        if (x.size() != y.size()) {
+            throw std::runtime_error ("covariance: both number arrays to be same size.");
+        }
+        morph::vec<T, 2> ms_x = algo::meansos<C, T, Al> (x);
+        morph::vec<T, 2> ms_y = algo::meansos<C, T, Al> (y);
+        T cov = T{0};
+        for (typename C<T, Al>::size_type i = 0; i < x.size(); ++i) {
+            cov += ((x[i] - ms_x[0]) * (y[i] - ms_y[0]));
+        }
+        return cov;
+    }
+
+    //! Covariance of two sets of numbers, where means of x and y have already been computed
+    template < template <typename, typename> typename C, typename T, typename Al=std::allocator<T> >
+    static T covariance (const C<T, Al>& x, const T mean_x, const C<T, Al>& y, const T mean_y)
+    {
+        if (x.empty() || y.empty()) { throw std::runtime_error ("x or y is empty."); }
+        if (x.size() != y.size()) {
+            throw std::runtime_error ("covariance: both number arrays to be same size.");
+        }
+        T cov = T{0};
+        for (typename C<T, Al>::size_type i = 0; i < x.size(); ++i) {
+            cov += ((x[i] - mean_x) * (y[i] - mean_y));
+        }
+        return cov;
+    }
+
+    //! Linear regression. Return slope (first) and offset (second) (m and c from 'y
+    //! = mx + c') in an vec<T, 2>
+    template < template <typename, typename> typename C, typename T, typename Al=std::allocator<T> >
+    static morph::vec<T, 2> linregr (const C<T, Al>& x, const C<T, Al>& y)
+    {
+        morph::vec<T, 2> ms_x = algo::meansos<C, T, Al> (x);
+        morph::vec<T, 2> ms_y = algo::meansos<C, T, Al> (y);
+        T cov_xy = algo::covariance<C, T, Al> (x, ms_x[0], y, ms_y[0]);
+        T m = cov_xy / ms_x[1];
+        T c = ms_y[0] - (m * ms_x[0]);
+        return morph::vec<T, 2>{m, c};
+    }
+
 } // morph::math
