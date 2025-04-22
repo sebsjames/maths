@@ -16,3 +16,5 @@ include_directories(BEFORE ${PROJECT_SOURCE_DIR})
 #add_executable(scale scale.cpp)
 
 add_executable(vvec vvec.cpp)
+
+add_executable(mat44 mat44.cpp)
