@@ -24,12 +24,18 @@ Here's an example
 
 int main()
 {
+    // Mathematical constants are provided by mathconst
     using mc = sj::mathconst<float>;
-    sj::vec<float, 3> v1 = { 1, 2, 3 };
-    sj::quaternion<float> q1 (sj::vec<float, 3>{1, 0, 0}, mc::pi_over_2);
-    // Rotate v1:
 
+    // Create a fixed-size mathematical 3D vector object
+    sj::vec<float, 3> v1 = { 1, 2, 3 };
+
+    // Create an intialize a quaternion rotation
+    sj::quaternion<float> q1 (sj::vec<float, 3>{1, 0, 0}, mc::pi_over_2);
+
+    // Rotate v1 with the quaternion
     auto v1_rotated = q1 * v1;
+
     std::cout << v1 << " rotated pi/2 about x-axis is " << v1_rotated << "\n";
 }
 ```
