@@ -1,4 +1,6 @@
-# sj::maths: A small mathematics library for C++20 projects
+# sj::maths
+
+## A small mathematics library for C++20 projects
 
 This header-only library is intended to help you to write maths into
 your C++ code in simple, readable and comprehensible code.
