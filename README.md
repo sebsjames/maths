@@ -5,10 +5,16 @@
 This header-only library is intended to help you to write maths into
 your C++ code in simple, readable and comprehensible code.
 
-It provides static and dynamically sized vector classes, transform
-matrices, a quaternion and a scaling and range (or interval) to
-support your data. Simple statistics are available, including a histo
-class and a number of bootstrap methods.
+It provides:
+
+* Static and dynamically sized vector classes
+* Transform matrices
+* A quaternion class
+* Scaling and range (or interval) classes
+* Statistics including a histo class and a number of bootstrap methods
+* Random number, and string generation
+* A compatible HDF5 wrapper class
+* Classes for working with 2D grids of data (Cartesian and hexagonal)
 
 The vector classes are compatible with C++ algorithms, and have their
 own built-in methods.
