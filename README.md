@@ -15,6 +15,7 @@ It provides:
 * Random number, and string generation
 * A compatible HDF5 wrapper class
 * Classes for working with 2D grids of data (Cartesian and hexagonal)
+* A set of constexpr maths methods, derived from Keith O'Hara's GCEM project
 
 The vector classes are compatible with C++ algorithms, and have their
 own built-in methods.
