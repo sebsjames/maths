@@ -36,8 +36,8 @@ namespace morph {
         constexpr quaternion (F _w, F _x, F _y, F _z) noexcept : w(_w), x(_x), y(_y), z(_z) {}
 
         /*!
-         * A constructor that sets up a unit quaternion then applies a rotation (in
-         * radians) about an axis
+         * A constructor that sets up a unit quaternion then applies a rotation (in radians) about
+         * an axis.
          */
         constexpr quaternion (const morph::vec<F, 3>& axis, const F angle) noexcept : w(F{1}), x(F{0}), y(F{0}), z(F{0}) { this->rotate (axis, angle); }
 
@@ -129,7 +129,7 @@ namespace morph {
                     || morph::math::abs(this->z - rhs.z) >= std::numeric_limits<F>::epsilon());
         }
 
-        //! Multiply this quaternion by other as: this = this * q2, i.e. q1 is 'this->'
+        //! Multiply this quaternion by other as: *this = *this * q2, i.e. q1 is *this
         constexpr void postmultiply (const quaternion<F>& q2) noexcept
         {
             // First make copies of w, x, y, z
@@ -144,7 +144,7 @@ namespace morph {
             this->z = q1_w * q2.z + q1_x * q2.y - q1_y * q2.x + q1_z * q2.w;
         }
 
-        //! Multiply this quaternion by other as: this = q1 * this
+        //! Multiply this quaternion by other as: *this = q1 * *this
         constexpr void premultiply (const quaternion<F>& q1) noexcept
         {
             // First make copies of w, x, y, z
@@ -159,7 +159,11 @@ namespace morph {
             this->z = q1.w * q2_z + q1.x * q2_y - q1.y * q2_x + q1.z * q2_w;
         }
 
-        //! Overload * operator. q1 is 'this->'. Returns the quaternion that would be written into this by this->postmultiply(q2)
+        /*!
+         * Overload * operator to multiply two quaternions, *this and q2.
+         *
+         * \return The quaternion that would be written into *this by this->postmultiply(q2)
+         */
         template <typename Fy=F>
         constexpr quaternion<F> operator* (const quaternion<Fy>& q2) const noexcept
         {
@@ -172,13 +176,13 @@ namespace morph {
         }
 
         /*!
-         * Rotate a 3D vector. The vector may be passed as a 4D object (vec<Fy, 4>), in
-         * which case, the last element is ignored.
+         * Rotate a 3D vector. The vector may be passed as a 4D object (vec<Fy, 4>), in which case,
+         * the last element is ignored.
          *
          * Note that compilers will optimize this code very well.
          *
-         * It is ASSUMED that *this is a normalized quaternion. You are responsible for
-         * normalizing this quaternion before rotating a vector with it.
+         * It is ASSUMED that *this is a normalized quaternion. You are responsible for normalizing
+         * this quaternion before rotating a vector with it.
          */
         template <typename Fy=F, std::size_t N = 3> requires (N == 3 || N == 4)
         constexpr morph::vec<F, N> rotate_vec (const morph::vec<Fy, N>& v_r) const noexcept
@@ -226,8 +230,10 @@ namespace morph {
             return qi;
         }
 
-        //! Conjugate of the quaternion. This happens to give a quaternion representing the same
-        //! rotation as that returned by invert() because -q represents an quivalent rotation to q.
+        /*!
+         * Conjugate of the quaternion. This happens to give a quaternion representing the same
+         * rotation as that returned by invert() because -q represents an quivalent rotation to q.
+         */
         constexpr quaternion<F> conjugate() const noexcept
         {
             quaternion<F> qconj (this->w, -this->x, -this->y, -this->z);
@@ -256,8 +262,7 @@ namespace morph {
             this->z = F{0};
         }
 
-        //! Reset the quaternion and set the rotation about the given axis and angle in
-        //! radians. This function was previously called initFromAxisAngle
+        //! Reset the quaternion and set the rotation about the given axis and angle in radians.
         constexpr void set_rotation (const vec<F>& axis, const F& angle) noexcept
         {
             F halfangle = angle * F{0.5};
@@ -275,8 +280,8 @@ namespace morph {
         }
 
         /*!
-         * Change this quaternion to represent a new rotation by rotating it \a angle
-         * (radians) around the axis given by \a axis_x, \a axis_y, \a axis_z. Renormalize to finish.
+         * Change this quaternion to represent a new rotation by rotating it \a angle (radians)
+         * around the axis given by \a axis_x, \a axis_y, \a axis_z. Renormalize to finish.
          */
         constexpr void rotate (const F& axis_x, const F& axis_y, const F& axis_z, const F& angle) noexcept
         {
@@ -289,17 +294,16 @@ namespace morph {
         }
 
         /*!
-         * Change this quaternion to represent a new rotation by rotating it \a angle
-         * (radians) around the axis given by \a axis. Renormalize to finish.
+         * Change this quaternion to represent a new rotation by rotating it \a angle (radians)
+         * around the axis given by \a axis. Renormalize to finish.
          */
         template <typename V>
         requires (std::is_same_v<V, std::array<F, 3>> || std::is_same_v<V, morph::vec<F, 3>>)
         constexpr void rotate (const V& axis, const F& angle) noexcept { this->rotate (axis[0], axis[1], axis[2], angle); }
 
         /*!
-         * Return a 4 element vec containing the axis (elements 0, 1 and 2) about which
-         * to rotate an angle (element 3) in radians to make a rotation equivalent to
-         * this quaternion
+         * Return a 4 element vec containing the axis (elements 0, 1 and 2) about which to rotate an
+         * angle (element 3) in radians to make a rotation equivalent to this quaternion
          */
         constexpr morph::vec<F, 4> axis_angle() const noexcept
         {
@@ -313,11 +317,10 @@ namespace morph {
         }
 
         /*!
-         * Obtain the rotation matrix (without assumption that this is a unit
-         * quaternion)
+         * Obtain the rotation matrix (without assumption that this is a unit quaternion)
          *
-         * std::array represents a matrix with indices like this (i.e. column major
-         * format, which is OpenGL friendly)
+         * std::array represents a matrix with indices like this (i.e. column major format, which is
+         * OpenGL friendly)
          *
          *  0  4  8 12
          *  1  5  9 13
@@ -332,9 +335,9 @@ namespace morph {
         }
 
         /*!
-         * Fill the matrix \a mat with the values to represent the rotation that is
-         * represented by this quaternion. This function *does not assume that the
-         * quaternion representing the rotation is a unit quaternion*.
+         * Fill the matrix \a mat with the values to represent the rotation that is represented by
+         * this quaternion. This function *does not assume that the quaternion representing the
+         * rotation is a unit quaternion*.
          */
         constexpr void rotationMatrix (std::array<F, 16>& mat) const noexcept
         {
@@ -371,8 +374,7 @@ namespace morph {
             return mat;
         }
 
-        //! Rotate the matrix \a mat by this quaternion, *assuming it's a unit
-        //! quaternion*.
+        //! Rotate the matrix \a mat by this quaternion, *assuming it's a unit quaternion*.
         constexpr void unitRotationMatrix (std::array<F, 16>& mat) const noexcept
         {
             mat[0] = F{1} - F{2}*y*y - F{2}*z*z;
