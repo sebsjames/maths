@@ -485,7 +485,7 @@ namespace morph {
          * Find the hex in the hex grid which is closest to the x,y position given by
          * pos.
          */
-        std::list<hex>::iterator findhexNearest (const morph::vec<float, 2>& pos)
+        std::list<hex>::iterator findHexNearest (const morph::vec<float, 2>& pos)
         {
             std::list<morph::hex>::iterator nearest = this->hexen.end();
             std::list<morph::hex>::iterator hi = this->hexen.begin();
@@ -1266,7 +1266,7 @@ namespace morph {
             }
 
             // Mark hexes inside region. Use centroid of the region.
-            std::list<morph::hex>::iterator insideRegionhex = this->findhexNearest (regionCentroid);
+            std::list<morph::hex>::iterator insideRegionhex = this->findHexNearest (regionCentroid);
             this->markhexesInside (insideRegionhex, HEX_IS_REGION_BOUNDARY, HEX_INSIDE_REGION);
 
             // Populate theRegion, then return it
@@ -3256,7 +3256,7 @@ namespace morph {
         std::list<morph::hex>::iterator setBoundary (const morph::bezcoord<float>& point,
                                                      std::list<morph::hex>::iterator startFrom)
         {
-            std::list<morph::hex>::iterator h = this->findhexNearPoint (point, startFrom);
+            std::list<morph::hex>::iterator h = this->findHexNearPoint (point, startFrom);
             h->setFlag (HEX_IS_BOUNDARY | HEX_INSIDE_BOUNDARY);
             return h;
         }
@@ -3338,7 +3338,7 @@ namespace morph {
          */
         std::list<hex>::iterator setRegionBoundary (const bezcoord<float>& point, std::list<hex>::iterator startFrom)
         {
-            std::list<morph::hex>::iterator h = this->findhexNearPoint (point, startFrom);
+            std::list<morph::hex>::iterator h = this->findHexNearPoint (point, startFrom);
             h->setFlag (HEX_IS_REGION_BOUNDARY | HEX_INSIDE_REGION);
             return h;
         }
@@ -3451,7 +3451,7 @@ namespace morph {
          * Find the hex near @point, starting from startFrom, which should be as close
          * as possible to point in order to reduce computation time.
          */
-        std::list<hex>::iterator findhexNearPoint (const bezcoord<float>& point, std::list<hex>::iterator startFrom)
+        std::list<hex>::iterator findHexNearPoint (const bezcoord<float>& point, std::list<hex>::iterator startFrom)
         {
             bool neighbourNearer = true;
 
@@ -3853,7 +3853,7 @@ namespace morph {
         void discardOutsideBoundary()
         {
             // Mark those hexes inside the boundary
-            std::list<morph::hex>::iterator centroidhex = this->findhexNearest (this->boundaryCentroid);
+            std::list<morph::hex>::iterator centroidhex = this->findHexNearest (this->boundaryCentroid);
             this->markhexesInside (centroidhex);
             // Run through and discard those hexes outside the boundary:
             auto hi = this->hexen.begin();
