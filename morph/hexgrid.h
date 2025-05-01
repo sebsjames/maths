@@ -1,8 +1,7 @@
 /*
  * Author: Seb James
  *
- * In this iteration of HexGrid, the idea of the 'domain' has been taken out, as it
- * wasn't useful.
+ * A hexagonal grid class. The grid can have a boundary of arbitrary shape.
  *
  * Date: 2018/07
  */
@@ -10,17 +9,16 @@
 
 #include <morph/vec.h>
 #include <morph/vvec.h>
-#include <morph/Hex.h>
-#include <morph/BezCurvePath.h>
-#include <morph/BezCoord.h>
+#include <morph/hex.h>
+#include <morph/bezcurvepath.h> // requires arma
+#include <morph/bezcoord.h>
 #include <morph/mathconst.h>
-#include <morph/debug.h>
 #include <morph/mat22.h>
 
-// If the HexGrid::save and HexGrid::load methods are required, define
+// If the hexgrid::save and hexgrid::load methods are required, define
 // HEXGRID_COMPILE_LOAD_AND_SAVE. A link to libhdf5 will be required in your program.
 #ifdef HEXGRID_COMPILE_LOAD_AND_SAVE
-# include <morph/HdfData.h>
+# include <morph/hdfdata.h>
 #endif
 
 #include <set>
@@ -45,28 +43,28 @@ namespace morph {
      * hexes in the grid by d and x_span.
      *
      * Optionally, a boundary may be set by calling setBoundary (const
-     * BezCurvePath&). If this is done, then the boundary is converted to a set of
+     * bezcurvepath&). If this is done, then the boundary is converted to a set of
      * hexes, then those hexes in the hexagonal grid lying outside the boundary are
      * removed.
      *
-     * Another option for boundary setting is to pass in a list of Hexes whose
+     * Another option for boundary setting is to pass in a list of hexes whose
      * positions will be used to mark out the boundary.
      *
-     * This class manages the integer iterators stored in each Hex (Hex::vi), which
+     * This class manages the integer iterators stored in each hex (hex::vi), which
      * may be used to index into external data structures (arrays or vectors) which
-     * contain information about the 2D surface represented by the HexGrid which is to
+     * contain information about the 2D surface represented by the hexgrid which is to
      * be computed.
      */
-    class alignas(8) HexGrid
+    class alignas(8) hexgrid
     {
     public:
         /*!
          * Domain attributes
          * -----------------
          *
-         * Vectors containing the "domain" info extracted from the list of Hexes. The
-         * "domain" is the set of Hexes left over after the boundary has been applied
-         * and the original, outer Hexes have been reduced down to those that will be
+         * Vectors containing the "domain" info extracted from the list of hexes. The
+         * "domain" is the set of hexes left over after the boundary has been applied
+         * and the original, outer hexes have been reduced down to those that will be
          * used in the computation.
          *
          * Each of these is prefixed d_ and is carefully aligned.
@@ -107,7 +105,7 @@ namespace morph {
         alignas(8) std::vector<float> d_distToBoundary;
 
         /*!
-         * The length of a row in the domain. The first Hex in the first row will
+         * The length of a row in the domain. The first hex in the first row will
          * overhang to the left.
          */
         unsigned int d_rowlen = 0;
@@ -120,7 +118,7 @@ namespace morph {
         /*!
          * d_rowlen * d_numrows is the domain size in number of hexes. Client code
          * will create vectors of length d_size and hold the variables pertaining to
-         * the Hex domain therein.
+         * the hex domain therein.
          */
         unsigned int d_size = 0;
 
@@ -132,8 +130,8 @@ namespace morph {
         unsigned int d_growthbuffer_horz = 0;
         unsigned int d_growthbuffer_vert = 0;
 
-        //! Add entries to all the d_ vectors for the Hex pointed to by hi.
-        void d_push_back (std::list<Hex>::iterator hi)
+        //! Add entries to all the d_ vectors for the hex pointed to by hi.
+        void d_push_back (std::list<hex>::iterator hi)
         {
             d_x.push_back (hi->x);
             d_y.push_back (hi->y);
@@ -143,11 +141,11 @@ namespace morph {
             d_flags.push_back (hi->getFlags());
             d_distToBoundary.push_back (hi->distToBoundary);
 
-            // record in the Hex the iterator in the d_ vectors so that d_nne and friends can be set up later.
+            // record in the hex the iterator in the d_ vectors so that d_nne and friends can be set up later.
             hi->di = d_x.size()-1;
         }
 
-        //! Once Hex::di attributes have been set, populate d_nne and friends.
+        //! Once hex::di attributes have been set, populate d_nne and friends.
         void populate_d_neighbours()
         {
             // Resize d_nne and friends
@@ -158,7 +156,7 @@ namespace morph {
             this->d_nsw.resize (this->d_x.size(), 0);
             this->d_nse.resize (this->d_x.size(), 0);
 
-            std::list<morph::Hex>::iterator hi = this->hexen.begin();
+            std::list<morph::hex>::iterator hi = this->hexen.begin();
             while (hi != this->hexen.end()) {
 
                 if (hi->has_ne() == true) {
@@ -214,7 +212,7 @@ namespace morph {
 
 #ifdef HEXGRID_COMPILE_LOAD_AND_SAVE
         /*!
-         * Save this HexGrid (and all the Hexes in it) into the HDF5 file at the
+         * Save this hexgrid (and all the hexes in it) into the HDF5 file at the
          * location @path.
          */
         void save (const std::string& path)
@@ -233,7 +231,7 @@ namespace morph {
             // morph::vec<float, 2>
             hgdata.add_contained_vals ("/boundaryCentroid", boundaryCentroid);
 
-            // Don't save BezCurvePath boundary - limit this to the ability to
+            // Don't save bezcurvepath boundary - limit this to the ability to
             // save which hexes are boundary hexes and which aren't
 
             // Don't save vertexE, vertexNE etc. Make sure to set gridReduced
@@ -258,9 +256,9 @@ namespace morph {
             // vector<unsigned int>
             hgdata.add_contained_vals ("/d_flags", d_flags);
 
-            // list<Hex> hexen
-            // for i in list, save Hex
-            std::list<morph::Hex>::const_iterator h = this->hexen.begin();
+            // list<hex> hexen
+            // for i in list, save hex
+            std::list<morph::hex>::const_iterator h = this->hexen.begin();
             unsigned int hcount = 0;
             while (h != this->hexen.end()) {
                 // Make up a path
@@ -279,7 +277,7 @@ namespace morph {
         }
 
         /*!
-         * Populate this HexGrid from the HDF5 file at the location @path.
+         * Populate this hexgrid from the HDF5 file at the location @path.
          */
         void load (const std::string& path)
         {
@@ -309,27 +307,27 @@ namespace morph {
             hgdata.read_contained_vals ("/d_nse", this->d_nse);
             hgdata.read_contained_vals ("/d_flags", this->d_flags);
 
-            // Assume a boundary has been applied so set this true. Also, the HexGrid::save method doesn't
-            // save HexGrid::vertexE, etc
+            // Assume a boundary has been applied so set this true. Also, the hexgrid::save method doesn't
+            // save hexgrid::vertexE, etc
             this->gridReduced = true;
 
             unsigned int hcount = 0;
             hgdata.read_val ("/hcount", hcount);
             for (unsigned int i = 0; i < hcount; ++i) {
                 std::string h5path = "/hexen/" + std::to_string(i);
-                morph::Hex h (hgdata, h5path);
+                morph::hex h (hgdata, h5path);
                 this->hexen.push_back (h);
             }
 
-            // After creating hexen list, need to set neighbour relations in each Hex, as loaded in d_ne,
+            // After creating hexen list, need to set neighbour relations in each hex, as loaded in d_ne,
             // etc.
-            for (morph::Hex& _h : this->hexen) {
-                // Set neighbours for Hex " << _h.outputRG()
-                // For each Hex, six loops through hexen:
+            for (morph::hex& _h : this->hexen) {
+                // Set neighbours for hex " << _h.outputRG()
+                // For each hex, six loops through hexen:
                 if (_h.has_ne() == true) {
                     bool matched = false;
                     unsigned int neighb_it = (unsigned int) this->d_ne[_h.vi];
-                    std::list<morph::Hex>::iterator hi = this->hexen.begin();
+                    std::list<morph::hex>::iterator hi = this->hexen.begin();
                     while (hi != this->hexen.end()) {
                         if (hi->vi == neighb_it) {
                             matched = true;
@@ -346,7 +344,7 @@ namespace morph {
                 if (_h.has_nne() == true) {
                     bool matched = false;
                     unsigned int neighb_it = (unsigned int) this->d_nne[_h.vi];
-                    std::list<morph::Hex>::iterator hi = this->hexen.begin();
+                    std::list<morph::hex>::iterator hi = this->hexen.begin();
                     while (hi != this->hexen.end()) {
                         if (hi->vi == neighb_it) {
                             matched = true;
@@ -363,7 +361,7 @@ namespace morph {
                 if (_h.has_nnw() == true) {
                     bool matched = false;
                     unsigned int neighb_it = (unsigned int) this->d_nnw[_h.vi];
-                    std::list<morph::Hex>::iterator hi = this->hexen.begin();
+                    std::list<morph::hex>::iterator hi = this->hexen.begin();
                     while (hi != this->hexen.end()) {
                         if (hi->vi == neighb_it) {
                             matched = true;
@@ -380,7 +378,7 @@ namespace morph {
                 if (_h.has_nw() == true) {
                     bool matched = false;
                     unsigned int neighb_it = (unsigned int) this->d_nw[_h.vi];
-                    std::list<morph::Hex>::iterator hi = this->hexen.begin();
+                    std::list<morph::hex>::iterator hi = this->hexen.begin();
                     while (hi != this->hexen.end()) {
                         if (hi->vi == neighb_it) {
                             matched = true;
@@ -397,7 +395,7 @@ namespace morph {
                 if (_h.has_nsw() == true) {
                     bool matched = false;
                     unsigned int neighb_it = (unsigned int) this->d_nsw[_h.vi];
-                    std::list<morph::Hex>::iterator hi = this->hexen.begin();
+                    std::list<morph::hex>::iterator hi = this->hexen.begin();
                     while (hi != this->hexen.end()) {
                         if (hi->vi == neighb_it) {
                             matched = true;
@@ -414,7 +412,7 @@ namespace morph {
                 if (_h.has_nse() == true) {
                     bool matched = false;
                     unsigned int neighb_it = (unsigned int) this->d_nse[_h.vi];
-                    std::list<morph::Hex>::iterator hi = this->hexen.begin();
+                    std::list<morph::hex>::iterator hi = this->hexen.begin();
                     while (hi != this->hexen.end()) {
                         if (hi->vi == neighb_it) {
                             matched = true;
@@ -434,21 +432,21 @@ namespace morph {
         /*!
          * Default constructor
          */
-        HexGrid(): d(1.0f), x_span(1.0f), z(0.0f) {}
+        hexgrid(): d(1.0f), x_span(1.0f), z(0.0f) {}
 
 #ifdef HEXGRID_COMPILE_LOAD_AND_SAVE
         /*!
          * Construct then load from file.
          */
-        HexGrid (const std::string& path) : d(1.0f), x_span(1.0f), z(0.0f) { this->load (path); }
+        hexgrid (const std::string& path) : d(1.0f), x_span(1.0f), z(0.0f) { this->load (path); }
 #endif
         /*!
          * Construct the hexagonal hex grid with a hex to hex distance of @a d_
          * (centre to centre) and approximate diameter of @a x_span_. Set z to @a z_
-         * which may be useful as an identifier if several HexGrids are being managed
+         * which may be useful as an identifier if several hexgrids are being managed
          * by client code, but is not otherwise made use of.
          */
-        HexGrid (float d_, float x_span_, float z_ = 0.0f) : d(d_), x_span(x_span_), z(z_)
+        hexgrid (float d_, float x_span_, float z_ = 0.0f) : d(d_), x_span(x_span_), z(z_)
         {
             this->v = this->d * morph::mathconst<float>::root_3_over_2;
             this->init();
@@ -457,7 +455,7 @@ namespace morph {
         /*!
          * Initialise with the passed-in parameters; a hex to hex distance of @a d_
          * (centre to centre) and approximate diameter of @a x_span_. Set z to @a z_
-         * which may be useful as an identifier if several HexGrids are being managed
+         * which may be useful as an identifier if several hexgrids are being managed
          * by client code, but it not otherwise made use of.
          */
         void init (float d_, float x_span_, float z_ = 0.0f)
@@ -470,27 +468,27 @@ namespace morph {
         }
 
         /*!
-         * Compute the centroid of the passed in list of Hexes.
+         * Compute the centroid of the passed in list of hexes.
          */
-        morph::vec<float, 2> computeCentroid (const std::list<Hex>& pHexes)
+        morph::vec<float, 2> computeCentroid (const std::list<hex>& phexes)
         {
             morph::vec<float, 2> centroid = {0,0};
-            for (auto h : pHexes) {
+            for (auto h : phexes) {
                 centroid[0] += h.x;
                 centroid[1] += h.y;
             }
-            centroid /= pHexes.size();
+            centroid /= phexes.size();
             return centroid;
         }
 
         /*!
-         * Find the Hex in the Hex grid which is closest to the x,y position given by
+         * Find the hex in the hex grid which is closest to the x,y position given by
          * pos.
          */
-        std::list<Hex>::iterator findHexNearest (const morph::vec<float, 2>& pos)
+        std::list<hex>::iterator findhexNearest (const morph::vec<float, 2>& pos)
         {
-            std::list<morph::Hex>::iterator nearest = this->hexen.end();
-            std::list<morph::Hex>::iterator hi = this->hexen.begin();
+            std::list<morph::hex>::iterator nearest = this->hexen.end();
+            std::list<morph::hex>::iterator hi = this->hexen.begin();
             float dist = std::numeric_limits<float>::max();
             while (hi != this->hexen.end()) {
                 float dx = pos[0] - hi->x;
@@ -506,9 +504,9 @@ namespace morph {
         }
 
         // If possible, get the hex at the given rgb position
-        std::list<Hex>::iterator findHexAt (const morph::vec<int, 3>& rgbpos)
+        std::list<hex>::iterator findhexAt (const morph::vec<int, 3>& rgbpos)
         {
-            std::list<morph::Hex>::iterator hi = this->hexen.begin(); // First hex in hexen is always 0,0,0
+            std::list<morph::hex>::iterator hi = this->hexen.begin(); // First hex in hexen is always 0,0,0
 
             // +ri is East
             int inc = rgbpos[0] > 0 ? 1 : -1;
@@ -544,20 +542,20 @@ namespace morph {
         }
 
         /*!
-         * Sets boundary to match the list of hexes passed in as @a pHexes. Note, that
-         * unlike void setBoundary (const BezCurvePath& p), this method does not apply
-         * any offset to the positions of the hexes in @a pHexes.
+         * Sets boundary to match the list of hexes passed in as @a phexes. Note, that
+         * unlike void setBoundary (const bezcurvepath& p), this method does not apply
+         * any offset to the positions of the hexes in @a phexes.
          */
-        void setBoundary (const std::list<Hex>& pHexes)
+        void setBoundary (const std::list<hex>& phexes)
         {
-            this->boundaryCentroid = this->computeCentroid (pHexes);
+            this->boundaryCentroid = this->computeCentroid (phexes);
 
-            std::list<morph::Hex>::iterator bpoint = this->hexen.begin();
-            std::list<morph::Hex>::iterator bpi = this->hexen.begin();
+            std::list<morph::hex>::iterator bpoint = this->hexen.begin();
+            std::list<morph::hex>::iterator bpi = this->hexen.begin();
             while (bpi != this->hexen.end()) {
-                std::list<morph::Hex>::const_iterator ppi = pHexes.begin();
-                while (ppi != pHexes.end()) {
-                    // NB: The assumption right now is that the pHexes are from the same dimension hex grid
+                std::list<morph::hex>::const_iterator ppi = phexes.begin();
+                while (ppi != phexes.end()) {
+                    // NB: The assumption right now is that the phexes are from the same dimension hex grid
                     // as this->hexen.
                     if (bpi->ri == ppi->ri && bpi->gi == ppi->gi) {
                         // Set h as boundary hex.
@@ -572,7 +570,7 @@ namespace morph {
 
             // Check that the boundary is contiguous.
             std::set<unsigned int> seen;
-            std::list<morph::Hex>::iterator hi = bpoint;
+            std::list<morph::hex>::iterator hi = bpoint;
             if (this->boundaryContiguous (bpoint, hi, seen) == false) {
                 std::stringstream ee;
                 ee << "The boundary is not a contiguous sequence of hexes.";
@@ -585,38 +583,38 @@ namespace morph {
 
         /*!
          * Sets boundary to \a p, then runs the code to discard hexes lying outside
-         * this boundary. Finishes up by calling morph::HexGrid::discardOutside.
-         * The BezCurvePath's centroid may not be 0,0. If loffset has its default value
+         * this boundary. Finishes up by calling morph::hexgrid::discardOutside.
+         * The bezcurvepath's centroid may not be 0,0. If loffset has its default value
          * of true, then this method offsets the boundary so that when it is applied to
-         * the HexGrid, the centroid IS (0,0). If \a loffset is false, then \a p is not
+         * the hexgrid, the centroid IS (0,0). If \a loffset is false, then \a p is not
          * translated in this way.
          */
-        void setBoundary (const BezCurvePath<float>& p, bool loffset = true)
+        void setBoundary (const bezcurvepath<float>& p, bool loffset = true)
         {
             this->boundary = p;
             if (!this->boundary.isNull()) {
                 // Compute the points on the boundary using half of the hex to hex
                 // spacing as the step size. The 'true' argument inverts the y axis.
                 this->boundary.computePoints (this->d/2.0f, true);
-                std::vector<morph::BezCoord<float>> bpoints = this->boundary.getPoints();
+                std::vector<morph::bezcoord<float>> bpoints = this->boundary.getPoints();
                 this->setBoundary (bpoints, loffset);
             }
         }
 
         /*!
-         * This sets a boundary, just as morph::HexGrid::setBoundary(const
-         * morph::BezCurvePath<float> p, bool offset) does but WITHOUT discarding hexes
+         * This sets a boundary, just as morph::hexgrid::setBoundary(const
+         * morph::bezcurvepath<float> p, bool offset) does but WITHOUT discarding hexes
          * outside the boundary. Also, it first clears the previous boundary flags so
          * the new ones are the only ones marked on the boundary. It does this because
-         * it does not discard hexes outside the boundary or repopulate the HexGrid but
+         * it does not discard hexes outside the boundary or repopulate the hexgrid but
          * it draws a new boundary that can be used by client code
          */
-        void setBoundaryOnly (const BezCurvePath<float>& p, bool loffset = true)
+        void setBoundaryOnly (const bezcurvepath<float>& p, bool loffset = true)
         {
             this->boundary = p;
             if (!this->boundary.isNull()) {
                 this->boundary.computePoints (this->d/2.0f, true);
-                std::vector<morph::BezCoord<float>> bpoints = this->boundary.getPoints();
+                std::vector<morph::bezcoord<float>> bpoints = this->boundary.getPoints();
                 this->setBoundaryOnly (bpoints, loffset);
             }
         }
@@ -624,14 +622,14 @@ namespace morph {
         /*!
          * Sets the boundary of the hexgrid to \a bpoints, then runs the code to discard
          * hexes lying outside this boundary. Finishes up by calling
-         * HexGrid::discardOutside. By default, this method translates \a bpoints so
-         * that when the boundary is applied to the HexGrid, its centroid is (0,0). If
+         * hexgrid::discardOutside. By default, this method translates \a bpoints so
+         * that when the boundary is applied to the hexgrid, its centroid is (0,0). If
          * the default value of \a loffset is changed to false, \a bpoints is NOT
          * translated.
          */
-        void setBoundary (std::vector<BezCoord<float>>& bpoints, bool loffset = true)
+        void setBoundary (std::vector<bezcoord<float>>& bpoints, bool loffset = true)
         {
-            this->boundaryCentroid = morph::BezCurvePath<float>::getCentroid (bpoints);
+            this->boundaryCentroid = morph::bezcurvepath<float>::getCentroid (bpoints);
 
             auto bpi = bpoints.begin();
             // conditional executed if we reset the centre
@@ -648,7 +646,7 @@ namespace morph {
             }
 
             // now proceed with centroid changed or unchanged
-            std::list<morph::Hex>::iterator nearbyBoundaryPoint = this->hexen.begin(); // i.e the Hex at 0,0
+            std::list<morph::hex>::iterator nearbyBoundaryPoint = this->hexen.begin(); // i.e the hex at 0,0
             bpi = bpoints.begin();
             while (bpi != bpoints.end()) {
                 nearbyBoundaryPoint = this->setBoundary (*bpi++, nearbyBoundaryPoint);
@@ -657,7 +655,7 @@ namespace morph {
             // Check that the boundary is contiguous.
             {
                 std::set<unsigned int> seen;
-                std::list<morph::Hex>::iterator hi = nearbyBoundaryPoint;
+                std::list<morph::hex>::iterator hi = nearbyBoundaryPoint;
                 if (this->boundaryContiguous (nearbyBoundaryPoint, hi, seen) == false) {
                     std::stringstream ee;
                     ee << "The constructed boundary is not a contiguous sequence of hexes.";
@@ -671,16 +669,16 @@ namespace morph {
 
         /*!
          * This sets a boundary, just as
-         * morph::HexGrid::setBoundary(vector<morph::BezCoord<float>& bpoints, bool offset)
+         * morph::hexgrid::setBoundary(vector<morph::bezcoord<float>& bpoints, bool offset)
          * does but WITHOUT discarding hexes outside the boundary. Also, it first clears
          * the previous boundary flags so the new ones are the only ones marked on the
          * boundary. It does this because it does not discard hexes outside the boundary
-         * or repopulate the HexGrid but it draws a new boundary that can be used by
+         * or repopulate the hexgrid but it draws a new boundary that can be used by
          * client code
          */
-        void setBoundaryOnly (std::vector<BezCoord<float>>& bpoints, bool loffset)
+        void setBoundaryOnly (std::vector<bezcoord<float>>& bpoints, bool loffset)
         {
-            this->boundaryCentroid = morph::BezCurvePath<float>::getCentroid (bpoints);
+            this->boundaryCentroid = morph::bezcurvepath<float>::getCentroid (bpoints);
 
             auto bpi = bpoints.begin();
             // conditional executed if we reset the centre
@@ -699,7 +697,7 @@ namespace morph {
             // now proceed with centroid changed or unchanged. First: clear all boundary flags
             for (auto h : this->hexen) { h.unsetUserFlag (HEX_IS_BOUNDARY); }
 
-            std::list<morph::Hex>::iterator nearbyBoundaryPoint = this->hexen.begin(); // i.e the Hex at 0,0
+            std::list<morph::hex>::iterator nearbyBoundaryPoint = this->hexen.begin(); // i.e the hex at 0,0
             bpi = bpoints.begin();
             while (bpi != bpoints.end()) {
                 nearbyBoundaryPoint = this->setBoundary (*bpi++, nearbyBoundaryPoint);
@@ -708,7 +706,7 @@ namespace morph {
             // Check that the boundary is contiguous.
             {
                 std::set<unsigned int> seen;
-                std::list<morph::Hex>::iterator hi = nearbyBoundaryPoint;
+                std::list<morph::hex>::iterator hi = nearbyBoundaryPoint;
                 if (this->boundaryContiguous (nearbyBoundaryPoint, hi, seen) == false) {
                     std::stringstream ee;
                     ee << "The constructed boundary is not a contiguous sequence of hexes.";
@@ -728,7 +726,7 @@ namespace morph {
         {
             // From centre head to boundary, then mark boundary and walk
             // around the edge.
-            std::list<morph::Hex>::iterator bpi = this->hexen.begin();
+            std::list<morph::hex>::iterator bpi = this->hexen.begin();
             while (bpi->has_nne()) { bpi = bpi->nne; }
             bpi->setFlag (HEX_IS_BOUNDARY | HEX_INSIDE_BOUNDARY);
             while (bpi->has_ne()) {
@@ -761,7 +759,7 @@ namespace morph {
             }
             // Check that the boundary is contiguous.
             std::set<unsigned int> seen;
-            std::list<morph::Hex>::iterator hi = bpi;
+            std::list<morph::hex>::iterator hi = bpi;
             if (this->boundaryContiguous (bpi, hi, seen) == false) {
                 std::stringstream ee;
                 ee << "The boundary is not a contiguous sequence of hexes.";
@@ -776,15 +774,15 @@ namespace morph {
         /*!
          * Get all the boundary hexes in a list. This assumes that a boundary has
          * already been set with one of the setBoundary() methods and so there is
-         * therefore a set of Hexes which are already marked as being on the boundary
-         * (with the attribute Hex::boundaryHex == true) Do this by going around the
+         * therefore a set of hexes which are already marked as being on the boundary
+         * (with the attribute hex::boundaryhex == true) Do this by going around the
          * boundary neighbour to neighbour?
          *
          * Now a getter for this->bhexen.
          */
-        std::list<Hex> getBoundary() const
+        std::list<hex> getBoundary() const
         {
-            std::list<morph::Hex> bhexen_concrete;
+            std::list<morph::hex> bhexen_concrete;
             auto hh = this->bhexen.begin();
             while (hh != this->bhexen.end()) {
                 bhexen_concrete.push_back (*(*hh));
@@ -800,10 +798,10 @@ namespace morph {
          * \param c centre argument so that the rectangle centre is offset from the coordinate origin
          * \return A vector of the coordinates of points on the generated rectangle
          */
-        std::vector<BezCoord<float>> rectangleCompute (const float x, const float y,
+        std::vector<bezcoord<float>> rectangleCompute (const float x, const float y,
                                                        const morph::vec<float, 2> c = {0.0f, 0.0f})
         {
-            std::vector<morph::BezCoord<float>> bpoints;
+            std::vector<morph::bezcoord<float>> bpoints;
 
             // Go to bottom left first
             morph::vec<float, 2> bleft = {-0.5f * x, -0.5f * y};
@@ -814,22 +812,22 @@ namespace morph {
             // 'Draw' bottom, a distance x. Divide up into about this->d/2 steps
             float step = 0.5f * this->d;
             for (float x1 = bleft[0]; x1 < tright[0]; x1 += step) {
-                morph::BezCoord<float> b(morph::vec<float, 2>{x1, bleft[1]});
+                morph::bezcoord<float> b(morph::vec<float, 2>{x1, bleft[1]});
                 bpoints.push_back (b);
             }
             // Right
             for (float y1 = bleft[1]; y1 < tright[1]; y1 += step) {
-                morph::BezCoord<float> b(morph::vec<float, 2>{tright[0], y1});
+                morph::bezcoord<float> b(morph::vec<float, 2>{tright[0], y1});
                 bpoints.push_back (b);
             }
             // Top
             for (float x1 = tright[0]; x1 >= bleft[0]; x1 -= step) {
-                morph::BezCoord<float> b(morph::vec<float, 2>{x1, tright[1]});
+                morph::bezcoord<float> b(morph::vec<float, 2>{x1, tright[1]});
                 bpoints.push_back (b);
             }
             // Left
             for (float y1 = tright[1]; y1 >= bleft[1]; y1 -= step) {
-                morph::BezCoord<float> b(morph::vec<float, 2>{bleft[0], y1});
+                morph::bezcoord<float> b(morph::vec<float, 2>{bleft[0], y1});
                 bpoints.push_back (b);
             }
 
@@ -845,37 +843,37 @@ namespace morph {
          * \param c centre argument so that the parallelogram centre is offset from the coordinate origin
          * \return A vector of the coordinates of points on the generated pgram
          */
-        std::vector<BezCoord<float>> parallelogramCompute (const int re, const int gne,
+        std::vector<bezcoord<float>> parallelogramCompute (const int re, const int gne,
                                                            const int rw, const int gsw,
                                                            const morph::vec<float, 2> c = {0.0f, 0.0f})
         {
-            std::vector<morph::BezCoord<float>> bpoints;
+            std::vector<morph::bezcoord<float>> bpoints;
             // Go to bottom left first
             morph::vec<float, 2> xy = {-(rw * this->d + gsw * this->d/2.0f), -gsw * this->v};
             xy += c;
 
             // 'Draw' bottom
             for (int i = 0; i < 2*(rw+re); ++i) {
-                morph::BezCoord<float> b(xy);
+                morph::bezcoord<float> b(xy);
                 bpoints.push_back (b);
                 xy[0] += this->d/2.0f;
             }
             // Right
             for (int i = 0; i < 2*(gsw+gne); ++i) {
-                morph::BezCoord<float> b(xy);
+                morph::bezcoord<float> b(xy);
                 bpoints.push_back (b);
                 xy[0] += this->d/4.0f;
                 xy[1] += this->v/2.0f;
             }
             // Top
             for (int i = 0; i < 2*(rw+re); ++i) {
-                morph::BezCoord<float> b(xy);
+                morph::bezcoord<float> b(xy);
                 bpoints.push_back (b);
                 xy[0] -= this->d/2.0f;
             }
             // Left
             for (int i = 0; i < 2*(gsw+gne); ++i) {
-                morph::BezCoord<float> b(xy);
+                morph::bezcoord<float> b(xy);
                 bpoints.push_back (b);
                 xy[0] -= this->d/4.0f;
                 xy[1] -= this->v/2.0f;
@@ -891,12 +889,12 @@ namespace morph {
          * \param c centre argument so that the ellipse centre is offset from the coordinate origin
          * \return A vector of the coordinates of points on the generated ellipse
          */
-        std::vector<BezCoord<float>> ellipseCompute (const float a, const float b,
+        std::vector<bezcoord<float>> ellipseCompute (const float a, const float b,
                                                      const morph::vec<float, 2> c = {0.0f, 0.0f})
         {
             // Compute the points on the boundary using the parametric elliptical formula and
             // half of the hex to hex spacing as the angular step size. Return as bpoints.
-            std::vector<morph::BezCoord<float>> bpoints;
+            std::vector<morph::bezcoord<float>> bpoints;
 
             // Estimate a good delta_phi based on the larger of a and b. Compute the delta_phi
             // required to travel a fraction of one hex-to-hex distance.
@@ -915,7 +913,7 @@ namespace morph {
                     static_cast<float>(b * std::sin (phi))
                 };
                 xy_pt += c;
-                morph::BezCoord<float> b(xy_pt);
+                morph::bezcoord<float> b(xy_pt);
                 bpoints.push_back (b);
             }
 
@@ -953,7 +951,7 @@ namespace morph {
         void setEllipticalBoundary (const float a, const float b,
                                     const morph::vec<float, 2> c = {0.0f, 0.0f}, bool offset=true)
         {
-            std::vector<morph::BezCoord<float>> bpoints = ellipseCompute (a, b, c);
+            std::vector<morph::bezcoord<float>> bpoints = ellipseCompute (a, b, c);
             this->setBoundary (bpoints, offset);
         }
 
@@ -966,7 +964,7 @@ namespace morph {
         void setCircularBoundary (const float a,
                                   const morph::vec<float, 2> c = {0.0f, 0.0f}, bool offset=true)
         {
-            std::vector<morph::BezCoord<float>> bpoints = ellipseCompute (a, a, c);
+            std::vector<morph::bezcoord<float>> bpoints = ellipseCompute (a, a, c);
             this->setBoundary (bpoints, offset);
         }
 
@@ -976,7 +974,7 @@ namespace morph {
         void setRectangularBoundary (const float x, const float y,
                                      const morph::vec<float, 2> c = {0.0f, 0.0f}, bool offset=true)
         {
-            std::vector<morph::BezCoord<float>> bpoints = rectangleCompute (x, y, c);
+            std::vector<morph::bezcoord<float>> bpoints = rectangleCompute (x, y, c);
             this->setBoundary (bpoints, offset);
         }
 
@@ -986,7 +984,7 @@ namespace morph {
         void setParallelogramBoundary (const int r, const int g,
                                        const morph::vec<float, 2> c = {0.0f, 0.0f}, bool offset=true)
         {
-            std::vector<morph::BezCoord<float>> bpoints = parallelogramCompute (r, g, r, g, c);
+            std::vector<morph::bezcoord<float>> bpoints = parallelogramCompute (r, g, r, g, c);
             this->setBoundary (bpoints, offset);
         }
 
@@ -998,9 +996,9 @@ namespace morph {
         unsigned int num() const { return this->hexen.size(); }
 
         /*!
-         * \brief Obtain the vector index of the last Hex in hexen.
+         * \brief Obtain the vector index of the last hex in hexen.
          *
-         * return Hex::vi from the last Hex in the grid.
+         * return hex::vi from the last hex in the grid.
          */
         unsigned int lastVectorIndex() const { return this->hexen.rbegin()->vi; }
 
@@ -1010,7 +1008,7 @@ namespace morph {
         std::string output() const
         {
             std::stringstream ss;
-            ss << "Hex grid with " << this->hexen.size() << " hexes.\n";
+            ss << "hex grid with " << this->hexen.size() << " hexes.\n";
             auto i = this->hexen.begin();
             float lasty = this->hexen.front().y;
             unsigned int rownum = 0;
@@ -1047,7 +1045,7 @@ namespace morph {
         }
 
         /*!
-         * Returns the width of the HexGrid (from -x to +x)
+         * Returns the width of the hexgrid (from -x to +x)
          */
         float width() const
         {
@@ -1059,7 +1057,7 @@ namespace morph {
         }
 
         /*!
-         * Returns the 'depth' of the HexGrid (from -y to +y)
+         * Returns the 'depth' of the hexgrid (from -y to +y)
          */
         float depth() const
         {
@@ -1086,7 +1084,7 @@ namespace morph {
         float getSR() const { return this->d/2; }
 
         /*!
-         * The distance from the centre of the Hex to any of the vertices. This is the
+         * The distance from the centre of the hex to any of the vertices. This is the
          * "long radius".
          */
         float getLR() const { return (this->d/morph::mathconst<float>::sqrt_of_3); }
@@ -1101,10 +1099,10 @@ namespace morph {
          * Compute and return the area of one hex in the grid. The area is that of 6
          * triangles: (1/2 LR * d/2) * 6 // or (d*d*3)/(2*sqrt(3)) = d * d * sqrt(3)/2
          */
-        float getHexArea() const { return (this->d * this->d * morph::mathconst<float>::root_3_over_2); }
+        float gethexArea() const { return (this->d * this->d * morph::mathconst<float>::root_3_over_2); }
 
         /*!
-         * Find the minimum value of x' on the HexGrid, where x' is the x axis rotated
+         * Find the minimum value of x' on the hexgrid, where x' is the x axis rotated
          * by phi degrees.
          */
         float getXmin (float phi = 0.0f) const
@@ -1126,7 +1124,7 @@ namespace morph {
         }
 
         /*!
-         * Find the maximum value of x' on the HexGrid, where x' is the x axis rotated
+         * Find the maximum value of x' on the hexgrid, where x' is the x axis rotated
          * by phi degrees.
          */
         float getXmax (float phi = 0.0f) const
@@ -1153,7 +1151,7 @@ namespace morph {
          */
         void computeDistanceToBoundary()
         {
-            std::list<morph::Hex>::iterator h = this->hexen.begin();
+            std::list<morph::hex>::iterator h = this->hexen.begin();
             while (h != this->hexen.end()) {
                 if (h->testFlags(HEX_IS_BOUNDARY) == true) {
                     h->distToBoundary = 0.0f;
@@ -1163,7 +1161,7 @@ namespace morph {
                         h->distToBoundary = -100.0;
                     } else {
                         // Not a boundary hex, but inside boundary
-                        std::list<morph::Hex>::iterator bh = this->hexen.begin();
+                        std::list<morph::hex>::iterator bh = this->hexen.begin();
                         while (bh != this->hexen.end()) {
                             if (bh->testFlags(HEX_IS_BOUNDARY) == true) {
                                 float delta = h->distanceFrom (*bh);
@@ -1185,7 +1183,7 @@ namespace morph {
         void populate_d_vectors()
         {
             // The starting hex is always the centre one.
-            std::list<morph::Hex>::iterator hi = this->hexen.begin();
+            std::list<morph::hex>::iterator hi = this->hexen.begin();
             // Clear the d_ vectors.
             this->d_clear();
             // Now raster through the hexes, building the d_ vectors.
@@ -1198,45 +1196,45 @@ namespace morph {
         }
 
         /*!
-         * Get a vector of Hex pointers for all hexes that are inside/on the path
-         * defined by the BezCurvePath \a p, thus this gets a 'region of hexes'. The Hex
+         * Get a vector of hex pointers for all hexes that are inside/on the path
+         * defined by the bezcurvepath \a p, thus this gets a 'region of hexes'. The hex
          * flags "region" and "regionBoundary" are used, temporarily to mark out the
-         * region. The idea is that client code will then use the vector of morph::Hex* to work
+         * region. The idea is that client code will then use the vector of morph::hex* to work
          * with the region however it needs to.
          *
          * The centroid of the region is placed in \a regionCentroid (i.e. \a
          * regionCentroid is a return argument)
          *
-         * It's assumed that the BezCurvePath defines a closed region.
+         * It's assumed that the bezcurvepath defines a closed region.
          *
          * If \a applyOriginalBoundaryCentroid is true, then the region is translated by
          * the same amount that the overall boundary was translated to ensure that the
          * boundary's centroid is at 0,0.
          *
-         * \return a vector of iterators to the Hexes that make up the region.
+         * \return a vector of iterators to the hexes that make up the region.
          */
-        std::vector<std::list<Hex>::iterator> getRegion (BezCurvePath<float>& p, morph::vec<float, 2>& regionCentroid,
+        std::vector<std::list<hex>::iterator> getRegion (bezcurvepath<float>& p, morph::vec<float, 2>& regionCentroid,
                                                          bool applyOriginalBoundaryCentroid = true)
         {
             p.computePoints (this->d/2.0f, true);
-            std::vector<morph::BezCoord<float>> bpoints = p.getPoints();
+            std::vector<morph::bezcoord<float>> bpoints = p.getPoints();
             return this->getRegion (bpoints, regionCentroid, applyOriginalBoundaryCentroid);
         }
 
         /*!
          * The overload of getRegion that does all the work on a vector of coordinates
          */
-        std::vector<std::list<Hex>::iterator> getRegion (std::vector<BezCoord<float>>& bpoints, morph::vec<float, 2>& regionCentroid,
+        std::vector<std::list<hex>::iterator> getRegion (std::vector<bezcoord<float>>& bpoints, morph::vec<float, 2>& regionCentroid,
                                                          bool applyOriginalBoundaryCentroid = true)
         {
             // First clear all region boundary flags, as we'll be defining a new region boundary
             this->clearRegionBoundaryFlags();
 
             // Compute region centroid from bpoints
-            regionCentroid = morph::BezCurvePath<float>::getCentroid (bpoints);
+            regionCentroid = morph::bezcurvepath<float>::getCentroid (bpoints);
 
             // A return object
-            std::vector<std::list<morph::Hex>::iterator> theRegion;
+            std::vector<std::list<morph::hex>::iterator> theRegion;
 
             if (applyOriginalBoundaryCentroid) {
                 auto bpi = bpoints.begin();
@@ -1250,8 +1248,8 @@ namespace morph {
             }
 
             // Now find the hexes on the boundary of the region
-            std::list<morph::Hex>::iterator nearbyRegionBoundaryPoint = this->hexen.begin(); // i.e the Hex at 0,0
-            typename std::vector<morph::BezCoord<float>>::iterator bpi = bpoints.begin();
+            std::list<morph::hex>::iterator nearbyRegionBoundaryPoint = this->hexen.begin(); // i.e the hex at 0,0
+            typename std::vector<morph::bezcoord<float>>::iterator bpi = bpoints.begin();
             while (bpi != bpoints.end()) {
                 nearbyRegionBoundaryPoint = this->setRegionBoundary (*bpi++, nearbyRegionBoundaryPoint);
             }
@@ -1259,7 +1257,7 @@ namespace morph {
             // Check that the region boundary is contiguous.
             {
                 std::set<unsigned int> seen;
-                std::list<morph::Hex>::iterator hi = nearbyRegionBoundaryPoint;
+                std::list<morph::hex>::iterator hi = nearbyRegionBoundaryPoint;
                 if (this->regionBoundaryContiguous (nearbyRegionBoundaryPoint, hi, seen) == false) {
                     std::stringstream ee;
                     ee << "The constructed region boundary is not a contiguous sequence of hexes.";
@@ -1268,11 +1266,11 @@ namespace morph {
             }
 
             // Mark hexes inside region. Use centroid of the region.
-            std::list<morph::Hex>::iterator insideRegionHex = this->findHexNearest (regionCentroid);
-            this->markHexesInside (insideRegionHex, HEX_IS_REGION_BOUNDARY, HEX_INSIDE_REGION);
+            std::list<morph::hex>::iterator insideRegionhex = this->findhexNearest (regionCentroid);
+            this->markhexesInside (insideRegionhex, HEX_IS_REGION_BOUNDARY, HEX_INSIDE_REGION);
 
             // Populate theRegion, then return it
-            std::list<morph::Hex>::iterator hi = this->hexen.begin();
+            std::list<morph::hex>::iterator hi = this->hexen.begin();
             while (hi != this->hexen.end()) {
                 if (hi->testFlags (HEX_INSIDE_REGION) == true) {
                     theRegion.push_back (hi);
@@ -1285,12 +1283,12 @@ namespace morph {
 
         //! Obtain a hexagonal region of hexes around a given central hex, marked by its
         //! d_ index. This is easier than getting a properly circular region of hexes.
-        std::vector<std::list<Hex>::iterator> getHexagonalRegion (unsigned int centreindex, float radius)
+        std::vector<std::list<hex>::iterator> gethexagonalRegion (unsigned int centreindex, float radius)
         {
-            std::vector<std::list<morph::Hex>::iterator> theRegion;
+            std::vector<std::list<morph::hex>::iterator> theRegion;
 
             // Find the hex with index centreindex
-            std::list<Hex>::iterator sh = this->hexen.begin(); // start hex
+            std::list<hex>::iterator sh = this->hexen.begin(); // start hex
             while (sh != this->hexen.end()) {
                 if (sh->vi == centreindex) { break; }
                 sh++;
@@ -1303,8 +1301,8 @@ namespace morph {
             // For each of 6 directions, step out to collect up the hexes on the disc
             // ring by ring. For rings 2 and above, also need to fill in hexes
             // (otherwise you end up with a snowflake shaped disc)
-            std::list<Hex>::iterator h;
-            std::list<Hex>::iterator h2; // for the tangent direction
+            std::list<hex>::iterator h;
+            std::list<hex>::iterator h2; // for the tangent direction
             for (unsigned short i = 0; i < 6; ++i) {
                 h = sh;
                 if (h->has_neighbour(i)) {
@@ -1346,33 +1344,33 @@ namespace morph {
         }
 
         /*!
-         * Using this HexGrid as the domain, convolve the domain data \a data with the
-         * kernel data \a kerneldata, which exists on another HexGrid, \a
+         * Using this hexgrid as the domain, convolve the domain data \a data with the
+         * kernel data \a kerneldata, which exists on another hexgrid, \a
          * kernelgrid. Return the result in \a result.
          */
         template<typename T>
-        void convolve (const HexGrid& kernelgrid, const std::vector<T>& kerneldata, const std::vector<T>& data, std::vector<T>& result)
+        void convolve (const hexgrid& kernelgrid, const std::vector<T>& kerneldata, const std::vector<T>& data, std::vector<T>& result)
         {
             if (result.size() != this->hexen.size()) {
-                throw std::runtime_error ("The result vector is not the same size as the HexGrid.");
+                throw std::runtime_error ("The result vector is not the same size as the hexgrid.");
             }
             if (result.size() != data.size()) {
-                throw std::runtime_error ("The data vector is not the same size as the HexGrid.");
+                throw std::runtime_error ("The data vector is not the same size as the hexgrid.");
             }
             if (kernelgrid.getd() != this->d) {
-                throw std::runtime_error ("The kernel HexGrid must have same d as this HexGrid to carry out convolution.");
+                throw std::runtime_error ("The kernel hexgrid must have same d as this hexgrid to carry out convolution.");
             }
             if (&data == &result) {
                 throw std::runtime_error ("Pass in separate memory for the result.");
             }
 
-            // For each hex in this HexGrid, compute the convolution kernel
-            std::list<Hex>::iterator hi = this->hexen.begin();
+            // For each hex in this hexgrid, compute the convolution kernel
+            std::list<hex>::iterator hi = this->hexen.begin();
             for (; hi != this->hexen.end(); ++hi) {
                 T sum = T{0};
                 // For each kernel hex, sum up.
                 for (auto kh : kernelgrid.hexen) {
-                    std::list<Hex>::iterator dhi = hi;
+                    std::list<hex>::iterator dhi = hi;
                     // Kernel hex coords r,g are: kh.ri, kh.gi, which may be (are EXPECTED to be) +ve or -ve
                     //
                     // Origin hex coords are h.ri, h.gi
@@ -1381,7 +1379,7 @@ namespace morph {
                     // can go via neighbour relations, but must be prepared to take a
                     // variable path because going directly in r direction then directly
                     // in g direction could take us temporarily outside the boundary of
-                    // the HexGrid.
+                    // the hexgrid.
                     int rr = kh.ri;
                     int gg = kh.gi;
                     bool failed = false;
@@ -1448,8 +1446,8 @@ namespace morph {
          * first float in the vvec is at x=0, y=0.
          *
          * \param image_pixelwidth (input) The number of pixels that the image is wide
-         * \param image_scale (input) The size that the image should be resampled to (same units as HexGrid)
-         * \param image_offset (input) An offset in HexGrid units to shift the image wrt to the HexGrid's origin
+         * \param image_scale (input) The size that the image should be resampled to (same units as hexgrid)
+         * \param image_offset (input) An offset in hexgrid units to shift the image wrt to the hexgrid's origin
          *
          * \return A new data vvec containing the resampled (and renormalised) hex pixel values
          */
@@ -1484,7 +1482,7 @@ namespace morph {
             // resample. Assume that the unscaled image pixels are square. Use the image width to
             // set the distance per pixel (hence divide by image_scale by image_pixelsz[*0*]).
             morph::vec<float, 2> dist_per_pix = image_scale / (image_pixelsz[0] - 1u);
-            // This is an offset to centre the image wrt to the HexGrid
+            // This is an offset to centre the image wrt to the hexgrid
             morph::vec<float, 2> input_centering_offset = dist_per_pix * image_pixelsz * 0.5f;
             // Parameters for the Gaussian computation
             morph::vec<float, 2> params = 1.0f / (2.0f * dist_per_pix * dist_per_pix);
@@ -1496,7 +1494,7 @@ namespace morph {
                 for (unsigned int i = 0; i < csz; ++i) {
                     // Get x/y pixel coords:
                     morph::vec<unsigned int, 2> idx = {(i % image_pixelsz[0]), (i / image_pixelsz[0])};
-                    // Get the coordinates of the pixel at index i (in HexGrid units):
+                    // Get the coordinates of the pixel at index i (in hexgrid units):
                     morph::vec<float, 2> posn = (dist_per_pix * idx) - input_centering_offset + image_offset;
                     // Distance from input pixel to output hex:
                     float _d_x = this->d_x[xi] - posn[0];
@@ -1513,7 +1511,7 @@ namespace morph {
             return expr_resampled;
         }
 
-        // Member attributes for visualising the compute_hex_overlap stuff. Put in class HexOverlapGeometry or something
+        // Member attributes for visualising the compute_hex_overlap stuff. Put in class hexOverlapGeometry or something
         vec<float, 2> sw_loc = {std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN()};
         vec<float, 2> nw_loc = {std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN()};
         vec<float, 2> ne_loc = {std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN()};
@@ -1651,14 +1649,14 @@ namespace morph {
 
             static constexpr bool debugdata = false;
 
-            std::list<Hex>::iterator h = this->hexen.begin();
+            std::list<hex>::iterator h = this->hexen.begin();
             while (h != this->hexen.end()) {
                 // image_data[i] is the data to shift.
                 bool datatocopy = false;
                 if constexpr (debugdata) {
                     datatocopy = image_data[h->vi] > T{0} ? true : false;
                 }
-                std::list<Hex>::iterator dest_hex = h;
+                std::list<hex>::iterator dest_hex = h;
                 if (datatocopy) std::cout << "Copying hex data at " << h->outputRG() << "...";
                 if (int_rg[1] > 0) {
                     for (int j = 0; j < int_rg[1] && dest_hex->has_nne(); ++j) {
@@ -2007,8 +2005,8 @@ namespace morph {
                 if constexpr (debug_hexshift) { std::cout << "huh? shift.angle() = " << shift.angle() << std::endl; }
             }
             if constexpr (debug_hexshift) {
-                VAR(overlap);
-                VAR(overlap.sum());
+                std::cout << "overlap: " << overlap << "\n";
+                std::cout << "overlap sum: " << overlap.sum() << "\n";
             }
             if (overlap.sum() == 0.0f) {
                 overlap[0] = -100.0f; // Used as a signal, later
@@ -2069,7 +2067,7 @@ namespace morph {
 
                     rtn[0] = (a1 + t1) / hexarea;
 
-                    // From Hex.h. HEX_NEIGHBOUR_POS_E = 0; HEX_NEIGHBOUR_POS_NE = 1
+                    // From hex.h. HEX_NEIGHBOUR_POS_E = 0; HEX_NEIGHBOUR_POS_NE = 1
                     // etc. Shift by one to go into our return object.
                     switch (hidx) {
                     case 0: // slide to s
@@ -2488,7 +2486,7 @@ namespace morph {
             rtn[1+_rotation] = ap2;
             // E. Area defined by triangle below NE parallelogram, rectangle, and
             // another triangle. Similar computation as the one under the '0th' overlap,
-            // but can solve as Hex area - the others.
+            // but can solve as hex area - the others.
             rtn[7+(2*_rotation+2)%12] = 1.0f - ov_area_prop - ap1 - ap2;
 
             return rtn;
@@ -2614,7 +2612,7 @@ namespace morph {
             rtn[1+(5+_rotation)%6] = ap2;
             // E. Area defined by triangle below NE parallelogram, rectangle, and
             // another triangle. Similar computation as the one under the '0th' overlap,
-            // but can solve as Hex area - the others.
+            // but can solve as hex area - the others.
             if constexpr (debug_hexshift) { std::cout << "Setting remainder quadrilateral (NE) into rtn[" << 1+_rotation << "]\n"; }
             rtn[1+_rotation] = 1.0f - ov_area_prop - ap1 - ap2;
 
@@ -2637,7 +2635,7 @@ namespace morph {
             vec<float, 2> unit_30 = { morph::mathconst<float>::root_3_over_2, 0.5f };
             vec<float, 2> unit_210 = { -morph::mathconst<float>::root_3_over_2, -0.5f };
 
-            // Hex long radius/edge length
+            // hex long radius/edge length
             float lr = this->getLR();
 
             morph::mat22<float> rotn = this->setup_hexoverlap_geometry (_rotation);
@@ -2746,7 +2744,7 @@ namespace morph {
             bool first = true;
             std::array<float, 4> limits = {{0,0,0,0}};
             auto h = this->hexen.begin();
-            std::list<Hex>::iterator bl_hex = this->hexen.begin();
+            std::list<hex>::iterator bl_hex = this->hexen.begin();
             while (h != this->hexen.end()) {
                 if (h->testFlags(HEX_IS_BOUNDARY) == true) {
                     if (first) {
@@ -2764,12 +2762,12 @@ namespace morph {
             //std::cout << "Bottom left hex is " << bl_hex->outputCart() << std::endl;
 
             int count = 0;
-            std::list<Hex>::iterator row_start = bl_hex;
+            std::list<hex>::iterator row_start = bl_hex;
             if (onR) {
                 // go to end of each row and wrap back to the start. This may only work
                 // for parallelograms, at least in an initial implementation.
                 // First row
-                std::list<Hex>::iterator cur_hex = row_start;
+                std::list<hex>::iterator cur_hex = row_start;
                 while (cur_hex->has_ne()) { cur_hex = cur_hex->ne; }
                 cur_hex->set_ne(bl_hex);
                 bl_hex->set_nw(cur_hex);
@@ -2790,11 +2788,11 @@ namespace morph {
                 }
             }
 
-            std::list<Hex>::iterator col_start = bl_hex;
+            std::list<hex>::iterator col_start = bl_hex;
             int vcount = 0;
             if (onG) { // scan up columns in the 'G' direction
                 // First col
-                std::list<Hex>::iterator cur_hex = col_start;
+                std::list<hex>::iterator cur_hex = col_start;
                 while (cur_hex->has_nne()) { cur_hex = cur_hex->nne; ++vcount; }
                 cur_hex->set_nne (bl_hex);
                 bl_hex->set_nsw (cur_hex);
@@ -2828,7 +2826,7 @@ namespace morph {
             // Final scan across to set se neighbours of end rows and nw neighbours of start rows.
             row_start = bl_hex;
             if (onR && onG) {
-                std::list<Hex>::iterator cur_hex = row_start;
+                std::list<hex>::iterator cur_hex = row_start;
                 // First row
                 for (int i = 0; i < count; ++i) { cur_hex = cur_hex->ne; }
                 row_start->set_nnw(cur_hex->nne);
@@ -2845,27 +2843,27 @@ namespace morph {
         }
 
         /*!
-         * The list of hexes that make up this HexGrid.
+         * The list of hexes that make up this hexgrid.
          */
-        std::list<Hex> hexen;
+        std::list<hex> hexen;
 
         /*!
          * Once boundary secured, fill this vector. Experimental - can I do parallel
          * loops with vectors of hexes? Ans: Not very well.
          */
-        std::vector<Hex*> vhexen;
+        std::vector<hex*> vhexen;
 
         /*!
          * While determining if boundary is continuous, fill this maps container of
          * hexes.
          */
-        std::list<const Hex*> bhexen; // Not better as a separate list<Hex>?
+        std::list<const hex*> bhexen; // Not better as a separate list<hex>?
 
         /*!
          * Store the centroid of the boundary path. The centroid of a read-in
-         * BezCurvePath [see void setBoundary (const BezCurvePath& p)] is subtracted
+         * bezcurvepath [see void setBoundary (const bezcurvepath& p)] is subtracted
          * from each generated point on the boundary path so that the boundary once it
-         * is expressed in the HexGrid will have a (2D) centroid of roughly
+         * is expressed in the hexgrid will have a (2D) centroid of roughly
          * (0,0). Hence, this is usually roughly (0,0).
          */
         morph::vec<float, 2> boundaryCentroid = {0.0f, 0.0f};
@@ -2890,18 +2888,18 @@ namespace morph {
 
             // "Creating hexagonal hex grid with maxRing: " << maxRing
 
-            // The "vector iterator" - this is an identity iterator that is added to each Hex in the grid.
+            // The "vector iterator" - this is an identity iterator that is added to each hex in the grid.
             unsigned int vi = 0;
 
             // Vectors of list-iterators to hexes in this->hexen. Used to keep a track of nearest
             // neighbours. I'm using vector, rather than a list as this allows fast random access of
             // elements and I'll not be inserting or erasing in the middle of the arrays.
-            std::vector<std::list<morph::Hex>::iterator> prevRingEven;
-            std::vector<std::list<morph::Hex>::iterator> prevRingOdd;
+            std::vector<std::list<morph::hex>::iterator> prevRingEven;
+            std::vector<std::list<morph::hex>::iterator> prevRingOdd;
 
             // Swap pointers between rings.
-            std::vector<std::list<morph::Hex>::iterator>* prevRing = &prevRingEven;
-            std::vector<std::list<morph::Hex>::iterator>* nextPrevRing = &prevRingOdd;
+            std::vector<std::list<morph::hex>::iterator>* prevRing = &prevRingEven;
+            std::vector<std::list<morph::hex>::iterator>* nextPrevRing = &prevRingOdd;
 
             // Direction iterators used in the loop for creating hexes
             int ri = 0;
@@ -2912,7 +2910,7 @@ namespace morph {
 
             // Put central ring in the prevRing vector:
             {
-                std::list<morph::Hex>::iterator h = this->hexen.end(); --h;
+                std::list<morph::hex>::iterator h = this->hexen.end(); --h;
                 prevRing->push_back (h);
             }
 
@@ -3241,7 +3239,7 @@ namespace morph {
                 ringSideLen++;
 
                 // Swap prevRing and nextPrevRing.
-                std::vector<std::list<morph::Hex>::iterator>* tmp = prevRing;
+                std::vector<std::list<morph::hex>::iterator>* tmp = prevRing;
                 prevRing = nextPrevRing;
                 nextPrevRing = tmp;
             }
@@ -3250,50 +3248,50 @@ namespace morph {
 
         /*!
          * Starting from \a startFrom, and following nearest-neighbour relations, find
-         * the closest Hex in hexen to the coordinate point \a point, and set its
-         * Hex::onBoundary attribute to true.
+         * the closest hex in hexen to the coordinate point \a point, and set its
+         * hex::onBoundary attribute to true.
          *
-         * \return An iterator into HexGrid::hexen which refers to the closest Hex to \a point.
+         * \return An iterator into hexgrid::hexen which refers to the closest hex to \a point.
          */
-        std::list<morph::Hex>::iterator setBoundary (const morph::BezCoord<float>& point,
-                                                     std::list<morph::Hex>::iterator startFrom)
+        std::list<morph::hex>::iterator setBoundary (const morph::bezcoord<float>& point,
+                                                     std::list<morph::hex>::iterator startFrom)
         {
-            std::list<morph::Hex>::iterator h = this->findHexNearPoint (point, startFrom);
+            std::list<morph::hex>::iterator h = this->findhexNearPoint (point, startFrom);
             h->setFlag (HEX_IS_BOUNDARY | HEX_INSIDE_BOUNDARY);
             return h;
         }
 
         /*!
          * Determine whether the boundary is contiguous. Whilst doing so, populate a
-         * list<Hex> containing just the boundary Hexes.
+         * list<hex> containing just the boundary hexes.
          */
         bool boundaryContiguous()
         {
             this->bhexen.clear();
-            std::list<morph::Hex>::const_iterator bhi = this->hexen.begin();
-            if (this->findBoundaryHex (bhi) == false) {
+            std::list<morph::hex>::const_iterator bhi = this->hexen.begin();
+            if (this->findBoundaryhex (bhi) == false) {
                 // Found no boundary hex
                 return false;
             }
             std::set<unsigned int> seen;
-            std::list<morph::Hex>::const_iterator hi = bhi;
+            std::list<morph::hex>::const_iterator hi = bhi;
             return this->boundaryContiguous (bhi, hi, seen);
         }
 
         /*!
          * Determine whether the boundary is contiguous, starting from the boundary
-         * Hex iterator \a bhi.
+         * hex iterator \a bhi.
          *
-         * The overload with bhexes takes a list of Hex pointers and populates it with
+         * The overload with bhexes takes a list of hex pointers and populates it with
          * pointers to the hexes on the boundary.
          */
-        bool boundaryContiguous (std::list<Hex>::const_iterator bhi,
-                                 std::list<Hex>::const_iterator hi, std::set<unsigned int>& seen)
+        bool boundaryContiguous (std::list<hex>::const_iterator bhi,
+                                 std::list<hex>::const_iterator hi, std::set<unsigned int>& seen)
         {
             bool rtn = false;
-            std::list<morph::Hex>::const_iterator hi_next;
+            std::list<morph::hex>::const_iterator hi_next;
             seen.insert (hi->vi);
-            // Insert into the std::list of Hex pointers, too
+            // Insert into the std::list of hex pointers, too
             this->bhexen.push_back (&(*hi));
 
             if (rtn == false && hi->has_ne() && hi->ne->testFlags(HEX_IS_BOUNDARY) == true && seen.find(hi->ne->vi) == seen.end()) {
@@ -3335,27 +3333,27 @@ namespace morph {
         /*!
          * Set the hex closest to point as being on the region boundary. Region
          * boundaries are supposed to be temporary, so that client code can find a
-         * region, extract the pointers to all the Hexes in that region and store that
+         * region, extract the pointers to all the hexes in that region and store that
          * information for later use.
          */
-        std::list<Hex>::iterator setRegionBoundary (const BezCoord<float>& point, std::list<Hex>::iterator startFrom)
+        std::list<hex>::iterator setRegionBoundary (const bezcoord<float>& point, std::list<hex>::iterator startFrom)
         {
-            std::list<morph::Hex>::iterator h = this->findHexNearPoint (point, startFrom);
+            std::list<morph::hex>::iterator h = this->findhexNearPoint (point, startFrom);
             h->setFlag (HEX_IS_REGION_BOUNDARY | HEX_INSIDE_REGION);
             return h;
         }
 
         /*!
          * Determine whether the region boundary is contiguous, starting from the
-         * boundary Hex iterator #bhi.
+         * boundary hex iterator #bhi.
          */
-        bool regionBoundaryContiguous (std::list<Hex>::const_iterator bhi,
-                                       std::list<Hex>::const_iterator hi, std::set<unsigned int>& seen)
+        bool regionBoundaryContiguous (std::list<hex>::const_iterator bhi,
+                                       std::list<hex>::const_iterator hi, std::set<unsigned int>& seen)
         {
             bool rtn = false;
-            std::list<morph::Hex>::const_iterator hi_next;
+            std::list<morph::hex>::const_iterator hi_next;
             seen.insert (hi->vi);
-            // Insert into the list of Hex pointers, too
+            // Insert into the list of hex pointers, too
             this->bhexen.push_back (&(*hi));
 
             if (rtn == false && hi->has_ne() && hi->ne->testFlags(HEX_IS_REGION_BOUNDARY) == true && seen.find(hi->ne->vi) == seen.end()) {
@@ -3393,54 +3391,54 @@ namespace morph {
 
         /*!
          * Find a hex, any hex, that's on the boundary specified by #boundary. This
-         * assumes that setBoundary (const BezCurvePath&) has been called to mark the
-         * Hexes that lie on the boundary.
+         * assumes that setBoundary (const bezcurvepath&) has been called to mark the
+         * hexes that lie on the boundary.
          */
-        bool findBoundaryHex (std::list<Hex>::const_iterator& hi) const
+        bool findBoundaryhex (std::list<hex>::const_iterator& hi) const
         {
             if (hi->testFlags(HEX_IS_BOUNDARY) == true) {
-                // No need to change the Hex iterator
+                // No need to change the hex iterator
                 return true;
             }
 
             if (hi->has_ne()) {
-                std::list<morph::Hex>::const_iterator ci(hi->ne);
-                if (this->findBoundaryHex (ci) == true) {
+                std::list<morph::hex>::const_iterator ci(hi->ne);
+                if (this->findBoundaryhex (ci) == true) {
                     hi = ci;
                     return true;
                 }
             }
             if (hi->has_nne()) {
-                std::list<morph::Hex>::const_iterator ci(hi->nne);
-                if (this->findBoundaryHex (ci) == true) {
+                std::list<morph::hex>::const_iterator ci(hi->nne);
+                if (this->findBoundaryhex (ci) == true) {
                     hi = ci;
                     return true;
                 }
             }
             if (hi->has_nnw()) {
-                std::list<morph::Hex>::const_iterator ci(hi->nnw);
-                if (this->findBoundaryHex (ci) == true) {
+                std::list<morph::hex>::const_iterator ci(hi->nnw);
+                if (this->findBoundaryhex (ci) == true) {
                     hi = ci;
                     return true;
                 }
             }
             if (hi->has_nw()) {
-                std::list<morph::Hex>::const_iterator ci(hi->nw);
-                if (this->findBoundaryHex (ci) == true) {
+                std::list<morph::hex>::const_iterator ci(hi->nw);
+                if (this->findBoundaryhex (ci) == true) {
                     hi = ci;
                     return true;
                 }
             }
             if (hi->has_nsw()) {
-                std::list<morph::Hex>::const_iterator ci(hi->nsw);
-                if (this->findBoundaryHex (ci) == true) {
+                std::list<morph::hex>::const_iterator ci(hi->nsw);
+                if (this->findBoundaryhex (ci) == true) {
                     hi = ci;
                     return true;
                 }
             }
             if (hi->has_nse()) {
-                std::list<morph::Hex>::const_iterator ci(hi->nse);
-                if (this->findBoundaryHex (ci) == true) {
+                std::list<morph::hex>::const_iterator ci(hi->nse);
+                if (this->findBoundaryhex (ci) == true) {
                     hi = ci;
                     return true;
                 }
@@ -3453,11 +3451,11 @@ namespace morph {
          * Find the hex near @point, starting from startFrom, which should be as close
          * as possible to point in order to reduce computation time.
          */
-        std::list<Hex>::iterator findHexNearPoint (const BezCoord<float>& point, std::list<Hex>::iterator startFrom)
+        std::list<hex>::iterator findhexNearPoint (const bezcoord<float>& point, std::list<hex>::iterator startFrom)
         {
             bool neighbourNearer = true;
 
-            std::list<morph::Hex>::iterator h = startFrom;
+            std::list<morph::hex>::iterator h = startFrom;
             float dmin = h->distanceFrom (point);
             float dcur = 0.0f;
 
@@ -3501,16 +3499,16 @@ namespace morph {
 
         /*!
          * Mark hexes as being inside the boundary given that \a hi refers to a boundary
-         * Hex and at least one adjacent hex to \a hi has already been marked as inside
+         * hex and at least one adjacent hex to \a hi has already been marked as inside
          * the boundary (thus allowing the algorithm to know which side of the boundary
          * hex is the inside)
          *
-         * \param hi list iterator to starting Hex.
+         * \param hi list iterator to starting hex.
          *
          * By changing \a bdryFlag and \a insideFlag, it's possible to use this method
          * with region boundaries.
          */
-        void markFromBoundary (std::list<Hex>::iterator hi,
+        void markFromBoundary (std::list<hex>::iterator hi,
                                unsigned int bdryFlag = HEX_IS_BOUNDARY,
                                unsigned int insideFlag = HEX_INSIDE_BOUNDARY)
         {
@@ -3519,16 +3517,16 @@ namespace morph {
 
         /*!
          * Mark hexes as being inside the boundary given that \a hi refers to a boundary
-         * Hex and at least one adjacent hex to \a hi has already been marked as inside
+         * hex and at least one adjacent hex to \a hi has already been marked as inside
          * the boundary (thus allowing the algorithm to know which side of the boundary
          * hex is the inside)
          *
-         * \param hi list iterator to a pointer to the starting Hex.
+         * \param hi list iterator to a pointer to the starting hex.
          *
          * By changing \a bdryFlag and \a insideFlag, it's possible to use this method
          * with region boundaries.
          */
-        void markFromBoundary (std::list<Hex*>::iterator hi,
+        void markFromBoundary (std::list<hex*>::iterator hi,
                                unsigned int bdryFlag = HEX_IS_BOUNDARY,
                                unsigned int insideFlag = HEX_INSIDE_BOUNDARY)
         {
@@ -3537,22 +3535,22 @@ namespace morph {
 
         /*!
          * Mark hexes as being inside the boundary given that \a hi refers to a boundary
-         * Hex and at least one adjacent hex to \a hi has already been marked as inside
+         * hex and at least one adjacent hex to \a hi has already been marked as inside
          * the boundary (thus allowing the algorithm to know which side of the boundary
          * hex is the inside)
          *
-         * \param hi pointer to the starting Hex.
+         * \param hi pointer to the starting hex.
          *
          * By changing \a bdryFlag and \a insideFlag, it's possible to use this method
          * with region boundaries.
          */
-        void markFromBoundary (morph::Hex* hi,
+        void markFromBoundary (morph::hex* hi,
                                unsigned int bdryFlag = HEX_IS_BOUNDARY,
                                unsigned int insideFlag = HEX_INSIDE_BOUNDARY)
         {
-            // Find a marked-inside Hex next to this boundary hex. This will be the first direction to mark
+            // Find a marked-inside hex next to this boundary hex. This will be the first direction to mark
             // a line of inside hexes in.
-            std::list<morph::Hex>::iterator first_inside = this->hexen.begin();
+            std::list<morph::hex>::iterator first_inside = this->hexen.begin();
             unsigned short firsti = 0;
             for (unsigned short i = 0; i < 6; ++i) {
                 if (hi->has_neighbour(i)
@@ -3570,7 +3568,7 @@ namespace morph {
 
             // For each other direction also mark lines. Count direction upwards until we hit a boundary hex:
             short diri = (firsti + 1) % 6;
-            // Can debug first *count up* direction with morph::Hex::neighbour_pos(diri)
+            // Can debug first *count up* direction with morph::hex::neighbour_pos(diri)
             while (hi->has_neighbour(diri) && hi->get_neighbour(diri)->testFlags(bdryFlag)==false && diri != firsti) {
                 first_inside = hi->get_neighbour(diri);
                 this->markFromBoundaryCommon (first_inside, diri, bdryFlag, insideFlag);
@@ -3591,13 +3589,13 @@ namespace morph {
         /*!
          * Common code used by markFromBoundary()
          */
-        void markFromBoundaryCommon (std::list<Hex>::iterator first_inside, unsigned short firsti,
+        void markFromBoundaryCommon (std::list<hex>::iterator first_inside, unsigned short firsti,
                                      unsigned int bdryFlag = HEX_IS_BOUNDARY,
                                      unsigned int insideFlag = HEX_INSIDE_BOUNDARY)
         {
             // From the "first inside the boundary hex" head in the direction specified by firsti until a
             // boundary hex is reached.
-            std::list<morph::Hex>::iterator straight = first_inside;
+            std::list<morph::hex>::iterator straight = first_inside;
 
 #ifdef DO_WARNINGS
             bool warning_given = false;
@@ -3613,7 +3611,7 @@ namespace morph {
 #ifdef DO_WARNINGS
                         if (!warning_given) {
                             std::cerr << "WARNING: Got to edge of region (dirn " << firsti
-                                      << ") without encountering a boundary Hex.\n";
+                                      << ") without encountering a boundary hex.\n";
                             warning_given = true;
                         }
 #endif
@@ -3648,7 +3646,7 @@ namespace morph {
          * East first, then going anti-clockwise to the next direction; North-East and
          * so on), n_recents=2 appears to be sufficient for a thickness 2 boundary,
          * which is what can occur when setting a boundary using the method
-         * HexGrid::setEllipticalBoundary. Boundaries that are more than thickness 2
+         * hexgrid::setEllipticalBoundary. Boundaries that are more than thickness 2
          * shouldn't really occur, whereas a boundary with a short section of thickness
          * 2 can quite easily occur, as in setEllipticalBoundary, where insisting that
          * the boundary was strictly always only 1 hex thick would make that algorithm
@@ -3661,8 +3659,8 @@ namespace morph {
          *
          * \return true if a next boundary neighbour was found, false otherwise.
          */
-        bool findNextBoundaryNeighbour (std::list<Hex>::iterator& bhi,
-                                        std::deque<std::list<Hex>::iterator>& recently_seen,
+        bool findNextBoundaryNeighbour (std::list<hex>::iterator& bhi,
+                                        std::deque<std::list<hex>::iterator>& recently_seen,
                                         unsigned int n_recents = 2U,
                                         unsigned int bdryFlag = HEX_IS_BOUNDARY,
                                         unsigned int insideFlag = HEX_INSIDE_BOUNDARY) const
@@ -3676,7 +3674,7 @@ namespace morph {
                 if (bhi->has_neighbour(i) && bhi->get_neighbour(i)->testFlags(bdryFlag)) {
 
                     // cbhi is "candidate boundary hex iterator", now guaranteed to be a boundary hex
-                    std::list<morph::Hex>::iterator cbhi = bhi->get_neighbour(i);
+                    std::list<morph::hex>::iterator cbhi = bhi->get_neighbour(i);
 
                     // Test if the candidate boundary hex is in the 'recently seen' deque
                     bool hex_already_seen = false;
@@ -3694,7 +3692,7 @@ namespace morph {
                     for (unsigned short j = 0; j < 6; ++j) {
 
                         // Ignore the candidate boundary hex itself. if j==i_opp, then
-                        // i's neighbour in dirn morph::Hex::neighbour_pos(j) is the
+                        // i's neighbour in dirn morph::hex::neighbour_pos(j) is the
                         // candidate iself, continue to next i
                         if (j==i_opp) { continue; }
 
@@ -3723,23 +3721,23 @@ namespace morph {
          * \a hi which is assumed to already be known to refer to a hex lying inside the
          * boundary.
          */
-        void markHexesInside (std::list<Hex>::iterator hi,
+        void markhexesInside (std::list<hex>::iterator hi,
                               unsigned int bdryFlag = HEX_IS_BOUNDARY,
                               unsigned int insideFlag = HEX_INSIDE_BOUNDARY)
         {
             // Run to boundary, marking as we go
-            std::list<morph::Hex>::iterator bhi(hi);
+            std::list<morph::hex>::iterator bhi(hi);
             while (bhi->testFlags (bdryFlag) == false && bhi->has_nne()) {
                 bhi->setFlag (insideFlag);
                 bhi = bhi->nne;
             }
-            std::list<morph::Hex>::iterator bhi_start = bhi;
+            std::list<morph::hex>::iterator bhi_start = bhi;
 
             // Mark from first boundary hex and across the region
             this->markFromBoundary (bhi, bdryFlag, insideFlag);
 
             // a deque to hold the 'n_recents' most recently seen boundary hexes.
-            std::deque<std::list<morph::Hex>::iterator> recently_seen;
+            std::deque<std::list<morph::hex>::iterator> recently_seen;
             unsigned int n_recents = 16U; // 2 should be sufficient for boundaries with double thickness
             // sections. If problems occur, trying increasing this.
             bool gotnext = this->findNextBoundaryNeighbour (bhi, recently_seen, n_recents, bdryFlag, insideFlag);
@@ -3754,7 +3752,7 @@ namespace morph {
          * Recursively mark hexes to be kept if they are inside the rectangular hex
          * domain.
          */
-        void markHexesInsideRectangularDomain (const std::array<int, 6>& extnts)
+        void markhexesInsideRectangularDomain (const std::array<int, 6>& extnts)
         {
             // Check ri,gi,bi and reduce to equivalent ri,gi,bi=0.  Use gi to determine whether outside
             // top/bottom region Add gi contribution to ri to determine whether outside left/right region
@@ -3818,7 +3816,7 @@ namespace morph {
         /*!
          * Mark hexes to be kept if they are in a parallelogram domain.
          */
-        void markHexesInsideParallelogramDomain (const std::array<int, 6>& extnts)
+        void markhexesInsideParallelogramDomain (const std::array<int, 6>& extnts)
         {
             // Check ri,gi,bi and reduce to equivalent ri,gi,bi=0.  Use gi to determine whether outside
             // top/bottom region Add gi contribution to ri to determine whether outside left/right region
@@ -3840,9 +3838,9 @@ namespace morph {
         /*!
          * Mark ALL hexes as inside the domain
          */
-        void markAllHexesInsideDomain()
+        void markAllhexesInsideDomain()
         {
-            std::list<morph::Hex>::iterator hi = this->hexen.begin();
+            std::list<morph::hex>::iterator hi = this->hexen.begin();
             while (hi != this->hexen.end()) {
                 hi->setInsideDomain();
                 hi++;
@@ -3855,21 +3853,21 @@ namespace morph {
         void discardOutsideBoundary()
         {
             // Mark those hexes inside the boundary
-            std::list<morph::Hex>::iterator centroidHex = this->findHexNearest (this->boundaryCentroid);
-            this->markHexesInside (centroidHex);
+            std::list<morph::hex>::iterator centroidhex = this->findhexNearest (this->boundaryCentroid);
+            this->markhexesInside (centroidhex);
             // Run through and discard those hexes outside the boundary:
             auto hi = this->hexen.begin();
             while (hi != this->hexen.end()) {
                 if (hi->testFlags(HEX_INSIDE_BOUNDARY) == false) {
-                    // When erasing a Hex, I need to update the neighbours of its neighbours.
+                    // When erasing a hex, I need to update the neighbours of its neighbours.
                     hi->disconnectNeighbours();
-                    // Having disconnected the neighbours, erase the Hex.
+                    // Having disconnected the neighbours, erase the hex.
                     hi = this->hexen.erase (hi);
                 } else {
                     ++hi;
                 }
             }
-            // The Hex::vi indices need to be re-numbered.
+            // The hex::vi indices need to be re-numbered.
             this->renumberVectorIndices();
             // Finally, do something about the hexagonal grid vertices; set this to true to mark that the
             // iterators to the outermost vertices are no longer valid and shouldn't be used.
@@ -3967,8 +3965,8 @@ namespace morph {
         }
 
         /*!
-         * Does what it says on the tin. Re-number the Hex::vi vector index in each
-         * Hex in the HexGrid, from the start of the list<Hex> hexen until the end.
+         * Does what it says on the tin. Re-number the hex::vi vector index in each
+         * hex in the hexgrid, from the start of the list<hex> hexen until the end.
          */
         void renumberVectorIndices()
         {
@@ -4008,20 +4006,20 @@ namespace morph {
         /*!
          * A boundary to apply to the initial, rectangular grid.
          */
-        BezCurvePath<float> boundary;
+        bezcurvepath<float> boundary;
 
         /*
-         * Hex references to the hexes on the vertices of the hexagonal
+         * hex references to the hexes on the vertices of the hexagonal
          * grid. Configured during init(). These will become invalid when a new
          * boundary is applied to the original hexagonal grid. When this occurs,
          * gridReduced should be set false.
          */
-        std::list<Hex>::iterator vertexE;
-        std::list<Hex>::iterator vertexNE;
-        std::list<Hex>::iterator vertexNW;
-        std::list<Hex>::iterator vertexW;
-        std::list<Hex>::iterator vertexSW;
-        std::list<Hex>::iterator vertexSE;
+        std::list<hex>::iterator vertexE;
+        std::list<hex>::iterator vertexNE;
+        std::list<hex>::iterator vertexNW;
+        std::list<hex>::iterator vertexW;
+        std::list<hex>::iterator vertexSW;
+        std::list<hex>::iterator vertexSE;
 
         /*!
          * Set true when a new boundary has been applied. This means that
