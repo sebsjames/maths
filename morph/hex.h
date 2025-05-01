@@ -248,24 +248,24 @@ namespace morph {
             s += std::to_string(this->gi).substr(0,4) + "). ";
 
             if (this->has_ne()) {
-                s += "E: (" + std::to_string(this->ne->ri).substr(0,4) + "," + std::to_string(this->ne->gi).substr(0,4) + ") " + (this->ne->boundaryhex() == true ? "OB":"") + " ";
+                s += "E: (" + std::to_string(this->ne->ri).substr(0,4) + "," + std::to_string(this->ne->gi).substr(0,4) + ") " + (this->ne->boundaryHex() == true ? "OB":"") + " ";
             }
             if (this->has_nse()) {
-                s += "SE: (" + std::to_string(this->nse->ri).substr(0,4) + "," + std::to_string(this->nse->gi).substr(0,4) + ") " + (this->nse->boundaryhex() == true ? "OB":"") + " ";
+                s += "SE: (" + std::to_string(this->nse->ri).substr(0,4) + "," + std::to_string(this->nse->gi).substr(0,4) + ") " + (this->nse->boundaryHex() == true ? "OB":"") + " ";
             }
             if (this->has_nsw()) {
-                s += "SW: (" + std::to_string(this->nsw->ri).substr(0,4) + "," + std::to_string(this->nsw->gi).substr(0,4) + ") " + (this->nsw->boundaryhex() == true ? "OB":"") + " ";
+                s += "SW: (" + std::to_string(this->nsw->ri).substr(0,4) + "," + std::to_string(this->nsw->gi).substr(0,4) + ") " + (this->nsw->boundaryHex() == true ? "OB":"") + " ";
             }
             if (this->has_nw()) {
-                s += "W: (" + std::to_string(this->nw->ri).substr(0,4) + "," + std::to_string(this->nw->gi).substr(0,4) + ") " + (this->nw->boundaryhex() == true ? "OB":"") + " ";
+                s += "W: (" + std::to_string(this->nw->ri).substr(0,4) + "," + std::to_string(this->nw->gi).substr(0,4) + ") " + (this->nw->boundaryHex() == true ? "OB":"") + " ";
             }
             if (this->has_nnw()) {
-                s += "NW: (" + std::to_string(this->nnw->ri).substr(0,4) + "," + std::to_string(this->nnw->gi).substr(0,4) + ") " + (this->nnw->boundaryhex() == true ? "OB":"") + " ";
+                s += "NW: (" + std::to_string(this->nnw->ri).substr(0,4) + "," + std::to_string(this->nnw->gi).substr(0,4) + ") " + (this->nnw->boundaryHex() == true ? "OB":"") + " ";
             }
             if (this->has_nne()) {
-                s += "NE: (" + std::to_string(this->nne->ri).substr(0,4) + "," + std::to_string(this->nne->gi).substr(0,4) + ") " + (this->nne->boundaryhex() == true ? "OB":"") + " ";
+                s += "NE: (" + std::to_string(this->nne->ri).substr(0,4) + "," + std::to_string(this->nne->gi).substr(0,4) + ") " + (this->nne->boundaryHex() == true ? "OB":"") + " ";
             }
-            if (this->boundaryhex()) {
+            if (this->boundaryHex()) {
                 s += "(ON boundary)";
             } else  {
                 s += "(not boundary)";
@@ -518,13 +518,13 @@ namespace morph {
          * client code will then re-set the neighbour relations so that onBoundary() would return
          * true.
          */
-        bool boundaryhex() const { return this->flags & HEX_IS_BOUNDARY ? true : false; }
+        bool boundaryHex() const { return this->flags & HEX_IS_BOUNDARY ? true : false; }
         /*!
          * Mark the hex as a boundary hex. Boundary hexes are also, by definition, inside the
          * boundary.
          */
-        void setBoundaryhex() { this->flags |= (HEX_IS_BOUNDARY | HEX_INSIDE_BOUNDARY); }
-        void unsetBoundaryhex() { this->flags &= ~(HEX_IS_BOUNDARY | HEX_INSIDE_BOUNDARY); }
+        void setBoundaryHex() { this->flags |= (HEX_IS_BOUNDARY | HEX_INSIDE_BOUNDARY); }
+        void unsetBoundaryHex() { this->flags &= ~(HEX_IS_BOUNDARY | HEX_INSIDE_BOUNDARY); }
 
         //! Returns true if this hex is known to be inside the boundary.
         bool insideBoundary() const { return this->flags & HEX_INSIDE_BOUNDARY ? true : false; }
