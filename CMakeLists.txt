@@ -113,7 +113,7 @@ endif()
 add_subdirectory(morph)
 
 # Unit testing using the ctest framework
-option(BUILD_TESTS "Build tests" OFF)
+option(BUILD_TESTS "Build tests" ON)
 if(BUILD_TESTS)
   enable_testing()
   add_subdirectory(tests)

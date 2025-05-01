@@ -1,8 +1,5 @@
-#include "morph/Hex.h"
+#include <morph/hex.h>
 #include <iostream>
-
-using namespace morph;
-using namespace std;
 
 int main()
 {
@@ -10,7 +7,7 @@ int main()
     int g = 0;
     float d = 2.0f;
     unsigned int idx = 0;
-    Hex h(idx, d, r, g);
+    morph::hex h(idx, d, r, g);
 
     morph::vec<float, 2> vN = h.get_vertex_coord (HEX_VERTEX_POS_N);
     morph::vec<float, 2> vNE = h.get_vertex_coord (HEX_VERTEX_POS_NE);
@@ -20,24 +17,22 @@ int main()
     morph::vec<float, 2> vNW = h.get_vertex_coord (HEX_VERTEX_POS_NW);
 
     // Output for user
-    cout << "Hex centre: (" << h.x << "," << h.y << ")" << endl;
-    cout << "Hex vertex N : " << vN << endl;
-    cout << "Hex vertex NE: " << vNE << endl;
-    cout << "Hex vertex SE: " << vSE << endl;
-    cout << "Hex vertex S : " << vS << endl;
-    cout << "Hex vertex SW: " << vSW << endl;
-    cout << "Hex vertex NW: " << vNW << endl;
+    std::cout << "hex centre: (" << h.x << "," << h.y << ")" << std::endl;
+    std::cout << "hex vertex N : " << vN << std::endl;
+    std::cout << "hex vertex NE: " << vNE << std::endl;
+    std::cout << "hex vertex SE: " << vSE << std::endl;
+    std::cout << "hex vertex S : " << vS << std::endl;
+    std::cout << "hex vertex SW: " << vSW << std::endl;
+    std::cout << "hex vertex NW: " << vNW << std::endl;
 
 
     float vto_ne = d/(2.0f * morph::mathconst<float>::sqrt_of_3);
     // Test the numbers (non-exhaustive)
-    if (vN[0] == 0.0f
-        && vNE[1] == vto_ne
-        && vSW[1] == -vto_ne) {
-        cout << "PASS" << endl;
+    if (vN[0] == 0.0f && vNE[1] == vto_ne && vSW[1] == -vto_ne) {
+        std::cout << "PASS" << std::endl;
         return 0;
     }
 
-    cout << "FAIL" << endl;
+    std::cout << "FAIL" << std::endl;
     return 1;
 }

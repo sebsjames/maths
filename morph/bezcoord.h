@@ -1,0 +1,133 @@
+/*!
+ * A Bezier curve coordinate class.
+ */
+
+#pragma once
+
+#include <cmath>
+#include <ostream>
+#include <cmath>
+#include <morph/vec.h>
+
+namespace morph
+{
+    /*!
+     * A class defining a bezier curve coordinate, along with its parameter value and
+     * the distance remaining to the end of the curve.
+     */
+    template <typename F>
+    class bezcoord
+    {
+    public: // methods
+
+        //! Construct empty bezcoord. Defaults to non-null.
+        bezcoord() {}
+        //! Construct empty coordinate, which may or may not be set to null.
+        bezcoord (bool nullcoord) : nullCoordinate (nullcoord) {}
+        //! Construct using just a 2D coordinate
+        bezcoord (const morph::vec<F, 2>& r) : coord(r) {}
+        //! Construct with coordinate and corresponding t parameter
+        bezcoord (F t, const morph::vec<F, 2>& r) : coord(r), param(t) {}
+        //! Construct with coord & t and also set the para remaining
+        bezcoord (F t, const morph::vec<F, 2>& r, F remain) : coord(r), param(t), remaining(remain) {}
+
+        // Accessors
+        //morph::vec<F, 2> getCoord() const { return this->coord; } // now public
+        //F getParam() const { return this->param; } // now public
+        F getRemaining() const { return this->remaining; }
+        bool getNullCoordinate() const { return this->nullCoordinate; }
+        bool isNull() const { return this->nullCoordinate; }
+        //void setCoord (const morph::vec<F, 2>& c) { this->coord = c; } // now public
+        //void setParam (F p) { this->param = p; }
+        void setRemaining (F r) { this->remaining = r; }
+        void setNullCoordinate (bool b) { this->nullCoordinate = b; }
+
+        // Single character accessors, for easy-to-read client code.
+        F x() const { return this->coord[0]; }
+        F y() const { return this->coord[1]; }
+        F t() const { return this->param; }
+
+        //! Use this if you need to invert the y axis
+        void invertY() { this->coord[1] = -this->coord[1]; }
+
+        /*!
+         * Normalize the length that is made by drawing a vector from the origin to this
+         * coordinate.
+         */
+        void normalize()
+        {
+            bezcoord origin(morph::vec<F, 2>({0.0f,0.0f}));
+            F len = origin.distanceTo (*this);
+            this->coord /= len;
+        }
+
+        /*!
+         * Compute the Euclidean distance from the current coordinate to the given
+         * coordinate.
+         */
+        F distanceTo (bezcoord& other) const { return (this->coord - other.coord).length(); }
+
+        //! Horizontal distance between two bezcoords.
+        F horzDistanceTo (bezcoord& other) const { return (std::abs(this->x() - other.x())); }
+
+        //! Vertical distance between two bezcoords.
+        F vertDistanceTo (bezcoord& other) const { return (std::abs(this->y() - other.y())); }
+
+        //! Subtract the coordinate c from this bezcoord.
+        void subtract (const morph::vec<F, 2>& c) { this->coord -= c; }
+
+        //! Subtract the coordinate c from this bezcoord.
+        void subtract (const bezcoord& c) { this->coord -= c.coord; }
+
+        //! Add the coordinate c to this bezcoord.
+        void add (const morph::vec<F, 2>& c) { this->coord += c; }
+
+        //! Add the coordinate c to this bezcoord.
+        void add (const bezcoord& c) { this->coord += c.coord; }
+
+        bezcoord<F> operator- (const bezcoord& br) const
+        {
+            morph::vec<F, 2> p;
+            p = this->coord - br.coord;
+            return bezcoord<F>(p); // Note returned object contains remaining and param == -1
+        }
+
+        friend std::ostream& operator<< (std::ostream& output, const bezcoord& b)
+        {
+            output << b.t() << "," << b.x() << "," << b.y();
+            return output;
+        }
+
+    public: // attributes
+        /*!
+         * Cartesian coordinates of the point. In keeping with SVG, coord.first (x) is
+         * positive rightwards and coord.second is positive downwards.
+         */
+        morph::vec<F, 2> coord = { F{0}, F{0} };
+
+        /*!
+         * The parameter value used to obtain this coordinate. Note this is only
+         * meaningful when this bezcoord is considered in conjunction with a BezCurve
+         * instance.
+         *
+         * Range is 0 to 1.0. If set to -1.0, then this means "unset".
+         */
+        F param = F{-1};
+
+    private: // attributes
+        /*!
+         * If set >-1, stores the remaining distance to the end point of the curve.
+         *
+         * Range is 0 to FLOATMAX. If set to -1.0, then this means "unset".
+         */
+        F remaining = F{-1};
+
+        /*!
+         * If this is a null coordinate, set this to true. Note that a bezcoord may have
+         * a null coordinate but non-null param or remaining attributes, in the cases
+         * where that might be useful.
+         */
+        bool nullCoordinate = false;
+    };
+
+} // namespace morph

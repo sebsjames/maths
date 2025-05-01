@@ -181,12 +181,12 @@ add_executable(testMatrix22 testMatrix22.cpp)
 add_test(testMatrix22 testMatrix22)
 
 # Test Hex::get_vertex_coord()
-#add_executable(testHexVertexPos testHexVertexPos.cpp)
-#add_test(testHexVertexPos testHexVertexPos)
+add_executable(testHexVertexPos testHexVertexPos.cpp)
+add_test(testHexVertexPos testHexVertexPos)
 
 # Test Hex user flags code
-#add_executable(testHexUserFlags testHexUserFlags.cpp)
-#add_test(testHexUserFlags testHexUserFlags)
+add_executable(testHexUserFlags testHexUserFlags.cpp)
+add_test(testHexUserFlags testHexUserFlags)
 
 # An example program which is slow compiled on Visual Studio with the /MDd "Debug build" flag
 add_executable(profileListHexminErase profileListHexminErase.cpp)
