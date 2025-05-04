@@ -144,28 +144,13 @@ namespace morph {
         bool operator< (const hex& rhs) const
         {
             // Compare position first.
-            if (this->x < rhs.x) {
-                return true;
-            }
-            if (this->x > rhs.x) {
-                return false;
-            }
-            if (this->y < rhs.y) {
-                return true;
-            }
-            if (this->y > rhs.y) {
-                return false;
-            }
+            if (this->x < rhs.x) { return true; }
+            if (this->x > rhs.x) { return false; }
+            if (this->y < rhs.y) { return true; }
+            if (this->y > rhs.y) { return false; }
             // If position can't differentiate, compare vector index
-            if (this->vi < rhs.vi) {
-                return true;
-            }
-            #if 0
-            if (this->vi > rhs.vi) {
-                return false;
-            }
-            #endif
-            return false;
+            if (this->vi < rhs.vi) { return true; }
+            return false; // no need for vi > rhs.vi test
         }
 
 #ifdef HEXGRID_COMPILE_LOAD_AND_SAVE
@@ -283,7 +268,7 @@ namespace morph {
             s += std::to_string(this->vi).substr(0,2) + " (";
             s += std::to_string(this->ri).substr(0,4) + ",";
             s += std::to_string(this->gi).substr(0,4) + ") is at (x,y) = ("
-                + std::to_string(this->x).substr(0,4) +"," + std::to_string(this->y).substr(0,4) + ")";
+               + std::to_string(this->x).substr(0,4) + "," + std::to_string(this->y).substr(0,4) + ")";
             return s;
         }
 
@@ -365,8 +350,8 @@ namespace morph {
          * Compute the distance from the point given (in two-dimensions only; x and y) by @a
          * cartesianPoint to the centre of this hex.
          */
-        template <typename LFlt>
-        float distanceFrom (const morph::vec<LFlt, 2> cartesianPoint) const
+        template <typename F>
+        float distanceFrom (const morph::vec<F, 2> cartesianPoint) const
         {
             float dx = cartesianPoint[0] - x;
             float dy = cartesianPoint[1] - y;
@@ -881,8 +866,8 @@ namespace morph {
          * vertex \a ni with the distance threshold being set from the hex to hex spacing. This is for
          * distinguishing between vertices and hex centres on a hexgrid.
          */
-        template <typename LFlt>
-        bool compare_vertex_coord (int ni, morph::vec<LFlt, 2>& coord) const
+        template <typename F>
+        bool compare_vertex_coord (int ni, morph::vec<F, 2>& coord) const
         {
             morph::vec<float, 2> vc = this->get_vertex_coord (ni);
             if (std::abs(vc[0] - coord[0]) < this->d/100
@@ -893,8 +878,8 @@ namespace morph {
         }
 
         //! Return true if the hex contains the vertex at \a coord
-        template <typename LFlt>
-        bool contains_vertex (morph::vec<LFlt, 2>& coord) const
+        template <typename F>
+        bool contains_vertex (morph::vec<F, 2>& coord) const
         {
             // check each of my vertices, if any match coord, then return true.
             bool rtn = false;
@@ -912,8 +897,8 @@ namespace morph {
          * the hex, with the distance threshold being set from the hex to hex spacing. This is for
          * distinguishing between vertices and hex centres on a hexgrid.
          */
-        template <typename LFlt>
-        bool compare_coord (morph::vec<LFlt, 2>& coord) const
+        template <typename F>
+        bool compare_coord (morph::vec<F, 2>& coord) const
         {
             if (std::abs(this->x - coord[0]) < this->d/100
                 && std::abs(this->y - coord[1]) < this->d/100) {

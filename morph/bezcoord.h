@@ -7,6 +7,8 @@
 #include <cmath>
 #include <ostream>
 #include <cmath>
+#include <concepts>
+
 #include <morph/vec.h>
 
 namespace morph
@@ -15,11 +17,9 @@ namespace morph
      * A class defining a bezier curve coordinate, along with its parameter value and
      * the distance remaining to the end of the curve.
      */
-    template <typename F>
-    class bezcoord
+    template <typename F> requires std::is_floating_point_v<F>
+    struct bezcoord
     {
-    public: // methods
-
         //! Construct empty bezcoord. Defaults to non-null.
         bezcoord() {}
         //! Construct empty coordinate, which may or may not be set to null.
@@ -32,13 +32,9 @@ namespace morph
         bezcoord (F t, const morph::vec<F, 2>& r, F remain) : coord(r), param(t), remaining(remain) {}
 
         // Accessors
-        //morph::vec<F, 2> getCoord() const { return this->coord; } // now public
-        //F getParam() const { return this->param; } // now public
         F getRemaining() const { return this->remaining; }
         bool getNullCoordinate() const { return this->nullCoordinate; }
         bool isNull() const { return this->nullCoordinate; }
-        //void setCoord (const morph::vec<F, 2>& c) { this->coord = c; } // now public
-        //void setParam (F p) { this->param = p; }
         void setRemaining (F r) { this->remaining = r; }
         void setNullCoordinate (bool b) { this->nullCoordinate = b; }
 
@@ -98,7 +94,6 @@ namespace morph
             return output;
         }
 
-    public: // attributes
         /*!
          * Cartesian coordinates of the point. In keeping with SVG, coord.first (x) is
          * positive rightwards and coord.second is positive downwards.
@@ -114,11 +109,11 @@ namespace morph
          */
         F param = F{-1};
 
-    private: // attributes
+    private:
         /*!
          * If set >-1, stores the remaining distance to the end point of the curve.
          *
-         * Range is 0 to FLOATMAX. If set to -1.0, then this means "unset".
+         * Range is 0 to the max of type F. If set to -1.0, then this means "unset".
          */
         F remaining = F{-1};
 

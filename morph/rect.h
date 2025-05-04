@@ -369,8 +369,8 @@ namespace morph {
          * Compute the distance from the point given (in two-dimensions only; x and y)
          * by \a cartesianPoint to the centre of this rect.
          */
-        template <typename LFlt>
-        float distanceFrom (const morph::vec<LFlt, 2> cartesianPoint) const
+        template <typename F>
+        float distanceFrom (const morph::vec<F, 2> cartesianPoint) const
         {
             float deltax = cartesianPoint[0] - x;
             float deltay = cartesianPoint[1] - y;
@@ -915,8 +915,8 @@ namespace morph {
          * rect spacing. This is for distinguishing between vertices and centres on a
          * rectGrid.
          */
-        template <typename LFlt>
-        bool compare_vertex_coord (int ni, morph::vec<LFlt, 2>& coord) const
+        template <typename F>
+        bool compare_vertex_coord (int ni, morph::vec<F, 2>& coord) const
         {
             morph::vec<float, 2> vc = this->get_vertex_coord (ni);
             float sr_thresh = this->getSR()/100.0f;
@@ -928,8 +928,8 @@ namespace morph {
         }
 
         //! Return true if the rect contains the vertex at \a coord
-        template <typename LFlt>
-        bool contains_vertex (morph::vec<LFlt, 2>& coord) const
+        template <typename F>
+        bool contains_vertex (morph::vec<F, 2>& coord) const
         {
             // check each of my vertices, if any match coord, then return true.
             bool rtn = false;
@@ -948,8 +948,8 @@ namespace morph {
          * rect spacing. This is for distinguishing between vertices and centres on a
          * rectGrid.
          */
-        template <typename LFlt>
-        bool compare_coord (morph::vec<LFlt, 2>& coord) const
+        template <typename F>
+        bool compare_coord (morph::vec<F, 2>& coord) const
         {
             float sr_thresh = this->getSR()/100.0f;
             if (std::abs(this->x - coord[0]) < sr_thresh

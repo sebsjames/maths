@@ -7,8 +7,6 @@
 
 #pragma once
 
-#include <morph/bezcurve.h>
-
 #include <limits>
 #include <list>
 #include <vector>
@@ -17,19 +15,20 @@
 #include <iostream>
 #include <fstream>
 #include <cmath>
+#include <concepts>
+
+#include <morph/vec.h>
+#include <morph/bezcurve.h>
 
 namespace morph
 {
     /*!
-     * A class defining a path made up of Bezier curves. This has an
-     * initial position, and then a list of curves that make up the
-     * path. I've kept this very simple with all public member
-     * attributes.
+     * A class defining a path made up of Bezier curves. This has an initial position,
+     * and then a list of curves that make up the path.
      */
-    template <typename Flt>
-    class bezcurvepath
+    template <typename F> requires std::is_floating_point_v<F>
+    struct bezcurvepath
     {
-    public:
         /*!
          * The name of this bezcurvepath. This is intended to be taken
          * from the layer name of the drawing from which the path was
@@ -38,25 +37,25 @@ namespace morph
         std::string name = "";
 
         //! The initial coordinate for the bezcurvepath.
-        morph::vec<Flt, 2> initialCoordinate = { Flt{0}, Flt{0} };
+        morph::vec<F, 2> initialCoordinate = { F{0}, F{0} };
 
         //! A list of the bezcurves that make up the full bezcurvepath.
-        std::list<bezcurve<Flt>> curves;
+        std::list<bezcurve<F>> curves;
 
         //! A scaling factor that's used to convert the path into mm.
-        Flt scale = Flt{1};
+        F scale = F{1};
 
         /*!
          * This can be filled with a set of points on the path made up by the Bezier
          * curves. Do so with computePoints.
          */
-        std::vector<bezcoord<Flt>> points;
+        std::vector<bezcoord<F>> points;
 
         //! The unit tangents to the curve at each point
-        std::vector<bezcoord<Flt>> tangents;
+        std::vector<bezcoord<F>> tangents;
 
         //! Unit normals
-        std::vector<bezcoord<Flt>> normals;
+        std::vector<bezcoord<F>> normals;
 
         /*!
          * A null bezcurvepath is one which has no curves. If curves
@@ -72,16 +71,16 @@ namespace morph
         {
             this->curves.clear();
             this->initialCoordinate.zero();
-            this->scale = Flt{1};
+            this->scale = F{1};
             this->name = "";
         }
 
         //! Set scaling on all member Bezier curves.
-        void setScale (const Flt s)
+        void setScale (const F s)
         {
             this->scale = s;
             this->initialCoordinate *= this->scale;
-            typename std::list<bezcurve<Flt>>::iterator i = this->curves.begin();
+            typename std::list<bezcurve<F>>::iterator i = this->curves.begin();
             while (i != this->curves.end()) {
                 i->setScale (this->scale);
                 ++i;
@@ -89,7 +88,7 @@ namespace morph
         }
 
         //! Add a curve to this->curves.
-        void addCurve (bezcurve<Flt>& c)
+        void addCurve (bezcurve<F>& c)
         {
             if (c.getOrder() == 0) {
                 std::cout << "Not adding 0th order curve." << std::endl;
@@ -115,7 +114,7 @@ namespace morph
             std::cout << "Initial coord: (" << this->initialCoordinate.first
                       << "," << this->initialCoordinate.second << ")" << std::endl;
             std::cout << "Number of curves: " << this->curves.size() << std::endl;
-            typename std::list<bezcurve<Flt>>::const_iterator i = this->curves.begin();
+            typename std::list<bezcurve<F>>::const_iterator i = this->curves.begin();
             while (i != this->curves.end()) {
                 std::cout << i->output(static_cast<unsigned int>(20));
                 ++i;
@@ -128,13 +127,13 @@ namespace morph
          * assumed to have been pre-scaled - step is in mm, not in SVG
          * drawing units.
          */
-        void save (Flt step) const
+        void save (F step) const
         {
             std::ofstream f;
             std::string fname = this->name + ".csv";
             f.open (fname.c_str(), std::ios::out|std::ios::trunc);
             if (f.is_open()) {
-                typename std::list<bezcurve<Flt>>::const_iterator i = this->curves.begin();
+                typename std::list<bezcurve<F>>::const_iterator i = this->curves.begin();
                 // Don't forget to set the scaling factor in each
                 // bezcurve before generating points:
                 while (i != this->curves.end()) {
@@ -149,19 +148,19 @@ namespace morph
          * Compute the as-the-crow-flies distance from the initial coordinate of this
          * bezcurvepath to the final coordinate. Uses the scale factor.
          */
-        Flt getEndToEnd() const
+        F getEndToEnd() const
         {
             // Distance from this->initialCoordinate to final point:
-            if (this->curves.empty()) { return Flt{0}; }
-            morph::vec<Flt, 2> cend = this->curves.back().getFinalPointScaled();
+            if (this->curves.empty()) { return F{0}; }
+            morph::vec<F, 2> cend = this->curves.back().getFinalPointScaled();
             return (cend - initialCoordinate).length();
         }
 
         //! Compute & return the centroid of the passed in set of positions.
-        static morph::vec<Flt, 2> getCentroid (const std::vector<bezcoord<Flt>>& points)
+        static morph::vec<F, 2> getCentroid (const std::vector<bezcoord<F>>& points)
         {
-            morph::vec<Flt, 2> c = {Flt{0}, Flt{0}};
-            for (const bezcoord<Flt>& i : points) {
+            morph::vec<F, 2> c = {F{0}, F{0}};
+            for (const bezcoord<F>& i : points) {
                 c += i.coord;
             }
             c /= points.size();
@@ -177,14 +176,14 @@ namespace morph
          * -1. SVG is encoded in a left hand coordinate system, so if you're going to
          * plot the bezcoord points in a right hand system, set invertY to true.
          */
-        void computePoints (Flt step, bool invertY = false)
+        void computePoints (F step, bool invertY = false)
         {
             this->points.clear();
             this->tangents.clear();
             this->normals.clear();
 
             // First the very start point:
-            bezcoord<Flt> startPt = this->curves.front().computePoint (Flt{0});
+            bezcoord<F> startPt = this->curves.front().computePoint (F{0});
             if (invertY) {
                 startPt.invertY();
             }
@@ -192,22 +191,22 @@ namespace morph
 
             // Make cp a complete set of points for the current curve *including
             // the point in the curve for t=0*
-            std::pair<bezcoord<Flt>, bezcoord<Flt>> tn0 = this->curves.front().computeTangentNormal(Flt{0});
+            std::pair<bezcoord<F>, bezcoord<F>> tn0 = this->curves.front().computeTangentNormal(F{0});
             this->tangents.push_back (tn0.first);
             this->normals.push_back (tn0.second);
 
-            typename std::list<bezcurve<Flt>>::const_iterator i = this->curves.begin();
+            typename std::list<bezcurve<F>>::const_iterator i = this->curves.begin();
             // Don't forget to set the scaling factor in each
             // bezcurve before generating points:
-            Flt firstl = Flt{0};
+            F firstl = F{0};
             while (i != this->curves.end()) {
-                std::vector<bezcoord<Flt>> cp = i->computePoints (step, firstl);
+                std::vector<bezcoord<F>> cp = i->computePoints (step, firstl);
                 if (cp.back().isNull()) {
                     firstl = step - cp.back().getRemaining();
                     cp.pop_back();
                 }
                 if (invertY) {
-                    typename std::vector<bezcoord<Flt>>::iterator bci = cp.begin();
+                    typename std::vector<bezcoord<F>>::iterator bci = cp.begin();
                     while (bci != cp.end()) {
                         bci->invertY();
                         ++bci;
@@ -216,8 +215,8 @@ namespace morph
                 this->points.insert (this->points.end(), cp.begin(), cp.end());
 
                 // Now compute tangents and normals
-                for (bezcoord<Flt> bp : cp) {
-                    std::pair<bezcoord<Flt>, bezcoord<Flt>> tn = i->computeTangentNormal(bp.t());
+                for (bezcoord<F> bp : cp) {
+                    std::pair<bezcoord<F>, bezcoord<F>> tn = i->computeTangentNormal(bp.t());
                     this->tangents.push_back (tn.first);
                     this->normals.push_back (tn.second);
                 }
@@ -226,9 +225,9 @@ namespace morph
         }
 
         // Getters
-        std::vector<bezcoord<Flt>> getPoints() const { return this->points; }
-        std::vector<bezcoord<Flt>> getTangents() const { return this->tangents; }
-        std::vector<bezcoord<Flt>> getNormals() const { return this->normals; }
+        std::vector<bezcoord<F>> getPoints() const { return this->points; }
+        std::vector<bezcoord<F>> getTangents() const { return this->tangents; }
+        std::vector<bezcoord<F>> getNormals() const { return this->normals; }
 
         /*!
          * Similar to the above, but ensure that there are @nPoints evenly spaced
@@ -250,8 +249,8 @@ namespace morph
 
             this->points.clear();
 
-            Flt etoe = this->getEndToEnd();
-            Flt step = etoe/(nPoints-1);
+            F etoe = this->getEndToEnd();
+            F step = etoe/(nPoints-1);
             unsigned int actualPoints = 0;
 
             while (actualPoints != nPoints) {
@@ -262,12 +261,12 @@ namespace morph
                 if (actualPoints != nPoints) {
 
                     // Modify step
-                    Flt steptrial = Flt{0};
+                    F steptrial = F{0};
                     if (actualPoints > nPoints) {
                         // Increase step size, starting with a doubling, then a half
                         // extra, then a quarter extra, etc
                         actualPoints = 0;
-                        Flt stepinc = step;
+                        F stepinc = step;
                         while (actualPoints < nPoints) {
                             steptrial = step + stepinc;
                             this->points.clear();
@@ -276,7 +275,7 @@ namespace morph
                             stepinc /= 2.0f;
                         }
 
-                        if (std::abs(step-steptrial) < std::numeric_limits<Flt>::epsilon()) {
+                        if (std::abs(step-steptrial) < std::numeric_limits<F>::epsilon()) {
                             std::cout << "Numeric limit reached; can't change step a small "
                                       << "enough amount to change the number of points" << std::endl;
                             return;
@@ -287,7 +286,7 @@ namespace morph
                         // Decrease step size, starting with a halving, then a
                         // quartering until we exceed nPoints
                         actualPoints = 0;
-                        Flt stepinc = step/2.0f;
+                        F stepinc = step/2.0f;
                         while (actualPoints < nPoints) {
                             steptrial = step - stepinc;
                             this->points.clear();
@@ -295,7 +294,7 @@ namespace morph
                             actualPoints = this->points.size();
                             stepinc /= 2.0f;
                         }
-                        if (std::abs(step-steptrial) < std::numeric_limits<Flt>::epsilon()) {
+                        if (std::abs(step-steptrial) < std::numeric_limits<F>::epsilon()) {
                             std::cout << "Numeric limit reached; can't change step a small "
                                       << "enough amount to change the number of points" << std::endl;
                             return;
