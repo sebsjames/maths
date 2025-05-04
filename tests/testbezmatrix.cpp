@@ -1,20 +1,16 @@
-#include "morph/HexGrid.h"
-#include "morph/BezCurve.h"
 #include <utility>
 #include <iostream>
 #include <fstream>
 #include <limits>
-
 #include <chrono>
-using namespace std::chrono;
 
-using namespace std;
-using morph::BezCoord;
-using morph::BezCurve;
-using morph::HexGrid;
+#include <morph/hexgrid.h>
+#include <morph/bezcurve.h>
 
 int main()
 {
+    using namespace std::chrono;
+
     int rtn = 0;
 
     morph::vvec<morph::vec<float, 2>> c = {
@@ -27,22 +23,22 @@ int main()
         {110.0f,68.0f}
     };
 
-    BezCurve<FLT> cv (c);
+    morph::bezcurve<FLT> cv (c);
 
-    cout << "Defined a " << cv.getOrder() << " nd/rd/th order curve" << endl;
+    std::cout << "Defined a " << cv.getOrder() << " nd/rd/th order curve" << std::endl;
 
-    BezCoord<FLT> bm = cv.computePointMatrix (0.4);
-    BezCoord<FLT> bg = cv.computePointGeneral (0.4);
-    cout << "matrix method: " << bm << endl;
-    cout << "general method: " << bg << endl;
+    morph::bezcoord<FLT> bm = cv.computePointMatrix (0.4);
+    morph::bezcoord<FLT> bg = cv.computePointGeneral (0.4);
+    std::cout << "matrix method: " << bm << std::endl;
+    std::cout << "general method: " << bg << std::endl;
 
     float xdiff = bm.x() - bg.x();
     float ydiff = bm.y() - bg.y();
-    cout << "x points differ by: " << xdiff << endl;
-    cout << "y points differ by: " << ydiff << endl;
+    std::cout << "x points differ by: " << xdiff << std::endl;
+    std::cout << "y points differ by: " << ydiff << std::endl;
 
-    if (xdiff < numeric_limits<float>::epsilon() && ydiff < numeric_limits<float>::epsilon()) {
-        cout << "General & matrix methods compute same point" << endl;
+    if (xdiff < std::numeric_limits<float>::epsilon() && ydiff < std::numeric_limits<float>::epsilon()) {
+        std::cout << "General & matrix methods compute same point" << std::endl;
     } else {
         ++rtn;
     }
@@ -55,7 +51,7 @@ int main()
     }
     milliseconds m_af = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
     milliseconds matrix_time = m_af - m_b4;
-    cout << "Computed " << (1.0f/tstep) << " matrix bezier points in " << matrix_time.count() << " ms" << endl;
+    std::cout << "Computed " << (1.0f/tstep) << " matrix bezier points in " << matrix_time.count() << " ms" << std::endl;
 
     milliseconds g_b4 = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
     for (float t = 0.0f; t < 1.0f; t+=tstep) {
@@ -63,7 +59,7 @@ int main()
     }
     milliseconds g_af = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
     milliseconds general_time = g_af - g_b4;
-    cout << "Computed " << (1.0f/tstep) << " bezier points (general method) in " << general_time.count() << " ms" << endl;
+    std::cout << "Computed " << (1.0f/tstep) << " bezier points (general method) in " << general_time.count() << " ms" << std::endl;
 
     if (cv.getOrder() < 4) {
         milliseconds o_b4 = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
@@ -72,7 +68,7 @@ int main()
         }
         milliseconds o_af = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
         milliseconds opt_time = o_af - o_b4;
-        cout << "Computed " << (1.0f/tstep) << " bezier points (optimized method) in " << opt_time.count() << " ms" << endl;
+        std::cout << "Computed " << (1.0f/tstep) << " bezier points (optimized method) in " << opt_time.count() << " ms" << std::endl;
     }
 
     return rtn;

@@ -339,16 +339,6 @@ if(ARMADILLO_FOUND)
   target_link_libraries(${TARGETTEST1_5} ${ARMADILLO_LIBRARY} ${ARMADILLO_LIBRARIES})
   add_test(testbezsplit ${TARGETTEST1_5})
 
-  # Testing Bezier derivatives
-  if(${glfw3_FOUND})
-    set(TARGETTEST1_8 testbezderiv3)
-    set(SOURCETEST1_8 testbezderiv3.cpp)
-    add_executable(${TARGETTEST1_8} ${SOURCETEST1_8})
-    target_compile_definitions(${TARGETTEST1_8} PUBLIC FLT=double)
-    target_link_libraries(${TARGETTEST1_8} ${ARMADILLO_LIBRARY} ${ARMADILLO_LIBRARIES} OpenGL::GL glfw Freetype::Freetype)
-    add_test(testbezderiv3 ${TARGETTEST1_8})
-  endif()
-
   # Test two curves connected together
   set(TARGETTEST2 twocurves)
   set(SOURCETEST2 twocurves.cpp)

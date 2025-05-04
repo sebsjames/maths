@@ -1,9 +1,9 @@
-#include "morph/HexGrid.h"
-#include "morph/BezCurve.h"
 #include <utility>
 #include <iostream>
 #include <fstream>
 #include <limits>
+
+#include <morph/bezcurve.h>
 
 int main()
 {
@@ -15,7 +15,7 @@ int main()
         {10,1}
     };
 
-    morph::BezCurve<FLT> cv (c);
+    morph::bezcurve<FLT> cv (c);
     std::cout << "Defined a " << cv.getOrder() << " nd/rd/th order curve" << std::endl;
 
     std::cout << "cv = [" << cv.output(FLT{1}) << "];\n";
@@ -26,8 +26,8 @@ int main()
     std::cout << "c1=[" << nc.first << "]\n";
     std::cout << "c2=[" << nc.second << "]\n";
 
-    morph::BezCurve<FLT> cv1 (nc.first);
-    morph::BezCurve<FLT> cv2 (nc.second);
+    morph::bezcurve<FLT> cv1 (nc.first);
+    morph::bezcurve<FLT> cv2 (nc.second);
 
     std::cout << "cv1 = [" << cv1.output(FLT{1}) << "];\n";
     std::cout << "cv2 = [" << cv2.output(FLT{1}) << "];\n";

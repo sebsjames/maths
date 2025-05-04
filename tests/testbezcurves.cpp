@@ -1,13 +1,12 @@
-#include "morph/BezCurve.h"
-#include "morph/BezCurvePath.h"
 #include <utility>
 #include <iostream>
 #include <fstream>
+#include <vector>
 
-using namespace std;
-using morph::BezCoord;
-using morph::BezCurve;
-using morph::BezCurvePath;
+#include <morph/bezcurve.h>
+#include <morph/bezcurvepath.h>
+#include <morph/vec.h>
+#include <morph/vvec.h>
 
 int main()
 {
@@ -20,34 +19,32 @@ int main()
     c2 = {2,-4};
     f = {10,1};
     // Make a cubic curve
-    BezCurve<float> cc3(i, f, c1, c2);
+    morph::bezcurve<float> cc3(i, f, c1, c2);
 
     // Make a second quartic curve.
     morph::vvec<morph::vec<float, 2>> quart = {f, {10.0f,10.0f}, {10.0f,0.0f},  {12.0f,-5.0f},  {14.0f,0.0f}};
-    BezCurve<float> cc4(quart);
+    morph::bezcurve<float> cc4(quart);
 
-    // Put em in a BezCurvePath
-    BezCurvePath<float> bcp;
+    // Put em in a bezcurvepath
+    morph::bezcurvepath<float> bcp;
     bcp.name = "testbezcurves";
     bcp.addCurve (cc3);
     bcp.addCurve (cc4);
 
     unsigned int nPoints = 201;
     bcp.computePoints (nPoints);
-    vector<BezCoord<float>> points = bcp.getPoints();
-    vector<BezCoord<float>> tans = bcp.getTangents();
+    std::vector<morph::bezcoord<float>> points = bcp.getPoints();
+    std::vector<morph::bezcoord<float>> tans = bcp.getTangents();
 
     for (auto p : points) {
-        cout << p.x() << "," << p.y() << endl;
+        std::cout << p.x() << "," << p.y() << std::endl;
     }
-    cout << "Tangents" << endl;
+    std::cout << "Tangents" << std::endl;
     for (auto ta : tans) {
-        cout << ta.x() << "," << ta.y() << endl;
+        std::cout << ta.x() << "," << ta.y() << std::endl;
     }
 
-    if (points.size() == nPoints) {
-        rtn = 0;
-    }
+    if (points.size() == nPoints) { rtn = 0; }
 
     return rtn;
 }
