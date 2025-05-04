@@ -217,7 +217,7 @@ namespace morph {
          */
         void save (const std::string& path)
         {
-            morph::HdfData hgdata (path);
+            morph::hdfdata hgdata (path, std::ios::out | std::ios::trunc);
             hgdata.add_val ("/d", d);
             hgdata.add_val ("/v", v);
             hgdata.add_val ("/x_span", x_span);
@@ -281,7 +281,7 @@ namespace morph {
          */
         void load (const std::string& path)
         {
-            morph::HdfData hgdata (path, true);
+            morph::hdfdata hgdata (path, std::ios::in);
             hgdata.read_val ("/d", this->d);
             hgdata.read_val ("/v", this->v);
             hgdata.read_val ("/x_span", this->x_span);
@@ -1099,7 +1099,7 @@ namespace morph {
          * Compute and return the area of one hex in the grid. The area is that of 6
          * triangles: (1/2 LR * d/2) * 6 // or (d*d*3)/(2*sqrt(3)) = d * d * sqrt(3)/2
          */
-        float gethexArea() const { return (this->d * this->d * morph::mathconst<float>::root_3_over_2); }
+        float getHexArea() const { return (this->d * this->d * morph::mathconst<float>::root_3_over_2); }
 
         /*!
          * Find the minimum value of x' on the hexgrid, where x' is the x axis rotated

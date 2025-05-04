@@ -290,3 +290,69 @@ add_test(testsigfigs testsigfigs)
 
 add_executable(testroundtocol testroundtocol.cpp)
 add_test(testroundtocol testroundtocol)
+
+if(ARMADILLO_FOUND)
+  # BezCurve class
+  set(TARGETTEST1 testbez)
+  set(SOURCETEST1 testbez.cpp)
+  add_executable(${TARGETTEST1} ${SOURCETEST1})
+  target_link_libraries(${TARGETTEST1} ${ARMADILLO_LIBRARY} ${ARMADILLO_LIBRARIES})
+  add_test(testbez ${TARGETTEST1})
+
+  # BezCurve class
+  set(TARGETTEST1_1 testbez2)
+  set(SOURCETEST1_1 testbez2.cpp)
+  add_executable(${TARGETTEST1_1} ${SOURCETEST1_1})
+  target_link_libraries(${TARGETTEST1_1} ${ARMADILLO_LIBRARY} ${ARMADILLO_LIBRARIES})
+  add_test(testbez2 ${TARGETTEST1_1})
+
+  # BezCurvePath class
+  set(TARGETTEST1_2 testbezcurves)
+  set(SOURCETEST1_2 testbezcurves.cpp)
+  add_executable(${TARGETTEST1_2} ${SOURCETEST1_2})
+  target_link_libraries(${TARGETTEST1_2} ${ARMADILLO_LIBRARY} ${ARMADILLO_LIBRARIES})
+  add_test(testbezcurves ${TARGETTEST1_2})
+
+  # Testing matrix representation of Bezier curves
+  set(TARGETTEST1_3 testbezmatrix)
+  set(SOURCETEST1_3 testbezmatrix.cpp)
+  add_executable(${TARGETTEST1_3} ${SOURCETEST1_3})
+  # Disable warning -Wunused-but-set-variable:
+  #target_compile_options(${TARGETTEST1_3} PRIVATE -Wno-unused-but-set-variable)
+  target_compile_definitions(${TARGETTEST1_3} PUBLIC FLT=float)
+  target_link_libraries(${TARGETTEST1_3} ${ARMADILLO_LIBRARY} ${ARMADILLO_LIBRARIES})
+  add_test(testbezmatrix ${TARGETTEST1_3})
+
+  # Testing auto-fitting a Bezier curve
+  set(TARGETTEST1_4 testbezfit)
+  set(SOURCETEST1_4 testbezfit.cpp)
+  add_executable(${TARGETTEST1_4} ${SOURCETEST1_4})
+  target_compile_definitions(${TARGETTEST1_4} PUBLIC FLT=float)
+  target_link_libraries(${TARGETTEST1_4} ${ARMADILLO_LIBRARY} ${ARMADILLO_LIBRARIES})
+  add_test(testbezfit ${TARGETTEST1_4})
+
+  # Testing splitting of Bezier curves
+  set(TARGETTEST1_5 testbezsplit)
+  set(SOURCETEST1_5 testbezsplit.cpp)
+  add_executable(${TARGETTEST1_5} ${SOURCETEST1_5})
+  target_compile_definitions(${TARGETTEST1_5} PUBLIC FLT=float)
+  target_link_libraries(${TARGETTEST1_5} ${ARMADILLO_LIBRARY} ${ARMADILLO_LIBRARIES})
+  add_test(testbezsplit ${TARGETTEST1_5})
+
+  # Testing Bezier derivatives
+  if(${glfw3_FOUND})
+    set(TARGETTEST1_8 testbezderiv3)
+    set(SOURCETEST1_8 testbezderiv3.cpp)
+    add_executable(${TARGETTEST1_8} ${SOURCETEST1_8})
+    target_compile_definitions(${TARGETTEST1_8} PUBLIC FLT=double)
+    target_link_libraries(${TARGETTEST1_8} ${ARMADILLO_LIBRARY} ${ARMADILLO_LIBRARIES} OpenGL::GL glfw Freetype::Freetype)
+    add_test(testbezderiv3 ${TARGETTEST1_8})
+  endif()
+
+  # Test two curves connected together
+  set(TARGETTEST2 twocurves)
+  set(SOURCETEST2 twocurves.cpp)
+  add_executable(${TARGETTEST2} ${SOURCETEST2})
+  target_link_libraries(${TARGETTEST2} ${ARMADILLO_LIBRARY} ${ARMADILLO_LIBRARIES})
+  add_test(twocurves ${TARGETTEST2})
+endif()
