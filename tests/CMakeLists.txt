@@ -172,6 +172,9 @@ if(NOT APPLE)
   add_test(testTransMat_constexpr testTransMat_constexpr)
 endif()
 
+add_executable(testTranslatePretranslate testTranslatePretranslate.cpp)
+add_test(testTranslatePretranslate testTranslatePretranslate)
+
 # Test morph::Matrix33 (3x3 matrix)
 add_executable(testMatrix33 testMatrix33.cpp)
 add_test(testMatrix33 testMatrix33)
