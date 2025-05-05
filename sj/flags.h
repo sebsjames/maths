@@ -1,5 +1,5 @@
 /*!
- * A Boolean flags class for sjologica
+ * A Boolean flags class
  *
  * You can use sj::flags<E> rather like std::bitset<10>. The difference is that E may
  * be (and must be) an enum class, which does not work with a bitset without ugly static

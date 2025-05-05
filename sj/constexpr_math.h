@@ -3,7 +3,7 @@
  *
  * This file is based on the GCE-Math C++ library by Keith O'Hara.
  *
- * But! Seb has cherry picked the functions he wanted in sjologica and ruined/modified Keith's
+ * But! Seb has cherry picked the functions he wanted and ruined/modified Keith's
  * code to suit his needs. It's all now in this one file, and should work for C++20 or C++23
  * compilers. If you're up to C++26, you'll no longer need this, as all the std::: versions of the
  * functions here will be constexpr compliant.

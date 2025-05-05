@@ -1,5 +1,5 @@
 /*!
- * Wrappers around the HDF5 C API for use in sjologica simulations.
+ * Wrappers around the HDF5 C API that play well with sj::vec and sj::vvec
  */
 #pragma once
 

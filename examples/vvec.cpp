@@ -49,6 +49,6 @@ int main()
     std::cout << "Before shuffle vf2 = " << vf2 << std::endl;
     std::cout << "After shuffle  vf2 = " << vf2.shuffled() << std::endl;
 
-    std::cout << "\nFor more examples, see sjologica/tests/testvvec.cpp\n";
+    std::cout << "\nFor more examples, see tests/testvvec.cpp\n";
     return 0;
 }
