@@ -1,5 +1,5 @@
-#include <morph/vvec.h>
-#include <morph/vec.h>
+#include <sj/vvec.h>
+#include <sj/vec.h>
 #include <array>
 #include <vector>
 #include <set>
@@ -10,7 +10,7 @@ int main()
     int rtn = 0;
 
     std::vector<float> svf = { 1, 2, 3, 4 };
-    morph::vvec<float> mvf;
+    sj::vvec<float> mvf;
     mvf.set_from (svf);
     std::cout << "mvf set from std::vector: " << mvf << std::endl;
     if (mvf[0] != 1.0f || mvf[2] != 3.0f) {
@@ -59,16 +59,16 @@ int main()
         --rtn;
     }
 
-    morph::vec<float, 10> vecf = { 2, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+    sj::vec<float, 10> vecf = { 2, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
     mvf.set_from (vecf);
-    std::cout << "mvf set from morph::vec: " << mvf << std::endl;
+    std::cout << "mvf set from sj::vec: " << mvf << std::endl;
     if (mvf[0] != 2.0f || mvf[9] != 9.0f) {
         --rtn;
     }
 
-    morph::vvec<float> vvecf = { 1, 2, 3, 4 };
+    sj::vvec<float> vvecf = { 1, 2, 3, 4 };
     mvf.set_from (svf);
-    std::cout << "mvf set from morph::vvec: " << mvf << std::endl;
+    std::cout << "mvf set from sj::vvec: " << mvf << std::endl;
     if (mvf[0] != 1.0f || mvf[2] != 3.0f) {
         --rtn;
     }

@@ -1,18 +1,18 @@
 #include <iostream>
-#include <morph/range.h>
-#include <morph/mathconst.h>
+#include <sj/range.h>
+#include <sj/mathconst.h>
 
-constexpr morph::range<float> test_update()
+constexpr sj::range<float> test_update()
 {
-    morph::range<float> r{2.0f, 4.0f};
+    sj::range<float> r{2.0f, 4.0f};
     r.update (1.0f);
     r.update (5.0f);
     return r;
 }
 
-constexpr morph::range<float> test_update_and_search_init()
+constexpr sj::range<float> test_update_and_search_init()
 {
-    morph::range<float> r;
+    sj::range<float> r;
     r.search_init();
     r.update (1.0f);
     r.update (5.0f);
@@ -21,7 +21,7 @@ constexpr morph::range<float> test_update_and_search_init()
 
 constexpr bool test_update_and_includes()
 {
-    morph::range<float> r(2.0f, 4.0f); // also test 2 arg constructor
+    sj::range<float> r(2.0f, 4.0f); // also test 2 arg constructor
     r.update (1.0f);
     r.update (5.0f);
     int rtn = 0;
@@ -33,13 +33,13 @@ constexpr bool test_update_and_includes()
 
 constexpr float test_span()
 {
-    morph::range<float> r{2.0f, 4.0f};
+    sj::range<float> r{2.0f, 4.0f};
     return r.span();
 }
 
 constexpr float test_set()
 {
-    morph::range<float> r;
+    sj::range<float> r;
     r.set (56.0f, 59.0f);
     return r.span();
 }
@@ -48,13 +48,13 @@ int main()
 {
     int rtn = 0;
 
-    constexpr morph::range<float> r1 = test_update();
+    constexpr sj::range<float> r1 = test_update();
     if (r1.min == 1.0f && r1.max == 5.0f) {
         // good
     } else {
         --rtn;
     }
-    constexpr morph::range<float> r2 = test_update_and_search_init();
+    constexpr sj::range<float> r2 = test_update_and_search_init();
     if (r2.min == 1.0f && r2.max == 5.0f) {
         // good
     } else {

@@ -1,9 +1,9 @@
-#include "morph/vvec.h"
-#include "morph/vec.h"
-#include "morph/mathconst.h"
+#include "sj/vvec.h"
+#include "sj/vec.h"
+#include "sj/mathconst.h"
 #include <array>
 #include <cstdint>
-using morph::vvec;
+using sj::vvec;
 using std::cout;
 using std::endl;
 using std::array;
@@ -31,15 +31,15 @@ int main() {
     cout << "After randomize of int vector: " << vi << endl;
     cout << "Length: " << vi.length() << endl;
 
-    morph::vec<float, 2> vfl = {113, 124};
-    cout << "Length of a float morph::vec: " << vfl.length() << endl;
-    morph::vvec<float> vvfl = {113, 124};
-    cout << "Length of a float morph::vvec: " << vvfl.length() << endl;
+    sj::vec<float, 2> vfl = {113, 124};
+    cout << "Length of a float sj::vec: " << vfl.length() << endl;
+    sj::vvec<float> vvfl = {113, 124};
+    cout << "Length of a float sj::vvec: " << vvfl.length() << endl;
 
-    morph::vec<int, 2> vil = {113, 124};
-    cout << "Length of an int morph::vec: " << vil.length() << endl;
-    morph::vvec<int> vvil = {113, 124};
-    cout << "Length of an int morph::vvec: " << vvil.length() << endl;
+    sj::vec<int, 2> vil = {113, 124};
+    cout << "Length of an int sj::vec: " << vil.length() << endl;
+    sj::vvec<int> vvil = {113, 124};
+    cout << "Length of an int sj::vvec: " << vvil.length() << endl;
 
     // Test assignment
     vvec<int> vi2 = vi;
@@ -260,7 +260,7 @@ int main() {
     std::cout << (ltt3v < ltt2v ? "Y" : "N") << std::endl;
 
     std::vector<int> stdvec = { 1, 2, 3 };
-    morph::vvec<int> fromstd;
+    sj::vvec<int> fromstd;
     // You can't do fromstd = stdvec; instead, do this:
     fromstd.set_from (stdvec);
 
@@ -321,17 +321,17 @@ int main() {
     cout << "  Shortest non-zero: " << forshortest.shortest_nonzero() << std::endl;
     if (forshortest.shortest_nonzero() != -1.1) { --rtn; }
 
-    vvec<morph::vec<float, 2>> forshortestvec = { {0, 0}, {0, 0}, {1, 1}, {1, 2} };
+    vvec<sj::vec<float, 2>> forshortestvec = { {0, 0}, {0, 0}, {1, 1}, {1, 2} };
     cout << "For vector " << forshortestvec  << std::endl;
     cout << "  Shortest: " << forshortestvec .shortest() << std::endl;
     cout << "  Shortest non-zero: " << forshortestvec .shortest_nonzero() << std::endl;
-    if (forshortestvec .shortest_nonzero() != morph::vec<float, 2>{1, 1}) { --rtn; }
+    if (forshortestvec .shortest_nonzero() != sj::vec<float, 2>{1, 1}) { --rtn; }
 
     forshortestvec = { {1, 1}, {0, 0}, {0, 0}, {1, 1}, {1, 2} };
     cout << "For vector " << forshortestvec  << std::endl;
     cout << "  Shortest: " << forshortestvec .shortest() << std::endl;
     cout << "  Shortest non-zero: " << forshortestvec .shortest_nonzero() << std::endl;
-    if (forshortestvec .shortest_nonzero() != morph::vec<float, 2>{1, 1}) { --rtn; }
+    if (forshortestvec .shortest_nonzero() != sj::vec<float, 2>{1, 1}) { --rtn; }
 
     vvec<float> cc = { 1.0f, 2.0f };
     float D = 2.0f;
@@ -371,10 +371,10 @@ int main() {
         std::cout << vvir << " rotate("<<n<<"): " << vvir2 << std::endl;
     }
 
-    morph::vvec<int> vr = { 0, 1, 2, 3 };
-    morph::vvec<int> vr2 = vr;
+    sj::vvec<int> vr = { 0, 1, 2, 3 };
+    sj::vvec<int> vr2 = vr;
 
-    morph::vvec<int> rot_size_t_correct = { 0, 1, 2, 3, 0, 1, 2 };
+    sj::vvec<int> rot_size_t_correct = { 0, 1, 2, 3, 0, 1, 2 };
     for (size_t i = 0; i < 7; ++i) {
         vr2 = vr;
         vr2.rotate (i);
@@ -382,7 +382,7 @@ int main() {
         if (vr2[0] != rot_size_t_correct[i]) { --rtn; }
     }
 
-    morph::vvec<int> rot_int_correct = { 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2 };
+    sj::vvec<int> rot_int_correct = { 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2 };
     for (int i = -7; i < 7; ++i) {
         vr2 = vr;
         vr2.rotate (i);
@@ -391,7 +391,7 @@ int main() {
     }
 
     vvec<float> vfr(81, 0.0f);
-    vfr.linspace (-morph::mathconst<float>::pi, morph::mathconst<float>::pi, 81);
+    vfr.linspace (-sj::mathconst<float>::pi, sj::mathconst<float>::pi, 81);
     vfr.cos_inplace();
     std::cout << "PRE: " << vfr << std::endl;
     vfr.rotate (static_cast<int>(-1));
@@ -493,7 +493,7 @@ int main() {
     if (vzero.sum() != 0.0f) { --rtn; }
 
     // What about a vvec of vecs?
-    vvec<morph::vec<int, 2>> vvvec = { {1,2}, {3,4} };
+    vvec<sj::vec<int, 2>> vvvec = { {1,2}, {3,4} };
     std::cout << "Before zero: " << vvvec << " with sum " << vvvec.sum().sum() << std::endl;
 
     vvvec.zero();
@@ -508,56 +508,56 @@ int main() {
     std::cout << sos1.as_uint() << " uint8_t to power 3: sos1.pow<uint8_t>(4) = " << sos1.pow<uint8_t>(4).as_uint() << std::endl;
     std::cout << sos1.as_uint() << " uint8_t to power 3: sos1.pow<unsigned int>(4) = " << sos1.pow<unsigned int>(4) << std::endl;
 
-    // Correctly fails to compile/errors (will fail to compile when morph moves to C++-20)
+    // Correctly fails to compile/errors (will fail to compile when sj moves to C++-20)
 #if __cplusplus >= 202002L
     // This line:
-    // std::cout << sos1.as_uint() << " uint8_t sum of squares: length_sq.sos<vec<>>(): " << sos1.length_sq<morph::vec<float, 2>>() << std::endl;
+    // std::cout << sos1.as_uint() << " uint8_t sum of squares: length_sq.sos<vec<>>(): " << sos1.length_sq<sj::vec<float, 2>>() << std::endl;
     // should fail to compile
 #else
     try {
-        std::cout << sos1.as_uint() << " uint8_t sum of squares: length_sq.sos<vec<>>(): " << sos1.length_sq<morph::vec<float, 2>>() << std::endl;
+        std::cout << sos1.as_uint() << " uint8_t sum of squares: length_sq.sos<vec<>>(): " << sos1.length_sq<sj::vec<float, 2>>() << std::endl;
     } catch (const std::exception& e) {
         std::cout << "Expected error: " << e.what() << std::endl;
     }
 #endif
-    vvec<morph::vec<int, 2>> sosv1 = {{1,2}, {3,2}, {2,4}};
+    vvec<sj::vec<int, 2>> sosv1 = {{1,2}, {3,2}, {2,4}};
     //std::cout << sosv1 << " sum of squares: " << sosv1.sos() << std::endl; // won't compile or will runtime error
     std::cout << sosv1 << " is a vector of vectors, so sosv1.length_sq<int>() returns a sum of squared lengths: " << sosv1.length_sq<int>() << std::endl;
     std::cout << sosv1 << " is a vector of vectors, so sosv1.sos(): " << sosv1.sos() << std::endl;
 
-    morph::vvec<uint8_t> uv = {10, 10, 10};
+    sj::vvec<uint8_t> uv = {10, 10, 10};
     std::cout << uv.as_uint() << ".product() = " << static_cast<unsigned int>(uv.product()) << std::endl;
     std::cout << uv.as_uint() << ".product<false, unsigned int>() = " << uv.product<false, unsigned int>() << std::endl;
 
-    morph::vvec<uint8_t> uv2 = {1, 2, 10, 3, 11, 23};
+    sj::vvec<uint8_t> uv2 = {1, 2, 10, 3, 11, 23};
     std::cout << uv2.as_uint() << " mean: " << uv2.mean<false, float>() << std::endl;
     std::cout << uv2.as_uint() << " variance: " << uv2.variance<false, float>() << std::endl;
 
-    morph::vvec<float> uv2f = {1, 2, 10, 3, 11, 23};
+    sj::vvec<float> uv2f = {1, 2, 10, 3, 11, 23};
     std::cout << uv2f << " mean: " << uv2f.mean() << std::endl;
     std::cout << uv2f << " variance: " << uv2f.variance() << std::endl;
 
     // Test int * vvec<double> etc
-    morph::vvec<double> vvd = {1.0, 2.0, 3.0};
-    morph::vvec<double> vvd1 = 5 * vvd;
+    sj::vvec<double> vvd = {1.0, 2.0, 3.0};
+    sj::vvec<double> vvd1 = 5 * vvd;
     if (vvd1[0] != 5.0) { --rtn; }
 
-    morph::vvec<double> vvd2 = 1 / vvd;
+    sj::vvec<double> vvd2 = 1 / vvd;
     if (vvd2[1] != 0.5) { --rtn; }
 
-    morph::vvec<double> vvd3 = 5 + vvd;
+    sj::vvec<double> vvd3 = 5 + vvd;
     if (vvd3[0] != 6.0) { --rtn; }
 
-    morph::vvec<double> vvd4 = 5 - vvd;
+    sj::vvec<double> vvd4 = 5 - vvd;
     if (vvd4[0] != 4.0) { --rtn; }
 
-    morph::vvec<int> vvi = { 2, 3 };
-    morph::vvec<int> vvi1 = 1.0f / vvi;
+    sj::vvec<int> vvi = { 2, 3 };
+    sj::vvec<int> vvi1 = 1.0f / vvi;
     std::cout << vvi1 << std::endl; // result is { int(1.0f / (int)2) , int(1.0f / int(3)) }  = { 0, 0 }
     // Doesn't compile:
-    //morph::vvec<float> vvif1 = 1.0f / vvi;
+    //sj::vvec<float> vvif1 = 1.0f / vvi;
 
-    morph::vvec<double> vvd5 = 1.0f / vvd;
+    sj::vvec<double> vvd5 = 1.0f / vvd;
     if (vvd5[1] != 0.5) { --rtn; }
 
     std::cout << "At end, rtn=" << rtn << std::endl;

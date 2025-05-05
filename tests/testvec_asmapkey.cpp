@@ -1,15 +1,15 @@
-// Can you use a morph::vec as a key to an std::map?
+// Can you use a sj::vec as a key to an std::map?
 //
 // Answer is yes, but you have to tell the map whcih comparison operator you're going to
-// use. Similar to the issue of storing morph::vecs in an std::set.
-#include <morph/vec.h>
+// use. Similar to the issue of storing sj::vecs in an std::set.
+#include <sj/vec.h>
 #include <map>
 #include <string>
 #include <iostream>
 
 int main()
 {
-    namespace m = morph;
+    namespace m = sj;
 
     int rtn = 0;
 

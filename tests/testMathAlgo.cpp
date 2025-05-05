@@ -1,7 +1,7 @@
-#include "morph/MathAlgo.h"
+#include "sj/MathAlgo.h"
 #include <iostream>
 
-using namespace morph;
+using namespace sj;
 using namespace std;
 
 int main()
@@ -82,7 +82,7 @@ int main()
     }
 
     vector<float> vf = {0.1f, 0.2f, 0.9f, -0.4f};
-    morph::range<float> mmvf = MathAlgo::maxmin (vf);
+    sj::range<float> mmvf = MathAlgo::maxmin (vf);
     cout << "vector has range: " << mmvf << endl;
     if (mmvf.max == 0.9f && mmvf.min == -0.4f) {
         cout << "Max/min correct" << endl;
@@ -91,13 +91,13 @@ int main()
     }
 
     // A 2D box filter
-    morph::vvec<float> vals = { 1, 2, 3, 2, 1,   4, 5, 6, 7, 4,   7, 4, 2, 1, 4,   8, 8, 6, 8, 3,   9, 8, 3, 2, 1  };
-    morph::vvec<float> filtered (25, 0);
-    morph::vvec<float> expect_result = { 17, 21, 25, 23, 19,  32, 34, 32, 30, 31,  47, 50, 47, 41, 46,  52, 55, 42, 30, 43,  37, 42, 35, 23, 31  };
+    sj::vvec<float> vals = { 1, 2, 3, 2, 1,   4, 5, 6, 7, 4,   7, 4, 2, 1, 4,   8, 8, 6, 8, 3,   9, 8, 3, 2, 1  };
+    sj::vvec<float> filtered (25, 0);
+    sj::vvec<float> expect_result = { 17, 21, 25, 23, 19,  32, 34, 32, 30, 31,  47, 50, 47, 41, 46,  52, 55, 42, 30, 43,  37, 42, 35, 23, 31  };
     expect_result /= 9.0f;
     static constexpr int filter_width = 3;
     static constexpr int data_width = 5;
-    morph::MathAlgo::boxfilter_2d<float, filter_width, data_width> (vals, filtered);
+    sj::MathAlgo::boxfilter_2d<float, filter_width, data_width> (vals, filtered);
     if (filtered.sum() != expect_result.sum()) {
         std::cout << "filtered data: " << filtered << std::endl;
         std::cout << "expecting    : " << expect_result << std::endl;
@@ -108,22 +108,22 @@ int main()
     }
 
     // 2D edge convolution test
-    morph::vvec<float> edata = { 1.0f, 0.5f, 1.0f,
+    sj::vvec<float> edata = { 1.0f, 0.5f, 1.0f,
                                  0.5f, 1.0f, 0.4f,
                                  1.0f, 0.5f, 0.9f };
-    morph::vvec<float> hedges (edata.size(), 0);
-    morph::vvec<float> vedges (edata.size(), 0);
+    sj::vvec<float> hedges (edata.size(), 0);
+    sj::vvec<float> vedges (edata.size(), 0);
 
-    morph::vvec<float> vedges_exp = { -1.0f+0.5f, -0.5f+1.0f, -1.0f+1.0f,
+    sj::vvec<float> vedges_exp = { -1.0f+0.5f, -0.5f+1.0f, -1.0f+1.0f,
                                       -0.5f+1.0f, -1.0f+0.4f, -0.4f+0.5f,
                                       -1.0f+0.5f, -0.5f+0.9f, -0.9f+1.0f };
-    morph::vvec<float> hedges_exp = { -1.0+0.5f, -0.5f+1.0f, -1.0f+0.4f,
+    sj::vvec<float> hedges_exp = { -1.0+0.5f, -0.5f+1.0f, -1.0f+0.4f,
                                       -0.5f+1.0f, -1.0f+0.5f, -0.4f+0.9f,
                                       0,          0,          0}; // no wrapping in vertical axis so top row of hedges is 0
 
 
     // Default template
-    morph::MathAlgo::edgeconv_2d<float, 3> (edata, vedges, hedges);
+    sj::MathAlgo::edgeconv_2d<float, 3> (edata, vedges, hedges);
     std::cout << "vert edges: " << vedges << std::endl;
     std::cout << "horz edges: " << hedges << std::endl;
 
@@ -132,18 +132,18 @@ int main()
 
     // Test version which inverts vertical edges
     constexpr bool invert_vert_edges = true;
-    morph::MathAlgo::edgeconv_2d<float, 3, invert_vert_edges> (edata, vedges, hedges);
+    sj::MathAlgo::edgeconv_2d<float, 3, invert_vert_edges> (edata, vedges, hedges);
     if (vedges != -vedges_exp) { --rtn; }
     if (hedges != hedges_exp) { --rtn; }
 
     // Test version which inverts horizontal edges
     constexpr bool invert_horz_edges = true;
-    morph::MathAlgo::edgeconv_2d<float, 3, false, invert_horz_edges> (edata, vedges, hedges);
+    sj::MathAlgo::edgeconv_2d<float, 3, false, invert_horz_edges> (edata, vedges, hedges);
     if (vedges != vedges_exp) { --rtn; }
     if (hedges != -hedges_exp) { --rtn; }
 
     // Test version which inverts vertical and horizontal edges
-    morph::MathAlgo::edgeconv_2d<float, 3, invert_vert_edges, invert_horz_edges> (edata, vedges, hedges);
+    sj::MathAlgo::edgeconv_2d<float, 3, invert_vert_edges, invert_horz_edges> (edata, vedges, hedges);
     if (vedges != -vedges_exp) { --rtn; }
     if (hedges != -hedges_exp) { --rtn; }
 

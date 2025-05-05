@@ -1,4 +1,4 @@
-#include <morph/hex.h>
+#include <sj/hex.h>
 #include <iostream>
 
 int main()
@@ -7,14 +7,14 @@ int main()
     int g = 0;
     float d = 2.0f;
     unsigned int idx = 0;
-    morph::hex h(idx, d, r, g);
+    sj::hex h(idx, d, r, g);
 
-    morph::vec<float, 2> vN = h.get_vertex_coord (HEX_VERTEX_POS_N);
-    morph::vec<float, 2> vNE = h.get_vertex_coord (HEX_VERTEX_POS_NE);
-    morph::vec<float, 2> vSE = h.get_vertex_coord (HEX_VERTEX_POS_SE);
-    morph::vec<float, 2> vS = h.get_vertex_coord (HEX_VERTEX_POS_S);
-    morph::vec<float, 2> vSW = h.get_vertex_coord (HEX_VERTEX_POS_SW);
-    morph::vec<float, 2> vNW = h.get_vertex_coord (HEX_VERTEX_POS_NW);
+    sj::vec<float, 2> vN = h.get_vertex_coord (HEX_VERTEX_POS_N);
+    sj::vec<float, 2> vNE = h.get_vertex_coord (HEX_VERTEX_POS_NE);
+    sj::vec<float, 2> vSE = h.get_vertex_coord (HEX_VERTEX_POS_SE);
+    sj::vec<float, 2> vS = h.get_vertex_coord (HEX_VERTEX_POS_S);
+    sj::vec<float, 2> vSW = h.get_vertex_coord (HEX_VERTEX_POS_SW);
+    sj::vec<float, 2> vNW = h.get_vertex_coord (HEX_VERTEX_POS_NW);
 
     // Output for user
     std::cout << "hex centre: (" << h.x << "," << h.y << ")" << std::endl;
@@ -26,7 +26,7 @@ int main()
     std::cout << "hex vertex NW: " << vNW << std::endl;
 
 
-    float vto_ne = d/(2.0f * morph::mathconst<float>::sqrt_of_3);
+    float vto_ne = d/(2.0f * sj::mathconst<float>::sqrt_of_3);
     // Test the numbers (non-exhaustive)
     if (vN[0] == 0.0f && vNE[1] == vto_ne && vSW[1] == -vto_ne) {
         std::cout << "PASS" << std::endl;

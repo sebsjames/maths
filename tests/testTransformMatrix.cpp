@@ -1,10 +1,10 @@
-#include "morph/mat44.h"
+#include "sj/mat44.h"
 #include <iostream>
 #include <array>
 #include <cmath>
-#include <morph/vec.h>
+#include <sj/vec.h>
 
-void setMatrixSequence (morph::mat44<float>& tm)
+void setMatrixSequence (sj::mat44<float>& tm)
 {
     tm.mat[0] = 0;
     tm.mat[1] = 1;
@@ -29,16 +29,16 @@ int main()
     int rtn = 0;
 
     // Test assignment
-    morph::mat44<float> tm1;
+    sj::mat44<float> tm1;
     setMatrixSequence (tm1);
-    morph::mat44<float> tm2 = tm1;
+    sj::mat44<float> tm2 = tm1;
     std::cout << "After assignment:\n" << tm2 << std::endl;
     for (unsigned int i = 0; i<16; ++i) {
         if (tm2.mat[i] != (float)i) {
             ++rtn;
         }
     }
-    tm2 = static_cast<morph::mat44<float>>(tm1);
+    tm2 = static_cast<sj::mat44<float>>(tm1);
     std::cout << "After second assignment:\n" << tm2 << std::endl;
     for (unsigned int i = 0; i<16; ++i) {
         if (tm2.mat[i] != (float)i) {
@@ -46,11 +46,11 @@ int main()
         }
     }
     // Test multiplication
-    morph::mat44<float> mult1;
+    sj::mat44<float> mult1;
     setMatrixSequence (mult1);
     std::cout << "mult1\n" << mult1 << std::endl;
 
-    morph::mat44<float> mult2;
+    sj::mat44<float> mult2;
     mult2.mat[0] = 15;
     mult2.mat[1] = 14;
     mult2.mat[2] = 13;
@@ -69,7 +69,7 @@ int main()
     mult2.mat[15] = 0;
     std::cout << "mult2\n" << mult2 << std::endl;
 
-    morph::mat44<float> mult3 = mult1 * mult2;
+    sj::mat44<float> mult3 = mult1 * mult2;
     std::cout << "mult1 * mult2 =\n" << mult3 << std::endl;
 
     if (mult3.mat[0] != 304
@@ -114,7 +114,7 @@ int main()
     }
 
     // Test 3x3 determinant
-    morph::mat44<float> td;
+    sj::mat44<float> td;
     std::array<float, 9> threethree = { 1.0f, 0.0f, 2.0f, 1.0f, 1.0f, 3.5f, 3.0f, 2.0f, 120.0f };
     float det_td = td.determinant3x3 (threethree);
     std::cout << "Determinant = " << det_td << " (expect 111)" << std::endl;
@@ -131,7 +131,7 @@ int main()
     }
 
     // Test matrix inversion
-    morph::mat44<float> mult4;
+    sj::mat44<float> mult4;
     mult4.mat[0] = 15;
     mult4.mat[1] = 17;
     mult4.mat[2] = 0;
@@ -149,7 +149,7 @@ int main()
     mult4.mat[14] = 1;
     mult4.mat[15] = 0;
 
-    morph::mat44<float> mult4inv = mult4.invert();
+    sj::mat44<float> mult4inv = mult4.invert();
     std::cout << "mult4\n" << mult4 << std::endl;
     std::cout << "mult4.invert():\n" << mult4inv << std::endl;
 
@@ -187,21 +187,21 @@ int main()
         ++rtn;
     }
 
-    // test matrix times vec<T,4> multiplication  std::array = mat * morph::vec
-    morph::vec<float, 4> v4 = {1,0,0,0};
+    // test matrix times vec<T,4> multiplication  std::array = mat * sj::vec
+    sj::vec<float, 4> v4 = {1,0,0,0};
     std::array<float, 4> r = mult4 * v4;
     std::cout << " mult4 * " << v4 << ": (" << r[0] << "," << r[1] << "," << r[2] << "," << r[3] << ")\n";
     if ((r[0]==15 && r[1]==17 && r[2]==0 && r[3]==0) == false) {
         ++rtn;
     }
 
-    morph::mat44<float> mult4inv_copy = mult4inv;
+    sj::mat44<float> mult4inv_copy = mult4inv;
     if (mult4inv_copy != mult4inv) { ++rtn; }
 
     // Test scaling
-    morph::mat44<double> scaler;
-    morph::vec<double, 4> v4d = { 2.0, 3.0, 4.0, 1.0 };
-    morph::vec<float, 3> scale_vec = { 2.0f, 2.0f, 2.0f };
+    sj::mat44<double> scaler;
+    sj::vec<double, 4> v4d = { 2.0, 3.0, 4.0, 1.0 };
+    sj::vec<float, 3> scale_vec = { 2.0f, 2.0f, 2.0f };
     scaler.scale (scale_vec);
     std::cout << v4d << " scaled by " << scale_vec << " = " << (scaler * v4d) << std::endl;
 
@@ -209,7 +209,7 @@ int main()
     scaler.scale (second_scale);
     std::cout << v4d << " scaled by " << scale_vec << " and then in all dims by " << second_scale  << "  = " << (scaler * v4d) << std::endl;
 
-    morph::vec<double, 4> v4dres = scaler * v4d;
+    sj::vec<double, 4> v4dres = scaler * v4d;
     std::cout << "v4dres: " << v4dres << std::endl;
     if (v4dres[0] != 8.0 || v4dres[1] != 12.0 || v4dres[2] != 16.0) { ++rtn; }
 
@@ -217,21 +217,21 @@ int main()
     std::cout << v4d << " scaled by " << scale_vec << " and then in all dims by " << second_scale << " and then by 0.025f, 0.025f, 0.025f = " << (scaler * v4d) << std::endl;
 
     // Test translate then rotate
-    morph::mat44<float> trmat;
-    morph::vec<float> trans = { 1, 0, 0 };
-    morph::quaternion<float> rotn (morph::vec<float>{0, 0, 1}, morph::mathconst<float>::pi_over_4);
+    sj::mat44<float> trmat;
+    sj::vec<float> trans = { 1, 0, 0 };
+    sj::quaternion<float> rotn (sj::vec<float>{0, 0, 1}, sj::mathconst<float>::pi_over_4);
 
     // these two, applied to the same trmat used to do rotate-then-translate
     // NOW they do translate then rotate
     trmat.translate (trans);
     trmat.rotate (rotn);
 
-    morph::vec<float> uy = { 0, 1, 0 };
-    morph::vec<float, 4> tr_res = trmat * uy;
+    sj::vec<float> uy = { 0, 1, 0 };
+    sj::vec<float, 4> tr_res = trmat * uy;
     std::cout << "translate-then-rotate vector = " << tr_res << std::endl;
 
     // Recapitulate old behaviour
-    morph::mat44<float> rot_then_trans;
+    sj::mat44<float> rot_then_trans;
 
     // these two, applied to the same trmat used to do rotate-then-translate
     // NOW they do translate then rotate

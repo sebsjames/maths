@@ -1,4 +1,4 @@
-#include "morph/hdfdata.h"
+#include "sj/hdfdata.h"
 #include <utility>
 #include <iostream>
 #include <fstream>
@@ -19,13 +19,13 @@ int main()
                                            { 7.0, 8.1 },
                                            { 9.0, 0.3 } };
     {
-        morph::hdfdata data("test3.h5", std::ios::out | std::ios::trunc);
+        sj::hdfdata data("test3.h5", std::ios::out | std::ios::trunc);
         data.add_contained_vals ("/testvecarrayf2", va);
     } // data closes when out of scope
 
     std::vector<std::array<FLT, 2>> varead;
     {
-        morph::hdfdata data("test3.h5", std::ios::in);
+        sj::hdfdata data("test3.h5", std::ios::in);
         data.read_contained_vals ("/testvecarrayf2", varead);
     }
 
@@ -50,13 +50,13 @@ int main()
                                             { 7.0, 8.1, 2.0 },
                                             { 9.0, 0.3, 0.3 } };
     {
-        morph::hdfdata data("test3.h5", std::ios::out | std::ios::trunc);
+        sj::hdfdata data("test3.h5", std::ios::out | std::ios::trunc);
         data.add_contained_vals ("/testvecarrayf3", va3);
     } // data closes when out of scope
 
     std::vector<std::array<FLT, 3>> varead3;
     {
-        morph::hdfdata data("test3.h5", std::ios::in);
+        sj::hdfdata data("test3.h5", std::ios::in);
         data.read_contained_vals ("/testvecarrayf3", varead3);
     }
 
@@ -76,7 +76,7 @@ int main()
 
     // Save and retrieve a container of arrays
     {
-        morph::hdfdata data("testvecarr.h5", std::ios::out | std::ios::trunc);
+        sj::hdfdata data("testvecarr.h5", std::ios::out | std::ios::trunc);
         std::deque<std::array<float,2>> vp;
         vp.push_back ({1,2});
         vp.push_back ({3,5});
@@ -85,7 +85,7 @@ int main()
     }
 
     {
-        morph::hdfdata data("testvecarr.h5", std::ios::in);
+        sj::hdfdata data("testvecarr.h5", std::ios::in);
         std::deque<std::array<float,2>> vpd;
         data.read_contained_vals("/vecarrayfloat2", vpd);
         std::cout << "vpd[0]: " << vpd[0][0] << "," << vpd[0][1] << std::endl;

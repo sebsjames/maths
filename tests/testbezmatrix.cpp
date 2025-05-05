@@ -4,8 +4,8 @@
 #include <limits>
 #include <chrono>
 
-#include <morph/hexgrid.h>
-#include <morph/bezcurve.h>
+#include <sj/hexgrid.h>
+#include <sj/bezcurve.h>
 
 int main()
 {
@@ -13,7 +13,7 @@ int main()
 
     int rtn = 0;
 
-    morph::vvec<morph::vec<float, 2>> c = {
+    sj::vvec<sj::vec<float, 2>> c = {
         {9.0f,10.0f},
         {19.0f,16.0f},
         {42.0f,33.0f},
@@ -23,12 +23,12 @@ int main()
         {110.0f,68.0f}
     };
 
-    morph::bezcurve<FLT> cv (c);
+    sj::bezcurve<FLT> cv (c);
 
     std::cout << "Defined a " << cv.getOrder() << " nd/rd/th order curve" << std::endl;
 
-    morph::bezcoord<FLT> bm = cv.computePointMatrix (0.4);
-    morph::bezcoord<FLT> bg = cv.computePointGeneral (0.4);
+    sj::bezcoord<FLT> bm = cv.computePointMatrix (0.4);
+    sj::bezcoord<FLT> bg = cv.computePointGeneral (0.4);
     std::cout << "matrix method: " << bm << std::endl;
     std::cout << "general method: " << bg << std::endl;
 

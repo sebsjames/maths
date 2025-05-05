@@ -1,11 +1,11 @@
-#include "morph/MathAlgo.h"
+#include "sj/MathAlgo.h"
 #include <iostream>
 #include <queue>
 #include <list>
-#include "morph/vec.h"
-#include "morph/range.h"
+#include "sj/vec.h"
+#include "sj/range.h"
 
-using namespace morph;
+using namespace sj;
 using namespace std;
 
 // Testing MathAlgo with vector/array types.
@@ -22,11 +22,11 @@ int main()
     vf.push_back (1.1);
     vf.push_back (1.2);
     cout << "double functions" << endl;
-    morph::range<double> vfmm = MathAlgo::maxmin (vf);
+    sj::range<double> vfmm = MathAlgo::maxmin (vf);
     cout << "range: " << vfmm << endl;
 
     vector<double> autoscaled = MathAlgo::autoscale (vf, 0.0, 1.0);
-    morph::range<double> vfmm2 = MathAlgo::maxmin (autoscaled);
+    sj::range<double> vfmm2 = MathAlgo::maxmin (autoscaled);
     cout << "after autoscale, range: " << vfmm2 << endl;
     if (vfmm2.max != 1.0 || vfmm2.min != 0.0) {
         rtn--;
@@ -46,7 +46,7 @@ int main()
     vv3.push_back (v2);
     vv3.push_back (v3);
     cout << "array<double,3> functions" << endl;
-    morph::range<array<double,3>> vv3mm = MathAlgo::maxmin (vv3);
+    sj::range<array<double,3>> vv3mm = MathAlgo::maxmin (vv3);
     cout << "max/min: (" << vv3mm.max[0] << ","
          << vv3mm.max[1] << "," << vv3mm.max[2] << ")/(" << vv3mm.min[0] << ","
          << vv3mm.min[1] << "," << vv3mm.min[2] << ")" << endl;
@@ -73,7 +73,7 @@ int main()
     vvf.push_back (vf2);
     vvf.push_back (vf3);
     cout << "vector<float> functions" << endl;
-    morph::range<vector<float>> vvfmm = MathAlgo::maxmin (vvf);
+    sj::range<vector<float>> vvfmm = MathAlgo::maxmin (vvf);
     cout << "max: (";
     for (auto i : vvfmm.max) {
         cout << i << " ";
@@ -105,7 +105,7 @@ int main()
     li.push_back(2);
     li.push_back(1);
     li.push_back(7);
-    morph::range<int> limm = MathAlgo::maxmin (li);
+    sj::range<int> limm = MathAlgo::maxmin (li);
     cout << "max/min: " << limm.max << "," << limm.min << endl;
 
     deque<list<float>> qf;

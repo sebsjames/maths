@@ -2,8 +2,8 @@
  * Test the at_signed(I idx) functions
  */
 
-#include <morph/vvec.h>
-#include <morph/vec.h>
+#include <sj/vvec.h>
+#include <sj/vec.h>
 #include <array>
 #include <vector>
 #include <set>
@@ -14,7 +14,7 @@ int main()
 {
     int rtn = 0;
 
-    morph::vvec<int> mvf (5, 0);
+    sj::vvec<int> mvf (5, 0);
 
     mvf.at_signed (-2) = -2;
     mvf.at_signed (-1) = -1;

@@ -1,5 +1,5 @@
-#include "morph/vec.h"
-using morph::vec;
+#include "sj/vec.h"
+using sj::vec;
 using std::cout;
 using std::endl;
 using std::array;

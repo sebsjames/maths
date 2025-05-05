@@ -1,18 +1,18 @@
 #include <iostream>
-#include <morph/bezcurve.h>
+#include <sj/bezcurve.h>
 
 int main()
 {
     int rtn = -1;
 
-    morph::vvec<morph::vec<float, 2>> c = {
+    sj::vvec<sj::vec<float, 2>> c = {
         {-0.28f, 0.0f},
         {0.28f, 0.0f},
         {0.28f, 0.45f},
         {-0.28f, 0.45f}
     };
 
-    morph::bezcurve<FLT> cv;
+    sj::bezcurve<FLT> cv;
     cv.fit (c);
     std::cout << "Defined a " << cv.getOrder() << " nd/rd/th order curve" << std::endl;
 

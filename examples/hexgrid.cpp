@@ -1,19 +1,19 @@
 /*
- * An example morph::Visual scene, containing a HexGrid.
+ * An example sj::Visual scene, containing a HexGrid.
  */
 
 #include <iostream>
 #include <vector>
 #include <cmath>
 
-#include <morph/vec.h>
-#include <morph/hexgrid.h>
+#include <sj/vec.h>
+#include <sj/hexgrid.h>
 
 int main()
 {
     // Create a HexGrid to show in the scene. Hexes outside the circular boundary will
     // all be discarded.
-    morph::hexgrid hg(0.01f, 3.0f, 0.0f);
+    sj::hexgrid hg(0.01f, 3.0f, 0.0f);
     hg.setCircularBoundary (0.6f);
     std::cout << "Number of pixels in grid:" << hg.num() << std::endl;
 

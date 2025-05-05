@@ -8,20 +8,20 @@
 #include <array>
 #include <vector>
 #include <list>
-#include "morph/BezCurve.h"
-#include "morph/BezCurvePath.h"
-#include "morph/Visual.h"
-#include "morph/GraphVisual.h"
-#include "morph/vec.h"
+#include "sj/BezCurve.h"
+#include "sj/BezCurvePath.h"
+#include "sj/Visual.h"
+#include "sj/GraphVisual.h"
+#include "sj/vec.h"
 
 // Draw a bezcurve on the graph gv
-void draw (morph::GraphVisual<float>* gv,
-           morph::BezCurvePath<FLT>& bcp,
-           morph::vvec<morph::vec<FLT, 2>>& v,
+void draw (sj::GraphVisual<float>* gv,
+           sj::BezCurvePath<FLT>& bcp,
+           sj::vvec<sj::vec<FLT, 2>>& v,
            std::array<float, 3> linecolfit,
            float sz, bool drawuserctrl = true)
 {
-    namespace m = morph;
+    namespace m = sj;
 
     unsigned int nFit = 200;
     m::vvec<m::vec<float, 2>> fitted (nFit);
@@ -81,7 +81,7 @@ void draw (morph::GraphVisual<float>* gv,
 
 int main (int argc, char** argv)
 {
-    namespace m = morph;
+    namespace m = sj;
 
     bool holdVis = false;
     if (argc > 1) {

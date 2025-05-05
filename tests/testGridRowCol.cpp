@@ -1,4 +1,4 @@
-#include "morph/grid.h"
+#include "sj/grid.h"
 #include <iostream>
 #include <limits>
 
@@ -6,20 +6,20 @@ int main()
 {
     int rtn = 0;
 
-    morph::vec<float, 2> dx = { 1, 1 };
-    morph::vec<float, 2> offset = { 0, 0 };
+    sj::vec<float, 2> dx = { 1, 1 };
+    sj::vec<float, 2> offset = { 0, 0 };
 
-    morph::griddomainwrap wrap = morph::griddomainwrap::none;
+    sj::griddomainwrap wrap = sj::griddomainwrap::none;
 
     //
-    // morph::griddomainwrap::none tests
+    // sj::griddomainwrap::none tests
     //
     std::cout << "WRAP NONE\n--------------------\n";
     {
-        morph::grid<int, float> g_bltr(4, 2, dx, offset, wrap, morph::gridorder::bottomleft_to_topright);
-        morph::grid<int, float> g_tlbr(4, 2, dx, offset, wrap, morph::gridorder::topleft_to_bottomright);
-        morph::grid<int, float> g_bltrc(4, 2, dx, offset, wrap, morph::gridorder::bottomleft_to_topright_colmaj);
-        morph::grid<int, float> g_tlbrc(4, 2, dx, offset, wrap, morph::gridorder::topleft_to_bottomright_colmaj);
+        sj::grid<int, float> g_bltr(4, 2, dx, offset, wrap, sj::gridorder::bottomleft_to_topright);
+        sj::grid<int, float> g_tlbr(4, 2, dx, offset, wrap, sj::gridorder::topleft_to_bottomright);
+        sj::grid<int, float> g_bltrc(4, 2, dx, offset, wrap, sj::gridorder::bottomleft_to_topright_colmaj);
+        sj::grid<int, float> g_tlbrc(4, 2, dx, offset, wrap, sj::gridorder::topleft_to_bottomright_colmaj);
 
         std::cout << "ROW Bottom left top right...\n";
         if (g_bltr.row(0) != 0) { --rtn; std::cout << "bltr row(0) fails\n"; }
@@ -97,15 +97,15 @@ int main()
     }
 
     //
-    // morph::griddomainwrap::horzontal tests
+    // sj::griddomainwrap::horzontal tests
     //
-    wrap = morph::griddomainwrap::horizontal;
+    wrap = sj::griddomainwrap::horizontal;
     std::cout << "WRAP HORIZONTAL\n--------------------\n";
     {
-        morph::grid<int, float> g_bltr(4, 2, dx, offset, wrap, morph::gridorder::bottomleft_to_topright);
-        morph::grid<int, float> g_tlbr(4, 2, dx, offset, wrap, morph::gridorder::topleft_to_bottomright);
-        morph::grid<int, float> g_bltrc(4, 2, dx, offset, wrap, morph::gridorder::bottomleft_to_topright_colmaj);
-        morph::grid<int, float> g_tlbrc(4, 2, dx, offset, wrap, morph::gridorder::topleft_to_bottomright_colmaj);
+        sj::grid<int, float> g_bltr(4, 2, dx, offset, wrap, sj::gridorder::bottomleft_to_topright);
+        sj::grid<int, float> g_tlbr(4, 2, dx, offset, wrap, sj::gridorder::topleft_to_bottomright);
+        sj::grid<int, float> g_bltrc(4, 2, dx, offset, wrap, sj::gridorder::bottomleft_to_topright_colmaj);
+        sj::grid<int, float> g_tlbrc(4, 2, dx, offset, wrap, sj::gridorder::topleft_to_bottomright_colmaj);
 
         std::cout << "ROW Bottom left top right...\n";
         if (g_bltr.row(0) != 0) { --rtn; std::cout << "bltr row(0) fails\n"; }
@@ -183,15 +183,15 @@ int main()
     }
 
     //
-    // morph::griddomainwrap::vertical tests
+    // sj::griddomainwrap::vertical tests
     //
-    wrap = morph::griddomainwrap::vertical;
+    wrap = sj::griddomainwrap::vertical;
     std::cout << "WRAP VERTICAL\n--------------------\n";
     {
-        morph::grid<int, float> g_bltr(4, 2, dx, offset, wrap, morph::gridorder::bottomleft_to_topright);
-        morph::grid<int, float> g_tlbr(4, 2, dx, offset, wrap, morph::gridorder::topleft_to_bottomright);
-        morph::grid<int, float> g_bltrc(4, 2, dx, offset, wrap, morph::gridorder::bottomleft_to_topright_colmaj);
-        morph::grid<int, float> g_tlbrc(4, 2, dx, offset, wrap, morph::gridorder::topleft_to_bottomright_colmaj);
+        sj::grid<int, float> g_bltr(4, 2, dx, offset, wrap, sj::gridorder::bottomleft_to_topright);
+        sj::grid<int, float> g_tlbr(4, 2, dx, offset, wrap, sj::gridorder::topleft_to_bottomright);
+        sj::grid<int, float> g_bltrc(4, 2, dx, offset, wrap, sj::gridorder::bottomleft_to_topright_colmaj);
+        sj::grid<int, float> g_tlbrc(4, 2, dx, offset, wrap, sj::gridorder::topleft_to_bottomright_colmaj);
 
         std::cout << "ROW Bottom left top right...\n";
         if (g_bltr.row(0) != 0) { --rtn; std::cout << "bltr row(0) fails\n"; }
@@ -269,15 +269,15 @@ int main()
     }
 
     //
-    // morph::griddomainwrap::both tests
+    // sj::griddomainwrap::both tests
     //
-    wrap = morph::griddomainwrap::both;
+    wrap = sj::griddomainwrap::both;
     std::cout << "WRAP BOTH\n--------------------\n";
     {
-        morph::grid<int, float> g_bltr(4, 2, dx, offset, wrap, morph::gridorder::bottomleft_to_topright);
-        morph::grid<int, float> g_tlbr(4, 2, dx, offset, wrap, morph::gridorder::topleft_to_bottomright);
-        morph::grid<int, float> g_bltrc(4, 2, dx, offset, wrap, morph::gridorder::bottomleft_to_topright_colmaj);
-        morph::grid<int, float> g_tlbrc(4, 2, dx, offset, wrap, morph::gridorder::topleft_to_bottomright_colmaj);
+        sj::grid<int, float> g_bltr(4, 2, dx, offset, wrap, sj::gridorder::bottomleft_to_topright);
+        sj::grid<int, float> g_tlbr(4, 2, dx, offset, wrap, sj::gridorder::topleft_to_bottomright);
+        sj::grid<int, float> g_bltrc(4, 2, dx, offset, wrap, sj::gridorder::bottomleft_to_topright_colmaj);
+        sj::grid<int, float> g_tlbrc(4, 2, dx, offset, wrap, sj::gridorder::topleft_to_bottomright_colmaj);
 
         std::cout << "ROW Bottom left top right...\n";
         if (g_bltr.row(0) != 0) { --rtn; std::cout << "bltr row(0) fails\n"; }

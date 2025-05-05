@@ -1,15 +1,15 @@
-#include <morph/trait_tests.h>
+#include <sj/trait_tests.h>
 #include <iostream>
 
 template <typename _S=float>
-std::enable_if_t < morph::is_copyable_container<_S>::value, bool >
+std::enable_if_t < sj::is_copyable_container<_S>::value, bool >
 set_from (const _S& v)
 {
         std::cout << "Type _S=" << typeid(_S).name() << " size " << sizeof (v) << " is a simple, copyable container" << std::endl;
         return true;
 }
 template <typename _S=float>
-std::enable_if_t < !morph::is_copyable_container<_S>::value, bool >
+std::enable_if_t < !sj::is_copyable_container<_S>::value, bool >
 set_from (const _S& v)
 {
     std::cout << "Type _S=" << typeid(_S).name() << " size " << sizeof (v) << " isn't a container" << std::endl;
@@ -17,14 +17,14 @@ set_from (const _S& v)
 }
 
 template <typename _S=float>
-std::enable_if_t < morph::is_copyable_fixedsize<_S>::value, bool >
+std::enable_if_t < sj::is_copyable_fixedsize<_S>::value, bool >
 set_from_fixed (const _S& v)
 {
     std::cout << "Type _S=" << typeid(_S).name() << " size " << sizeof (v) << " is a fixed size, simple, copyable container" << std::endl;
     return true;
 }
 template <typename _S=float>
-std::enable_if_t < !morph::is_copyable_fixedsize<_S>::value, bool >
+std::enable_if_t < !sj::is_copyable_fixedsize<_S>::value, bool >
 set_from_fixed (const _S& v)
 {
     std::cout << "Type _S=" << typeid(_S).name() << " size " << sizeof (v) << " is NOT a fixed size, simple, copyable container" << std::endl;
@@ -32,22 +32,22 @@ set_from_fixed (const _S& v)
 }
 
 template <typename _S=float>
-std::enable_if_t < !morph::is_complex<_S>::value, bool >
+std::enable_if_t < !sj::is_complex<_S>::value, bool >
 complex_from (const _S& v)
 {
     std::cout << "Type _S=" << typeid(_S).name() << " size " << sizeof (v) << " isn't a complex" << std::endl;
     return false;
 }
 template <typename _S=float>
-std::enable_if_t < morph::is_complex<_S>::value, bool >
+std::enable_if_t < sj::is_complex<_S>::value, bool >
 complex_from (const _S& v)
 {
     std::cout << "Type _S=" << typeid(_S).name() << " size " << sizeof (v) << " is a complex" << std::endl;
     return true;
 }
 
-#include <morph/vec.h>
-#include <morph/vvec.h>
+#include <sj/vec.h>
+#include <sj/vvec.h>
 #include <set>
 #include <array>
 #include <vector>
@@ -63,27 +63,27 @@ int main()
     /*
      * has_subtraction
      */
-    std::cout << "float has subtraction? " << (morph::has_subtraction<float>::value ? "true" : "false") << std::endl;
-    if (!morph::has_subtraction<float>::value
-        || !morph::has_subtraction<double>::value
-        || !morph::has_subtraction<int>::value
-        || !morph::has_subtraction<unsigned int>::value) { --rtn; }
-    std::cout << "vector has subtraction? " << (morph::has_subtraction<std::vector<float>>::value ? "true" : "false") << std::endl;
-    if (morph::has_subtraction<std::vector<float>>::value) { --rtn; }
-    std::cout << "vvec has subtraction? " << (morph::has_subtraction<morph::vvec<float>>::value ? "true" : "false") << std::endl;
-    std::cout << "vec has subtraction? " << (morph::has_subtraction<morph::vec<float, 4>>::value ? "true" : "false") << std::endl;
-    if (!morph::has_subtraction<morph::vvec<float>>::value) { --rtn; }
-    if (!morph::has_subtraction<morph::vec<float, 17>>::value) { --rtn; }
+    std::cout << "float has subtraction? " << (sj::has_subtraction<float>::value ? "true" : "false") << std::endl;
+    if (!sj::has_subtraction<float>::value
+        || !sj::has_subtraction<double>::value
+        || !sj::has_subtraction<int>::value
+        || !sj::has_subtraction<unsigned int>::value) { --rtn; }
+    std::cout << "vector has subtraction? " << (sj::has_subtraction<std::vector<float>>::value ? "true" : "false") << std::endl;
+    if (sj::has_subtraction<std::vector<float>>::value) { --rtn; }
+    std::cout << "vvec has subtraction? " << (sj::has_subtraction<sj::vvec<float>>::value ? "true" : "false") << std::endl;
+    std::cout << "vec has subtraction? " << (sj::has_subtraction<sj::vec<float, 4>>::value ? "true" : "false") << std::endl;
+    if (!sj::has_subtraction<sj::vvec<float>>::value) { --rtn; }
+    if (!sj::has_subtraction<sj::vec<float, 17>>::value) { --rtn; }
 
     /*
      * has_resize
      */
-    std::cout << "vvec has resize: " << (morph::has_resize_method<morph::vvec<float>>::value ? "true" : "false") << std::endl;
-    if (morph::has_resize_method<morph::vvec<float>>::value == false) { --rtn; }
-    std::cout << "float has resize: " << (morph::has_resize_method<float>::value ? "true" : "false") << std::endl;
-    if (morph::has_resize_method<float>::value == true) { --rtn; }
-    std::cout << "array has resize: " << (morph::has_resize_method<std::array<float, 3>>::value ? "true" : "false") << std::endl;
-    if (morph::has_resize_method<morph::vec<float, 5>>::value == true) { --rtn; }
+    std::cout << "vvec has resize: " << (sj::has_resize_method<sj::vvec<float>>::value ? "true" : "false") << std::endl;
+    if (sj::has_resize_method<sj::vvec<float>>::value == false) { --rtn; }
+    std::cout << "float has resize: " << (sj::has_resize_method<float>::value ? "true" : "false") << std::endl;
+    if (sj::has_resize_method<float>::value == true) { --rtn; }
+    std::cout << "array has resize: " << (sj::has_resize_method<std::array<float, 3>>::value ? "true" : "false") << std::endl;
+    if (sj::has_resize_method<sj::vec<float, 5>>::value == true) { --rtn; }
 
     float f = 0.0f;
     bool float_can = set_from (f);
@@ -120,47 +120,47 @@ int main()
     if (c2_is_fixed) { std::cout << "Fail on vector<double>\n"; --rtn; }
 
 
-    std::cout << "array is fixed size? " << (morph::is_copyable_fixedsize<std::array<float, 2>>::value ? "true" : "false") << std::endl;
-    if (morph::is_copyable_fixedsize<std::array<float, 2>>::value == false) { std::cout << "Fail on array<float>\n"; --rtn; }
-    if constexpr (morph::is_copyable_fixedsize<std::array<float, 2>>::value == false) { std::cout << "Fail on constexpr array<float>\n"; --rtn; }
-    // if constexpr (morph::is_copyable_fixedsize<std::array<float, 2>&>::value == false) { --rtn; } // fails to compile
+    std::cout << "array is fixed size? " << (sj::is_copyable_fixedsize<std::array<float, 2>>::value ? "true" : "false") << std::endl;
+    if (sj::is_copyable_fixedsize<std::array<float, 2>>::value == false) { std::cout << "Fail on array<float>\n"; --rtn; }
+    if constexpr (sj::is_copyable_fixedsize<std::array<float, 2>>::value == false) { std::cout << "Fail on constexpr array<float>\n"; --rtn; }
+    // if constexpr (sj::is_copyable_fixedsize<std::array<float, 2>&>::value == false) { --rtn; } // fails to compile
 
-    std::cout << "ZERO sized array is fixed size? " << (morph::is_copyable_fixedsize<std::array<int, 0>>::value ? "true" : "false") << std::endl;
+    std::cout << "ZERO sized array is fixed size? " << (sj::is_copyable_fixedsize<std::array<int, 0>>::value ? "true" : "false") << std::endl;
 
-      if (morph::is_copyable_fixedsize<std::array<int, 0>>::value == false) { std::cout << "Fail on array<int, 0>\n"; --rtn; }
+      if (sj::is_copyable_fixedsize<std::array<int, 0>>::value == false) { std::cout << "Fail on array<int, 0>\n"; --rtn; }
 
-    std::cout << "morph::vec is fixed size? " << (morph::is_copyable_fixedsize<morph::vec<double, 56>>::value ? "true" : "false") << std::endl;
-    if (morph::is_copyable_fixedsize<morph::vec<double, 56>>::value == false) { std::cout << "Fail on morph::vec<double>\n"; --rtn; }
-    // if (morph::is_copyable_fixedsize<morph::vec<double, 56>>::value == false) { --rtn; } // fails to compile
-    if constexpr (morph::is_copyable_fixedsize<morph::vec<double, 56>>::value == false) { --rtn; }
+    std::cout << "sj::vec is fixed size? " << (sj::is_copyable_fixedsize<sj::vec<double, 56>>::value ? "true" : "false") << std::endl;
+    if (sj::is_copyable_fixedsize<sj::vec<double, 56>>::value == false) { std::cout << "Fail on sj::vec<double>\n"; --rtn; }
+    // if (sj::is_copyable_fixedsize<sj::vec<double, 56>>::value == false) { --rtn; } // fails to compile
+    if constexpr (sj::is_copyable_fixedsize<sj::vec<double, 56>>::value == false) { --rtn; }
 
-    std::cout << "vector is fixed size? " << (morph::is_copyable_fixedsize<std::vector<double>&>::value ? "true" : "false") << std::endl;
-    if (morph::is_copyable_fixedsize<std::vector<double>>::value == true) { --rtn; }
-    if (morph::is_copyable_fixedsize<std::vector<double>&>::value == true) { --rtn; }
-    if constexpr (morph::is_copyable_fixedsize<std::vector<double>>::value == true) { --rtn; }
-    if constexpr (morph::is_copyable_fixedsize<std::vector<double>&>::value == true) { --rtn; }
+    std::cout << "vector is fixed size? " << (sj::is_copyable_fixedsize<std::vector<double>&>::value ? "true" : "false") << std::endl;
+    if (sj::is_copyable_fixedsize<std::vector<double>>::value == true) { --rtn; }
+    if (sj::is_copyable_fixedsize<std::vector<double>&>::value == true) { --rtn; }
+    if constexpr (sj::is_copyable_fixedsize<std::vector<double>>::value == true) { --rtn; }
+    if constexpr (sj::is_copyable_fixedsize<std::vector<double>&>::value == true) { --rtn; }
 
-    std::cout << "morph::vvec is fixed size? " << (morph::is_copyable_fixedsize<morph::vvec<unsigned char>>::value ? "true" : "false") << std::endl;
-    if (morph::is_copyable_fixedsize<morph::vvec<unsigned char>>::value == true) { --rtn; }
-    if (morph::is_copyable_fixedsize<morph::vvec<unsigned char>&>::value == true) { --rtn; }
-    if constexpr (morph::is_copyable_fixedsize<morph::vvec<unsigned char>>::value == true) { --rtn; }
-    if constexpr (morph::is_copyable_fixedsize<morph::vvec<unsigned char>&>::value == true) { --rtn; }
+    std::cout << "sj::vvec is fixed size? " << (sj::is_copyable_fixedsize<sj::vvec<unsigned char>>::value ? "true" : "false") << std::endl;
+    if (sj::is_copyable_fixedsize<sj::vvec<unsigned char>>::value == true) { --rtn; }
+    if (sj::is_copyable_fixedsize<sj::vvec<unsigned char>&>::value == true) { --rtn; }
+    if constexpr (sj::is_copyable_fixedsize<sj::vvec<unsigned char>>::value == true) { --rtn; }
+    if constexpr (sj::is_copyable_fixedsize<sj::vvec<unsigned char>&>::value == true) { --rtn; }
 
-    std::cout << "list is fixed size? " << (morph::is_copyable_fixedsize<std::list<double>>::value ? "true" : "false") << std::endl;
-    if (morph::is_copyable_fixedsize<std::list<double>>::value == true) { --rtn; }
-    if constexpr (morph::is_copyable_fixedsize<std::list<double>>::value == true) { --rtn; }
-    if constexpr (morph::is_copyable_fixedsize<std::list<double>&>::value == true) { --rtn; }
+    std::cout << "list is fixed size? " << (sj::is_copyable_fixedsize<std::list<double>>::value ? "true" : "false") << std::endl;
+    if (sj::is_copyable_fixedsize<std::list<double>>::value == true) { --rtn; }
+    if constexpr (sj::is_copyable_fixedsize<std::list<double>>::value == true) { --rtn; }
+    if constexpr (sj::is_copyable_fixedsize<std::list<double>&>::value == true) { --rtn; }
 
-    std::cout << "deque is fixed size? " << (morph::is_copyable_fixedsize<std::deque<double>>::value ? "true" : "false") << std::endl;
-    if (morph::is_copyable_fixedsize<std::deque<double>>::value == true) { --rtn; }
-    if constexpr (morph::is_copyable_fixedsize<std::deque<double>>::value == true) { --rtn; }
-    if constexpr (morph::is_copyable_fixedsize<std::deque<double>&>::value == true) { --rtn; }
+    std::cout << "deque is fixed size? " << (sj::is_copyable_fixedsize<std::deque<double>>::value ? "true" : "false") << std::endl;
+    if (sj::is_copyable_fixedsize<std::deque<double>>::value == true) { --rtn; }
+    if constexpr (sj::is_copyable_fixedsize<std::deque<double>>::value == true) { --rtn; }
+    if constexpr (sj::is_copyable_fixedsize<std::deque<double>&>::value == true) { --rtn; }
 
-    std::cout << "double is fixed size container with const size method? " << (morph::is_copyable_fixedsize<double>::value ? "true" : "false") << std::endl;
-    if constexpr (morph::is_copyable_fixedsize<double>::value == true) { --rtn; }
+    std::cout << "double is fixed size container with const size method? " << (sj::is_copyable_fixedsize<double>::value ? "true" : "false") << std::endl;
+    if constexpr (sj::is_copyable_fixedsize<double>::value == true) { --rtn; }
 
-    std::cout << "int is fixed size container with const size method? " << (morph::is_copyable_fixedsize<int>::value ? "true" : "false") << std::endl;
-    if constexpr (morph::is_copyable_fixedsize<int>::value == true) { --rtn; }
+    std::cout << "int is fixed size container with const size method? " << (sj::is_copyable_fixedsize<int>::value ? "true" : "false") << std::endl;
+    if constexpr (sj::is_copyable_fixedsize<int>::value == true) { --rtn; }
 
     std::cout << "Test " << (rtn == 0 ? " PASSED" : " FAILED") << std::endl;
     return rtn;

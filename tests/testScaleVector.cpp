@@ -7,12 +7,12 @@
 #include <list>
 #include <array>
 #include <iostream>
-#include "morph/vec.h"
-#include "morph/scale.h"
+#include "sj/vec.h"
+#include "sj/scale.h"
 
 int main ()
 {
-    namespace m = morph;
+    namespace m = sj;
 
     int rtn = 0;
 

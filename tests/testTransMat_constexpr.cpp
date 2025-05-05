@@ -1,12 +1,12 @@
-#include "morph/mat44.h"
-#include "morph/quaternion.h"
+#include "sj/mat44.h"
+#include "sj/quaternion.h"
 #include <iostream>
 #include <array>
-#include <morph/vec.h>
-#include <morph/constexpr_math.h>
+#include <sj/vec.h>
+#include <sj/constexpr_math.h>
 #include <cmath>
 
-constexpr void setMatrixSequence (morph::mat44<float>& tm)
+constexpr void setMatrixSequence (sj::mat44<float>& tm)
 {
     tm.mat[0] = 0;
     tm.mat[1] = 1;
@@ -31,10 +31,10 @@ constexpr int do_test()
     int rtn = 0;
 
     // Test assignment
-    morph::mat44<float> tm1;
+    sj::mat44<float> tm1;
     setMatrixSequence (tm1);
 
-    morph::mat44<float> tm2 = tm1;
+    sj::mat44<float> tm2 = tm1;
     for (unsigned int i = 0; i<16; ++i) {
         if (tm2.mat[i] != (float)i) {
             ++rtn;
@@ -49,10 +49,10 @@ constexpr int do_test()
     }
 
     // Test multiplication
-    morph::mat44<float> mult1;
+    sj::mat44<float> mult1;
     setMatrixSequence (mult1);
 
-    morph::mat44<float> mult2;
+    sj::mat44<float> mult2;
     mult2.mat[0] = 15;
     mult2.mat[1] = 14;
     mult2.mat[2] = 13;
@@ -70,7 +70,7 @@ constexpr int do_test()
     mult2.mat[14] = 1;
     mult2.mat[15] = 0;
 
-    morph::mat44<float> mult3 = mult1 * mult2;
+    sj::mat44<float> mult3 = mult1 * mult2;
 
     if (mult3.mat[0] != 304
         || mult3.mat[1] != 358
@@ -115,7 +115,7 @@ constexpr int do_test()
     }
 
     // Test 3x3 determinant
-    morph::mat44<float> td;
+    sj::mat44<float> td;
     std::array<float, 9> threethree = { 1.0f, 0.0f, 2.0f, 1.0f, 1.0f, 3.5f, 3.0f, 2.0f, 120.0f };
     float det_td = td.determinant3x3 (threethree);
     if (det_td != 111.0f) {
@@ -130,7 +130,7 @@ constexpr int do_test()
     }
 
     // Test matrix inversion
-    morph::mat44<float> mult4;
+    sj::mat44<float> mult4;
     mult4.mat[0] = 15;
     mult4.mat[1] = 17;
     mult4.mat[2] = 0;
@@ -148,7 +148,7 @@ constexpr int do_test()
     mult4.mat[14] = 1;
     mult4.mat[15] = 0;
 
-    morph::mat44<float> mult4inv = mult4.invert();
+    sj::mat44<float> mult4inv = mult4.invert();
 
     std::array<float, 4> v1 = {1,2,3,4};
     std::array<float, 4> v2;
@@ -156,47 +156,47 @@ constexpr int do_test()
     v2 = mult4 * v1;
     v3 = mult4inv * v2;
 
-    float esum = morph::math::abs(v1[0]-v3[0])
-        + morph::math::abs(v1[1]-v3[1])
-        + morph::math::abs(v1[2]-v3[2])
-        + morph::math::abs(v1[3]-v3[3]);
+    float esum = sj::math::abs(v1[0]-v3[0])
+        + sj::math::abs(v1[1]-v3[1])
+        + sj::math::abs(v1[2]-v3[2])
+        + sj::math::abs(v1[3]-v3[3]);
 
     if (esum > 1e-5) {
         //std::cout << "Inverse failed to re-create the vector" << std::endl;
         ++rtn;
     }
 
-    // test matrix times vec<T,4> multiplication  std::array = mat * morph::vec
-    morph::vec<float, 4> v4 = {1,0,0,0};
+    // test matrix times vec<T,4> multiplication  std::array = mat * sj::vec
+    sj::vec<float, 4> v4 = {1,0,0,0};
     std::array<float, 4> r = mult4 * v4;
     if ((r[0]==15 && r[1]==17 && r[2]==0 && r[3]==0) == false) {
         ++rtn;
     }
 
-    morph::mat44<float> mult4inv_copy = mult4inv;
+    sj::mat44<float> mult4inv_copy = mult4inv;
     if (mult4inv_copy != mult4inv) { ++rtn; }
 
     mult4inv_copy.setToIdentity();
     if (mult4inv_copy[0] != 1.0f) { ++rtn; }
-    morph::vec<float, 4> r0 = mult4inv_copy.row(0);
+    sj::vec<float, 4> r0 = mult4inv_copy.row(0);
     if (r0[0] != 1.0f) { ++rtn; }
-    morph::vec<float, 4> c0 = mult4inv_copy.col(0);
+    sj::vec<float, 4> c0 = mult4inv_copy.col(0);
     if (c0[0] != 1.0f) { ++rtn; }
 
-    mult4inv_copy.translate (morph::vec<float, 3>{1, 0, 0});
+    mult4inv_copy.translate (sj::vec<float, 3>{1, 0, 0});
     mult4inv_copy.translate (std::array<float, 3>{-1, 0, 0});
     mult4inv_copy.translate (0.0f, 0.0f, 0.0f);
     if (mult4inv_copy[0] != 1.0f) { ++rtn; }
 
     mult4inv_copy.perspective (25.0f, 2.0f, 0.1f, 10.0f);
-    const morph::vec<float, 2> lb = { -4, -5 };
-    const morph::vec<float, 2>& rt = { 4, 5 };
+    const sj::vec<float, 2> lb = { -4, -5 };
+    const sj::vec<float, 2>& rt = { 4, 5 };
     mult4inv_copy.orthographic (lb, rt, 0.1f, 10.0f);
     mult4inv_copy.setToIdentity();
     if (mult4inv_copy[0] != 1.0f) { ++rtn; }
 
-    morph::quaternion<float> q_f;
-    morph::quaternion<double> q_d;
+    sj::quaternion<float> q_f;
+    sj::quaternion<double> q_d;
     mult4inv_copy.rotate (q_f);
     mult4inv_copy.rotate (q_d);
     mult4inv_copy.setToIdentity();

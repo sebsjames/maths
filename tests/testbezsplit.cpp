@@ -3,19 +3,19 @@
 #include <fstream>
 #include <limits>
 
-#include <morph/bezcurve.h>
+#include <sj/bezcurve.h>
 
 int main()
 {
     int rtn = 0;
-    morph::vvec<morph::vec<float, 2>> c = {
+    sj::vvec<sj::vec<float, 2>> c = {
         {1, 1},
         {2, 8},
         {9, 8},
         {10,1}
     };
 
-    morph::bezcurve<FLT> cv (c);
+    sj::bezcurve<FLT> cv (c);
     std::cout << "Defined a " << cv.getOrder() << " nd/rd/th order curve" << std::endl;
 
     std::cout << "cv = [" << cv.output(FLT{1}) << "];\n";
@@ -26,8 +26,8 @@ int main()
     std::cout << "c1=[" << nc.first << "]\n";
     std::cout << "c2=[" << nc.second << "]\n";
 
-    morph::bezcurve<FLT> cv1 (nc.first);
-    morph::bezcurve<FLT> cv2 (nc.second);
+    sj::bezcurve<FLT> cv1 (nc.first);
+    sj::bezcurve<FLT> cv2 (nc.second);
 
     std::cout << "cv1 = [" << cv1.output(FLT{1}) << "];\n";
     std::cout << "cv2 = [" << cv2.output(FLT{1}) << "];\n";
