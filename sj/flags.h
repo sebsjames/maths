@@ -47,8 +47,8 @@
 #include <compare>
 #include <type_traits>
 
-namespace sj {
-
+namespace sj
+{
     template <typename E> requires std::is_enum_v<E>
     struct flags
     {

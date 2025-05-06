@@ -34,8 +34,8 @@
 #include <stdexcept>
 #include <limits>
 
-namespace sj {
-
+namespace sj
+{
     /*!
      * This class is used to build an hexagonal grid of hexagons. The member hexagons
      * are all arranged with a vertex pointing vertically - "point up". The extent of

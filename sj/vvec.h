@@ -24,8 +24,8 @@
 #include <sj/range.h>
 #include <sj/trait_tests.h>
 
-namespace sj {
-
+namespace sj
+{
     /*!
      * \brief N-D vector class deriving from std::vector
      *

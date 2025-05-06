@@ -43,8 +43,8 @@
 #include <stdexcept>
 #include <limits>
 
-namespace sj {
-
+namespace sj
+{
     /*!
      * This class is used to build a Cartesian grid of rectangular elements.
      *

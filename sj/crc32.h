@@ -57,8 +57,8 @@
 #include <type_traits>
 #include <string_view>
 
-namespace sj {
-
+namespace sj
+{
     static constexpr uint32_t crc_table[256] =
     {
         0x00000000u, 0x77073096u, 0xee0e612cu, 0x990951bau, 0x076dc419u,

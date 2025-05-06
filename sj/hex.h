@@ -86,8 +86,8 @@
 #define HEX_VERTEX_POS_S      0x4
 #define HEX_VERTEX_POS_SE     0x5
 
-namespace sj {
-
+namespace sj
+{
     /*!
      * Describes a regular hexagon arranged with vertices pointing vertically and two flat sides
      * perpendicular to the horizontal axis:

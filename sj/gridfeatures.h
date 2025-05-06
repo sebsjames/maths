@@ -9,8 +9,8 @@
  */
 #pragma once
 
-namespace sj {
-
+namespace sj
+{
     //! The shape of the cartesian grid. Only used by CartGrid.h as Grid.h only specifies rectangular grids.
     enum class griddomainshape {
         rectangle,

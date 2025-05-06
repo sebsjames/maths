@@ -91,8 +91,8 @@
 #define RECT_VERTEX_POS_SW     0x2
 #define RECT_VERTEX_POS_SE     0x3
 
-namespace sj {
-
+namespace sj
+{
     /*!
      * Describes a regular rectangular 'pixel'.
      *

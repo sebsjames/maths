@@ -5,6 +5,11 @@
  *
  * \author Seb James
  * \date 2019
+ * Initial code author, maintenance
+ *
+ * \author Alex Blenkinsop
+ * \date 2025
+ * Improvements to methods that specify rotations and translations
  */
 #pragma once
 
@@ -19,8 +24,8 @@
 #include <iostream>
 #include <type_traits>
 
-namespace sj {
-
+namespace sj
+{
     // Forward declare class and stream operator
     template <typename F> class mat44;
     template <typename F> std::ostream& operator<< (std::ostream&, const mat44<F>&);

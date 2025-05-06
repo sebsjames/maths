@@ -11,8 +11,8 @@
 #include <sj/vec.h>
 #include <sj/vvec.h>
 
-namespace sj {
-
+namespace sj
+{
     template <typename T>
     struct bootstrap {
 

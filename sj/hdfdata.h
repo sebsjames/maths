@@ -29,8 +29,8 @@
 #define __PRETTY_FUNCTION__ __FUNCSIG__
 #endif
 
-namespace sj {
-
+namespace sj
+{
     /*!
      * Encodes the action to take on a read error. e.g. if you try to read /vars/A but
      * /vars/A does not exist inside the opened Hdf5 file. Choices are throw an

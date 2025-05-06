@@ -14,8 +14,8 @@
 #include <sstream>
 #include <iostream>
 
-namespace sj {
-
+namespace sj
+{
     // Forward declare class and stream operator
     template <typename F> class mat22;
     template <typename F> std::ostream& operator<< (std::ostream&, const mat22<F>&);

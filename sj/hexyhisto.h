@@ -8,8 +8,8 @@
 #include <sj/HexGrid.h>
 #include <utility>
 
-namespace sj {
-
+namespace sj
+{
     template <typename T=float>
     struct hexyhisto
     {

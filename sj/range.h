@@ -17,8 +17,8 @@
 #include <sj/trait_tests.h>
 #include <sj/constexpr_math.h>
 
-namespace sj {
-
+namespace sj
+{
     // Different values to use to initialize a range object with
     enum class range_init { zeros, for_search };
 

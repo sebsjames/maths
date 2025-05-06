@@ -59,8 +59,8 @@
  * another day.
  */
 
-namespace sj {
-
+namespace sj
+{
     // Note that I considered having a Random<T> base class, but because the
     // distribution object isn't sub-classed, then hardly any code would be
     // de-duplicated. max(), min() and get() methods all need the dist member

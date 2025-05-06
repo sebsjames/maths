@@ -17,8 +17,8 @@
 #include <type_traits>
 #include <sj/trait_tests.h>
 
-namespace sj {
-
+namespace sj
+{
     const bool debug_mode = false;
 
     /*!

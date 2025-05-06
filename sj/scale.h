@@ -47,8 +47,8 @@
 #include <sj/vvec.h>
 #include <sj/range.h>
 
-namespace sj {
-
+namespace sj
+{
     //! \brief A label for what kind of scaling transformation to make
     enum class scaling_function {
         Linear,

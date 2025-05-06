@@ -16,8 +16,8 @@
 #include <sstream>
 #include <type_traits>
 
-namespace sj {
-
+namespace sj
+{
     // Forward declare class and stream operator
     template <typename F>  requires std::is_floating_point_v<F> class quaternion;
     template <typename F> std::ostream& operator<< (std::ostream&, const quaternion<F>&);

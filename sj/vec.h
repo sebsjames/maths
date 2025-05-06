@@ -23,8 +23,8 @@
 #include <sj/random.h>
 #include <sj/range.h>
 
-namespace sj {
-
+namespace sj
+{
     /*!
      * \brief N-D vector class
      *

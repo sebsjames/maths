@@ -9,8 +9,8 @@
 #include <sj/range.h>
 #include <memory>
 
-namespace sj {
-
+namespace sj
+{
     /*!
      * A histogram class. Construct with data of type H and access bin locations
      *

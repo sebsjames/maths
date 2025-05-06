@@ -3,8 +3,8 @@
  */
 #pragma once
 
-namespace sj {
-
+namespace sj
+{
     //! Templated mathematical constants.
     //! Usage example: sj::mathconst<float>::pi_over_2
     //! T defaults to double, so sj::mathconst::pi gives pi in double precision.

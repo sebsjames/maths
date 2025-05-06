@@ -20,8 +20,8 @@
 #include <sj/vvec.h>
 #include <sj/gridfeatures.h>
 
-namespace sj {
-
+namespace sj
+{
     /*!
      * \brief A grid class to define a rectangular Cartesian grid of locations
      *

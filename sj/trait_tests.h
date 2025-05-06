@@ -14,8 +14,8 @@
 #pragma once
 #include <type_traits>
 
-namespace sj {
-
+namespace sj
+{
     //! Traits approach to testing for possibility of a-b. Could also make a class which used
     //! std::is_arithmetic here.
     template<typename T>
