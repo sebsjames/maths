@@ -1,8 +1,8 @@
 #include <iostream>
 #include <complex>
 #include <deque>
-#include <sj/vec.h>
-#include <sj/trait_tests.h>
+#include <sj/vec>
+#include <sj/trait_tests>
 
 
 // What does sj::number_type return for std::complex? This is a test just of sj::number_type

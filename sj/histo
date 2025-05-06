@@ -5,10 +5,10 @@
 #pragma once
 
 #include <type_traits>
-#include <sj/vec.h>
-#include <sj/vvec.h>
-#include <sj/range.h>
 #include <memory>
+#include <sj/vec>
+#include <sj/vvec>
+#include <sj/range>
 
 namespace sj
 {

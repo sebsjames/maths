@@ -10,10 +10,10 @@
 #include <cstdint>
 #include <limits>
 #include <bitset>
-#include <sj/mathconst.h>
-#include <sj/constexpr_math.h> // constexpr math functions from Keith O'Hara
-#include <sj/range.h>
-#include <sj/vec.h>
+#include <sj/mathconst>
+#include <sj/constexpr_math> // constexpr math functions from Keith O'Hara
+#include <sj/range>
+#include <sj/vec>
 #include <iostream> // debug
 
 namespace sj

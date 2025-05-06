@@ -1,7 +1,8 @@
-#include "sj/hdfdata.h"
-#include "sj/vvec.h"
-#include "sj/vec.h"
 #include <iostream>
+
+#include <sj/vvec>
+#include <sj/vec>
+#include <sj/hdfdata>
 
 // Test containers of vvecs
 

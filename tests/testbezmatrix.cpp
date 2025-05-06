@@ -4,8 +4,8 @@
 #include <limits>
 #include <chrono>
 
-#include <sj/hexgrid.h>
-#include <sj/bezcurve.h>
+#include <sj/hexgrid>
+#include <sj/bezcurve>
 
 int main()
 {

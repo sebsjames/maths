@@ -10,7 +10,7 @@
 #include <cmath>
 #include <concepts>
 
-#include <sj/vec.h>
+#include <sj/vec>
 
 namespace sj
 {

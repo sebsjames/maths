@@ -1,9 +1,10 @@
-#include "sj/hdfdata.h"
 #include <utility>
 #include <iostream>
 #include <fstream>
 #include <list>
 #include <vector>
+
+#include <sj/hdfdata>
 
 int main()
 {

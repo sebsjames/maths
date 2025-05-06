@@ -1,4 +1,5 @@
-#include <sj/vvec.h>
+#include <iostream>
+#include <sj/vvec>
 
 int main()
 {

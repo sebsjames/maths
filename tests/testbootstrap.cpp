@@ -1,8 +1,8 @@
 // Test that bootstrapping results match expected results from parameterized statistics.
 
-#include <sj/vvec.h>
-#include <sj/bootstrap.h>
-#include <sj/random.h>
+#include <sj/vvec>
+#include <sj/bootstrap>
+#include <sj/random>
 
 int main()
 {

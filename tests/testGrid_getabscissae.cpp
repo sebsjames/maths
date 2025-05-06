@@ -1,5 +1,5 @@
-#include <sj/grid.h>
 #include <iostream>
+#include <sj/grid>
 
 int main()
 {

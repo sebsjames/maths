@@ -2,10 +2,10 @@
 #include <iostream>
 #include <fstream>
 
-#include <sj/hexgrid.h>
-#include <sj/bezcurve.h>
-#include <sj/bezcurvepath.h>
-#include <sj/vec.h>
+#include <sj/hexgrid>
+#include <sj/bezcurve>
+#include <sj/bezcurvepath>
+#include <sj/vec>
 
 int main()
 {

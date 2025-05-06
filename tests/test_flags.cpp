@@ -1,6 +1,6 @@
 #include <cstdint>
 #include <iostream>
-#include "sj/flags.h"
+#include <sj/flags>
 
 // You need an enumerated class to use sj::flags.
 enum class myflags : uint32_t

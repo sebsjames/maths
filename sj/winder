@@ -14,9 +14,10 @@
 #include <memory>
 #include <cmath>
 #include <stdexcept>
-#include <sj/mathconst.h>
 #include <type_traits>
-#include <sj/trait_tests.h>
+
+#include <sj/mathconst>
+#include <sj/trait_tests>
 
 namespace sj
 {

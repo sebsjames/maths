@@ -1,4 +1,5 @@
-#include "sj/vec.h"
+#include <sj/vec>
+
 using sj::vec;
 using std::cout;
 using std::endl;

@@ -1,6 +1,6 @@
 #include <iostream>
-#include "sj/quaternion.h"
-#include "sj/vec.h"
+#include <sj/quaternion>
+#include <sj/vec>
 
 constexpr int test_quat1()
 {

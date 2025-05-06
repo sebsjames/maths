@@ -7,15 +7,16 @@
  */
 #pragma once
 
-#include <sj/mathconst.h>
-#include <sj/constexpr_math.h>
-#include <sj/vec.h>
 #include <limits>
 #include <cmath>
 #include <array>
 #include <iostream>
 #include <sstream>
 #include <type_traits>
+
+#include <sj/mathconst>
+#include <sj/constexpr_math>
+#include <sj/vec>
 
 namespace sj
 {

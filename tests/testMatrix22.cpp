@@ -1,8 +1,8 @@
-#include "sj/mat22.h"
 #include <iostream>
 #include <array>
-#include <sj/vec.h>
-#include <sj/mathconst.h>
+#include <sj/mathconst>
+#include <sj/vec>
+#include <sj/mat22>
 
 void setMatrixSequence (sj::mat22<float>& tm)
 {

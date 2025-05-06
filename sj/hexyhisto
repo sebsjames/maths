@@ -1,12 +1,12 @@
 // -*- C++ -*-
 /*
- * A histogram class for a 2D histogram on a HexGrid.
+ * A histogram class for a 2D histogram on a hexgrid.
  */
 #pragma once
 
-#include <sj/vec.h>
-#include <sj/vvec.h>
-#include <sj/HexGrid.h>
+#include <sj/vec>
+#include <sj/vvec>
+#include <sj/hexgrid>
 #include <utility>
 
 namespace sj
@@ -16,7 +16,7 @@ namespace sj
     {
         // Data is a vvec of coordinates. data[2] is ignored. hg is a hex grid, assumed to be in
         // same coordinate frame as data.
-        hexyhisto (const sj::vvec<sj::vec<T>>& data, HexGrid* hg)
+        hexyhisto (const sj::vvec<sj::vec<T>>& data, hexgrid* hg)
         {
             unsigned int n = hg->num();
             this->counts.resize(n, 0);
@@ -39,7 +39,7 @@ namespace sj
             }
             this->proportions = counts.as_float();
             this->proportions /= this->datacount;
-            // Now just plot hexyhisto::proportions on your HexGrid. Simples.
+            // Now just plot hexyhisto::proportions on your hexgrid. Simples.
         }
 
         T datacount = T{0}; // how many elements were there in data?

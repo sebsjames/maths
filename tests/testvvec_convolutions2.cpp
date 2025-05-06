@@ -1,4 +1,4 @@
-#include <sj/vvec.h>
+#include <sj/vvec>
 
 int main()
 {
@@ -13,16 +13,16 @@ int main()
 
     sj::vvec<float> r1_pure_expct = { 2, 7, 14, 17, 14, 12 };
     sj::vvec<float> r1p = a.convolve<sj::vvec<float>::wrapdata::none,
-                                        sj::vvec<float>::centre_kernel::no,
-                                        sj::vvec<float>::resize_output::yes> (b);
+                                     sj::vvec<float>::centre_kernel::no,
+                                     sj::vvec<float>::resize_output::yes> (b);
     if (r1p != r1_pure_expct) { rtn -= 1; }
     std::cout << a << " * " << b << " = " << r1p << " (no wrap, no centre, resize, expect " << r1_pure_expct << ")" << std::endl;
 
     sj::vvec<float> aa = { 1, 2, 3, 4, 5 }; // Can't do 1,2,3 as this is now smaller than 4 element kernel (and we wrap)
     sj::vvec<float> r2expct = { 37, 33, 34, 25, 36 };
     sj::vvec<float> r2 = aa.convolve<sj::vvec<float>::wrapdata::wrap,
-                                        sj::vvec<float>::centre_kernel::no,
-                                        sj::vvec<float>::resize_output::no> (b);
+                                     sj::vvec<float>::centre_kernel::no,
+                                     sj::vvec<float>::resize_output::no> (b);
     std::cout << aa << " * " << b << " = " << r2  << " (wrap, no centre, no resize, expect " << r2expct << ")" << std::endl;
     if (r2 != r2expct) {  std::cout << "r2 " << r2 << " != " << r2expct << std::endl; rtn -= 1; }
 
@@ -48,8 +48,8 @@ int main()
     // Pure maths convolution
     sj::vvec<float> a2 = {4, 5, 6}; // 3blue1brown example kernel!
     sj::vvec<float> threeb1b = a.convolve<sj::vvec<float>::wrapdata::none,
-                                             sj::vvec<float>::centre_kernel::no,
-                                             sj::vvec<float>::resize_output::yes> (a2);
+                                          sj::vvec<float>::centre_kernel::no,
+                                          sj::vvec<float>::resize_output::yes> (a2);
     sj::vvec<float> threeb1b_expct = { 4, 13, 28, 27, 18 };
     std::cout <<  "pure convolution " << a << " * " << a2 << " = " << threeb1b << " (expect " << threeb1b_expct << ")\n";
 

@@ -1,7 +1,7 @@
-#include "sj/quaternion.h"
-#include "sj/vec.h"
-#include "sj/mathconst.h"
-#include "sj/random.h"
+#include <sj/quaternion>
+#include <sj/vec>
+#include <sj/mathconst>
+#include <sj/random>
 
 int main()
 {

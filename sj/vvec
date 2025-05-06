@@ -21,9 +21,10 @@
 #include <algorithm>
 #include <functional>
 #include <cstddef>
-#include <sj/random.h>
-#include <sj/range.h>
-#include <sj/trait_tests.h>
+
+#include <sj/trait_tests>
+#include <sj/random>
+#include <sj/range>
 
 namespace sj
 {
@@ -449,7 +450,7 @@ namespace sj
          */
         void shuffle()
         {
-            std::random_device rd; // we have access to these via #include <sj/random.h>
+            std::random_device rd; // we have access to these via #include <sj/random>
             std::mt19937 generator(rd());
             std::shuffle (this->begin(), this->end(), generator);
         }
@@ -460,7 +461,7 @@ namespace sj
         sj::vvec<S> shuffled()
         {
             sj::vvec<S> rtn (*this);
-            std::random_device rd; // we have access to these via #include <sj/random.h>
+            std::random_device rd; // we have access to these via #include <sj/random>
             std::mt19937 generator(rd());
             std::shuffle (rtn.begin(), rtn.end(), generator);
             return rtn;

@@ -3,7 +3,7 @@
 #include <fstream>
 #include <limits>
 
-#include <sj/bezcurve.h>
+#include <sj/bezcurve>
 
 int main()
 {

@@ -3,10 +3,10 @@
 #include <fstream>
 #include <vector>
 
-#include <sj/bezcurve.h>
-#include <sj/bezcurvepath.h>
-#include <sj/vec.h>
-#include <sj/vvec.h>
+#include <sj/bezcurve>
+#include <sj/bezcurvepath>
+#include <sj/vec>
+#include <sj/vvec>
 
 int main()
 {

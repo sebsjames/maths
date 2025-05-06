@@ -2,8 +2,8 @@
  * Test the different possibilities for dividing a vvec of scalars/vecs by scalar/vec/vvec etc
  */
 
-#include <sj/vvec.h>
-#include <sj/vec.h>
+#include <sj/vvec>
+#include <sj/vec>
 
 int main()
 {

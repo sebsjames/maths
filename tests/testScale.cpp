@@ -3,9 +3,9 @@
 #include <list>
 #include <array>
 #include <iostream>
-#include "sj/vec.h"
-#include "sj/scale.h"
 #include <cmath>
+#include <sj/vec>
+#include <sj/scale>
 
 int main ()
 {

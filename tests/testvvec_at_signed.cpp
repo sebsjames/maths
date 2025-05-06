@@ -2,13 +2,14 @@
  * Test the at_signed(I idx) functions
  */
 
-#include <sj/vvec.h>
-#include <sj/vec.h>
 #include <array>
 #include <vector>
 #include <set>
 #include <cstdint>
 #include <iostream>
+
+#include <sj/vvec>
+#include <sj/vec>
 
 int main()
 {

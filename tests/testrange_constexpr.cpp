@@ -1,6 +1,5 @@
 #include <iostream>
-#include <sj/range.h>
-#include <sj/mathconst.h>
+#include <sj/range>
 
 constexpr sj::range<float> test_update()
 {

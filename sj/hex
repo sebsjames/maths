@@ -13,14 +13,14 @@
 #include <list>
 #include <array>
 #include <cmath>
-#include <sj/bezcoord.h>
+#include <sj/bezcoord>
 // If the hexgrid::save and hexgrid::load methods are required, define
 // HEXGRID_COMPILE_LOAD_AND_SAVE. A link to libhdf5 will be required in your program.
 #ifdef HEXGRID_COMPILE_LOAD_AND_SAVE
-# include <sj/hdfdata.h>
+# include <sj/hdfdata>
 #endif
-#include <sj/mathconst.h>
-#include <sj/vec.h>
+#include <sj/mathconst>
+#include <sj/vec>
 //#define DEBUG_WITH_COUT 1
 #ifdef DEBUG_WITH_COUT
 #include <iostream>
@@ -61,7 +61,7 @@
 //! hex is inside the region
 #define HEX_INSIDE_REGION       0x400
 
-//! Four flags for client code to use for its own devices. For an example of use, see DirichDom.h
+//! Four flags for client code to use for its own devices.
 #define HEX_USER_FLAG_0    0x10000000
 #define HEX_USER_FLAG_1    0x20000000
 #define HEX_USER_FLAG_2    0x40000000

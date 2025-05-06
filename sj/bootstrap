@@ -9,8 +9,8 @@
 #pragma once
 
 #include <vector>
-#include <sj/vec.h>
-#include <sj/vvec.h>
+#include <sj/vec>
+#include <sj/vvec>
 
 namespace sj
 {

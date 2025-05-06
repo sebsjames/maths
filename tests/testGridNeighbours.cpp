@@ -1,6 +1,6 @@
-#include "sj/grid.h"
 #include <iostream>
 #include <limits>
+#include <sj/grid>
 
 int main()
 {

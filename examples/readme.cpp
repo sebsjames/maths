@@ -1,6 +1,6 @@
-#include <sj/mathconst.h>
-#include <sj/vec.h>
-#include <sj/quaternion.h>
+#include <sj/mathconst>
+#include <sj/vec>
+#include <sj/quaternion>
 
 int main()
 {

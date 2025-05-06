@@ -1,5 +1,5 @@
 #include <iostream>
-#include <sj/bezcurve.h>
+#include <sj/bezcurve>
 
 int main()
 {

@@ -1,5 +1,5 @@
-#include <sj/constexpr_math.h>
 #include <iostream>
+#include <sj/constexpr_math>
 
 int main()
 {

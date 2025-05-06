@@ -17,9 +17,9 @@
 #include <limits>
 #include <type_traits>
 #include <set>
-#include <sj/vec.h>
-#include <sj/vvec.h>
-#include <sj/gridfeatures.h>
+#include <sj/vec>
+#include <sj/vvec>
+#include <sj/gridfeatures>
 
 namespace sj
 {

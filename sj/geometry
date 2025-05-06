@@ -14,11 +14,11 @@
 #include <iostream>
 #include <limits>
 #include <cmath>
-#include <sj/mathconst.h>
-#include <sj/algo.h>
-#include <sj/vec.h>
-#include <sj/vvec.h>
-#include <sj/quaternion.h>
+#include <sj/mathconst>
+#include <sj/algo>
+#include <sj/vec>
+#include <sj/vvec>
+#include <sj/quaternion>
 
 
 //! constexpr-capable geometry

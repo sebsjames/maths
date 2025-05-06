@@ -23,8 +23,8 @@
 #include <cstddef>
 #include <sstream>
 #include <stdexcept>
-#include <sj/vec.h>
-#include <sj/vvec.h>
+#include <sj/vec>
+#include <sj/vvec>
 
 #ifdef _MSC_VER
 #define __PRETTY_FUNCTION__ __FUNCSIG__

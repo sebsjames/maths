@@ -1,10 +1,10 @@
 // Testing rotations of unit vectors about unit axes with mat44 multiplication
 // and quaternion multiplication
 
-#include "sj/quaternion.h"
-#include "sj/mat44.h"
-#include "sj/vec.h"
-#include "sj/mathconst.h"
+#include <sj/mathconst>
+#include <sj/vec>
+#include <sj/quaternion>
+#include <sj/mat44>
 
 #ifndef FLT
 typedef float F;

@@ -3,10 +3,10 @@
  * translation and scaling.
  */
 #include <iostream>
-#include <sj/mathconst.h>
-#include <sj/vec.h>
-#include <sj/quaternion.h>
-#include <sj/mat44.h>
+#include <sj/mathconst>
+#include <sj/vec>
+#include <sj/quaternion>
+#include <sj/mat44>
 
 int main()
 {

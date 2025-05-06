@@ -7,8 +7,8 @@
  * Each constexpr function in sj::vec is tested within a global constexpr function.
  */
 
-#include <sj/mathconst.h>
-#include <sj/vec.h>
+#include <sj/mathconst>
+#include <sj/vec>
 
 constexpr sj::vec<double, 3> vec_add()
 {

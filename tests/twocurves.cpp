@@ -2,7 +2,7 @@
 #include <iostream>
 #include <fstream>
 
-#include <sj/bezcurve.h>
+#include <sj/bezcurve>
 
 /*
  * This test joins two curves together and selects points along each

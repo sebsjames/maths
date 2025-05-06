@@ -20,9 +20,9 @@
 #include <algorithm>
 #include <functional>
 #include <cstddef>
-#include <sj/constexpr_math.h>
-#include <sj/random.h>
-#include <sj/range.h>
+#include <sj/constexpr_math>
+#include <sj/random>
+#include <sj/range>
 
 namespace sj
 {

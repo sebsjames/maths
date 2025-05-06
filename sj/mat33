@@ -9,12 +9,12 @@
  */
 #pragma once
 
-#include <sj/vec.h>
 #include <cmath>
 #include <array>
 #include <string>
 #include <sstream>
 #include <iostream>
+#include <sj/vec>
 
 namespace sj
 {

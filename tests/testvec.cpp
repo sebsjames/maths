@@ -1,14 +1,12 @@
-#include "sj/vec.h"
-#include "sj/mathconst.h"
 #include <set>
 #include <algorithm>
 #include <complex>
 
-using std::cout;
-using std::endl;
-using std::array;
+#include <sj/mathconst>
+#include <sj/vec>
 
-int main() {
+int main()
+{
     int rtn = 0;
 
     using namespace std::complex_literals;
@@ -18,113 +16,113 @@ int main() {
 
     sj::vec<float, 4> v = {1,2,3};
     // Test x(), y() etc members
-    cout << "x: " << v.x() << endl;
-    cout << "z: " << v.z() << endl;
-    cout << "w: " << v.w() << endl;
+    std::cout << "x: " << v.x() << std::endl;
+    std::cout << "z: " << v.z() << std::endl;
+    std::cout << "w: " << v.w() << std::endl;
     // Test renormalize
     v.renormalize();
-    cout << "After renormalize: " << v << endl;
+    std::cout << "After renormalize: " << v << std::endl;
     // Test checkunit
-    cout << "is it unit? " << v.checkunit() << endl;
+    std::cout << "is it unit? " << v.checkunit() << std::endl;
     // Test randomize
     v.randomize(3,4);
-    cout << "After randomize: " << v << endl;
+    std::cout << "After randomize: " << v << std::endl;
     // Check ints are ok, too
     sj::vec<int, 2> vi;
     vi.randomize(0,200);
-    cout << "After randomize of int sj::vec: " << vi << endl;
-    cout << "Length: " << vi.length() << endl;
+    std::cout << "After randomize of int sj::vec: " << vi << std::endl;
+    std::cout << "Length: " << vi.length() << std::endl;
     sj::vec<float, 3> vfl;
     vfl.randomize();
-    cout << "Length of a float vector: " << vfl.length() << endl;
+    std::cout << "Length of a float vector: " << vfl.length() << std::endl;
     // Test assignment
     sj::vec<int, 2> vi2 = vi;
-    cout << "Copy of int sj::vec: " << vi2 << endl;
+    std::cout << "Copy of int sj::vec: " << vi2 << std::endl;
     // Test comparison
-    cout << "vi == vi2? " << (vi == vi2 ? "yes" : "no") << endl;
+    std::cout << "vi == vi2? " << (vi == vi2 ? "yes" : "no") << std::endl;
     // Test negate
     sj::vec<int, 2> vi3 = -vi;
-    cout << "-ve Copy of int sj::vec: " << vi3 << endl;
+    std::cout << "-ve Copy of int sj::vec: " << vi3 << std::endl;
     // Test comparison
-    cout << "vi == vi3? " << (vi == vi3 ? "yes" : "no") << endl;
+    std::cout << "vi == vi3? " << (vi == vi3 ? "yes" : "no") << std::endl;
     // Test cross product (3D only
     sj::vec<double, 3> a = {1,0,0};
     sj::vec<double, 3> b = {0,1,0};
     sj::vec<double, 3> c = a.cross(b);
-    cout << a << " cross " << b << "=" << c << endl;
+    std::cout << a << " cross " << b << "=" << c << std::endl;
     // Test dot product
     sj::vec<int, 2> vv1 = {1,1};
     sj::vec<int, 2> vv2 = {2,2};
     int dp = vv1.dot (vv2);
-    cout << vv1 << "." << vv2 << " = " << dp << endl;
+    std::cout << vv1 << "." << vv2 << " = " << dp << std::endl;
 
     // Assignment
 #if 0 //  Copy FROM std::array to vec is NO good
     // Test init from array
-    array<float, 3> arr = { 2,3,4 };
+    std::array<float, 3> arr = { 2,3,4 };
     sj::vec<float, 3> varr = arr; // Tried overloading operator= to no avail.
-    cout << "sj::vec from array: " << varr << endl;
+    std::cout << "sj::vec from array: " << varr << std::endl;
 #endif
 
 #if 1 // copy FROM vec TO std::array is OK
     // Test init from array
     sj::vec<float, 3> varr = { 2, 3, 4 };
     std::array<float, 3> arr = varr; // copy TO std::array
-    cout << "std::array assigned to from sj::vec: ";
-    for (auto a : arr) { cout << a << ", "; }
-    cout << std::endl;
+    std::cout << "std::array assigned to from sj::vec: ";
+    for (auto a : arr) { std::cout << a << ", "; }
+    std::cout << std::endl;
 #endif
 
     // Test scalar multiply
     vv2 *= 2UL;
-    cout << "vv2 after *2:" << vv2 << endl;
+    std::cout << "vv2 after *2:" << vv2 << std::endl;
     sj::vec<int, 2> vv4 = vv1 * 98;
-    cout << "vv1 * 98:" << vv4 << endl;
+    std::cout << "vv1 * 98:" << vv4 << std::endl;
     // Scalar division
     sj::vec<double, 3> d = a/3.0;
-    cout << "a/3.0:" << d << endl;
+    std::cout << "a/3.0:" << d << std::endl;
     // sj::vec addition
     sj::vec<double, 3> e = a+b;
-    cout << "a+b:" << e << endl;
+    std::cout << "a+b:" << e << std::endl;
     // sj::vec subtraction
     sj::vec<double, 3> f = a-b;
-    cout << "a-b:" << f << endl;
+    std::cout << "a-b:" << f << std::endl;
     // Test default template args
     sj::vec<double> vd_def;
     vd_def.randomize();
-    cout << vd_def << endl;
+    std::cout << vd_def << std::endl;
     sj::vec<> v_def;
     v_def.randomize();
-    cout << v_def << endl;
+    std::cout << v_def << std::endl;
 
     // So you want to do the dot product of a 1000000 D sj::vec? Easy
     sj::vec<float, 1000> big1;
     sj::vec<float, 1000> big2;
     big1.randomize(0,100);
     big2.randomize(0,20);
-    cout << "DP..." << endl;
+    std::cout << "DP..." << std::endl;
     float bdp = big1.dot(big2);
-    cout << "big1.big2=" << bdp << endl;
+    std::cout << "big1.big2=" << bdp << std::endl;
 
     // Test setFrom
     sj::vec<double, 3> d1;
-    array<double, 3> a1 = { 5,6,7 };
+    std::array<double, 3> a1 = { 5,6,7 };
     d1.set_from (a1);
-    cout << "d1 should be 5,6,7: " << d1 << endl;
-    array<double, 4> a2 = { 5,6,8,8 };
+    std::cout << "d1 should be 5,6,7: " << d1 << std::endl;
+    std::array<double, 4> a2 = { 5,6,8,8 };
     d1.set_from (a2);
-    cout << "d1 should be 5,6,8: " << d1 << endl;
+    std::cout << "d1 should be 5,6,8: " << d1 << std::endl;
     d1.set_from (5.6);
-    cout << "d1 should be 5.6 for all elements: " << d1 << endl;
+    std::cout << "d1 should be 5.6 for all elements: " << d1 << std::endl;
 
     // Test hadamard operator* (elementwise multiplication)
     sj::vec<double, 3> h1 = {1.0, 2.0, 3.0};
     sj::vec<double, 3> h2 = {7.0, 6.0, 5.0};
     sj::vec<double, 3> h3 = h1 * h2;
-    cout << h1 << "(o)" << h2 << " = " << h3 << endl;
+    std::cout << h1 << "(o)" << h2 << " = " << h3 << std::endl;
 
     h1 *= h2;
-    cout << "After h1 *= h2, h1: " << h1 << endl;
+    std::cout << "After h1 *= h2, h1: " << h1 << std::endl;
 
     // Test operator *= with different types. Ok if lhs is same type as result.
     sj::vec<int, 3> h4 = {2, 2, 2};
@@ -132,19 +130,19 @@ int main() {
     sj::vec<int, 3> h6 = h4 * h2; // sj::vec<int, N> * sj::vec<double, N> implies expected loss of precision.
     sj::vec<double, 3> h7 = h2 * h4;
     //sj::vec<double, 3> h8 = h4 * h2; // Not ok
-    cout << h2 << "(o)" << h4 << " = " << h6 << " or " << h7 << endl;
+    std::cout << h2 << "(o)" << h4 << " = " << h6 << " or " << h7 << std::endl;
 
     // Will VS be happy?
     h4 *= h2;
 
     sj::vec<float, 4> maxlongest = {-1.1f, -7.0f, 3.0f, 6.0f };
-    cout << "For sj::vec " << maxlongest
+    std::cout << "For sj::vec " << maxlongest
          << ", max: " << maxlongest.max() << " (at index "<< maxlongest.argmax()
          << "), longest component: " << maxlongest.longest() << " (at index "
          << maxlongest.arglongest() << ")\n";
 
     sj::vec<float, 4> totimes = { 1.0f, 2.0f, 3.0f, 4.0f };
-    cout << "Cumulative product of " << totimes << " is " << totimes.product() << endl;
+    std::cout << "Cumulative product of " << totimes << " is " << totimes.product() << std::endl;
 
     sj::vec<float, 4> fordivision = { 1.0f, 2.0f, 3.0f, 4.0f };
     sj::vec<float, 4> divresult = 1.0f / fordivision;

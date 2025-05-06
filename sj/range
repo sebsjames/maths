@@ -15,8 +15,8 @@
 #include <sstream>
 #include <limits>
 #include <complex>
-#include <sj/trait_tests.h>
-#include <sj/constexpr_math.h>
+#include <sj/trait_tests>
+#include <sj/constexpr_math>
 
 namespace sj
 {

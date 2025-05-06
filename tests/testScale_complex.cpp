@@ -5,8 +5,8 @@
 #include <iostream>
 #include <complex>
 #include <array>
-#include <sj/vvec.h>
-#include <sj/scale.h>
+#include <sj/vvec>
+#include <sj/scale>
 
 int main()
 {

@@ -2,8 +2,8 @@
  * Test the different possibilities for adding scalar/vec/vvec etc to a vvec of scalars/vecs
  */
 
-#include <sj/vvec.h>
-#include <sj/vec.h>
+#include <sj/vvec>
+#include <sj/vec>
 
 int main()
 {

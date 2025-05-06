@@ -6,29 +6,29 @@
  */
 #pragma once
 
-#include <sj/rect.h>
-#include <sj/gridfeatures.h>
+#include <sj/rect>
+#include <sj/gridfeatures>
 
 // cartgrid contains carried over code (from HexGrid) which allows for the imposition of
 // arbitrary boundaries, specified as Bezier curves. This brings in a link dependency on
 // libarma. To use a cartgrid with an arbitrary boundary, define
 // CARTGRID_COMPILE_WITH_BEZCURVES
 #ifdef CARTGRID_COMPILE_WITH_BEZCURVES
-# include <sj/bezcurvepath.h>
-# include <sj/bezcoord.h>
+# include <sj/bezcurvepath>
+# include <sj/bezcoord>
 #endif
 
-#include <sj/mathconst.h>
-#include <sj/vec.h>
-#include <sj/vvec.h>
-#include <sj/scale.h>
-#include <sj/range.h>
-#include <sj/boxfilter.h>
+#include <sj/mathconst>
+#include <sj/vec>
+#include <sj/vvec>
+#include <sj/scale>
+#include <sj/range>
+#include <sj/boxfilter>
 
 // If the cartgrid::save and cartgrid::load methods are required, define
 // CARTGRID_COMPILE_LOAD_AND_SAVE. A link to libhdf5 will be required in your program.
 #ifdef CARTGRID_COMPILE_LOAD_AND_SAVE
-# include <sj/hdfdata.h>
+# include <sj/hdfdata>
 #endif
 
 #include <set>
@@ -49,14 +49,14 @@ namespace sj
     /*!
      * This class is used to build a Cartesian grid of rectangular elements.
      *
-     * It has been developed from HexGrid.h. It looks byzantine in complexity, given
+     * It has been developed from hexgrid. It looks byzantine in complexity, given
      * than it's 'only' supposed to provide a way to track a rectangular grid. This is
-     * because, as with HexGrid.h, the initial grid is intended to provide a region from
+     * because, as with hexgrid, the initial grid is intended to provide a region from
      * which an arbitrary boundary region can be 'cut out' AND it maintains all the
      * neighbour relationships correctly.
      *
      * Optionally, a boundary may be set by calling setBoundary (const
-     * BezCurvePath&). If this is done, then the boundary is converted to a set of
+     * bezcurvepath&). If this is done, then the boundary is converted to a set of
      * elements, then those elements in the grid lying outside the boundary are removed.
      */
     class alignas(8) cartgrid

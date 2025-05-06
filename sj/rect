@@ -2,7 +2,7 @@
 /*
  * \file
  *
- * Defines a class to manage a rectangle which lives in a Cartesian grid (CartGrid.h)
+ * Defines a class to manage a rectangle which lives in a Cartesian grid
  *
  * \author: Seb James
  * \date: 2021/02
@@ -12,10 +12,10 @@
 #include <string>
 #include <list>
 #include <cmath>
-#include <sj/vec.h>
-#include <sj/bezcoord.h>
+#include <sj/vec>
+#include <sj/bezcoord>
 #ifdef CARTGRID_COMPILE_LOAD_AND_SAVE
-# include <sj/hdfdata.h>
+# include <sj/hdfdata>
 #endif
 
 /*
@@ -66,7 +66,7 @@
 #define RECT_WRAPS_S 0x10000
 
 
-//! Four flags for client code to use for its own devices. For an example of use, see DirichDom.h
+//! Four flags for client code to use for its own devices.
 #define RECT_USER_FLAG_0    0x10000000
 #define RECT_USER_FLAG_1    0x20000000
 #define RECT_USER_FLAG_2    0x40000000

@@ -1,10 +1,10 @@
-#include "sj/mat44.h"
-#include "sj/quaternion.h"
 #include <iostream>
 #include <array>
-#include <sj/vec.h>
-#include <sj/constexpr_math.h>
 #include <cmath>
+#include <sj/constexpr_math>
+#include <sj/vec>
+#include <sj/quaternion>
+#include <sj/mat44>
 
 constexpr void setMatrixSequence (sj::mat44<float>& tm)
 {

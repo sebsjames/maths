@@ -1,5 +1,5 @@
 #include <iostream>
-#include <sj/algo.h>
+#include <sj/algo>
 
 int main()
 {

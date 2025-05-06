@@ -4,8 +4,8 @@
 
 #include <iostream>
 #include <array>
-#include <sj/mathconst.h>
-#include <sj/vec.h>
+#include <sj/mathconst>
+#include <sj/vec>
 
 void f_const_ptr_a (const std::array<float, 3>* a1)
 {

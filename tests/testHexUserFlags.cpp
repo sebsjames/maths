@@ -1,6 +1,6 @@
-#include <sj/hex.h>
 #include <iostream>
 #include <utility>
+#include <sj/hex>
 
 int main()
 {

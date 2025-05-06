@@ -1,5 +1,5 @@
-#include <sj/trait_tests.h>
 #include <iostream>
+#include <sj/trait_tests>
 
 template <typename _S=float>
 std::enable_if_t < sj::is_copyable_container<_S>::value, bool >
@@ -46,8 +46,8 @@ complex_from (const _S& v)
     return true;
 }
 
-#include <sj/vec.h>
-#include <sj/vvec.h>
+#include <sj/vec>
+#include <sj/vvec>
 #include <set>
 #include <array>
 #include <vector>

@@ -1,9 +1,9 @@
 #include <iostream>
 #include <vector>
 #include <list>
-#include "sj/winder.h"
-#include "sj/vec.h"
-#include "sj/vvec.h"
+#include <sj/winder>
+#include <sj/vec>
+#include <sj/vvec>
 
 /*
  * Winder code should be able to compute the winding number of a coordinate with
@@ -13,8 +13,8 @@
  * possibilities. There's some function specialization in sj::winder which makes
  * all this possible.
  */
-int main() {
-
+int main()
+{
     int rtn = 0;
 
     // Test with plain old std::array (and put this one in a list, too)

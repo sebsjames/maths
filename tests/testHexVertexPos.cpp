@@ -1,5 +1,5 @@
-#include <sj/hex.h>
 #include <iostream>
+#include <sj/hex>
 
 int main()
 {

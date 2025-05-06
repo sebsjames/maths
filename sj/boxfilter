@@ -9,8 +9,8 @@
 
 #include <stdexcept>
 #include <array>
-#include <sj/vvec.h>
-#include <sj/vec.h>
+#include <sj/vvec>
+#include <sj/vec>
 
 namespace sj::algo
 {

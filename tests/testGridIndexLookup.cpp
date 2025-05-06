@@ -1,6 +1,6 @@
-#include "sj/grid.h"
 #include <iostream>
 #include <limits>
+#include <sj/grid>
 
 // The test checks that locations exactly on the grid work
 int do_test (sj::griddomainwrap wrap, const sj::vec<float, 2>& coord_shift)

@@ -3,11 +3,11 @@
  * of the vvec divided by a scalar.
  */
 
-#include "sj/vvec.h"
-#include "sj/vec.h"
+#include <sj/vvec>
+#include <sj/vec>
+
 using std::cout;
 using std::endl;
-using std::array;
 
 int main()
 {

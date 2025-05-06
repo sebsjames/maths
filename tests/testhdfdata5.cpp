@@ -1,5 +1,5 @@
-#include "sj/hdfdata.h"
-#include "sj/vvec.h"
+#include <sj/hdfdata>
+#include <sj/vvec>
 
 // Showing use of HdfData with std::ios flags to specify file access
 

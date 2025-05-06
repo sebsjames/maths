@@ -1,10 +1,11 @@
-#include "sj/hdfdata.h"
 #include <utility>
 #include <iostream>
 #include <fstream>
 #include <list>
 #include <vector>
 #include <deque>
+
+#include <sj/hdfdata>
 
 int main()
 {

@@ -8,7 +8,7 @@
  */
 
 #include <iostream>
-#include <sj/vvec.h>
+#include <sj/vvec>
 
 int main()
 {

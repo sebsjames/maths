@@ -1,4 +1,4 @@
-#include <sj/histo.h>
+#include <sj/histo>
 
 int main()
 {

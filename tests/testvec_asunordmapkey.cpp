@@ -1,10 +1,10 @@
 // Can you use a sj::vec as a key to an std::unordered_map?
 //
 #include <functional> // std::equal_to
-#include <sj/vec.h>
 #include <string>
 #include <unordered_map>
 #include <iostream>
+#include <sj/vec>
 
 // To make std::hash<sj::vec<int, 2>> work you have to define how to create the hash of
 // sj::vec<int, 2>.
@@ -60,7 +60,7 @@ int main()
     m::vec<int, 2> k2 = {1,3};
     m::vec<int, 2> k3 = {2,3};
     m::vec<int, 2> k4 = {2,4};
-    
+
     // unordered_map uses std::hash. See above for making std::hash<m::vec<int, 2>> possible.
     std::unordered_map<m::vec<int, 2>, std::string> themap;
 

@@ -1,6 +1,6 @@
-#include "sj/mat33.h"
 #include <iostream>
 #include <array>
+#include <sj/mat33>
 
 void setMatrixSequence (sj::mat33<float>& tm)
 {

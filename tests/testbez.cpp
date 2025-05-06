@@ -2,7 +2,7 @@
 #include <iostream>
 #include <fstream>
 
-#include <sj/bezcurve.h>
+#include <sj/bezcurve>
 
 int main()
 {

@@ -1,8 +1,8 @@
-#include "sj/mat44.h"
 #include <iostream>
 #include <array>
 #include <cmath>
-#include <sj/vec.h>
+#include <sj/vec>
+#include <sj/mat44>
 
 void setMatrixSequence (sj::mat44<float>& tm)
 {

@@ -1,5 +1,5 @@
 #include <iostream>
-#include <sj/random.h>
+#include <sj/random>
 
 int main()
 {

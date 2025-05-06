@@ -1,8 +1,8 @@
 // Testing chained rotations with quaternions (only)
 
-#include "sj/quaternion.h"
-#include "sj/vec.h"
-#include "sj/mathconst.h"
+#include <sj/quaternion>
+#include <sj/vec>
+#include <sj/mathconst>
 
 #ifndef FLT
 typedef float F;

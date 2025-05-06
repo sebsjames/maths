@@ -1,7 +1,7 @@
-#include <sj/vvec.h>
-#include <sj/random.h>
-#include <sj/grid.h>
 #include <iostream>
+#include <sj/vvec>
+#include <sj/random>
+#include <sj/grid>
 
 // grid extended with a coord_lookup function that calls get_n_pixels for each lookup.
 template<typename I = unsigned int, typename C = float>

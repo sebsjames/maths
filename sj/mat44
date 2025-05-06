@@ -14,16 +14,17 @@
  */
 #pragma once
 
-#include <sj/mathconst.h>
-#include <sj/quaternion.h>
-#include <sj/vec.h>
-#include <sj/constexpr_math.h>
-#include <sj/mat33.h>
 #include <array>
 #include <string>
 #include <sstream>
 #include <iostream>
 #include <type_traits>
+
+#include <sj/mathconst>
+#include <sj/quaternion>
+#include <sj/vec>
+#include <sj/constexpr_math>
+#include <sj/mat33>
 
 namespace sj
 {

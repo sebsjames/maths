@@ -1,3 +1,4 @@
+// -*- C++ -*-
 /*
  * A class to implement the Nelder-Mead algorithm. Implemented following the Wikipedia page. Client
  * code should create an instance of the nm_simplex class, then repeatedly call its public methods
@@ -14,8 +15,9 @@
 #include <vector>
 #include <functional>
 #include <algorithm>
-#include <sj/algo.h>
-#include <sj/vvec.h>
+
+#include <sj/algo>
+#include <sj/vvec>
 
 namespace sj::optimization
 {
