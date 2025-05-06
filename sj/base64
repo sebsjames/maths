@@ -1,3 +1,4 @@
+// -*- C++ -*-
 /*
  * This base64 encoding/decoding snippet comes from
  * https://github.com/mvorbrodt/blog/blob/master/src/base64.hpp

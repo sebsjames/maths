@@ -1,3 +1,4 @@
+// -*- C++ -*-
 #
 # This file controls the installation of the header files.
 #

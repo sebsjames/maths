@@ -1,3 +1,4 @@
+// -*- C++ -*-
 /*
  * Geometry algorithms. Initially, the code to generate icosahedrons and geodesic polyhedrons.
  */

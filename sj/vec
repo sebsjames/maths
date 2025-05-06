@@ -1,3 +1,4 @@
+// -*- C++ -*-
 /*!
  * \file
  * \brief An N dimensional vector class template which derives from std::array.

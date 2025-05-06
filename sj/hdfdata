@@ -1,3 +1,4 @@
+// -*- C++ -*-
 /*!
  * Wrappers around the HDF5 C API that play well with sj::vec and sj::vvec
  */

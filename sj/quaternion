@@ -1,3 +1,4 @@
+// -*- C++ -*-
 /*!
  * A quaternion class for computing rotations in the visualization classes
  * (sj::Visual, sj::HexGridVisual, etc).

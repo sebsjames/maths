@@ -1,3 +1,4 @@
+// -*- C++ -*-
 /*
  * This is a constexpr-capable CRC32 checksum based on Ivor Wanders' code from
  * https://gist.github.com/iwanders/8e1cb7b92af2ccf8d1a73450d771f483
