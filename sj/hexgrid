@@ -7,18 +7,18 @@
  */
 #pragma once
 
-#include <sj/vec.h>
-#include <sj/vvec.h>
-#include <sj/hex.h>
-#include <sj/bezcurvepath.h> // requires arma
-#include <sj/bezcoord.h>
-#include <sj/mathconst.h>
-#include <sj/mat22.h>
+#include <sj/vec>
+#include <sj/vvec>
+#include <sj/hex>
+#include <sj/bezcurvepath> // requires arma
+#include <sj/bezcoord>
+#include <sj/mathconst>
+#include <sj/mat22>
 
 // If the hexgrid::save and hexgrid::load methods are required, define
 // HEXGRID_COMPILE_LOAD_AND_SAVE. A link to libhdf5 will be required in your program.
 #ifdef HEXGRID_COMPILE_LOAD_AND_SAVE
-# include <sj/hdfdata.h>
+# include <sj/hdfdata>
 #endif
 
 #include <set>

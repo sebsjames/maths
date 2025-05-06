@@ -17,8 +17,8 @@
 #include <cmath>
 #include <concepts>
 
-#include <sj/vec.h>
-#include <sj/bezcurve.h>
+#include <sj/vec>
+#include <sj/bezcurve>
 
 namespace sj
 {

@@ -23,12 +23,12 @@
 # define ARMA_ALLOW_FAKE_GCC 1
 #endif
 #include <armadillo>
-#include <sj/mathconst.h>
-#include <sj/optimization/nm_simplex.h>
+#include <sj/mathconst>
+#include <sj/optimization/nm_simplex>
 #include <random>
 
-#include <sj/bezcoord.h>
-#include <sj/vvec.h>
+#include <sj/bezcoord>
+#include <sj/vvec>
 
 namespace sj
 {

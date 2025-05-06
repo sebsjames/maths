@@ -6,8 +6,8 @@
 #include <vector>
 #include <cmath>
 
-#include <sj/vec.h>
-#include <sj/hexgrid.h>
+#include <sj/vec>
+#include <sj/hexgrid>
 
 int main()
 {
