@@ -22,7 +22,7 @@ own built-in methods.
 
 You can stream objects to debug or observe their values.
 
-The namespace is `sm` (**S**eb's **m**aths or **S**imple **m**aths)
+The namespace is `sm` (**S**imple **m**aths or maybe **S**eb's **m**aths)
 
 Here's an example
 
