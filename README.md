@@ -1,4 +1,4 @@
-# smath
+# maths
 
 ## A simple mathematics library for C++20 projects
 
