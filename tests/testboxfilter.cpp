@@ -1,6 +1,6 @@
 // Test (and profile) the box filter
-#include <sj/MathAlgo.h>
-#include <sj/vvec.h>
+#include <sm/MathAlgo.h>
+#include <sm/vvec.h>
 #include <chrono>
 #include <cstdint>
 
@@ -15,24 +15,24 @@ int main()
     constexpr bool onlysum_false = false;
 
     // Single precision
-    sj::vvec<float> input_f (data_sz, 0.0f);
-    sj::vvec<float> output_f (data_sz, 0.0f);
+    sm::vvec<float> input_f (data_sz, 0.0f);
+    sm::vvec<float> output_f (data_sz, 0.0f);
     input_f.randomize();
 
     sc::time_point t0_f = sc::now();
-    sj::MathAlgo::boxfilter_2d<float, 17, img_w> (input_f, output_f);
+    sm::MathAlgo::boxfilter_2d<float, 17, img_w> (input_f, output_f);
     sc::time_point t1_f = sc::now();
 
     sc::duration t_d_f = t1_f - t0_f;
     std::cout << data_sz << " pixels boxfiltered (17x17, float) in " << duration_cast<microseconds>(t_d_f).count() << " us\n";
 
     // Double precision
-    sj::vvec<double> input_d (data_sz, 0.0f);
-    sj::vvec<double> output_d (data_sz, 0.0f);
+    sm::vvec<double> input_d (data_sz, 0.0f);
+    sm::vvec<double> output_d (data_sz, 0.0f);
     input_d.randomize();
 
     sc::time_point t0_d = sc::now();
-    sj::MathAlgo::boxfilter_2d<double, 17, img_w> (input_d, output_d);
+    sm::MathAlgo::boxfilter_2d<double, 17, img_w> (input_d, output_d);
     sc::time_point t1_d = sc::now();
 
     sc::duration t_d_d = t1_d - t0_d;
@@ -40,7 +40,7 @@ int main()
 
     // Multi precision
     sc::time_point t0_m = sc::now();
-    sj::MathAlgo::boxfilter_2d<double, 17, img_w, onlysum_false, float> (input_d, output_f);
+    sm::MathAlgo::boxfilter_2d<double, 17, img_w, onlysum_false, float> (input_d, output_f);
     sc::time_point t1_m = sc::now();
 
     sc::duration t_d_m = t1_m - t0_m;
@@ -51,12 +51,12 @@ int main()
 #ifndef __GNUC__
     // Strictly, we can't vvec::randomize with a 1 byte type
     // (std::uniform_int_distribution is undefined for 1 byte IntTypes)...
-    sj::vvec<uint16_t> input_u16 (data_sz, 0);
+    sm::vvec<uint16_t> input_u16 (data_sz, 0);
     input_u16.randomize(0, 255);
-    sj::vvec<uint8_t> input_u8 = input_u16.as<uint8_t>();
+    sm::vvec<uint8_t> input_u8 = input_u16.as<uint8_t>();
 #else
     // ...but gcc generously allows it
-    sj::vvec<uint8_t> input_u8 (data_sz, 0);
+    sm::vvec<uint8_t> input_u8 (data_sz, 0);
     input_u8.randomize();
 #endif
     unsigned int uisum = input_u8.sum<false, unsigned int>();
@@ -64,7 +64,7 @@ int main()
     std::cout << "input_u8: " << uisum << " or " << uisum2  << std::endl;
 
     sc::time_point t0_u = sc::now();
-    sj::MathAlgo::boxfilter_2d<uint8_t, 17, img_w, onlysum_false, float> (input_u8, output_f);
+    sm::MathAlgo::boxfilter_2d<uint8_t, 17, img_w, onlysum_false, float> (input_u8, output_f);
     sc::time_point t1_u = sc::now();
 
     std::cout << "output_flt: " << output_f.sum() << std::endl;

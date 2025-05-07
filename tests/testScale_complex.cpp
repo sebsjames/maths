@@ -1,25 +1,25 @@
 /*
- * Test use of std::complex<> objects in a sj::scale class.
+ * Test use of std::complex<> objects in a sm::scale class.
  */
 
 #include <iostream>
 #include <complex>
 #include <array>
-#include <sj/vvec>
-#include <sj/scale>
+#include <sm/vvec>
+#include <sm/scale>
 
 int main()
 {
     int rtn = 0;
 
-    sj::scale<std::complex<float>> sc;
+    sm::scale<std::complex<float>> sc;
     sc.do_autoscale = true;
 
-    sj::vvec<std::complex<float>> vc = { {1, 0}, {0, 1}, {-1, 0}, {0, -1}, {2, 0}, {0, 2}, {-2, 0}, {0, -2},  };
-    sj::vvec<std::complex<float>> vcs (vc);
+    sm::vvec<std::complex<float>> vc = { {1, 0}, {0, 1}, {-1, 0}, {0, -1}, {2, 0}, {0, 2}, {-2, 0}, {0, -2},  };
+    sm::vvec<std::complex<float>> vcs (vc);
     sc.transform (vc, vcs);
 
-    std::cout << "After autoscaling we have this sj::scale:\n" << sc << std::endl;
+    std::cout << "After autoscaling we have this sm::scale:\n" << sc << std::endl;
     std::cout << "vvec<complex> unscaled: " << vc << "\n";
     std::cout << "vvec<complex> scaled:   " << vcs << "\n";
 
@@ -30,8 +30,8 @@ int main()
     sc.reset();
     std::cout << "imaginary output range max...\n";
     sc.output_range = { {0, 0}, {0, -1} }; // for complex, range min should always be (0 + 0i). The magnitude of the top of the range is used.
-    sj::vvec<std::complex<float>> vc1 = { {1, 0}, {0, 1}, {-1, 0}, {0, -1}, {2, 0}, {0, 2}, {-2, 0}, {0, -2},  };
-    sj::vvec<std::complex<float>> vcs1 (vc1);
+    sm::vvec<std::complex<float>> vc1 = { {1, 0}, {0, 1}, {-1, 0}, {0, -1}, {2, 0}, {0, 2}, {-2, 0}, {0, -2},  };
+    sm::vvec<std::complex<float>> vcs1 (vc1);
     sc.transform (vc1, vcs1);
 
     std::cout << "vvec<complex> unscaled: " << vc1 << "\n";
@@ -44,8 +44,8 @@ int main()
     std::cout << "0 to 10 output range...\n";
     sc.reset();
     sc.output_range = { {0, 0}, {10, 0} }; // for complex, range min should always be (0 + 0i). The magnitude of the top of the range is used.
-    sj::vvec<std::complex<float>> vc2 = { {1, 0}, {0, 1}, {-1, 0}, {0, -1}, {2, 0}, {0, 2}, {-2, 0}, {0, -2},  };
-    sj::vvec<std::complex<float>> vcs2 (vc2);
+    sm::vvec<std::complex<float>> vc2 = { {1, 0}, {0, 1}, {-1, 0}, {0, -1}, {2, 0}, {0, 2}, {-2, 0}, {0, -2},  };
+    sm::vvec<std::complex<float>> vcs2 (vc2);
     sc.transform (vc2, vcs2);
 
     std::cout << "vvec<complex> unscaled: " << vc2 << "\n";
@@ -59,8 +59,8 @@ int main()
         std::cout << "Check that a non-zero output range min causes exception\n";
         sc.reset();
         sc.output_range = { {1, 0}, {2, 0} }; // for complex, range min should always be (0 + 0i)
-        sj::vvec<std::complex<float>> vc1 = { {1, 0}, {0, 1}, {-1, 0}, {0, -1}, {2, 0}, {0, 2}, {-2, 0}, {0, -2},  };
-        sj::vvec<std::complex<float>> vcs1 (vc1);
+        sm::vvec<std::complex<float>> vc1 = { {1, 0}, {0, 1}, {-1, 0}, {0, -1}, {2, 0}, {0, 2}, {-2, 0}, {0, -2},  };
+        sm::vvec<std::complex<float>> vcs1 (vc1);
         sc.transform (vc1, vcs1);
         --rtn;
     } catch (const std::exception& e) {
@@ -69,8 +69,8 @@ int main()
     }
 
     // Should not compile:
-    // sj::scale<std::complex<std::array<float, 3>>> scale_cplx_of_vec;
-    // sj::scale<std::pair<float, double>> scale_a_pair;
+    // sm::scale<std::complex<std::array<float, 3>>> scale_cplx_of_vec;
+    // sm::scale<std::pair<float, double>> scale_a_pair;
 
     std::cout << "Test " << (rtn == 0 ? "Passed" : "Failed") << std::endl;
     return rtn;

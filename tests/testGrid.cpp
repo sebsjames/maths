@@ -1,19 +1,19 @@
 #include <iostream>
 #include <limits>
-#include <sj/grid>
+#include <sm/grid>
 
 int main()
 {
     int rtn = 0;
 
-    sj::vec<float, 2> dx = { 1, 1 };
-    sj::vec<float, 2> offset = { 0, 0 };
-    sj::griddomainwrap wrap = sj::griddomainwrap::none;
+    sm::vec<float, 2> dx = { 1, 1 };
+    sm::vec<float, 2> offset = { 0, 0 };
+    sm::griddomainwrap wrap = sm::griddomainwrap::none;
 
-    sj::grid<int, float> g_bltr(4, 2, dx, offset, wrap, sj::gridorder::bottomleft_to_topright);
-    sj::grid<int, float> g_tlbr(4, 2, dx, offset, wrap, sj::gridorder::topleft_to_bottomright);
-    sj::grid<int, float> g_bltrc(4, 2, dx, offset, wrap, sj::gridorder::bottomleft_to_topright_colmaj);
-    sj::grid<int, float> g_tlbrc(4, 2, dx, offset, wrap, sj::gridorder::topleft_to_bottomright_colmaj);
+    sm::grid<int, float> g_bltr(4, 2, dx, offset, wrap, sm::gridorder::bottomleft_to_topright);
+    sm::grid<int, float> g_tlbr(4, 2, dx, offset, wrap, sm::gridorder::topleft_to_bottomright);
+    sm::grid<int, float> g_bltrc(4, 2, dx, offset, wrap, sm::gridorder::bottomleft_to_topright_colmaj);
+    sm::grid<int, float> g_tlbrc(4, 2, dx, offset, wrap, sm::gridorder::topleft_to_bottomright_colmaj);
 
     std::cout << "grid g_bltr extents: " << g_bltr.extents() << std::endl;
     std::cout << "grid g_bltrc extents: " << g_bltrc.extents() << std::endl;

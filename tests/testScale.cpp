@@ -4,8 +4,8 @@
 #include <array>
 #include <iostream>
 #include <cmath>
-#include <sj/vec>
-#include <sj/scale>
+#include <sm/vec>
+#include <sm/scale>
 
 int main ()
 {
@@ -20,7 +20,7 @@ int main ()
     std::cout << "unsigned char max" << std::numeric_limits<unsigned char>::max() << std::endl;
     std::cout << "unsigned short max" << std::numeric_limits<unsigned short>::max() << std::endl;
 
-    sj::scale<float> s;
+    sm::scale<float> s;
     s.do_autoscale = true;
     std::vector<float> vf = {1,2,3,4,5,8,9,18};
     std::vector<float> result(vf);
@@ -43,7 +43,7 @@ int main ()
     }
 
     // Test different output range ([1,2] instead of the default [0,1])
-    sj::scale<float> s_2;
+    sm::scale<float> s_2;
     s_2.do_autoscale = true;
     s_2.output_range.min = 1.0f;
     s_2.output_range.max = 2.0f;
@@ -69,7 +69,7 @@ int main ()
     std::cout << std::endl;
 
     std::cout << "Integer to float scaling:\n";
-    sj::scale<int,float> si;
+    sm::scale<int,float> si;
     si.do_autoscale = true;
     std::vector<int> vfi = {-19,1,2,3,4,5,8,9,18};
     std::vector<float> resulti(vfi.size());
@@ -91,7 +91,7 @@ int main ()
     }
 
     std::cout << "unsigned char to float scaling:\n";
-    sj::scale<unsigned char,float> suc;
+    sm::scale<unsigned char,float> suc;
     suc.do_autoscale = true;
     std::vector<unsigned char> vfuc = {1,2,3,4,5,8,9,18};
     std::vector<float> resultuc(vfuc.size());
@@ -111,7 +111,7 @@ int main ()
         rtn--;
     }
 
-    sj::scale<std::array<float,4>> s2;
+    sm::scale<std::array<float,4>> s2;
     s2.do_autoscale = true;
     std::vector<std::array<float,4>> vaf;
     vaf.push_back ({1,1,2,1});
@@ -146,7 +146,7 @@ int main ()
         rtn--;
     }
 
-    sj::scale<std::vector<double>> s3;
+    sm::scale<std::vector<double>> s3;
     s3.do_autoscale = true;
     std::list<std::vector<double>> vaf3;
     vaf3.push_back ({1,1,1});
@@ -170,11 +170,11 @@ int main ()
 
     // Log scaling
     std::cout << "Log scaling...\n";
-    sj::scale<double, float> ls;
+    sm::scale<double, float> ls;
     ls.do_autoscale = true;
     ls.setlog();
 
-    sj::vvec<double> loggy;
+    sm::vvec<double> loggy;
     loggy.push_back (0.01);
     loggy.push_back (0.05);
     loggy.push_back (0.1);
@@ -185,11 +185,11 @@ int main ()
     loggy.push_back (50.0);
     loggy.push_back (0.0); // what if loggy contains a zero? scale falls over.
 
-    sj::vvec<float> loggyout(loggy.size());
+    sm::vvec<float> loggyout(loggy.size());
     try {
         ls.transform (loggy, loggyout);
         --rtn; // shouldn't get  here
-        std::cout << "Unexpected: Log sj::scale given\n  " << loggy << ",\ntransforms it to\n  " << loggyout << std::endl;
+        std::cout << "Unexpected: Log sm::scale given\n  " << loggy << ",\ntransforms it to\n  " << loggyout << std::endl;
     } catch (const std::exception& e) {
         std::cout << "Caught expected error: " << e.what() << std::endl;
     }
@@ -197,10 +197,10 @@ int main ()
     // Replace the offending 0 with a quiet NaN (NaNs are ok to be transformed; they come out still as NaNs)
     loggy.back() = std::numeric_limits<double>::quiet_NaN();
     ls.transform (loggy, loggyout);
-    std::cout << "Log sj::scale given\n  " << loggy << ",\ntransforms it to\n  " << loggyout << std::endl;
+    std::cout << "Log sm::scale given\n  " << loggy << ",\ntransforms it to\n  " << loggyout << std::endl;
 
     // That will have set the autoscale. now carry out inverse transform
-    sj::vvec<float> range;
+    sm::vvec<float> range;
     range.push_back (0);
     range.push_back (0.2);
     range.push_back (0.4);
@@ -208,10 +208,10 @@ int main ()
     range.push_back (0.8);
     range.push_back (1.0);
 
-    sj::vvec<double> rangeout(range.size());
+    sm::vvec<double> rangeout(range.size());
     ls.inverse (range, rangeout);
 
-    std::cout << "Log sj::scale given\n  " << range << ",\n inverse transforms it to\n  " << rangeout << std::endl;
+    std::cout << "Log sm::scale given\n  " << range << ",\n inverse transforms it to\n  " << rangeout << std::endl;
 
     auto li = range.begin();
     auto lio = rangeout.begin();
@@ -224,7 +224,7 @@ int main ()
     std::cout << "];" << std::endl;;
 
     // Find scale that will transform -r -> +r to 0->1.
-    sj::scale<double> d;
+    sm::scale<double> d;
     double rmin = -3.0;
     double rmax = 5.0;
     d.compute_scaling (rmin, rmax);
@@ -235,7 +235,7 @@ int main ()
     std::cout << "Inverse scale output for rmin: " << d.inverse_one (1) << std::endl;
 
     // Testing what happens to a NaN (after scaling should be nan)
-    sj::scale<float> snan;
+    sm::scale<float> snan;
     snan.do_autoscale = true;
     std::vector<float> vfnan = {1,2,3,4,5,std::numeric_limits<float>::quiet_NaN(),9,18};
     std::vector<float> resultnan(vfnan);
@@ -248,13 +248,13 @@ int main ()
     // Fifth element should be NaN still:
     if (!std::isnan(resultnan[5])) { --rtn; }
 
-    sj::scale<int, float> sif;
-    sif.output_range = sj::range<float>{0, 5};
-    sif.compute_scaling (sj::range<int>{-10, 10});
+    sm::scale<int, float> sif;
+    sif.output_range = sm::range<float>{0, 5};
+    sif.compute_scaling (sm::range<int>{-10, 10});
     std::cout << "input 8(int) transforms to float: " << sif.transform_one (8) << std::endl;
     if (sif.transform_one (8) != 4.5f) { --rtn; }
 
-    sj::scale<double, float> idsc1;
+    sm::scale<double, float> idsc1;
     idsc1.identity_scaling();
 
     std::cout << "(identity scaling) 2.0 transforms to " << idsc1.transform_one (2.0) << std::endl;
@@ -265,7 +265,7 @@ int main ()
     std::cout << "(identity scaling) -2.2 inv transforms to " << idsc1.inverse_one (-2.2f) << std::endl;
     std::cout << "(identity scaling) -0.3 inv transforms to " << idsc1.inverse_one (-0.3f) << std::endl;
 
-    sj::scale<float, double> idsc2;
+    sm::scale<float, double> idsc2;
     idsc2.identity_scaling();
 
     std::cout << "(identity scaling) 2.0 transforms to " << idsc2.transform_one (2.0f) << std::endl;
@@ -284,28 +284,28 @@ int main ()
     if (std::abs(idsc2.transform_one (-10.4f) - -10.4) > 5 * std::numeric_limits<float>::epsilon()) { --rtn; }
     if (std::abs(idsc2.inverse_one (3.475f) - 3.475) > 5 * std::numeric_limits<float>::epsilon()) { --rtn; }
 
-    sj::scale<sj::vec<float>> vecidsc;
+    sm::scale<sm::vec<float>> vecidsc;
     vecidsc.identity_scaling();
-    std::cout << "(identity scaling) (1,1,1) transforms to " << vecidsc.transform_one (sj::vec<float>{1,1,1}) << std::endl;
-    std::cout << "(identity scaling) (1,-1,1) transforms to " << vecidsc.transform_one (sj::vec<float>{1,-1,1}) << std::endl;
-    if (vecidsc.transform_one (sj::vec<float>{1,-1,1}) != sj::vec<float>{1,-1,1}) { --rtn; }
+    std::cout << "(identity scaling) (1,1,1) transforms to " << vecidsc.transform_one (sm::vec<float>{1,1,1}) << std::endl;
+    std::cout << "(identity scaling) (1,-1,1) transforms to " << vecidsc.transform_one (sm::vec<float>{1,-1,1}) << std::endl;
+    if (vecidsc.transform_one (sm::vec<float>{1,-1,1}) != sm::vec<float>{1,-1,1}) { --rtn; }
 
-    sj::scale<std::complex<float>> cpxidsc;
+    sm::scale<std::complex<float>> cpxidsc;
     cpxidsc.identity_scaling();
     std::cout << "(identity scaling) 1+2i transforms to " << cpxidsc.transform_one (std::complex<float>{1,2}) << std::endl;
     std::cout << "(identity scaling) 1-2i transforms to " << cpxidsc.transform_one (std::complex<float>{1,-2}) << std::endl;
     if (cpxidsc.transform_one (std::complex<float>{1,-2}) != std::complex<float>{1,-2}) { --rtn; }
 
-    sj::scale<float, double> scrng;
-    scrng.output_range = sj::range<double>{0.0, 5.0};
-    scrng.compute_scaling (sj::range<float>{-10.0f, 10.0f});
+    sm::scale<float, double> scrng;
+    scrng.output_range = sm::range<double>{0.0, 5.0};
+    scrng.compute_scaling (sm::range<float>{-10.0f, 10.0f});
 
-    sj::range<float> for_scaling = { -1.0f, 20.0f };
-    sj::range<double> r_tformed = scrng.transform (for_scaling);
-    sj::range<float> r_itfromed = scrng.inverse (r_tformed);
+    sm::range<float> for_scaling = { -1.0f, 20.0f };
+    sm::range<double> r_tformed = scrng.transform (for_scaling);
+    sm::range<float> r_itfromed = scrng.inverse (r_tformed);
     std::cout << for_scaling << " scales to " <<  r_tformed << " which inverses back to " << r_itfromed << std::endl;
 
-    sj::scale<double, float> nullsc1;
+    sm::scale<double, float> nullsc1;
     nullsc1.null_scaling();
     std::cout << "null scaling of " << 3.0 << " is " << nullsc1.transform_one (3.0) << std::endl;
     if (nullsc1.transform_one (3.0)) { --rtn; }

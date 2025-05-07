@@ -1,25 +1,25 @@
 #include <iostream>
 #include <limits>
-#include <sj/grid>
+#include <sm/grid>
 
 int main()
 {
     int rtn = 0;
 
-    sj::vec<float, 2> dx = { 1, 1 };
-    sj::vec<float, 2> offset = { 0, 0 };
+    sm::vec<float, 2> dx = { 1, 1 };
+    sm::vec<float, 2> offset = { 0, 0 };
 
-    sj::griddomainwrap wrap = sj::griddomainwrap::none;
+    sm::griddomainwrap wrap = sm::griddomainwrap::none;
 
     //
-    // sj::griddomainwrap::none tests
+    // sm::griddomainwrap::none tests
     //
     std::cout << "WRAP NONE\n--------------------\n";
     {
-        sj::grid<int, float> g_bltr(4, 2, dx, offset, wrap, sj::gridorder::bottomleft_to_topright);
-        sj::grid<int, float> g_tlbr(4, 2, dx, offset, wrap, sj::gridorder::topleft_to_bottomright);
-        sj::grid<int, float> g_bltrc(4, 2, dx, offset, wrap, sj::gridorder::bottomleft_to_topright_colmaj);
-        sj::grid<int, float> g_tlbrc(4, 2, dx, offset, wrap, sj::gridorder::topleft_to_bottomright_colmaj);
+        sm::grid<int, float> g_bltr(4, 2, dx, offset, wrap, sm::gridorder::bottomleft_to_topright);
+        sm::grid<int, float> g_tlbr(4, 2, dx, offset, wrap, sm::gridorder::topleft_to_bottomright);
+        sm::grid<int, float> g_bltrc(4, 2, dx, offset, wrap, sm::gridorder::bottomleft_to_topright_colmaj);
+        sm::grid<int, float> g_tlbrc(4, 2, dx, offset, wrap, sm::gridorder::topleft_to_bottomright_colmaj);
 
         std::cout << "ROW Bottom left top right...\n";
         if (g_bltr.row(0) != 0) { --rtn; std::cout << "bltr row(0) fails\n"; }
@@ -97,15 +97,15 @@ int main()
     }
 
     //
-    // sj::griddomainwrap::horzontal tests
+    // sm::griddomainwrap::horzontal tests
     //
-    wrap = sj::griddomainwrap::horizontal;
+    wrap = sm::griddomainwrap::horizontal;
     std::cout << "WRAP HORIZONTAL\n--------------------\n";
     {
-        sj::grid<int, float> g_bltr(4, 2, dx, offset, wrap, sj::gridorder::bottomleft_to_topright);
-        sj::grid<int, float> g_tlbr(4, 2, dx, offset, wrap, sj::gridorder::topleft_to_bottomright);
-        sj::grid<int, float> g_bltrc(4, 2, dx, offset, wrap, sj::gridorder::bottomleft_to_topright_colmaj);
-        sj::grid<int, float> g_tlbrc(4, 2, dx, offset, wrap, sj::gridorder::topleft_to_bottomright_colmaj);
+        sm::grid<int, float> g_bltr(4, 2, dx, offset, wrap, sm::gridorder::bottomleft_to_topright);
+        sm::grid<int, float> g_tlbr(4, 2, dx, offset, wrap, sm::gridorder::topleft_to_bottomright);
+        sm::grid<int, float> g_bltrc(4, 2, dx, offset, wrap, sm::gridorder::bottomleft_to_topright_colmaj);
+        sm::grid<int, float> g_tlbrc(4, 2, dx, offset, wrap, sm::gridorder::topleft_to_bottomright_colmaj);
 
         std::cout << "ROW Bottom left top right...\n";
         if (g_bltr.row(0) != 0) { --rtn; std::cout << "bltr row(0) fails\n"; }
@@ -183,15 +183,15 @@ int main()
     }
 
     //
-    // sj::griddomainwrap::vertical tests
+    // sm::griddomainwrap::vertical tests
     //
-    wrap = sj::griddomainwrap::vertical;
+    wrap = sm::griddomainwrap::vertical;
     std::cout << "WRAP VERTICAL\n--------------------\n";
     {
-        sj::grid<int, float> g_bltr(4, 2, dx, offset, wrap, sj::gridorder::bottomleft_to_topright);
-        sj::grid<int, float> g_tlbr(4, 2, dx, offset, wrap, sj::gridorder::topleft_to_bottomright);
-        sj::grid<int, float> g_bltrc(4, 2, dx, offset, wrap, sj::gridorder::bottomleft_to_topright_colmaj);
-        sj::grid<int, float> g_tlbrc(4, 2, dx, offset, wrap, sj::gridorder::topleft_to_bottomright_colmaj);
+        sm::grid<int, float> g_bltr(4, 2, dx, offset, wrap, sm::gridorder::bottomleft_to_topright);
+        sm::grid<int, float> g_tlbr(4, 2, dx, offset, wrap, sm::gridorder::topleft_to_bottomright);
+        sm::grid<int, float> g_bltrc(4, 2, dx, offset, wrap, sm::gridorder::bottomleft_to_topright_colmaj);
+        sm::grid<int, float> g_tlbrc(4, 2, dx, offset, wrap, sm::gridorder::topleft_to_bottomright_colmaj);
 
         std::cout << "ROW Bottom left top right...\n";
         if (g_bltr.row(0) != 0) { --rtn; std::cout << "bltr row(0) fails\n"; }
@@ -269,15 +269,15 @@ int main()
     }
 
     //
-    // sj::griddomainwrap::both tests
+    // sm::griddomainwrap::both tests
     //
-    wrap = sj::griddomainwrap::both;
+    wrap = sm::griddomainwrap::both;
     std::cout << "WRAP BOTH\n--------------------\n";
     {
-        sj::grid<int, float> g_bltr(4, 2, dx, offset, wrap, sj::gridorder::bottomleft_to_topright);
-        sj::grid<int, float> g_tlbr(4, 2, dx, offset, wrap, sj::gridorder::topleft_to_bottomright);
-        sj::grid<int, float> g_bltrc(4, 2, dx, offset, wrap, sj::gridorder::bottomleft_to_topright_colmaj);
-        sj::grid<int, float> g_tlbrc(4, 2, dx, offset, wrap, sj::gridorder::topleft_to_bottomright_colmaj);
+        sm::grid<int, float> g_bltr(4, 2, dx, offset, wrap, sm::gridorder::bottomleft_to_topright);
+        sm::grid<int, float> g_tlbr(4, 2, dx, offset, wrap, sm::gridorder::topleft_to_bottomright);
+        sm::grid<int, float> g_bltrc(4, 2, dx, offset, wrap, sm::gridorder::bottomleft_to_topright_colmaj);
+        sm::grid<int, float> g_tlbrc(4, 2, dx, offset, wrap, sm::gridorder::topleft_to_bottomright_colmaj);
 
         std::cout << "ROW Bottom left top right...\n";
         if (g_bltr.row(0) != 0) { --rtn; std::cout << "bltr row(0) fails\n"; }

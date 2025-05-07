@@ -1,44 +1,44 @@
 #include <iostream>
-#include <sj/random>
+#include <sm/random>
 
 int main()
 {
-    sj::rand_string rs;
+    sm::rand_string rs;
     std::cout << rs.get() << std::endl;
 
-    sj::rand_string rs1(4);
+    sm::rand_string rs1(4);
     std::cout << rs1.get() << std::endl;
 
-    sj::rand_string rs2(20, sj::chargroup::alpha);
+    sm::rand_string rs2(20, sm::chargroup::alpha);
     std::cout << rs2.get() << std::endl;
 
-    sj::rand_string rs3(32, sj::chargroup::decimal);
+    sm::rand_string rs3(32, sm::chargroup::decimal);
     std::cout << rs3.get() << std::endl;
 
-    sj::rand_string rs4(32, sj::chargroup::binary_truefalse);
+    sm::rand_string rs4(32, sm::chargroup::binary_truefalse);
     std::cout << rs4.get() << std::endl;
 
-    sj::rand_string rs5(32, sj::chargroup::binary);
+    sm::rand_string rs5(32, sm::chargroup::binary);
     std::cout << rs5.get() << std::endl;
 
-    sj::rand_string rs6(20, sj::chargroup::alphanumericuppercase);
+    sm::rand_string rs6(20, sm::chargroup::alphanumericuppercase);
     std::cout << rs6.get() << std::endl;
 
-    sj::rand_string rs7(20, sj::chargroup::alphanumericlowercase);
+    sm::rand_string rs7(20, sm::chargroup::alphanumericlowercase);
     std::cout << rs7.get() << std::endl;
-    rs7.set_chargroup (sj::chargroup::alphauppercase);
+    rs7.set_chargroup (sm::chargroup::alphauppercase);
     std::cout << rs7.get() << std::endl;
 
-    sj::rand_string rs8(20, sj::chargroup::alphalowercase);
+    sm::rand_string rs8(20, sm::chargroup::alphalowercase);
     std::cout << rs8.get() << std::endl;
 
-    sj::rand_string rs9(20, sj::chargroup::hexuppercase);
+    sm::rand_string rs9(20, sm::chargroup::hexuppercase);
     std::cout << rs9.get() << std::endl;
 
-    sj::rand_string rs10(20, sj::chargroup::hexlowercase);
+    sm::rand_string rs10(20, sm::chargroup::hexlowercase);
     std::cout << rs10.get(50) << std::endl;
 
-    sj::rand_string rs11(20, sj::chargroup::alphanumeric);
+    sm::rand_string rs11(20, sm::chargroup::alphanumeric);
     std::cout << rs11.get() << std::endl;
 
     return 0;

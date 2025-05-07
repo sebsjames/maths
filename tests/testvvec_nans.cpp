@@ -1,13 +1,13 @@
 #include <limits>
 #include <iostream>
-#include <sj/vvec>
+#include <sm/vvec>
 
 int main()
 {
     int rtn = 0;
 
-    sj::vvec<float> hasnans = { 1, 2, 3, 4, std::numeric_limits<float>::quiet_NaN(), 6, 7, 8, 9 };
-    sj::vvec<float> nonans = { 1, 2, 3, 4, 6, 7, 8, 9 };
+    sm::vvec<float> hasnans = { 1, 2, 3, 4, std::numeric_limits<float>::quiet_NaN(), 6, 7, 8, 9 };
+    sm::vvec<float> nonans = { 1, 2, 3, 4, 6, 7, 8, 9 };
 
     std::cout << "mean of hasnans, NOT ignoring nans: " << hasnans.mean<false>() << std::endl;
     std::cout << "mean of hasnans, ignoring nans: " << hasnans.mean<true>() << std::endl;

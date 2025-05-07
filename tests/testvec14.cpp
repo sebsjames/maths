@@ -1,6 +1,6 @@
-#include <sj/vec>
+#include <sm/vec>
 
-using sj::vec;
+using sm::vec;
 using std::cout;
 using std::endl;
 using std::array;

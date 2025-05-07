@@ -5,7 +5,7 @@
 #include <vector>
 #include <deque>
 
-#include <sj/hdfdata>
+#include <sm/hdfdata>
 
 int main()
 {
@@ -13,13 +13,13 @@ int main()
 
     std::deque<double> vd = { 1.0, 2.0, 3.0, 4.0 };
     {
-        sj::hdfdata data("test.h5", sj::file_access_mode::truncate_write);
+        sm::hdfdata data("test.h5", sm::file_access_mode::truncate_write);
         data.add_contained_vals ("/testvectordouble", vd);
     } // data closes when out of scope
 
     std::deque<double> vdread;
     {
-        sj::hdfdata data("test.h5", sj::file_access_mode::read_only);
+        sm::hdfdata data("test.h5", sm::file_access_mode::read_only);
         data.read_contained_vals ("/testvectordouble", vdread);
     }
 
@@ -34,13 +34,13 @@ int main()
 
     std::vector<float> vf = { 1.0, 2.0, 3.0, 4.0 };
     {
-        sj::hdfdata data("test.h5", std::ios::out | std::ios::trunc);
+        sm::hdfdata data("test.h5", std::ios::out | std::ios::trunc);
         data.add_contained_vals ("/testvectorfloat", vf);
     } // data closes when out of scope
 
     std::vector<float> vfread;
     {
-        sj::hdfdata data("test.h5", std::ios::in); // equivalent to file_access_mode::read_only
+        sm::hdfdata data("test.h5", std::ios::in); // equivalent to file_access_mode::read_only
         data.read_contained_vals ("/testvectorfloat", vfread);
     }
 
@@ -59,12 +59,12 @@ int main()
     listofpairs.push_back (std::make_pair (1.5, 2.6));
     listofpairs.push_back (std::make_pair (1.9, 2.9));
     {
-        sj::hdfdata data("test.h5", std::ios::out | std::ios::trunc);
+        sm::hdfdata data("test.h5", std::ios::out | std::ios::trunc);
         data.add_contained_vals ("/testlistofpairs", listofpairs);
     }
     std::list<std::pair<double, double>> listofpairs_read;
     {
-        sj::hdfdata data("test.h5", std::ios::in);
+        sm::hdfdata data("test.h5", std::ios::in);
         data.read_contained_vals ("/testlistofpairs", listofpairs_read);
     }
     if (listofpairs.size() == listofpairs_read.size()) {
@@ -86,12 +86,12 @@ int main()
 
     std::pair<float, float> pr = { 3.0f, 6.0f };
     {
-        sj::hdfdata data("test.h5", std::ios::out | std::ios::trunc);
+        sm::hdfdata data("test.h5", std::ios::out | std::ios::trunc);
         data.add_contained_vals ("/pair", pr);
     }
     std::pair<float, float> pr_rd;
     {
-        sj::hdfdata data("test.h5", std::ios::in);
+        sm::hdfdata data("test.h5", std::ios::in);
         data.read_contained_vals ("/pair", pr_rd);
     }
     if (pr_rd.first != pr_rd.first || pr_rd.second != pr_rd.second) {

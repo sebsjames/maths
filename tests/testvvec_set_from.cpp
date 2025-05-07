@@ -3,15 +3,15 @@
 #include <set>
 #include <iostream>
 
-#include <sj/vvec>
-#include <sj/vec>
+#include <sm/vvec>
+#include <sm/vec>
 
 int main()
 {
     int rtn = 0;
 
     std::vector<float> svf = { 1, 2, 3, 4 };
-    sj::vvec<float> mvf;
+    sm::vvec<float> mvf;
     mvf.set_from (svf);
     std::cout << "mvf set from std::vector: " << mvf << std::endl;
     if (mvf[0] != 1.0f || mvf[2] != 3.0f) {
@@ -60,16 +60,16 @@ int main()
         --rtn;
     }
 
-    sj::vec<float, 10> vecf = { 2, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+    sm::vec<float, 10> vecf = { 2, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
     mvf.set_from (vecf);
-    std::cout << "mvf set from sj::vec: " << mvf << std::endl;
+    std::cout << "mvf set from sm::vec: " << mvf << std::endl;
     if (mvf[0] != 2.0f || mvf[9] != 9.0f) {
         --rtn;
     }
 
-    sj::vvec<float> vvecf = { 1, 2, 3, 4 };
+    sm::vvec<float> vvecf = { 1, 2, 3, 4 };
     mvf.set_from (svf);
-    std::cout << "mvf set from sj::vvec: " << mvf << std::endl;
+    std::cout << "mvf set from sm::vvec: " << mvf << std::endl;
     if (mvf[0] != 1.0f || mvf[2] != 3.0f) {
         --rtn;
     }

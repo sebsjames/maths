@@ -1,18 +1,18 @@
 #include <iostream>
-#include <sj/bezcurve>
+#include <sm/bezcurve>
 
 int main()
 {
     int rtn = -1;
 
-    sj::vvec<sj::vec<float, 2>> c = {
+    sm::vvec<sm::vec<float, 2>> c = {
         {-0.28f, 0.0f},
         {0.28f, 0.0f},
         {0.28f, 0.45f},
         {-0.28f, 0.45f}
     };
 
-    sj::bezcurve<FLT> cv;
+    sm::bezcurve<FLT> cv;
     cv.fit (c);
     std::cout << "Defined a " << cv.getOrder() << " nd/rd/th order curve" << std::endl;
 

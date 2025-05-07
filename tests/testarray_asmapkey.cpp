@@ -1,6 +1,6 @@
 /*
- * Because sj::vec acts funny as a key in std::map, here's an example showing that std::array
- * behaves nicely. For an example of how to use sj::vec as a key to an std::map, see
+ * Because sm::vec acts funny as a key in std::map, here's an example showing that std::array
+ * behaves nicely. For an example of how to use sm::vec as a key to an std::map, see
  * testvec_asmapkey.cpp.
  */
 

@@ -1,16 +1,16 @@
-// Can you use a sj::vec as a key to an std::map?
+// Can you use a sm::vec as a key to an std::map?
 //
 // Answer is yes, but you have to tell the map which comparison operator you're going to
-// use. Similar to the issue of storing sj::vecs in an std::set.
+// use. Similar to the issue of storing sm::vecs in an std::set.
 
 #include <map>
 #include <string>
 #include <iostream>
-#include <sj/vec>
+#include <sm/vec>
 
 int main()
 {
-    namespace m = sj;
+    namespace m = sm;
 
     int rtn = 0;
 

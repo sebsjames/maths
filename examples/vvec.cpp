@@ -1,5 +1,5 @@
 /*
- * Example usage of the sj::vvec class.
+ * Example usage of the sm::vvec class.
  *
  * vvec is like std::vector, with maths operations built-in. It makes it convenient
  * to program maths operations on arrays of numbers.
@@ -8,14 +8,14 @@
  */
 
 #include <iostream>
-#include <sj/vvec>
+#include <sm/vvec>
 
 int main()
 {
     // Create and initialize a vvec of floating point numbers:
-    sj::vvec<float> vf1 = {1.2f, 3.4f, 7.0f};
+    sm::vvec<float> vf1 = {1.2f, 3.4f, 7.0f};
     // Create another:
-    sj::vvec<float> vf2;
+    sm::vvec<float> vf2;
     // Set up the second using the numpy-like linspace function:
     vf2.linspace (0.0f, 1.0f, 3);
 

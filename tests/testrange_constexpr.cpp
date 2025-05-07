@@ -1,17 +1,17 @@
 #include <iostream>
-#include <sj/range>
+#include <sm/range>
 
-constexpr sj::range<float> test_update()
+constexpr sm::range<float> test_update()
 {
-    sj::range<float> r{2.0f, 4.0f};
+    sm::range<float> r{2.0f, 4.0f};
     r.update (1.0f);
     r.update (5.0f);
     return r;
 }
 
-constexpr sj::range<float> test_update_and_search_init()
+constexpr sm::range<float> test_update_and_search_init()
 {
-    sj::range<float> r;
+    sm::range<float> r;
     r.search_init();
     r.update (1.0f);
     r.update (5.0f);
@@ -20,7 +20,7 @@ constexpr sj::range<float> test_update_and_search_init()
 
 constexpr bool test_update_and_includes()
 {
-    sj::range<float> r(2.0f, 4.0f); // also test 2 arg constructor
+    sm::range<float> r(2.0f, 4.0f); // also test 2 arg constructor
     r.update (1.0f);
     r.update (5.0f);
     int rtn = 0;
@@ -32,13 +32,13 @@ constexpr bool test_update_and_includes()
 
 constexpr float test_span()
 {
-    sj::range<float> r{2.0f, 4.0f};
+    sm::range<float> r{2.0f, 4.0f};
     return r.span();
 }
 
 constexpr float test_set()
 {
-    sj::range<float> r;
+    sm::range<float> r;
     r.set (56.0f, 59.0f);
     return r.span();
 }
@@ -47,13 +47,13 @@ int main()
 {
     int rtn = 0;
 
-    constexpr sj::range<float> r1 = test_update();
+    constexpr sm::range<float> r1 = test_update();
     if (r1.min == 1.0f && r1.max == 5.0f) {
         // good
     } else {
         --rtn;
     }
-    constexpr sj::range<float> r2 = test_update_and_search_init();
+    constexpr sm::range<float> r2 = test_update_and_search_init();
     if (r2.min == 1.0f && r2.max == 5.0f) {
         // good
     } else {

@@ -1,8 +1,8 @@
 #include <iostream>
 
-#include <sj/vvec>
-#include <sj/vec>
-#include <sj/hdfdata>
+#include <sm/vvec>
+#include <sm/vec>
+#include <sm/hdfdata>
 
 // Test containers of vvecs
 
@@ -10,33 +10,33 @@ int main()
 {
     int rtn = 1;
 
-    sj::vvec<sj::vvec<FLT>> vvv;
-    vvv.push_back (sj::vvec<FLT>({1,2,3}));
-    vvv.push_back (sj::vvec<FLT>({2,2,3}));
-    vvv.push_back (sj::vvec<FLT>({3,2,3}));
-    vvv.push_back (sj::vvec<FLT>({4,2,3}));
+    sm::vvec<sm::vvec<FLT>> vvv;
+    vvv.push_back (sm::vvec<FLT>({1,2,3}));
+    vvv.push_back (sm::vvec<FLT>({2,2,3}));
+    vvv.push_back (sm::vvec<FLT>({3,2,3}));
+    vvv.push_back (sm::vvec<FLT>({4,2,3}));
 
-    // Sadly a vvec of sj::vec is nok.
-    sj::vvec<sj::vec<FLT, 3>> vvec_of_vec (vvv.size());
-    vvec_of_vec[0] = sj::vec<FLT, 3>({1,2,3});
-    vvec_of_vec[1] = sj::vec<FLT, 3>({2,2,3});
-    vvec_of_vec[2] = sj::vec<FLT, 3>({3,2,3});
-    vvec_of_vec[3] = sj::vec<FLT, 3>({4,2,3});
+    // Sadly a vvec of sm::vec is nok.
+    sm::vvec<sm::vec<FLT, 3>> vvec_of_vec (vvv.size());
+    vvec_of_vec[0] = sm::vec<FLT, 3>({1,2,3});
+    vvec_of_vec[1] = sm::vec<FLT, 3>({2,2,3});
+    vvec_of_vec[2] = sm::vec<FLT, 3>({3,2,3});
+    vvec_of_vec[3] = sm::vec<FLT, 3>({4,2,3});
 
     // Check content
     for (auto vv : vvv) { std::cout << "vv: " << vv << std::endl; }
 
     {
-        sj::hdfdata data("test4.h5", std::ios::out | std::ios::trunc);
+        sm::hdfdata data("test4.h5", std::ios::out | std::ios::trunc);
         data.add_contained_vals ("/vvv", vvv);
         data.add_contained_vals ("/vvec_of_vec", vvec_of_vec);
     } // data closes when out of scope
 
-    // void read_contained_vals (const char* path, sj::vvec<sj::vvec<T>>& vals)
-    sj::vvec<sj::vvec<FLT>> vvread;
-    sj::vvec<sj::vec<FLT>> vvread_vvofv;
+    // void read_contained_vals (const char* path, sm::vvec<sm::vvec<T>>& vals)
+    sm::vvec<sm::vvec<FLT>> vvread;
+    sm::vvec<sm::vec<FLT>> vvread_vvofv;
     {
-        sj::hdfdata data("test4.h5", std::ios::in);
+        sm::hdfdata data("test4.h5", std::ios::in);
         data.read_contained_vals ("/vvv", vvread);
         data.read_contained_vals ("/vvec_of_vec", vvread_vvofv);
     }

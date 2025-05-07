@@ -1,17 +1,17 @@
-// Can you use a sj::vec as a key to an std::unordered_map?
+// Can you use a sm::vec as a key to an std::unordered_map?
 //
 #include <functional> // std::equal_to
 #include <string>
 #include <unordered_map>
 #include <iostream>
-#include <sj/vec>
+#include <sm/vec>
 
-// To make std::hash<sj::vec<int, 2>> work you have to define how to create the hash of
-// sj::vec<int, 2>.
+// To make std::hash<sm::vec<int, 2>> work you have to define how to create the hash of
+// sm::vec<int, 2>.
 template<>
-struct std::hash<sj::vec<int, 2>>
+struct std::hash<sm::vec<int, 2>>
 {
-    std::size_t operator()(const sj::vec<int, 2>& v) const noexcept
+    std::size_t operator()(const sm::vec<int, 2>& v) const noexcept
     {
         std::size_t h1 = std::hash<int>{}(v[0]);
         std::size_t h2 = std::hash<int>{}(v[1]);
@@ -19,11 +19,11 @@ struct std::hash<sj::vec<int, 2>>
     }
 };
 
-#if 0 // sj::vec<float, 3> examples
+#if 0 // sm::vec<float, 3> examples
 template<>
-struct std::hash<sj::vec<float, 3>>
+struct std::hash<sm::vec<float, 3>>
 {
-    std::size_t operator()(const sj::vec<float, 3>& v) const noexcept
+    std::size_t operator()(const sm::vec<float, 3>& v) const noexcept
     {
         // Note: Tiny precision differences make a different hash.
         std::size_t h1 = std::hash<float>{}(v[0]);
@@ -35,9 +35,9 @@ struct std::hash<sj::vec<float, 3>>
 
 // Writing an equal_to operator()
 template<>
-struct std::equal_to<sj::vec<float, 3>>
+struct std::equal_to<sm::vec<float, 3>>
 {
-    constexpr bool operator()(const sj::vec<float, 3>& lhs, const sj::vec<float, 3>& rhs) const
+    constexpr bool operator()(const sm::vec<float, 3>& lhs, const sm::vec<float, 3>& rhs) const
     {
         constexpr auto eps = std::numeric_limits<float>::epsilon();
         float d0 = std::abs(lhs[0] - rhs[0]);
@@ -51,7 +51,7 @@ struct std::equal_to<sj::vec<float, 3>>
 
 int main()
 {
-    namespace m = sj;
+    namespace m = sm;
 
     int rtn = 0;
 

@@ -8,14 +8,14 @@
 #include <cstdint>
 #include <iostream>
 
-#include <sj/vvec>
-#include <sj/vec>
+#include <sm/vvec>
+#include <sm/vec>
 
 int main()
 {
     int rtn = 0;
 
-    sj::vvec<int> mvf (5, 0);
+    sm::vvec<int> mvf (5, 0);
 
     mvf.at_signed (-2) = -2;
     mvf.at_signed (-1) = -1;

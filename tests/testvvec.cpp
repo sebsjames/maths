@@ -1,6 +1,6 @@
-#include <sj/vvec>
-#include <sj/vec>
-#include <sj/mathconst>
+#include <sm/vvec>
+#include <sm/vec>
+#include <sm/mathconst>
 #include <array>
 #include <cstdint>
 
@@ -9,7 +9,7 @@ using std::endl;
 
 int main() {
     int rtn = 0;
-    sj::vvec<float> v = {{1.0f,2.0f,3.0f}};
+    sm::vvec<float> v = {{1.0f,2.0f,3.0f}};
     // Test x(), y() etc members
     cout << "x: " << v.x() << endl;
     cout << "z: " << v.z() << endl;
@@ -25,46 +25,46 @@ int main() {
     v.randomize();
     cout << "After randomize: " << v << endl;
     // Check ints are ok, too
-    sj::vvec<int> vi(2);
+    sm::vvec<int> vi(2);
     vi.randomize(0,100);
     cout << "After randomize of int vector: " << vi << endl;
     cout << "Length: " << vi.length() << endl;
 
-    sj::vec<float, 2> vfl = {113, 124};
-    cout << "Length of a float sj::vec: " << vfl.length() << endl;
-    sj::vvec<float> vvfl = {113, 124};
-    cout << "Length of a float sj::vvec: " << vvfl.length() << endl;
+    sm::vec<float, 2> vfl = {113, 124};
+    cout << "Length of a float sm::vec: " << vfl.length() << endl;
+    sm::vvec<float> vvfl = {113, 124};
+    cout << "Length of a float sm::vvec: " << vvfl.length() << endl;
 
-    sj::vec<int, 2> vil = {113, 124};
-    cout << "Length of an int sj::vec: " << vil.length() << endl;
-    sj::vvec<int> vvil = {113, 124};
-    cout << "Length of an int sj::vvec: " << vvil.length() << endl;
+    sm::vec<int, 2> vil = {113, 124};
+    cout << "Length of an int sm::vec: " << vil.length() << endl;
+    sm::vvec<int> vvil = {113, 124};
+    cout << "Length of an int sm::vvec: " << vvil.length() << endl;
 
     // Test assignment
-    sj::vvec<int> vi2 = vi;
+    sm::vvec<int> vi2 = vi;
     cout << "Copy of int vector: " << vi2 << endl;
     // Test comparison
     cout << "vi == vi2? " << (vi == vi2 ? "yes" : "no") << endl;
     // Test negate
-    sj::vvec<int> vi3(2);
+    sm::vvec<int> vi3(2);
     vi3 = -vi;
-    sj::vvec<int> vi33 = -vi;
+    sm::vvec<int> vi33 = -vi;
     cout << "-ve Copy of int vector: " << vi3 << endl;
     // Test comparison
     cout << "vi == vi3? " << (vi == vi3 ? "yes" : "no") << endl;
     // Test cross product (3D only
-    sj::vvec<double> a = {1.0, 0.0, 0.0};
-    sj::vvec<double> b = {0.0, 1.0, 0.0};
-    sj::vvec<double> c = a.cross(b);
+    sm::vvec<double> a = {1.0, 0.0, 0.0};
+    sm::vvec<double> b = {0.0, 1.0, 0.0};
+    sm::vvec<double> c = a.cross(b);
     cout << a << " cross " << b << "=" << c << endl;
     // Test dot product
-    sj::vvec<int> vv1 = {1,1};
-    sj::vvec<int> vv2 = {2,2};
+    sm::vvec<int> vv1 = {1,1};
+    sm::vvec<int> vv2 = {2,2};
     int dp = vv1.dot (vv2);
     cout << vv1 << "." << vv2 << " = " << dp << endl;
 
     // dot product of two different sized vectors
-    sj::vvec<int> vv2_3 = {2,2,2};
+    sm::vvec<int> vv2_3 = {2,2,2};
     try {
         int dpmm = vv1.dot (vv2_3);
         cout << vv1 << "." << vv2_3 << " = " << dpmm << endl;
@@ -77,40 +77,40 @@ int main() {
     // Test init from array
     std::array<float, 3> arr = { 2,3,4 };
     std::vector<float> veccy(3);
-    sj::vvec<float> varr = arr; // Tried overloading operator= to no avail.
+    sm::vvec<float> varr = arr; // Tried overloading operator= to no avail.
     cout << "vvec from array: " << varr << endl;
 #endif
 
 #if 0 // Haven't figured out assignment from a vector
     std::vector<float> veccy(3); veccy[0]=3.0f;
-    sj::vvec<float> varr = veccy;
+    sm::vvec<float> varr = veccy;
 #endif
 
     // Test scalar multiply
     vv2 *= 2UL;
     cout << "vv2 after *2:" << vv2 << endl;
-    sj::vvec<int> vv4 = vv1 * (int)98;
+    sm::vvec<int> vv4 = vv1 * (int)98;
     cout << vv1 << " * 98:" << vv4 << endl;
     // Scalar division
-    sj::vvec<double> d = a/3.0;
+    sm::vvec<double> d = a/3.0;
     cout << "a/3.0:" << d << endl;
     // vvec addition
-    sj::vvec<double> e = a+b;
+    sm::vvec<double> e = a+b;
     cout << "a+b:" << e << endl;
     // vvec subtraction
-    sj::vvec<double> f = a-b;
+    sm::vvec<double> f = a-b;
     cout << "a-b:" << f << endl;
     // Test default template args
-    sj::vvec<double> vd_def;
+    sm::vvec<double> vd_def;
     vd_def.randomize();
     cout << vd_def << endl;
-    sj::vvec<> v_def;
+    sm::vvec<> v_def;
     v_def.randomize();
     cout << v_def << endl;
 
     // So you want to do the dot product of a 1000000 D vector? Easy
-    sj::vvec<float> big1(1000);
-    sj::vvec<float> big2(1000);
+    sm::vvec<float> big1(1000);
+    sm::vvec<float> big2(1000);
     big1.randomize(0,10);
     big2.randomize(0,10.0f);
     cout << "DP..." << endl;
@@ -118,7 +118,7 @@ int main() {
     cout << "big1.big2=" << bdp << endl;
 
     // Test setFrom
-    sj::vvec<double> d1;
+    sm::vvec<double> d1;
     std::array<double, 3> a1 = { 5,6,7 };
     d1.set_from (a1);
     cout << "d1 should be 5,6,7: " << d1 << endl;
@@ -129,13 +129,13 @@ int main() {
         std::cout << "fail this one\n"; --rtn;
     }
 
-    sj::vvec<double> d1cpy = d1;
+    sm::vvec<double> d1cpy = d1;
     std::vector<float> a2longer = { 7, 8, 9, 9 };
     d1cpy.set_from_onelonger (a2longer);
     std::cout << "d1cpy.set_from_onelonger(a2longer) gives d1cpy: " << d1cpy << std::endl;
     if (d1cpy[2] != 9) { std::cout << "and fail this one\n"; --rtn; }
 
-    sj::vvec<int> v2longer = { 10, 100, 1000, 1000 };
+    sm::vvec<int> v2longer = { 10, 100, 1000, 1000 };
     d1cpy.set_from_onelonger (v2longer);
     std::cout << "d1cpy.set_from_onelonger(v2longer) gives d1cpy: " << d1cpy << std::endl;
     if (d1cpy[2] != 1000) { std::cout << "and fail this one\n"; --rtn; }
@@ -152,37 +152,37 @@ int main() {
     cout << "d1 should be 88.3 in all elements: " << d1 << endl;
 
     // Test hadamard operator* (elementwise multiplication)
-    sj::vvec<double> h1 = {1.0, 2.0, 3.0};
-    sj::vvec<double> h2 = {7.0, 6.0, 5.0};
-    sj::vvec<double> h3 = h1 * h2;
+    sm::vvec<double> h1 = {1.0, 2.0, 3.0};
+    sm::vvec<double> h2 = {7.0, 6.0, 5.0};
+    sm::vvec<double> h3 = h1 * h2;
     cout << h1 << "(o)" << h2 << " = " << h3 << endl;
 
     h1 *= h2;
     cout << "After h1 *= h2, h1: " << h1 << endl;
 
     // Test operator *= with different types. Ok if lhs is same type as result.
-    sj::vvec<int> h4 = {2, 2, 2};
-    //sj::vvec<int> h5 = h2 * h4; // Not ok
-    sj::vvec<int> h6 = h4 * h2;
-    sj::vvec<double> h7 = h2 * h4;
-    //sj::vvec<double> h8 = h4 * h2; // Not ok
+    sm::vvec<int> h4 = {2, 2, 2};
+    //sm::vvec<int> h5 = h2 * h4; // Not ok
+    sm::vvec<int> h6 = h4 * h2;
+    sm::vvec<double> h7 = h2 * h4;
+    //sm::vvec<double> h8 = h4 * h2; // Not ok
     cout << h2 << "(o)" << h4 << " = " << h6 << " or " << h7 << endl;
 
     // Operator* and operator*= with different length vectors
-    sj::vvec<double> dl1 = {2.0, 3.0, 4.0};
-    sj::vvec<double> dl2 = {2.0, 3.0};
+    sm::vvec<double> dl1 = {2.0, 3.0, 4.0};
+    sm::vvec<double> dl2 = {2.0, 3.0};
     try {
-        sj::vvec<double> dlresult = dl1 * dl2;
+        sm::vvec<double> dlresult = dl1 * dl2;
         cout << dl1 << " * " << dl2 << " = " << dlresult << endl;
     } catch (const std::exception& e) {
         cout << "Expected exception: ";
         cout << e.what() << endl;
     }
 
-    sj::vvec<double> dl1_ = {2.0, 3.0};
-    sj::vvec<double> dl2_ = {2.0, 3.0, 4.0};
+    sm::vvec<double> dl1_ = {2.0, 3.0};
+    sm::vvec<double> dl2_ = {2.0, 3.0, 4.0};
     try {
-        sj::vvec<double> dlresult_ = dl1_ * dl2_;
+        sm::vvec<double> dlresult_ = dl1_ * dl2_;
         cout << dl1_ << " * " << dl2_ << " = " << dlresult_ << endl;
     } catch (const std::exception& e) {
         cout << "Expected exception: ";
@@ -206,9 +206,9 @@ int main() {
     }
 
     // Signum function
-    sj::vvec<float> sigtest = { -1.2, 0.001, 0.0f, 34.0f, -1808.8f };
+    sm::vvec<float> sigtest = { -1.2, 0.001, 0.0f, 34.0f, -1808.8f };
     std::cout << "signum of " << sigtest << " is " << sigtest.signum() << std::endl;
-    sj::vvec<float> sigexpect = { -1.0f, 1.0f, 0.0f, 1.0f, -1.0f };
+    sm::vvec<float> sigexpect = { -1.0f, 1.0f, 0.0f, 1.0f, -1.0f };
     if (sigtest.signum() != sigexpect) { --rtn; }
     std::cout << "signum of " << sigtest << ", computed in place, is ";
     sigtest.signum_inplace();
@@ -216,15 +216,15 @@ int main() {
     if (sigtest != sigexpect) { --rtn; }
 
     // Raising to a power
-    sj::vvec<float> powtest = { 1.1f, 2.3f, 4.7 };
-    sj::vvec<unsigned int> powrs = { 2, 3, 4 };
+    sm::vvec<float> powtest = { 1.1f, 2.3f, 4.7 };
+    sm::vvec<unsigned int> powrs = { 2, 3, 4 };
     std::cout << "Powers: " << powtest << " raised to powers " << powrs << " is " << powtest.pow(powrs) << std::endl;
     std::cout << "After, powtest is still " << powtest << " and after .pow_inplace() is ";
     powtest.pow_inplace(powrs);
     std::cout << powtest << std::endl;
 
     // Less than/gtr than operator
-    sj::vvec<double> lttest = { 0, -1, 2, 3.4, 3.8, 6.0 };
+    sm::vvec<double> lttest = { 0, -1, 2, 3.4, 3.8, 6.0 };
     std::cout << "Considering ALL elements of " << lttest << ":\n";
     std::cout << (lttest < 3.5 ? "  ALL are less than 3.5" : "  NOT ALL are less than 3.5") << std::endl;
     std::cout << (lttest < 6.2 ? "  ALL are less than 6.2" : "  NOT ALL are less than 6.2") << std::endl;
@@ -232,18 +232,18 @@ int main() {
     std::cout << (lttest > 3.5 ? "  ALL are greater than 3.5" : "  NOT ALL are greater than 3.5") << std::endl;
     std::cout << (lttest > 6.2 ? "  ALL are greater than 6.2" : "  NOT ALL are greater than 6.2") << std::endl;
     std::cout << (lttest > -1.1 ? "  ALL are greater than -1.1" : "  NOT ALL are greater than -1.1") << std::endl;
-    sj::vvec<double> ltthan = { 1, -2, 1, 4.4, 3.8, 5.8};
+    sm::vvec<double> ltthan = { 1, -2, 1, 4.4, 3.8, 5.8};
     std::cout << "Considering ALL elements of " << lttest
               << "\ncompared with                " << ltthan << ":\n";
     std::cout << " ALL less than? " << (lttest < ltthan ? "True" : "False") << std::endl;
     std::cout << " ALL gtr than? " << (lttest > ltthan ? "True" : "False") << std::endl;
 
-    sj::vvec<double> ltthanplus = ltthan + 1.0;
+    sm::vvec<double> ltthanplus = ltthan + 1.0;
     std::cout << "ltthan + 1 > lthan? " << (ltthanplus > ltthan ? "True" : "False") << std::endl;
     std::cout << "ltthan + 1 < lthan? " << (ltthanplus < ltthan ? "True" : "False") << std::endl;
 
     std::cout << "ltthan + 1 == lthan? " << (ltthan == ltthanplus ? "True" : "False") << std::endl;
-    sj::vvec<double> ltthancopy = ltthan;
+    sm::vvec<double> ltthancopy = ltthan;
     std::cout << "Is a copy of a vvec == to the vvec? " << (ltthan == ltthancopy ? "True" : "False") << std::endl;
 
     std::cout << "twice " << ltthan << " = " << (2.0*ltthancopy) << std::endl;
@@ -251,23 +251,23 @@ int main() {
     std::cout << "one + " << ltthan << " = " << (1.0+ltthancopy) << std::endl;
     std::cout << "one - " << ltthan << " = " << (1.0-ltthancopy) << std::endl;
 
-    sj::vvec<double> ltt2 = { 1, 2 };
-    sj::vvec<double> ltt3 = { 1.1, 2.9 };
+    sm::vvec<double> ltt2 = { 1, 2 };
+    sm::vvec<double> ltt3 = { 1.1, 2.9 };
     std::cout << (ltt3 < ltt2 ? "Y" : "N") << std::endl;
     std::vector<double> ltt2v = { 1, 2 };
     std::vector<double> ltt3v = { 0.9, 1.9 };
     std::cout << (ltt3v < ltt2v ? "Y" : "N") << std::endl;
 
     std::vector<int> stdvec = { 1, 2, 3 };
-    sj::vvec<int> fromstd;
+    sm::vvec<int> fromstd;
     // You can't do fromstd = stdvec; instead, do this:
     fromstd.set_from (stdvec);
 
-    sj::vvec<double> lins;
+    sm::vvec<double> lins;
     size_t nnn = 11;
     lins.linspace (0, 1, nnn);
     std::cout << nnn << " linearly spaced values from 0 to 1:\n" << lins << std::endl;
-    sj::vvec<float> linsi(12);
+    sm::vvec<float> linsi(12);
     linsi.linspace (23, 45);
     std::cout << linsi.size() << " linearly spaced float values from " << linsi[0]
               << " to " << linsi[linsi.size()-1] << ":\n" << linsi << std::endl;
@@ -284,13 +284,13 @@ int main() {
 
 #ifndef _MSC_VER // VS doesn't like the dot product here. I can't figure out what's wrong
     // Test different vvec  types dotted:
-    sj::vvec<double> left = h1;
-    sj::vvec<int> right = { 2,2,3 };
+    sm::vvec<double> left = h1;
+    sm::vvec<int> right = { 2,2,3 };
     double dotprod = left.dot(right);
     cout << h1 << "." << right << " = " << dotprod << endl;
 #endif
 
-    sj::vvec<float> maxlongest = {-1.1f, -7.0f, 3.0f, 6.0f };
+    sm::vvec<float> maxlongest = {-1.1f, -7.0f, 3.0f, 6.0f };
     cout << "For vector " << maxlongest
          << ", max: " << maxlongest.max() << " (at index "<< maxlongest.argmax()
          << "), longest component: " << maxlongest.longest() << " (at index "
@@ -300,7 +300,7 @@ int main() {
          << "), shortest component: " << maxlongest.shortest() << " (at index "
          << maxlongest.argshortest() << ")\n";
 
-    sj::vvec<double> forshortest = { 2.9, 0, -1.1, 3.9 };
+    sm::vvec<double> forshortest = { 2.9, 0, -1.1, 3.9 };
     cout << "For vector " << forshortest << std::endl;
     cout << "  Shortest: " << forshortest.shortest() << std::endl;
     cout << "  Shortest non-zero: " << forshortest.shortest_nonzero() << std::endl;
@@ -320,19 +320,19 @@ int main() {
     cout << "  Shortest non-zero: " << forshortest.shortest_nonzero() << std::endl;
     if (forshortest.shortest_nonzero() != -1.1) { --rtn; }
 
-    sj::vvec<sj::vec<float, 2>> forshortestvec = { {0, 0}, {0, 0}, {1, 1}, {1, 2} };
+    sm::vvec<sm::vec<float, 2>> forshortestvec = { {0, 0}, {0, 0}, {1, 1}, {1, 2} };
     cout << "For vector " << forshortestvec  << std::endl;
     cout << "  Shortest: " << forshortestvec .shortest() << std::endl;
     cout << "  Shortest non-zero: " << forshortestvec .shortest_nonzero() << std::endl;
-    if (forshortestvec .shortest_nonzero() != sj::vec<float, 2>{1, 1}) { --rtn; }
+    if (forshortestvec .shortest_nonzero() != sm::vec<float, 2>{1, 1}) { --rtn; }
 
     forshortestvec = { {1, 1}, {0, 0}, {0, 0}, {1, 1}, {1, 2} };
     cout << "For vector " << forshortestvec  << std::endl;
     cout << "  Shortest: " << forshortestvec .shortest() << std::endl;
     cout << "  Shortest non-zero: " << forshortestvec .shortest_nonzero() << std::endl;
-    if (forshortestvec .shortest_nonzero() != sj::vec<float, 2>{1, 1}) { --rtn; }
+    if (forshortestvec .shortest_nonzero() != sm::vec<float, 2>{1, 1}) { --rtn; }
 
-    sj::vvec<float> cc = { 1.0f, 2.0f };
+    sm::vvec<float> cc = { 1.0f, 2.0f };
     float D = 2.0f;
     std::cout << "(-cc/D).exp()=" << (-cc/D).exp() << std::endl;
     std::cout << "(-cc)/D=" << ((-cc)/D) << std::endl;
@@ -346,18 +346,18 @@ int main() {
 
     // Convert precision
     cc = {1.234523452345f, 5.23452345345f};
-    sj::vvec<double> ddcc = cc.as_double();
+    sm::vvec<double> ddcc = cc.as_double();
     std::cout << "cc: " << cc << " cc.as_double(): " << ddcc << " and back to single " << ddcc.as_float() << std::endl;
     ddcc = {1.2345234755654907,5.2345232963562812};
     std::cout << "double prec: " << ddcc << " to single: " << ddcc.as_float() << "\n   and back: " << ddcc.as_float().as_double() << std::endl;
 
     // Rotate
-    sj::vvec<int>vvir = { 1, 2, 3, 4 };
-    sj::vvec<int> vvir1 = vvir;
+    sm::vvec<int>vvir = { 1, 2, 3, 4 };
+    sm::vvec<int> vvir1 = vvir;
     vvir1.rotate();
     std::cout << vvir << " rotate(): " << vvir1 << std::endl;
 
-    sj::vvec<int> vvir2(vvir);
+    sm::vvec<int> vvir2(vvir);
     for (size_t n = 0; n < 6; ++n) {
         vvir2 = vvir;
         vvir2.rotate (n);
@@ -370,10 +370,10 @@ int main() {
         std::cout << vvir << " rotate("<<n<<"): " << vvir2 << std::endl;
     }
 
-    sj::vvec<int> vr = { 0, 1, 2, 3 };
-    sj::vvec<int> vr2 = vr;
+    sm::vvec<int> vr = { 0, 1, 2, 3 };
+    sm::vvec<int> vr2 = vr;
 
-    sj::vvec<int> rot_size_t_correct = { 0, 1, 2, 3, 0, 1, 2 };
+    sm::vvec<int> rot_size_t_correct = { 0, 1, 2, 3, 0, 1, 2 };
     for (size_t i = 0; i < 7; ++i) {
         vr2 = vr;
         vr2.rotate (i);
@@ -381,7 +381,7 @@ int main() {
         if (vr2[0] != rot_size_t_correct[i]) { --rtn; }
     }
 
-    sj::vvec<int> rot_int_correct = { 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2 };
+    sm::vvec<int> rot_int_correct = { 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2 };
     for (int i = -7; i < 7; ++i) {
         vr2 = vr;
         vr2.rotate (i);
@@ -389,25 +389,25 @@ int main() {
         if (vr2[0] != rot_int_correct[i+7]) { --rtn; }
     }
 
-    sj::vvec<float> vfr(81, 0.0f);
-    vfr.linspace (-sj::mathconst<float>::pi, sj::mathconst<float>::pi, 81);
+    sm::vvec<float> vfr(81, 0.0f);
+    vfr.linspace (-sm::mathconst<float>::pi, sm::mathconst<float>::pi, 81);
     vfr.cos_inplace();
     std::cout << "PRE: " << vfr << std::endl;
     vfr.rotate (static_cast<int>(-1));
     if (vfr[0] != -1.0f || vfr[1] != -1.0f) { --rtn; }
     std::cout << "POST: " << vfr << std::endl;
 
-    sj::vvec<float> formax (3, 0.0f);
+    sm::vvec<float> formax (3, 0.0f);
     formax.set_max();
     std::cout << "vvec<float>::set_max gives: " << formax << std::endl;
     formax.set_lowest();
     std::cout << "vvec<float>::set_lowest gives: " << formax << std::endl;
 
     // Concat two diff. sized vectors
-    sj::vvec<unsigned int> ua = { 3, 4, 5 };
-    sj::vvec<unsigned int> ub = { 30, 40, 50, 60 };
+    sm::vvec<unsigned int> ua = { 3, 4, 5 };
+    sm::vvec<unsigned int> ub = { 30, 40, 50, 60 };
     // Expected result:
-    sj::vvec<unsigned int> uab_cmp = { 3, 4, 5, 30, 40, 50, 60 };
+    sm::vvec<unsigned int> uab_cmp = { 3, 4, 5, 30, 40, 50, 60 };
     std::cout << "Before concat(), ua is " << ua << std::endl;
     ua.concat (ub);
     std::cout << "After concat" << ub << ", ua is " << ua << std::endl;
@@ -440,59 +440,59 @@ int main() {
     if (uab_cmp != ua) { --rtn; }
 
     // Test shorten
-    sj::vvec<float> lv = { 6.0f, 8.0f }; // a 3,4,5 vector
-    sj::vvec<float> sv = lv.shorten (5.0f);
+    sm::vvec<float> lv = { 6.0f, 8.0f }; // a 3,4,5 vector
+    sm::vvec<float> sv = lv.shorten (5.0f);
     std::cout << "lv: " << lv << " lv.shorten(5.0f) returns the vector: " << sv << std::endl;
-    if (sv != sj::vvec<float>({ 3.0f, 4.0f })) { --rtn; }
+    if (sv != sm::vvec<float>({ 3.0f, 4.0f })) { --rtn; }
 
     lv = { 6.0f, 8.0f }; // a 3,4,5 vector
     sv = lv.shorten (10.0f);
     std::cout << "lv: " << lv << " lv.shorten(10.0f) returns the vector: " << sv << std::endl;
-    if (sv != sj::vvec<float>({ 0.0f, 0.0f })) { --rtn; }
+    if (sv != sm::vvec<float>({ 0.0f, 0.0f })) { --rtn; }
 
     lv = { 6.0f, 8.0f }; // a 3,4,5 vector
     sv = lv.shorten (12.0f);
     std::cout << "lv: " << lv << " lv.shorten(12.0f) returns the vector: " << sv << std::endl;
-    if (sv != sj::vvec<float>({ 0.0f, 0.0f })) { --rtn; }
+    if (sv != sm::vvec<float>({ 0.0f, 0.0f })) { --rtn; }
 
     lv = { 6.0f, 8.0f }; // a 3,4,5 vector
     sv = lv.shorten (-5.0f); // shorten -ve lengthens
     std::cout << "lv: " << lv << " lv.shorten(-5.0f) returns the vector: " << sv << std::endl;
-    if (sv != sj::vvec<float>({ 9.0f, 12.0f })) { --rtn; }
+    if (sv != sm::vvec<float>({ 9.0f, 12.0f })) { --rtn; }
 
     lv = { 6.0f, 8.0f }; // a 3,4,5 vector
     sv = lv.lengthen (-5.0f); // lengthen -ve shortens
     std::cout << "lv: " << lv << " lv.lengthen(-5.0f) returns the vector: " << sv << std::endl;
-    if (sv != sj::vvec<float>({ 3.0f, 4.0f })) { --rtn; }
+    if (sv != sm::vvec<float>({ 3.0f, 4.0f })) { --rtn; }
 
     lv = { 6.0f, 8.0f }; // a 3,4,5 vector
     sv = lv.lengthen (-10.0f);
     std::cout << "lv: " << lv << " lv.lengthen(-10.0f) returns the vector: " << sv << std::endl;
-    if (sv != sj::vvec<float>({ 0.0f, 0.0f })) { --rtn; }
+    if (sv != sm::vvec<float>({ 0.0f, 0.0f })) { --rtn; }
 
     lv = { 6.0f, 8.0f }; // a 3,4,5 vector
     sv = lv.lengthen (-12.0f);
     std::cout << "lv: " << lv << " lv.lengthen(-12.0f) returns the vector: " << sv << std::endl;
-    if (sv != sj::vvec<float>({ 0.0f, 0.0f })) { --rtn; }
+    if (sv != sm::vvec<float>({ 0.0f, 0.0f })) { --rtn; }
 
     lv = { 6.0f, 8.0f }; // a 3,4,5 vector
     sv = lv.lengthen (5.0f);
     std::cout << "lv: " << lv << " lv.lengthen(5.0f) returns the vector: " << sv << std::endl;
-    if (sv != sj::vvec<float>({ 9.0f, 12.0f })) { --rtn; }
+    if (sv != sm::vvec<float>({ 9.0f, 12.0f })) { --rtn; }
 
     lv = { 6.0f, 8.0f }; // a 3,4,5 vector
     sv = lv.lengthen (15.0f);
     std::cout << "lv: " << lv << " lv.lengthen(15.0f) returns the vector: " << sv << std::endl;
-    if (sv != sj::vvec<float>({ 15.0f, 20.0f })) { --rtn; }
+    if (sv != sm::vvec<float>({ 15.0f, 20.0f })) { --rtn; }
 
     // Test zeroing
-    sj::vvec<float> vzero = {1,2,3};
+    sm::vvec<float> vzero = {1,2,3};
     vzero.zero();
     std::cout << "After zero, vzero = " << vzero << std::endl;
     if (vzero.sum() != 0.0f) { --rtn; }
 
     // What about a vvec of vecs?
-    sj::vvec<sj::vec<int, 2>> vvvec = { {1,2}, {3,4} };
+    sm::vvec<sm::vec<int, 2>> vvvec = { {1,2}, {3,4} };
     std::cout << "Before zero: " << vvvec << " with sum " << vvvec.sum().sum() << std::endl;
 
     vvvec.zero();
@@ -500,63 +500,63 @@ int main() {
     std::cout << "After zero: " << vvvec << " with sum " << vvvec.sum().sum() << std::endl;
 
     // Sum of squares
-    sj::vvec<uint8_t> sos1 = {2, 3, 4, 5};
+    sm::vvec<uint8_t> sos1 = {2, 3, 4, 5};
     std::cout << sos1.as_uint() << " uint8_t sum of squares: sos1.sos(): " << sos1.sos() << std::endl;
     std::cout << sos1.as_uint() << " uint8_t sum of squares: sos1.sos<unsigned int>(): " << sos1.sos<false, unsigned int>() << std::endl;
 
     std::cout << sos1.as_uint() << " uint8_t to power 3: sos1.pow<uint8_t>(4) = " << sos1.pow<uint8_t>(4).as_uint() << std::endl;
     std::cout << sos1.as_uint() << " uint8_t to power 3: sos1.pow<unsigned int>(4) = " << sos1.pow<unsigned int>(4) << std::endl;
 
-    // Correctly fails to compile/errors (will fail to compile when sj moves to C++-20)
+    // Correctly fails to compile/errors (will fail to compile when sm moves to C++-20)
 #if __cplusplus >= 202002L
     // This line:
-    // std::cout << sos1.as_uint() << " uint8_t sum of squares: length_sq.sos<vec<>>(): " << sos1.length_sq<sj::vec<float, 2>>() << std::endl;
+    // std::cout << sos1.as_uint() << " uint8_t sum of squares: length_sq.sos<vec<>>(): " << sos1.length_sq<sm::vec<float, 2>>() << std::endl;
     // should fail to compile
 #else
     try {
-        std::cout << sos1.as_uint() << " uint8_t sum of squares: length_sq.sos<vec<>>(): " << sos1.length_sq<sj::vec<float, 2>>() << std::endl;
+        std::cout << sos1.as_uint() << " uint8_t sum of squares: length_sq.sos<vec<>>(): " << sos1.length_sq<sm::vec<float, 2>>() << std::endl;
     } catch (const std::exception& e) {
         std::cout << "Expected error: " << e.what() << std::endl;
     }
 #endif
-    sj::vvec<sj::vec<int, 2>> sosv1 = {{1,2}, {3,2}, {2,4}};
+    sm::vvec<sm::vec<int, 2>> sosv1 = {{1,2}, {3,2}, {2,4}};
     //std::cout << sosv1 << " sum of squares: " << sosv1.sos() << std::endl; // won't compile or will runtime error
     std::cout << sosv1 << " is a vector of vectors, so sosv1.length_sq<int>() returns a sum of squared lengths: " << sosv1.length_sq<int>() << std::endl;
     std::cout << sosv1 << " is a vector of vectors, so sosv1.sos(): " << sosv1.sos() << std::endl;
 
-    sj::vvec<uint8_t> uv = {10, 10, 10};
+    sm::vvec<uint8_t> uv = {10, 10, 10};
     std::cout << uv.as_uint() << ".product() = " << static_cast<unsigned int>(uv.product()) << std::endl;
     std::cout << uv.as_uint() << ".product<false, unsigned int>() = " << uv.product<false, unsigned int>() << std::endl;
 
-    sj::vvec<uint8_t> uv2 = {1, 2, 10, 3, 11, 23};
+    sm::vvec<uint8_t> uv2 = {1, 2, 10, 3, 11, 23};
     std::cout << uv2.as_uint() << " mean: " << uv2.mean<false, float>() << std::endl;
     std::cout << uv2.as_uint() << " variance: " << uv2.variance<false, float>() << std::endl;
 
-    sj::vvec<float> uv2f = {1, 2, 10, 3, 11, 23};
+    sm::vvec<float> uv2f = {1, 2, 10, 3, 11, 23};
     std::cout << uv2f << " mean: " << uv2f.mean() << std::endl;
     std::cout << uv2f << " variance: " << uv2f.variance() << std::endl;
 
     // Test int * vvec<double> etc
-    sj::vvec<double> vvd = {1.0, 2.0, 3.0};
-    sj::vvec<double> vvd1 = 5 * vvd;
+    sm::vvec<double> vvd = {1.0, 2.0, 3.0};
+    sm::vvec<double> vvd1 = 5 * vvd;
     if (vvd1[0] != 5.0) { --rtn; }
 
-    sj::vvec<double> vvd2 = 1 / vvd;
+    sm::vvec<double> vvd2 = 1 / vvd;
     if (vvd2[1] != 0.5) { --rtn; }
 
-    sj::vvec<double> vvd3 = 5 + vvd;
+    sm::vvec<double> vvd3 = 5 + vvd;
     if (vvd3[0] != 6.0) { --rtn; }
 
-    sj::vvec<double> vvd4 = 5 - vvd;
+    sm::vvec<double> vvd4 = 5 - vvd;
     if (vvd4[0] != 4.0) { --rtn; }
 
-    sj::vvec<int> vvi = { 2, 3 };
-    sj::vvec<int> vvi1 = 1.0f / vvi;
+    sm::vvec<int> vvi = { 2, 3 };
+    sm::vvec<int> vvi1 = 1.0f / vvi;
     std::cout << vvi1 << std::endl; // result is { int(1.0f / (int)2) , int(1.0f / int(3)) }  = { 0, 0 }
     // Doesn't compile:
-    //sj::vvec<float> vvif1 = 1.0f / vvi;
+    //sm::vvec<float> vvif1 = 1.0f / vvi;
 
-    sj::vvec<double> vvd5 = 1.0f / vvd;
+    sm::vvec<double> vvd5 = 1.0f / vvd;
     if (vvd5[1] != 0.5) { --rtn; }
 
     std::cout << "At end, rtn=" << rtn << std::endl;

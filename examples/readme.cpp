@@ -1,12 +1,12 @@
-#include <sj/mathconst>
-#include <sj/vec>
-#include <sj/quaternion>
+#include <sm/mathconst>
+#include <sm/vec>
+#include <sm/quaternion>
 
 int main()
 {
-    using mc = sj::mathconst<float>;
-    sj::vec<float, 3> v1 = { 1, 2, 3 };
-    sj::quaternion<float> q1 (sj::vec<float, 3>{1, 0, 0}, mc::pi_over_2);
+    using mc = sm::mathconst<float>;
+    sm::vec<float, 3> v1 = { 1, 2, 3 };
+    sm::quaternion<float> q1 (sm::vec<float, 3>{1, 0, 0}, mc::pi_over_2);
     // Rotate v1:
 
     auto v1_rotated = q1 * v1;
