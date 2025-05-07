@@ -1,6 +1,6 @@
-# sj::maths
+# smath
 
-## A small mathematics library for C++20 projects
+## A simple mathematics library for C++20 projects
 
 This header-only library is intended to help you to write maths into
 your C++ code in simple, readable and comprehensible code.
@@ -25,23 +25,23 @@ You can stream objects to debug or observe their values.
 Here's an example
 
 ```c++
-#include <sj/mathconst.h>
-#include <sj/vec.h>
-#include <sj/quaternion.h>
+#include <sm/mathconst>
+#include <sm/vec>
+#include <sm/quaternion>
 
 int main()
 {
     // Mathematical constants are provided by mathconst
-    using mc = sj::mathconst<float>;
+    using mc = sm::mathconst<float>;
 
     // Create a fixed-size mathematical 3D vector object
-    sj::vec<float, 3> v1 = { 1, 2, 3 };
+    sm::vec<float, 3> v1 = { 1, 2, 3 };
 
     // Create and intialize a quaternion rotation
-    sj::quaternion<float> q1 (sj::vec<float, 3>{1, 0, 0}, mc::pi_over_2);
+    sm::quaternion<float> q1 (sj::vec<float, 3>{1, 0, 0}, mc::pi_over_2);
 
     // Rotate the vector with the quaternion
-    sj::vec<float, 3> v1_rotated = q1 * v1;
+    sm::vec<float, 3> v1_rotated = q1 * v1;
 
     std::cout << v1 << " rotated pi/2 about x-axis is " << v1_rotated << "\n";
 }
