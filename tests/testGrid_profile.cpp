@@ -1,24 +1,24 @@
-#include <morph/vvec.h>
-#include <morph/random.h>
-#include <morph/grid.h>
 #include <iostream>
+#include <sm/vvec>
+#include <sm/random>
+#include <sm/grid>
 
 // grid extended with a coord_lookup function that calls get_n_pixels for each lookup.
 template<typename I = unsigned int, typename C = float>
-struct gridplus : public morph::grid<I, C>
+struct gridplus : public sm::grid<I, C>
 {
     gridplus (const I _w, const I _h,
-              const morph::vec<C, 2> _dx = { C{1}, C{1} },
-              const morph::vec<C, 2> _offset = { C{0}, C{0} },
-              const morph::griddomainwrap _wrap = morph::griddomainwrap::none,
-              const morph::gridorder _order = morph::gridorder::bottomleft_to_topright)
-        : morph::grid<I, C>::grid (_w, _h, _dx, _offset, _wrap, _order) { this->n_mem = this->n(); };
+              const sm::vec<C, 2> _dx = { C{1}, C{1} },
+              const sm::vec<C, 2> _offset = { C{0}, C{0} },
+              const sm::griddomainwrap _wrap = sm::griddomainwrap::none,
+              const sm::gridorder _order = sm::gridorder::bottomleft_to_topright)
+        : sm::grid<I, C>::grid (_w, _h, _dx, _offset, _wrap, _order) { this->n_mem = this->n(); };
 
     I n_mem = I{0};
 
-    morph::vec<C, 2> coord_lookup_with_mem_n (const I index) const
+    sm::vec<C, 2> coord_lookup_with_mem_n (const I index) const
     {
-        return index >= this->n_mem ? morph::vec<C, 2>{std::numeric_limits<C>::max(), std::numeric_limits<C>::max()} : this->v_c[index];
+        return index >= this->n_mem ? sm::vec<C, 2>{std::numeric_limits<C>::max(), std::numeric_limits<C>::max()} : this->v_c[index];
     }
 };
 
@@ -30,17 +30,17 @@ using sc = std::chrono::steady_clock;
 int main()
 {
     int rtn = 0;
-    morph::vec<float, 2> dx = {1.0f, 1.0f};
-    morph::vec<float, 2> offset = {0.0f, 0.0f};
-    morph::griddomainwrap wrap = morph::griddomainwrap::none;
-    morph::gridorder order = morph::gridorder::bottomleft_to_topright;
+    sm::vec<float, 2> dx = {1.0f, 1.0f};
+    sm::vec<float, 2> offset = {0.0f, 0.0f};
+    sm::griddomainwrap wrap = sm::griddomainwrap::none;
+    sm::gridorder order = sm::gridorder::bottomleft_to_topright;
 
     int _w = 500;
     int _h = 400;
 
-    morph::vvec<morph::vec<float, 2>> coords (_w * _h, {0.0f});
+    sm::vvec<sm::vec<float, 2>> coords (_w * _h, {0.0f});
     // Random indices with a seed
-    morph::rand_uniform<int> rng (0, _w * _h, 1020u);
+    sm::rand_uniform<int> rng (0, _w * _h, 1020u);
     std::vector<std::vector<int>> ridx(1000);
     for (int j = 0; j < 1000; ++j) {
         ridx[j] = rng.get (_w * _h);

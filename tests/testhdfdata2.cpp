@@ -1,9 +1,10 @@
-#include "morph/hdfdata.h"
 #include <utility>
 #include <iostream>
 #include <fstream>
 #include <list>
 #include <vector>
+
+#include <sm/hdfdata>
 
 int main()
 {
@@ -21,19 +22,19 @@ int main()
                                              { 7.0, 7.0, 8.0 },
                                              { 9.0, 9.0, 10.0 } };
     {
-        morph::hdfdata data("test0.h5", morph::file_access_mode::truncate_write);
+        sm::hdfdata data("test0.h5", sm::file_access_mode::truncate_write);
         data.add_contained_vals ("/testvecarray", va);
     } // data closes when out of scope
 
     // Demonstrate appending data to an existing HDF5 file:
     {
-        morph::hdfdata data("test0.h5", morph::file_access_mode::read_write);
+        sm::hdfdata data("test0.h5", sm::file_access_mode::read_write);
         data.add_contained_vals ("/testvecarray2", va);
     }
 
     std::vector<std::array<float, 3>> varead;
     {
-        morph::hdfdata data("test0.h5", morph::file_access_mode::read_only);
+        sm::hdfdata data("test0.h5", sm::file_access_mode::read_only);
         data.read_contained_vals ("/testvecarray2", varead);
     }
 
@@ -58,12 +59,12 @@ int main()
     // Demonstrate overwriting data to an existing HDF5 file:
     va[0][0] = 100.0f;
     {
-        morph::hdfdata data("test0.h5", morph::file_access_mode::read_write);
+        sm::hdfdata data("test0.h5", sm::file_access_mode::read_write);
         data.add_contained_vals ("/testvecarray2", va);
     }
     // And read back:
     {
-        morph::hdfdata data("test0.h5", morph::file_access_mode::read_only);
+        sm::hdfdata data("test0.h5", sm::file_access_mode::read_only);
         data.read_contained_vals ("/testvecarray2", varead);
     }
     std::cout << "varead[0][0] = " << varead[0][0] << " (should be 100) varead size: " << varead.size() << "\n";
@@ -78,13 +79,13 @@ int main()
                                                 { 7., 7., 8.,  5., 1., 2., 3., 3., 4., 3., 3., 4. },
                                                 { 9., 9., 10., 6., 1., 2., 3., 3., 4., 3., 3., 4. } };
     {
-        morph::hdfdata data("test.h5", std::ios::out | std::ios::trunc);
+        sm::hdfdata data("test.h5", std::ios::out | std::ios::trunc);
         data.add_contained_vals ("/testvecf12", va12);
     } // data closes when out of scope
 
     std::vector<std::array<float, 12>> va12read;
     {
-        morph::hdfdata data("test.h5", std::ios::in);
+        sm::hdfdata data("test.h5", std::ios::in);
         data.read_contained_vals ("/testvecf12", va12read);
     }
 
@@ -107,13 +108,13 @@ int main()
                                                                                          std::make_pair(8ULL,8ULL),
                                                                                          std::make_pair(9ULL,18ULL) };
     {
-        morph::hdfdata data("test.h5", std::ios::out | std::ios::trunc);
+        sm::hdfdata data("test.h5", std::ios::out | std::ios::trunc);
         data.add_contained_vals ("/vpi2dpair", vpi2dpair);
     } // data closes when out of scope
 
     std::vector<std::pair<unsigned long long int, unsigned long long int>> vpi2dpairread;
     {
-        morph::hdfdata data("test.h5", std::ios::in);
+        sm::hdfdata data("test.h5", std::ios::in);
         data.read_contained_vals ("/vpi2dpair", vpi2dpairread);
     }
 
@@ -134,12 +135,12 @@ int main()
 
     std::string tstr = "Thou art more lovely...";
     {
-        morph::hdfdata data("test.h5", std::ios::out | std::ios::trunc);
+        sm::hdfdata data("test.h5", std::ios::out | std::ios::trunc);
         data.add_string ("/stringtest", tstr);
     }
     std::string str;
     {
-        morph::hdfdata data("test.h5", std::ios::in);
+        sm::hdfdata data("test.h5", std::ios::in);
         data.read_string ("/stringtest", str);
     }
     std::cout << "String stored: " << tstr << std::endl;
@@ -152,12 +153,12 @@ int main()
     bs.set(3);
     bs.set(7);
     {
-        morph::hdfdata data("test.h5", std::ios::out | std::ios::trunc);
+        sm::hdfdata data("test.h5", std::ios::out | std::ios::trunc);
         data.add_val ("/bitset", bs);
     }
     std::bitset<13> bsread;
     {
-        morph::hdfdata data("test.h5", std::ios::in);
+        sm::hdfdata data("test.h5", std::ios::in);
         data.read_val ("/bitset", bsread);
     }
     std::cout << "Bitset stored: " << bs << std::endl;

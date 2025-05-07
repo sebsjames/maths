@@ -2,8 +2,8 @@
  * Test the different possibilities for dividing a vvec of scalars/vecs by scalar/vec/vvec etc
  */
 
-#include <morph/vvec.h>
-#include <morph/vec.h>
+#include <sm/vvec>
+#include <sm/vec>
 
 int main()
 {
@@ -12,23 +12,23 @@ int main()
     // Operands
 
     // vvec of scalars
-    morph::vvec<float> v_scal = { 1000, 2000, 3000 };
+    sm::vvec<float> v_scal = { 1000, 2000, 3000 };
 
     // vvec of vecs
-    morph::vvec<morph::vec<float, 2>> v_vec2 = { { 1000, 1000 },    { 2000, 2000 },    {3000, 3000 } };
-    morph::vvec<morph::vec<float, 3>> v_vec3 = { { 1000, 1000, 1000 }, { 2000, 2000, 2000 }, {3000, 3000, 3000 } };
+    sm::vvec<sm::vec<float, 2>> v_vec2 = { { 1000, 1000 },    { 2000, 2000 },    {3000, 3000 } };
+    sm::vvec<sm::vec<float, 3>> v_vec3 = { { 1000, 1000, 1000 }, { 2000, 2000, 2000 }, {3000, 3000, 3000 } };
 
     // vvec of vvecs
-    morph::vvec<morph::vvec<float>> v_vvec2 =  { { 1000, 1000 },    { 2000, 2000 },    {3000, 3000 } };
-    morph::vvec<morph::vvec<float>> v_vvec3 =  { { 1000, 1000, 1000 }, { 2000, 2000, 2000 }, {3000, 3000, 3000 } };
+    sm::vvec<sm::vvec<float>> v_vvec2 =  { { 1000, 1000 },    { 2000, 2000 },    {3000, 3000 } };
+    sm::vvec<sm::vvec<float>> v_vvec3 =  { { 1000, 1000, 1000 }, { 2000, 2000, 2000 }, {3000, 3000, 3000 } };
 
     // A scalar for divisions
     float s = 10;
     // Vecs for mults
-    [[maybe_unused]] morph::vec<float, 2> vec2 = { 10, 100 };
-    [[maybe_unused]] morph::vec<float, 3> vec3 = { 10, 100, 1000 };
-    morph::vvec<float> vvec_f2 = { 10, 100 };
-    morph::vvec<float> vvec_f3 = { 10, 100, 1000 };
+    [[maybe_unused]] sm::vec<float, 2> vec2 = { 10, 100 };
+    [[maybe_unused]] sm::vec<float, 3> vec3 = { 10, 100, 1000 };
+    sm::vvec<float> vvec_f2 = { 10, 100 };
+    sm::vvec<float> vvec_f3 = { 10, 100, 1000 };
 
     /**
      * vvec<scalars> div by stuff
@@ -36,7 +36,7 @@ int main()
 
     auto result1 = v_scal / s;
     std::cout << "01: " << result1 << std::endl;
-    if (result1 != morph::vvec<float>{100, 200, 300}) { std::cout << "01bad\n"; --rtn; }
+    if (result1 != sm::vvec<float>{100, 200, 300}) { std::cout << "01bad\n"; --rtn; }
 
 #ifdef SHOULD_NOT_COMPILE
     auto result2 = v_scal / vec2;
@@ -47,7 +47,7 @@ int main()
 
     auto result4 = v_scal / vvec_f3;
     std::cout << "04: " << result4 << std::endl;
-    if (result4 != morph::vvec<float>{100, 20, 3}) { std::cout << "04bad\n"; --rtn; }
+    if (result4 != sm::vvec<float>{100, 20, 3}) { std::cout << "04bad\n"; --rtn; }
 
     try {
         auto result5 = v_scal / vvec_f2;
@@ -64,7 +64,7 @@ int main()
 
     auto result6 = v_vec2 / s;
     std::cout << "06: " << result6 << std::endl;
-    if (result6 != morph::vvec<morph::vec<float, 2>>{{100,100}, {200,200}, {300,300}}) { std::cout << "06bad\n"; --rtn; }
+    if (result6 != sm::vvec<sm::vec<float, 2>>{{100,100}, {200,200}, {300,300}}) { std::cout << "06bad\n"; --rtn; }
 
     auto result7 = v_vec3 / s;
     std::cout << "07: " << result7 << std::endl;
@@ -93,7 +93,7 @@ int main()
 
     auto result13 = v_vec2 / vvec_f3;
     std::cout << "13: " << result13 << std::endl;
-    if (result13 != morph::vvec<morph::vec<float, 2>>{{100,100}, {20,20}, {3,3}}) { std::cout << "13bad\n"; --rtn; }
+    if (result13 != sm::vvec<sm::vec<float, 2>>{{100,100}, {20,20}, {3,3}}) { std::cout << "13bad\n"; --rtn; }
 
     try {
         auto result14 = v_vec3 / vvec_f2;
@@ -105,7 +105,7 @@ int main()
 
     auto result15 = v_vec3 / vvec_f3;
     std::cout << "15: " << result15 << std::endl;
-    if (result15 != morph::vvec<morph::vec<float, 3>>{{100,100,100}, {20,20,20}, {3,3,3}}) { std::cout << "15bad\n"; --rtn; }
+    if (result15 != sm::vvec<sm::vec<float, 3>>{{100,100,100}, {20,20,20}, {3,3,3}}) { std::cout << "15bad\n"; --rtn; }
 
 
 
@@ -115,11 +115,11 @@ int main()
 
     auto result16 = v_vvec2 / s;
     std::cout << "16: " << v_vvec2 << " / " << s << " = " << result16 << std::endl;
-    if (result16 != morph::vvec<morph::vvec<float>>{{100,100}, {200,200}, {300,300}}) { std::cout << "16bad\n"; --rtn; }
+    if (result16 != sm::vvec<sm::vvec<float>>{{100,100}, {200,200}, {300,300}}) { std::cout << "16bad\n"; --rtn; }
 
     auto result17 = v_vvec3 / s;
     std::cout << "17: " << v_vvec3 << " / " << s << " = " << result17 << std::endl;
-    if (result17 != morph::vvec<morph::vvec<float>>{{100,100,100}, {200,200,200}, {300,300,300}}) { std::cout << "17bad\n"; --rtn; }
+    if (result17 != sm::vvec<sm::vvec<float>>{{100,100,100}, {200,200,200}, {300,300,300}}) { std::cout << "17bad\n"; --rtn; }
 
 
 #ifdef SHOULD_NOT_COMPILE
@@ -146,7 +146,7 @@ int main()
 
     auto result23 = v_vvec2 / vvec_f3;
     std::cout << "23: " << result23 << std::endl;
-    if (result23 != morph::vvec<morph::vvec<float>>{{100,100}, {20,20}, {3,3}}) { std::cout << "23bad\n"; --rtn; }
+    if (result23 != sm::vvec<sm::vvec<float>>{{100,100}, {20,20}, {3,3}}) { std::cout << "23bad\n"; --rtn; }
 
     try {
         auto result24 = v_vvec3 / vvec_f2;
@@ -158,7 +158,7 @@ int main()
 
     auto result25 = v_vvec3 / vvec_f3;
     std::cout << "25: " << result25 << std::endl;
-    if (result25 != morph::vvec<morph::vvec<float>>{{100,100,100}, {20,20,20}, {3,3,3}}) { std::cout << "25bad\n"; --rtn; }
+    if (result25 != sm::vvec<sm::vvec<float>>{{100,100,100}, {20,20,20}, {3,3,3}}) { std::cout << "25bad\n"; --rtn; }
 
     std::cout << "rtn: " << rtn << (rtn ? " [BAD]" : " [GOOD]") << std::endl;
     return rtn;

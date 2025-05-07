@@ -115,7 +115,7 @@ endif()
 #find_package(nlohmann_json REQUIRED)
 
 # All the headers are here
-add_subdirectory(morph)
+add_subdirectory(sm)
 
 # Unit testing using the ctest framework
 option(BUILD_TESTS "Build tests" ON)

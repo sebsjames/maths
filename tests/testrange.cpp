@@ -1,22 +1,21 @@
 #include <iostream>
-#include <morph/range.h>
-#include <morph/mathconst.h>
+#include <sm/range>
 
 int main()
 {
     int rtn = 0;
 
-    morph::range<float> r(2.0f, 4.0f);
+    sm::range<float> r(2.0f, 4.0f);
     if (r.update (1.0f) == false) { --rtn; } // Update with 1 should change the range and return true
     if (r.update (5.0f) == false) { --rtn; } // Update with 5 should change the range and return true
     if (r.update (3.0f) == true) { --rtn; } // Update with 3 should not change the range
 
-    morph::range<int> r1 = { 1, 100 };
-    morph::range<int> r2 = { 10, 90 };
-    morph::range<int> r3 = { -1, 2 };
-    morph::range<int> r4 = { 90, 100 };
-    morph::range<int> r5 = { 90, 101 };
-    morph::range<int> r6 = { 101, 102 };
+    sm::range<int> r1 = { 1, 100 };
+    sm::range<int> r2 = { 10, 90 };
+    sm::range<int> r3 = { -1, 2 };
+    sm::range<int> r4 = { 90, 100 };
+    sm::range<int> r5 = { 90, 101 };
+    sm::range<int> r6 = { 101, 102 };
     std::cout << "range " << r1 << (r1.contains(r2) ? " contains " : " doesn't contain ") << r2 << std::endl;
     std::cout << "range " << r1 << (r1.contains(r3) ? " contains " : " doesn't contain ") << r3 << std::endl;
 

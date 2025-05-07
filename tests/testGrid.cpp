@@ -1,19 +1,19 @@
-#include "morph/grid.h"
 #include <iostream>
 #include <limits>
+#include <sm/grid>
 
 int main()
 {
     int rtn = 0;
 
-    morph::vec<float, 2> dx = { 1, 1 };
-    morph::vec<float, 2> offset = { 0, 0 };
-    morph::griddomainwrap wrap = morph::griddomainwrap::none;
+    sm::vec<float, 2> dx = { 1, 1 };
+    sm::vec<float, 2> offset = { 0, 0 };
+    sm::griddomainwrap wrap = sm::griddomainwrap::none;
 
-    morph::grid<int, float> g_bltr(4, 2, dx, offset, wrap, morph::gridorder::bottomleft_to_topright);
-    morph::grid<int, float> g_tlbr(4, 2, dx, offset, wrap, morph::gridorder::topleft_to_bottomright);
-    morph::grid<int, float> g_bltrc(4, 2, dx, offset, wrap, morph::gridorder::bottomleft_to_topright_colmaj);
-    morph::grid<int, float> g_tlbrc(4, 2, dx, offset, wrap, morph::gridorder::topleft_to_bottomright_colmaj);
+    sm::grid<int, float> g_bltr(4, 2, dx, offset, wrap, sm::gridorder::bottomleft_to_topright);
+    sm::grid<int, float> g_tlbr(4, 2, dx, offset, wrap, sm::gridorder::topleft_to_bottomright);
+    sm::grid<int, float> g_bltrc(4, 2, dx, offset, wrap, sm::gridorder::bottomleft_to_topright_colmaj);
+    sm::grid<int, float> g_tlbrc(4, 2, dx, offset, wrap, sm::gridorder::topleft_to_bottomright_colmaj);
 
     std::cout << "grid g_bltr extents: " << g_bltr.extents() << std::endl;
     std::cout << "grid g_bltrc extents: " << g_bltrc.extents() << std::endl;

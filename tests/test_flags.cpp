@@ -1,8 +1,8 @@
 #include <cstdint>
 #include <iostream>
-#include "morph/flags.h"
+#include <sm/flags>
 
-// You need an enumerated class to use morph::flags.
+// You need an enumerated class to use sm::flags.
 enum class myflags : uint32_t
 {
     one,
@@ -27,7 +27,7 @@ int main()
 {
     int rtn = 0;
 
-    morph::flags<myflags> fl;
+    sm::flags<myflags> fl;
     fl.set (myflags::one);
     if (fl.test(myflags::one)) {
         std::cout << "flags: one is set" << std::endl;
@@ -107,42 +107,42 @@ int main()
     if (fl.none() == false) { --rtn; }
     if (fl.any() == true) { --rtn; }
 
-    morph::flags<myflags> fl2;
+    sm::flags<myflags> fl2;
     fl2.set (myflags::three);
     fl2.set (myflags::one);
     std::cout << "fl2 = " << fl2.get() << std::endl;
 
-    morph::flags fl3 = (fl2 | myflags::four); // the type myflags is deduced by the compiler
+    sm::flags fl3 = (fl2 | myflags::four); // the type myflags is deduced by the compiler
     fl3 |= myflags::two;
     if (fl3.get() != uint32_t{15}) { --rtn; }
 
 
-    morph::flags fl4 = myflags::four & fl3;
+    sm::flags fl4 = myflags::four & fl3;
     std::cout << "fl4.get() = " << fl4.get() << " cf " << (8 & fl3.get()) << std::endl;
     if (fl4.get() != uint32_t{8}) { --rtn; }
 
-    if (morph::flags<myflags>(myflags::one).get() != 1) { --rtn; }
-    if (morph::flags<myflags>(myflags::two).get() != 2) { --rtn; }
-    if (morph::flags<myflags>(myflags::three).get() != 4) { --rtn; }
-    if (morph::flags<myflags>(myflags::four).get() != 8) { --rtn; }
-    std::cout << "myflags::one : " << morph::flags<myflags>(myflags::one).get() << std::endl;
-    std::cout << "myflags::two : " << morph::flags<myflags>(myflags::two).get() << std::endl;
-    std::cout << "myflags::three : " << morph::flags<myflags>(myflags::three).get() << std::endl;
-    std::cout << "myflags::four : " << morph::flags<myflags>(myflags::four).get() << std::endl;
+    if (sm::flags<myflags>(myflags::one).get() != 1) { --rtn; }
+    if (sm::flags<myflags>(myflags::two).get() != 2) { --rtn; }
+    if (sm::flags<myflags>(myflags::three).get() != 4) { --rtn; }
+    if (sm::flags<myflags>(myflags::four).get() != 8) { --rtn; }
+    std::cout << "myflags::one : " << sm::flags<myflags>(myflags::one).get() << std::endl;
+    std::cout << "myflags::two : " << sm::flags<myflags>(myflags::two).get() << std::endl;
+    std::cout << "myflags::three : " << sm::flags<myflags>(myflags::three).get() << std::endl;
+    std::cout << "myflags::four : " << sm::flags<myflags>(myflags::four).get() << std::endl;
 
     // Test constructor with type E (myflags2) arg
-    morph::flags<myflags2> fl5 (myflags2::four);
+    sm::flags<myflags2> fl5 (myflags2::four);
     if (fl5.get() != 8) { --rtn; }
 
     // Test copy constructor (template deduction works)
-    morph::flags fl6 (fl5);
+    sm::flags fl6 (fl5);
     if (fl6.get() != 8) { --rtn; }
 
     fl6 = fl5;
     if (fl6.get() != 8) { --rtn; }
 
     // Test constructor with passed in underlying type (template deduction not possible)
-    morph::flags<myflags2> fl7 (uint16_t{4});
+    sm::flags<myflags2> fl7 (uint16_t{4});
     if (fl7.get() != 4) { --rtn; }
 
     std::cout << "fl5 = " << fl5.get() << " !fl5 = " << !fl5 << std::endl;

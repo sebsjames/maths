@@ -1,44 +1,42 @@
-#include "morph/vec.h"
-#include "morph/vvec.h"
-using std::cout;
-using std::endl;
-using std::array;
+#include <sm/vec>
+#include <sm/vvec>
 
-int main() {
+int main()
+{
     int rtn = 0;
-    morph::vec<float, 4> v = {1,2,3};
+    sm::vec<float, 4> v = {1,2,3};
 
-    cout << "v: " << v << " v.sq(): " << v.sq() << endl;
-    cout << "v: " << v << " v.log(): " << v.log() << endl;
-    cout << "v: " << v << " v.exp(): " << v.exp() << endl;
+    std::cout << "v: " << v << " v.sq(): " << v.sq() << std::endl;
+    std::cout << "v: " << v << " v.log(): " << v.log() << std::endl;
+    std::cout << "v: " << v << " v.exp(): " << v.exp() << std::endl;
     v = { -2, 2, 3, -10 };
-    cout << "v: " << v << " v.abs(): " << v.abs() << endl;
+    std::cout << "v: " << v << " v.abs(): " << v.abs() << std::endl;
 
-    cout << "v: " << v;
+    std::cout << "v: " << v;
     v.sq_inplace();
-    cout << " v.sq (in place): " << v << endl;
+    std::cout << " v.sq (in place): " << v << std::endl;
 
-    morph::vvec<float> vv = { 1, 2, 3, 4 };
-    cout << "vv before rotate pairs: " << vv;
+    sm::vvec<float> vv = { 1, 2, 3, 4 };
+    std::cout << "vv before rotate pairs: " << vv;
     vv.rotate_pairs();
-    cout << " vv after rotate_pairs: " << vv << endl;
+    std::cout << " vv after rotate_pairs: " << vv << std::endl;
 
-    morph::vvec<float> vv2 = { 2, 2, 3, 8 };
-    cout << "vv=" << vv << ", vv2=" << vv2 << endl;
-    cout << "vv/vv2 = " << (vv / vv2) << endl;
+    sm::vvec<float> vv2 = { 2, 2, 3, 8 };
+    std::cout << "vv=" << vv << ", vv2=" << vv2 << std::endl;
+    std::cout << "vv/vv2 = " << (vv / vv2) << std::endl;
 
-    cout << "vv*vv2 = " << (vv * vv2) << endl;
+    std::cout << "vv*vv2 = " << (vv * vv2) << std::endl;
 
     v = { 1, 2, 3, 4 };
-    cout << "v before rotate pairs: " << v;
+    std::cout << "v before rotate pairs: " << v;
     v.rotate_pairs();
-    cout << " v after rotate_pairs: " << v << endl;
+    std::cout << " v after rotate_pairs: " << v << std::endl;
 
-    morph::vec<float, 4> v2 = { 2, 2, 3, 8 };
-    cout << "v=" << v << ", v2=" << v2 << endl;
-    cout << "v/v2 = " << (v / v2) << endl;
+    sm::vec<float, 4> v2 = { 2, 2, 3, 8 };
+    std::cout << "v=" << v << ", v2=" << v2 << std::endl;
+    std::cout << "v/v2 = " << (v / v2) << std::endl;
 
-    cout << "v*v2 = " << (v * v2) << endl;
+    std::cout << "v*v2 = " << (v * v2) << std::endl;
 
     return rtn;
 }

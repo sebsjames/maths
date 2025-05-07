@@ -2,19 +2,20 @@
  * Test the at_signed(I idx) functions
  */
 
-#include <morph/vvec.h>
-#include <morph/vec.h>
 #include <array>
 #include <vector>
 #include <set>
 #include <cstdint>
 #include <iostream>
 
+#include <sm/vvec>
+#include <sm/vec>
+
 int main()
 {
     int rtn = 0;
 
-    morph::vvec<int> mvf (5, 0);
+    sm::vvec<int> mvf (5, 0);
 
     mvf.at_signed (-2) = -2;
     mvf.at_signed (-1) = -1;

@@ -1,5 +1,6 @@
-#include "morph/vec.h"
-using morph::vec;
+#include <sm/vec>
+
+using sm::vec;
 using std::cout;
 using std::endl;
 using std::array;

@@ -1,5 +1,5 @@
 /*
- * Example usage of the morph::vvec class.
+ * Example usage of the sm::vvec class.
  *
  * vvec is like std::vector, with maths operations built-in. It makes it convenient
  * to program maths operations on arrays of numbers.
@@ -8,14 +8,14 @@
  */
 
 #include <iostream>
-#include <morph/vvec.h>
+#include <sm/vvec>
 
 int main()
 {
     // Create and initialize a vvec of floating point numbers:
-    morph::vvec<float> vf1 = {1.2f, 3.4f, 7.0f};
+    sm::vvec<float> vf1 = {1.2f, 3.4f, 7.0f};
     // Create another:
-    morph::vvec<float> vf2;
+    sm::vvec<float> vf2;
     // Set up the second using the numpy-like linspace function:
     vf2.linspace (0.0f, 1.0f, 3);
 
@@ -49,6 +49,6 @@ int main()
     std::cout << "Before shuffle vf2 = " << vf2 << std::endl;
     std::cout << "After shuffle  vf2 = " << vf2.shuffled() << std::endl;
 
-    std::cout << "\nFor more examples, see morphologica/tests/testvvec.cpp\n";
+    std::cout << "\nFor more examples, see tests/testvvec.cpp\n";
     return 0;
 }

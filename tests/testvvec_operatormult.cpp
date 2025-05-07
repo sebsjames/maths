@@ -2,8 +2,8 @@
  * Test the different possibilities for multiplying a vvec of scalars/vecs by scalar/vec/vvec etc
  */
 
-#include <morph/vvec.h>
-#include <morph/vec.h>
+#include <sm/vvec>
+#include <sm/vec>
 
 int main()
 {
@@ -12,23 +12,23 @@ int main()
     // Operands
 
     // vvec of scalars
-    morph::vvec<int> v_scal = { 1, 2, 3 };
+    sm::vvec<int> v_scal = { 1, 2, 3 };
 
     // vvec of vecs
-    morph::vvec<morph::vec<int, 2>> v_vec2 = { { 1, 1 },    { 2, 2 },    {3, 3 } };
-    morph::vvec<morph::vec<int, 3>> v_vec3 = { { 1, 1, 1 }, { 2, 2, 2 }, {3, 3, 3 } };
+    sm::vvec<sm::vec<int, 2>> v_vec2 = { { 1, 1 },    { 2, 2 },    {3, 3 } };
+    sm::vvec<sm::vec<int, 3>> v_vec3 = { { 1, 1, 1 }, { 2, 2, 2 }, {3, 3, 3 } };
 
     // vvec of vvecs
-    morph::vvec<morph::vvec<int>> v_vvec2 =  { { 1, 1 },    { 2, 2 },    {3, 3 } };
-    morph::vvec<morph::vvec<int>> v_vvec3 =  { { 1, 1, 1 }, { 2, 2, 2 }, {3, 3, 3 } };
+    sm::vvec<sm::vvec<int>> v_vvec2 =  { { 1, 1 },    { 2, 2 },    {3, 3 } };
+    sm::vvec<sm::vvec<int>> v_vvec3 =  { { 1, 1, 1 }, { 2, 2, 2 }, {3, 3, 3 } };
 
     // A scalar for multiplications
     int s = 10;
     // Vecs for mults
-    [[maybe_unused]] morph::vec<int, 2> vec2 = { 10, 100 };
-    [[maybe_unused]] morph::vec<int, 3> vec3 = { 10, 100, 1000 };
-    morph::vvec<int> vvec_f2 = { 10, 100 };
-    morph::vvec<int> vvec_f3 = { 10, 100, 1000 };
+    [[maybe_unused]] sm::vec<int, 2> vec2 = { 10, 100 };
+    [[maybe_unused]] sm::vec<int, 3> vec3 = { 10, 100, 1000 };
+    sm::vvec<int> vvec_f2 = { 10, 100 };
+    sm::vvec<int> vvec_f3 = { 10, 100, 1000 };
 
     /**
      * vvec<scalars> times stuff
@@ -36,7 +36,7 @@ int main()
 
     auto result1 = v_scal * s;
     std::cout << "01: " << result1 << std::endl;
-    if (result1 != morph::vvec<int>{10, 20, 30}) { --rtn; }
+    if (result1 != sm::vvec<int>{10, 20, 30}) { --rtn; }
 
 #ifdef SHOULD_NOT_COMPILE
     auto result2 = v_scal * vec2; // Don't support vvec<scalar> * vec<scalar> (esp. not with diff dims)
@@ -47,7 +47,7 @@ int main()
 
     auto result4 = v_scal * vvec_f3;
     std::cout << "04: " << result4 << std::endl;
-    if (result4 != morph::vvec<int>{10, 200, 3000}) { --rtn; }
+    if (result4 != sm::vvec<int>{10, 200, 3000}) { --rtn; }
 
     try {
         auto result5 = v_scal * vvec_f2; // should not be able to multiply 3D vvec of scalars by 2D vvec of scalars
@@ -64,7 +64,7 @@ int main()
 
     auto result6 = v_vec2 * s;
     std::cout << "06: " << result6 << std::endl;
-    if (result6 != morph::vvec<morph::vec<int, 2>>{{10,10}, {20,20}, {30,30}}) { --rtn; }
+    if (result6 != sm::vvec<sm::vec<int, 2>>{{10,10}, {20,20}, {30,30}}) { --rtn; }
 
     auto result7 = v_vec3 * s;
     std::cout << "07: " << result7 << std::endl;
@@ -73,14 +73,14 @@ int main()
     std::cout << "08: " << result8 << std::endl;
 #ifdef SHOULD_NOT_COMPILE
     auto result9 = v_vec2 * vec3; // vvec of 2D vecs times a 3D vec makes no sense. Compiler correctly refuses to comply:
-                                  // vvec.h:1819:63: error: no match for 'operator*' (operand types are 'morph::vec<int, 2>' and 'const morph::vec<int, 3>')
+                                  // vvec.h:1819:63: error: no match for 'operator*' (operand types are 'sm::vec<int, 2>' and 'const sm::vec<int, 3>')
 
     std::cout << "09: " << result9 << std::endl;
 #endif
 
 #ifdef SHOULD_NOT_COMPILE
     auto result10 = v_vec3 * vec2; // vvec of 3D vecs times a 2D vec makes no sense. Compiler correctly refuses to comply:
-                                   // vvec.h:1819:63: error: no match for 'operator*' (operand types are 'morph::vec<int, 3>' and 'const morph::vec<int, 2>')
+                                   // vvec.h:1819:63: error: no match for 'operator*' (operand types are 'sm::vec<int, 3>' and 'const sm::vec<int, 2>')
 
     std::cout << "10: " << result10 << std::endl;
 #endif
@@ -98,7 +98,7 @@ int main()
 
     auto result13 = v_vec2 * vvec_f3; // vvec<vec<int, 2> size 3 * vvec<int> size 3 does scalar multiplication of each vec<int, 2> by the 3 scalars in the vvec<int>
     std::cout << "13: " << result13 << std::endl;
-    if (result13 != morph::vvec<morph::vec<int, 2>>{{10,10}, {200,200}, {3000,3000}}) { --rtn; }
+    if (result13 != sm::vvec<sm::vec<int, 2>>{{10,10}, {200,200}, {3000,3000}}) { --rtn; }
 
     try {
         auto result14 = v_vec3 * vvec_f2; // vvec<vec<int, 3> size 3 * vvec<int> size 2, but runtime error as vvecs have diff. sizes
@@ -111,7 +111,7 @@ int main()
 
     auto result15 = v_vec3 * vvec_f3;
     std::cout << "15: " << result15 << std::endl;
-    if (result15 != morph::vvec<morph::vec<int, 3>>{{10,10,10}, {200,200,200}, {3000,3000,3000}}) { --rtn; }
+    if (result15 != sm::vvec<sm::vec<int, 3>>{{10,10,10}, {200,200,200}, {3000,3000,3000}}) { --rtn; }
 
 
 
@@ -121,18 +121,18 @@ int main()
 
     auto result16 = v_vvec2 * s;
     std::cout << "16: " << result16 << std::endl;
-    if (result16 != morph::vvec<morph::vvec<int>>{{10,10}, {20,20}, {30,30}}) { --rtn; }
+    if (result16 != sm::vvec<sm::vvec<int>>{{10,10}, {20,20}, {30,30}}) { --rtn; }
 
     auto result17 = v_vvec3 * s;
     std::cout << "17: " << result17 << std::endl;
-    if (result17 != morph::vvec<morph::vvec<int>>{{10,10,10}, {20,20,20}, {30,30,30}}) { --rtn; }
+    if (result17 != sm::vvec<sm::vvec<int>>{{10,10,10}, {20,20,20}, {30,30,30}}) { --rtn; }
 
 
 #ifdef SHOULD_NOT_COMPILE
     auto result18 = v_vvec2 * vec2; // vvec of 2D vvecs times a vec of 2D elements does not compile
-                                    // - attempts to compile the vvec times morph::vec operator*,
+                                    // - attempts to compile the vvec times sm::vec operator*,
                                     // which then sub-calls down into vvec<int> times
-                                    // morph::vec<int, 2> and cannot do int * vec<int, 2> is an
+                                    // sm::vec<int, 2> and cannot do int * vec<int, 2> is an
                                     // int. It's ok that this doesn't compile.
     std::cout << "18: " << result18 << std::endl;
 
@@ -158,7 +158,7 @@ int main()
     // There's an argument to disable this one:
     auto result23 = v_vvec2 * vvec_f3; // vvec<vvec<int> size 2> size 3 * vvec<int> size 3 does scalar multiplication of each vec<int, 2> by the 3 scalars in the vvec<int>
     std::cout << "23: " << result23 << std::endl;
-    if (result23 != morph::vvec<morph::vvec<int>>{{10,10}, {200,200}, {3000,3000}}) { --rtn; }
+    if (result23 != sm::vvec<sm::vvec<int>>{{10,10}, {200,200}, {3000,3000}}) { --rtn; }
 
     try {
         auto result24 = v_vvec3 * vvec_f2; // vvec<vvec<int> size 3> size 3 * vvec<int> size 2 compiles, but runtime error?
@@ -170,7 +170,7 @@ int main()
 
     auto result25 = v_vvec3 * vvec_f3; // vvec<vvec<int> size 3> size 3 * vvec<int> size 3 compiles and runs
     std::cout << "25: " << result25 << std::endl;
-    if (result25 != morph::vvec<morph::vvec<int>>{{10,10,10}, {200,200,200}, {3000,3000,3000}}) { --rtn; }
+    if (result25 != sm::vvec<sm::vvec<int>>{{10,10,10}, {200,200,200}, {3000,3000,3000}}) { --rtn; }
 
     std::cout << "rtn: " << rtn << (rtn ? " [BAD]" : " [GOOD]") << std::endl;
     return rtn;

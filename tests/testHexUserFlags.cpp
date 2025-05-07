@@ -1,6 +1,6 @@
-#include <morph/hex.h>
 #include <iostream>
 #include <utility>
+#include <sm/hex>
 
 int main()
 {
@@ -10,7 +10,7 @@ int main()
     int g = 0;
     float d = 2.0f;
     unsigned int idx = 0;
-    morph::hex h(idx, d, r, g);
+    sm::hex h(idx, d, r, g);
 
     std::cout << "User flags 0-3: " << h.getUserFlag(0) << "," << h.getUserFlag(1)
          << "," << h.getUserFlag(2) << "," << h.getUserFlag(3) << " (init)" << std::endl;

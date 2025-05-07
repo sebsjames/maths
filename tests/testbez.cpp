@@ -2,28 +2,28 @@
 #include <iostream>
 #include <fstream>
 
-#include <morph/bezcurve.h>
+#include <sm/bezcurve>
 
 int main()
 {
     int rtn = -1;
 
     // Make some control points
-    morph::vec<float, 2> i, f, c1, c2;
+    sm::vec<float, 2> i, f, c1, c2;
     i = {1,1};
     c1 = {5,5};
     c2 = {2,-4};
     f = {10,1};
 
     // Make a cubic curve
-    morph::bezcurve<float> cc(i, f, c1, c2);
+    sm::bezcurve<float> cc(i, f, c1, c2);
 
     // Length of step along curve
     std::ofstream f1;
     f1.open ("tests/curve.csv", std::ios::trunc|std::ios::out);
     f1.precision(12);
-    std::vector<morph::bezcoord<float>> a = cc.computePoints ((unsigned int)100);
-    typename std::vector<morph::bezcoord<float>>::iterator ai = a.begin();
+    std::vector<sm::bezcoord<float>> a = cc.computePoints ((unsigned int)100);
+    typename std::vector<sm::bezcoord<float>>::iterator ai = a.begin();
     int ii = 0;
     while (ai != a.end()) {
         if (ai->getNullCoordinate() == false) {

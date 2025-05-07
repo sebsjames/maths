@@ -1,13 +1,12 @@
 #include <iostream>
 #include <complex>
-#include <morph/range.h>
-#include <morph/mathconst.h>
+#include <sm/range>
 
 int main()
 {
     int rtn = 0;
 
-    morph::range<std::complex<float>> r({2.0f, 1.0f}, {4.0f, -1.0f});
+    sm::range<std::complex<float>> r({2.0f, 1.0f}, {4.0f, -1.0f});
 
     if (r.update ({10.0f, 30.0f}) == false) { --rtn; } // Update with this value should change the range and return true
     if (r.update ({10.0f, 30.0f}) == true) { --rtn; }  // Can't update again and get true returned
@@ -18,7 +17,7 @@ int main()
     std::cout << "r.span: " << r.span() << std::endl;
 
     // Fully real
-    morph::range<std::complex<float>> r1({2.0f, 0.0f}, {4.0f, 0.0f});
+    sm::range<std::complex<float>> r1({2.0f, 0.0f}, {4.0f, 0.0f});
     if (r1.update ({10.0f, 0.0f}) == false) { --rtn; }
     if (r1.update ({10.0f, 0.0f}) == true) { --rtn; }
     if (r1.update ({-20.0f, 0.0f}) == false) { --rtn; }
@@ -28,7 +27,7 @@ int main()
     std::cout << "r1.span: " << r1.span() << std::endl;
 
     // Fully imaginary
-    morph::range<std::complex<float>> r2({0.0f, 2.0f}, {0.0f, 2.0f});
+    sm::range<std::complex<float>> r2({0.0f, 2.0f}, {0.0f, 2.0f});
     if (r2.update ({0.0f, 10.0f}) == false) { --rtn; }
     if (r2.update ({0.0f, 10.0f}) == true) { --rtn; }
     if (r2.update ({0.0f, -20.0f}) == false) { --rtn; }
