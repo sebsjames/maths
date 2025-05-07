@@ -22,6 +22,8 @@ own built-in methods.
 
 You can stream objects to debug or observe their values.
 
+The namespace is `sm` (Seb's maths? Simple maths? Standard maths? you choose)
+
 Here's an example
 
 ```c++
