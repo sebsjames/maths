@@ -19,6 +19,8 @@ add_executable(readme readme.cpp)
 
 add_executable(vvec vvec.cpp)
 
+add_executable(scale scale.cpp)
+
 add_executable(mat44 mat44.cpp)
 
 add_executable(hexgrid hexgrid.cpp)
