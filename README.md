@@ -1,4 +1,4 @@
-# maths
+# Seb's maths library
 
 ## A simple mathematics library for C++20 projects
 
@@ -22,7 +22,7 @@ own built-in methods.
 
 You can stream objects to debug or observe their values.
 
-The namespace is `sm` (**S**imple **m**aths or maybe **S**eb's **m**aths)
+The namespace is just `sm` (I like short namespaces for frequently used types).
 
 Here's an example
 
