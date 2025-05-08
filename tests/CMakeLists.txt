@@ -346,3 +346,12 @@ if(ARMADILLO_FOUND)
   target_link_libraries(${TARGETTEST2} ${ARMADILLO_LIBRARY} ${ARMADILLO_LIBRARIES})
   add_test(twocurves ${TARGETTEST2})
 endif()
+
+add_executable(testcartgrid testcartgrid.cpp)
+add_test(testcartgrid testcartgrid)
+
+add_executable(testCartGridShiftCoords testCartGridShiftCoords.cpp)
+add_test(testCartGridShiftCoords testCartGridShiftCoords)
+
+add_executable(testCartGridShiftIndiciesByMetric testCartGridShiftIndiciesByMetric.cpp)
+add_test(testCartGridShiftIndiciesByMetric testCartGridShiftIndiciesByMetric)
