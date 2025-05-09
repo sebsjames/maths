@@ -40,7 +40,7 @@ int main()
     sm::vec<float, 3> v1 = { 1, 2, 3 };
 
     // Create and intialize a quaternion rotation
-    sm::quaternion<float> q1 (sj::vec<float, 3>{1, 0, 0}, mc::pi_over_2);
+    sm::quaternion<float> q1 (sm::vec<float, 3>{1, 0, 0}, mc::pi_over_2);
 
     // Rotate the vector with the quaternion
     sm::vec<float, 3> v1_rotated = q1 * v1;
