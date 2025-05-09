@@ -1,0 +1,31 @@
+name: Mac OS 13
+on:
+#  push:
+#    branches: [ "main" ]
+#    paths-ignore:
+#      - 'docs/**'
+#      - 'README**'
+#      - 'examples/screenshots/**'
+#      - 'examples/docs/**'
+#  pull_request:
+#    branches: [ "main" ]
+# If not the above, then:
+  workflow_dispatch:
+    inputs:
+      tags:
+        description: 'Test scenario tags'
+        required: false
+        type: boolean
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  call-workflow-passing-data:
+    uses: sebsjames/maths/.github/workflows/cmake-mac-template.yml@main
+    with:
+      RUNNER_IMAGE: macos-14
+      BUILD_TYPE: Release
+      CC: clang-14
+      CXX: clang++-14

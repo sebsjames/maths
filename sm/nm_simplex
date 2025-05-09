@@ -19,7 +19,7 @@
 #include <sm/algo>
 #include <sm/vvec>
 
-namespace sm::optimization
+namespace sm
 {
     //! What state is an instance of the nm_simplex class in?
     enum class nm_simplex_state : uint32_t

@@ -21,11 +21,9 @@ install(
   mat22
   mat33
   mat44
-  MathAlgo
   mathconst
   algo
   boxfilter
-  MathImpl
   nm_simplex
   quaternion
   random
@@ -39,10 +37,6 @@ install(
 
   DESTINATION ${CMAKE_INSTALL_PREFIX}/include/sm
 )
-
-# There are also headers in sub directories
-#add_subdirectory(nn) # 'nn' for neural network code
-#add_subdirectory(bn) # 'bn' for boolean net code
 
 # Install the EXPORT so that maths has its own .cmake file and find_package(maths) should work
 install(FILES maths-config.cmake DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/cmake/maths)

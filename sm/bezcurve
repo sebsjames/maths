@@ -25,7 +25,7 @@
 #endif
 #include <armadillo>
 #include <sm/mathconst>
-#include <sm/optimization/nm_simplex>
+#include <sm/nm_simplex>
 #include <random>
 
 #include <sm/bezcoord>
@@ -377,7 +377,7 @@ namespace sm
 
             // Start out with a simplex with a vertex at the centroid of the domain vertices, and
             // then two other vertices at the first domain vertex (v) and its neighbour (vn).
-            sm::optimization::nm_simplex<F> simp (nm_vertices);
+            sm::nm_simplex<F> simp (nm_vertices);
             // Set a termination threshold for the SD of the vertices of the simplex
             simp.termination_threshold = F{0.00001};//2.0 * std::numeric_limits<F>::epsilon();
             // Set an operation limit, in case the above threshold can't be reached
@@ -393,9 +393,9 @@ namespace sm
             // The shrink coefficient
             simp.sigma = 0.05; // .5
 
-            while (simp.state != optimization::nm_simplex_state::ReadyToStop) {
+            while (simp.state != nm_simplex_state::ReadyToStop) {
 
-                if (simp.state == optimization::nm_simplex_state::NeedToComputeThenOrder) {
+                if (simp.state == nm_simplex_state::NeedToComputeThenOrder) {
                     // 1. apply objective to each vertex
                     for (unsigned int i = 0; i <= simp.n; ++i) {
                         this->setCFromV (simp.vertices[i], startrow);
@@ -404,22 +404,22 @@ namespace sm
                     }
                     simp.order();
 
-                } else if (simp.state == optimization::nm_simplex_state::NeedToOrder) {
+                } else if (simp.state == nm_simplex_state::NeedToOrder) {
                     simp.order();
 
-                } else if (simp.state == optimization::nm_simplex_state::NeedToComputeReflection) {
+                } else if (simp.state == nm_simplex_state::NeedToComputeReflection) {
                     this->setCFromV (simp.xr, startrow);
                     this->init(); // Re-setup this bezcurve
                     F val = this->computeObjective (points);
                     simp.apply_reflection (val);
 
-                } else if (simp.state == optimization::nm_simplex_state::NeedToComputeExpansion) {
+                } else if (simp.state == nm_simplex_state::NeedToComputeExpansion) {
                     this->setCFromV (simp.xe, startrow);
                     this->init(); // Re-setup this bezcurve
                     F val = this->computeObjective (points);
                     simp.apply_expansion (val);
 
-                } else if (simp.state == optimization::nm_simplex_state::NeedToComputeContraction) {
+                } else if (simp.state == nm_simplex_state::NeedToComputeContraction) {
                     this->setCFromV (simp.xc, startrow);
                     this->init(); // Re-setup this bezcurve
                     F val = this->computeObjective (points);
