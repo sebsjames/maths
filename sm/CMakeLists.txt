@@ -5,8 +5,11 @@
 # Header installation (list from ls * -1, then re-ordered into functionality groups)
 install(
   FILES
+  algo
   base64
   bootstrap
+  boxfilter
+  config
   constexpr_math
   crc32
   flags
@@ -14,17 +17,16 @@ install(
   gridfeatures
   grid
   hdfdata
-  hexgrid
   hex
+  hexgrid
   hexyhisto
   histo
   mat22
   mat33
   mat44
   mathconst
-  algo
-  boxfilter
   nm_simplex
+  process
   quaternion
   random
   range

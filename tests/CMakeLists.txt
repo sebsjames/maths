@@ -355,3 +355,17 @@ add_test(testCartGridShiftCoords testCartGridShiftCoords)
 
 add_executable(testCartGridShiftIndiciesByMetric testCartGridShiftIndiciesByMetric.cpp)
 add_test(testCartGridShiftIndiciesByMetric testCartGridShiftIndiciesByMetric)
+
+# Test sm::process class
+if(APPLE)
+  message("-- NB: Omitting testProcess.cpp on Mac for now, as it doesn't work.")
+elseif(WIN32)
+  message("-- NB: Omitting testProcess.cpp on Windows for now, as it tests the very Unixy Process class.")
+else(APPLE)
+  add_executable(testProcess testProcess.cpp)
+  add_test(testProcess testProcess)
+endif(APPLE)
+
+# Test sm::config
+add_executable(testConfig testConfig.cpp)
+add_test(testConfig testConfig)
