@@ -6,6 +6,7 @@
 install(
   FILES
   algo
+  anneal
   base64
   bootstrap
   boxfilter
