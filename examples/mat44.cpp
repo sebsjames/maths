@@ -1,6 +1,6 @@
 /*
- * An example oof using the transformation matrix class mat44 to perform rotation,
- * translation and scaling.
+ * Example: Using the transformation matrix class mat44 to perform rotation, translation
+ * and scaling.
  */
 #include <iostream>
 #include <sm/mathconst>
@@ -11,15 +11,14 @@
 int main()
 {
     // A quaternion, used to specify a rotation (here, pi/4 radians about the y axis)
-    constexpr sm::quaternion<float> q1 (sm::vec<float>{0,1,0}, sm::mathconst<float>::pi_over_4);
+    sm::quaternion<float> q1 (sm::vec<float>{0,1,0}, sm::mathconst<float>::pi_over_4);
 
     // A transformation matrix, which is initialized as the identity matrix
-    constexpr sm::mat44<float> t;
+    sm::mat44<float> t;
 
-    //t.rotate (q1); // Rotate is not really constexpr capable // still nok
+    t.rotate (q1); // Rotate is not really constexpr capable // still nok
 
     std::cout << t << std::endl;
-#if 0
 
     // Apply a rotation and a translation to t. It does not matter if the rotate() or
     // translate() method is called first, the result is the same.
@@ -43,5 +42,4 @@ int main()
 
     std::cout << "Result of our rotation/translation then scaling of " << v1 << " is: " << v_4d
               << " or " << v_3d << " in three dimensions\n";
-#endif
 }
