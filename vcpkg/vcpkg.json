@@ -1,0 +1,8 @@
+{
+    "name": "maths",
+    "dependencies": [
+        "armadillo",
+        "hdf5",
+        "nlohmann-json"
+    ]
+}
