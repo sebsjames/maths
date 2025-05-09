@@ -3,7 +3,7 @@
 ## A simple mathematics library for C++20 projects
 
 This header-only library is intended to help you to write maths into
-your C++ code in simple, readable and comprehensible code.
+your C++ in simple, readable and comprehensible code.
 
 It provides:
 
@@ -11,7 +11,7 @@ It provides:
 * Transform matrices
 * A quaternion class
 * Scaling and range (or interval) classes
-* Statistics including a histo class and a number of bootstrap methods
+* Basic statistics including a histo class and a number of bootstrap methods
 * Random number, and string generation
 * A compatible HDF5 wrapper class
 * Classes for working with 2D grids of data (Cartesian and hexagonal)
