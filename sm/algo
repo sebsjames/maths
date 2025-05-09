@@ -37,29 +37,29 @@ namespace sm::algo
         sm::range<int> sigcols = { 0, 0 };
 
         // If NaN or infinity, return 0, 0. Or something else?
-        if (sm::math::isnan(f) || sm::math::isinf(f)) { return sigcols; }
+        if (sm::cem::isnan(f) || sm::cem::isinf(f)) { return sigcols; }
 
         // How many sig figures does the type (float, double...) support?
         constexpr F epsilon = std::numeric_limits<F>::epsilon();
-        constexpr int type_sf = static_cast<int>(sm::math::floor (sm::math::log10 (F{1} / epsilon)));
+        constexpr int type_sf = static_cast<int>(sm::cem::floor (sm::cem::log10 (F{1} / epsilon)));
 
         // copy absolute value of f
         F fcpy = f > F{0} ? f : -f;
 
         // Find the biggest column
-        sigcols.max = static_cast<int>(sm::math::floor (sm::math::log10 (fcpy)));
+        sigcols.max = static_cast<int>(sm::cem::floor (sm::cem::log10 (fcpy)));
 
         // Initialize smallest column
         sigcols.min = sigcols.max;
 
         // We will need to use 10^sigcols.max
-        F tentothe = sm::math::pow (F{10}, sigcols.max);
+        F tentothe = sm::cem::pow (F{10}, sigcols.max);
 
         // Loop down sigcols.min until we hit the limit for type F
         for (; sigcols.min > (sigcols.max - type_sf); --sigcols.min) {
 
             // What's the value in this column?
-            F colval = sm::math::floor(fcpy / tentothe);
+            F colval = sm::cem::floor(fcpy / tentothe);
 
             // Is colval very small? Break if so.
             if (std::abs(colval) < epsilon) {
@@ -72,8 +72,8 @@ namespace sm::algo
                 // additional cols depends on max precision of type and current col.
                 int cols_remaining = type_sf - (sigcols.max - sigcols.min); // How many significant column have we already used?
                 if (cols_remaining > 0) {
-                    F additional_cols = sm::math::pow (F{10}, cols_remaining);
-                    if (sm::math::abs((fcpy - colval * tentothe) - tentothe) < (tentothe / additional_cols)) {
+                    F additional_cols = sm::cem::pow (F{10}, cols_remaining);
+                    if (sm::cem::abs((fcpy - colval * tentothe) - tentothe) < (tentothe / additional_cols)) {
                         ++sigcols.min;
                         break;
                     }
@@ -107,36 +107,36 @@ namespace sm::algo
     template <typename F> requires std::is_floating_point_v<F>
     constexpr F round_to_col (const F& f, const int mincol)
     {
-        if (sm::math::isnan(f) || sm::math::isinf(f)) { return f; }
+        if (sm::cem::isnan(f) || sm::cem::isinf(f)) { return f; }
         // How many sig figures does the type (float, double...) support?
         constexpr F epsilon = std::numeric_limits<F>::epsilon();
-        constexpr int type_sf = static_cast<int>(sm::math::floor (sm::math::log10 (F{1} / epsilon)));
+        constexpr int type_sf = static_cast<int>(sm::cem::floor (sm::cem::log10 (F{1} / epsilon)));
         if constexpr (rc_debug) { std::cout << "rtc: round_to_col(" << f << ", " << mincol << ") called\n"; }
         // Save sign and a positive version of the input
         int sign = f > F{0} ? 1 : -1;
         F fcpy = f > F{0} ? f : -f;
         // Find the biggest column
-        int maxcol = static_cast<int>(sm::math::floor (sm::math::log10 (fcpy)));
+        int maxcol = static_cast<int>(sm::cem::floor (sm::cem::log10 (fcpy)));
         // We will need to use 10^maxcol
-        F tentothe = sm::math::pow (F{10}, maxcol);
+        F tentothe = sm::cem::pow (F{10}, maxcol);
         // If user passed a mincol that's too big, return number rounded to maxcol
         if (mincol > maxcol) { return (sign > 0 ? tentothe : -tentothe); }
         F rounded = F{0};
         // Loop down curcol until we hit the limit for type F or mincol
         for (int curcol = maxcol; curcol >= mincol && curcol > (maxcol - type_sf); --curcol) {
             // What's the value in this column?
-            F colval = sm::math::floor(fcpy / tentothe);
+            F colval = sm::cem::floor(fcpy / tentothe);
             if constexpr (rc_debug) { std::cout << "rtc: curcol = " << curcol << ". colval = " << colval << std::endl; }
             // Add to rounded
-            rounded += sm::math::pow (F{10}, curcol) * colval;
+            rounded += sm::cem::pow (F{10}, curcol) * colval;
             if constexpr (rc_debug) { std::cout << "rtc: rounded now = " << rounded << std::endl; }
 
             if (curcol == mincol) {
                 // We're on last col. What's the colval in the next col? Peek into it
                 F fcpy_peek = (fcpy - colval * tentothe) * F{10};
-                F colval_peek = sm::math::floor (fcpy_peek / tentothe);
+                F colval_peek = sm::cem::floor (fcpy_peek / tentothe);
                 if (colval_peek >= F{5}) { // need to round curcol up
-                    rounded += sm::math::pow (F{10}, curcol) * F{1};
+                    rounded += sm::cem::pow (F{10}, curcol) * F{1};
                 }
             }
 

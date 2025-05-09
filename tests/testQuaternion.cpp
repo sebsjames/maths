@@ -152,7 +152,7 @@ int main()
         vecf.renormalize();
         amountf = rngf.get();
         q_unitf.rotate (vecf, amountf);
-        float metricf = sm::math::abs(float{1} - (q_unitf.w*q_unitf.w + q_unitf.x*q_unitf.x + q_unitf.y*q_unitf.y + q_unitf.z*q_unitf.z));
+        float metricf = sm::cem::abs(float{1} - (q_unitf.w*q_unitf.w + q_unitf.x*q_unitf.x + q_unitf.y*q_unitf.y + q_unitf.z*q_unitf.z));
         // how big is metric? Should be about 0.
         metric_rangef.update (metricf);
     }
@@ -173,7 +173,7 @@ int main()
         vecd.renormalize();
         amountd = rngd.get();
         q_unitd.rotate (vecd, amountd);
-        double metricd = sm::math::abs(double{1} - (q_unitd.w*q_unitd.w + q_unitd.x*q_unitd.x + q_unitd.y*q_unitd.y + q_unitd.z*q_unitd.z));
+        double metricd = sm::cem::abs(double{1} - (q_unitd.w*q_unitd.w + q_unitd.x*q_unitd.x + q_unitd.y*q_unitd.y + q_unitd.z*q_unitd.z));
         // how big is metric? Should be about 0.
         metric_ranged.update (metricd);
     }

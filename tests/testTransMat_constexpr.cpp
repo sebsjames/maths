@@ -156,10 +156,10 @@ constexpr int do_test()
     v2 = mult4 * v1;
     v3 = mult4inv * v2;
 
-    float esum = sm::math::abs(v1[0]-v3[0])
-        + sm::math::abs(v1[1]-v3[1])
-        + sm::math::abs(v1[2]-v3[2])
-        + sm::math::abs(v1[3]-v3[3]);
+    float esum = sm::cem::abs(v1[0]-v3[0])
+        + sm::cem::abs(v1[1]-v3[1])
+        + sm::cem::abs(v1[2]-v3[2])
+        + sm::cem::abs(v1[3]-v3[3]);
 
     if (esum > 1e-5) {
         //std::cout << "Inverse failed to re-create the vector" << std::endl;

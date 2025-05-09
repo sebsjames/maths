@@ -1186,9 +1186,9 @@ namespace sm
             if (zNear == zFar || aspect == F{0}) { return; }
 
             F fovRad_ov2 = fovDeg * sm::mathconst<F>::pi_over_360; // fovDeg/2 converted to radians
-            F sineFov = sm::math::sin (fovRad_ov2);
+            F sineFov = sm::cem::sin (fovRad_ov2);
             if (sineFov == F{0}) { return; }
-            F cotanFov = sm::math::cos (fovRad_ov2) / sineFov;
+            F cotanFov = sm::cem::cos (fovRad_ov2) / sineFov;
             F clip = zFar - zNear;
 
             // Perspective matrix to multiply self by

@@ -65,16 +65,16 @@ namespace sm
         requires std::is_floating_point_v<Ty>
         constexpr bool operator== (const range<Ty>& rhs) const noexcept
         {
-            return (sm::math::abs(this->min - static_cast<T>(rhs.min)) < std::numeric_limits<T>::epsilon()
-                    && sm::math::abs(this->max - static_cast<T>(rhs.max)) < std::numeric_limits<T>::epsilon());
+            return (sm::cem::abs(this->min - static_cast<T>(rhs.min)) < std::numeric_limits<T>::epsilon()
+                    && sm::cem::abs(this->max - static_cast<T>(rhs.max)) < std::numeric_limits<T>::epsilon());
         }
 
         template<typename Ty=T>
         requires std::is_floating_point_v<Ty>
         constexpr bool operator!= (const range<Ty>& rhs) const noexcept
         {
-            return (sm::math::abs(this->min - static_cast<T>(rhs.min)) > std::numeric_limits<T>::epsilon()
-                    || sm::math::abs(this->max - static_cast<T>(rhs.max)) > std::numeric_limits<T>::epsilon());
+            return (sm::cem::abs(this->min - static_cast<T>(rhs.min)) > std::numeric_limits<T>::epsilon()
+                    || sm::cem::abs(this->max - static_cast<T>(rhs.max)) > std::numeric_limits<T>::epsilon());
         }
 
         template<typename Ty=T>

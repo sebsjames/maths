@@ -39,7 +39,7 @@ namespace sm::geometry_ce
     template<typename F, int iterations>
     struct icosahedral_geodesic
     {
-        static constexpr int T = sm::math::pow (4, iterations);
+        static constexpr int T = sm::cem::pow (4, iterations);
         static constexpr int n_verts = 10 * T + 2;
         static constexpr int n_faces = 20 * T;
         geometry_ce::polyhedron <F, n_verts, n_faces> poly;
@@ -80,7 +80,7 @@ namespace sm::geometry_ce
         };
 
         // Set up the transform matrix for our rotation, made up of a rotation about the z axis...
-        sm::quaternion<F> rotn1(_uz, -sm::math::atan2(F{1}, phi));
+        sm::quaternion<F> rotn1(_uz, -sm::cem::atan2(F{1}, phi));
         // ...and a rotation about the x axis:
         sm::quaternion<F> rotn2(_ux, sm::mathconst<F>::pi_over_2);
 
@@ -157,7 +157,7 @@ namespace sm::geometry_ce
         for (int i = 0; i < iterations; ++i) {
 
             // Compute n_verts/n_faces for current iterations i
-            int _t = sm::math::pow(4, i);
+            int _t = sm::cem::pow(4, i);
             int _n_verts = 10 * _t + 2; // i=0; 12 i=1; 42
             int _n_faces = 20 * _t;     // i=0; 20 i=1; 80
 
@@ -174,9 +174,9 @@ namespace sm::geometry_ce
                 // Is va/vb/vc new?
                 int a = -1;
                 for (int v = 0; v < _n_verts; ++v) {
-                    if (sm::math::abs(geo.poly.vertices[v][0] - va[0]) < thresh * std::numeric_limits<F>::epsilon()
-                        && sm::math::abs(geo.poly.vertices[v][1] - va[1]) < thresh * std::numeric_limits<F>::epsilon()
-                        && sm::math::abs(geo.poly.vertices[v][2] - va[2]) < thresh * std::numeric_limits<F>::epsilon()) {
+                    if (sm::cem::abs(geo.poly.vertices[v][0] - va[0]) < thresh * std::numeric_limits<F>::epsilon()
+                        && sm::cem::abs(geo.poly.vertices[v][1] - va[1]) < thresh * std::numeric_limits<F>::epsilon()
+                        && sm::cem::abs(geo.poly.vertices[v][2] - va[2]) < thresh * std::numeric_limits<F>::epsilon()) {
                         a = v; // va is not a new vertex, set a to be the correct index
                     }
                 }
@@ -188,9 +188,9 @@ namespace sm::geometry_ce
 
                 int b = -1;
                 for (int v = 0; v < _n_verts; ++v) {
-                    if (sm::math::abs(geo.poly.vertices[v][0] - vb[0]) < thresh * std::numeric_limits<F>::epsilon()
-                        && sm::math::abs(geo.poly.vertices[v][1] - vb[1]) < thresh * std::numeric_limits<F>::epsilon()
-                        && sm::math::abs(geo.poly.vertices[v][2] - vb[2]) < thresh * std::numeric_limits<F>::epsilon()) {
+                    if (sm::cem::abs(geo.poly.vertices[v][0] - vb[0]) < thresh * std::numeric_limits<F>::epsilon()
+                        && sm::cem::abs(geo.poly.vertices[v][1] - vb[1]) < thresh * std::numeric_limits<F>::epsilon()
+                        && sm::cem::abs(geo.poly.vertices[v][2] - vb[2]) < thresh * std::numeric_limits<F>::epsilon()) {
                         b = v; // vb is not a new vertex, set b to be the correct index
                     }
                 }
@@ -202,9 +202,9 @@ namespace sm::geometry_ce
 
                 int c = -1;
                 for (int v = 0; v < _n_verts; ++v) {
-                    if (sm::math::abs(geo.poly.vertices[v][0] - vc[0]) < thresh * std::numeric_limits<F>::epsilon()
-                        && sm::math::abs(geo.poly.vertices[v][1] - vc[1]) < thresh * std::numeric_limits<F>::epsilon()
-                        && sm::math::abs(geo.poly.vertices[v][2] - vc[2]) < thresh * std::numeric_limits<F>::epsilon()) {
+                    if (sm::cem::abs(geo.poly.vertices[v][0] - vc[0]) < thresh * std::numeric_limits<F>::epsilon()
+                        && sm::cem::abs(geo.poly.vertices[v][1] - vc[1]) < thresh * std::numeric_limits<F>::epsilon()
+                        && sm::cem::abs(geo.poly.vertices[v][2] - vc[2]) < thresh * std::numeric_limits<F>::epsilon()) {
                         c = v; // vc is not a new vertex, set c to be the correct index
                     }
                 }
