@@ -1,5 +1,16 @@
 # Seb's maths library
 
+![cmake ubuntu 24 gcc 11 build test](https://github.com/sebsjames/maths/actions/workflows/cmake-ubu24-gcc12.yml/badge.svg)
+![cmake ubuntu 24 default (gcc 13) build test](https://github.com/sebsjames/maths/actions/workflows/cmake-ubuntu-2404.yml/badge.svg)
+![cmake ubuntu 24 gcc 14 build test](https://github.com/sebsjames/maths/actions/workflows/cmake-ubu24-gcc14.yml/badge.svg)
+![cmake ubuntu 24 clang 16 build test](https://github.com/sebsjames/maths/actions/workflows/cmake-ubu24-clang16.yml/badge.svg)
+![cmake ubuntu 24 clang 17 build test](https://github.com/sebsjames/maths/actions/workflows/cmake-ubu24-clang16.yml/badge.svg)
+![cmake ubuntu 24 clang 18 build test](https://github.com/sebsjames/maths/actions/workflows/cmake-ubu24-clang16.yml/badge.svg)
+![cmake ubuntu 22 default (gcc 11?) build test](https://github.com/sebsjames/maths/actions/workflows/cmake-ubuntu-2204.yml/badge.svg)
+![cmake mac 14 build test](https://github.com/sebsjames/maths/actions/workflows/cmake-mac-14.yml/badge.svg)
+![cmake mac 15 build test](https://github.com/sebsjames/maths/actions/workflows/cmake-mac-15.yml/badge.svg)
+![cmake windows 22 build test](https://github.com/sebsjames/maths/actions/workflows/cmake-windows-2022.yml/badge.svg)
+
 ## A simple mathematics library for C++20 projects
 
 This header-only library is intended to help you to write maths into
