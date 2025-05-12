@@ -1,11 +1,11 @@
 ---
 layout: page
-title: morph::Grid
+title: sm::grid
 parent: Reference
 permalink: /ref/grid/
 ---
 ```c++
-#include <morph/Grid.h>
+#include <sm/grid>
 ```
 
-A Cartesian grid class. `morph::Grid` is a simpler version of [`morph::CartGrid`](https://github.com/ABRG-Models/morphologica/blob/main/morph/CartGrid.h). The difference is that any `morph::Grid` is rectangular, whereas a `morph::CartGrid` may be constructed with an arbitrary domain boundary (`morph::HexGrid` objects can also have an arbitrary boundary). Unless you need non-rectangular boundaries for your Cartesian grids, prefer `morph::Grid` over `morph::CartGrid`.
+A Cartesian grid class. `sm::grid` is a simpler version of [`sm::cartgrid`](https://github.com/sebsjames/maths/blob/main/sm/cartgrid). The difference is that any `sm::grid` is rectangular, whereas a `sm::cartgrid` may be constructed with an arbitrary domain boundary (`sm::hexgrid` objects can also have an arbitrary boundary). Unless you need non-rectangular boundaries for your Cartesian grids, prefer `sm::grid` over `sm::cartgrid`.

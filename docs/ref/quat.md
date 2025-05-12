@@ -1,6 +1,6 @@
 ---
 layout: page
-title: morph::quaternion
+title: sm::quaternion
 parent: Reference
 permalink: /ref/quaternion/
 nav_order: 7
@@ -14,43 +14,44 @@ nav_order: 7
 ## Header
 
 ```c++
-#include <morph/quaternion.h>
+#include <sm/quaternion.h>
 ```
-Header file: [morph/quaternion.h](https://github.com/ABRG-Models/morphologica/blob/main/morph/quaternion.h). Test and example code:  [tests/testQuaternion](https://github.com/ABRG-Models/morphologica/blob/main/tests/testQuaternion.cpp)
+Header file: [sm/quaternion](https://github.com/sebsjames/maths/blob/main/sm/quaternion). Test and example code:  [tests/testQuaternion](https://github.com/sebsjames/maths/blob/main/tests/testQuaternion.cpp)
 
-A class for doing quaternion operations. Initially developed for use in `morph::Visual` to compute rotations of the scene.
+A class for doing quaternion operations. Initially developed for use in `mplot::Visual` to compute rotations of the scene.
 
 Defined as:
 ```c++
-namespace morph {
-    template <typename Flt>
+namespace sm
+{
+    template <typename F>
     class quaternion
 ```
-where `Flt` hints that the template arg is a floating point type. The Hamiltonian convention is adopted for the order of the member elements: `Flt w, x, y, z;`. These are the only member data attributes.
+where `F` hints that the template arg is a floating point type. The Hamiltonian convention is adopted for the order of the member elements: `F w, x, y, z;`. These are the only member data attributes.
 
 
 
 ## Create a quaternion
 
 ```c++
-morph::quaternion<float> q;             // By default w=1, and x, y, z = 0;
-morph::quaternion<float> q(1, 0, 0, 0); // Explicit setting of elements
+sm::quaternion<float> q;             // By default w=1, and x, y, z = 0;
+sm::quaternion<float> q(1, 0, 0, 0); // Explicit setting of elements
 ```
 A newly created quaternion will be an identity quaternion (1,0,0,0) unless explicity set otherwise.
 
 You can also create a quaternion with a specified rotation about a given vector axis:
 ```c++
-morph::vec<float, 3> z_axis = { 0, 0, 1 };              // set a rotation about the z axis...
-float angle = morph::mathconst<float>::pi_over_2; // ...of pi/2 radians
+sm::vec<float, 3> z_axis = { 0, 0, 1 };              // set a rotation about the z axis...
+float angle = sm::mathconst<float>::pi_over_2; // ...of pi/2 radians
 
-morph::quaternion<float> q (z_axis, angle);  // The (axis, angle) constructor
+sm::quaternion<float> q (z_axis, angle);  // The (axis, angle) constructor
 ```
 
 
 ## Copying
 ```c++
-morph::quaternion<float> q1;
-morph::quaternion<float> q2 = q1; // Assignment works as expected
+sm::quaternion<float> q1;
+sm::quaternion<float> q2 = q1; // Assignment works as expected
 ```
 
 You can use **equality** and **inequality operators** on a quaternion: `q1 == q2` and `q1 != q2`.
@@ -59,7 +60,7 @@ You can use **equality** and **inequality operators** on a quaternion: `q1 == q2
 
 You can stream a quaternion object:
 ```c++
-morph::quaternion<float> q1(1, 0, 0, 0);
+sm::quaternion<float> q1(1, 0, 0, 0);
 std::cout << q1 << std::endl;
 ```
 Output: `quaternion[wxyz]=(1,0,0,0)`
@@ -78,16 +79,16 @@ The quaternion can be reset to the identity with `reset()`.
 
 The most useful feature of quaternions, and the reason for their popularity in computer programs is the fact that the rotations can be combined by **multiplication** and their rotations applied to a vector by multiplication.
 
-### Applying a quaternion rotation to a `morph::vec`
+### Applying a quaternion rotation to a `sm::vec`
 
 You have a vector (3D or '3+1'D) and you want to apply the rotation specified by a quaternion? You use the multiplication `operator*`:
 
 ```c++
-using mc = morph::mathconst<float>;
+using mc = sm::mathconst<float>;
 // Create quaternion for a rotation of pi radians
-morph::quaternion<float> q(morph::vec<float>{1, 0, 0}, mc::pi);
-morph::vec<float> v = { 1, 2, 3 };
-morph::vec<float> rotated = q * v; // rotates v by pi about the x axis
+sm::quaternion<float> q(sm::vec<float>{1, 0, 0}, mc::pi);
+sm::vec<float> v = { 1, 2, 3 };
+sm::vec<float> rotated = q * v; // rotates v by pi about the x axis
 ```
 
 ### Combining rotations by quaternion multiplication If we have 2
@@ -97,10 +98,10 @@ becomes the rotation that would result from first applying rotation
 q1, then applying rotation q2.
 
 ```c++
-using mc = morph::mathconst<float>;
-morph::quaternion<float> q1(morph::vec<float>({1,0,0}), mc::pi_over_3);
-morph::quaternion<float> q2(morph::vec<float>({0,1,0}), mc::pi_over_4);
-morph::quaternion<float> q3 = q2 * q1;
+using mc = sm::mathconst<float>;
+sm::quaternion<float> q1(sm::vec<float>({1,0,0}), mc::pi_over_3);
+sm::quaternion<float> q2(sm::vec<float>({0,1,0}), mc::pi_over_4);
+sm::quaternion<float> q3 = q2 * q1;
 ```
 
 To multiply one quaternion by another, it's important to specify the
@@ -115,10 +116,10 @@ q1.premultiply (q2);  // Places result of q2 * q1 into q1.
 The quaternion `q3 = q2 * q1` is equivalent to applying an initial rotation of q1, followed by a rotation of q2. For this reason, in the following, `rotated_vec1` and `rotated_vec2` will hold the same result:
 
 ```c++
-morph::quaternion<float> q3 = q2 * q1;
-morph::vec<float> unrotated = { 1, 0, 2 };
-morph::vec<float> rotated_vec1 = q3 * unrotated;
-morph::vec<float> rotated_vec2 = q2 * (q1 * unrotated); // More computation required
+sm::quaternion<float> q3 = q2 * q1;
+sm::vec<float> unrotated = { 1, 0, 2 };
+sm::vec<float> rotated_vec1 = q3 * unrotated;
+sm::vec<float> rotated_vec2 = q2 * (q1 * unrotated); // More computation required
 ```
 
 Quaternion **division** is also possible: `q3 = q1/q2;` as is division by a scalar. Note that quaternion addition and subtraction are not implemented in this class at present.
@@ -145,15 +146,15 @@ The function `set_rotation` sets the values of the quaternion to specify a rotat
 axis, starting from no rotation.
 
 ```c++
-void set_rotation (const morph::vec<Flt>& axis, const Flt& angle);
+void set_rotation (const sm::vec<F>& axis, const F& angle);
 ```
 
 ### Rotate the quaternion further with these methods:
 
 ```c++
-void rotate (const morph::vec<Flt, 3>& axis, const Flt angle);
-void rotate (const std::array<Flt, 3>& axis, const Flt angle);
-void rotate (const Flt axis_x, const Flt axis_y, const Flt axis_z, const Flt angle)
+void rotate (const sm::vec<F, 3>& axis, const F angle);
+void rotate (const std::array<F, 3>& axis, const F angle);
+void rotate (const F axis_x, const F axis_y, const F axis_z, const F angle)
 ```
 Each method rotates the quaternion by an angle in radians about a 3D axis specified by the axis array (or by the individual components of the axis).
 
@@ -161,12 +162,12 @@ Each method rotates the quaternion by an angle in radians about a 3D axis specif
 
 You can obtain the equivalent 4x4 **rotation matrix** in column-major format (OpenGL friendly) from the quaternion with
 ```c++
-std::array<Flt, 16> rotationMatrix() const;           // Returns the rotation matrix
-void rotationMatrix (std::array<Flt, 16>& mat) const  // sets the values in the passed-in matrix
+std::array<F, 16> rotationMatrix() const;           // Returns the rotation matrix
+void rotationMatrix (std::array<F, 16>& mat) const  // sets the values in the passed-in matrix
 ```
 If you know that your quaternion can be assumed to be a unit quaternion, you can use
 ```c++
-std::array<Flt, 16> unitRotationMatrix() const;
-void unitRotationMatrix (std::array<Flt, 16>& mat) const;
+std::array<F, 16> unitRotationMatrix() const;
+void unitRotationMatrix (std::array<F, 16>& mat) const;
 ```
 These involve slightly less computation.

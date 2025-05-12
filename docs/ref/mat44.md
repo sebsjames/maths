@@ -1,11 +1,11 @@
 ---
 layout: page
-title: morph::mat44
+title: sm::mat44
 parent: Reference
 permalink: /ref/mat44/
 ---
 ```c++
-#include <morph/mat44.h>
+#include <sm/mat44>
 ```
 
 A 4x4 matrix class.
