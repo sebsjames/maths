@@ -1,11 +1,11 @@
 ---
 layout: page
-title: morph::mathconst
+title: sm::mathconst
 parent: Reference
 permalink: /ref/mathconst/
 ---
 ```c++
-#include <morph/mathconst.h>
+#include <sm/mathconst>
 ```
 
-Templated mathematical constants in the morph namespace.
+Templated mathematical constants in the `sm` namespace.
