@@ -2,8 +2,8 @@
 /*!
  * \file
  *
- * This file contains the definition for sm::Grid, a simple Cartesian Grid
- * class. This is the runtime-modifiable version of sm::Gridct<>
+ * This file contains the definition for sm::grid, a simple Cartesian Grid
+ * class.
  *
  * \author Seb James
  * \date February 2024
@@ -49,13 +49,12 @@ namespace sm
      * class. Column-major schemes are possible, but omitted for now (they would not be
      * difficult to code up).
      *
-     * Use this class instead of sm::Gridct<> if you need to change the grid parameters
-     * at runtime. For example, with Grid, you could model an expanding domain by
-     * changing Grid::dx over time. You could model a shift in the cooordinates that
-     * your grid maps by changing Grid::g_offset.
+     * Note that you can change the grid parameters at runtime. For example, with grid, you could
+     * model an expanding domain by changing grid::dx over time. You could model a shift in the
+     * cooordinates that your grid maps by changing grid::g_offset.
      *
      * \tparam I I for 'Index type'. This is the integer type for indexing the pixels in the grid. The
-     * capacity of this type will limit the size of Grid that can be defined. A runtime test will be
+     * capacity of this type will limit the size of grid that can be defined. A runtime test will be
      * performed to ensure that the capacity of I is sufficient for the width and height of the
      * requested grid.
      *
