@@ -556,6 +556,9 @@ namespace sm
             return cofac;
         }
 
+        //! Compute the trace of the matrix (the sum of the diagonal elements)
+        constexpr F trace() const noexcept { return this->mat[0] + this->mat[5] + this->mat[10] + this->mat[15]; }
+
         /*!
          * Implement inversion using determinant method. inverse is (1/det) x adjugate
          * matrix.
@@ -701,6 +704,22 @@ namespace sm
         constexpr sm::vec<F, 3> translation() noexcept
         {
             return { this->mat[12], this->mat[13], this->mat[14] };
+        }
+
+        //! Returns the rotation part of the 4x4 matrix (the top left 3x3 matrix)
+        constexpr sm::quaternion<F> rotation() noexcept
+        {
+            sm::quaternion<F> therotation;
+            // Set it from this->mat.
+            F tr = this->trace();
+            if (tr > F{0}) {
+                F s = F{0.5} / sm::cem::sqrt (tr);
+                therotation.w = F{0.25} / s;
+                therotation.x = this->mat[6] - this->mat[9] * s;
+                therotation.y = this->mat[8] - this->mat[2] * s;
+                therotation.z = this->mat[1] - this->mat[4] * s;
+            } // else return a unit rotation
+            return therotation;
         }
 
         //! Right-multiply this->mat with m2.
