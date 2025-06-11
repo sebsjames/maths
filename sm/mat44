@@ -19,6 +19,7 @@
 #include <sstream>
 #include <iostream>
 #include <type_traits>
+#include <stdexcept>
 
 #include <sm/mathconst>
 #include <sm/quaternion>
@@ -708,12 +709,13 @@ namespace sm
 
         //! Returns the rotation part of the 4x4 matrix (the top left 3x3 matrix) IF the determinant
         //! is 1 (which indicates that the matrix encodes a pure rotation).
-        constexpr sm::quaternion<F> rotation() noexcept
+        constexpr sm::quaternion<F> rotation()
         {
             sm::quaternion<F> therotation;
             F det = this->determinant();
+            if (det != F{1}) { throw std::runtime_error ("mat44<>::rotation: determinant is not 1"); }
             F tr = this->trace();
-            if (det == F{1} && tr > F{0}) {
+            if (tr > F{0}) {
                 F s = F{0.5} / sm::cem::sqrt (tr);
                 therotation.w = F{0.25} / s;
                 therotation.x = this->mat[6] - this->mat[9] * s;
