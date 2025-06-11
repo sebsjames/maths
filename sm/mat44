@@ -100,6 +100,30 @@ namespace sm
             this->mat[15] = F{1};
         }
 
+        //! Create a transform matrix to transform a coordinate into the given coordinate basis set
+        constexpr void frombasis (const sm::vec<F> bx, const sm::vec<F> by, const sm::vec<F> bz)
+        {
+            this->mat[0] = bx.x();
+            this->mat[1] = by.x();
+            this->mat[2] = bz.x();
+            this->mat[3] = 0.0f;
+
+            this->mat[4] = bx.y();
+            this->mat[5] = by.y();
+            this->mat[6] = bz.y();
+            this->mat[7] = 0.0f;
+
+            this->mat[8] = bx.z();
+            this->mat[9] = by.z();
+            this->mat[10] = bz.z();
+            this->mat[11] = 0.0f;
+
+            this->mat[12] = 0.0f;
+            this->mat[13] = 0.0f;
+            this->mat[14] = 0.0f;
+            this->mat[15] = 1.0f;
+        }
+
         //! Access elements of the matrix
         constexpr F& operator[] (unsigned int idx) noexcept { return this->mat[idx]; }
 
