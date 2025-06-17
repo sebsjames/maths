@@ -3,20 +3,22 @@ layout: page
 title: sm::quaternion
 parent: Reference
 permalink: /ref/quaternion/
-nav_order: 7
+nav_order: 4
 ---
-## A quaternion implementation
+# sm::quaternion
 {: .no_toc }
-
-- TOC
-{:toc}
-
-## Header
 
 ```c++
 #include <sm/quaternion>
 ```
 Header file: [<sm/quaternion>](https://github.com/sebsjames/maths/blob/main/sm/quaternion). Test and example code:  [tests/testQuaternion](https://github.com/sebsjames/maths/blob/main/tests/testQuaternion.cpp)
+
+**Table of Contents**
+
+- TOC
+{:toc}
+
+## Summary
 
 A class for doing quaternion operations. Initially developed for use in [mathplot](https://github.com/sebsjames/mathplot) (`mplot::Visual`) to compute rotations of the scene.
 

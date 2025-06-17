@@ -3,7 +3,7 @@ layout: page
 title: sm::vec
 parent: Reference
 permalink: /ref/vec/
-nav_order: 2
+nav_order: 9
 ---
 ## sm::vec (fixed-size mathematical vector)
 

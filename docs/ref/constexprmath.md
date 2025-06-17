@@ -2,6 +2,7 @@
 layout: page
 title: sm::cem::functions
 parent: Reference
+nav_order: 8
 permalink: /ref/constexprmath/
 ---
 # sm::cem::functions

@@ -3,7 +3,7 @@ title: sm::scale
 parent: Reference
 layout: page
 permalink: /ref/scale
-nav_order: 5
+nav_order: 2
 ---
 # sm::scale
 {: .no_toc}

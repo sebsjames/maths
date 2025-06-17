@@ -1,6 +1,7 @@
 ---
 title: sm::config
 parent: Reference
+nav_order: 13
 layout: page
 permalink: /ref/config
 ---

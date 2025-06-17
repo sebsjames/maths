@@ -3,7 +3,7 @@ layout: page
 parent: Reference
 title: sm::vvec
 permalink: /ref/vvec/
-nav_order: 3
+nav_order: 10
 ---
 ## sm::vvec (dynamically resizable mathematical vector)
 

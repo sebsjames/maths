@@ -2,6 +2,7 @@
 layout: page
 title: sm::grid
 parent: Reference
+nav_order: 12
 permalink: /ref/grid/
 ---
 ```c++

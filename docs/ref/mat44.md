@@ -2,6 +2,7 @@
 layout: page
 title: sm::mat44
 parent: Reference
+nav_order: 7
 permalink: /ref/mat44/
 ---
 ```c++
