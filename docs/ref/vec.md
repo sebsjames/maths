@@ -1,16 +1,16 @@
 ---
 layout: page
-title: morph::vec
+title: sm::vec
 parent: Reference
 permalink: /ref/vec/
 nav_order: 2
 ---
-## morph::vec (fixed-size mathematical vector)
+## sm::vec (fixed-size mathematical vector)
 
 ```c++
-#include <morph/vec.h>
+#include <sm/vec>
 ```
-Header file: [morph/vec.h](https://github.com/ABRG-Models/morphologica/blob/main/morph/vec.h). Test and example code:  [tests/testvec](https://github.com/ABRG-Models/morphologica/blob/main/tests/testvec.cpp), [tests/testvecElementOps](https://github.com/ABRG-Models/morphologica/blob/main/tests/testvecElementOps.cpp).
+Header file: [<sm/vec>](https://github.com/sebsjames/maths/blob/main/sm/vec). Test and example code:  [tests/testvec](https://github.com/sebsjames/maths/blob/main/tests/testvec.cpp), [tests/testvecElementOps](https://github.com/sebsjames/maths/blob/main/tests/testvecElementOps.cpp).
 
 **Table of contents**
 
@@ -19,7 +19,7 @@ Header file: [morph/vec.h](https://github.com/ABRG-Models/morphologica/blob/main
 
 ## Summary
 
-`morph::vec` is a fixed-size mathematical vector class. It derives
+`sm::vec` is a fixed-size mathematical vector class. It derives
 from `std::array` and can be used in much the same way as its STL
 parent. It has iterators and you can apply STL algorithms. It is
 constexpr-capable, meaning that it can be incorporated into constexpr
@@ -27,7 +27,8 @@ functions to do compile-time maths. The majority of its methods are
 `nopexcept` (they do *not* throw exceptions).
 
 ```c++
-namespace morph {
+namespace sm
+{
     template <typename S=float, size_t N=3>
     struct vec : public std::array<S, N>
     {
@@ -38,16 +39,16 @@ Template arguments are `S`, the element type and `N`, the size of the array.
 Create objects just like `std::array`:
 
 ```c++
-morph::vec<int, 4> v1 = { 1, 2, 3, 4 };
+sm::vec<int, 4> v1 = { 1, 2, 3, 4 };
 ```
-but with `morph::vec`, you can do maths:
+but with `sm::vec`, you can do maths:
 
 ```c++
-morph::vec<int, 4> v2 = { 1, 2, 3, 4 };
-morph::vec<int, 4> v3 = v1 + v2;             // element-wise addition
-morph::vec<float, 3> u1 = { 1.0f, 0.0f, 0.0f };
-morph::vec<float, 3> u2 = { 0.0f, 1.0f, 0.0f };
-morph::vec<float, 3> u3 = u1.cross (u2);     // vector cross-product
+sm::vec<int, 4> v2 = { 1, 2, 3, 4 };
+sm::vec<int, 4> v3 = v1 + v2;             // element-wise addition
+sm::vec<float, 3> u1 = { 1.0f, 0.0f, 0.0f };
+sm::vec<float, 3> u2 = { 0.0f, 1.0f, 0.0f };
+sm::vec<float, 3> u3 = u1.cross (u2);     // vector cross-product
 float dp = u1.dot (u3);                      // (scalar/dot/inner)-product
 ```
 
@@ -62,18 +63,18 @@ interface that would make coding with the class convenient, easy and
 enjoyable.
 
 While I could have created a class with an `std::array data` member, I
-thought simply adding functions to an extended `std::array` would work
-very well. It is indeed, extremely convenient to use.
+thought that adding functions to an extended `std::array` would work
+very well. In practice, `sm::vec` is extremely convenient to use.
 
 However, you may see this approach discouraged. As [explained by Roger
 Pate](https://stackoverflow.com/questions/2034916/is-it-okay-to-inherit-implementation-from-stl-containers-rather-than-delegate)
 the risk is deallocating through a pointer to the base class, with the
 issue being that STL containers don't have virtual deconstructors. I
 avoid this issue by adding *no additional member data attributes* to
-`morph::vec`, *only methods*.
+`sm::vec`, *only methods*.
 
 `std::array` is an 'aggregate class' with no user-provided constructors,
-and `morph::vec` does not add any of its own constructors. It is generally initialized with brace-initializer lists.
+and `sm::vec` does not add any of its own constructors. It is generally initialized with brace-initializer lists.
 ```c++
 vec<float, 3> v = { 1.0f, 1.0f, 1.0f };
 ```
@@ -103,33 +104,33 @@ You can use arithmetic operators on `vec` objects with their operations being ap
 
 The assignment operator `=` will work correctly to assign one `vec` to another. For example,
 ```c++
-morph::vec<float, 3> v1 = { 1, 2, 3 };
-morph::vec<float, 3> v2 = v1;           // Good, works fine
+sm::vec<float, 3> v1 = { 1, 2, 3 };
+sm::vec<float, 3> v2 = v1;           // Good, works fine
 ```
 Because `std::array` is the base class of `vec` it is also possible to assign a `vec` **to** an `std::array`:
 ```c++
-morph::vec<float, 3> v1 = { 1, 2, 3 };
+sm::vec<float, 3> v1 = { 1, 2, 3 };
 std::array<float, 3> a1 = v1;           // Good, works fine
 ```
 
-However, there are no templated assignment operators in `morph::vec` that make it
+However, there are no templated assignment operators in `sm::vec` that make it
 possible to assign **from** other types (I *did* try). For example, this will **not** compile:
 ```c++
 std::array<float, 3> a1 = { 1, 2, 3 };
-morph::vec<float, 3> v1 = a1;           // Bad, doesn't compile
+sm::vec<float, 3> v1 = a1;           // Bad, doesn't compile
 ```
 In this case, you have to use `vec::set_from`:
 ```c++
 std::array<float, 3> a1 = { 1, 2, 3 };
-morph::vec<float, 3> v1;
+sm::vec<float, 3> v1;
 v1.set_from (a1);
 ```
 
 ## Comparison operators
 
-The default comparison in `std::array` is a **lexicographic comparison**. This means that if the first element in a first `array` is less than the first element in a second `array`, then the first `array` is less than the second `array` regardless of the values in the remaining elements. This is not useful when the array is interpreted as a mathematical vector. In this case, an appropriate comparison is probably **vector magnitude comparison** (i.e comparing their lengths). Another useful comparison is **element-wise comparison** where one vector may be considered to be less than another if *each* of its elements is less than the corresponding element in the other. That is to say `v1` < `v2` if `v1[i]` < `v2[i]` for all `i`. Both vector magnitude and element-wise comparison can be applied to a `morph::vec` and a scalar.
+The default comparison in `std::array` is a **lexicographic comparison**. This means that if the first element in a first `array` is less than the first element in a second `array`, then the first `array` is less than the second `array` regardless of the values in the remaining elements. This is not useful when the array is interpreted as a mathematical vector. In this case, an appropriate comparison is probably **vector magnitude comparison** (i.e comparing their lengths). Another useful comparison is **element-wise comparison** where one vector may be considered to be less than another if *each* of its elements is less than the corresponding element in the other. That is to say `v1` < `v2` if `v1[i]` < `v2[i]` for all `i`. Both vector magnitude and element-wise comparison can be applied to a `sm::vec` and a scalar.
 
-In `morph::vec` I've implemented the following comparisons. Note that the default is not lexicographic comparison and that some comparisons could still be implemented.
+In `sm::vec` I've implemented the following comparisons. Note that the default is not lexicographic comparison and that some comparisons could still be implemented.
 
 | Comparison (`vec v1` with `vec v2`)   | Lexicographic      | Vector magnitude  | Element-Wise |
 | --- | --- | --- | --- |
@@ -150,34 +151,34 @@ In `morph::vec` I've implemented the following comparisons. Note that the defaul
 | unary not operator `!` | `operator!` implements length comparison. `!v1` is true if `v1.length() == 0`  |
 | not operator `!=` | unimplemented |
 
-### Using `morph::vec` as a key in `std::map` or within an `std::set`
+### Using `sm::vec` as a key in `std::map` or within an `std::set`
 
-Although `morph::vec` derives from `std::array`, you **can't use morph::vec as a key in an `std::map`**!
+Although `sm::vec` derives from `std::array`, you **can't use sm::vec as a key in an `std::map`**!
 
 **Danger!** The following examples **will compile**  but will have **unexpected runtime results**:
 
 ```c++
-// Bad!! Because the key is morph::vec<int, 2>
-std::map<morph::vec<int, 2>, myclass> some_map;
+// Bad!! Because the key is sm::vec<int, 2>
+std::map<sm::vec<int, 2>, myclass> some_map;
 
-// Also Bad! Again, the key is morph::vec<int, 2>
-std::set<morph::vec<int, 2>> some_set;
+// Also Bad! Again, the key is sm::vec<int, 2>
+std::set<sm::vec<int, 2>> some_set;
 ```
 
-The reason for this is that `std::set` and `std::map` depend upon the less-than comparison for their functionality and the default less-than comparison in `morph::vec` is *element-wise* which will fail to sort an array. In `std::array`, less-than is *lexicographic* which guarantees a successful sort.
+The reason for this is that `std::set` and `std::map` depend upon the less-than comparison for their functionality and the default less-than comparison in `sm::vec` is *element-wise* which will fail to sort an array. In `std::array`, less-than is *lexicographic* which guarantees a successful sort.
 
-If you really need to use `morph::vec` as a key, there *is* a workaround. You have to specify that you want to use the `morph::vec` lexicographical less-than function `lexical_lessthan` in your `map` or `set` like this:
+If you really need to use `sm::vec` as a key, there *is* a workaround. You have to specify that you want to use the `sm::vec` lexicographical less-than function `lexical_lessthan` in your `map` or `set` like this:
 ```c++
 // To make the map work, we have to create a comparison function that uses lexical_lessthan...
-auto _cmp = [](morph::vec<int,2> a, morph::vec<int,2> b){return a.lexical_lessthan(b);};
+auto _cmp = [](sm::vec<int,2> a, sm::vec<int,2> b){return a.lexical_lessthan(b);};
 // ...then pass this function when declaring the `map` (or `set`):
-std::map<morph::vec<int, 2>, std::string, decltype(_cmp)> themap(_cmp);
+std::map<sm::vec<int, 2>, std::string, decltype(_cmp)> themap(_cmp);
 ```
-This example comes from [tests/testvec_asmapkey](https://github.com/ABRG-Models/morphologica/blob/main/tests/testvec_asmapkey.cpp).
+This example comes from [tests/testvec_asmapkey](https://github.com/sebsjames/maths/blob/main/tests/testvec_asmapkey.cpp).
 
-## Casting of `std::array` to `morph::vec`
+## Casting of `std::array` to `sm::vec`
 
-If you have data in a part of your program contained in an `std::array`, it's possible to cast it to `morph::vec` either to use it within a morphologica visualization or simply to do some maths on the data.
+If you have data in a part of your program contained in an `std::array`, it's possible to cast it to `sm::vec` either to use it within a [mathplot](https://github.com/sebsjames/mathplot) visualization or simply to do some maths on the data.
 
 The following casts from `array` to `vec` are possible.
 
@@ -188,49 +189,49 @@ Use `static_cast` or `reinterpret_cast` to cast an `array` to a `const vec` poin
 // An array to cast
 std::array<float, 3> a1 = { 3, 2, 1 };
 // A function taking a const pointer argument
-void f_const_ptr_v (const morph::vec<float, 3>* v1) { /* morph::vec operations */ }
+void f_const_ptr_v (const sm::vec<float, 3>* v1) { /* sm::vec operations */ }
 // Calls to the function, passing in the array
-f_const_ptr_v (static_cast< const morph::vec<float, 3>* >(&a1));
-f_const_ptr_v (reinterpret_cast< const morph::vec<float, 3>* >(&a1));
-f_const_ptr_v (static_cast< morph::vec<float, 3>* >(&a1));
-f_const_ptr_v (reinterpret_cast< morph::vec<float, 3>* >(&a1));
+f_const_ptr_v (static_cast< const sm::vec<float, 3>* >(&a1));
+f_const_ptr_v (reinterpret_cast< const sm::vec<float, 3>* >(&a1));
+f_const_ptr_v (static_cast< sm::vec<float, 3>* >(&a1));
+f_const_ptr_v (reinterpret_cast< sm::vec<float, 3>* >(&a1));
 ```
 
 ### Cast `array` to a non-const pointer
 
 You can only use `static_cast` to cast an `array` to a non-const pointer.
 ```c++
-void f_nonconst_ptr_v (morph::vec<float, 3>* v1) { /* morph::vec operations */ }
-f_nonconst_ptr_v (static_cast< morph::vec<float, 3>* >(&a1));
+void f_nonconst_ptr_v (sm::vec<float, 3>* v1) { /* sm::vec operations */ }
+f_nonconst_ptr_v (static_cast< sm::vec<float, 3>* >(&a1));
 ```
 
 ### Cast `array` to a const reference
 
 You can use `static_cast` or `reinterpret_cast` to cast `std::array` to a `const vec<>&`.
 ```c++
-void f_const_ref_v (const morph::vec<float, 3>& v1) { /* morph::vec operations */ }
-f_const_ref_v (static_cast< const morph::vec<float, 3>& >(a1));
-f_const_ref_v (reinterpret_cast< const morph::vec<float, 3>& >(a1));
-f_const_ref_v (static_cast< morph::vec<float, 3>& >(a1));
-f_const_ref_v (reinterpret_cast< morph::vec<float, 3>& >(a1));
+void f_const_ref_v (const sm::vec<float, 3>& v1) { /* sm::vec operations */ }
+f_const_ref_v (static_cast< const sm::vec<float, 3>& >(a1));
+f_const_ref_v (reinterpret_cast< const sm::vec<float, 3>& >(a1));
+f_const_ref_v (static_cast< sm::vec<float, 3>& >(a1));
+f_const_ref_v (reinterpret_cast< sm::vec<float, 3>& >(a1));
 ```
 
 ### Cast `array` to a non-const reference
 
 You can only use `static_cast` to cast `array` to a non-const `vec` reference.
 ```c++
-void f_nonconst_ref_v (morph::vec<float, 3>& v1) { /* morph::vec operations */ }
-f_nonconst_ref_v (static_cast< morph::vec<float, 3>& >(a1));
+void f_nonconst_ref_v (sm::vec<float, 3>& v1) { /* sm::vec operations */ }
+f_nonconst_ref_v (static_cast< sm::vec<float, 3>& >(a1));
 ```
 
-## Casting `morph::vec` to `std::array`
+## Casting `sm::vec` to `std::array`
 
-You may need to use a third-party library to process data in a `morph::vec`. You can use these casts to avoid any need to duplicate the data.
+You may need to use a third-party library to process data in a `sm::vec`. You can use these casts to avoid any need to duplicate the data.
 
 ### Cast to a const `array` pointer
-You can use static, reinterpret or dynamic casts to cast from `morph::vec` to `std::array`. Declaring that the pointer must be const is optional.
+You can use static, reinterpret or dynamic casts to cast from `sm::vec` to `std::array`. Declaring that the pointer must be const is optional.
 ```c++
-morph::vec<float, 3> v1 = { 1, 2, 3 };
+sm::vec<float, 3> v1 = { 1, 2, 3 };
 void f_const_ptr_a (const std::array<float, 3>* a1) { /* std::array operations */ }
 f_const_ptr_a (static_cast<std::array<float, 3>*>(&v1));
 f_const_ptr_a (reinterpret_cast<std::array<float, 3>*>(&v1));
@@ -267,7 +268,7 @@ f_nonconst_ref_a (dynamic_cast< std::array<float, 3>& >(v1));
 
 ### Setter functions
 ```c++
-template <typename Sy=S> // S and N from morph::vec class template
+template <typename Sy=S> // S and N from sm::vec class template
 void set_from (const std::vector<Sy>& vec);
 void set_from (const std::array<Sy, N>& ar);
 void set_from (const std::array<Sy, (N+1)>& ar);
@@ -275,7 +276,7 @@ void set_from (const std::array<Sy, (N-1)>& ar);
 void set_from (const vec<Sy, (N-1)>& v);
 ```
 
-These `set_from` functions set the values of this `morph::vec` from
+These `set_from` functions set the values of this `sm::vec` from
 other containers. Note that there are versions which take one-bigger
 and one-smaller arrays; these are used in the graphics code where 3D
 vectors are converted to 4D before being multiplied by 4x4 transform
@@ -287,7 +288,7 @@ void zero();
 void set_max();
 void set_lowest();
 ```
-This `set_from` overload fills all elements of the `morph::vec` with `v`. `zero()`, `set_max()` and `set_lowest()` fill all elements with `S{0}`, the maximum possible value for the type and the lowest possible value, respectively.
+This `set_from` overload fills all elements of the `sm::vec` with `v`. `zero()`, `set_max()` and `set_lowest()` fill all elements with `S{0}`, the maximum possible value for the type and the lowest possible value, respectively.
 
 ### Numpy clones
 
@@ -296,7 +297,7 @@ void linspace (const Sy start, const Sy2 stop);
 void arange (const Sy start, const Sy2 stop, const Sy2 increment);
 ```
 
-Python Numpy-like functions to fill the `morph::vec` with sequences of
+Python Numpy-like functions to fill the `sm::vec` with sequences of
 numbers.  `linspace` fills the `vec` with `N` values in a sequence
 from `start` to `stop`. `arange` fills up to `N` elements starting
 with `start` and ending with `stop` incrementing by `increment`. If
@@ -319,7 +320,7 @@ vec<S, N-1> less_one_dim () const;
 vec<S, N+1> plus_one_dim () const;
 vec<S, N+1> plus_one_dim (const S val) const;
 ```
-Returns a `morph::vec` with one additional or one less element.
+Returns a `sm::vec` with one additional or one less element.
 
 ### Type conversions
 These return a new `vec` in the requested type:
@@ -331,24 +332,24 @@ vec<unsigned int, N> as_uint() const;
 ```
 For example:
 ```c++
-morph::vec<int, 3> vi = {1,2,3};
-morph::vec<float, 3> vf = vi.as_float(); // Note: new memory is used for the new object
+sm::vec<int, 3> vi = {1,2,3};
+sm::vec<float, 3> vf = vi.as_float(); // Note: new memory is used for the new object
 ```
 
 ### Get first and last elements in the vec
 
 Get first (0th) and last (N-1 th) elements in the vec. If vec is of zero size, returns a 2 element vec containing zeros.
 ```c++
-morph::vec<int, 3> vi3 = { 1, 2, 3 };
-morph::vec<int, 2> fl3 = vi3.firstlast();
+sm::vec<int, 3> vi3 = { 1, 2, 3 };
+sm::vec<int, 2> fl3 = vi3.firstlast();
 std::cout << fl3; // (1, 3)
 
-morph::vec<int, 2> vi2 = { 1, 2 };
-morph::vec<int, 2> fl2 = vi2.firstlast();
+sm::vec<int, 2> vi2 = { 1, 2 };
+sm::vec<int, 2> fl2 = vi2.firstlast();
 std::cout << fl2; // (1, 2)
 
-morph::vec<int, 1> vi1 = { 2 };
-morph::vec<int, 2> fl1 = vi1.firstlast();
+sm::vec<int, 1> vi1 = { 2 };
+sm::vec<int, 2> fl1 = vi1.firstlast();
 std::cout << fl1; // (2, 2)
 ```
 
@@ -361,7 +362,7 @@ std::string str_numpy() const;
 ```
 These functions output the array as a string in different formats. The _mat and _numpy versions generate text that can be pasted into a session of MATLAB/Octave or Python. Output looks like `(1,2,3)` (`str()`), `[1,2,3]` (`str_mat()`) or `np.array((1,2,3))` (`str_numpy()`). If you stream a `vec` then `str()` is used:
 ```c++
-morph::vec<int, 3> v = {1,2,3}; // Make a vec called v
+sm::vec<int, 3> v = {1,2,3}; // Make a vec called v
 std::cout << v;                 // Stream to stdout
 ```
 gives output `(1,2,3)`.
@@ -380,14 +381,14 @@ vec<S, N> lengthen (const S dl) const; // return a vector lengthened by length d
 
 ### The range and rescaling or renormalizing
 
-You can obtain the range of values in the `vec` with `vec::range` which returns a [morph::range](/morphologica/ref/coremaths/range) object:
+You can obtain the range of values in the `vec` with `vec::range` which returns a [sm::range](/maths/ref/coremaths/range) object:
 ```c++
-morph::range<S> range() const;
+sm::range<S> range() const;
 ```
 Example usage:
 ```c++
-morph::vec<float, 3> v = { 1, 2, 3 };
-morph::range<float> r = v.range();
+sm::vec<float, 3> v = { 1, 2, 3 };
+sm::range<float> r = v.range();
 std::cout << "vec max: " << r.max << " and min: " << r.min << std::endl;
 ```
 To re-scale or renormalize the values in the `vec`:

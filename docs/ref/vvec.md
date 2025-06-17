@@ -1,16 +1,16 @@
 ---
 layout: page
 parent: Reference
-title: morph::vvec
+title: sm::vvec
 permalink: /ref/vvec/
 nav_order: 3
 ---
-## morph::vvec  (dynamically resizable mathematical vector)
+## sm::vvec (dynamically resizable mathematical vector)
 
 ```c++
-#include <morph/vvec.h>
+#include <sm/vvec>
 ```
-Header file: [morph/vvec.h](https://github.com/ABRG-Models/morphologica/blob/main/morph/vvec.h). Test and example code:  [tests/testvvec](https://github.com/ABRG-Models/morphologica/blob/main/tests/testvvec.cpp)
+Header file: [sm/vvec](https://github.com/sebsjames/maths/blob/main/sm/vvec). Test and example code:  [tests/testvvec](https://github.com/sebsjames/maths/blob/main/tests/testvvec.cpp)
 
 **Table of contents**
 
@@ -40,22 +40,24 @@ Template arguments are `S`, the element type and `N`, the size of the array.
 Create objects just like `std::vector`:
 
 ```c++
-morph::vvec<int> v1 = { 1, 2, 3, 4 };
+sm::vvec<int> v1 = { 1, 2, 3, 4 };
 ```
-but with `morph::vvec`, and just like `morph::vec`, you can do maths:
+but with `sm::vvec`, and just like `sm::vec`, you can do maths:
 
 ```c++
-morph::vvec<int> v2 = { 1, 2, 3, 4 };
-morph::vvec<int> v3 = v1 + v2;                // element-wise addition
-morph::vvec<float> u1 = { 1.0f, 0.0f, 0.0f };
-morph::vvec<float> u2 = { 0.0f, 1.0f, 0.0f };
-morph::vvec<float> u3 = u1.cross (u2);        // vector cross-product
+sm::vvec<int> v2 = { 1, 2, 3, 4 };
+sm::vvec<int> v3 = v1 + v2;                // element-wise addition
+sm::vvec<float> u1 = { 1.0f, 0.0f, 0.0f };
+sm::vvec<float> u2 = { 0.0f, 1.0f, 0.0f };
+sm::vvec<float> u3 = u1.cross (u2);        // vector cross-product
 float dp = u1.dot (u3);                       // (scalar/dot/inner)-product
 ```
 
+In addition to this reference page, there is a [vvec tutorial](/maths/tutorial/vvec) page
+
 ## Design
 
-Like `morph::vec` , `vvec` derives from an STL container without
+Like `sm::vec` , `vvec` derives from an STL container without
 apology to give us a dynamically resizable container of scalars or
 vectors on which mathematical operations can be called.
 
@@ -68,12 +70,12 @@ Some methods may throw exceptions, those that do not are marked `noexcept`.
 As an `std::vector`-like object, your `vvec` is indexed just like your `vector`. Use any of the array access `operator[]`, the `at()` method, or STL iterators.
 
 ```c++
-morph::vvec<int> vvf = { 1, 2, 3 };
+sm::vvec<int> vvf = { 1, 2, 3 };
 std::cout << "First element of array: " << vvf[0] << std::endl;
 try {
   std::cout << "First element of array: " << vvf.at(0) << std::endl;
 } catch const (const std::out_of_range& e) { /* Uh oh */ }
-morph::vvec<int>::iterator vvf_iter = vvf.begin();
+sm::vvec<int>::iterator vvf_iter = vvf.begin();
 std::cout << "First element of array: " << *vvf_iter << std::endl;
 ```
 
@@ -84,7 +86,7 @@ This is the ability to use a signed index with the methods `at_signed()` and `c_
 This allows you to access elements at the end or your `vvec` with this code:
 
 ```c++
-morph::vvec<int> vvf = { 1, 2, 3 };
+sm::vvec<int> vvf = { 1, 2, 3 };
 try {
   std::cout << "This will output '3'" << vvf.at_signed (-1) << std::endl;
   std::cout << "This will output '2'" << vvf.at_signed (-2) << std::endl;
@@ -130,27 +132,27 @@ You can use arithmetic operators on `vvec` objects with their operations being a
 
 The assignment operator `=` will work correctly to assign one `vvec` to another. For example,
 ```c++
-morph::vvec<float> v1 = { 1, 2, 3 };
-morph::vvec<float> v2 = v1;            // Good, works fine
+sm::vvec<float> v1 = { 1, 2, 3 };
+sm::vvec<float> v2 = v1;            // Good, works fine
 ```
 Because `std::vector` is the base class of `vvec` it is also possible to assign a `vvec` **to** an `std::vector`:
 ```c++
-morph::vvec<float> v1 = { 1, 2, 3 };
+sm::vvec<float> v1 = { 1, 2, 3 };
 std::vector<float> sv1 = v1;           // Good, works fine
 ```
 
-However, there are no templated assignment operators in `morph::vvec` that make it
+However, there are no templated assignment operators in `sm::vvec` that make it
 possible to assign **from** other types. For example, this will **not** compile:
 ```c++
 std::vector<float> sv1 = { 1, 2, 3 };
-morph::vvec<float> v1 = sv1;            // Bad, doesn't compile
+sm::vvec<float> v1 = sv1;            // Bad, doesn't compile
 ```
 
 ## Comparison operators
 
-The default comparison in `std::vector` (and also in `std::array`) is a **lexicographic comparison**. This means that if the first element in a first `vector` is less than the first element in a second `vector`, then the first `vector` is less than the second `vector` regardless of the values in the remaining elements. This is not useful when the vector is interpreted as a mathematical vector. In this case, an appropriate comparison is probably **vector magnitude comparison** (i.e comparing their lengths). Another useful comparison is **elementwise comparison** where one vector may be considered to be less than another if *each* of its elements is less than the corresonding other element. That is to say `v1` < `v2` if `v1[i]` < `v2[i]` for all `i`. Both vector magnitude and elementwise comparison can be applied to a `morph::vvec` and a scalar.
+The default comparison in `std::vector` (and also in `std::array`) is a **lexicographic comparison**. This means that if the first element in a first `vector` is less than the first element in a second `vector`, then the first `vector` is less than the second `vector` regardless of the values in the remaining elements. This is not useful when the vector is interpreted as a mathematical vector. In this case, an appropriate comparison is probably **vector magnitude comparison** (i.e comparing their lengths). Another useful comparison is **elementwise comparison** where one vector may be considered to be less than another if *each* of its elements is less than the corresonding other element. That is to say `v1` < `v2` if `v1[i]` < `v2[i]` for all `i`. Both vector magnitude and elementwise comparison can be applied to a `sm::vvec` and a scalar.
 
-In `morph::vvec` I've implemented the following comparisons. Note that the default is not lexicographic comparison and that some comparisions could still be implemented.
+In `sm::vvec` I've implemented the following comparisons. Note that the default is not lexicographic comparison and that some comparisions could still be implemented.
 
 | Comparison (`vvec v1` with `vvec v2`)   | Lexicographic      | Vector magnitude  | Elementwise |
 | --- | --- | --- | --- |
@@ -171,29 +173,29 @@ In `morph::vvec` I've implemented the following comparisons. Note that the defau
 | unary not operator `!` | `operator!` implements length comparison. `!v1` is true if `v1.length() == 0`  |
 | not operator `!=` | unimplemented |
 
-### Using `morph::vvec` as a key in `std::map` or within an `std::set`
+### Using `sm::vvec` as a key in `std::map` or within an `std::set`
 
-Although `morph::vvec` derives from `std::vector`, you **can't use it as a key in an `std::map`**!
+Although `sm::vvec` derives from `std::vector`, you **can't use it as a key in an `std::map`**!
 
 **Danger!** The following examples **will compile**  but will have **unexpected runtime results**:
 
 ```c++
-// Bad!! Because the key is morph::vvec<int>
-std::map<morph::vvec<int>, myclass> some_map;
+// Bad!! Because the key is sm::vvec<int>
+std::map<sm::vvec<int>, myclass> some_map;
 
-// Also Bad! Again, the key is morph::vvec<int>
-std::set<morph::vvec<int>> some_set;
+// Also Bad! Again, the key is sm::vvec<int>
+std::set<sm::vvec<int>> some_set;
 ```
 
-The reason for this is that `std::set` and `std::map` depend upon the less-than comparison for their functionality and the default element-wise less-than in `morph::vvec` is *elementwise* which will fail to sort an array. In `std::vector`, less-than is lexicographic which guarantees a successful sort.
+The reason for this is that `std::set` and `std::map` depend upon the less-than comparison for their functionality and the default element-wise less-than in `sm::vvec` is *elementwise* which will fail to sort an array. In `std::vector`, less-than is lexicographic which guarantees a successful sort.
 
-The workaround is to specify that you want to use the `morph::vvec` lexicographical less-than function `lexical_lessthan` in your `map` or `set`:
+The workaround is to specify that you want to use the `sm::vvec` lexicographical less-than function `lexical_lessthan` in your `map` or `set`:
 ```c++
 // To make the map work, we have to tell it to use lexical_lessthan:
-auto _cmp = [](morph::vvec<int> a, morph::vvec<int> b){return a.lexical_lessthan(b);};
-std::map<morph::vvec<int>, std::string, decltype(_cmp)> themap(_cmp);
+auto _cmp = [](sm::vvec<int> a, sm::vvec<int> b){return a.lexical_lessthan(b);};
+std::map<sm::vvec<int>, std::string, decltype(_cmp)> themap(_cmp);
 ```
-This example is adapted from [tests/testvec_asmapkey](https://github.com/ABRG-Models/morphologica/blob/main/tests/testvec_asmapkey.cpp) and may need to be tested!
+This example is adapted from [tests/testvec_asmapkey](https://github.com/sebsjames/maths/blob/main/tests/testvec_asmapkey.cpp) and may need to be tested!
 
 ## Member functions
 
@@ -202,7 +204,7 @@ This example is adapted from [tests/testvec_asmapkey](https://github.com/ABRG-Mo
 Rather than using implementations of the assignment operators (I did try, but it turned out to be too difficult), `vvec` provides `set_from` functions.
 There is an overload of `set_from` which can assign values to your `vvec` from another container of values and an overload which will assign a single value to every element of your `vvec`.
 
-Note that the `set_from` functions in `vvec` differ from those in `morph::vec`.
+Note that the `set_from` functions in `vvec` differ from those in `sm::vec`.
 
 #### Setting a vvec from another container of values
 
@@ -210,7 +212,7 @@ If you want to set your vvec values from another container, such as a `std::vect
 
 ```c++
 template <typename Container>
-std::enable_if_t<morph::is_copyable_container<Container>::value
+std::enable_if_t<sm::is_copyable_container<Container>::value
                  && !std::is_same<std::decay_t<Container>, S>::value, void>
 set_from (const Container& c)
 {
@@ -231,17 +233,17 @@ void zero();
 void set_max();
 void set_lowest();
 ```
-The `set_from` overload fills all elements of the `morph::vvec` with `v`. For example:
+The `set_from` overload fills all elements of the `sm::vvec` with `v`. For example:
 
 ```c++
-morph::vvec<int> vi = { 1, 2, 3 };
+sm::vvec<int> vi = { 1, 2, 3 };
 vi.set_from (4);
 std::cout << vi << std::endl; // output: (4, 4, 4)
 ```
 This works even if you have a vvec of array types:
 ```c++
-morph::vvec< morph::vec<float, 2> > vvecofvecs(2);
-vvecofvecs.set_from (morph::vec<float, 2>{3, 4});
+sm::vvec< sm::vec<float, 2> > vvecofvecs(2);
+vvecofvecs.set_from (sm::vec<float, 2>{3, 4});
 std::cout << vvecofvecs << std::endl; // output: ((3, 4), (3, 4))
 ```
 
@@ -252,7 +254,7 @@ std::cout << vvecofvecs << std::endl; // output: ((3, 4), (3, 4))
 You can, of course, also use [the `assign()` method](https://en.cppreference.com/w/cpp/container/vector/assign) from `std::vector`:
 
 ```c++
-morph::vvec<int> vv = { 0, 0, 0, 0, 0}; // construct with 5 elements
+sm::vvec<int> vv = { 0, 0, 0, 0, 0}; // construct with 5 elements
 vv.assign (3, 10);                      // resize vv to 3 elements and assign 10 to each element
 std::cout << vv << std::endl;           // output: (10,10,10)
 ```
@@ -261,7 +263,7 @@ or
 
 ```c++
 std::vector<int> vin = { 1, 2, 3 };
-morph::vvec<int> vv (vin.size());
+sm::vvec<int> vv (vin.size());
 vv.assign (vin.begin(), vin.end());
 std::cout << vv << std::endl;           // output: (1,2,3)
 ```
@@ -273,7 +275,7 @@ void linspace (const Sy start, const Sy2 stop, const size_t num=0);
 void arange (const Sy start, const Sy2 stop, const Sy2 increment);
 ```
 
-Python Numpy-like functions to fill the `morph::vvec` with sequences
+Python Numpy-like functions to fill the `sm::vvec` with sequences
 of numbers.  `linspace` fills the `vvec` with `num` values in a
 sequence from `start` to `stop`. If `num` is 0, then the vvec's size
 is not changed and it is filled with an evenly spaced sequence of
@@ -319,27 +321,27 @@ vvec<unsigned int> as_uint() const;
 ```
 For example:
 ```c++
-morph::vvec<int> vi = {1,2,3};
-morph::vvec<float> vf = vi.as_float(); // Note: new memory is used for the new object
+sm::vvec<int> vi = {1,2,3};
+sm::vvec<float> vf = vi.as_float(); // Note: new memory is used for the new object
 ```
 ### Get first and last elements in the vvec
 
 Get first (`0`th) and last (`size()-1` th) elements in the vvec. If vvec is of zero size, returns a 2 element vvec containing zeros.
 ```c++
-morph::vvec<int> vv3 = { 1, 2, 3 };
-morph::vvec<int> fl3 = vv3.firstlast();
+sm::vvec<int> vv3 = { 1, 2, 3 };
+sm::vvec<int> fl3 = vv3.firstlast();
 std::cout << fl3; // (1, 3)
 
-morph::vvec<int> vv2 = { 1, 2 };
-morph::vvec<int> fl2 = vv2.firstlast();
+sm::vvec<int> vv2 = { 1, 2 };
+sm::vvec<int> fl2 = vv2.firstlast();
 std::cout << fl2; // (1, 2)
 
-morph::vvec<int> vv1 = { 2 };
-morph::vvec<int> fl1 = vv1.firstlast();
+sm::vvec<int> vv1 = { 2 };
+sm::vvec<int> fl1 = vv1.firstlast();
 std::cout << fl1; // (2, 2)
 
-morph::vvec<int> vv0 = {};
-morph::vvec<int> fl0 = vv1.firstlast();
+sm::vvec<int> vv0 = {};
+sm::vvec<int> fl0 = vv1.firstlast();
 std::cout << fl0; // (0, 0)
 ```
 
@@ -352,7 +354,7 @@ std::string str_numpy() const;
 ```
 These functions output the `vvec` as a string in different formats. The _mat and _numpy versions generate text that can be pasted into a session of MATLAB/Octave or Python. Output looks like `(1,2,3)` (`str()`), `[1,2,3]` (`str_mat()`) or `np.array((1,2,3))` (`str_numpy()`). If you stream a `vvec` then `str()` is used:
 ```c++
-morph::vvec<int> v = {1,2,3};   // Make a vvec called v
+sm::vvec<int> v = {1,2,3};   // Make a vvec called v
 std::cout << v;                 // Stream to stdout
 ```
 gives output `(1,2,3)`.
@@ -371,21 +373,21 @@ vvec<S> lengthen (const S dl) const;   // return a vector lengthened by length d
 
 ### The range and rescaling or renormalizing
 
-You can obtain the range of values in the `vvec` with `vvec::range` which returns a [morph::range](/morphologica/ref/coremaths/range) object:
+You can obtain the range of values in the `vvec` with `vvec::range` which returns a [sm::range](/maths/ref/coremaths/range) object:
 ```c++
-morph::range<S> range() const;
+sm::range<S> range() const;
 ```
 Example usage:
 ```c++
-morph::vvec<float> v = { 1, 2, 3 };
-morph::range<float> r = v.range();
+sm::vvec<float> v = { 1, 2, 3 };
+sm::range<float> r = v.range();
 std::cout << "vvec max: " << r.max << " and min: " << r.min << std::endl;
 ```
 If the contained type is itself a vector, then `vvec::range()` returns the shortest vector as min and the longest as max.
 
 ```c++
-morph::vvec<morph::vec<int, 2>> v = { {-1, -3},   {-2, 4},  {3, 5} };
-morph::range<morph::vec<int, 2>> r = v.range();
+sm::vvec<sm::vec<int, 2>> v = { {-1, -3},   {-2, 4},  {3, 5} };
+sm::range<sm::vec<int, 2>> r = v.range();
 std::cout << "r.min: " << r.min; // {-1, -3}
 std::cout << "r.max: " << r.max; // {3, 5}
 ```
@@ -420,11 +422,11 @@ bool checkunit() const; // return true if length is 1 (to within vvec::unitThres
 
 The 'extent' of a vvec of scalar values is the same as its range (and `vvec<S>::extent()` simply sub-calls `vvec<S>::range()` for scalar `S`).
 However, for a vvec of vector values, the extent returns a range of two vectors which define a volume that will enclose all the vectors contained in the vvec.
-The vectors values must be given in some fixed size type, such as `std::array<>` or `morph::vec<>` (otherwise the function will not compile).
+The vectors values must be given in some fixed size type, such as `std::array<>` or `sm::vec<>` (otherwise the function will not compile).
 
 ```c++
-morph::vvec<morph::vec<int, 2>> v = { {-1, -3},   {-2, 4},  {3, 5} };
-morph::range<morph::vec<int, 2>> r = v.extent();
+sm::vvec<sm::vec<int, 2>> v = { {-1, -3},   {-2, 4},  {3, 5} };
+sm::range<sm::vec<int, 2>> r = v.extent();
 std::cout << "r.min: " << r.min; // {-2, -3}
 std::cout << "r.max: " << r.max; // {3, 5}
 ```
@@ -509,7 +511,7 @@ That means that you can obtain the statistic in type `Sy`, ignoring NaN values w
 
 ```c++
 using fl = std::numeric_limits<float>;
-morph::vvec<float> nums = { 1.0f, 2.1f, fl::quietNaN(), 3.2f };
+sm::vvec<float> nums = { 1.0f, 2.1f, fl::quietNaN(), 3.2f };
 double themean = nums.mean<true, double>();
 ```
 

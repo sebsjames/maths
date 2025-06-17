@@ -14,22 +14,20 @@ nav_order: 7
 ## Header
 
 ```c++
-#include <sm/quaternion.h>
+#include <sm/quaternion>
 ```
-Header file: [sm/quaternion](https://github.com/sebsjames/maths/blob/main/sm/quaternion). Test and example code:  [tests/testQuaternion](https://github.com/sebsjames/maths/blob/main/tests/testQuaternion.cpp)
+Header file: [<sm/quaternion>](https://github.com/sebsjames/maths/blob/main/sm/quaternion). Test and example code:  [tests/testQuaternion](https://github.com/sebsjames/maths/blob/main/tests/testQuaternion.cpp)
 
-A class for doing quaternion operations. Initially developed for use in `mplot::Visual` to compute rotations of the scene.
+A class for doing quaternion operations. Initially developed for use in [mathplot](https://github.com/sebsjames/mathplot) (`mplot::Visual`) to compute rotations of the scene.
 
 Defined as:
 ```c++
 namespace sm
 {
     template <typename F>
-    class quaternion
+    struct quaternion
 ```
 where `F` hints that the template arg is a floating point type. The Hamiltonian convention is adopted for the order of the member elements: `F w, x, y, z;`. These are the only member data attributes.
-
-
 
 ## Create a quaternion
 
@@ -47,7 +45,6 @@ float angle = sm::mathconst<float>::pi_over_2; // ...of pi/2 radians
 sm::quaternion<float> q (z_axis, angle);  // The (axis, angle) constructor
 ```
 
-
 ## Copying
 ```c++
 sm::quaternion<float> q1;
@@ -64,6 +61,11 @@ sm::quaternion<float> q1(1, 0, 0, 0);
 std::cout << q1 << std::endl;
 ```
 Output: `quaternion[wxyz]=(1,0,0,0)`
+
+## Use in `constexpr` functions
+
+`sm::quaternion` is constexpr capabable and may be utilized in your
+constexpr functions.
 
 ## Operations on a quaternion
 
