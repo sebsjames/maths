@@ -124,8 +124,11 @@ namespace sm
             this->mat[15] = 1.0f;
         }
 
-        //! Access elements of the matrix
-        constexpr F& operator[] (unsigned int idx) noexcept { return this->mat[idx]; }
+        //! Access elements of the matrix (returns ref, so not const)
+        constexpr F& operator[] (const unsigned int idx) noexcept { return this->mat[idx]; }
+
+        //! Access elements of the matrix with const promise
+        constexpr F operator[] (const unsigned int idx) const noexcept { return this->mat[idx]; }
 
         //! Access a given row of the matrix
         constexpr sm::vec<F, 4> row (unsigned int idx) const noexcept
@@ -199,9 +202,9 @@ namespace sm
         constexpr void pretranslate (const sm::vec<T, 3>& dv) noexcept
         {
             mat44<T> trans_mat;
-            trans_mat [12] = dv[0];
-            trans_mat [13] = dv[1];
-            trans_mat [14] = dv[2];
+            trans_mat[12] = dv[0];
+            trans_mat[13] = dv[1];
+            trans_mat[14] = dv[2];
 
             *this *= trans_mat;
         }
@@ -211,9 +214,9 @@ namespace sm
         constexpr void pretranslate (const std::array<T, 3>& dv) noexcept
         {
             mat44<T> trans_mat;
-            trans_mat [12] = dv[0];
-            trans_mat [13] = dv[1];
-            trans_mat [14] = dv[2];
+            trans_mat[12] = dv[0];
+            trans_mat[13] = dv[1];
+            trans_mat[14] = dv[2];
 
             *this *= trans_mat;
         }
@@ -223,9 +226,9 @@ namespace sm
         constexpr void pretranslate (const T& dx, const T& dy, const T& dz) noexcept
         {
             mat44<T> trans_mat;
-            trans_mat [12] = dx;
-            trans_mat [13] = dy;
-            trans_mat [14] = dz;
+            trans_mat[12] = dx;
+            trans_mat[13] = dy;
+            trans_mat[14] = dz;
 
             *this *= trans_mat;
         }

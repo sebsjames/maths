@@ -241,6 +241,10 @@ int main()
     tr_res = rot_then_trans * uy;
     std::cout << "rotate-then-translate vector = " << tr_res << std::endl;
 
+    // Test that array indexing of a const mat44 will compile
+    const sm::mat44<float> m1id;
+    float m1id0 = m1id[0];
+    std::cout << "m1id[0] = " << m1id0 << std::endl;
 
     return rtn;
 }
