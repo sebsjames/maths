@@ -7,6 +7,8 @@ nav_order: 11
 ---
 # sm::histo
 {: .no_toc}
+## Compute a histogram from data
+{: .no_toc}
 
 ```c++
 #include <sm/histo>

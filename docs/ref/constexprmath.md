@@ -5,7 +5,9 @@ parent: Reference
 nav_order: 8
 permalink: /ref/constexprmath/
 ---
-# sm::cem::functions
+# sm::cem
+{: .no_toc}
+## constexpr maths functions
 {: .no_toc}
 
 ```c++
@@ -22,8 +24,8 @@ Header file: [<sm/constexpr_math>](https://github.com/sebsjames/maths/blob/main/
 ## Summary
 
 `constexpr` capable basic maths functions that will work in your C++20
-and C++23 programs. These functions should all be superceded by C++26
-functions in the `std` namespace.
+and C++23 programs. Eventually, these functions will all be superceded
+by C++26 functions in the `std` namespace.
 
 This file is about 700 lines of cherry-picked code from Keith O'Hara's
 GCE Math library (thanks Keith!).

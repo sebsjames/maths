@@ -7,6 +7,8 @@ permalink: /ref/mathconst/
 ---
 # sm::mathconst<>
 {: .no_toc }
+## Templated mathematical constants
+{: .no_toc }
 
 ```c++
 #include <sm/mathconst>

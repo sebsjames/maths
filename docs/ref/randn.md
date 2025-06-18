@@ -7,6 +7,8 @@ nav_order: 3
 ---
 # sm::rand*
 {: .no_toc}
+## Random number (and string) generation
+{: .no_toc}
 
 ```c++
 #include <sm/random>
@@ -162,14 +164,14 @@ std::array<T, N> avals;
 rng.get (avals);
 ```
 
-## sm::RandPoisson
+## sm::rand_poisson
 
 A C++ classes to generate values from a normal Poisson distribution.
 
 ```c++
 namespace morph {
     template <typename T = int, typename E = std::mt19937>
-    class RandPoisson
+    class rand_poisson
 ```
 `T` is the integral type for the generated random numbers and `E` is the generator algorithm/engine.
 
@@ -177,7 +179,7 @@ namespace morph {
 
 To generate values from a Poisson distribution with mean 0, create the a default object:
 ```c++
-sm::RandPoisson<int> rng;
+sm::rand_poisson<int> rng;
 rng.get();
 ```
 
@@ -185,21 +187,21 @@ rng.get();
 
 The mean can be specified in the constructor:
 ```c++
-sm::RandPoisson<int> rng (3); // Mean 3
+sm::rand_poisson<int> rng (3); // Mean 3
 ```
 ### Using a fixed seed
 
 To use a fixed seed with the default interval, use a single `unsigned int` argument to the constructor:
 ```c++
-sm::RandPoisson<int> rng (2303); // The first .get() should always return the same number now
+sm::rand_poisson<int> rng (2303); // The first .get() should always return the same number now
 ```
 
 To use a fixed seed with a custom mean, it's the second argument:
 ```c++
 // Declaration
-RandPoisson (T mean, unsigned int _seed);
+rand_poisson (T mean, unsigned int _seed);
 // In use:
-sm::RandPoisson<int> rng (4, 2303); // mean 4, seed = 2303
+sm::rand_poisson<int> rng (4, 2303); // mean 4, seed = 2303
 ```
 
 ### Getters

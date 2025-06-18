@@ -5,7 +5,10 @@ title: sm::vvec
 permalink: /ref/vvec/
 nav_order: 10
 ---
-## sm::vvec (dynamically resizable mathematical vector)
+# sm::vvec
+{: .no_toc}
+## Dynamically resizable mathematical vector
+{: .no_toc}
 
 ```c++
 #include <sm/vvec>

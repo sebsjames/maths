@@ -7,6 +7,8 @@ nav_order: 1
 ---
 # sm::range
 {: .no_toc}
+## Minimum and maximum values
+{: .no_toc}
 
 ```c++
 #include <sm/range>

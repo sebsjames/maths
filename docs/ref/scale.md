@@ -7,6 +7,8 @@ nav_order: 2
 ---
 # sm::scale
 {: .no_toc}
+## Linear and logarithmic scaling
+{: .no_toc}
 
 ```c++
 #include <sm/scale>

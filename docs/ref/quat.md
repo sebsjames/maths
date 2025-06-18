@@ -7,6 +7,8 @@ nav_order: 4
 ---
 # sm::quaternion
 {: .no_toc }
+## Quaternion rotations
+{: .no_toc }
 
 ```c++
 #include <sm/quaternion>

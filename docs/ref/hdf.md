@@ -6,7 +6,8 @@ permalink: /ref/hdf5
 nav_order: 14
 has_children: true
 ---
-# sm::range
+# sm::hdfdata
+## HDF5 data storage and retrieval
 {: .no_toc}
 
 ```c++

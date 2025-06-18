@@ -5,7 +5,10 @@ parent: Reference
 permalink: /ref/vec/
 nav_order: 9
 ---
-## sm::vec (fixed-size mathematical vector)
+# sm::vec
+{: .no_toc}
+## Fixed-size, constexpr-capable mathematical vector
+{: .no_toc}
 
 ```c++
 #include <sm/vec>

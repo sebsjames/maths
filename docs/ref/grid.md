@@ -5,6 +5,10 @@ parent: Reference
 nav_order: 12
 permalink: /ref/grid/
 ---
+# sm::grid
+{: .no_toc}
+## A rectangular Cartesian grid for 2D computations
+{: .no_toc}
 ```c++
 #include <sm/grid>
 ```
