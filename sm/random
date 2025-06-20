@@ -501,10 +501,10 @@ namespace sm
      *
      * \tparam E The pseudo-random number generator engine.
      */
-    template <typename T = double, typename E = std::mt19937> requires std::is_floating_point_v<T>
+    template <typename T = double, typename E = std::mt19937> requires std::is_floating_point_v<std::decay_t<T>>
     class rand_exponential
     {
-    private:
+    protected:
         //! random device to provide a seed for the generator
         std::random_device rd{};
         //! Pseudo random number generator engine
@@ -573,6 +573,72 @@ namespace sm
         T min() noexcept { return this->dist.min(); }
         //! max wrapper
         T max() noexcept { return this->dist.max(); }
+    };
+
+    /*!
+     * Generate Pareto distributed random numbers.
+     *
+     * Uses exponential_distribution rng internally along with the relationshipe of a
+     * Pareto distribution, X, with minimum x_m to an exponential distribution Y:
+     *    X = x_m e ^ Y
+     *
+     * \tparam T The type of the random number to be generated
+     *
+     * \tparam E The pseudo-random number generator engine.
+     */
+    template <typename T = double, typename E = std::mt19937> requires std::is_floating_point_v<T>
+    class rand_pareto : public sm::rand_exponential<T, E>
+    {
+    public:
+        // The minimum of the Pareto distribution, also known as the 'scale'. Should be positive.
+        T scale = T{1};
+        //! Default constructor gives a pareto random number generator with shape 1
+        //! (meaning that the underlying exponential distribution has rate 1)
+        rand_pareto() noexcept
+        {
+            typename std::exponential_distribution<T>::param_type prms (T{1});
+            this->dist.param (prms);
+        }
+        //! Default constructor gives a pareto random number generator with scale 1, shape 1.
+        //! Sets fixed seed \a _seed.
+        rand_pareto (unsigned int _seed) noexcept : sm::rand_exponential<T, E>(T{1}, _seed) {}
+        //! This constructor gives RN generator with rate \a rate
+        rand_pareto (T shape) noexcept : sm::rand_exponential<T, E>(shape) {}
+        //! Construct with shape and scale
+        rand_pareto (T shape, T _scale) noexcept : sm::rand_exponential<T, E>(shape) { this->scale = _scale; }
+        //! This constructor gives RN generator with shape \a shape. and a given seed
+        rand_pareto (T shape, unsigned int _seed) noexcept : sm::rand_exponential<T, E>(shape, _seed) {}
+        //! This constructor gives RN generator with shape \a shape, scale \a scale. and a given seed
+        rand_pareto (T shape, T _scale, unsigned int _seed) noexcept : sm::rand_exponential<T, E>(shape, _seed)
+        {
+            this->scale = _scale;
+        }
+        //! Copy constructor copies the distribution parameters
+        rand_pareto (const rand_pareto<T>& rng) noexcept { this->param (rng.param()); }
+        //! Copy assignment operator needs to be explicitly defined
+        rand_pareto& operator= (const rand_pareto<T>& rng) noexcept
+        {
+            if (&rng == static_cast<const rand_pareto<T>*>(this)) { return *this; }
+            this->param (rng.param());
+            return *this;
+        }
+        //! Get 1 random number from the generator
+        T get() noexcept { return this->scale * std::exp (this->dist (this->generator)); }
+        //! Get n random numbers from the generator
+        std::vector<T> get (std::size_t n) noexcept
+        {
+            std::vector<T> rtn (n, T{0});
+            for (std::size_t i = 0; i < n; ++i) {
+                rtn[i] = this->scale * std::exp (this->dist (this->generator));
+            }
+            return rtn;
+        }
+        //! Place n random numbers in the array rtn
+        template<std::size_t n>
+        void get (std::array<T, n>& rtn) noexcept
+        {
+            for (std::size_t i = 0; i < n; ++i) { rtn[i] = this->scale * std::exp (this->dist (this->generator)); }
+        }
     };
 
     //! Enumerated class defining groups of characters, such as alphanumericuppercase,
