@@ -116,7 +116,7 @@ Two C++ classes to generate values from either a normal (Gaussian) distribution 
 All the examples here show `rand_normal`, but you can substitute `rand_lognormal` if you want the log-normal distribution to generate your values.
 
 ```c++
-namespace morph {
+namespace sm {
     template <typename T = double, typename E = std::mt19937_64>
     class rand_normal { // or class rand_lognormal
 ```
@@ -166,10 +166,10 @@ rng.get (avals);
 
 ## sm::rand_poisson
 
-A C++ classes to generate values from a normal Poisson distribution.
+A C++ class to generate values from a normal Poisson distribution.
 
 ```c++
-namespace morph {
+namespace sm {
     template <typename T = int, typename E = std::mt19937>
     class rand_poisson
 ```
@@ -209,12 +209,115 @@ sm::rand_poisson<int> rng (4, 2303); // mean 4, seed = 2303
 The `get()` function overloads are the same as for `rand_uniform`, `rand_normal` and `rand_lognormal`.
 
 
+## sm::rand_exponential
+
+A C++ class to generate values from an exponential distribution.
+
+```c++
+namespace sm {
+    template <typename T = double, typename E = std::mt19937>
+    class rand_exponential
+```
+`T` is the floating point type for the generated random numbers and `E` is the generator algorithm/engine.
+
+### Simplest usage
+
+To generate values from an exponential distribution with rate 1, create the a default object:
+```c++
+sm::rand_exponential<double> rng;
+rng.get();
+```
+
+### Specifying the distribution mean
+
+The rate can be specified in the constructor:
+```c++
+sm::rand_exponential<float> rng (2); // rate 2
+```
+### Using a fixed seed
+
+To use a fixed seed with the default interval, use a single `unsigned int` argument to the constructor:
+```c++
+sm::rand_exponential<float> rng (2303); // The first .get() should always return the same number now
+```
+
+To use a fixed seed with a custom rate, it's the second argument:
+```c++
+// Declaration
+rand_exponential (T rate, unsigned int _seed);
+// In use:
+sm::rand_exponential<double> rng (4.0, 2303); // rate 4, seed = 2303
+```
+
+### Getters
+
+The `get()` function overloads are the same as for `rand_uniform`, `rand_normal`, etc.
+
+
+## sm::rand_pareto
+
+A C++ class to generate values from a Pareto distribution.
+
+```c++
+namespace sm {
+    template <typename T = double, typename E = std::mt19937>
+    class rand_pareto : sm::rand_exponential<T, E>
+```
+`T` is the floating point type for the generated random numbers and `E` is the generator algorithm/engine. This class derives from `sm::rand_exponential<>`.
+
+### Simplest usage
+
+To generate values from a Pareto distribution with scale 1, shape 1, create the a default object:
+```c++
+sm::rand_pareto<> rng;
+rng.get();
+```
+
+### Specifying the distribution shape
+
+The shape of a Pareto distribution is the rate of the underlying exponential distribution. The shape can be specified in the constructor:
+```c++
+sm::rand_pareto<double> rng (3); // Shape 3
+```
+### Using a fixed seed
+
+To use a fixed seed with the default shape, use a single `unsigned int` argument to the constructor:
+```c++
+sm::rand_pareto<double> rng (2303); // The first .get() should always return the same number now
+```
+
+To use a fixed seed with a custom shape, it's the second argument:
+```c++
+// Declaration
+rand_pareto (T shape, unsigned int _seed);
+// In use:
+sm::rand_pareto<double> rng (4, 2303); // shape 4, seed = 2303
+```
+
+To construct with both shape and scale parameters present shape first, then scale:
+```c++
+// Declaration
+rand_pareto (T shape, T _scale);
+// In use:
+sm::rand_pareto<double> rng (2, 3); // shape 2, scale 3
+// Declaration
+rand_pareto (T shape, T _scale, unsigned int _seed);
+// In use:
+sm::rand_pareto<double> rng (2, 3, 2303); // shape 2, scale 3, seed 2303
+```
+
+
+### Getters
+
+The `get()` function overloads are the same as for `rand_uniform`, `rand_normal`, etc.
+
+
 ## sm::rand_string
 
 The `rand_string` class is a little different from the other `Rand*` classes because it uses a `sm::rand_uniform` member to help it generate character strings. It allows you to generate random characters from different character groups such as `sm::CharGroup::AlphaNumeric` or `sm::CharGroup::Decimal`. It is a non-templated class:
 
 ```c++
-namespace morph {
+namespace sm {
     class rand_string
 ```
 
@@ -247,7 +350,7 @@ rand_string(const size_t l, const sm::CharGroup& _cg) // Length l, character gro
 The list of possible character groups is given by the `CharGroup` declaration:
 
 ```c++
-namespace morph {
+namespace sm {
    enum class CharGroup
     {
         AlphaNumeric,          // 0-9A-Za-z                   62 chars
