@@ -84,7 +84,7 @@ namespace sm
     class rand_uniform {};
 
     //! Floating-point number specialization of randUnifom.
-    template <typename T, typename E>
+    template <typename T, typename E> requires std::is_floating_point_v<std::decay_t<T>>
     class rand_uniform<T, E, false>
     {
     private:
@@ -257,7 +257,7 @@ namespace sm
      *
      * \tparam E The pseudo-random number generator engine.
      */
-    template <typename T = double, typename E = std::mt19937_64>
+    template <typename T = double, typename E = std::mt19937_64> requires std::is_floating_point_v<std::decay_t<T>>
     class rand_normal
     {
     private:
@@ -336,7 +336,7 @@ namespace sm
      *
      * \tparam E The pseudo-random number generator engine.
      */
-    template <typename T = double, typename E = std::mt19937_64>
+    template <typename T = double, typename E = std::mt19937_64> requires std::is_floating_point_v<std::decay_t<T>>
     class rand_lognormal
     {
     private:
@@ -420,7 +420,7 @@ namespace sm
      *
      * \tparam E The pseudo-random number generator engine.
      */
-    template <typename T = int, typename E = std::mt19937>
+    template <typename T = int, typename E = std::mt19937> requires std::is_integral_v<std::decay_t<T>>
     class rand_poisson
     {
     private:
