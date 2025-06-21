@@ -7,7 +7,7 @@ nav_order: 0
 ---
 # Welcome to Seb's maths
 {: .no_toc}
-This is a maths library for your C++20 projects. It was created for [mathplot](https://github.com/sebsjames/mathplot) and has been used in all of my recent scientific modelling work. On this page, I'll give you a taste of what you can do with the code. For full details, refer to the Reference pages.
+This is a maths library for your modern C++ projects. It was created for [mathplot](https://github.com/sebsjames/mathplot) and has been used in all of my recent scientific modelling work. On this page, I'll give you a taste of what you can do with the code. For full details, refer to the Reference pages.
 
 - TOC
 {:toc}
