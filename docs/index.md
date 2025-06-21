@@ -7,13 +7,13 @@ nav_order: 0
 ---
 # Welcome to Seb's maths
 {: .no_toc}
-This is a maths library for your C++20 projects. It was created for [mathplot](https://github.com/sebsjames/mathplot) and has been used in all of my recent scientific modelling work. On this page, I'll show you what you can do with the code. For full details, refer to the Reference pages.
+This is a maths library for your C++20 projects. It was created for [mathplot](https://github.com/sebsjames/mathplot) and has been used in all of my recent scientific modelling work. On this page, I'll give you a taste of what you can do with the code. For full details, refer to the Reference pages.
 
 - TOC
 {:toc}
 
 ## Mathematical constants
-`mathconst` provides a set of templated mathmatical constants
+`mathconst` provides a set of templated, type-correct mathmatical constants. Stop using M_PI!
 ```c++
 #include <sm/mathconst>
 sm::mathconst<float>::pi      // A static constexpr float representation of pi
@@ -21,7 +21,7 @@ sm::mathconst<double>::root_2 // Squart root of two, double precision
 ```
 
 ## Closed intervals
-The `sm::range` class specifies a closed interval [a, b] to get min/max pairs:
+The `sm::range` class specifies a closed interval [a, b] to get min/max pairs. It's a small class, but it gets frequent use.
 ```c++
 #include <sm/vvec>
 #include <sm/range>
@@ -42,7 +42,7 @@ s.transform (input, output); // Output will now be in the range [0, 1]
 ```
 
 ## Random numbers
-I wrap the modern C++ random number generation from `#include <random>` in `<sm/random>`. Currently the following distributions are provided: uniform, normal, lognormal, Poisson, exponential and Pareto along with random string generation
+I wrap the modern C++ random number generation from `#include <random>` in `<sm/random>`. Currently the following distributions are provided: uniform, normal, lognormal, Poisson, exponential and Pareto.
 ```c++
 #include <sm/random>
 sm::rand_uniform<unsigned int> rng (0, 100);      // Uniform distribution in [0, 100]
@@ -100,8 +100,32 @@ sm::vec<float, 4> vout = m * v;      // Transform a 3D vector, always get a 4D r
 
 `sm::grid` allows you to manage rectangular grids of coordinates in programs that do 2D maths. `sm::cartgrid` is similar, but allows the boundary to be of an arbitrary shape. `sm::hexgrid` allows you to manage hexagonal grids! These objects have corresponding visualization classes in mathplot such as in this [hexgrid image example](https://github.com/sebsjames/mathplot/tree/main/examples#hexgrid_image)
 
-## Histograms and bootstrap operations
-See `<sm/histo>` and `<sm/bootstrap>`.
+## Histograms
+See `<sm/histo>` for 1D histograms and `<sm/hexyhisto>` for hexagonal 2D histograms.
+```c++
+#include <sm/vvec>
+#include <sm/histo>
+sm::vvec<double> numbers = { 1, 1.5, 2, 3, 4.1, 4.4, 4.9 };
+sm::histo<double, float> h(numbers, 3);
+std::cout << "Bin edges are: " << h.binedges << std::endl;
+std::cout << "Proportions are: " << h.proportions << std::endl;
+```
 
 ## Optimization
 Implementations of the Nelder-Mead (`sm::nm_simplex`) and Simulated Annealing (`sm::anneal`) algorithms are provided.
+
+## Bezier curves
+
+The grid classes `sm::hexgrid` and `sm::cargrid` make use of Bezier curves to specify arbitrary boundaries. see `<sm/bezcurve>` and friends.
+
+## Algorithms
+
+There are a number of well known algorithms that I've had need of. These include:
+
+* An efficient implementation of the boxfilter algorithm (`<sm/boxfilter>`)
+* A winding number computation (`<sm/winder>`)
+* Image resampling methods in `sm::hexgrid` and `sm::cartgrid`
+* Bootstrap statistical analyses (`<sm/bootstrap>`)
+* The crc32 checksum (`<sm/crc32>`)
+* base64 encoding (`<sm/base64>`)
+* Line segment crossing, linear regression, covariance and several other miscellaneous algos in `<sm/algo`>
