@@ -220,7 +220,7 @@ namespace sm
             }
         }
 
-        // Static get_from fucntion that accepts a span of values
+        // Static member to get a range from a span of values
         template <typename Tc=T>
         static sm::range<Tc> get_from (const std::span<Tc> values)
         {

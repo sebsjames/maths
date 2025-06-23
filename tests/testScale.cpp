@@ -330,8 +330,6 @@ int main ()
     if (std::abs(for_scaling.min - r_itfromed.min) > std::numeric_limits<float>::epsilon()
         || std::abs(for_scaling.max - r_itfromed.max) > std::numeric_limits<float>::epsilon()) { --rtn; }
 
-
-
     std::cout << "testScale " << (rtn == 0 ? "Passed" : "Failed") << std::endl;
     return rtn;
 }
