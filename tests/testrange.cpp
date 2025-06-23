@@ -1,4 +1,6 @@
 #include <iostream>
+#include <vector>
+#include <span>
 #include <sm/range>
 
 int main()
@@ -26,5 +28,12 @@ int main()
     if (r1.contains(r6) == true) { --rtn; }
 
     std::cout << "Test " << (rtn == 0 ? "Passed" : "Failed") << std::endl;
+
+    std::vector<float> v = { 1, 2, 3, 4, 5 };
+    // You can't make a span from const iterators
+    std::span<float> sp (v.begin(), v.end());
+    sm::range<float> rs = sm::range<float>::get_from (sp);
+    std::cout << "range from span: " << rs << std::endl;
+
     return rtn;
 }
