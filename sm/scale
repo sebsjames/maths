@@ -169,8 +169,16 @@ namespace sm
             while (di != data.end()) { *oi++ = this->transform_one (*di++); }
         }
 
-        /*
-        */
+        /*!
+         * \brief Transform a span of scalars or vectors.
+         *
+         * This uses the scaling parameters \b params (scale_impl::params) to scale the input \a
+         * data. If #do_autoscale is true and this->ready() is false, then the parameters are computed
+         * from the input \a data.
+         *
+         * \param data The input data
+         * \param output The scaled output
+         */
         void transform (const std::span<T> data, std::span<S> output)
         {
             std::size_t dsize = data.size();
