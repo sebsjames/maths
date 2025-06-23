@@ -576,11 +576,10 @@ namespace sm
     };
 
     /*!
-     * Generate Pareto distributed random numbers.
+     * Generate random numbers from a (Type I) Pareto distribution.
      *
-     * Uses exponential_distribution rng internally along with the relationshipe of a
-     * Pareto distribution, X, with minimum x_m to an exponential distribution Y:
-     *    X = x_m e ^ Y
+     * Uses exponential_distribution rng internally along with the relationship between a Type I
+     * Pareto distribution, X, with minimum sigma to an exponential distribution Y: X = sigma e ^ Y
      *
      * \tparam T The type of the random number to be generated
      *
@@ -590,28 +589,28 @@ namespace sm
     class rand_pareto : public sm::rand_exponential<T, E>
     {
     public:
-        // The minimum of the Pareto distribution, also known as the 'scale'. Should be positive.
-        T scale = T{1};
-        //! Default constructor gives a pareto random number generator with shape 1
+        // The minimum of the Pareto distribution, also known as the 'scale' or x_min. sigma > 0.
+        T sigma = T{1};
+        //! Default constructor gives a pareto random number generator with alpha 1
         //! (meaning that the underlying exponential distribution has rate 1)
         rand_pareto() noexcept
         {
             typename std::exponential_distribution<T>::param_type prms (T{1});
             this->dist.param (prms);
         }
-        //! Default constructor gives a pareto random number generator with scale 1, shape 1.
+        //! Default constructor gives a pareto random number generator with alpha (or shape) 1 and sigma (scale or x_min) 1.
         //! Sets fixed seed \a _seed.
         rand_pareto (unsigned int _seed) noexcept : sm::rand_exponential<T, E>(T{1}, _seed) {}
-        //! This constructor gives RN generator with rate \a rate
-        rand_pareto (T shape) noexcept : sm::rand_exponential<T, E>(shape) {}
-        //! Construct with shape and scale
-        rand_pareto (T shape, T _scale) noexcept : sm::rand_exponential<T, E>(shape) { this->scale = _scale; }
-        //! This constructor gives RN generator with shape \a shape. and a given seed
-        rand_pareto (T shape, unsigned int _seed) noexcept : sm::rand_exponential<T, E>(shape, _seed) {}
-        //! This constructor gives RN generator with shape \a shape, scale \a scale. and a given seed
-        rand_pareto (T shape, T _scale, unsigned int _seed) noexcept : sm::rand_exponential<T, E>(shape, _seed)
+        //! This constructor gives Pareto RN generator with alpha \a alpha and sigma 1
+        rand_pareto (T alpha) noexcept : sm::rand_exponential<T, E>(alpha) {}
+        //! Construct with given alpha and sigma
+        rand_pareto (T alpha, T _sigma) noexcept : sm::rand_exponential<T, E>(alpha) { this->sigma = _sigma; }
+        //! This constructor gives RN generator with alpha \a alpha. and a given seed
+        rand_pareto (T alpha, unsigned int _seed) noexcept : sm::rand_exponential<T, E>(alpha, _seed) {}
+        //! This constructor gives RN generator with alpha \a alpha, sigma \a sigma. and a given seed
+        rand_pareto (T alpha, T _sigma, unsigned int _seed) noexcept : sm::rand_exponential<T, E>(alpha, _seed)
         {
-            this->scale = _scale;
+            this->sigma = _sigma;
         }
         //! Copy constructor copies the distribution parameters
         rand_pareto (const rand_pareto<T>& rng) noexcept { this->param (rng.param()); }
@@ -623,22 +622,20 @@ namespace sm
             return *this;
         }
         //! Get 1 random number from the generator
-        T get() noexcept { return this->scale * std::exp (this->dist (this->generator)); }
+        T get() noexcept { return this->generate(); }
         //! Get n random numbers from the generator
         std::vector<T> get (std::size_t n) noexcept
         {
             std::vector<T> rtn (n, T{0});
-            for (std::size_t i = 0; i < n; ++i) {
-                rtn[i] = this->scale * std::exp (this->dist (this->generator));
-            }
+            for (auto& r : rtn) { r = this->generate(); }
             return rtn;
         }
         //! Place n random numbers in the array rtn
         template<std::size_t n>
-        void get (std::array<T, n>& rtn) noexcept
-        {
-            for (std::size_t i = 0; i < n; ++i) { rtn[i] = this->scale * std::exp (this->dist (this->generator)); }
-        }
+        void get (std::array<T, n>& rtn) noexcept { for (auto& r : rtn) { r = this->generate(); } }
+    private:
+        // To generate one sample, obtain a sample from the exponential generator and transform it:
+        T generate() { return this->sigma * std::exp (this->dist (this->generator)); }
     };
 
     //! Enumerated class defining groups of characters, such as alphanumericuppercase,

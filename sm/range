@@ -168,55 +168,60 @@ namespace sm
 
         // Static member to get a range from any old container of values.
         template <typename C> requires sm::is_copyable_container<C>::value
-        static sm::range<typename C::value_type> get_from (const C& values)
+        static sm::range<T> get_from (const C& values)
         {
             using Tc = typename C::value_type;
 
-            if constexpr (sm::number_type<T>::value == 0) { // vector elements
-                // Example to get the type of the container T.
-                // See https://stackoverflow.com/questions/44521991/type-trait-to-get-element-type-of-stdarray-or-c-style-array
-                using T_el = std::remove_reference_t<decltype(*std::begin(std::declval<Tc&>()))>;
-                sm::range<Tc> r (std::numeric_limits<Tc>::max(), std::numeric_limits<Tc>::min());
-                T_el maxlen = 0;
-                T_el minlen = std::numeric_limits<T_el>::max();
+            // The container element type must match T
+            if constexpr (std::is_same_v<T, Tc>) {
+                if constexpr (sm::number_type<T>::value == 0) { // vector elements
+                    // Example to get the type of the container T.
+                    // See https://stackoverflow.com/questions/44521991/type-trait-to-get-element-type-of-stdarray-or-c-style-array
+                    using T_el = std::remove_reference_t<decltype(*std::begin(std::declval<T&>()))>;
+                    sm::range<Tc> r (std::numeric_limits<T>::max(), std::numeric_limits<T>::min());
+                    T_el maxlen = 0;
+                    T_el minlen = std::numeric_limits<T_el>::max();
 
-                for (auto v : values) {
-                    // (Vector version compares sqrt (v[0]*v[0] + v[1]*v[1] +...))
-                    T_el vlen = 0;
-                    for (auto vi : v) { vlen += vi*vi; }
-                    vlen = std::sqrt (vlen);
-                    if (vlen > maxlen) {
-                        maxlen = vlen;
-                        r.max = v;
+                    for (auto v : values) {
+                        // (Vector version compares sqrt (v[0]*v[0] + v[1]*v[1] +...))
+                        T_el vlen = 0;
+                        for (auto vi : v) { vlen += vi*vi; }
+                        vlen = std::sqrt (vlen);
+                        if (vlen > maxlen) {
+                            maxlen = vlen;
+                            r.max = v;
+                        }
+                        if (vlen < minlen) {
+                            minlen = vlen;
+                            r.min = v;
+                        }
                     }
-                    if (vlen < minlen) {
-                        minlen = vlen;
-                        r.min = v;
+                    return r; // range of vector elements
+
+                } else if constexpr (sm::number_type<T>::value == 2) { // complex elements
+                    using T_el = typename T::value_type; // If T is std::complex<float>, T_el will be float
+                    // Note that there's no specialization of numeric_limits for std::complex, so set it up manually
+                    sm::range<T> r ({std::numeric_limits<T_el>::max(), std::numeric_limits<T_el>::max() }, T{0, 0});
+                    for (auto v : values) {
+                        // comparison operations on complex numbers commonly consider their
+                        // modulus - how far the number is from the origin.
+                        r.max = std::abs(v) > std::abs(r.max) ? v : r.max;
+                        r.min = std::abs(v) < std::abs(r.min) ? v : r.min;
                     }
-                }
-                return r; // range of vector elements
+                    return r; // range of complex elements
 
-            } else if constexpr (sm::number_type<T>::value == 2) { // complex elements
-                using T_el = typename T::value_type; // If T is std::complex<float>, T_el will be float
-                // Note that there's no specialization of numeric_limits for std::complex, so set it up manually
-                sm::range<Tc> r ({std::numeric_limits<T_el>::max(), std::numeric_limits<T_el>::max() }, T{0, 0});
-                for (auto v : values) {
-                    // comparison operations on complex numbers commonly consider their
-                    // modulus - how far the number is from the origin.
-                    r.max = std::abs(v) > std::abs(r.max) ? v : r.max;
-                    r.min = std::abs(v) < std::abs(r.min) ? v : r.min;
+                } else if constexpr (sm::number_type<T>::value == 1) { // scalar elements
+                    sm::range<T> r (std::numeric_limits<T>::max(), std::numeric_limits<T>::lowest());
+                    for (auto v : values) {
+                        r.max = v > r.max ? v : r.max;
+                        r.min = v < r.min ? v : r.min;
+                    }
+                    return r; // range of scalar elements
+                } else {
+                    []<bool flag = false>() { static_assert(flag, "Can't find range for that number_type"); }();
                 }
-                return r; // range of complex elements
-
-            } else if constexpr (sm::number_type<T>::value == 1) { // scalar elements
-                sm::range<Tc> r (std::numeric_limits<T>::max(), std::numeric_limits<T>::lowest());
-                for (auto v : values) {
-                    r.max = v > r.max ? v : r.max;
-                    r.min = v < r.min ? v : r.min;
-                }
-                return r; // range of scalar elements
             } else {
-                []<bool flag = false>() { static_assert(flag, "Can't find range for that number_type"); }();
+                []<bool flag = false>() { static_assert(flag, "Container element type should match range type T"); }();
             }
         }
 
