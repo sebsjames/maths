@@ -44,6 +44,7 @@
 #include <cstddef>
 #include <string>
 #include <sstream>
+#include <span>
 
 #include <sm/trait_tests>
 #include <sm/vvec>
@@ -168,6 +169,24 @@ namespace sm
             while (di != data.end()) { *oi++ = this->transform_one (*di++); }
         }
 
+        /*
+        */
+        void transform (const std::span<T> data, std::span<S> output)
+        {
+            std::size_t dsize = data.size();
+            if (output.size() != dsize) {
+                throw std::runtime_error ("scale_impl_base::transform(): Ensure data.size()==output.size()");
+            }
+            if (this->do_autoscale == true && !this->ready()) {
+                this->compute_scaling_from_data<std::span<T>> (data); // not const
+            } else if (this->do_autoscale == false && !this->ready()) {
+                throw std::runtime_error ("scale_impl_base::transform(): Params are not set and do_autoscale is set false. Can't transform.");
+            }
+            typename std::span<T>::const_iterator di = data.begin();
+            typename std::span<S>::iterator oi = output.begin();
+            while (di != data.end()) { *oi++ = this->transform_one (*di++); }
+        }
+
         /*!
          * \brief Inverse transform a container of scalars or vectors.
          */
@@ -243,6 +262,12 @@ namespace sm
         {
             using Tc = typename Container::value_type;
             sm::range<Tc> mm = sm::range<Tc>::get_from (data);
+            this->compute_scaling (mm.min, mm.max);
+        }
+
+        void compute_scaling_from_data (const std::span<T> data)
+        {
+            sm::range<T> mm = sm::range<T>::get_from (data);
             this->compute_scaling (mm.min, mm.max);
         }
 

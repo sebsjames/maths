@@ -15,6 +15,7 @@
 #include <sstream>
 #include <limits>
 #include <complex>
+#include <span>
 #include <sm/trait_tests>
 #include <sm/constexpr_math>
 
@@ -170,7 +171,13 @@ namespace sm
         static sm::range<typename C::value_type> get_from (const C& values)
         {
             using Tc = typename C::value_type;
+            const std::span<Tc> myspan (values.cbegin(), values.cend());
+            return sm::range<Tc>::get_from (myspan);
+        }
 
+        template <typename Tc>
+        static sm::range<Tc> get_from (const std::span<Tc> values)
+        {
             if constexpr (sm::number_type<T>::value == 0) { // vector elements
                 // Example to get the type of the container T.
                 // See https://stackoverflow.com/questions/44521991/type-trait-to-get-element-type-of-stdarray-or-c-style-array
