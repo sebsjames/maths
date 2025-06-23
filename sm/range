@@ -221,14 +221,13 @@ namespace sm
         }
 
         // Static member to get a range from a span of values
-        template <typename Tc=T>
-        static sm::range<Tc> get_from (const std::span<Tc> values)
+        static sm::range<T> get_from (const std::span<T> values)
         {
-            if constexpr (sm::number_type<Tc>::value == 0) { // vector elements
+            if constexpr (sm::number_type<T>::value == 0) { // vector elements
                 // Example to get the type of the container T.
                 // See https://stackoverflow.com/questions/44521991/type-trait-to-get-element-type-of-stdarray-or-c-style-array
-                using T_el = std::remove_reference_t<decltype(*std::begin(std::declval<Tc&>()))>;
-                sm::range<Tc> r (std::numeric_limits<Tc>::max(), std::numeric_limits<Tc>::min());
+                using T_el = std::remove_reference_t<decltype(*std::begin(std::declval<T&>()))>;
+                sm::range<T> r (std::numeric_limits<T>::max(), std::numeric_limits<T>::min());
                 T_el maxlen = 0;
                 T_el minlen = std::numeric_limits<T_el>::max();
 
@@ -248,10 +247,10 @@ namespace sm
                 }
                 return r; // range of vector elements
 
-            } else if constexpr (sm::number_type<Tc>::value == 2) { // complex elements
-                using T_el = typename Tc::value_type; // If T is std::complex<float>, T_el will be float
+            } else if constexpr (sm::number_type<T>::value == 2) { // complex elements
+                using T_el = typename T::value_type; // If T is std::complex<float>, T_el will be float
                 // Note that there's no specialization of numeric_limits for std::complex, so set it up manually
-                sm::range<Tc> r ({std::numeric_limits<T_el>::max(), std::numeric_limits<T_el>::max() }, T{0, 0});
+                sm::range<T> r ({std::numeric_limits<T_el>::max(), std::numeric_limits<T_el>::max() }, T{0, 0});
                 for (auto v : values) {
                     // comparison operations on complex numbers commonly consider their
                     // modulus - how far the number is from the origin.
@@ -260,8 +259,8 @@ namespace sm
                 }
                 return r; // range of complex elements
 
-            } else if constexpr (sm::number_type<Tc>::value == 1) { // scalar elements
-                sm::range<Tc> r (std::numeric_limits<Tc>::max(), std::numeric_limits<Tc>::lowest());
+            } else if constexpr (sm::number_type<T>::value == 1) { // scalar elements
+                sm::range<T> r (std::numeric_limits<T>::max(), std::numeric_limits<T>::lowest());
                 for (auto v : values) {
                     r.max = v > r.max ? v : r.max;
                     r.min = v < r.min ? v : r.min;
