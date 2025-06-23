@@ -576,10 +576,10 @@ namespace sm
     };
 
     /*!
-     * Generate (Type I) Pareto distributed random numbers.
+     * Generate random numbers from a (Type I) Pareto distribution.
      *
      * Uses exponential_distribution rng internally along with the relationship between a Type I
-     * Pareto distribution, X, with minimum x_m to an exponential distribution Y: X = x_m e ^ Y
+     * Pareto distribution, X, with minimum sigma to an exponential distribution Y: X = sigma e ^ Y
      *
      * \tparam T The type of the random number to be generated
      *
