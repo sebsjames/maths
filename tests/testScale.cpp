@@ -2,6 +2,7 @@
 #include <vector>
 #include <list>
 #include <array>
+#include <span>
 #include <iostream>
 #include <cmath>
 #include <sm/vec>
@@ -234,6 +235,16 @@ int main ()
     std::cout << "Inverse scale output for rmin: " << d.inverse_one (0) << std::endl;
     std::cout << "Inverse scale output for rmin: " << d.inverse_one (1) << std::endl;
 
+    // Spans
+    sm::scale<float> spanscale;
+    sm::vvec<float> myvec = { 1, 4, 6, 8, 9 };
+    std::span<float> myspan (myvec.begin(), 3);
+    spanscale.compute_scaling_from_data (myspan);
+    sm::vvec<float> myvec_xformed (myvec.size());
+    spanscale.transform (myvec, myvec_xformed);
+    std::cout << myvec << " transforms to " << myvec_xformed << std::endl;
+    if (myvec_xformed[0] != 0 || myvec_xformed[2] != 1) { --rtn; }
+
     // Testing what happens to a NaN (after scaling should be nan)
     sm::scale<float> snan;
     snan.do_autoscale = true;
@@ -318,6 +329,8 @@ int main ()
 
     if (std::abs(for_scaling.min - r_itfromed.min) > std::numeric_limits<float>::epsilon()
         || std::abs(for_scaling.max - r_itfromed.max) > std::numeric_limits<float>::epsilon()) { --rtn; }
+
+
 
     std::cout << "testScale " << (rtn == 0 ? "Passed" : "Failed") << std::endl;
     return rtn;

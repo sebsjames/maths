@@ -27,8 +27,6 @@ int main()
     if (r1.contains(r5) == true) { --rtn; }
     if (r1.contains(r6) == true) { --rtn; }
 
-    std::cout << "Test " << (rtn == 0 ? "Passed" : "Failed") << std::endl;
-
     std::vector<int> v = { 1, 2, 4, 4, 5 };
     // You can't make a span from const iterators
     std::span<int> sp (v.begin(), v.end());
@@ -41,5 +39,6 @@ int main()
     std::cout << "range from smaller span: " << rs2 << std::endl;
     if (rs2.min != 1 || rs2.max != 4) { --rtn; }
 
+    std::cout << "Test " << (rtn == 0 ? "Passed" : "Failed") << std::endl;
     return rtn;
 }
