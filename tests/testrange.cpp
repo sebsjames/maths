@@ -1,4 +1,5 @@
 #include <iostream>
+#include <vector>
 #include <sm/range>
 
 int main()
@@ -24,6 +25,11 @@ int main()
     if (r1.contains(r4) == false) { --rtn; }
     if (r1.contains(r5) == true) { --rtn; }
     if (r1.contains(r6) == true) { --rtn; }
+
+    std::vector<int> vint = { 1, -2, 5, 19 };
+    sm::range<int> r_fromvec = sm::range<int>::get_from (vint);
+    std::cout << "range from vector: " << r_fromvec << std::endl;
+    if (r_fromvec.min != -2 || r_fromvec.max != 19) { --rtn; }
 
     std::cout << "Test " << (rtn == 0 ? "Passed" : "Failed") << std::endl;
     return rtn;
