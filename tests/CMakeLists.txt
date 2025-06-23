@@ -221,6 +221,9 @@ add_test(testrange_constexpr testrange_constexpr)
 add_executable(testrange_complex testrange_complex.cpp)
 add_test(testrange_complex testrange_complex)
 
+add_executable(testrange_vector testrange_vector.cpp)
+add_test(testrange_vector testrange_vector)
+
 # Test Nelder Mead algorithm
 #add_executable(testNMSimplex testNMSimplex.cpp)
 #target_compile_definitions(testNMSimplex PUBLIC FLT=float)
