@@ -29,11 +29,17 @@ int main()
 
     std::cout << "Test " << (rtn == 0 ? "Passed" : "Failed") << std::endl;
 
-    std::vector<float> v = { 1, 2, 3, 4, 5 };
+    std::vector<int> v = { 1, 2, 4, 4, 5 };
     // You can't make a span from const iterators
-    std::span<float> sp (v.begin(), v.end());
-    sm::range<float> rs = sm::range<float>::get_from (sp);
+    std::span<int> sp (v.begin(), v.end());
+    sm::range<int> rs = sm::range<int>::get_from (sp);
     std::cout << "range from span: " << rs << std::endl;
+    if (rs.min != 1 || rs.max != 5) { --rtn; }
+
+    std::span<int> sp2 (v.begin(), 3);
+    sm::range<int> rs2 = sm::range<int>::get_from (sp2);
+    std::cout << "range from smaller span: " << rs2 << std::endl;
+    if (rs2.min != 1 || rs2.max != 4) { --rtn; }
 
     return rtn;
 }
