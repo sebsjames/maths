@@ -214,6 +214,23 @@ namespace sm
             while (di != data.end()) { *oi++ = this->inverse_one (*di++); }
         }
 
+        /*!
+         * \brief Inverse transform a span of scalars or vectors.
+         */
+        void inverse (const std::span<S> data, std::span<T> output)
+        {
+            std::size_t dsize = data.size();
+            if (output.size() != dsize) {
+                throw std::runtime_error ("scale_impl_base::inverse(): Ensure data.size()==output.size()");
+            }
+            if (!this->ready()) {
+                throw std::runtime_error ("scale_impl_base::inverse(): Can't inverse transform; set params of this scale, first");
+            }
+            typename std::span<S>::iterator di = data.begin();
+            typename std::span<T>::iterator oi = output.begin();
+            while (di != data.end()) { *oi++ = this->inverse_one (*di++); }
+        }
+
         //! Transform a range
         sm::range<S> transform (const sm::range<T>& data)
         {

@@ -217,12 +217,28 @@ int main ()
     auto li = range.begin();
     auto lio = rangeout.begin();
     // output in MATLAB/Octave format:
-    std::cout << "[";
+    std::cout << "inverse_applied_to_vvec = [";
     while (li != range.end()) {
         std::cout << *li << "," << *lio << ";" << std::endl;
         ++li; ++lio;
     }
-    std::cout << "];" << std::endl;;
+    std::cout << "];" << std::endl;
+
+    // reset rangeout
+    rangeout.zero();
+
+    std::span<float> span_range (range.begin(), range.end());
+    std::span<double> span_rangeout (rangeout.begin(), rangeout.end());
+    ls.inverse (span_range, span_rangeout);
+    // output in MATLAB/Octave format:
+    auto sli = span_range.begin();
+    auto slio = span_rangeout.begin();
+    std::cout << "inverse_applied_to_span = [";
+    while (sli != span_range.end()) {
+        std::cout << *sli << "," << *slio << ";" << std::endl;
+        ++sli; ++slio;
+    }
+    std::cout << "];" << std::endl;
 
     // Find scale that will transform -r -> +r to 0->1.
     sm::scale<double> d;
