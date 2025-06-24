@@ -186,11 +186,11 @@ namespace sm
                 throw std::runtime_error ("scale_impl_base::transform(): Ensure data.size()==output.size()");
             }
             if (this->do_autoscale == true && !this->ready()) {
-                this->compute_scaling_from_data<std::span<T>> (data); // not const
+                this->compute_scaling_from_data (data); // not const
             } else if (this->do_autoscale == false && !this->ready()) {
                 throw std::runtime_error ("scale_impl_base::transform(): Params are not set and do_autoscale is set false. Can't transform.");
             }
-            typename std::span<T>::const_iterator di = data.begin();
+            typename std::span<T>::iterator di = data.begin();
             typename std::span<S>::iterator oi = output.begin();
             while (di != data.end()) { *oi++ = this->transform_one (*di++); }
         }
