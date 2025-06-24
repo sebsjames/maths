@@ -44,6 +44,7 @@
 #include <cstddef>
 #include <string>
 #include <sstream>
+#include <span>
 
 #include <sm/trait_tests>
 #include <sm/vvec>
@@ -169,6 +170,32 @@ namespace sm
         }
 
         /*!
+         * \brief Transform a span of scalars or vectors.
+         *
+         * This uses the scaling parameters \b params (scale_impl::params) to scale the input \a
+         * data. If #do_autoscale is true and this->ready() is false, then the parameters are computed
+         * from the input \a data.
+         *
+         * \param data The input data
+         * \param output The scaled output
+         */
+        void transform (const std::span<T> data, std::span<S> output)
+        {
+            std::size_t dsize = data.size();
+            if (output.size() != dsize) {
+                throw std::runtime_error ("scale_impl_base::transform(): Ensure data.size()==output.size()");
+            }
+            if (this->do_autoscale == true && !this->ready()) {
+                this->compute_scaling_from_data (data); // not const
+            } else if (this->do_autoscale == false && !this->ready()) {
+                throw std::runtime_error ("scale_impl_base::transform(): Params are not set and do_autoscale is set false. Can't transform.");
+            }
+            typename std::span<T>::iterator di = data.begin();
+            typename std::span<S>::iterator oi = output.begin();
+            while (di != data.end()) { *oi++ = this->transform_one (*di++); }
+        }
+
+        /*!
          * \brief Inverse transform a container of scalars or vectors.
          */
         template <typename OContainer, typename Container=OContainer>
@@ -184,6 +211,23 @@ namespace sm
             }
             typename Container::const_iterator di = data.begin();
             typename OContainer::iterator oi = output.begin();
+            while (di != data.end()) { *oi++ = this->inverse_one (*di++); }
+        }
+
+        /*!
+         * \brief Inverse transform a span of scalars or vectors.
+         */
+        void inverse (const std::span<S> data, std::span<T> output)
+        {
+            std::size_t dsize = data.size();
+            if (output.size() != dsize) {
+                throw std::runtime_error ("scale_impl_base::inverse(): Ensure data.size()==output.size()");
+            }
+            if (!this->ready()) {
+                throw std::runtime_error ("scale_impl_base::inverse(): Can't inverse transform; set params of this scale, first");
+            }
+            typename std::span<S>::iterator di = data.begin();
+            typename std::span<T>::iterator oi = output.begin();
             while (di != data.end()) { *oi++ = this->inverse_one (*di++); }
         }
 
@@ -243,6 +287,12 @@ namespace sm
         {
             using Tc = typename Container::value_type;
             sm::range<Tc> mm = sm::range<Tc>::get_from (data);
+            this->compute_scaling (mm.min, mm.max);
+        }
+
+        void compute_scaling_from_data (const std::span<T> data)
+        {
+            sm::range<T> mm = sm::range<T>::get_from (data);
             this->compute_scaling (mm.min, mm.max);
         }
 

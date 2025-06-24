@@ -2,6 +2,7 @@
 #include <vector>
 #include <list>
 #include <array>
+#include <span>
 #include <iostream>
 #include <cmath>
 #include <sm/vec>
@@ -216,12 +217,28 @@ int main ()
     auto li = range.begin();
     auto lio = rangeout.begin();
     // output in MATLAB/Octave format:
-    std::cout << "[";
+    std::cout << "inverse_applied_to_vvec = [";
     while (li != range.end()) {
         std::cout << *li << "," << *lio << ";" << std::endl;
         ++li; ++lio;
     }
-    std::cout << "];" << std::endl;;
+    std::cout << "];" << std::endl;
+
+    // reset rangeout
+    rangeout.zero();
+
+    std::span<float> span_range (range.begin(), range.end());
+    std::span<double> span_rangeout (rangeout.begin(), rangeout.end());
+    ls.inverse (span_range, span_rangeout);
+    // output in MATLAB/Octave format:
+    auto sli = span_range.begin();
+    auto slio = span_rangeout.begin();
+    std::cout << "inverse_applied_to_span = [";
+    while (sli != span_range.end()) {
+        std::cout << *sli << "," << *slio << ";" << std::endl;
+        ++sli; ++slio;
+    }
+    std::cout << "];" << std::endl;
 
     // Find scale that will transform -r -> +r to 0->1.
     sm::scale<double> d;
@@ -233,6 +250,16 @@ int main ()
 
     std::cout << "Inverse scale output for rmin: " << d.inverse_one (0) << std::endl;
     std::cout << "Inverse scale output for rmin: " << d.inverse_one (1) << std::endl;
+
+    // Spans
+    sm::scale<float> spanscale;
+    sm::vvec<float> myvec = { 1, 4, 6, 8, 9 };
+    std::span<float> myspan (myvec.begin(), 3);
+    spanscale.compute_scaling_from_data (myspan);
+    sm::vvec<float> myvec_xformed (myvec.size());
+    spanscale.transform (myvec, myvec_xformed);
+    std::cout << myvec << " transforms to " << myvec_xformed << std::endl;
+    if (myvec_xformed[0] != 0 || myvec_xformed[2] != 1) { --rtn; }
 
     // Testing what happens to a NaN (after scaling should be nan)
     sm::scale<float> snan;
