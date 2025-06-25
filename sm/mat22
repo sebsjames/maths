@@ -135,7 +135,8 @@ namespace sm
             return adj;
         }
 
-        mat22<F> invert() noexcept
+        //! Return the inverse matrix
+        mat22<F> inverse() noexcept
         {
             mat22<F> rtn;
             F det = this->determinant();

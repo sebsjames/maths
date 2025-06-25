@@ -148,7 +148,7 @@ constexpr int do_test()
     mult4.mat[14] = 1;
     mult4.mat[15] = 0;
 
-    sm::mat44<float> mult4inv = mult4.invert();
+    sm::mat44<float> mult4inv = mult4.inverse();
 
     std::array<float, 4> v1 = {1,2,3,4};
     std::array<float, 4> v2;

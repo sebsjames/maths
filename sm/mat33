@@ -248,7 +248,8 @@ namespace sm
             return cofac;
         }
 
-        mat33<F> invert() noexcept
+        //! Return the inverse matrix
+        mat33<F> inverse() noexcept
         {
             F det = this->determinant();
             mat33<F> rtn;

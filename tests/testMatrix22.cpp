@@ -35,9 +35,9 @@ int main()
     sm::mat22<float> mi;
     mi.mat = { -1, 2, 3, -2 };
 
-    sm::mat22<float> miinv = mi.invert();
+    sm::mat22<float> miinv = mi.inverse();
     std::cout << "mi\n" << mi << std::endl;
-    std::cout << "mi.invert():\n" << miinv << std::endl;
+    std::cout << "mi.inverse():\n" << miinv << std::endl;
 
     // Test multiplication
     sm::mat22<float> mult1;

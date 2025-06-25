@@ -55,9 +55,9 @@ int main()
     mi.mat[7] = 1;
     mi.mat[8] = 5; // This is Sal's example from Kahn academy!
 
-    sm::mat33<float> miinv = mi.invert();
+    sm::mat33<float> miinv = mi.inverse();
     std::cout << "mi\n" << mi << std::endl;
-    std::cout << "mi.invert():\n" << miinv << std::endl;
+    std::cout << "mi.inverse():\n" << miinv << std::endl;
 
     // Test multiplication
     sm::mat33<float> mult1;

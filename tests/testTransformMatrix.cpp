@@ -149,9 +149,9 @@ int main()
     mult4.mat[14] = 1;
     mult4.mat[15] = 0;
 
-    sm::mat44<float> mult4inv = mult4.invert();
+    sm::mat44<float> mult4inv = mult4.inverse();
     std::cout << "mult4\n" << mult4 << std::endl;
-    std::cout << "mult4.invert():\n" << mult4inv << std::endl;
+    std::cout << "mult4.inverse():\n" << mult4inv << std::endl;
 
     std::array<float, 4> v1 = {1,2,3,4};
     std::array<float, 4> v2;
