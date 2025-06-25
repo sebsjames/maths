@@ -92,7 +92,7 @@ sm::mat44<float> m2;
 m2.translate (1.0f, 2.0f, 3.0f);
 ```
 
-`translate` applys the translation *after* any rotation that is
+`translate` applies the translation *after* any rotation that is
 specified in the linear part of the matrix (the top left 3x3 sub-matrix).
 
 The `rotate` methods apply a rotation into the linear part of the matrix:
@@ -137,6 +137,29 @@ m.prerotate (axis, sm::mathconst<float>::pi_over_2);
 
 The rotate, prerotate, translate and pretranslate methods have equivalent names to similar functions in Eigen.
 
+In addition to rotate and translate functions, `mat44` provides
+`scale` functions:
+
+```c++
+sm::mat44<float> m;
+sm::vec<float> t = { 2, 0, 0 };
+m.translate (t);
+sm::vec<float> scaling = { 0.5, 1, 1.5 };
+m.scale (scaling);
+```
+Here, the 3D scaling can be provided as a `sm::vec<float, 3>`,
+`std::array<float, 3>` or as three floats.
+
+It's also possible to specify an equal scaling in all elements:
+
+```c++
+sm::mat44<float> m;
+sm::vec<float> t = { 2, 0, 0 };
+m.translate (t);
+float scaling = 1.2f;
+m.scale (scaling);
+```
+
 ### Special setters
 
 `frombasis` `perspective` and `orthographic`
@@ -153,5 +176,6 @@ float t = m.trace();
 
 ```c++
 sm::mat44<float> m;
-sm::mat44<float> the_inverse = m.invert(); // Returns the inverse. Should be called inverse.
+sm::mat44<float> the_inverse = m.inverse(); // Returns the inverse.
 m.transpose(); // Transposes the matrix in place
+```
