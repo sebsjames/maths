@@ -28,9 +28,8 @@ namespace sm
      * Quaternion computations
      */
     template <typename F> requires std::is_floating_point_v<F>
-    class quaternion
+    struct quaternion
     {
-    public:
         //! A default quaternion has magnitude 1.
         constexpr quaternion() noexcept : w(F{1}), x(F{0}), y(F{0}), z(F{0}) {}
 

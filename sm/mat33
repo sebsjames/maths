@@ -30,9 +30,8 @@ namespace sm
      * \templateparam F The floating point type in which to store the matrix's data.
      */
     template <typename F>
-    class mat33
+    struct mat33
     {
-    public:
         //! Default constructor
         mat33() noexcept { this->setToIdentity(); }
         //! User-declared destructor

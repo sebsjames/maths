@@ -81,7 +81,6 @@ namespace sm
     template <typename T, typename S>
     struct scale_impl_base
     {
-    public:
         /*!
          * \brief Transform the given datum using this scale's parameters.
          *
@@ -370,9 +369,8 @@ namespace sm
      * \sa scale_impl_base
      */
     template <int ntype = 0, typename T=float, typename S=float>
-    class scale_impl : public scale_impl_base<T, S>
+    struct scale_impl : public scale_impl_base<T, S>
     {
-    public:
         //! In a vector implementation we have to get the type of the components of the vector type
         //! \a T. The component (or element) type is named \a T_el.
         using T_el=std::remove_reference_t<decltype(*std::begin(std::declval<T&>()))>;
@@ -560,9 +558,8 @@ namespace sm
      * \sa scale_impl_base
      */
     template<typename T, typename S>
-    class scale_impl<1, T, S> : public scale_impl_base<T, S>
+    struct scale_impl<1, T, S> : public scale_impl_base<T, S>
     {
-    public:
         //! The output range required. Change if you want to scale to something other than [0, 1]
         sm::range<S> output_range = sm::range<S>(S{0}, S{1});
 
@@ -746,9 +743,8 @@ namespace sm
      * \sa scale_impl_base
      */
     template<typename T, typename S>
-    class scale_impl<2, T, S> : public scale_impl<1, T, S>
+    struct scale_impl<2, T, S> : public scale_impl<1, T, S>
     {
-    public:
         // Any public overrides go here
     protected:
         // Scaling a set of complex numbers means stretching/squashing the plane out so that the

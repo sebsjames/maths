@@ -28,9 +28,8 @@ namespace sm
      * \templateparam F The floating point type in which to store the matrix's data.
      */
     template <typename F>
-    class mat22
+    struct mat22
     {
-    public:
         //! Default constructor
         mat22() noexcept { this->setToIdentity(); }
 

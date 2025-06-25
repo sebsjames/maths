@@ -44,9 +44,8 @@ namespace sm
      * mat44's data.
      */
     template <typename F>
-    class mat44
+    struct mat44
     {
-    public:
         //! Default constructor
         constexpr mat44() noexcept { this->setToIdentity(); }
         //! User-declared copy constructor
@@ -736,7 +735,7 @@ namespace sm
 
         //! Returns the rotation part of the 4x4 matrix (the top left 3x3 matrix) IF the determinant
         //! is 1 (which indicates that the matrix encodes a pure rotation).
-        constexpr sm::quaternion<F> rotation()
+        sm::quaternion<F> rotation()
         {
             sm::quaternion<F> therotation;
             F det = this->determinant();
