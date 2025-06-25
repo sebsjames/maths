@@ -21,7 +21,7 @@
 namespace sm
 {
     // Forward declare class and stream operator
-    template <typename F>  requires std::is_floating_point_v<F> class quaternion;
+    template <typename F>  requires std::is_floating_point_v<F> struct quaternion;
     template <typename F> std::ostream& operator<< (std::ostream&, const quaternion<F>&);
 
     /*!
