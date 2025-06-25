@@ -31,11 +31,6 @@ int main()
     // Test assignment
     sm::mat44<float> tm1;
     setMatrixSequence (tm1);
-    std::cout << "Matrix contains:\n" << tm1 << std::endl;
-
-    tm1[3] = 100;
-    std::cout << "Matrix updated:\n" << tm1 << std::endl;
-
     sm::mat44<float> tm2 = tm1;
     std::cout << "After assignment:\n" << tm2 << std::endl;
     for (unsigned int i = 0; i<16; ++i) {
