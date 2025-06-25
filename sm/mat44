@@ -30,7 +30,7 @@
 namespace sm
 {
     // Forward declare class and stream operator
-    template <typename F> class mat44;
+    template <typename F> struct mat44;
     template <typename F> std::ostream& operator<< (std::ostream&, const mat44<F>&);
 
     /*!
