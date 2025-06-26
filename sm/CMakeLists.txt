@@ -8,8 +8,12 @@ install(
   algo
   anneal
   base64
+  bezcurvepath
+  bezcoord
+  bezcurve
   bootstrap
   boxfilter
+  cartgrid
   config
   constexpr_math
   crc32
