@@ -11,7 +11,7 @@
 ![cmake mac 15 build test](https://github.com/sebsjames/maths/actions/workflows/cmake-mac-15.yml/badge.svg)
 ![cmake windows 22 build test](https://github.com/sebsjames/maths/actions/workflows/cmake-windows-2022.yml/badge.svg)
 
-## A simple mathematics library for C++20 projects
+## A mathematics library for modern C++
 
 This header-only library is intended to help you to write maths into
 your C++ in simple, readable and comprehensible code.
@@ -22,10 +22,12 @@ It provides:
 * Transform matrices
 * A quaternion class
 * Scaling and range (or interval) classes
-* Basic statistics including a histo class and a number of bootstrap methods
 * Random number, and string generation
-* A compatible HDF5 wrapper class
 * Classes for working with 2D grids of data (Cartesian and hexagonal)
+* Bezier curves
+* A variety of algorithms (Nelder-Mead, simulated annealing, winding numbers, box filter)
+* Basic statistics including a histo class and a number of bootstrap methods
+* A compatible HDF5 wrapper class
 * A set of constexpr maths methods, derived from Keith O'Hara's GCEM project
 
 The vector classes are compatible with C++ algorithms, and have their
