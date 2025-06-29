@@ -1,6 +1,6 @@
 # CTests
 
-# All #includes in test programs have to be #include "morph/header.h"
+# All #includes in test programs have to be #include <sm/header>
 include_directories(BEFORE ${PROJECT_SOURCE_DIR})
 
 if(HDF5_FOUND)
@@ -36,7 +36,7 @@ if(HDF5_FOUND)
 
 endif(HDF5_FOUND)
 
-# Test morph::quaternion
+# Test sm::quaternion
 add_executable(testQuaternion testQuaternion.cpp)
 add_test(testQuaternion testQuaternion)
 
@@ -62,12 +62,12 @@ if(NOT APPLE)
   add_test(testQuat_constexpr testQuat_constexpr)
 endif()
 
-# test morph::vec.
+# test sm::vec.
 add_executable(testvec testvec.cpp)
 add_test(testvec testvec)
 
 if(NOT APPLE)
-  # constexpr functionality in morph::vec
+  # constexpr functionality in sm::vec
   # Need C++20 for the way I use constexpr here so that it is legal to
   # have "a definition of a variable for which no initialization is
   # performed".
@@ -87,7 +87,7 @@ add_test(testvec_asunordmapkey testvec_asunordmapkey)
 add_executable(testarray_asmapkey testarray_asmapkey.cpp)
 add_test(testarray_asmapkey testarray_asmapkey)
 
-# test morph::vec elemental operations
+# test sm::vec elemental operations
 add_executable(testvecElementOps testvecElementOps.cpp)
 add_test(testvecElementOps testvecElementOps)
 
@@ -162,12 +162,12 @@ add_test(testScaleVector testScaleVector)
 add_executable(testScale_complex testScale_complex.cpp)
 add_test(testScale_complex testScale_complex)
 
-# Test morph::TransformMatrix (4x4 matrix)
+# Test sm::mat44 (4x4 matrix)
 add_executable(testTransformMatrix testTransformMatrix.cpp)
 add_test(testTransformMatrix testTransformMatrix)
 
 if(NOT APPLE)
-  # constexpr TransformMatrix
+  # constexpr mat44
   add_executable(testTransMat_constexpr testTransMat_constexpr.cpp)
   add_test(testTransMat_constexpr testTransMat_constexpr)
 endif()
@@ -175,11 +175,11 @@ endif()
 add_executable(testTranslatePretranslate testTranslatePretranslate.cpp)
 add_test(testTranslatePretranslate testTranslatePretranslate)
 
-# Test morph::Matrix33 (3x3 matrix)
+# Test sm::mat33 (3x3 matrix)
 add_executable(testMatrix33 testMatrix33.cpp)
 add_test(testMatrix33 testMatrix33)
 
-# Test morph::Matrix22 (2x2 matrix)
+# Test sm::mat22 (2x2 matrix)
 add_executable(testMatrix22 testMatrix22.cpp)
 add_test(testMatrix22 testMatrix22)
 

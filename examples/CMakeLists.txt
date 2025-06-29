@@ -1,4 +1,4 @@
-# All #includes in test programs have to be #include <morph/header.h>
+# All #includes in test programs have to be #include <sm/header>
 include_directories(BEFORE ${PROJECT_SOURCE_DIR})
 
 #if(HDF5_FOUND)
@@ -9,7 +9,7 @@ include_directories(BEFORE ${PROJECT_SOURCE_DIR})
 #add_executable(randvec randvec.cpp)
 #target_link_libraries(randvec OpenGL::GL glfw Freetype::Freetype)
 
-# Demo of morph's bootstrap implementation
+# Demo of bootstrap implementation
 #add_executable(bootstrap bootstrap.cpp)
 #target_link_libraries(bootstrap OpenGL::GL glfw Freetype::Freetype)
 

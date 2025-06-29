@@ -1,5 +1,5 @@
 /*
- * Example usage of morph::scale<>
+ * Example usage of sm::scale<>
  *
  * Author: Seb James
  * Date: September 2022
