@@ -23,37 +23,35 @@ endif()
 if (APPLE)
   set(CMAKE_CXX_FLAGS "-Wall -g -O3")
 else()
-  if(NOT CMAKE_SYSTEM MATCHES Win.*)
-    # To use Intel compiler, you can call cmake as: `cmake -DCMAKE_CXX_COMPILER=icpc ..` or `CXX=icpc cmake ..`
-    if(CMAKE_CXX_COMPILER_ID MATCHES Intel)
-      message(WARNING "Intel compiler has not been tested for some time")
-      set(CMAKE_CXX_FLAGS "-Wall -g -std=c++20 -xHOST -O3")
-    else() # GCC or Clang
-      if(CMAKE_CXX_COMPILER_ID MATCHES GNU)
-        # Add compiler version check, to ensure gcc is version 11 or later.
-        if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 11)
-          message(FATAL_ERROR "GCC version must be at least 11")
-        else()
-          message(STATUS "GCC version ${CMAKE_CXX_COMPILER_VERSION} OK!")
-        endif()
-      endif()
-      set(COMPREHENSIVE_WARNING_FLAGS "-Wall -Wextra -Wpedantic -pedantic-errors -Werror -Wfatal-errors -Wno-psabi")
-      set(CMAKE_CXX_FLAGS "-g ${COMPREHENSIVE_WARNING_FLAGS} -O3")
-      if(CMAKE_CXX_COMPILER_ID MATCHES GNU)
-        # Make it possible to compile complex constexpr functions (gcc only)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fconstexpr-ops-limit=5000000000")
-      else()
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fconstexpr-steps=500000000")
-      endif()
-    endif()
-  else() # Windows
+  if(CMAKE_CXX_COMPILER_ID MATCHES MSVC)
     # Set flags for Windows.
     # -DNOMINMAX to prefer std::min and std::max
     # /EHsc required for use of exceptions
     # /Zc:__cplusplus ensures __cplusplus define does not lie
     # /constexpr:steps is equivalent to -fconstexpr-steps or -fconstexpr-ops-limit
     set(CMAKE_CXX_FLAGS "-DNOMINMAX /EHsc /Zc:__cplusplus /constexpr:steps500000000")
-  endif() # CMAKE_SYSTEM MATCHES Win.*
+  elseif(CMAKE_CXX_COMPILER_ID MATCHES Intel)
+    # To use Intel compiler, you can call cmake as: `cmake -DCMAKE_CXX_COMPILER=icpc ..` or `CXX=icpc cmake ..`
+    message(WARNING "Intel compiler has not been tested for some time")
+    set(CMAKE_CXX_FLAGS "-Wall -g -std=c++20 -xHOST -O3")
+  else() # GCC or Clang
+    if(CMAKE_CXX_COMPILER_ID MATCHES GNU)
+      # Add compiler version check, to ensure gcc is version 11 or later.
+      if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 11)
+        message(FATAL_ERROR "GCC version must be at least 11")
+      else()
+        message(STATUS "GCC version ${CMAKE_CXX_COMPILER_VERSION} OK!")
+      endif()
+    endif()
+    set(COMPREHENSIVE_WARNING_FLAGS "-Wall -Wextra -Wpedantic -pedantic-errors -Werror -Wfatal-errors -Wno-psabi")
+    set(CMAKE_CXX_FLAGS "-g ${COMPREHENSIVE_WARNING_FLAGS} -O3")
+    if(CMAKE_CXX_COMPILER_ID MATCHES GNU)
+      # Make it possible to compile complex constexpr functions (gcc only)
+      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fconstexpr-ops-limit=5000000000")
+    else()
+      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fconstexpr-steps=500000000")
+    endif()
+  endif()
 endif()
 
 # If you tell the code you have std::format, then it may use it
