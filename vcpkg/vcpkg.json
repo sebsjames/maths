@@ -1,5 +1,5 @@
 {
-    "name": "maths",
+    "name": "sebsjames-maths",
     "dependencies": [
         "armadillo",
         "hdf5",
