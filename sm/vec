@@ -1126,17 +1126,39 @@ namespace sm
         // the angle about the z axis (range [0, 2pi]) and phi is the azimuthal angle (range [0,
         // pi]).  This is the naming convention in mathematical texts. YOU MAY NEED TO SWITCH theta
         // AND phi because some functions, including boost::math for its spherical harmonics uses a
-        // different convention, swapping theta and phi!
+        // different convention, swapping theta and phi (the 'physics' convention)!
         template <std::size_t Ny = N> requires (Ny == 3)
         constexpr vec<S, Ny> cartesian_to_spherical() const noexcept
         {
             vec<S, Ny> spherical = {S{0}}; // { rho, theta, phi }
             // Assuming *this is cartesian, convert to spherical coordinates.
             S rho = this->length();
-            spherical[0] = rho;                                  // rho
+            spherical[0] = rho;                                      // rho
             spherical[1] = sm::cem::atan2 ((*this)[1], (*this)[0]);  // theta
             spherical[2] = sm::cem::acos ((*this)[2] / rho);         // phi
             return spherical;
+        }
+
+        // Convert spherical coordinates (rho, theta, phi) to 3D Cartesian (x,y,z) where
+        // theta is the angle about the z axis (range [0, 2pi]) and phi is the azimuthal
+        // angle (range [0, pi]).  This is the naming convention in mathematical texts,
+        // rather than the 'physics' convention.
+        template <std::size_t Ny = N> requires (Ny == 3)
+        constexpr vec<S, Ny> spherical_to_cartesian() const noexcept
+        {
+            vec<S, Ny> cartesian = {S{0}};
+            // Assuming *this is (maths convention) spherical, convert to cartesian coordinates.
+            const S rho = (*this)[0];
+            const S theta = (*this)[1];
+            const S phi = (*this)[2];
+            // Project rho onto the plane
+            S rho_proj = rho * sm::cem::sin (phi);
+            // x and y come from theta and the rho projection
+            cartesian[0] = rho_proj * sm::cem::sin (theta);
+            cartesian[1] = rho_proj * sm::cem::cos (theta);
+            // z from phi and rho
+            cartesian[2] = rho * sm::cem::cos (phi);
+            return cartesian;
         }
 
         /*!
