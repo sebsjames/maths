@@ -1,7 +1,11 @@
 // -*- C++ -*-
 /*!
+ * This file is part of sebsjames/maths, a library of maths code for modern C++
+ *
+ * See https://github.com/sebsjames/maths
+ *
  * \file
- * \brief Bezier curve class
+ * \brief sm::bezcurve - a Bezier curve class
  * \author Seb James
  * \date 2019-2020
  */

@@ -1,8 +1,12 @@
 // -*- C++ -*-
 /*!
- * \file GridFeatures.h
+ * This file is part of sebsjames/maths, a library of maths code for modern C++
  *
- * This contains some definitions that are used by CartGrid.h, Grid.h and Gridct.h, all of which
+ * See https://github.com/sebsjames/maths
+ *
+ * \file gridfeatures
+ *
+ * This contains some definitions that are used by cartgrid and grid, both of which
  * define Cartesian grids.
  *
  * \author Seb James
@@ -12,7 +16,7 @@
 
 namespace sm
 {
-    //! The shape of the cartesian grid. Only used by CartGrid.h as Grid.h only specifies rectangular grids.
+    //! The shape of the cartesian grid. Only used by cartgrid as grid only specifies rectangular grids.
     enum class griddomainshape {
         rectangle,
         boundary // The shape of the arbitrary boundary set with CartGrid::setBoundary

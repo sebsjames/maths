@@ -1,5 +1,9 @@
 // -*- C++ -*-
 /*
+ * This file is part of sebsjames/maths, a library of maths code for modern C++
+ *
+ * See https://github.com/sebsjames/maths
+ *
  * This is a constexpr-capable CRC32 checksum based on Ivor Wanders' code from
  * https://gist.github.com/iwanders/8e1cb7b92af2ccf8d1a73450d771f483
  *

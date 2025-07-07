@@ -1,5 +1,9 @@
 // -*- C++ -*-
 /*
+ * This file is part of sebsjames/maths, a library of maths code for modern C++
+ *
+ * See https://github.com/sebsjames/maths
+ *
  * A class to implement the Nelder-Mead algorithm. Implemented following the Wikipedia page. Client
  * code should create an instance of the nm_simplex class, then repeatedly call its public methods
  * until the objects state member is nm_simplex_state::ReadyToStop. Computation of whatever the

@@ -1,18 +1,10 @@
 // -*- C++ -*-
-#pragma once
-
-#include <random>
-#include <vector>
-#include <limits>
-#include <type_traits>
-#include <string>
-#include <ostream>
-#include <array>
-#include <cstddef>
-#include <memory>
-
 /*!
- * \file random.h
+ * This file is part of sebsjames/maths, a library of maths code for modern C++
+ *
+ * See https://github.com/sebsjames/maths
+ *
+ * \file random
  *
  * Random numbers in the sm namespace, wrapping C++ <random> stuff, with a particular
  * favouring for mt19937 and mt19937_64, the 32 and 64 bit Mersenne Twister
@@ -59,6 +51,17 @@
  * standard as yet, but they're short and could probably be implemented easily here,
  * another day.
  */
+#pragma once
+
+#include <random>
+#include <vector>
+#include <limits>
+#include <type_traits>
+#include <string>
+#include <ostream>
+#include <array>
+#include <cstddef>
+#include <memory>
 
 namespace sm
 {

@@ -1,7 +1,9 @@
 // -*- C++ -*-
-#pragma once
-
 /*
+ * This file is part of sebsjames/maths, a library of maths code for modern C++
+ *
+ * See https://github.com/sebsjames/maths
+ *
  * A tiny container class to hold the min and max of a range. I wanted a common type in
  * which to return minmax values for use in sm::vec and sm::vvec. An option would
  * have been an std::array, but I prefer this, as vvec doesn't otherwise need to include
@@ -10,6 +12,7 @@
  * Author: Seb James
  * Date: Sept. 2023.
  */
+#pragma once
 
 #include <ostream>
 #include <sstream>

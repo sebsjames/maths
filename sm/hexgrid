@@ -1,5 +1,9 @@
 // -*- C++ -*-
 /*
+ * This file is part of sebsjames/maths, a library of maths code for modern C++
+ *
+ * See https://github.com/sebsjames/maths
+ *
  * Author: Seb James
  *
  * A hexagonal grid class. The grid can have a boundary of arbitrary shape.

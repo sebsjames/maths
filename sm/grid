@@ -1,5 +1,9 @@
 // -*- C++ -*-
 /*!
+ * This file is part of sebsjames/maths, a library of maths code for modern C++
+ *
+ * See https://github.com/sebsjames/maths
+ *
  * \file
  *
  * This file contains the definition for sm::grid, a simple Cartesian Grid

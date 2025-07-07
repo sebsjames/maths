@@ -1,9 +1,15 @@
 // -*- C++ -*-
-#pragma once
-
-/*
+/*!
+ * This file is part of sebsjames/maths, a library of maths code for modern C++
+ *
+ * See https://github.com/sebsjames/maths
+ *
  * Miscellaneous algorithms
+ *
+ * \author Seb James
  */
+
+#pragma once
 
 #include <type_traits>
 #include <cmath>
