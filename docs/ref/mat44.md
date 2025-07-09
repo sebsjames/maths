@@ -31,7 +31,9 @@ namespace sm {
         // ...
         std::array<F, 16> mat;
 ```
-where `F` hints that the template arg is a floating point type. The data is stored in an `std::array` in column-major format; the left-most column of the matrix is stored in the first 4 elements of the array.
+where `F` hints that the template arg is usually a floating point type (although it may be any signed arithmetic type). The data is stored in an `std::array` in column-major format; the left-most column of the matrix is stored in the first 4 elements of the array.
+
+Note that this class template (along with `mat22` and `mat33`) is not designed with template parameters for rows and columns; it retains the simplicity of providing just a square transform matrix.
 
 ## Create a mat44
 
