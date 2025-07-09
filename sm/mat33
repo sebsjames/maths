@@ -278,9 +278,9 @@ namespace sm
             F det = this->determinant();
             if (det == F{0}) {
                 std::cout << "NB: The transform matrix has no inverse (determinant is 0)" << std::endl;
-                *this.mat.fill (F{0});
+                this->mat.fill (F{0});
             } else {
-                *this.mat = this->adjugate();
+                this->mat = this->adjugate();
                 *this *= (F{1}/det);
             }
         }
