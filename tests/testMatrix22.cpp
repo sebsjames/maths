@@ -55,7 +55,7 @@ int main()
     std::cout << "mult1 * mult2.mat =\n" << mult3alt << std::endl;
 
     sm::mat22<float> mult2_t = mult2;
-    mult2_t.transpose();
+    mult2_t.transpose_inplace();
     std::cout << "mult2 transposed =\n" << mult2_t << std::endl;
 
     if (mult3.mat[0] != 8 || mult3.mat[1] != 17

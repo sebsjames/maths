@@ -83,7 +83,7 @@ int main()
     std::cout << "mult1 * mult2.mat =\n" << mult3alt << std::endl;
 
     sm::mat33<float> mult2_t = mult2;
-    mult2_t.transpose();
+    mult2_t.transpose_inplace();
     std::cout << "mult2 transposed =\n" << mult2_t << std::endl;
 
     if (mult3.mat[0] != 120
