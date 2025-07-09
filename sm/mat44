@@ -1220,7 +1220,7 @@ namespace sm
         //! Return the matrix transposed
         constexpr mat44<F> transpose() noexcept
         {
-            mat44<F> rtn = this->mat;
+            mat44<F> rtn = *this;
             std::array<F, 6> a;
             a[0] = this->mat[4];
             a[1] = this->mat[8];

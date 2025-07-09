@@ -112,9 +112,9 @@ namespace sm
         }
 
         //! Transpose this matrix
-        void transpose() noexcept
+        mat22<F> transpose() noexcept
         {
-            mat22<F> rtn = this->mat;
+            mat22<F> rtn = *this;
             F a = this->mat[2];
             rtn[2] = this->mat[1];
             rtn[1] = a;

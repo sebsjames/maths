@@ -133,9 +133,9 @@ namespace sm
         }
 
         //! Return this matrix transposed
-        void mat33<F> transpose() noexcept
+        mat33<F> transpose() noexcept
         {
-            mat33<F> rtn = this->mat;
+            mat33<F> rtn = *this;
             std::array<F, 3> a;
             a[0] = this->mat[1];
             a[1] = this->mat[2];
