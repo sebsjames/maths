@@ -13,6 +13,7 @@
 
 #include <type_traits>
 #include <cmath>
+#include <complex>
 #include <cstdint>
 #include <limits>
 #include <bitset>
@@ -206,6 +207,32 @@ namespace sm::algo
         return sm::algo::real_spherical_harmonic<T, UI, I>(l, m, sm::algo::Nlm<T, UI, I>(l, m), phi, theta);
     }
 #endif // __APPLE__
+
+    //! Zernike moment Radial Polynomial, R_nm(rho), where rho is a radius between 0 and 1
+    template <typename T, typename UI, typename I>
+    requires (std::is_floating_point_v<T> && std::is_integral_v<UI> && !std::is_signed_v<UI> && std::is_integral_v<I> && std::is_signed_v<I>)
+    constexpr T zern_radial_poly (const UI n, const I m, const T rho)
+    {
+        T Rnm = T{0};
+        I _n = static_cast<I>(n);
+        I abs_m = sm::cem::abs(m);
+        for (I s = 0; s < (_n - abs_m / I{2}); ++s) {
+            T denom = sm::algo::factorial<T, I>(s) * sm::algo::factorial<T, I>((_n + abs_m) / I{2} - s) * sm::algo::factorial<T, I>((_n - abs_m) / I{2} - s);
+            Rnm += (s % I{2} == I{0} ? I{1} : I{-1}) * (sm::algo::factorial<T, I>(_n - s) / denom) * sm::cem::pow (rho, (_n - I{2} * s));
+        }
+        return Rnm;
+    }
+
+    //! Zernike Polynomial V_nm(rho, theta)
+    template <typename T, typename I>
+    requires (std::is_floating_point_v<T> && std::is_integral_v<I> && std::is_signed_v<I>)
+    std::complex<T> zern_polynomial (const I m, const T Rnm, const T theta)
+    {
+        std::complex<T> j = {0, 1};
+        std::complex<T> arg = j * static_cast<T>(m) * theta;
+        std::complex<T> Vnm = Rnm * std::exp (arg);
+        return Vnm;
+    }
 
     //! Compute orientation of three points which form a triangle pqr.
     //! \return 0 if co-linear, 1 if clockwise; 2 if anticlockwise

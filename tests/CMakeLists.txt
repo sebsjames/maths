@@ -372,3 +372,6 @@ endif(APPLE)
 # Test sm::config
 add_executable(testConfig testConfig.cpp)
 add_test(testConfig testConfig)
+
+add_executable(test_zernike test_zernike.cpp)
+add_test(test_zernike test_zernike)
