@@ -150,6 +150,9 @@ namespace sm
             return adj;
         }
 
+        //! Compute the trace of the matrix (the sum of the diagonal elements)
+        constexpr F trace() const noexcept { return this->mat[0] + this->mat[3]; }
+
         //! Turn this matrix into its inverse
         void inverse_inplace() noexcept
         {

@@ -272,6 +272,9 @@ namespace sm
             return cofac;
         }
 
+        //! Compute the trace of the matrix (the sum of the diagonal elements)
+        constexpr F trace() const noexcept { return this->mat[0] + this->mat[4] + this->mat[8]; }
+
         //! Turn this matrix in to its inverse
         void inverse_inplace() noexcept
         {
