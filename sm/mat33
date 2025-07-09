@@ -116,7 +116,7 @@ namespace sm
         }
 
         //! Transpose this matrix
-        void transpose() noexcept
+        void transpose_inplace() noexcept
         {
             std::array<F, 3> a;
             a[0] = this->mat[1];
@@ -130,6 +130,26 @@ namespace sm
             this->mat[3] = a[0];
             this->mat[6] = a[1];
             this->mat[7] = a[2];
+        }
+
+        //! Return this matrix transposed
+        void mat33<F> transpose() noexcept
+        {
+            mat33<F> rtn = this->mat;
+            std::array<F, 3> a;
+            a[0] = this->mat[1];
+            a[1] = this->mat[2];
+            a[2] = this->mat[5];
+
+            rtn[1] = this->mat[3];
+            rtn[2] = this->mat[6];
+            rtn[5] = this->mat[7];
+
+            rtn[3] = a[0];
+            rtn[6] = a[1];
+            rtn[7] = a[2];
+
+            return rtn;
         }
 
         //! Transpose the matrix @matrx, returning the transposed version.
@@ -250,6 +270,19 @@ namespace sm
                 std::cout <<"  "<< cofac[2]<<" , "<<cofac[5]<<" , "<<cofac[8]<<" ;\n";
             }
             return cofac;
+        }
+
+        //! Turn this matrix in to its inverse
+        void inverse_inplace() noexcept
+        {
+            F det = this->determinant();
+            if (det == F{0}) {
+                std::cout << "NB: The transform matrix has no inverse (determinant is 0)" << std::endl;
+                *this.mat.fill (F{0});
+            } else {
+                *this.mat = this->adjugate();
+                *this *= (F{1}/det);
+            }
         }
 
         //! Return the inverse matrix
