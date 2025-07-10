@@ -624,7 +624,7 @@ namespace sm
          * 2. Obtain the adjugate matrix
          * 3. Get the inverse by multiplying 1/determinant by the adjugate
          */
-        constexpr void inverse_inplace() noexcept // check this with eigen
+        constexpr void inverse_inplace() noexcept
         {
             F det = this->determinant();
             mat44<F> rtn;
