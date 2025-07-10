@@ -111,7 +111,7 @@ namespace sm
             this->mat[1] = a;
         }
 
-        //! Transpose this matrix
+        //! Return the transpose of this matrix
         mat22<F> transpose() noexcept
         {
             mat22<F> rtn = *this;
