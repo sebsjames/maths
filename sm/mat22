@@ -104,11 +104,22 @@ namespace sm
         }
 
         //! Transpose this matrix
-        void transpose() noexcept
+        void transpose_inplace() noexcept
         {
             F a = this->mat[2];
             this->mat[2] = this->mat[1];
             this->mat[1] = a;
+        }
+
+        //! Return the transpose of this matrix
+        mat22<F> transpose() noexcept
+        {
+            mat22<F> rtn = *this;
+            F a = this->mat[2];
+            rtn[2] = this->mat[1];
+            rtn[1] = a;
+
+            return rtn;
         }
 
         //! Transpose the matrix @matrx, returning the transposed version.
@@ -137,6 +148,22 @@ namespace sm
         {
             sm::vec<F, 4> adj = { this->mat[3], -this->mat[1], -this->mat[2], this->mat[0] };
             return adj;
+        }
+
+        //! Compute the trace of the matrix (the sum of the diagonal elements)
+        constexpr F trace() const noexcept { return this->mat[0] + this->mat[3]; }
+
+        //! Turn this matrix into its inverse
+        void inverse_inplace() noexcept
+        {
+            F det = this->determinant();
+            if (det == 0) {
+                std::cout << "NB: The transform matrix has no inverse (determinant is 0)" << std::endl;
+                this->mat.zero();
+            } else {
+                this->mat = this->adjugate();
+                *this *= (F{1}/det);
+            }
         }
 
         //! Return the inverse matrix
