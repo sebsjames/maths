@@ -328,6 +328,13 @@ namespace sm
             return index >= this->n() ? sm::vec<C, 2>{std::numeric_limits<C>::max(), std::numeric_limits<C>::max()} : this->v_c[index];
         }
 
+        //! Return the coordinate in polar coordinates
+        sm::vec<C, 2> polar_lookup (const I index) const
+        {
+            sm::vec<C, 2> c = this->coord_lookup (index);
+            return sm::vec<C, 2>{ c.length(), c.angle() };
+        }
+
         //! Compute and return the coordinate with the given index
         sm::vec<C, 2> coord (const I index) const
         {
