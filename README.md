@@ -35,6 +35,8 @@ own built-in methods.
 
 You can stream objects to debug or observe their values.
 
+You can visualize the data in [mathplot](https://github.com/sebsjames/mathplot) (this repo was developed alongside mathplot when they were both 'morphologica').
+
 The namespace is just `sm` (I like short namespaces for frequently used types).
 
 Here's an example
