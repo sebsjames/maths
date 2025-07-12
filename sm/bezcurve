@@ -87,13 +87,13 @@ namespace sm
          * Construct a Bezier curve of order cp.size()-1 with the initial and final
          * points making up part of cp.
          */
-       bezcurve (sm::vvec<sm::vec<F, 2>> cp)
+        bezcurve (sm::vvec<sm::vec<F, 2>> cp)
         {
             this->C.set_size (cp.size(), 2);
             int i = 0;
             for (auto c : cp) {
-                this->C(i,0) = c[0];
-                this->C(i,1) = c[1];
+                this->C(i, 0) = c[0];
+                this->C(i, 1) = c[1];
                 ++i;
             }
             this->init();
@@ -110,20 +110,18 @@ namespace sm
          * Construct a cubic Bezier curve with a specification of the curve as inital
          * and final position with two control points.
          */
-        bezcurve (const sm::vec<F, 2>& ip,
-                  const sm::vec<F, 2>& fp,
-                  const sm::vec<F, 2>& c1,
-                  const sm::vec<F, 2>& c2)
+        bezcurve (const sm::vec<F, 2>& ip, const sm::vec<F, 2>& fp,
+                  const sm::vec<F, 2>& c1, const sm::vec<F, 2>& c2)
         {
-            this->C.set_size (4,2);
-            this->C(0,0) = ip[0];
-            this->C(0,1) = ip[1];
-            this->C(1,0) = c1[0];
-            this->C(1,1) = c1[1];
-            this->C(2,0) = c2[0];
-            this->C(2,1) = c2[1];
-            this->C(3,0) = fp[0];
-            this->C(3,1) = fp[1];
+            this->C.set_size (4, 2);
+            this->C(0, 0) = ip[0];
+            this->C(0, 1) = ip[1];
+            this->C(1, 0) = c1[0];
+            this->C(1, 1) = c1[1];
+            this->C(2, 0) = c2[0];
+            this->C(2, 1) = c2[1];
+            this->C(3, 0) = fp[0];
+            this->C(3, 1) = fp[1];
             this->init();
         }
 
@@ -133,24 +131,24 @@ namespace sm
          */
         bezcurve (const sm::vec<F, 2>& ip, const sm::vec<F, 2>& fp, const sm::vec<F, 2>& c1)
         {
-            this->C.set_size (3,2);
-            this->C(0,0) = ip[0];
-            this->C(0,1) = ip[1];
-            this->C(1,0) = c1[0];
-            this->C(1,1) = c1[1];
-            this->C(2,0) = fp[0];
-            this->C(2,1) = fp[1];
+            this->C.set_size (3, 2);
+            this->C(0, 0) = ip[0];
+            this->C(0, 1) = ip[1];
+            this->C(1, 0) = c1[0];
+            this->C(1, 1) = c1[1];
+            this->C(2, 0) = fp[0];
+            this->C(2, 1) = fp[1];
             this->init();
         }
 
         //! Construct a linear Bezier curve for production of straight lines.
         bezcurve (const sm::vec<F, 2>& ip, const sm::vec<F, 2>& fp)
         {
-            this->C.set_size (2,2);
-            this->C(0,0) = ip[0];
-            this->C(0,1) = ip[1];
-            this->C(1,0) = fp[0];
-            this->C(1,1) = fp[1];
+            this->C.set_size (2, 2);
+            this->C(0, 0) = ip[0];
+            this->C(0, 1) = ip[1];
+            this->C(1, 0) = fp[0];
+            this->C(1, 1) = fp[1];
             this->init();
         }
 
@@ -160,16 +158,16 @@ namespace sm
         {
             unsigned int n_ctrls = cp.size()+2;
             this->C.set_size (n_ctrls, 2);
-            this->C(0,0) = ip[0];
-            this->C(0,1) = ip[1];
+            this->C(0, 0) = ip[0];
+            this->C(0, 1) = ip[1];
             unsigned int i = 1;
             for (auto cpi : cp) {
-                this->C(i,0) = cpi[0];
-                this->C(i,1) = cpi[1];
+                this->C(i, 0) = cpi[0];
+                this->C(i, 1) = cpi[1];
                 ++i;
             }
-            this->C(n_ctrls-1,0) = fp[0];
-            this->C(n_ctrls-1,1) = fp[1];
+            this->C(n_ctrls - 1, 0) = fp[0];
+            this->C(n_ctrls - 1, 1) = fp[1];
             this->init();
         }
 
@@ -178,8 +176,8 @@ namespace sm
             this->C.set_size (cp.size(), 2);
             int i = 0;
             for (auto c : cp) {
-                this->C(i,0) = c[0];
-                this->C(i,1) = c[1];
+                this->C(i, 0) = c[0];
+                this->C(i, 1) = c[1];
                 ++i;
             }
             this->init();
@@ -201,7 +199,7 @@ namespace sm
             if (len < 3) { return; }
 
             // va is vector from join to the previous ctrl
-            sm::vec<F, 2> va = prec_ctrl[len-2] - prec_ctrl[len-1]; // "prev ctrl - join"
+            sm::vec<F, 2> va = prec_ctrl[len - 2] - prec_ctrl[len - 1]; // "prev ctrl - join"
             // vb is vector from join to the next ctrl.
             sm::vec<F, 2> vb = {C(1,0) - C(0,0), C(1,1) - C(0,1)};
             // Use atan2 to get angles with direction here.
@@ -334,7 +332,7 @@ namespace sm
             sm::vvec<F> v0;
             int startrow = 2;
             int endrow = 2; // 2 means don't change the angle of the end of the curve
-            for (int r = startrow; r < (int)C.n_rows-endrow; ++r) {
+            for (int r = startrow; r < static_cast<int>(C.n_rows) - endrow; ++r) {
                 v0.push_back (this->C(r,0));
                 v0.push_back (this->C(r,1));
             }
@@ -363,10 +361,10 @@ namespace sm
                 for (std::size_t j = 0; j < v0.size(); ++j) {
                     // Perturbate v0[j] a bit and add to vector<F>
                     F v_j = v0[j];
-                    F v_1 = (v0[j]*propchange);
+                    F v_1 = (v0[j] * propchange);
                     F rn = dis(gen);
                     v_j += (v_1 * rn);
-                    v_j -= (v0[j]*propchangeov2);
+                    v_j -= (v0[j] * propchangeov2);
                     v.push_back (v_j);
                 }
                 if constexpr (debug_bezcurve == true) {
@@ -455,7 +453,7 @@ namespace sm
             sample_t.push_back (F{0});
             F totaldist = F{0};
             for (std::size_t i = 1U; i < points.size(); ++i) {
-                F lindist = (points[i-1]-points[i]).length();
+                F lindist = (points[i-1] - points[i]).length();
                 sample_t.push_back (lindist);
                 totaldist += lindist;
             }
@@ -480,7 +478,7 @@ namespace sm
                 // Add a penalty for the length of the curve, also, which should be as close
                 // to the linear length from point to point.
                 F clen = this->computeLength(50);
-                F distpart = (clen-totaldist)*(clen-totaldist);
+                F distpart = (clen - totaldist) * (clen - totaldist);
                 std::cout << "sos part: " << sos << ", distance part: " << distpart << std::endl;
                 return sos + distpart;
             } else {
@@ -522,9 +520,9 @@ namespace sm
             arma::Mat<double> S (n, 1, arma::fill::zeros);
             double total_len = F{0};
             for (i = 1; i < n; ++i) {
-                double xdiff = P(i,0) - P(i-1,0);
-                double ydiff = P(i,1) - P(i-1,1);
-                double len = std::sqrt (xdiff*xdiff + ydiff*ydiff);
+                double xdiff = P(i,0) - P(i - 1, 0);
+                double ydiff = P(i,1) - P(i - 1, 1);
+                double len = std::sqrt (xdiff * xdiff + ydiff * ydiff);
                 total_len += len;
                 D(i,0) = total_len;
             }
@@ -540,7 +538,7 @@ namespace sm
             arma::Mat<double> TT (n, n, arma::fill::ones);
             for (i = 0; i < n; ++i) {
                 for (int j = 0; j < n; ++j) {
-                    double s = S(i,0);
+                    double s = S(i, 0);
                     TT(i, j) = std::pow (s, j);
                 }
             }
@@ -549,7 +547,7 @@ namespace sm
             arma::Mat<double> Md = arma::conv_to<arma::Mat<double>>::from (this->M);
 
             // Magic matrix incantation to find the best set of coordinates:
-            arma::Mat<double> Cd = Md.i() * (TT.t()*TT).i() * TT.t() * P;
+            arma::Mat<double> Cd = Md.i() * (TT.t() * TT).i() * TT.t() * P;
 
             // Cast back to Fs
             this->C = arma::conv_to<arma::Mat<F>>::from (Cd);
@@ -563,7 +561,7 @@ namespace sm
         {
             arma::Mat<F> deriv_cp(this->order, 2);
             for (unsigned int i = 0; i < this->order; ++i) {
-                deriv_cp.row(i) = this->order * (this->C.row(i+1) - this->C.row(i));
+                deriv_cp.row(i) = this->order * (this->C.row(i + 1) - this->C.row(i));
             }
             return sm::bezcurve<F> (deriv_cp);
         }
@@ -578,7 +576,7 @@ namespace sm
         {
             int n = this->order + 1;
             // 'z prime':
-            F zp = z-F{1};
+            F zp = z - F{1};
             arma::Mat<F> C1 (n, 2, arma::fill::zeros);
             arma::Mat<F> C2 (n, 2, arma::fill::zeros);
             F sign0 = F{1};
@@ -588,7 +586,7 @@ namespace sm
                 sign = sign0;
                 for (int j = 0; j <= i; ++j) {
                     F binom = static_cast<F>(bezcurve::binomial_lookup(i, j));
-                    Q(i,j) = sign * binom * std::pow(z, j) * std::pow (zp, i-j);
+                    Q(i,j) = sign * binom * std::pow(z, j) * std::pow (zp, i - j);
                     sign = sign > F{0} ? F{-1} : F{1};
                 }
                 sign0 = sign0 > F{0} ? F{-1} : F{1};
@@ -596,7 +594,7 @@ namespace sm
             C1 = Q * this->C;
             // Shift rows then flip
             for (int i = 0; i < n; ++i) {
-                Q.row(i) = arma::shift (Q.row(i), (n-i-1));
+                Q.row(i) = arma::shift (Q.row(i), (n - i - 1));
             }
             C2 = arma::flipud (Q) * this->C;
 
@@ -612,7 +610,7 @@ namespace sm
         {
             std::vector<bezcoord<F>> rtn;
             for (unsigned int i = 0; i < n; ++i) {
-                F t = i/static_cast<F>(n);
+                F t = i / static_cast<F>(n);
                 rtn.push_back (this->computePoint (t));
             }
             return rtn;
@@ -693,7 +691,7 @@ namespace sm
         bezcoord<F> computePointMatrix (F t) const
         {
             this->checkt(t);
-            int mp = this->order+1;
+            int mp = this->order + 1;
             arma::Mat<F> T(1, mp, arma::fill::ones);// First element is one anyway
             for (int i = 1; i < mp; ++i) {
                 T(i) = std::pow (t, static_cast<double>(i));
@@ -707,7 +705,7 @@ namespace sm
         bezcoord<F> computePointGeneral (F t) const
         {
             this->checkt (t);
-            F t_ = 1-t;
+            F t_ = 1 - t;
             sm::vec<F, 2> b;
             // x
             b[0] = std::pow(t_, this->order) * this->C(0,0);
@@ -844,8 +842,8 @@ namespace sm
         sm::vec<F, 2> getInitialPointScaled() const
         {
             sm::vec<F, 2> ip_scaled;
-            ip_scaled[0] = this->scale * this->C(0,0);
-            ip_scaled[1] = this->scale * this->C(0,1);
+            ip_scaled[0] = this->scale * this->C(0, 0);
+            ip_scaled[1] = this->scale * this->C(0, 1);
             return ip_scaled;
         }
 
@@ -853,8 +851,8 @@ namespace sm
         sm::vec<F, 2> getFinalPointScaled() const
         {
             sm::vec<F, 2> fp_scaled;
-            fp_scaled[0] = this->scale * this->C(this->order,0);
-            fp_scaled[1] = this->scale * this->C(this->order,1);
+            fp_scaled[0] = this->scale * this->C(this->order, 0);
+            fp_scaled[1] = this->scale * this->C(this->order, 1);
             return fp_scaled;
         }
 
@@ -862,7 +860,7 @@ namespace sm
         sm::vvec<sm::vec<F, 2>> getControls() const {
             sm::vvec<sm::vec<F, 2>> rtn;
             for (unsigned int r = 0; r<this->C.n_rows; ++r) {
-                rtn.push_back (sm::vec<F, 2>({this->C(r,0), this->C(r,1)}));
+                rtn.push_back (sm::vec<F, 2>({this->C(r, 0), this->C(r, 1)}));
             }
             return rtn;
         }
@@ -875,9 +873,9 @@ namespace sm
         //! Perform common initialization tasks.
         void init()
         {
-            this->order = this->C.n_rows-1;
-            this->linlength = std::sqrt ((C(order,0)-C(0,0)) * (C(order,0) - C(0,0))
-                                         + (C(order,1)-C(0,1)) * (C(order,1) - C(0,1)));
+            this->order = this->C.n_rows - 1;
+            this->linlength = std::sqrt ((C(order, 0) - C(0, 0)) * (C(order, 0) - C(0, 0))
+                                         + (C(order, 1) - C(0, 1)) * (C(order, 1) - C(0, 1)));
             this->linlengthscaled = this->scale * this->linlength;
             this->matrixSetup();
         }
@@ -889,8 +887,8 @@ namespace sm
         void setCFromV (const std::vector<F>& vf, int r)
         {
             for (std::size_t i = 0U; i < vf.size(); i+=2) {
-                this->C(r,0) = vf[i];
-                this->C(r,1) = vf[i+1];
+                this->C(r, 0) = vf[i];
+                this->C(r, 1) = vf[i + 1];
                 ++r;
             }
         }
@@ -904,7 +902,7 @@ namespace sm
             std::vector<bezcoord<F>> pts = this->computePoints (npoints);
             F dist = F{0};
             for (std::size_t i = 1U; i < pts.size(); ++i) {
-                dist += (pts[i-1].coord - pts[i].coord).length();
+                dist += (pts[i - 1].coord - pts[i].coord).length();
             }
             return dist;
         }
@@ -917,8 +915,8 @@ namespace sm
         {
             this->checkt(t);
             sm::vec<F, 2> b;
-            b[0] =  ((1-t) * this->C(0,0) + t * this->C(1,0)) * this->scale;
-            b[1] = ((1-t) * this->C(0,1) + t * this->C(1,1)) * this->scale;
+            b[0] =  ((1 - t) * this->C(0, 0) + t * this->C(1, 0)) * this->scale;
+            b[1] = ((1 - t) * this->C(0, 1) + t * this->C(1, 1)) * this->scale;
             return bezcoord<F>(t, b);
         }
 
@@ -945,8 +943,8 @@ namespace sm
                 return rtn;
             }
             // Compute new t from l.
-            F dt = l/this->linlengthscaled;
-            t = t+dt;
+            F dt = l / this->linlengthscaled;
+            t = t + dt;
             return this->computePointLinear (t);
         }
 
@@ -958,13 +956,13 @@ namespace sm
         {
             this->checkt (t);
             sm::vec<F, 2> b;
-            F t_ = 1-t;
-            b[0] = (t_ * t_ * this->C(0,0)
-                    + 2 * t_ * t * this->C(1,0)
-                    + t * t * this->C(2,0)) * this->scale;
-            b[1] = (t_ * t_ * this->C(0,1)
-                    + 2 * t_ * t * this->C(1,1)
-                    + t * t * this->C(2,1)) * this->scale;
+            F t_ = F{1} - t;
+            b[0] = (t_ * t_ * this->C(0, 0)
+                    + F{2} * t_ * t * this->C(1, 0)
+                    + t * t * this->C(2, 0)) * this->scale;
+            b[1] = (t_ * t_ * this->C(0, 1)
+                    + F{2} * t_ * t * this->C(1, 1)
+                    + t * t * this->C(2, 1)) * this->scale;
             return bezcoord<F>(t, b);
         }
 
@@ -976,15 +974,15 @@ namespace sm
         {
             this->checkt (t);
             sm::vec<F, 2> b;
-            F t_ = 1-t;
-            b[0] = (t_ * t_ * t_ * this->C(0,0)
-                    + 3 * t_ * t_ * t * this->C(1,0)
-                    + 3 * t_ * t * t * this->C(2,0)
-                    + t * t * t * this->C(3,0)) * this->scale;
-            b[1] = (t_ * t_ * t_ * this->C(0,1)
-                    + 3 * t_ * t_ * t * this->C(1,1)
-                    + 3 * t_ * t * t * this->C(2,1)
-                    + t * t * t * this->C(3,1)) * this->scale;
+            F t_ = F{1} - t;
+            b[0] = (t_ * t_ * t_ * this->C(0, 0)
+                    + F{3} * t_ * t_ * t * this->C(1, 0)
+                    + F{3} * t_ * t * t * this->C(2, 0)
+                    + t * t * t * this->C(3, 0)) * this->scale;
+            b[1] = (t_ * t_ * t_ * this->C(0, 1)
+                    + F{3} * t_ * t_ * t * this->C(1, 1)
+                    + F{3} * t_ * t * t * this->C(2, 1)
+                    + t * t * t * this->C(3, 1)) * this->scale;
             return bezcoord<F>(t, b);
         }
 
@@ -998,7 +996,7 @@ namespace sm
          */
         static unsigned int binomial_lookup (unsigned int n, unsigned int k)
         {
-            unsigned int idx = (n * (n+1) / 2) + k;
+            unsigned int idx = (n * (n + 1u) / 2u) + k;
             return sm::Pascal[idx];
         }
 
@@ -1017,7 +1015,7 @@ namespace sm
             F dtmax = F{1} - t;
 
             // First guess for dt. Arb. units in parameter space.
-            F dt = dtmin + (dtmax-dtmin)/F{2};
+            F dt = dtmin + (dtmax - dtmin) / F{2};
 
             bezcoord<F> b1 = this->computePoint (t);
 
@@ -1042,12 +1040,12 @@ namespace sm
             // further on
             bezcoord<F> b2 (true);
             bool finished = false;
-            while (!finished && ((t+dt) <= F{1})) {
+            while (!finished && ((t + dt) <= F{1})) {
 
                 // Compute position of candidate point dt beyond t in param space
-                b2 = this->computePoint (t+dt);
+                b2 = this->computePoint (t + dt);
                 F dl = b1.distanceTo (b2);
-                if (std::abs(l-dl) < lt) {
+                if (std::abs(l - dl) < lt) {
                     // Stop here.
                     finished = true;
                 } else {
@@ -1056,7 +1054,7 @@ namespace sm
                     } else { // dl < l
                         dtmin = dt;
                     }
-                    dt = dtmin + (dtmax-dtmin)/F{2};
+                    dt = dtmin + (dtmax - dtmin) / F{2};
                 }
             }
 
@@ -1081,7 +1079,7 @@ namespace sm
             F dtmax = F{1} - t;
 
             // First guess for dt. Arb. units in parameter space.
-            F dt = dtmin + (dtmax-dtmin)/F{2};
+            F dt = dtmin + (dtmax - dtmin) / F{2};
 
             bezcoord<F> b1 = this->computePoint (t);
 
@@ -1105,13 +1103,13 @@ namespace sm
             bezcoord<F> b2 (true);
             bool finished = false;
             F lastdt = F{0};
-            while (!finished && ((t+dt) <= F{1}) && lastdt != dt) {
+            while (!finished && ((t + dt) <= F{1}) && lastdt != dt) {
 
                 // Compute position of candidate point dt beyound t in param space
-                b2 = this->computePoint (t+dt);
+                b2 = this->computePoint (t + dt);
                 F dx = b1.horzDistanceTo (b2);
 
-                if (std::abs(x-dx) < lt) {
+                if (std::abs(x - dx) < lt) {
                     // Stop here.
                     finished = true;
                 } else {
@@ -1121,7 +1119,7 @@ namespace sm
                         dtmin = dt;
                     }
                     lastdt = dt;
-                    dt = dtmin + (dtmax-dtmin)/F{2};
+                    dt = dtmin + (dtmax - dtmin) / F{2};
                 }
             }
 
@@ -1193,7 +1191,7 @@ namespace sm
             // Check order here
             if (this->order >= PascalRows) {
                 std::stringstream ee;
-                ee << "This code is limited to Bezier Curves of order " << (PascalRows-1)
+                ee << "This code is limited to Bezier Curves of order " << (PascalRows - 1)
                    << " by the current size of the sm::Pascal lookup table";
                 throw std::runtime_error (ee.str());
             }
@@ -1202,18 +1200,18 @@ namespace sm
             }
 
             // Set up M.
-            int m = (int)this->order;
-            int mp = m+1; // order+1
+            int m = static_cast<int>(this->order);
+            int mp = m + 1; // order + 1
             int r = 0;
             this->M.set_size (mp, mp);
             this->M.zeros();
             for (int i = 0; i < mp; ++i) { // i is column
-                for (r = 0; r < mp-i; ++r) { // r is row
+                for (r = 0; r < mp - i; ++r) { // r is row
                     F element = static_cast<F>(bezcurve::binomial_lookup (m, i))
-                        * static_cast<F>(bezcurve::binomial_lookup (m-i, m-i-r))
-                        * std::pow (F{-1}, static_cast<F>(m-i-r));
-                    // Ensure the matrix is inverted 'm-i', not just 'i'
-                    this->M(m-i, r) = element;
+                        * static_cast<F>(bezcurve::binomial_lookup (m - i, m - i - r))
+                        * std::pow (F{-1}, static_cast<F>(m - i - r));
+                    // Ensure the matrix is inverted 'm - i', not just 'i'
+                    this->M(m - i, r) = element;
                 }
             }
 
