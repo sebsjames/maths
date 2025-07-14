@@ -23,11 +23,30 @@
 #include <cstddef>
 #include <concepts>
 
-// This is left as a hint in case anyone tries to compile this with Intel's compiler:
-#ifdef __ICC__
-# define ARMA_ALLOW_FAKE_GCC 1
+// Armadillo has a bug (up to versions after 14.6.0) in which if ARMA_USE_ARPACK is
+// *not* defined, there is an unused parameter (Xst) in the function
+// sp_auxlib::run_aupd_plain. This does not show up in Ubuntu-packaged Armadillo because
+// it does define ARMA_USE_ARPACK. However, if a vcpkg-built Armadillo is used, then
+// ARMA_USE_ARPACK is not defined and this warning is emitted. Because in
+// sebsjames/maths (and sebsjames/mathplot) we set -Werror, the warning becomes an error
+// and the build will fail.
+#if defined(__clang__)
+# pragma clang diagnostic push
+# pragma clang diagnostic ignored "-Wunused-parameter"
+#elif defined(__GNUC__) || defined(__GNUG__)
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wunused-parameter"
 #endif
+
 #include <armadillo>
+
+// pop the ignored "-Wunused-parameter"
+#if defined(__clang__)
+# pragma clang diagnostic pop
+#elif defined(__GNUC__) || defined(__GNUG__)
+# pragma GCC diagnostic pop
+#endif
+
 #include <sm/mathconst>
 #include <sm/nm_simplex>
 #include <random>
