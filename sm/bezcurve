@@ -27,18 +27,15 @@
 // *not* defined, there is an unused parameter (Xst) in the function
 // sp_auxlib::run_aupd_plain. This does not show up in Ubuntu-packaged Armadillo because
 // it does define ARMA_USE_ARPACK. However, if a vcpkg-built Armadillo is used, then
-// ARMA_USE_ARPACK is not defined, and this warning becomes an error and the build will
-// fail.
+// ARMA_USE_ARPACK is not defined and this warning is emitted. Because in
+// sebsjames/maths (and sebsjames/mathplot) we set -Werror, the warning becomes an error
+// and the build will fail.
 #if defined(__clang__)
 # pragma clang diagnostic push
 # pragma clang diagnostic ignored "-Wunused-parameter"
 #elif defined(__GNUC__) || defined(__GNUG__)
 # pragma GCC diagnostic push
 # pragma GCC diagnostic ignored "-Wunused-parameter"
-#elif defined(_MSC_VER)
-// #pragma warning(push)
-// I don't know what warning number might be triggered on Visual Studio:
-//# pragma warning(disable : XXXX, justification : "Armadillo has an unused parameter in versions <= 14.6.0")
 #endif
 
 #include <armadillo>
@@ -47,9 +44,7 @@
 #if defined(__clang__)
 # pragma clang diagnostic pop
 #elif defined(__GNUC__) || defined(__GNUG__)
-#pragma GCC diagnostic pop
-#elif defined(_MSC_VER)
-// #pragma warning(pop)
+# pragma GCC diagnostic pop
 #endif
 
 #include <sm/mathconst>
