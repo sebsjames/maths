@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.14)
 project(maths)
 
 message(STATUS "Install prefix: ${CMAKE_INSTALL_PREFIX}")
@@ -23,13 +23,17 @@ endif()
 if (APPLE)
   set(CMAKE_CXX_FLAGS "-Wall -g -O3")
 else()
-  if(CMAKE_CXX_COMPILER_ID MATCHES MSVC)
+  if(CMAKE_CXX_COMPILER_ID MATCHES MSVC OR CMAKE_CXX_COMPILER_FRONTEND_VARIANT MATCHES MSVC)
     # Set flags for Windows.
     # -DNOMINMAX to prefer std::min and std::max
     # /EHsc required for use of exceptions
     # /Zc:__cplusplus ensures __cplusplus define does not lie
     # /constexpr:steps is equivalent to -fconstexpr-steps or -fconstexpr-ops-limit
-    set(CMAKE_CXX_FLAGS "-DNOMINMAX /EHsc /Zc:__cplusplus /constexpr:steps500000000")
+    if(CMAKE_CXX_COMPILER_ID MATCHES MSVC)
+      set(CMAKE_CXX_FLAGS "-DNOMINMAX /EHsc /Zc:__cplusplus /constexpr:steps500000000")
+    else()
+      set(CMAKE_CXX_FLAGS "-DNOMINMAX /EHsc /Zc:__cplusplus")
+    endif()
   elseif(CMAKE_CXX_COMPILER_ID MATCHES Intel)
     # To use Intel compiler, you can call cmake as: `cmake -DCMAKE_CXX_COMPILER=icpc ..` or `CXX=icpc cmake ..`
     message(WARNING "Intel compiler has not been tested for some time")
