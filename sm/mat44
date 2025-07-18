@@ -174,8 +174,8 @@ namespace sm
         }
 #endif
         //! Apply translation specified by vector @dv
-        template<typename T> requires std::is_arithmetic_v<T>
-        constexpr void translate (const sm::vec<T, 3>& dv) noexcept
+        template<typename T, std::size_t N = 3> requires std::is_arithmetic_v<T> && (N == 3 || N == 4)
+        constexpr void translate (const sm::vec<T, N>& dv) noexcept
         {
             this->mat[12] += dv[0];
             this->mat[13] += dv[1];
@@ -183,8 +183,8 @@ namespace sm
         }
 
         //! Apply translation specified by vector @dv provided as array of three coordinates
-        template<typename T> requires std::is_arithmetic_v<T>
-        constexpr void translate (const std::array<T, 3>& dv) noexcept
+        template<typename T, std::size_t N = 3> requires std::is_arithmetic_v<T> && (N == 3 || N == 4)
+        constexpr void translate (const std::array<T, N>& dv) noexcept
         {
             this->mat[12] += dv[0];
             this->mat[13] += dv[1];
@@ -201,8 +201,8 @@ namespace sm
         }
 
         //! Apply pretranslation specified by vector @dv
-        template<typename T> requires std::is_arithmetic_v<T>
-        constexpr void pretranslate (const sm::vec<T, 3>& dv) noexcept
+        template<typename T, std::size_t N = 3> requires std::is_arithmetic_v<T> && (N == 3 || N == 4)
+        constexpr void pretranslate (const sm::vec<T, N>& dv) noexcept
         {
             mat44<T> trans_mat;
             trans_mat[12] = dv[0];
@@ -213,8 +213,8 @@ namespace sm
         }
 
         //! Apply pretranslation specified by vector @dv provided as array of three coordinates
-        template<typename T> requires std::is_arithmetic_v<T>
-        constexpr void pretranslate (const std::array<T, 3>& dv) noexcept
+        template<typename T, std::size_t N = 3> requires std::is_arithmetic_v<T> && (N == 3 || N == 4)
+        constexpr void pretranslate (const std::array<T, N>& dv) noexcept
         {
             mat44<T> trans_mat;
             trans_mat[12] = dv[0];
@@ -645,7 +645,7 @@ namespace sm
          * seems so. See also https://www.songho.ca/opengl/gl_quaternion.html#overview
          * and https://danceswithcode.net/engineeringnotes/quaternions/quaternions.html)
          */
-        template <typename T = float> requires std::is_arithmetic_v<T>
+        template <typename T> requires std::is_arithmetic_v<T>
         constexpr mat44<F> pure_rotation (const sm::quaternion<T>& q) noexcept
         {
             const F qx = static_cast<F>(q.x);
@@ -687,7 +687,7 @@ namespace sm
         }
 
         //! Apply the rotation q to this as: rotn_matrix * this
-        template <typename T = float> requires std::is_arithmetic_v<T>
+        template <typename T> requires std::is_arithmetic_v<T>
         constexpr void rotate (const sm::quaternion<T>& q) noexcept
         {
             mat44<F> m = this->pure_rotation (q);
@@ -695,25 +695,34 @@ namespace sm
         }
 
         //! Rotate an angle theta radians about axis (specified as std::array)
-        template <typename T> requires std::is_arithmetic_v<T>
-        constexpr void rotate (const std::array<T, 3>& axis, const T& theta) noexcept
+        template <typename T, std::size_t N = 3> requires std::is_arithmetic_v<T> && (N == 3 || N == 4)
+        constexpr void rotate (const std::array<T, N>& axis, const T& theta) noexcept
         {
             sm::quaternion<T> q;
-            q.rotate (axis, theta);
+            if constexpr (N == 4) {
+                sm::vec<T, 3> axv = { axis[0], axis[1], axis[2] };
+                q.rotate (axv, theta);
+            } else {
+                q.rotate (axis, theta);
+            }
             this->rotate<T> (q);
         }
 
         //! Rotate an angle theta radians about axis (specified as sm::vec)
-        template <typename T> requires std::is_arithmetic_v<T>
-        constexpr void rotate (const sm::vec<T, 3>& axis, const T& theta) noexcept
+        template <typename T, std::size_t N = 3> requires std::is_arithmetic_v<T> && (N == 3 || N == 4)
+        constexpr void rotate (const sm::vec<T, N>& axis, const T& theta) noexcept
         {
             sm::quaternion<T> q;
-            q.rotate (axis, theta);
+            if constexpr (N == 4) {
+                q.rotate (axis.less_one_dim(), theta);
+            } else {
+                q.rotate (axis, theta);
+            }
             this->rotate<T> (q);
         }
 
         //! Pre-rotation by pure rotation matrix m: this * m
-        template <typename T = float> requires std::is_arithmetic_v<T>
+        template <typename T> requires std::is_arithmetic_v<T>
         constexpr void prerotate (const sm::quaternion<T>& q) noexcept
         {
             mat44<F> m = this->pure_rotation (q);
@@ -721,20 +730,29 @@ namespace sm
         }
 
         //! Prerotate an angle theta radians about axis (specified as std::array)
-        template <typename T> requires std::is_arithmetic_v<T>
-        constexpr void prerotate (const std::array<T, 3>& axis, const T& theta) noexcept
+        template <typename T, std::size_t N = 3> requires std::is_arithmetic_v<T> && (N == 3 || N == 4)
+        constexpr void prerotate (const std::array<T, N>& axis, const T& theta) noexcept
         {
             sm::quaternion<T> q;
-            q.rotate (axis, theta);
+            if constexpr (N == 4) {
+                sm::vec<T, 3> axv = { axis[0], axis[1], axis[2] };
+                q.rotate (axv, theta);
+            } else {
+                q.rotate (axis, theta);
+            }
             this->prerotate<T> (q);
         }
 
         //! Prerotate an angle theta radians about axis (specified as sm::vec)
-        template <typename T> requires std::is_arithmetic_v<T>
-        constexpr void prerotate (const sm::vec<T, 3>& axis, const T& theta) noexcept
+        template <typename T, std::size_t N = 3> requires std::is_arithmetic_v<T> && (N == 3 || N == 4)
+        constexpr void prerotate (const sm::vec<T, N>& axis, const T& theta) noexcept
         {
             sm::quaternion<T> q;
-            q.rotate (axis, theta);
+            if constexpr (N == 4) {
+                q.rotate (axis.less_one_dim(), theta);
+            } else {
+                q.rotate (axis, theta);
+            }
             this->prerotate<T> (q);
         }
 
