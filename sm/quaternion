@@ -267,6 +267,12 @@ namespace sm
             this->z = F{0};
         }
 
+        //! Return true if the quaternion represents a zero rotation (1,0,0,0)
+        constexpr bool is_zero_rotation() noexcept
+        {
+            return (this->w == F{1} && this->x == F{0} && this->y == F{0} && this->z == F{0}) ? true : false;
+        }
+
         //! Reset the quaternion and set the rotation about the given axis and angle in radians.
         constexpr void set_rotation (const vec<F>& axis, const F& angle) noexcept
         {
