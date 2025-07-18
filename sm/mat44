@@ -255,8 +255,8 @@ namespace sm
         }
 
         //! Scaling transformation by vector
-        template<typename T> requires std::is_arithmetic_v<T>
-        constexpr void scale (const sm::vec<T, 3>& scl) noexcept
+        template<typename T, std::size_t N = 3> requires std::is_arithmetic_v<T> && (N == 3 || N == 4)
+        constexpr void scale (const sm::vec<T, N>& scl) noexcept
         {
             this->mat[0] *= scl[0];
             this->mat[1] *= scl[0];
@@ -271,8 +271,8 @@ namespace sm
             this->mat[10] *= scl[2];
         }
 
-        template<typename T> requires std::is_arithmetic_v<T>
-        constexpr void scale (const std::array<T, 3>& scl) noexcept
+        template<typename T, std::size_t N = 3> requires std::is_arithmetic_v<T> && (N == 3 || N == 4)
+        constexpr void scale (const std::array<T, N>& scl) noexcept
         {
             this->mat[0] *= scl[0];
             this->mat[1] *= scl[0];
