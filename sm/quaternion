@@ -267,13 +267,24 @@ namespace sm
             this->z = F{0};
         }
 
-        //! Reset the quaternion and set the rotation about the given axis and angle in radians.
-        constexpr void set_rotation (const vec<F>& axis, const F& angle) noexcept
+        //! Return true if the quaternion represents a zero rotation (1,0,0,0)
+        constexpr bool is_zero_rotation() noexcept
+        {
+            return (this->w == F{1} && this->x == F{0} && this->y == F{0} && this->z == F{0}) ? true : false;
+        }
+
+        //! Reset the quaternion and set the rotation about the given axis and angle in
+        //! radians. Axis may be 3 or 4D vec.
+        template<std::size_t N = 3> requires (N == 3 || N == 4)
+        constexpr void set_rotation (const vec<F, N>& axis, const F& angle) noexcept
         {
             F halfangle = angle * F{0.5};
             F cosHalf = sm::cem::cos(halfangle);
             F sinHalf = sm::cem::sin(halfangle);
-            vec<F> ax = axis;
+            vec<F, 3> ax;
+            ax[0] = axis[0];
+            ax[1] = axis[1];
+            ax[2] = axis[2];
             ax.renormalize();
 
             this->w = cosHalf;
@@ -300,10 +311,12 @@ namespace sm
 
         /*!
          * Change this quaternion to represent a new rotation by rotating it \a angle (radians)
-         * around the axis given by \a axis. Renormalize to finish.
+         * around the axis given by \a axis. Renormalize to finish. Axis can be given as a 3D
+         * vector/array or as a 4D object (with last element being ignored).
          */
         template <typename V>
-        requires (std::is_same_v<V, std::array<F, 3>> || std::is_same_v<V, sm::vec<F, 3>>)
+        requires (std::is_same_v<V, std::array<F, 3>> || std::is_same_v<V, sm::vec<F, 3>>
+                  || std::is_same_v<V, std::array<F, 4>> || std::is_same_v<V, sm::vec<F, 4>>)
         constexpr void rotate (const V& axis, const F& angle) noexcept { this->rotate (axis[0], axis[1], axis[2], angle); }
 
         /*!

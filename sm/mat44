@@ -52,6 +52,29 @@ namespace sm
     {
         //! Default constructor
         constexpr mat44() noexcept { this->setToIdentity(); }
+        //! Construct from a mat33 rotation matrix
+        constexpr mat44 (const sm::mat33<F>& other) noexcept
+        {
+            this->mat[0] = other[0];
+            this->mat[1] = other[1];
+            this->mat[2] = other[2];
+            this->mat[3] = F{0};
+
+            this->mat[4] = other[3];
+            this->mat[5] = other[4];
+            this->mat[6] = other[5];
+            this->mat[7] = F{0};
+
+            this->mat[8] = other[6];
+            this->mat[9] = other[7];
+            this->mat[10] = other[8];
+            this->mat[11] = F{0};
+
+            this->mat[12] = F{0};
+            this->mat[13] = F{0};
+            this->mat[14] = F{0};
+            this->mat[15] = F{1};
+        }
         //! User-declared copy constructor
         constexpr mat44 (const mat44<F>& other) noexcept : mat(other.mat) {}
         //! User-declared copy assignment constructor
@@ -174,8 +197,8 @@ namespace sm
         }
 #endif
         //! Apply translation specified by vector @dv
-        template<typename T> requires std::is_arithmetic_v<T>
-        constexpr void translate (const sm::vec<T, 3>& dv) noexcept
+        template<typename T, std::size_t N = 3> requires std::is_arithmetic_v<T> && (N == 3 || N == 4)
+        constexpr void translate (const sm::vec<T, N>& dv) noexcept
         {
             this->mat[12] += dv[0];
             this->mat[13] += dv[1];
@@ -183,8 +206,8 @@ namespace sm
         }
 
         //! Apply translation specified by vector @dv provided as array of three coordinates
-        template<typename T> requires std::is_arithmetic_v<T>
-        constexpr void translate (const std::array<T, 3>& dv) noexcept
+        template<typename T, std::size_t N = 3> requires std::is_arithmetic_v<T> && (N == 3 || N == 4)
+        constexpr void translate (const std::array<T, N>& dv) noexcept
         {
             this->mat[12] += dv[0];
             this->mat[13] += dv[1];
@@ -201,8 +224,8 @@ namespace sm
         }
 
         //! Apply pretranslation specified by vector @dv
-        template<typename T> requires std::is_arithmetic_v<T>
-        constexpr void pretranslate (const sm::vec<T, 3>& dv) noexcept
+        template<typename T, std::size_t N = 3> requires std::is_arithmetic_v<T> && (N == 3 || N == 4)
+        constexpr void pretranslate (const sm::vec<T, N>& dv) noexcept
         {
             mat44<T> trans_mat;
             trans_mat[12] = dv[0];
@@ -213,8 +236,8 @@ namespace sm
         }
 
         //! Apply pretranslation specified by vector @dv provided as array of three coordinates
-        template<typename T> requires std::is_arithmetic_v<T>
-        constexpr void pretranslate (const std::array<T, 3>& dv) noexcept
+        template<typename T, std::size_t N = 3> requires std::is_arithmetic_v<T> && (N == 3 || N == 4)
+        constexpr void pretranslate (const std::array<T, N>& dv) noexcept
         {
             mat44<T> trans_mat;
             trans_mat[12] = dv[0];
@@ -255,8 +278,8 @@ namespace sm
         }
 
         //! Scaling transformation by vector
-        template<typename T> requires std::is_arithmetic_v<T>
-        constexpr void scale (const sm::vec<T, 3>& scl) noexcept
+        template<typename T, std::size_t N = 3> requires std::is_arithmetic_v<T> && (N == 3 || N == 4)
+        constexpr void scale (const sm::vec<T, N>& scl) noexcept
         {
             this->mat[0] *= scl[0];
             this->mat[1] *= scl[0];
@@ -271,8 +294,8 @@ namespace sm
             this->mat[10] *= scl[2];
         }
 
-        template<typename T> requires std::is_arithmetic_v<T>
-        constexpr void scale (const std::array<T, 3>& scl) noexcept
+        template<typename T, std::size_t N = 3> requires std::is_arithmetic_v<T> && (N == 3 || N == 4)
+        constexpr void scale (const std::array<T, N>& scl) noexcept
         {
             this->mat[0] *= scl[0];
             this->mat[1] *= scl[0];
@@ -645,7 +668,7 @@ namespace sm
          * seems so. See also https://www.songho.ca/opengl/gl_quaternion.html#overview
          * and https://danceswithcode.net/engineeringnotes/quaternions/quaternions.html)
          */
-        template <typename T = float> requires std::is_arithmetic_v<T>
+        template <typename T> requires std::is_arithmetic_v<T>
         constexpr mat44<F> pure_rotation (const sm::quaternion<T>& q) noexcept
         {
             const F qx = static_cast<F>(q.x);
@@ -687,7 +710,7 @@ namespace sm
         }
 
         //! Apply the rotation q to this as: rotn_matrix * this
-        template <typename T = float> requires std::is_arithmetic_v<T>
+        template <typename T> requires std::is_arithmetic_v<T>
         constexpr void rotate (const sm::quaternion<T>& q) noexcept
         {
             mat44<F> m = this->pure_rotation (q);
@@ -695,8 +718,8 @@ namespace sm
         }
 
         //! Rotate an angle theta radians about axis (specified as std::array)
-        template <typename T> requires std::is_arithmetic_v<T>
-        constexpr void rotate (const std::array<T, 3>& axis, const T& theta) noexcept
+        template <typename T, std::size_t N = 3> requires std::is_arithmetic_v<T> && (N == 3 || N == 4)
+        constexpr void rotate (const std::array<T, N>& axis, const T& theta) noexcept
         {
             sm::quaternion<T> q;
             q.rotate (axis, theta);
@@ -704,8 +727,8 @@ namespace sm
         }
 
         //! Rotate an angle theta radians about axis (specified as sm::vec)
-        template <typename T> requires std::is_arithmetic_v<T>
-        constexpr void rotate (const sm::vec<T, 3>& axis, const T& theta) noexcept
+        template <typename T, std::size_t N = 3> requires std::is_arithmetic_v<T> && (N == 3 || N == 4)
+        constexpr void rotate (const sm::vec<T, N>& axis, const T& theta) noexcept
         {
             sm::quaternion<T> q;
             q.rotate (axis, theta);
@@ -713,7 +736,7 @@ namespace sm
         }
 
         //! Pre-rotation by pure rotation matrix m: this * m
-        template <typename T = float> requires std::is_arithmetic_v<T>
+        template <typename T> requires std::is_arithmetic_v<T>
         constexpr void prerotate (const sm::quaternion<T>& q) noexcept
         {
             mat44<F> m = this->pure_rotation (q);
@@ -721,8 +744,8 @@ namespace sm
         }
 
         //! Prerotate an angle theta radians about axis (specified as std::array)
-        template <typename T> requires std::is_arithmetic_v<T>
-        constexpr void prerotate (const std::array<T, 3>& axis, const T& theta) noexcept
+        template <typename T, std::size_t N = 3> requires std::is_arithmetic_v<T> && (N == 3 || N == 4)
+        constexpr void prerotate (const std::array<T, N>& axis, const T& theta) noexcept
         {
             sm::quaternion<T> q;
             q.rotate (axis, theta);
@@ -730,8 +753,8 @@ namespace sm
         }
 
         //! Prerotate an angle theta radians about axis (specified as sm::vec)
-        template <typename T> requires std::is_arithmetic_v<T>
-        constexpr void prerotate (const sm::vec<T, 3>& axis, const T& theta) noexcept
+        template <typename T, std::size_t N = 3> requires std::is_arithmetic_v<T> && (N == 3 || N == 4)
+        constexpr void prerotate (const sm::vec<T, N>& axis, const T& theta) noexcept
         {
             sm::quaternion<T> q;
             q.rotate (axis, theta);
@@ -762,22 +785,40 @@ namespace sm
             return { this->mat[12], this->mat[13], this->mat[14] };
         }
 
-        //! Returns the rotation part of the 4x4 matrix (the top left 3x3 matrix) IF the determinant
-        //! is 1 (which indicates that the matrix encodes a pure rotation).
-        sm::quaternion<F> rotation()
+        //! Returns the rotation part of the 4x4 matrix (the top left 3x3 matrix)
+        constexpr sm::quaternion<F> rotation() noexcept
         {
-            sm::quaternion<F> therotation;
-            F det = this->determinant();
-            if (det != F{1}) { throw std::runtime_error ("mat44<>::rotation: determinant is not 1"); }
-            F tr = this->trace();
-            if (tr > F{0}) {
-                F s = F{0.5} / sm::cem::sqrt (tr);
-                therotation.w = F{0.25} / s;
-                therotation.x = this->mat[6] - this->mat[9] * s;
-                therotation.y = this->mat[8] - this->mat[2] * s;
-                therotation.z = this->mat[1] - this->mat[4] * s;
-            } // else return an identity rotation
-            return therotation;
+            sm::quaternion<F> q;
+
+            F tr = mat[0] + mat[5] + mat[10];
+
+            if (tr > 0) {
+                F S = sm::cem::sqrt (tr + F{1}) * F{2}; // S=4*qw
+                q.w = F{0.25} * S;
+                q.x = (mat[6] - mat[9]) / S;
+                q.y = (mat[8] - mat[2]) / S;
+                q.z = (mat[1] - mat[4]) / S;
+            } else if ((mat[0] > mat[5]) && (mat[0] > mat[10])) {
+                F S = sm::cem::sqrt (F{1} + mat[0] - mat[5] - mat[10]) * F{2}; // S=4*qx
+                q.w = (mat[6] - mat[9]) / S;
+                q.x = F{0.25} * S;
+                q.y = (mat[4] + mat[1]) / S;
+                q.z = (mat[8] + mat[2]) / S;
+            } else if (mat[5] > mat[10]) {
+                F S = sm::cem::sqrt (F{1} + mat[5] - mat[0] - mat[10]) * F{2}; // S=4*qy
+                q.w = (mat[8] - mat[2]) / S;
+                q.x = (mat[4] + mat[1]) / S;
+                q.y = F{0.25} * S;
+                q.z = (mat[9] + mat[6]) / S;
+            } else {
+                F S = sm::cem::sqrt (F{1} + mat[10] - mat[0] - mat[6]) * F{2}; // S=4*qz
+                q.w = (mat[1] - mat[4]) / S;
+                q.x = (mat[8] + mat[2]) / S;
+                q.y = (mat[9] + mat[6]) / S;
+                q.z = F{0.25} * S;
+            }
+
+            return q;
         }
 
         //! Right-multiply this->mat with m2.

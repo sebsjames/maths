@@ -19,6 +19,7 @@
 #include <sstream>
 #include <iostream>
 #include <sm/vec>
+#include <sm/quaternion>
 
 namespace sm
 {
@@ -301,6 +302,43 @@ namespace sm
                 rtn *= (F{1}/det);
             }
             return rtn;
+        }
+
+        //! Obtain the rotation represented by this matrix. Hat tip:
+        //! https://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/
+        constexpr sm::quaternion<F> rotation() noexcept
+        {
+            sm::quaternion<F> q;
+
+            F tr = mat[0] + mat[4] + mat[8];
+
+            if (tr > 0) {
+                F S = sm::cem::sqrt (tr + F{1}) * F{2}; // S=4*qw
+                q.w = F{0.25} * S;
+                q.x = (mat[5] - mat[7]) / S;
+                q.y = (mat[6] - mat[2]) / S;
+                q.z = (mat[1] - mat[3]) / S;
+            } else if ((mat[0] > mat[4]) && (mat[0] > mat[8])) {
+                F S = sm::cem::sqrt (F{1} + mat[0] - mat[4] - mat[8]) * F{2}; // S=4*qx
+                q.w = (mat[5] - mat[7]) / S;
+                q.x = F{0.25} * S;
+                q.y = (mat[3] + mat[1]) / S;
+                q.z = (mat[6] + mat[2]) / S;
+            } else if (mat[4] > mat[8]) {
+                F S = sm::cem::sqrt (F{1} + mat[4] - mat[0] - mat[8]) * F{2}; // S=4*qy
+                q.w = (mat[6] - mat[2]) / S;
+                q.x = (mat[3] + mat[1]) / S;
+                q.y = F{0.25} * S;
+                q.z = (mat[7] + mat[5]) / S;
+            } else {
+                F S = sm::cem::sqrt (F{1} + mat[8] - mat[0] - mat[4]) * F{2}; // S=4*qz
+                q.w = (mat[1] - mat[3]) / S;
+                q.x = (mat[6] + mat[2]) / S;
+                q.y = (mat[7] + mat[5]) / S;
+                q.z = F{0.25} * S;
+            }
+
+            return q;
         }
 
         //! *= operator for a scalar value.

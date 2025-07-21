@@ -375,3 +375,9 @@ add_test(testConfig testConfig)
 
 add_executable(test_zernike test_zernike.cpp)
 add_test(test_zernike test_zernike)
+
+add_executable(mat33_1 mat33_1.cpp)
+add_test(mat33_1 mat33_1)
+
+add_executable(mat44_1 mat44_1.cpp)
+add_test(mat44_1 mat44_1)
