@@ -722,12 +722,7 @@ namespace sm
         constexpr void rotate (const std::array<T, N>& axis, const T& theta) noexcept
         {
             sm::quaternion<T> q;
-            if constexpr (N == 4) {
-                sm::vec<T, 3> axv = { axis[0], axis[1], axis[2] };
-                q.rotate (axv, theta);
-            } else {
-                q.rotate (axis, theta);
-            }
+            q.rotate (axis, theta);
             this->rotate<T> (q);
         }
 
@@ -736,11 +731,7 @@ namespace sm
         constexpr void rotate (const sm::vec<T, N>& axis, const T& theta) noexcept
         {
             sm::quaternion<T> q;
-            if constexpr (N == 4) {
-                q.rotate (axis.less_one_dim(), theta);
-            } else {
-                q.rotate (axis, theta);
-            }
+            q.rotate (axis, theta);
             this->rotate<T> (q);
         }
 
@@ -757,12 +748,7 @@ namespace sm
         constexpr void prerotate (const std::array<T, N>& axis, const T& theta) noexcept
         {
             sm::quaternion<T> q;
-            if constexpr (N == 4) {
-                sm::vec<T, 3> axv = { axis[0], axis[1], axis[2] };
-                q.rotate (axv, theta);
-            } else {
-                q.rotate (axis, theta);
-            }
+            q.rotate (axis, theta);
             this->prerotate<T> (q);
         }
 
@@ -771,11 +757,7 @@ namespace sm
         constexpr void prerotate (const sm::vec<T, N>& axis, const T& theta) noexcept
         {
             sm::quaternion<T> q;
-            if constexpr (N == 4) {
-                q.rotate (axis.less_one_dim(), theta);
-            } else {
-                q.rotate (axis, theta);
-            }
+            q.rotate (axis, theta);
             this->prerotate<T> (q);
         }
 
