@@ -359,37 +359,17 @@ namespace sm
         {
             std::array<F, 9> result;
             // Top row
-            result[0] = this->mat[0] * m2[0]
-            + this->mat[3] * m2[1]
-            + this->mat[6] * m2[2];
-            result[3] = this->mat[0] * m2[3]
-            + this->mat[3] * m2[4]
-            + this->mat[6] * m2[5];
-            result[6] = this->mat[0] * m2[6]
-            + this->mat[3] * m2[7]
-            + this->mat[6] * m2[8];
-
+            result[0] = this->mat[0] * m2[0] + this->mat[3] * m2[1] + this->mat[6] * m2[2];
+            result[3] = this->mat[0] * m2[3] + this->mat[3] * m2[4] + this->mat[6] * m2[5];
+            result[6] = this->mat[0] * m2[6] + this->mat[3] * m2[7] + this->mat[6] * m2[8];
             // Second row
-            result[1] = this->mat[1] * m2[0]
-            + this->mat[4] * m2[1]
-            + this->mat[7] * m2[2];
-            result[4] = this->mat[1] * m2[3]
-            + this->mat[4] * m2[4]
-            + this->mat[7] * m2[5];
-            result[7] = this->mat[1] * m2[6]
-            + this->mat[4] * m2[7]
-            + this->mat[7] * m2[8];
-
+            result[1] = this->mat[1] * m2[0] + this->mat[4] * m2[1] + this->mat[7] * m2[2];
+            result[4] = this->mat[1] * m2[3] + this->mat[4] * m2[4] + this->mat[7] * m2[5];
+            result[7] = this->mat[1] * m2[6] + this->mat[4] * m2[7] + this->mat[7] * m2[8];
             // Third row
-            result[2] = this->mat[2] * m2[0]
-            + this->mat[5] * m2[1]
-            + this->mat[8] * m2[2];
-            result[5] = this->mat[2] * m2[3]
-            + this->mat[5] * m2[4]
-            + this->mat[8] * m2[5];
-            result[8] = this->mat[2] * m2[6]
-            + this->mat[5] * m2[7]
-            + this->mat[8] * m2[8];
+            result[2] = this->mat[2] * m2[0] + this->mat[5] * m2[1] + this->mat[8] * m2[2];
+            result[5] = this->mat[2] * m2[3] + this->mat[5] * m2[4] + this->mat[8] * m2[5];
+            result[8] = this->mat[2] * m2[6] + this->mat[5] * m2[7] + this->mat[8] * m2[8];
 
             this->mat.swap (result);
         }
@@ -399,37 +379,17 @@ namespace sm
         {
             std::array<F, 9> result;
             // Top row
-            result[0] = this->mat[0] * m2.mat[0]
-            + this->mat[3] * m2.mat[1]
-            + this->mat[6] * m2.mat[2];
-            result[3] = this->mat[0] * m2.mat[3]
-            + this->mat[3] * m2.mat[4]
-            + this->mat[6] * m2.mat[5];
-            result[6] = this->mat[0] * m2.mat[6]
-            + this->mat[3] * m2.mat[7]
-            + this->mat[6] * m2.mat[8];
-
+            result[0] = this->mat[0] * m2.mat[0] + this->mat[3] * m2.mat[1] + this->mat[6] * m2.mat[2];
+            result[3] = this->mat[0] * m2.mat[3] + this->mat[3] * m2.mat[4] + this->mat[6] * m2.mat[5];
+            result[6] = this->mat[0] * m2.mat[6] + this->mat[3] * m2.mat[7] + this->mat[6] * m2.mat[8];
             // Second row
-            result[1] = this->mat[1] * m2.mat[0]
-            + this->mat[4] * m2.mat[1]
-            + this->mat[7] * m2.mat[2];
-            result[4] = this->mat[1] * m2.mat[3]
-            + this->mat[4] * m2.mat[4]
-            + this->mat[7] * m2.mat[5];
-            result[7] = this->mat[1] * m2.mat[6]
-            + this->mat[4] * m2.mat[7]
-            + this->mat[7] * m2.mat[8];
-
+            result[1] = this->mat[1] * m2.mat[0] + this->mat[4] * m2.mat[1] + this->mat[7] * m2.mat[2];
+            result[4] = this->mat[1] * m2.mat[3] + this->mat[4] * m2.mat[4] + this->mat[7] * m2.mat[5];
+            result[7] = this->mat[1] * m2.mat[6] + this->mat[4] * m2.mat[7] + this->mat[7] * m2.mat[8];
             // Third row
-            result[2] = this->mat[2] * m2.mat[0]
-            + this->mat[5] * m2.mat[1]
-            + this->mat[8] * m2.mat[2];
-            result[5] = this->mat[2] * m2.mat[3]
-            + this->mat[5] * m2.mat[4]
-            + this->mat[8] * m2.mat[5];
-            result[8] = this->mat[2] * m2.mat[6]
-            + this->mat[5] * m2.mat[7]
-            + this->mat[8] * m2.mat[8];
+            result[2] = this->mat[2] * m2.mat[0] + this->mat[5] * m2.mat[1] + this->mat[8] * m2.mat[2];
+            result[5] = this->mat[2] * m2.mat[3] + this->mat[5] * m2.mat[4] + this->mat[8] * m2.mat[5];
+            result[8] = this->mat[2] * m2.mat[6] + this->mat[5] * m2.mat[7] + this->mat[8] * m2.mat[8];
 
             this->mat.swap (result);
         }
@@ -439,37 +399,17 @@ namespace sm
         {
             mat33<F> result;
             // Top row
-            result.mat[0] = this->mat[0] * m2[0]
-            + this->mat[3] * m2[1]
-            + this->mat[6] * m2[2];
-            result.mat[3] = this->mat[0] * m2[3]
-            + this->mat[3] * m2[4]
-            + this->mat[6] * m2[5];
-            result.mat[6] = this->mat[0] * m2[6]
-            + this->mat[3] * m2[7]
-            + this->mat[6] * m2[8];
-
+            result.mat[0] = this->mat[0] * m2[0] + this->mat[3] * m2[1] + this->mat[6] * m2[2];
+            result.mat[3] = this->mat[0] * m2[3] + this->mat[3] * m2[4] + this->mat[6] * m2[5];
+            result.mat[6] = this->mat[0] * m2[6] + this->mat[3] * m2[7] + this->mat[6] * m2[8];
             // Second row
-            result.mat[1] = this->mat[1] * m2[0]
-            + this->mat[4] * m2[1]
-            + this->mat[7] * m2[2];
-            result.mat[4] = this->mat[1] * m2[3]
-            + this->mat[4] * m2[4]
-            + this->mat[7] * m2[5];
-            result.mat[7] = this->mat[1] * m2[6]
-            + this->mat[4] * m2[7]
-            + this->mat[7] * m2[8];
-
+            result.mat[1] = this->mat[1] * m2[0] + this->mat[4] * m2[1] + this->mat[7] * m2[2];
+            result.mat[4] = this->mat[1] * m2[3] + this->mat[4] * m2[4] + this->mat[7] * m2[5];
+            result.mat[7] = this->mat[1] * m2[6] + this->mat[4] * m2[7] + this->mat[7] * m2[8];
             // Third row
-            result.mat[2] = this->mat[2] * m2[0]
-            + this->mat[5] * m2[1]
-            + this->mat[8] * m2[2];
-            result.mat[5] = this->mat[2] * m2[3]
-            + this->mat[5] * m2[4]
-            + this->mat[8] * m2[5];
-            result.mat[8] = this->mat[2] * m2[6]
-            + this->mat[5] * m2[7]
-            + this->mat[8] * m2[8];
+            result.mat[2] = this->mat[2] * m2[0] + this->mat[5] * m2[1] + this->mat[8] * m2[2];
+            result.mat[5] = this->mat[2] * m2[3] + this->mat[5] * m2[4] + this->mat[8] * m2[5];
+            result.mat[8] = this->mat[2] * m2[6] + this->mat[5] * m2[7] + this->mat[8] * m2[8];
 
             return result;
         }
@@ -479,37 +419,17 @@ namespace sm
         {
             mat33<F> result;
             // Top row
-            result.mat[0] = this->mat[0] * m2.mat[0]
-            + this->mat[3] * m2.mat[1]
-            + this->mat[6] * m2.mat[2];
-            result.mat[3] = this->mat[0] * m2.mat[3]
-            + this->mat[3] * m2.mat[4]
-            + this->mat[6] * m2.mat[5];
-            result.mat[6] = this->mat[0] * m2.mat[6]
-            + this->mat[3] * m2.mat[7]
-            + this->mat[6] * m2.mat[8];
-
+            result.mat[0] = this->mat[0] * m2.mat[0] + this->mat[3] * m2.mat[1] + this->mat[6] * m2.mat[2];
+            result.mat[3] = this->mat[0] * m2.mat[3] + this->mat[3] * m2.mat[4] + this->mat[6] * m2.mat[5];
+            result.mat[6] = this->mat[0] * m2.mat[6] + this->mat[3] * m2.mat[7] + this->mat[6] * m2.mat[8];
             // Second row
-            result.mat[1] = this->mat[1] * m2.mat[0]
-            + this->mat[4] * m2.mat[1]
-            + this->mat[7] * m2.mat[2];
-            result.mat[4] = this->mat[1] * m2.mat[3]
-            + this->mat[4] * m2.mat[4]
-            + this->mat[7] * m2.mat[5];
-            result.mat[7] = this->mat[1] * m2.mat[6]
-            + this->mat[4] * m2.mat[7]
-            + this->mat[7] * m2.mat[8];
-
+            result.mat[1] = this->mat[1] * m2.mat[0] + this->mat[4] * m2.mat[1] + this->mat[7] * m2.mat[2];
+            result.mat[4] = this->mat[1] * m2.mat[3] + this->mat[4] * m2.mat[4] + this->mat[7] * m2.mat[5];
+            result.mat[7] = this->mat[1] * m2.mat[6] + this->mat[4] * m2.mat[7] + this->mat[7] * m2.mat[8];
             // Third row
-            result.mat[2] = this->mat[2] * m2.mat[0]
-            + this->mat[5] * m2.mat[1]
-            + this->mat[8] * m2.mat[2];
-            result.mat[5] = this->mat[2] * m2.mat[3]
-            + this->mat[5] * m2.mat[4]
-            + this->mat[8] * m2.mat[5];
-            result.mat[8] = this->mat[2] * m2.mat[6]
-            + this->mat[5] * m2.mat[7]
-            + this->mat[8] * m2.mat[8];
+            result.mat[2] = this->mat[2] * m2.mat[0] + this->mat[5] * m2.mat[1] + this->mat[8] * m2.mat[2];
+            result.mat[5] = this->mat[2] * m2.mat[3] + this->mat[5] * m2.mat[4] + this->mat[8] * m2.mat[5];
+            result.mat[8] = this->mat[2] * m2.mat[6] + this->mat[5] * m2.mat[7] + this->mat[8] * m2.mat[8];
 
             return result;
         }
@@ -518,15 +438,9 @@ namespace sm
         std::array<F, 3> operator* (const std::array<F, 3>& v1) const noexcept
         {
             std::array<F, 3> v;
-            v[0] = this->mat[0] * v1[0]
-            + this->mat[3] * v1[1]
-            + this->mat[6] * v1[2];
-            v[1] = this->mat[1] * v1[0]
-            + this->mat[4] * v1[1]
-            + this->mat[7] * v1[2];
-            v[2] = this->mat[2] * v1[0]
-            + this->mat[5] * v1[1]
-            + this->mat[8] * v1[2];
+            v[0] = this->mat[0] * v1[0] + this->mat[3] * v1[1] + this->mat[6] * v1[2];
+            v[1] = this->mat[1] * v1[0] + this->mat[4] * v1[1] + this->mat[7] * v1[2];
+            v[2] = this->mat[2] * v1[0] + this->mat[5] * v1[1] + this->mat[8] * v1[2];
             return v;
         }
 
@@ -534,15 +448,9 @@ namespace sm
         vec<F, 3> operator* (const vec<F, 3>& v1) const noexcept
         {
             vec<F, 3> v;
-            v[0] = this->mat[0] * v1[0]
-            + this->mat[3] * v1[1]
-            + this->mat[6] * v1[2];
-            v[1] = this->mat[1] * v1[0]
-            + this->mat[4] * v1[1]
-            + this->mat[7] * v1[2];
-            v[2] = this->mat[2] * v1[0]
-            + this->mat[5] * v1[1]
-            + this->mat[8] * v1[2];
+            v[0] = this->mat[0] * v1[0] + this->mat[3] * v1[1] + this->mat[6] * v1[2];
+            v[1] = this->mat[1] * v1[0] + this->mat[4] * v1[1] + this->mat[7] * v1[2];
+            v[2] = this->mat[2] * v1[0] + this->mat[5] * v1[1] + this->mat[8] * v1[2];
             return v;
         }
 
