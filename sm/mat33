@@ -304,15 +304,21 @@ namespace sm
             return rtn;
         }
 
-        //! Obtain the rotation represented by this matrix. Hat tip:
-        //! https://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/
+        /*!
+         * Obtain the rotation represented by this matrix as a quaternion.
+         *
+         * This does *not* normalize the quaternion before returning it.
+         *
+         * Hat tip for the algorithm:
+         * https://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/
+         */
         constexpr sm::quaternion<F> rotation() noexcept
         {
             sm::quaternion<F> q;
 
-            F tr = mat[0] + mat[4] + mat[8];
+            F tr = this->trace();
 
-            if (tr > 0) {
+            if (tr > F{0}) {
                 F S = sm::cem::sqrt (tr + F{1}) * F{2}; // S=4*qw
                 q.w = F{0.25} * S;
                 q.x = (mat[5] - mat[7]) / S;

@@ -23,7 +23,6 @@
 #include <sstream>
 #include <iostream>
 #include <type_traits>
-#include <stdexcept>
 
 #include <sm/mathconst>
 #include <sm/quaternion>
@@ -785,14 +784,31 @@ namespace sm
             return { this->mat[12], this->mat[13], this->mat[14] };
         }
 
-        //! Returns the rotation part of the 4x4 matrix (the top left 3x3 matrix)
+        /*!
+         * Returns the rotation part of the 4x4 matrix (the top left 3x3 matrix, as returned by
+         * mat44::linear) as a quaternion.
+         *
+         * This does the equivalent of this->linear().rotation() (that is, you can find
+         * mat33::rotation which is the same as this function).
+         *
+         * It assumes that your 4x4 matrix encodes rotations without scaling.
+         *
+         * It does *not* check that the matrix determinant is 1 (you could do that first if you need
+         * to).
+         *
+         * It does *not* normalize the generated quaternion before returning it (you could do that
+         * afterwards if you need to).
+         *
+         * Hat tip for the algorithm:
+         * https://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/
+         */
         constexpr sm::quaternion<F> rotation() noexcept
         {
             sm::quaternion<F> q;
 
             F tr = mat[0] + mat[5] + mat[10];
 
-            if (tr > 0) {
+            if (tr > F{0}) {
                 F S = sm::cem::sqrt (tr + F{1}) * F{2}; // S=4*qw
                 q.w = F{0.25} * S;
                 q.x = (mat[6] - mat[9]) / S;
