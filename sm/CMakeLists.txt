@@ -17,6 +17,7 @@ install(
   config
   constexpr_math
   crc32
+  edgeconv
   flags
   geometry
   gridfeatures
@@ -31,6 +32,7 @@ install(
   mat44
   mathconst
   nm_simplex
+  onoff
   process
   quaternion
   random

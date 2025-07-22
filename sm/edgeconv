@@ -1,0 +1,99 @@
+// -*- C++ -*-
+/*
+ * This file is part of sebsjames/maths, a library of maths code for modern C++
+ *
+ * See https://github.com/sebsjames/maths
+ *
+ * Edge convolution algorithm implementations
+ *
+ * Author: Seb James
+ */
+
+#pragma once
+
+#include <stdexcept>
+#include <sm/vvec>
+#include <sm/vec>
+
+namespace sm::algo
+{
+    /*!
+     * Carry out a simple, 2 pixel kernel edge convolution for both vertical and horizontal
+     * edges. The one-d array data is assumed to be rectangular with width w. I have chosen to place
+     * the edge between element i and element i+1 (or i+w) in edges[i] (it would be equally sensible
+     * to place it in i+1/i+w). I've assumed that the 1D array fills a rectangle from the bottom
+     * left (so it's a right-handed coordinate system).  I have provided an option to invert edges
+     * for either axis, which allows for other assumptions about the way the 1D array fills a
+     * rectangle.
+     */
+    template<typename T, int w, bool invert_vert_edges=false, bool invert_horz_edges=false>
+    static void edgeconv_2d (const sm::vvec<T>& data, sm::vvec<T>& v_edges, sm::vvec<T>& h_edges)
+    {
+        if (v_edges.size() != data.size() || h_edges.size() != data.size()) {
+            throw std::runtime_error ("The input data vector is not the same size as the result vectors.");
+        }
+        if (&data == &v_edges || &data == &h_edges) {
+            throw std::runtime_error ("Pass in separate memory for the results.");
+        }
+
+        int lastrow_index = data.size() - w;
+
+        for (int i = 0; i < static_cast<int>(data.size()); ++i) {
+            if ((i+1)%w == 0) { // on last column; do horizontal wrapping
+                if constexpr (invert_vert_edges == true) {
+                    v_edges[i] =  data[i] - data[i-w+1];
+                } else {
+                    v_edges[i] = -data[i] + data[i-w+1];
+                }
+            } else {
+                if constexpr (invert_vert_edges == true) {
+                    v_edges[i] =  data[i] - data[i+1];
+                } else {
+                    v_edges[i] = -data[i] + data[i+1];
+                }
+            }
+            if (i >= lastrow_index) { // Then we're on the last row
+                h_edges[i] = T{0};
+            } else {
+                if constexpr (invert_horz_edges == true) {
+                    h_edges[i] =  data[i] - data[i+w];
+                } else {
+                    h_edges[i] = -data[i] + data[i+w];
+                }
+            }
+        }
+    }
+
+    // fixed sized arrays version.
+    template<typename T, int w, int h, bool invert_vert_edges=false, bool invert_horz_edges=false>
+    static void edgeconv_2d (const sm::vec<T, w*h>& data, sm::vec<T, w*h>& v_edges, sm::vec<T, w*h>& h_edges)
+    {
+        int lastrow_index = (w*h) - w;
+
+        for (int i = 0; i < w*h; ++i) {
+            if ((i+1)%w == 0) { // on last column; do horizontal wrapping
+                if constexpr (invert_vert_edges == true) {
+                    v_edges[i] =  data[i] - data[i-w+1];
+                } else {
+                    v_edges[i] = -data[i] + data[i-w+1];
+                }
+            } else {
+                if constexpr (invert_vert_edges == true) {
+                    v_edges[i] =  data[i] - data[i+1];
+                } else {
+                    v_edges[i] = -data[i] + data[i+1];
+                }
+            }
+            if (i >= lastrow_index) {
+                h_edges[i] = T{0};
+            } else {
+                if constexpr (invert_horz_edges == true) {
+                    h_edges[i] =  data[i] - data[i+w];
+                } else {
+                    h_edges[i] = -data[i] + data[i+w];
+                }
+            }
+        }
+    }
+
+} // namespace
