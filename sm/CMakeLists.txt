@@ -14,6 +14,7 @@ install(
   bootstrap
   boxfilter
   cartgrid
+  centroid
   config
   constexpr_math
   crc32
