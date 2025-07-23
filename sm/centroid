@@ -1,0 +1,161 @@
+// -*- C++ -*-
+/*
+ * This file is part of sebsjames/maths, a library of maths code for modern C++
+ *
+ * See https://github.com/sebsjames/maths
+ *
+ * Centroid implementations
+ *
+ * Author: Seb James
+ */
+
+#pragma once
+
+#include <memory>
+#include <stdexcept>
+#include <sm/vvec>
+#include <sm/vec>
+#include <sm/trait_tests>
+
+namespace sm::algo
+{
+    /*!
+     * N-D centroid
+     *
+     * Find the centroid of a set of coordinates. If T is e.g. array<float, N> or
+     * vector<double> or list<float> then the N-D centroid of the coordinates
+     * defined in Container<T> is computed.
+     */
+    template < template <typename, typename> typename Container,
+               typename T,
+               typename Allocator=std::allocator<T> >
+    static T centroid (const Container<T, Allocator>& coords)
+    {
+        T _centroid(*coords.begin());
+
+        // If T has a .x and a .y as member attributes, assume it's a 2D point (e.g. cv::Point)
+        if constexpr (sm::has_xy_members<T>::value == true) {
+
+            // using T_el = what? how to get the element type in a cv::Point_?
+            using T_el = std::remove_reference_t<decltype(T::x)>;
+
+            _centroid.x = T_el{0};
+            _centroid.y = T_el{0};
+
+            typename Container<T, Allocator>::const_iterator conti = coords.begin();
+            while (conti != coords.end()) {
+                _centroid.x += conti->x;
+                _centroid.y += conti->y;
+                ++conti;
+            }
+
+            // Maybe T_el instead of double here?
+            T_el csz = static_cast<T_el>(coords.size());
+            _centroid.x /= csz;
+            _centroid.y /= csz;
+
+        } else { // This code is the default for iterable Ts (any number of dimensions)
+
+            using T_el = std::remove_reference_t<decltype(*std::begin(std::declval<T&>()))>;
+
+            // zero _centroid
+            typename T::iterator ci = _centroid.begin();
+            while (ci != _centroid.end()) {
+                *ci++ = static_cast<T_el>(0);
+            }
+
+            typename Container<T, Allocator>::const_iterator conti = coords.begin();
+            while (conti != coords.end()) {
+                ci = _centroid.begin();
+                typename T::const_iterator conti_eli = conti->begin(); // conti element iterator
+                while (ci != _centroid.end()) {
+                    *ci++ += *conti_eli++;
+                }
+                ++conti;
+            }
+            typename Container<T, Allocator>::size_type csz = coords.size();
+            ci = _centroid.begin();
+            while (ci != _centroid.end()) {
+                *ci++ /= static_cast<T_el>(csz);
+            }
+        }
+
+        return _centroid;
+    }
+
+    //! Centroid of a set of 2D coordinates @points.
+    template<typename T>
+    static sm::vec<T, 2> centroid2D (const std::vector<sm::vec<T, 2>> points) {
+        sm::vec<T, 2> centroid;
+        centroid[0] = T{0};
+        centroid[1] = T{0};
+        if (points.size() == 0) { return centroid; }
+        for (auto p : points) {
+            centroid[0] += p[0];
+            centroid[1] += p[1];
+        }
+        centroid[0] /= points.size();
+        centroid[1] /= points.size();
+        return centroid;
+    }
+
+    //! Centroid of a set of 2D coordinates @points, assumed to be in order
+    //! x1,y1,x2,y2,etc
+    template<typename T>
+    static sm::vec<T, 2> centroid2D (const std::vector<T> points) {
+        sm::vec<T, 2> centroid;
+        centroid[0] = T{0};
+        centroid[1] = T{0};
+        typename std::vector<T>::size_type psz = points.size();
+        if (psz == 0U) { return centroid; }
+        for (typename std::vector<T>::size_type i = 0; i < psz-1; i+=2) {
+            centroid[0] += points[i];
+            centroid[1] += points[i+1];
+        }
+        centroid[0] /= (psz/2);
+        centroid[1] /= (psz/2);
+        return centroid;
+    }
+
+    //! Centroid of a set of 3D coordinates @points, assumed to be in order
+    //! x1,y1,z1, x2,y2,z2, etc
+    // *Used in Stalefish only (I think)
+    template<typename T>
+    static std::array<T,3> centroid3D (const std::vector<T> points) {
+        std::array<T,3> centroid;
+        centroid[0] = T{0};
+        centroid[1] = T{0};
+        centroid[2] = T{0};
+        typename std::vector<T>::size_type psz = points.size();
+        if (psz == 0U) { return centroid; }
+        for (typename std::vector<T>::size_type i = 0; i < psz-2; i+=3) {
+            centroid[0] += points[i];
+            centroid[1] += points[i+1];
+            centroid[2] += points[i+2];
+        }
+        centroid[0] /= (psz/3);
+        centroid[1] /= (psz/3);
+        centroid[2] /= (psz/3);
+        return centroid;
+    }
+
+    //! Centroid 4 3D coordinates
+    template<typename T>
+    static std::array<T,3> centroid3D (const std::array<T, 12> points) {
+        std::array<T,3> centroid;
+        centroid[0] = T{0};
+        centroid[1] = T{0};
+        centroid[2] = T{0};
+        typename std::array<T, 12>::size_type psz = 12;
+        for (typename std::array<T, 12>::size_type i = 0; i < psz-2; i+=3) {
+            centroid[0] += points[i];
+            centroid[1] += points[i+1];
+            centroid[2] += points[i+2];
+        }
+        centroid[0] /= 4;
+        centroid[1] /= 4;
+        centroid[2] /= 4;
+        return centroid;
+    }
+
+} // namespace
