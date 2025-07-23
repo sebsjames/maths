@@ -12,10 +12,14 @@
 #pragma once
 
 #include <memory>
-#include <stdexcept>
-#include <sm/vvec>
-#include <sm/vec>
+#include <type_traits>
+#include <utility>
+#include <vector>
+#include <array>
+
 #include <sm/trait_tests>
+#include <sm/vec>
+#include <sm/vvec>
 
 namespace sm::algo
 {
