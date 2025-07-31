@@ -24,17 +24,18 @@
 namespace sm
 {
     // Forward declare class and stream operator
-    template <typename F> struct mat33;
+    template <typename F> requires std::is_floating_point_v<F> struct mat33;
     template <typename F> std::ostream& operator<< (std::ostream&, const mat33<F>&);
 
     /*!
-     * This implements a general purpose 3x3 matrix, for use in 2D applications. The
-     * matrix data is stored in mat33::mat, an array of 9 floating point
-     * numbers.
+     * This implements a general purpose 3x3 matrix, for use in 2D applications. The matrix data is
+     * stored in mat33::mat, an array of 9 floating point numbers. The numbers must be floating
+     * point, because there is a method that returns a quaternion<F>, where F is required to be
+     * floating point.
      *
      * \templateparam F The floating point type in which to store the matrix's data.
      */
-    template <typename F>
+    template <typename F> requires std::is_floating_point_v<F>
     struct mat33
     {
         //! Default constructor
