@@ -17,6 +17,7 @@
 #include <string>
 #include <sstream>
 #include <iostream>
+#include <initializer_list>
 #include <sm/vec>
 
 namespace sm
@@ -36,6 +37,25 @@ namespace sm
     {
         //! Default constructor
         mat22() noexcept { this->setToIdentity(); }
+
+        //! Initializer list construction
+        constexpr mat22 (std::initializer_list<F> other) noexcept
+        {
+            this->mat.zero();
+            unsigned char i = 0u;
+            for (F elem : other) {
+                this->mat[i++] = elem;
+                if (i == 4u) { break; } // only first 4 elements can be copied
+            }
+        }
+
+        //! Construct with an array
+        constexpr mat22 (const std::array<F, 4>& other) noexcept {
+            std::copy (other.begin(), other.end(), this->mat.begin());
+        }
+
+        //! Construct with sm::vec
+        constexpr mat22 (const sm::vec<F, 4>& other) noexcept { this->mat = other; }
 
         /*!
          * The matrix data, arranged in column major format to be similar to

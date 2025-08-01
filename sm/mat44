@@ -76,11 +76,18 @@ namespace sm
             this->mat[15] = F{1};
         }
         //! Initializer list construction
-        constexpr mat44 (std::initializer_list<F> _mat) : mat{{_mat}} {}
+        constexpr mat44 (std::initializer_list<F> other) noexcept
+        {
+            unsigned int i = 0;
+            for (; i < 16u; ++i) { this->mat[i] = F{0}; }
+            i = 0u;
+            for (F elem : other) {
+                this->mat[i++] = elem;
+                if (i == 16u) { break; } // only first 16 elements can be copied
+            }
+        }
         //! Construct with an array
-        constexpr mat44 (const std::array<F, 16>& _mat) noexcept { this->mat = _mat; }
-        //! Construct with a vec
-        constexpr mat44 (const sm::vec<F, 16>& _vmat) noexcept { this->mat = _vmat; }
+        constexpr mat44 (const std::array<F, 16>& other) noexcept { this->mat = other; }
         //! User-declared copy constructor
         constexpr mat44 (const mat44<F>& other) noexcept : mat(other.mat) {}
         //! User-declared copy assignment constructor

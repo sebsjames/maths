@@ -43,12 +43,17 @@ int main()
     std::cout << "Result of our rotation/translation then scaling of " << v1 << " is: " << v_4d
               << " or " << v_3d << " in three dimensions\n";
 
-    sm::mat44<float> mi = {{ 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16 }};
+    sm::mat44<float> mi = { 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16 };
     std::cout << "mi =\n" << mi << std::endl;
-#if 0
+
+    sm::mat44<float> mi0 = { 1,2,3,4 };
+    std::cout << "mi0 =\n" << mi0 << std::endl;
+
     sm::mat44<float> mi2 = std::array<float, 16>{ 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16 };
     std::cout << "mi2 =\n" << mi2 << std::endl;
-    sm::mat44<float> mi3 = sm::vec<float, 16>{ 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16 };
+    sm::mat44<float> mi3 = sm::vec<float, 16>{ 2,2,2,2 };
     std::cout << "mi3 =\n" << mi3 << std::endl;
-#endif
+
+    mi3 = { 4,3,2,1, 4,3,2,1, 4,3,2,1, 4,3,2,1 };
+    std::cout << "mi3 reassigned =\n" << mi3 << std::endl;
 }
