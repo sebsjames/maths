@@ -43,7 +43,7 @@ namespace sm
         constexpr mat22 (std::initializer_list<F> other) noexcept
         {
             this->mat.zero();
-            unsigned char i = 0u;
+            unsigned int i = 0u;
             for (F elem : other) {
                 this->mat[i++] = elem;
                 if (i == 4u) { break; } // only first 4 elements can be copied

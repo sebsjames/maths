@@ -78,8 +78,8 @@ namespace sm
         //! Initializer list construction
         constexpr mat44 (std::initializer_list<F> other) noexcept
         {
-            unsigned int i = 0;
-            for (; i < 16u; ++i) { this->mat[i] = F{0}; }
+            unsigned int i = 0u;
+            for (i = 0u; i < 16u; ++i) { this->mat[i] = F{0}; }
             i = 0u;
             for (F elem : other) {
                 this->mat[i++] = elem;
