@@ -62,6 +62,7 @@
 #include <array>
 #include <cstddef>
 #include <memory>
+#include <sm/mathconst>
 
 namespace sm
 {
@@ -806,4 +807,92 @@ namespace sm
         //! The group of characters from which to generate a string
         chargroup cg = chargroup::hexlowercase;
     };
+
+    //! Generate samples from the Von Mises distribution on the circle.
+    template <typename T = double, typename E = std::mt19937> requires std::is_floating_point_v<T>
+    class rand_vonmises
+    {
+    public:
+        rand_vonmises() { this->setup_rng(); }
+        rand_vonmises (T _mu, T _kappa) : mu(_mu), kappa(_kappa) { this->setup_rng(); }
+
+        //! The mean of the distribution (in radians)
+        T mu = T{0};
+        /*!
+         * The 'concentration'. 1/kappa is equivalent to sigma^2 in the normal
+         * distribution If kappa is zero, the distribution is uniform, and for small
+         * kappa it is close to uniform.
+         */
+        T kappa = T{1};
+
+        // The vonmises function adapted from NumPy
+        T get() const noexcept
+        {
+            T s = T{0};
+            T U = T{0}, V = T{0}, W = T{0}, Y = T{0}, Z = T{0};
+            T result = T{0}, mod = T{0};
+            int neg = 0;
+            if (std::isnan(kappa)) { return std::numeric_limits<T>::quiet_NaN(); }
+            if (kappa < T{1e-8}) {
+                /* Use a uniform for very small values of kappa */
+                return sm::mathconst<T>::pi * (T{2} * this->rngu->get() - T{1}); // -1 to 1
+            } else {
+                /* with double precision rho is zero until 1.4e-8 */
+                if (kappa < T{1e-5}) {
+                    /*
+                     * second order taylor expansion around kappa = 0
+                     * precise until relatively large kappas as second order is 0
+                     */
+                    s = (T{1} / kappa + kappa);
+                } else {
+                    if (kappa <= T{1e6}) {
+                        /* Path for 1e-5 <= kappa <= 1e6 */
+                        T r = T{1} + std::sqrt (T{1} + T{4} * kappa * kappa);
+                        T rho = (r - std::sqrt (T{2} * r)) / (T{2} * kappa);
+                        s = (T{1} + rho * rho) / (T{2} * rho);
+                    } else {
+                        /* Fallback to wrapped normal distribution for kappa > 1e6 */
+                        result = mu + std::sqrt(T{1} / kappa) * this->rngn->get();
+                        /* Ensure result is within bounds */
+                        if (result < -sm::mathconst<T>::pi) { result += sm::mathconst<T>::two_pi; }
+                        if (result > sm::mathconst<T>::pi) { result -= sm::mathconst<T>::two_pi; }
+                        return result;
+                    }
+                }
+
+                while (1) {
+                    U = this->rngu->get();
+                    Z = std::cos (sm::mathconst<T>::pi * U);
+                    W = (1 + s * Z) / (s + Z);
+                    Y = kappa * (s - W);
+                    V = this->rngu->get();
+                    // V==0.0 is ok here since Y >= 0 always leads to accept, while Y < 0 always rejects
+                    if ((Y * (T{2} - Y) - V >= T{0}) || (std::log (Y / V) + T{1} - Y >= T{0})) { break; }
+                }
+
+                U = this->rngu->get();
+
+                result = std::acos (W);
+                if (U < T{0.5}) { result = -result; }
+                result += mu;
+                neg = (result < 0);
+                mod = std::fabs (result);
+                mod = std::fmod (mod + sm::mathconst<T>::pi, sm::mathconst<T>::two_pi) - sm::mathconst<T>::pi;
+                if (neg) { mod *= -1; }
+
+                return mod;
+            }
+        }
+    private:
+        void setup_rng() noexcept
+        {
+            this->rngu = std::make_unique<rand_uniform<T>>(T{0}, T{1}); // [0, 1]
+            this->rngn = std::make_unique<rand_normal<T>>(T{0}, T{1});  // mean 0, sigma 1
+        }
+        //! The uniform number generator
+        std::unique_ptr<rand_uniform<T>> rngu;
+        std::unique_ptr<rand_normal<T>> rngn;
+
+    };
+
 }

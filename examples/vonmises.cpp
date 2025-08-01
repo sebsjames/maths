@@ -1,10 +1,9 @@
 #include <iostream>
-#include <sm/vonmises>
+#include <sm/random>
 
 int main()
 {
-    sm::rand_uniform<double> rngu;
-    sm::rand_normal<double> rngn;
-    double sample_angle = sm::random::vonmises (rngu, rngn, 0, 3);
-    std::cout << "sample: " << sample_angle << std::endl;
+    sm::rand_vonmises<double> rng_vonmises(0, 3); // mu = 0, kappa = 3
+    double s = rng_vonmises.get();
+    std::cout << "sample from the von Mises distribution: " << s << std::endl;
 }
