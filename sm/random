@@ -808,16 +808,18 @@ namespace sm
         chargroup cg = chargroup::hexlowercase;
     };
 
-    //! Generate samples from the Von Mises distribution on the circle.
+    //! Generate samples from the von Mises distribution on the circle.
     template <typename T = double, typename E = std::mt19937> requires std::is_floating_point_v<T>
     class rand_vonmises
     {
     public:
+        //! Constructors. Note that there's no option to set the seeds of rngn and rngu.
         rand_vonmises() { this->setup_rng(); }
         rand_vonmises (T _mu, T _kappa) : mu(_mu), kappa(_kappa) { this->setup_rng(); }
 
         //! The mean of the distribution (in radians)
         T mu = T{0};
+
         /*!
          * The 'concentration'. 1/kappa is equivalent to sigma^2 in the normal
          * distribution If kappa is zero, the distribution is uniform, and for small
@@ -825,7 +827,13 @@ namespace sm
          */
         T kappa = T{1};
 
-        // The vonmises function adapted from NumPy
+        /*!
+         * This function samples from the von Mises distribution on the circle. It was
+         * adapted from the function random_vonmises() from NumPy's random
+         * distributions:
+         *
+         * https://github.com/numpy/numpy/blob/main/numpy/random/src/distributions/distributions.c#L862
+         */
         T get() const noexcept
         {
             T s = T{0};
@@ -834,26 +842,24 @@ namespace sm
             int neg = 0;
             if (std::isnan(kappa)) { return std::numeric_limits<T>::quiet_NaN(); }
             if (kappa < T{1e-8}) {
-                /* Use a uniform for very small values of kappa */
+                // Use a uniform for very small values of kappa
                 return sm::mathconst<T>::pi * (T{2} * this->rngu->get() - T{1}); // -1 to 1
             } else {
-                /* with double precision rho is zero until 1.4e-8 */
+                // with double precision rho is zero until 1.4e-8
                 if (kappa < T{1e-5}) {
-                    /*
-                     * second order taylor expansion around kappa = 0
-                     * precise until relatively large kappas as second order is 0
-                     */
+                    // second order taylor expansion around kappa = 0. Precise until
+                    // relatively large kappas as second order is 0.
                     s = (T{1} / kappa + kappa);
                 } else {
                     if (kappa <= T{1e6}) {
-                        /* Path for 1e-5 <= kappa <= 1e6 */
+                        // Path for 1e-5 <= kappa <= 1e6
                         T r = T{1} + std::sqrt (T{1} + T{4} * kappa * kappa);
                         T rho = (r - std::sqrt (T{2} * r)) / (T{2} * kappa);
                         s = (T{1} + rho * rho) / (T{2} * rho);
                     } else {
-                        /* Fallback to wrapped normal distribution for kappa > 1e6 */
+                        // Fallback to wrapped normal distribution for kappa > 1e6
                         result = mu + std::sqrt(T{1} / kappa) * this->rngn->get();
-                        /* Ensure result is within bounds */
+                        // Ensure result is within bounds
                         if (result < -sm::mathconst<T>::pi) { result += sm::mathconst<T>::two_pi; }
                         if (result > sm::mathconst<T>::pi) { result -= sm::mathconst<T>::two_pi; }
                         return result;
@@ -863,7 +869,7 @@ namespace sm
                 while (1) {
                     U = this->rngu->get();
                     Z = std::cos (sm::mathconst<T>::pi * U);
-                    W = (1 + s * Z) / (s + Z);
+                    W = (T{1} + s * Z) / (s + Z);
                     Y = kappa * (s - W);
                     V = this->rngu->get();
                     // V==0.0 is ok here since Y >= 0 always leads to accept, while Y < 0 always rejects
@@ -883,16 +889,17 @@ namespace sm
                 return mod;
             }
         }
+
     private:
+        //! Set up the two random number generators used to sample from the von Mises distribution
         void setup_rng() noexcept
         {
-            this->rngu = std::make_unique<rand_uniform<T>>(T{0}, T{1}); // [0, 1]
-            this->rngn = std::make_unique<rand_normal<T>>(T{0}, T{1});  // mean 0, sigma 1
+            this->rngu = std::make_unique<rand_uniform<T, E>>(T{0}, T{1}); // uniform in range [0, 1]
+            this->rngn = std::make_unique<rand_normal<T, E>>(T{0}, T{1});  // normal with mean 0, sigma 1
         }
         //! The uniform number generator
-        std::unique_ptr<rand_uniform<T>> rngu;
-        std::unique_ptr<rand_normal<T>> rngn;
-
+        std::unique_ptr<rand_uniform<T, E>> rngu;
+        //! The normal distribution number generator
+        std::unique_ptr<rand_normal<T, E>> rngn;
     };
-
 }
