@@ -25,14 +25,18 @@ int main()
     sm::mat22<float> two_mi = { 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16 };
     std::cout << "two_mi =\n" << two_mi << std::endl;
 
-    sm::mat22<float> two_mi0 = { 1,2,3,4 };
+    constexpr sm::mat22<float> two_mi0 = { 1,2,3,4 };
     std::cout << "two_mi0 =\n" << two_mi0 << std::endl;
 
-    sm::mat22<float> two_mi2 = std::array<float, 4>{ 1,2,3,4 };
+    constexpr sm::mat22<float> two_mi2 = std::array<float, 4>{ 1,2,3,4 };
     std::cout << "two_mi2 =\n" << two_mi2 << std::endl;
     sm::mat22<float> two_mi3 = sm::vec<float, 4>{ 3,2,2,3 };
     std::cout << "two_mi3 =\n" << two_mi3 << std::endl;
 
     two_mi3 = { 4,3,2,1, 4,3,2,1, 4,3,2,1, 4,3,2,1 };
     std::cout << "two_mi3 reassigned =\n" << two_mi3 << std::endl;
+
+    constexpr sm::mat22<float> ceprod = two_mi0 * two_mi2;
+    std::cout << two_mi0 << "\n * \n" << two_mi2 << "\n = \n" << ceprod << std::endl;
+
 }
