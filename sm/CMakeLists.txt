@@ -42,6 +42,7 @@ install(
   scale
   trait_tests
   vec
+  vonmises
   vvec
   winder
 
