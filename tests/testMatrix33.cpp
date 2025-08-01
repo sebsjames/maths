@@ -133,5 +133,37 @@ int main()
     sm::mat33<double> md2 = md1;
     if (md2 != md1) { ++rtn; }
 
+    // test creation
+    constexpr sm::mat33<double> zmat = {0.0};
+    for (int i = 0; i < 9; ++i) {
+        if (zmat[i] != 0.0) {
+            throw std::runtime_error ("zero mat not zero");
+        }
+    }
+    constexpr sm::mat33<double> idmat = {};
+    for (int i = 0; i < 9; ++i) {
+        if ((i == 0 || i == 4 || i == 8) && idmat[i] != 1.0) {
+            throw std::runtime_error ("id mat not id");
+        }
+        if ((i != 0 && i != 4 && i != 8) && idmat[i] != 0.0) {
+            throw std::runtime_error ("id mat not id");
+        }
+    }
+
+    const sm::mat33<double> c1{}; // Yields identity matrix
+    if (c1 != idmat) { ++rtn; }
+
+    const sm::mat33<double> c2{0.0}; // Yields zero matrix
+    if (c2 != zmat) { ++rtn; }
+
+    const sm::mat33<double> c3{{}}; // Yields zero matrix
+    if (c3 != zmat) { ++rtn; }
+
+    const sm::mat33<double> c4({}); // Yields zero matrix?
+    if (c4 != zmat) { ++rtn; }
+
+    const sm::mat33<double> c5; // Yields id matrix?
+    if (c5 != idmat) { ++rtn; }
+
     return rtn;
 }

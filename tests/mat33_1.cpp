@@ -6,9 +6,7 @@ int main()
 {
     int rtn = 0;
 
-    sm::mat33<float> m1;
-
-    m1.mat = { 0, 1, 0,  1, 0, 0,  0, 0, -1 };
+    sm::mat33<float> m1 = { 0, 1, 0,  1, 0, 0,  0, 0, -1 };
 
     std::cout << "m1:\n" << m1 << std::endl;
 

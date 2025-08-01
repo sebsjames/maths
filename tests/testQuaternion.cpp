@@ -189,5 +189,14 @@ int main()
         std::cout << "quaternion tests FAILED\n";
     }
 
+    // init
+    sm::quaternion<float> cq = { 2.0f, 1.0f, 2.2f, 1.4f };
+    std::cout << "cq = { 2.0f, 1.0f, 2.2f, 1.4f} gives " << cq << std::endl;
+    if (cq.w != 2.0f || cq.x != 1.0f || cq.y != 2.2f || cq.z != 1.4f) {
+        ++rtn;
+    }
+    cq.renormalize();
+    std::cout << "cq after renormalize " << cq << std::endl;
+
     return rtn;
 }
