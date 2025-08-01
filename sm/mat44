@@ -23,6 +23,7 @@
 #include <sstream>
 #include <iostream>
 #include <type_traits>
+#include <initializer_list>
 
 #include <sm/mathconst>
 #include <sm/quaternion>
@@ -33,20 +34,20 @@
 namespace sm
 {
     // Forward declare class and stream operator
-    template <typename F> struct mat44;
+    template <typename F> requires std::is_floating_point_v<F> struct mat44;
     template <typename F> std::ostream& operator<< (std::ostream&, const mat44<F>&);
 
     /*!
-     * This implements a 4x4 transformation matrix, for use in computer graphics
-     * applications in which 3D coordinates are often given as 4D homogeneous
-     * coordinates (with the fourth element chosen to be equal to 1). It's used a lot in
-     * sm::Visual. The matrix data is stored in mat44::mat, an array of 16
-     * floating point numbers.
+     * This implements a 4x4 transformation matrix, for use in computer graphics applications in
+     * which 3D coordinates are often given as 4D homogeneous coordinates (with the fourth element
+     * chosen to be equal to 1). It's used a lot in sm::Visual. The matrix data is stored in
+     * mat44::mat, an array of 16 floating point numbers. The numbers must be floating point,
+     * because there is a method that returns a quaternion<F>, where F is required to be floating
+     * point.
      *
-     * \templateparam F The floating point type in which to store the
-     * mat44's data.
+     * \templateparam F The floating point type in which to store the mat44's data.
      */
-    template <typename F>
+    template <typename F> requires std::is_floating_point_v<F>
     struct mat44
     {
         //! Default constructor
@@ -74,6 +75,19 @@ namespace sm
             this->mat[14] = F{0};
             this->mat[15] = F{1};
         }
+        //! Initializer list construction
+        constexpr mat44 (std::initializer_list<F> other) noexcept
+        {
+            unsigned int i = 0u;
+            for (i = 0u; i < 16u; ++i) { this->mat[i] = F{0}; }
+            i = 0u;
+            for (F elem : other) {
+                this->mat[i++] = elem;
+                if (i == 16u) { break; } // only first 16 elements can be copied
+            }
+        }
+        //! Construct with an array
+        constexpr mat44 (const std::array<F, 16>& other) noexcept { this->mat = other; }
         //! User-declared copy constructor
         constexpr mat44 (const mat44<F>& other) noexcept : mat(other.mat) {}
         //! User-declared copy assignment constructor

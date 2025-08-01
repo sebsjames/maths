@@ -17,7 +17,9 @@
 #include <string>
 #include <sstream>
 #include <iostream>
+#include <initializer_list>
 #include <sm/vec>
+#include <sm/constexpr_math>
 
 namespace sm
 {
@@ -35,7 +37,26 @@ namespace sm
     struct mat22
     {
         //! Default constructor
-        mat22() noexcept { this->setToIdentity(); }
+        constexpr mat22() noexcept { this->setToIdentity(); }
+
+        //! Initializer list construction
+        constexpr mat22 (std::initializer_list<F> other) noexcept
+        {
+            this->mat.zero();
+            unsigned int i = 0u;
+            for (F elem : other) {
+                this->mat[i++] = elem;
+                if (i == 4u) { break; } // only first 4 elements can be copied
+            }
+        }
+
+        //! Construct with an array
+        constexpr mat22 (const std::array<F, 4>& other) noexcept {
+            std::copy (other.begin(), other.end(), this->mat.begin());
+        }
+
+        //! Construct with sm::vec
+        constexpr mat22 (const sm::vec<F, 4>& other) noexcept { this->mat = other; }
 
         /*!
          * The matrix data, arranged in column major format to be similar to
@@ -61,7 +82,7 @@ namespace sm
             return ss.str();
         }
 
-        void setToIdentity() noexcept
+        constexpr void setToIdentity() noexcept
         {
             this->mat.zero();
             this->mat[0] = F{1};
@@ -69,21 +90,21 @@ namespace sm
         }
 
         //! Set this matrix up so that it would rotate a 2D vector by rot_rad radians, anticlockwise.
-        void rotate (const F rot_rad) noexcept
+        constexpr void rotate (const F rot_rad) noexcept
         {
-            this->mat[0] = std::cos (rot_rad);
-            this->mat[1] = std::sin (rot_rad);
+            this->mat[0] = sm::cem::cos (rot_rad);
+            this->mat[1] = sm::cem::sin (rot_rad);
             this->mat[2] = -this->mat[1]; // -sin
             this->mat[3] = this->mat[0];
         }
 
         //! Access elements of the matrix
-        F& operator[] (unsigned int idx) noexcept { return this->mat[idx]; }
+        constexpr F& operator[] (unsigned int idx) noexcept { return this->mat[idx]; }
         // note: assume F is a built-in type here (safe - F will be float or double)
-        const F operator[] (unsigned int idx) const noexcept  { return this->mat[idx]; }
+        constexpr F operator[] (unsigned int idx) const noexcept  { return this->mat[idx]; }
 
         //! Access a given row of the matrix
-        sm::vec<F, 2> row (unsigned int idx) const noexcept // unsigned char would be enough capacity!
+        constexpr sm::vec<F, 2> row (unsigned int idx) const noexcept // unsigned char would be enough capacity!
         {
             sm::vec<F, 2> r = {F{0}, F{0}};
             if (idx > 1U) { return r; }
@@ -93,7 +114,7 @@ namespace sm
         }
 
         //! Access a given column of the matrix
-        sm::vec<F, 2> col (unsigned int idx) const noexcept
+        constexpr sm::vec<F, 2> col (unsigned int idx) const noexcept
         {
             sm::vec<F, 3> c = {F{0}, F{0}};
             if (idx > 1U) { return c; }
@@ -104,7 +125,7 @@ namespace sm
         }
 
         //! Transpose this matrix
-        void transpose_inplace() noexcept
+        constexpr void transpose_inplace() noexcept
         {
             F a = this->mat[2];
             this->mat[2] = this->mat[1];
@@ -112,7 +133,7 @@ namespace sm
         }
 
         //! Return the transpose of this matrix
-        mat22<F> transpose() noexcept
+        constexpr mat22<F> transpose() noexcept
         {
             mat22<F> rtn = *this;
             F a = this->mat[2];
@@ -123,7 +144,7 @@ namespace sm
         }
 
         //! Transpose the matrix @matrx, returning the transposed version.
-        sm::vec<F, 4> transpose (const sm::vec<F, 4>& matrx) const noexcept
+        constexpr sm::vec<F, 4> transpose (const sm::vec<F, 4>& matrx) const noexcept
         {
             sm::vec<F, 4> tposed;
             tposed[0] = matrx[0];
@@ -139,12 +160,12 @@ namespace sm
             return ((cm[0]*cm[3]) - (cm[1]*cm[2]));
         }
 
-        F determinant() const noexcept
+        constexpr F determinant() const noexcept
         {
             return ((this->mat[0]*this->mat[3]) - (this->mat[1]*this->mat[2]));
         }
 
-        sm::vec<F, 4> adjugate() const noexcept
+        constexpr sm::vec<F, 4> adjugate() const noexcept
         {
             sm::vec<F, 4> adj = { this->mat[3], -this->mat[1], -this->mat[2], this->mat[0] };
             return adj;
@@ -154,11 +175,11 @@ namespace sm
         constexpr F trace() const noexcept { return this->mat[0] + this->mat[3]; }
 
         //! Turn this matrix into its inverse
-        void inverse_inplace() noexcept
+        constexpr void inverse_inplace() noexcept
         {
             F det = this->determinant();
             if (det == 0) {
-                std::cout << "NB: The transform matrix has no inverse (determinant is 0)" << std::endl;
+                // The transform matrix has no inverse (determinant is 0)
                 this->mat.zero();
             } else {
                 this->mat = this->adjugate();
@@ -167,12 +188,12 @@ namespace sm
         }
 
         //! Return the inverse matrix
-        mat22<F> inverse() noexcept
+        constexpr mat22<F> inverse() noexcept
         {
             mat22<F> rtn;
             F det = this->determinant();
             if (det == 0) {
-                std::cout << "NB: The transform matrix has no inverse (determinant is 0)" << std::endl;
+                // The transform matrix has no inverse (determinant is 0)
                 rtn.mat.zero();
             } else {
                 rtn.mat = this->adjugate();
@@ -183,13 +204,13 @@ namespace sm
 
         //! *= operator for a scalar value.
         template <typename T=F>
-        void operator*= (const T& f) noexcept
+        constexpr void operator*= (const T& f) noexcept
         {
             for (unsigned int i = 0; i<4; ++i) { this->mat[i] *= f; }
         }
 
         //! Right-multiply this->mat with m2.
-        void operator*= (const sm::vec<F, 4>& m2) noexcept
+        constexpr void operator*= (const sm::vec<F, 4>& m2) noexcept
         {
             sm::vec<F, 4> result;
             // Top row
@@ -202,7 +223,7 @@ namespace sm
         }
 
         //! Right-multiply this->mat with m2.
-        void operator*= (const mat22<F>& m2) noexcept
+        constexpr void operator*= (const mat22<F>& m2) noexcept
         {
             sm::vec<F, 4> result;
             // Top row
@@ -215,7 +236,7 @@ namespace sm
         }
 
         //! Return this->mat * m2
-        mat22<F> operator* (const sm::vec<F, 4>& m2) const noexcept
+        constexpr mat22<F> operator* (const sm::vec<F, 4>& m2) const noexcept
         {
             mat22<F> result;
             // Top row
@@ -228,7 +249,7 @@ namespace sm
         }
 
         //! Return this-> mat * m2
-        mat22<F> operator* (const mat22<F>& m2) const noexcept
+        constexpr mat22<F> operator* (const mat22<F>& m2) const noexcept
         {
             mat22<F> result;
             // Top row
@@ -241,7 +262,7 @@ namespace sm
         }
 
         //! Do matrix times vector multiplication, v = mat * v1
-        sm::vec<F, 2> operator* (const sm::vec<F, 2>& v1) const noexcept
+        constexpr sm::vec<F, 2> operator* (const sm::vec<F, 2>& v1) const noexcept
         {
             sm::vec<F, 2> v = {
                 this->mat[0] * v1[0] + this->mat[2] * v1[1],

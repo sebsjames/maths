@@ -18,33 +18,46 @@
 #include <string>
 #include <sstream>
 #include <iostream>
+#include <initializer_list>
 #include <sm/vec>
 #include <sm/quaternion>
 
 namespace sm
 {
     // Forward declare class and stream operator
-    template <typename F> struct mat33;
+    template <typename F> requires std::is_floating_point_v<F> struct mat33;
     template <typename F> std::ostream& operator<< (std::ostream&, const mat33<F>&);
 
     /*!
-     * This implements a general purpose 3x3 matrix, for use in 2D applications. The
-     * matrix data is stored in mat33::mat, an array of 9 floating point
-     * numbers.
+     * This implements a general purpose 3x3 matrix, for use in 2D applications. The matrix data is
+     * stored in mat33::mat, an array of 9 floating point numbers. The numbers must be floating
+     * point, because there is a method that returns a quaternion<F>, where F is required to be
+     * floating point.
      *
      * \templateparam F The floating point type in which to store the matrix's data.
      */
-    template <typename F>
+    template <typename F> requires std::is_floating_point_v<F>
     struct mat33
     {
         //! Default constructor
-        mat33() noexcept { this->setToIdentity(); }
-        //! User-declared destructor
-        ~mat33() noexcept {}
+        constexpr mat33() noexcept { this->setToIdentity(); }
         //! User-declared copy constructor
-        mat33 (const mat33<F>& other) noexcept : mat(other.mat) {}
+        constexpr mat33 (const mat33<F>& other) noexcept : mat(other.mat) {}
+        //! Initializer list construction
+        constexpr mat33 (std::initializer_list<F> other) noexcept
+        {
+            unsigned int i = 0u;
+            for (i = 0u; i < 9u; ++i) { this->mat[i] = F{0}; }
+            i = 0u;
+            for (F elem : other) {
+                this->mat[i++] = elem;
+                if (i == 9u) { break; } // only first 9 elements can be copied
+            }
+        }
+        //! Construct with an array
+        constexpr mat33 (const std::array<F, 9>& other) noexcept { this->mat = other; }
         //! User-declared copy assignment constructor
-        mat33<F>& operator= (mat33<F>& other) noexcept
+        constexpr mat33<F>& operator= (mat33<F>& other) noexcept
         {
             std::copy (other.mat.begin(), other.mat.end(), mat.begin());
             return *this;
@@ -80,7 +93,7 @@ namespace sm
             return ss.str();
         }
 
-        void setToIdentity() noexcept
+        constexpr void setToIdentity() noexcept
         {
             this->mat.fill (F{0});
             this->mat[0] = F{1};
@@ -89,12 +102,12 @@ namespace sm
         }
 
         //! Access elements of the matrix
-        F& operator[] (unsigned int idx) noexcept { return this->mat[idx]; }
+        constexpr F& operator[] (unsigned int idx) noexcept { return this->mat[idx]; }
         // note: assume F is a built-in type here (safe - F will be float or double)
-        const F operator[] (unsigned int idx) const noexcept { return this->mat[idx]; }
+        constexpr F operator[] (unsigned int idx) const noexcept { return this->mat[idx]; }
 
         //! Access a given row of the matrix
-        sm::vec<F, 3> row (unsigned int idx) const noexcept
+        constexpr sm::vec<F, 3> row (unsigned int idx) const noexcept
         {
             sm::vec<F, 3> r = {F{0}, F{0}, F{0}};
             if (idx > 2U) { return r; }
@@ -105,7 +118,7 @@ namespace sm
         }
 
         //! Access a given column of the matrix
-        sm::vec<F, 3> col (unsigned int idx) const noexcept
+        constexpr sm::vec<F, 3> col (unsigned int idx) const noexcept
         {
             sm::vec<F, 3> c = {F{0}, F{0}, F{0}};
             if (idx > 2U) { return c; }
@@ -117,7 +130,7 @@ namespace sm
         }
 
         //! Transpose this matrix
-        void transpose_inplace() noexcept
+        constexpr void transpose_inplace() noexcept
         {
             std::array<F, 3> a;
             a[0] = this->mat[1];
@@ -134,7 +147,7 @@ namespace sm
         }
 
         //! Return this matrix transposed
-        mat33<F> transpose() noexcept
+        constexpr mat33<F> transpose() noexcept
         {
             mat33<F> rtn = *this;
             std::array<F, 3> a;
@@ -154,7 +167,7 @@ namespace sm
         }
 
         //! Transpose the matrix @matrx, returning the transposed version.
-        std::array<F, 9> transpose (const std::array<F, 9>& matrx) const noexcept
+        constexpr std::array<F, 9> transpose (const std::array<F, 9>& matrx) const noexcept
         {
             std::array<F, 9> tposed;
             tposed[0] = matrx[0];
@@ -187,7 +200,7 @@ namespace sm
             return det;
         }
 
-        F determinant() const noexcept
+        constexpr F determinant() const noexcept
         {
             F det = (mat[0]*mat[4]*mat[8])
                 + (mat[3]*mat[7]*mat[2])
@@ -198,13 +211,12 @@ namespace sm
             return det;
         }
 
-        std::array<F, 9> adjugate() const noexcept
+        constexpr std::array<F, 9> adjugate() const noexcept
         {
             return this->transpose (this->cofactor());
         }
 
-        static constexpr bool debug_cofactors = false;
-        std::array<F, 9> cofactor() const noexcept
+        constexpr std::array<F, 9> cofactor() const noexcept
         {
             std::array<F, 9> cofac;
 
@@ -264,12 +276,6 @@ namespace sm
             minorElem[3] = this->mat[4];
             cofac[8] = this->determinant (minorElem);
 
-            if constexpr (debug_cofactors) {
-                std::cout << "cofactor:\n";
-                std::cout <<"[ "<< cofac[0]<<" , "<<cofac[3]<<" , "<<cofac[6]<<" ;\n";
-                std::cout <<"  "<< cofac[1]<<" , "<<cofac[4]<<" , "<<cofac[7]<<" ;\n";
-                std::cout <<"  "<< cofac[2]<<" , "<<cofac[5]<<" , "<<cofac[8]<<" ;\n";
-            }
             return cofac;
         }
 
@@ -277,11 +283,11 @@ namespace sm
         constexpr F trace() const noexcept { return this->mat[0] + this->mat[4] + this->mat[8]; }
 
         //! Turn this matrix in to its inverse
-        void inverse_inplace() noexcept
+        constexpr void inverse_inplace() noexcept
         {
             F det = this->determinant();
             if (det == F{0}) {
-                std::cout << "NB: The transform matrix has no inverse (determinant is 0)" << std::endl;
+                // The transform matrix has no inverse (determinant is 0)
                 this->mat.fill (F{0});
             } else {
                 this->mat = this->adjugate();
@@ -290,12 +296,12 @@ namespace sm
         }
 
         //! Return the inverse matrix
-        mat33<F> inverse() noexcept
+        constexpr mat33<F> inverse() noexcept
         {
             F det = this->determinant();
             mat33<F> rtn;
             if (det == F{0}) {
-                std::cout << "NB: The transform matrix has no inverse (determinant is 0)" << std::endl;
+                // The transform matrix has no inverse (determinant is 0)
                 rtn.mat.fill (F{0});
             } else {
                 rtn.mat = this->adjugate();
@@ -349,13 +355,13 @@ namespace sm
 
         //! *= operator for a scalar value.
         template <typename T=F>
-        void operator*= (const T& f) noexcept
+        constexpr void operator*= (const T& f) noexcept
         {
             for (unsigned int i = 0; i<9; ++i) { this->mat[i] *= f; }
         }
 
         //! Right-multiply this->mat with m2.
-        void operator*= (const std::array<F, 9>& m2) noexcept
+        constexpr void operator*= (const std::array<F, 9>& m2) noexcept
         {
             std::array<F, 9> result;
             // Top row
@@ -375,7 +381,7 @@ namespace sm
         }
 
         //! Right-multiply this->mat with m2.
-        void operator*= (const mat33<F>& m2) noexcept
+        constexpr void operator*= (const mat33<F>& m2) noexcept
         {
             std::array<F, 9> result;
             // Top row
@@ -395,7 +401,7 @@ namespace sm
         }
 
         //! Return this-> mat * m2
-        mat33<F> operator* (const std::array<F, 9>& m2) const noexcept
+        constexpr mat33<F> operator* (const std::array<F, 9>& m2) const noexcept
         {
             mat33<F> result;
             // Top row
@@ -415,7 +421,7 @@ namespace sm
         }
 
         //! Return this-> mat * m2
-        mat33<F> operator* (const mat33<F>& m2) const noexcept
+        constexpr mat33<F> operator* (const mat33<F>& m2) const noexcept
         {
             mat33<F> result;
             // Top row
@@ -435,7 +441,7 @@ namespace sm
         }
 
         //! Do matrix times vector multiplication, v = mat * v1
-        std::array<F, 3> operator* (const std::array<F, 3>& v1) const noexcept
+        constexpr std::array<F, 3> operator* (const std::array<F, 3>& v1) const noexcept
         {
             std::array<F, 3> v;
             v[0] = this->mat[0] * v1[0] + this->mat[3] * v1[1] + this->mat[6] * v1[2];
@@ -445,7 +451,7 @@ namespace sm
         }
 
         //! Do matrix times vector multiplication, v = mat * v1
-        vec<F, 3> operator* (const vec<F, 3>& v1) const noexcept
+        constexpr vec<F, 3> operator* (const vec<F, 3>& v1) const noexcept
         {
             vec<F, 3> v;
             v[0] = this->mat[0] * v1[0] + this->mat[3] * v1[1] + this->mat[6] * v1[2];
@@ -455,7 +461,7 @@ namespace sm
         }
 
         //! Equality operator. True if all elements match
-        bool operator== (const mat33<F>& rhs) const noexcept
+        constexpr bool operator== (const mat33<F>& rhs) const noexcept
         {
             unsigned int ndiff = 0;
             for (unsigned int i = 0; i < 9 && ndiff == 0; ++i) {
@@ -465,7 +471,7 @@ namespace sm
         }
 
         //! Not equals
-        bool operator!= (const mat33<F>& rhs) const noexcept
+        constexpr bool operator!= (const mat33<F>& rhs) const noexcept
         {
             unsigned int ndiff = 0;
             for (unsigned int i = 0; i < 9 && ndiff == 0; ++i) {

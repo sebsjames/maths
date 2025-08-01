@@ -37,19 +37,71 @@ Note that this class template (along with `mat22` and `mat33`) is not designed w
 
 ## Create a mat44
 
+When you create a `mat44` with no constructor arguments, the matrix is initialized as the identity matrix
+
 ```c++
 sm::mat44<double> m;
 std::cout << "Initialized as the identity matrix:\n" << m << std::endl;
+```
+
+You can create and assign an initializer list
+```c++
+sm::mat44<double> m = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
+std::cout << m << std::endl;
+```
+Gives:
+```
+[ 1, 5, 9, 13,
+  2, 6, 10, 14,
+  3, 7, 11, 15,
+  4, 8, 12, 16 ]
+```
+See how the initializer list is placed into the matrix column-by-column.
+
+The list may contain fewer than 16 elements:
+
+```c++
+sm::mat44<double> m = { 1, 2, 3, 4 };
+std::cout << m << std::endl;
+```
+Gives:
+```
+[ 1, 0, 0, 0,
+  2, 0, 0, 0,
+  3, 0, 0, 0,
+  4, 0, 0, 0 ]
+```
+
+The additional elements are all set to 0. This means you can create a null matrix with
+
+```c++
+sm::mat44<double> m = { 0 };
+std::cout << m << std::endl;
+```
+Gives:
+```
+[ 0, 0, 0, 0,
+  0, 0, 0, 0,
+  0, 0, 0, 0,
+  0, 0, 0, 0 ]
+```
+
+But **careful**: if you provide an empty brace list, you will cause the default constructor to be called and the matrix will be the identity matrix. If you want a null matrix, use `{ {} }` or `{0}`:
+
+```c++
+sm::mat44<double> m1 = {};      // Yields the identity matrix, NOT the null matrix
+sm::mat44<double> m2 = { {} };  // Yields a null matrix
+sm::mat44<double> m3 = { 0.0 }; // Yields a null matrix
 ```
 
 ## Set data in the mat44
 
 ### Raw access to the elements
 
-You can set the contained `mat` manually:
+You can set the data manually with an initializer list:
 ```c++
-sm::mat44<int> m;
-m.mat = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+sm::mat44<int> m; // initially set up as identity matrix
+m = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
 std::cout << "Matrix contains:\n" << m << std::endl;
 ```
 which outputs:

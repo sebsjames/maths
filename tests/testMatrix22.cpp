@@ -86,5 +86,30 @@ int main()
     v1_rot = rotn * v1;
     std::cout << "v1: " << v1 << ", rotated 2pi/3 is: "  << v1_rot << std::endl;
 
+    // test creation
+    constexpr sm::mat22<double> zmat = {0.0};
+    if constexpr (zmat[0] != 0.0 || zmat[1] != 0.0 || zmat[2] != 0.0 || zmat[3] != 0.0) {
+        throw std::runtime_error ("Uh oh");
+    }
+    constexpr sm::mat22<double> idmat = {};
+    if constexpr (idmat[0] != 1.0 || idmat[1] != 0.0 || idmat[2] != 0.0 || idmat[3] != 1.0) {
+        throw std::runtime_error ("Uh oh");
+    }
+
+    const sm::mat22<double> c1{}; // Yields identity matrix
+    for (int i = 0; i < 4; ++i) { if (idmat[i] != c1[i]) { ++rtn; } }
+
+    const sm::mat22<double> c2{0.0}; // Yields zero matrix
+    for (int i = 0; i < 4; ++i) { if (zmat[i] != c2[i]) { ++rtn; } }
+
+    const sm::mat22<double> c3{{}}; // Yields zero matrix
+    for (int i = 0; i < 4; ++i) { if (zmat[i] != c3[i]) { ++rtn; } }
+
+    const sm::mat22<double> c4({}); // Yields zero matrix?
+    for (int i = 0; i < 4; ++i) { if (zmat[i] != c4[i]) { ++rtn; } }
+
+    const sm::mat22<double> c5; // Yields id matrix?
+    for (int i = 0; i < 4; ++i) { if (idmat[i] != c5[i]) { ++rtn; } }
+
     return rtn;
 }
