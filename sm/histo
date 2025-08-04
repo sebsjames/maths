@@ -31,8 +31,8 @@ namespace sm
          * Histogram constructor
          *
          * This constructor does all of the computation of the histogram (via a call to init). The
-         * workflow is Construct -> access results in histo::bins histo::binwidth histo::proportions
-         * and histo::counts.
+         * workflow is Construct -> access results in histo::bins histo::binwidth histo::counts
+         * histo::proportions and histo::densities.
          *
          * The histogram is computed based on the range of data values in data.
          *
@@ -58,7 +58,7 @@ namespace sm
          *
          * This constructor does almost all of the computation of the histogram (via a call to
          * init). The workflow is Construct -> access results in histo::bins histo::binwidth
-         * histo::proportions and histo::counts.
+         * histo::counts histo::proportions and histo::densities.
          *
          * The histogram is computed based on the range of data values provided by the user in
          * manual_datarange. manual_datarange should encompass the actual range of the data.
@@ -106,6 +106,7 @@ namespace sm
             this->binedges.resize (n + 1u, T{0});
             this->counts.resize (n, 0u);
             this->proportions.resize (n, T{0});
+            this->densities.resize (n, T{0});
             this->datacount = static_cast<T>(data.size());
             // Compute bin widths from range of data and n.
             if (manual_datarange.min == std::numeric_limits<H>::max()
@@ -148,6 +149,7 @@ namespace sm
                 }
             }
             this->proportions = counts.as<T>() / this->datacount;
+            this->densities = this->proportions / this->binwidth;
         }
 
         /*!
@@ -192,5 +194,7 @@ namespace sm
         sm::vvec<std::size_t> counts;
         //! The counts as proportions for each bin. n elements.
         sm::vvec<T> proportions;
+        //! The counts computed as probability densities [density = count / (sum(counts) * binwidth)].
+        sm::vvec<T> densities;
     };
 }
