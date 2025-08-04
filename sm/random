@@ -828,6 +828,25 @@ namespace sm
         T kappa = T{1};
 
         /*!
+         * In the computation (found in get()):
+         *   T r = T{1} + std::sqrt (T{1} + T{4} * kappa * kappa);
+         *   T rho = (r - std::sqrt (T{2} * r)) / (T{2} * kappa);
+         *
+         * with T double precision rho is zero until 1.4e-8
+         * with T single precision, rho is zero until 0.000325
+         */
+        constexpr T get_kappa_for_rho_zero()
+        {
+            if constexpr (std::is_same_v<T, double>) {
+                return T{1e-8};
+            } else { // if constexpr (std::is_same_v<T, float>) {
+                return T{0.000325};
+            }
+        }
+
+        T kappa_for_rho_zero = get_kappa_for_rho_zero();
+
+        /*!
          * This function samples from the von Mises distribution on the circle. It was
          * adapted from the function random_vonmises() from NumPy's random
          * distributions:
@@ -841,29 +860,28 @@ namespace sm
             T result = T{0}, mod = T{0};
             int neg = 0;
             if (std::isnan(kappa)) { return std::numeric_limits<T>::quiet_NaN(); }
-            if (kappa < T{1e-8}) {
-                // Use a uniform for very small values of kappa
+            if (kappa < kappa_for_rho_zero) {
+                // Draw from a uniform distribution for very small values of kappa
                 return sm::mathconst<T>::pi * (T{2} * this->rngu->get() - T{1}); // -1 to 1
             } else {
-                // with double precision rho is zero until 1.4e-8
                 if (kappa < T{1e-5}) {
                     // second order taylor expansion around kappa = 0. Precise until
                     // relatively large kappas as second order is 0.
                     s = (T{1} / kappa + kappa);
-                } else {
-                    if (kappa <= T{1e6}) {
+                } else if (kappa <= T{1e6}) {
                         // Path for 1e-5 <= kappa <= 1e6
                         T r = T{1} + std::sqrt (T{1} + T{4} * kappa * kappa);
                         T rho = (r - std::sqrt (T{2} * r)) / (T{2} * kappa);
                         s = (T{1} + rho * rho) / (T{2} * rho);
-                    } else {
-                        // Fallback to wrapped normal distribution for kappa > 1e6
-                        result = mu + std::sqrt(T{1} / kappa) * this->rngn->get();
-                        // Ensure result is within bounds
-                        if (result < -sm::mathconst<T>::pi) { result += sm::mathconst<T>::two_pi; }
-                        if (result > sm::mathconst<T>::pi) { result -= sm::mathconst<T>::two_pi; }
-                        return result;
-                    }
+                } else {
+                    // Fallback to wrapped normal distribution for kappa > 1e6
+                    // As rngn is only used for kappa > 1e6, we have left setup of rngn to this point
+                    if (!this->rngn) { this->rngn = std::make_unique<rand_normal<T, E>>(T{0}, T{1}); }
+                    result = mu + std::sqrt(T{1} / kappa) * this->rngn->get();
+                    // Ensure result is within bounds
+                    if (result < -sm::mathconst<T>::pi) { result += sm::mathconst<T>::two_pi; }
+                    if (result > sm::mathconst<T>::pi) { result -= sm::mathconst<T>::two_pi; }
+                    return result;
                 }
 
                 while (1) {
@@ -891,11 +909,13 @@ namespace sm
         }
 
     private:
-        //! Set up the two random number generators used to sample from the von Mises distribution
+        /*!
+         * Set up the uniform random number generator used to sample from the von Mises distribution
+         * for most values of kappa
+         */
         void setup_rng() noexcept
         {
             this->rngu = std::make_unique<rand_uniform<T, E>>(T{0}, T{1}); // uniform in range [0, 1]
-            this->rngn = std::make_unique<rand_normal<T, E>>(T{0}, T{1});  // normal with mean 0, sigma 1
         }
         //! The uniform number generator
         std::unique_ptr<rand_uniform<T, E>> rngu;
