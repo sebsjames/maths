@@ -908,6 +908,7 @@ namespace sm
             }
         }
 
+#ifndef __APPLE__ // There is no std::cyl_bessel_i on Mac, apparently
         /*!
          * Return probability density function value
          */
@@ -916,6 +917,7 @@ namespace sm
             T bessel = std::cyl_bessel_i (T{0}, this->kappa);
             return std::exp (this->kappa * std::cos (x - this->mu)) / (sm::mathconst<T>::two_pi * bessel);
         }
+#endif
 
     private:
         /*!
