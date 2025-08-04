@@ -908,6 +908,15 @@ namespace sm
             }
         }
 
+        /*!
+         * Return probability density function value
+         */
+        T prob_density (const T x) const noexcept
+        {
+            T bessel = std::cyl_bessel_i (T{0}, this->kappa);
+            return std::exp (this->kappa * std::cos (x - this->mu)) / (sm::mathconst<T>::two_pi * bessel);
+        }
+
     private:
         /*!
          * Set up the uniform random number generator (range [0, 1]) used to sample from the von
