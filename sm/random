@@ -853,7 +853,7 @@ namespace sm
          *
          * https://github.com/numpy/numpy/blob/main/numpy/random/src/distributions/distributions.c#L862
          */
-        T get() const noexcept
+        T get() noexcept // not const, as we may create rngn
         {
             T s = T{0};
             T U = T{0}, V = T{0}, W = T{0}, Y = T{0}, Z = T{0};
