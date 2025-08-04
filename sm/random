@@ -910,13 +910,11 @@ namespace sm
 
     private:
         /*!
-         * Set up the uniform random number generator used to sample from the von Mises distribution
-         * for most values of kappa
+         * Set up the uniform random number generator (range [0, 1]) used to sample from the von
+         * Mises distribution for most values of kappa.
          */
-        void setup_rng() noexcept
-        {
-            this->rngu = std::make_unique<rand_uniform<T, E>>(T{0}, T{1}); // uniform in range [0, 1]
-        }
+        void setup_rng() noexcept { this->rngu = std::make_unique<rand_uniform<T, E>>(T{0}, T{1}); }
+
         //! The uniform number generator
         std::unique_ptr<rand_uniform<T, E>> rngu;
         //! The normal distribution number generator
