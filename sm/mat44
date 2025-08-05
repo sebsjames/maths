@@ -325,116 +325,68 @@ namespace sm
         }
 
         //! Compute determinant for 4x4 matrix @cm
-        static constexpr F determinant (std::array<F, 16> cm) noexcept
+        static constexpr F determinant (const std::array<F, 16>& cm) noexcept
         {
             // Configure the 3x3 matrices that have to be evaluated to get the 4x4 det.
-            std::array<F, 9> cm00;
-            cm00[0] = cm[5];
-            cm00[1] = cm[6];
-            cm00[2] = cm[7];
-            cm00[3] = cm[9];
-            cm00[4] = cm[10];
-            cm00[5] = cm[11];
-            cm00[6] = cm[13];
-            cm00[7] = cm[14];
-            cm00[8] = cm[15];
+            std::array<F, 9> cm33;
 
-            std::array<F, 9> cm01;
-            cm01[0] = cm[1];
-            cm01[1] = cm[2];
-            cm01[2] = cm[3];
-            cm01[3] = cm[9];
-            cm01[4] = cm[10];
-            cm01[5] = cm[11];
-            cm01[6] = cm[13];
-            cm01[7] = cm[14];
-            cm01[8] = cm[15];
+            // First 3x3 matrix
+            cm33[0] = cm[5];
+            cm33[1] = cm[6];
+            cm33[2] = cm[7];
+            cm33[3] = cm[9];
+            cm33[4] = cm[10];
+            cm33[5] = cm[11];
+            cm33[6] = cm[13];
+            cm33[7] = cm[14];
+            cm33[8] = cm[15];
 
-            std::array<F, 9> cm02;
-            cm02[0] = cm[1];
-            cm02[1] = cm[2];
-            cm02[2] = cm[3];
-            cm02[3] = cm[5];
-            cm02[4] = cm[6];
-            cm02[5] = cm[7];
-            cm02[6] = cm[13];
-            cm02[7] = cm[14];
-            cm02[8] = cm[15];
+            F det = cm[0] * mat33<F>::determinant (cm33);
 
-            std::array<F, 9> cm03;
-            cm03[0] = cm[1];
-            cm03[1] = cm[2];
-            cm03[2] = cm[3];
-            cm03[3] = cm[5];
-            cm03[4] = cm[6];
-            cm03[5] = cm[7];
-            cm03[6] = cm[9];
-            cm03[7] = cm[10];
-            cm03[8] = cm[11];
+            // Second 3x3
+            cm33[0] = cm[1];
+            cm33[1] = cm[2];
+            cm33[2] = cm[3];
+            cm33[3] = cm[9];
+            cm33[4] = cm[10];
+            cm33[5] = cm[11];
+            cm33[6] = cm[13];
+            cm33[7] = cm[14];
+            cm33[8] = cm[15];
 
-            F det = cm[0] * mat33<F>::determinant (cm00)
-                - cm[4] * mat33<F>::determinant (cm01)
-                + cm[8] * mat33<F>::determinant (cm02)
-                - cm[12] * mat33<F>::determinant (cm03);
+            det -= cm[4] * mat33<F>::determinant (cm33);
+
+            // Third 3x3
+            cm33[0] = cm[1];
+            cm33[1] = cm[2];
+            cm33[2] = cm[3];
+            cm33[3] = cm[5];
+            cm33[4] = cm[6];
+            cm33[5] = cm[7];
+            cm33[6] = cm[13];
+            cm33[7] = cm[14];
+            cm33[8] = cm[15];
+
+            det += cm[8] * mat33<F>::determinant (cm33);
+
+            // Final 3x3
+            cm33[0] = cm[1];
+            cm33[1] = cm[2];
+            cm33[2] = cm[3];
+            cm33[3] = cm[5];
+            cm33[4] = cm[6];
+            cm33[5] = cm[7];
+            cm33[6] = cm[9];
+            cm33[7] = cm[10];
+            cm33[8] = cm[11];
+
+            det -= cm[12] * mat33<F>::determinant (cm33);
 
             return det;
         }
 
         //! Compute determinant for this->mat
-        constexpr F determinant() const noexcept
-        {
-            // Configure the 3x3 matrices that have to be evaluated to get the 4x4 det.
-            std::array<F, 9> cm00;
-            cm00[0] = this->mat[5];
-            cm00[1] = this->mat[6];
-            cm00[2] = this->mat[7];
-            cm00[3] = this->mat[9];
-            cm00[4] = this->mat[10];
-            cm00[5] = this->mat[11];
-            cm00[6] = this->mat[13];
-            cm00[7] = this->mat[14];
-            cm00[8] = this->mat[15];
-
-            std::array<F, 9> cm01;
-            cm01[0] = this->mat[1];
-            cm01[1] = this->mat[2];
-            cm01[2] = this->mat[3];
-            cm01[3] = this->mat[9];
-            cm01[4] = this->mat[10];
-            cm01[5] = this->mat[11];
-            cm01[6] = this->mat[13];
-            cm01[7] = this->mat[14];
-            cm01[8] = this->mat[15];
-
-            std::array<F, 9> cm02;
-            cm02[0] = this->mat[1];
-            cm02[1] = this->mat[2];
-            cm02[2] = this->mat[3];
-            cm02[3] = this->mat[5];
-            cm02[4] = this->mat[6];
-            cm02[5] = this->mat[7];
-            cm02[6] = this->mat[13];
-            cm02[7] = this->mat[14];
-            cm02[8] = this->mat[15];
-
-            std::array<F, 9> cm03;
-            cm03[0] = this->mat[1];
-            cm03[1] = this->mat[2];
-            cm03[2] = this->mat[3];
-            cm03[3] = this->mat[5];
-            cm03[4] = this->mat[6];
-            cm03[5] = this->mat[7];
-            cm03[6] = this->mat[9];
-            cm03[7] = this->mat[10];
-            cm03[8] = this->mat[11];
-
-            F det = this->mat[0] * mat33<F>::determinant (cm00)
-                - this->mat[4] * mat33<F>::determinant (cm01)
-                + this->mat[8] * mat33<F>::determinant (cm02)
-                - this->mat[12] * mat33<F>::determinant (cm03);
-
-            return det;
-        }
+        constexpr F determinant() const noexcept { return mat44<F>::determinant (this->mat); }
 
         /*!
          * The adjugate is the transpose of the cofactor matrix. Recipe:
@@ -748,15 +700,15 @@ namespace sm
         {
             sm::mat33<F> x;
 
-            x[0]  = this->mat[0];
-            x[1]  = this->mat[1];
-            x[2]  = this->mat[2];
-            x[3]  = this->mat[4];
-            x[4]  = this->mat[5];
-            x[5]  = this->mat[6];
-            x[6]  = this->mat[8];
-            x[7]  = this->mat[9];
-            x[8]  = this->mat[10];
+            x[0] = this->mat[0];
+            x[1] = this->mat[1];
+            x[2] = this->mat[2];
+            x[3] = this->mat[4];
+            x[4] = this->mat[5];
+            x[5] = this->mat[6];
+            x[6] = this->mat[8];
+            x[7] = this->mat[9];
+            x[8] = this->mat[10];
 
             return x;
         }
