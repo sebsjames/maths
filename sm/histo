@@ -49,8 +49,7 @@ namespace sm
         template < template <typename, typename> typename Container, typename Allocator=std::allocator<H> >
         histo (const Container<H, Allocator>& data, std::size_t n)
         {
-            sm::range<H> r { std::numeric_limits<H>::max(), std::numeric_limits<H>::max() };
-            this->init (data, n, r);
+            this->init (data, n);
         }
 
         /*!
@@ -102,11 +101,17 @@ namespace sm
         template < template <typename, typename> typename Container, typename Allocator=std::allocator<H> >
         void init (const Container<H, Allocator>& data, std::size_t n, const sm::range<H>& manual_datarange)
         {
+            this->datarange = { H{0}, H{0} };
             this->bins.resize (n, T{0});
+            this->bins.zero();
             this->binedges.resize (n + 1u, T{0});
+            this->binedges.zero();
             this->counts.resize (n, 0u);
+            this->counts.zero();
             this->proportions.resize (n, T{0});
+            this->proportions.zero();
             this->densities.resize (n, T{0});
+            this->densities.zero();
             this->datacount = static_cast<T>(data.size());
             // Compute bin widths from range of data and n.
             if (manual_datarange.min == std::numeric_limits<H>::max()
@@ -150,6 +155,14 @@ namespace sm
             }
             this->proportions = counts.as<T>() / this->datacount;
             this->densities = this->proportions / this->binwidth;
+        }
+
+        //! Initialize without a manual data range. Can be used to re-init the histo
+        template < template <typename, typename> typename Container, typename Allocator=std::allocator<H> >
+        void init (const Container<H, Allocator>& data, std::size_t n)
+        {
+            sm::range<H> r { std::numeric_limits<H>::max(), std::numeric_limits<H>::max() };
+            this->init (data, n, r);
         }
 
         /*!
