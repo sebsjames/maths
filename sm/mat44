@@ -943,27 +943,27 @@ namespace sm
             return rtn;
         }
 
-        //! Transpose the matrix @matrx, returning the transposed version.
-        static constexpr std::array<F, 16> transpose (const std::array<F, 16>& matrx) noexcept
+        //! Transpose the matrix @cm, returning the transposed version.
+        static constexpr std::array<F, 16> transpose (const std::array<F, 16>& cm) noexcept
         {
-            std::array<F, 16> tposed;
-            tposed[0] = matrx[0];
-            tposed[4] = matrx[1];
-            tposed[8] = matrx[2];
-            tposed[12] = matrx[3];
-            tposed[1] = matrx[4];
-            tposed[5] = matrx[5];
-            tposed[9] = matrx[6];
-            tposed[13] = matrx[7];
-            tposed[2] = matrx[8];
-            tposed[6] = matrx[9];
-            tposed[10] = matrx[10];
-            tposed[14] = matrx[11];
-            tposed[3] = matrx[12];
-            tposed[7] = matrx[13];
-            tposed[11] = matrx[14];
-            tposed[15] = matrx[15];
-            return tposed;
+            std::array<F, 16> rtn;
+            rtn[0] = cm[0];
+            rtn[4] = cm[1];
+            rtn[8] = cm[2];
+            rtn[12] = cm[3];
+            rtn[1] = cm[4];
+            rtn[5] = cm[5];
+            rtn[9] = cm[6];
+            rtn[13] = cm[7];
+            rtn[2] = cm[8];
+            rtn[6] = cm[9];
+            rtn[10] = cm[10];
+            rtn[14] = cm[11];
+            rtn[3] = cm[12];
+            rtn[7] = cm[13];
+            rtn[11] = cm[14];
+            rtn[15] = cm[15];
+            return rtn;
         }
 
         /*!
@@ -997,14 +997,14 @@ namespace sm
             // Perspective matrix to multiply self by
             std::array<F, 16> persMat;
             persMat.fill (F{0});
-            persMat[0] = cotanFov/aspect; // n/(width/2) = 2n/width, or generally 2n/r-l
-            persMat[5] = cotanFov;        // n/(height/2) = 2n/height, or generally 2n/t-b
+            persMat[0] = cotanFov / aspect; // n/(width/2) = 2n/width, or generally 2n/r-l
+            persMat[5] = cotanFov;          // n/(height/2) = 2n/height, or generally 2n/t-b
             // For fully general frustrum not centered on the z axis, we would add these:
             //persMat[8] = r+l/r-l
             //persMat[9] = t+b/t-b
-            persMat[10] = -(zNear+zFar)/clip;
+            persMat[10] = -(zNear + zFar) / clip;
             persMat[11] = F{-1};
-            persMat[14] = -(F{2} * zNear * zFar)/clip;
+            persMat[14] = -(F{2} * zNear * zFar) / clip;
 
             (*this) *= persMat;
         }
@@ -1028,12 +1028,12 @@ namespace sm
             // Orthographic matrix to multiply self by
             std::array<F, 16> orthoMat;
             orthoMat.fill (F{0});
-            orthoMat[0] = F{2}/(rt[0]-lb[0]);             //      2/(r-l)
-            orthoMat[5] = F{2}/(rt[1]-lb[1]);             //      2/(t-b)
-            orthoMat[10] = F{-2}/(zFar-zNear);            //     -2/(f-n)
-            orthoMat[12] = -(rt[0]+lb[0])/(rt[0]-lb[0]);    // -(r+l)/(r-l)
-            orthoMat[13] = -(rt[1]+lb[1])/(rt[1]-lb[1]);    // -(t+b)/(t-b)
-            orthoMat[14] = -(zFar+zNear)/(zFar-zNear);      // -(f+n)/(f-n)
+            orthoMat[0] = F{2} / (rt[0] - lb[0]);              //      2/(r-l)
+            orthoMat[5] = F{2} / (rt[1] - lb[1]);              //      2/(t-b)
+            orthoMat[10] = F{-2} / (zFar - zNear);             //     -2/(f-n)
+            orthoMat[12] = -(rt[0] + lb[0]) / (rt[0] - lb[0]); // -(r+l)/(r-l)
+            orthoMat[13] = -(rt[1] + lb[1]) / (rt[1] - lb[1]); // -(t+b)/(t-b)
+            orthoMat[14] = -(zFar + zNear) / (zFar - zNear);   // -(f+n)/(f-n)
             orthoMat[15] = F{1};
 
             (*this) *= orthoMat;
