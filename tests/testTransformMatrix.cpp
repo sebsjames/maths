@@ -91,7 +91,8 @@ int main()
         ) {
         ++rtn;
     }
-    mult1 *= mult2;
+    auto mult1cpy = mult1;
+    mult1 *= mult2; // *= mat44
     std::cout << "mult1 *= mult2 gives\n" << mult1 << std::endl;
     if (mult1.mat[0] != 304
         || mult1.mat[1] != 358
@@ -112,6 +113,28 @@ int main()
         ) {
         ++rtn;
     }
+
+    mult1cpy *= mult2.mat; // *= array
+    if (mult1cpy.mat[0] != 304
+        || mult1cpy.mat[1] != 358
+        || mult1cpy.mat[2] != 412
+        || mult1cpy.mat[3] != 466
+        || mult1cpy.mat[4] != 208
+        || mult1cpy.mat[5] != 246
+        || mult1cpy.mat[6] != 284
+        || mult1cpy.mat[7] != 322
+        || mult1cpy.mat[8] != 112
+        || mult1cpy.mat[9] != 134
+        || mult1cpy.mat[10] != 156
+        || mult1cpy.mat[11] != 178
+        || mult1cpy.mat[12] != 16
+        || mult1cpy.mat[13] != 22
+        || mult1cpy.mat[14] != 28
+        || mult1cpy.mat[15] != 34
+        ) {
+        ++rtn;
+    }
+
 
     // Test 3x3 determinant
     sm::mat44<float> td;
@@ -148,6 +171,10 @@ int main()
     mult4.mat[13] = 0;
     mult4.mat[14] = 1;
     mult4.mat[15] = 0;
+
+    sm::mat44<float> m4timesarray = mult4 * fourfour;
+    std::cout << "m4timesarray\n" << m4timesarray << std::endl;
+
 
     sm::mat44<float> mult4inv = mult4.inverse();
     std::cout << "mult4\n" << mult4 << std::endl;
