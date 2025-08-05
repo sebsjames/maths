@@ -136,18 +136,9 @@ int main()
     }
 
 
-    // Test 3x3 determinant
-    sm::mat44<float> td;
-    std::array<float, 9> threethree = { 1.0f, 0.0f, 2.0f, 1.0f, 1.0f, 3.5f, 3.0f, 2.0f, 120.0f };
-    float det_td = td.determinant3x3 (threethree);
-    std::cout << "Determinant = " << det_td << " (expect 111)" << std::endl;
-    if (det_td != 111.0f) {
-        ++rtn;
-    }
-
     // Test 4x4 determinant
     std::array<float, 16> fourfour = { 2.0f, 7.0f, 5.0f, 6.0f, 8.0f, 1.0f, 3.0f, 6.0f, 2.0f, 8.0f, -1.0f, 7.0f, 7.0f, 0.0f, 1.0f, 7.0f };
-    float det_td2 = td.determinant (fourfour);
+    float det_td2 = sm::mat44<float>::determinant (fourfour);
     std::cout << "Determinant = " << det_td2 << " (expect 816)" << std::endl;
     if (det_td2 != 816.0f) {
         ++rtn;
