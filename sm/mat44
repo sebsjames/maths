@@ -453,11 +453,7 @@ namespace sm
          * 1. Get the cofactor matrix (with this->cofactor())
          * 2. Obtain the adjugate matrix by transposing the cofactor matrix
          */
-        constexpr std::array<F, 16> adjugate() const noexcept
-        {
-            std::array<F, 16> adj = this->transpose (this->cofactor());
-            return adj;
-        }
+        constexpr std::array<F, 16> adjugate() const noexcept { return mat44<F>::transpose (this->cofactor()); }
 
         /*!
          * Compute the cofactor matrix of this->mat. Recipe:
@@ -1008,7 +1004,7 @@ namespace sm
         }
 
         //! Transpose the matrix @matrx, returning the transposed version.
-        constexpr std::array<F, 16> transpose (const std::array<F, 16>& matrx) const noexcept
+        static constexpr std::array<F, 16> transpose (const std::array<F, 16>& matrx) noexcept
         {
             std::array<F, 16> tposed;
             tposed[0] = matrx[0];
