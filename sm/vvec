@@ -78,6 +78,8 @@ namespace sm
         enum class resize_output { no, yes };
         //! Should a function treat a kernel as symmetric and centralize it?
         enum class centre_kernel { no, yes };
+        //! Should a function (linspace) respect the endpoint?
+        enum class endpoint { no, yes };
 
         //! \return the first component of the vector
         S x() const noexcept { return (*this)[0]; }
@@ -244,11 +246,15 @@ namespace sm
          * size. You *can* use this with integer types, but be prepared to notice odd
          * rounding errors.
          */
-        template <typename Sy=S, typename Sy2=S>
+        template <endpoint ep = endpoint::yes, typename Sy=S, typename Sy2=S>
         void linspace (const Sy start, const Sy2 stop, const std::size_t num = 0u)
         {
+            S _stop = static_cast<S>(stop);
+            if constexpr (ep == endpoint::no) {
+                _stop -= _stop / (num == 0u ? this->size() : num);
+            }
             if (num > 0u) { this->resize (num); }
-            S increment = (this->size() == 1u) ? S{0} : (static_cast<S>(stop) - static_cast<S>(start)) / (this->size() - 1u);
+            S increment = (this->size() == 1u) ? S{0} : (_stop - static_cast<S>(start)) / (this->size() - 1u);
             for (std::size_t i = 0u; i < this->size(); ++i) { (*this)[i] = start + increment * i; }
         }
 
