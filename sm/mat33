@@ -189,7 +189,7 @@ namespace sm
         }
 
         //! Compute determinant for 3x3 matrix @cm
-        static F determinant (std::array<F, 9> cm) noexcept
+        static constexpr F determinant (std::array<F, 9> cm) noexcept
         {
             F det = (cm[0]*cm[4]*cm[8])
                 + (cm[3]*cm[7]*cm[2])
