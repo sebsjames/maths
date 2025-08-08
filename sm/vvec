@@ -249,13 +249,15 @@ namespace sm
         template <endpoint ep = endpoint::yes, typename Sy=S, typename Sy2=S>
         void linspace (const Sy start, const Sy2 stop, const std::size_t num = 0u)
         {
+            if (num > 0u) { this->resize (num); }
+            std::size_t sz = this->size();
             S _stop = static_cast<S>(stop);
             if constexpr (ep == endpoint::no) {
-                _stop -= _stop / (num == 0u ? this->size() : num);
+                // If num == 0 there was no resize and so size() could return 0
+                if (sz != 0u) { _stop -= _stop / sz; }
             }
-            if (num > 0u) { this->resize (num); }
-            S increment = (this->size() == 1u) ? S{0} : (_stop - static_cast<S>(start)) / (this->size() - 1u);
-            for (std::size_t i = 0u; i < this->size(); ++i) { (*this)[i] = start + increment * i; }
+            S increment = (sz == 1u) ? S{0} : (_stop - static_cast<S>(start)) / (sz - 1u);
+            for (std::size_t i = 0u; i < sz; ++i) { (*this)[i] = start + increment * i; }
         }
 
         /*!
