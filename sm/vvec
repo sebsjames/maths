@@ -254,7 +254,7 @@ namespace sm
             S _stop = static_cast<S>(stop);
             if constexpr (ep == endpoint::no) {
                 // If num == 0 there was no resize and so size() could return 0
-                if (sz != 0u) { _stop -= _stop / sz; }
+                if (sz > 0u) { _stop -= _stop / sz; }
             }
             S increment = (sz == 1u) ? S{0} : (_stop - static_cast<S>(start)) / (sz - 1u);
             for (std::size_t i = 0u; i < sz; ++i) { (*this)[i] = start + increment * i; }
