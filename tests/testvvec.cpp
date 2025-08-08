@@ -272,6 +272,11 @@ int main() {
     std::cout << linsi.size() << " linearly spaced float values from " << linsi[0]
               << " to " << linsi[linsi.size()-1] << ":\n" << linsi << std::endl;
 
+    sm::vvec<float> linz;
+    linz.linspace (23, 45);
+    std::cout << linz.size() << " linearly spaced float values : " << linz << std::endl;
+    if (linz.size() > 0) { --rtn; }
+
     linsi.resize(34);
     linsi.linspace (-1, 1);
     std::cout << linsi.size() << " linearly spaced float values from " << linsi[0]
@@ -281,6 +286,18 @@ int main() {
     std::cout << linsi.size() << " linearly spaced float values from " << linsi[0]
               << " to " << linsi[linsi.size()-1] << ":\n" << linsi << std::endl;
 
+    sm::vvec<float> lins2;
+    lins2.linspace (0, 10, 10);
+    std::cout << "endpoint true (default) gives " << lins2 << std::endl;
+    lins2.linspace<sm::vvec<>::endpoint::no> (0, 10, 10);
+    std::cout << "endpoint false gives " << lins2 << std::endl;
+
+    lins2.zero();
+    lins2.linspace (0, 10);
+    std::cout << "without resize, endpoint true (default) gives " << lins2 << std::endl;
+    lins2.linspace<sm::vvec<>::endpoint::no> (0, 10);
+    std::cout << "without resize, endpoint false gives " << lins2 << std::endl;
+    if (lins2[2] != 2.0f || lins2[3] != 3.0f) { --rtn; }
 
 #ifndef _MSC_VER // VS doesn't like the dot product here. I can't figure out what's wrong
     // Test different vvec  types dotted:
