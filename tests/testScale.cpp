@@ -346,6 +346,17 @@ int main ()
     if (std::abs(for_scaling.min - r_itfromed.min) > std::numeric_limits<float>::epsilon()
         || std::abs(for_scaling.max - r_itfromed.max) > std::numeric_limits<float>::epsilon()) { --rtn; }
 
+    // compute_scaling with two numbers
+    sm::scale<float> scxx;
+    scxx.compute_scaling (1,1);
+    std::cout << "scxx params: " << scxx.getParams() << std::endl;
+    std::cout << "Using scxx, 0 scales to " << scxx.transform_one (0.0f) << std::endl;
+    std::cout << "Using scxx, 1 scales to " << scxx.transform_one (1.0f) << std::endl;
+    std::cout << "Using scxx, 10 scales to " << scxx.transform_one (10.0f) << std::endl;
+    if (scxx.transform_one (0.0f) != 0.5f) { --rtn; }
+    if (scxx.transform_one (1.0f) != 0.5f) { --rtn; }
+    if (scxx.transform_one (10.0f) != 0.5f) { --rtn; }
+
     std::cout << "testScale " << (rtn == 0 ? "Passed" : "Failed") << std::endl;
     return rtn;
 }
