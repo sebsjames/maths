@@ -275,6 +275,7 @@ int main() {
     sm::vvec<float> linz;
     linz.linspace (23, 45);
     std::cout << linz.size() << " linearly spaced float values : " << linz << std::endl;
+    if (linz.size() > 0) { --rtn; }
 
     linsi.resize(34);
     linsi.linspace (-1, 1);
