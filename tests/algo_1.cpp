@@ -33,6 +33,21 @@ int main()
     std::cout << " radians is equivalent to " << rad_d << std::endl;
     if (std::abs(rad_d - 3.716814693) > std::numeric_limits<float>::epsilon() * NEps) { --rtn; }
 
+
+    NEps = 1;
+    rad_d = sm::mathconst<double>::pi_over_2;
+    std::cout << rad_d;
+    sm::algo::minus_pi_to_pi (rad_d);
+    std::cout << " radians is equivalent to " << rad_d << std::endl;
+    if (std::abs(rad_d - sm::mathconst<double>::pi_over_2) > std::numeric_limits<float>::epsilon() * NEps) { --rtn; }
+
+    NEps = 1;
+    rad_d = sm::mathconst<double>::three_pi_over_2;
+    std::cout << rad_d;
+    sm::algo::minus_pi_to_pi (rad_d);
+    std::cout << " radians is equivalent to " << rad_d << std::endl;
+    if (std::abs(rad_d + sm::mathconst<double>::pi_over_2) > std::numeric_limits<float>::epsilon() * NEps) { --rtn; }
+
     std::cout << "Test " << (rtn < 0 ? "Failed" : "Passed") << std::endl;
     return rtn;
 }
