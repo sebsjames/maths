@@ -381,3 +381,6 @@ add_test(mat33_1 mat33_1)
 
 add_executable(mat44_1 mat44_1.cpp)
 add_test(mat44_1 mat44_1)
+
+add_executable(algo_1 algo_1.cpp)
+add_test(algo_1 algo_1)

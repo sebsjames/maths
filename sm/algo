@@ -154,6 +154,28 @@ namespace sm::algo
         return (sign > 0 ? rounded : -rounded);
     }
 
+    // Change any angle in radians to its equivalent in the range 0 to 2pi
+    template <typename T> requires std::is_floating_point_v<T>
+    constexpr void zero_to_twopi (T& radians)
+    {
+        if (radians >= sm::mathconst<T>::two_pi) {
+            T num_two_pis = std::floor (radians / sm::mathconst<T>::two_pi);
+            radians -= num_two_pis * sm::mathconst<T>::two_pi;
+        } else if (radians < T{0}) {
+            T num_two_pis = std::ceil (-radians / sm::mathconst<T>::two_pi);
+            radians += num_two_pis * sm::mathconst<T>::two_pi;
+        }
+    }
+
+    // Return any angle in radians to its equivalent in the range -pi to pi
+    template <typename T> requires std::is_floating_point_v<T>
+    constexpr void minus_pi_to_pi (T& radians)
+    {
+        radians += sm::mathconst<T>::pi;
+        sm::algo::zero_to_twopi<T> (radians);
+        radians -= sm::mathconst<T>::pi;
+    }
+
     // Return n!
     template <typename T, typename I>
     constexpr T factorial (const I n)
