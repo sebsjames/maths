@@ -23,7 +23,7 @@ int main()
 {
     using F = double; // you can try with F = float, too
 
-    // Initialise the vertices (Here, it's 3 two-dimensional coordinates making a triangle)
+    // Initialise the vertices arbitrarily (here, it's 3 two-dimensional coordinates making a triangle)
     sm::vvec<sm::vvec<F>> i_vertices = { {F{0.7}, F{0}},  {F{0}, F{0.6}},  {F{-0.6}, F{-1.0}} };
     // Set up the nm_simplex:
     sm::nm_simplex<F> simp(i_vertices);
@@ -39,8 +39,8 @@ int main()
     } else {
         std::cout << "Did not terminate successfully" << std::endl;
     }
-    std::cout << "Finished. Best approximation at: (" << bv[0] << "," << bv[1]
-              << ") has value " << simp.best_value() << std::endl;
+    std::cout << "Finished in " << simp.operation_count << " operations. Best approximation at: ("
+              << bv[0] << "," << bv[1] << ") has value " << simp.best_value() << std::endl;
     // Check we got the right result (1e-3 so that this will succeed with F as float or double)
     int rtn = -1;
     if (std::abs (bv[0] - F{1}) < F{1e-3} && std::abs (bv[1] - F{1}) < F{1e-3}) {
