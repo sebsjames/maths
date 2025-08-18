@@ -29,3 +29,5 @@ add_executable(mat44_frombasis mat44_frombasis.cpp)
 add_executable(hexgrid hexgrid.cpp)
 
 add_executable(vonmises vonmises.cpp)
+
+add_executable(nelder_mead nelder_mead.cpp)
