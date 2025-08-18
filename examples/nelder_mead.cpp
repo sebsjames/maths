@@ -38,15 +38,17 @@ int main()
     std::vector<F> bv = {};
     if (simp.stopreason == sm::nm_simplex_stop_reason::TerminationThreshold) {
         bv = simp.best_vertex();
+        std::cout << "Finished in " << simp.operation_count << " operations. Best approximation at: ("
+                  << bv[0] << "," << bv[1] << ") has value " << simp.best_value() << std::endl;
+        // Check we got the right result (1e-3 so that this will succeed with F as float or double)
+        if (std::abs (bv[0] - F{1}) < F{1e-3} && std::abs (bv[1] - F{1}) < F{1e-3}) {
+            std::cout << "Nelder-Mead success!\n";
+            return 0;
+        } else {
+            std::cout << "Nelder-Mead finished, but the result was wrong\n";
+        }
     } else {
         std::cout << "Did not terminate successfully" << std::endl;
-    }
-    std::cout << "Finished in " << simp.operation_count << " operations. Best approximation at: ("
-              << bv[0] << "," << bv[1] << ") has value " << simp.best_value() << std::endl;
-    // Check we got the right result (1e-3 so that this will succeed with F as float or double)
-    if (std::abs (bv[0] - F{1}) < F{1e-3} && std::abs (bv[1] - F{1}) < F{1e-3}) {
-        std::cout << "Nelder-Mead success!\n";
-        return 0;
     }
 
     return -1;
