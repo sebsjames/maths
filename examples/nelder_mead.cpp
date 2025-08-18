@@ -13,8 +13,8 @@
 template<typename F>
 F banana (F x, F y)
 {
-    F a = F{1};
-    F b = F{100};
+    constexpr F a = F{1};
+    constexpr F b = F{100};
     F rtn = ((a - x) * (a - x)) + (b * (y - (x * x)) * (y - (x * x)));
     return rtn;
 }
