@@ -11,10 +11,11 @@
 
 // Here's the Rosenbrock banana function
 template<typename F>
-F banana (F x, F y) {
-    F a = 1.0;
-    F b = 100.0;
-    F rtn = ((a-x)*(a-x)) + (b * (y-(x*x)) * (y-(x*x)));
+F banana (F x, F y)
+{
+    F a = F{1};
+    F b = F{100};
+    F rtn = ((a - x) * (a - x)) + (b * (y - (x * x)) * (y - (x * x)));
     return rtn;
 }
 
