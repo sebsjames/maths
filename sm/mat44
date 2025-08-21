@@ -772,6 +772,62 @@ namespace sm
             return q;
         }
 
+        //! Add m2 to this matrix
+        constexpr void operator+= (const mat44<F>& m2) noexcept
+        {
+            for (unsigned int i = 0; i < 16; ++i) { this->mat[i] += m2.mat[i]; }
+        }
+
+        //! Return this + m2
+        constexpr mat44<F> operator+ (const mat44<F>& m2) const noexcept
+        {
+            mat44<F> result = { F{0} };
+            for (unsigned int i = 0; i < 16; ++i) { result[i] = this->mat[i] + m2.mat[i]; }
+            return result;
+        }
+
+        //! Add scalar to this matrix
+        constexpr void operator+= (const F& f) noexcept
+        {
+            for (unsigned int i = 0; i < 16; ++i) { this->mat[i] += f; }
+        }
+
+        //! Return this + scalar
+        constexpr mat44<F> operator+ (const F& f) const noexcept
+        {
+            mat44<F> result = { F{0} };
+            for (unsigned int i = 0; i < 16; ++i) { result[i] = this->mat[i] + f; }
+            return result;
+        }
+
+        //! Subtract m2 from this matrix
+        constexpr void operator-= (const mat44<F>& m2) noexcept
+        {
+            for (unsigned int i = 0; i < 16; ++i) { this->mat[i] -= m2.mat[i]; }
+        }
+
+        //! Return this - m2
+        constexpr mat44<F> operator- (const mat44<F>& m2) const noexcept
+        {
+            mat44<F> result = { F{0} };
+            for (unsigned int i = 0; i < 16; ++i) { result[i] = this->mat[i] - m2.mat[i]; }
+            return result;
+        }
+
+        //! Subtract scalar from this matrix
+        constexpr void operator-= (const F& f) noexcept
+        {
+            for (unsigned int i = 0; i < 16; ++i) { this->mat[i] -= f; }
+        }
+
+        //! Return this - scalar
+        constexpr mat44<F> operator- (const F& f) const noexcept
+        {
+            mat44<F> result = { F{0} };
+            for (unsigned int i = 0; i < 16; ++i) { result[i] = this->mat[i] - f; }
+            return result;
+        }
+
         //! Right-multiply this->mat with m2
         constexpr void operator*= (const mat44<F>& m2) noexcept
         {
