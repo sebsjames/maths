@@ -293,6 +293,7 @@ namespace sm
             if (this->empty()) { return; }
             bool first = true;
             unsigned int elementcount = 0;
+            auto w = ss.width();
             std::string nothing = "";
             std::string end_line = "\n";
             for (unsigned int sp = 0; sp < leading_spaces; ++sp) { end_line += " "; }
@@ -300,15 +301,15 @@ namespace sm
                 if (first) {
                     // Test for char/unsigned char and cast to int to avoid being interpreted as ascii
                     if constexpr (std::is_same<S, unsigned char>::value == true || std::is_same<S, char>::value == true) {
-                        ss << static_cast<int>(i);
-                    } else { ss << i; }
+                        ss << std::setw(w) << static_cast<int>(i);
+                    } else { ss << std::setw(w) << i; }
                     first = false;
-                    if (elementcount == num_in_line - 1) { ss << end_line; }
+                    if (elementcount == num_in_line - 1) { ss << std::setw(0) << end_line; }
                 } else {
-                    ss << sep << (elementcount%num_in_line==0 ? end_line : nothing);
+                    ss << std::setw(0) << sep << std::setw(0) << (elementcount%num_in_line==0 ? end_line : nothing);
                     if constexpr (std::is_same<S, unsigned char>::value == true || std::is_same<S, char>::value == true) {
-                        ss << static_cast<int>(i);
-                    } else { ss << i; }
+                        ss << std::setw(w) << static_cast<int>(i);
+                    } else { ss << std::setw(w) << i; }
                 }
                 ++elementcount;
             }
@@ -352,7 +353,7 @@ namespace sm
             std::stringstream ss;
             ss << std::setprecision (std::numeric_limits<S>::max_digits10);
             ss << "np.array((";
-            this->str_comma_separated (ss, num_in_line, ',', 11);
+            this->str_comma_separated (ss, num_in_line, ',', 10);
             ss << "))";
             return ss.str();
         }
@@ -364,7 +365,7 @@ namespace sm
         {
             std::stringstream ss;
             ss << "[";
-            ss << std::setprecision (8);
+            ss << std::setprecision (8) << std::setw (8);
             this->str_comma_separated (ss, num_in_line, ' ', 1);
             ss << "]";
             return ss.str();

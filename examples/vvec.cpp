@@ -49,6 +49,22 @@ int main()
     std::cout << "Before shuffle vf2 = " << vf2 << std::endl;
     std::cout << "After shuffle  vf2 = " << vf2.shuffled() << std::endl;
 
+    // Different ways to output strings:
+    sm::vvec<double> vvt1 = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
+    vvt1 /= 2.894;
+    std::cout << "\nDefault stream output, vvec::str():\n\n" << vvt1 << std::endl;
+
+    std::cout << "\nvvec::str(3):\n\n" << vvt1.str(3) << std::endl;
+
+    std::cout << "\nvvec::str_mat():\n\n" << vvt1.str_mat() << std::endl;
+    std::cout << "\nvvec::str_mat(4):\n\n" << vvt1.str_mat(4) << std::endl;
+
+    std::cout << "\nvvec::str_numpy():\n\n" << vvt1.str_numpy() << std::endl;
+    std::cout << "\nvvec::str_numpy(4):\n\n" << vvt1.str_numpy(4) << std::endl;
+
+    std::cout << "\nvvec::str_pythprint():\n\n" << vvt1.str_pythprint() << std::endl;
+    std::cout << "\nvvec::str_pythprint(4):\n\n" << vvt1.str_pythprint(4) << std::endl;
+
     std::cout << "\nFor more examples, see tests/testvvec.cpp\n";
     return 0;
 }
