@@ -283,28 +283,33 @@ namespace sm
          * Stream the elements of the vector into \a ss as a comma separated list.
          *
          * num_in_line: How many elements to output before inserting a newline
+         * sep: the separator char
+         * leading_spaces: How many leading spaces to insert after a newline
          */
         void str_comma_separated (std::stringstream& ss,
                                   const unsigned int num_in_line=std::numeric_limits<unsigned int>::max(),
-                                  const char sep = ',') const
+                                  const char sep = ',', const unsigned int leading_spaces = 0) const
         {
             if (this->empty()) { return; }
-            ss << std::setprecision (std::numeric_limits<S>::max_digits10);
             bool first = true;
             unsigned int elementcount = 0;
+            auto w = ss.width();
+            std::string nothing = "";
+            std::string end_line = "\n";
+            for (unsigned int sp = 0; sp < leading_spaces; ++sp) { end_line += " "; }
             for (auto i : *this) {
                 if (first) {
                     // Test for char/unsigned char and cast to int to avoid being interpreted as ascii
                     if constexpr (std::is_same<S, unsigned char>::value == true || std::is_same<S, char>::value == true) {
-                        ss << static_cast<int>(i);
-                    } else { ss << i; }
+                        ss << std::setw(w) << static_cast<int>(i);
+                    } else { ss << std::setw(w) << i; }
                     first = false;
-                    if (elementcount == num_in_line - 1) { ss << "\n"; }
+                    if (elementcount == num_in_line - 1) { ss << std::setw(0) << end_line; }
                 } else {
-                    ss << sep << (elementcount%num_in_line==0 ? "\n" : "");
+                    ss << std::setw(0) << sep << std::setw(0) << (elementcount%num_in_line==0 ? end_line : nothing);
                     if constexpr (std::is_same<S, unsigned char>::value == true || std::is_same<S, char>::value == true) {
-                        ss << static_cast<int>(i);
-                    } else { ss << i; }
+                        ss << std::setw(w) << static_cast<int>(i);
+                    } else { ss << std::setw(w) << i; }
                 }
                 ++elementcount;
             }
@@ -321,8 +326,9 @@ namespace sm
         std::string str (const unsigned int num_in_line=std::numeric_limits<unsigned int>::max()) const
         {
             std::stringstream ss;
+            ss << std::setprecision (std::numeric_limits<S>::max_digits10);
             ss << "(";
-            this->str_comma_separated (ss, num_in_line);
+            this->str_comma_separated (ss, num_in_line, ',', 1);
             ss << ")";
             return ss.str();
         }
@@ -331,8 +337,9 @@ namespace sm
         std::string str_mat (const unsigned int num_in_line=std::numeric_limits<unsigned int>::max()) const
         {
             std::stringstream ss;
+            ss << std::setprecision (std::numeric_limits<S>::max_digits10);
             ss << "[";
-            this->str_comma_separated (ss, num_in_line);
+            this->str_comma_separated (ss, num_in_line, ',', 1);
             ss << "]";
             return ss.str();
         }
@@ -341,19 +348,34 @@ namespace sm
          * Output the vector in a form suitable to paste into Python, as a numpy vector,
          * assuming you imported numpy as np
          */
-        std::string str_numpy(const unsigned int num_in_line=std::numeric_limits<unsigned int>::max()) const
+        std::string str_numpy (const unsigned int num_in_line=std::numeric_limits<unsigned int>::max()) const
         {
             std::stringstream ss;
+            ss << std::setprecision (std::numeric_limits<S>::max_digits10);
             ss << "np.array((";
-            this->str_comma_separated (ss, num_in_line);
+            this->str_comma_separated (ss, num_in_line, ',', 10);
             ss << "))";
             return ss.str();
         }
 
-        //! Output in a form that can be used as an initializer list in C++
-        std::string str_initializer(const unsigned int num_in_line=std::numeric_limits<unsigned int>::max()) const
+        /*!
+         * Output in format the same as if the array were printed with a Python print command
+         */
+        std::string str_pythprint (const unsigned int num_in_line=6) const
         {
             std::stringstream ss;
+            ss << "[";
+            ss << std::setprecision (8);
+            this->str_comma_separated (ss, num_in_line, ' ', 1);
+            ss << "]";
+            return ss.str();
+        }
+
+        //! Output in a form that can be used as an initializer list in C++
+        std::string str_initializer (const unsigned int num_in_line=std::numeric_limits<unsigned int>::max()) const
+        {
+            std::stringstream ss;
+            ss << std::setprecision (std::numeric_limits<S>::max_digits10);
             ss << "{";
             this->str_comma_separated (ss, num_in_line);
             ss << "}";

@@ -354,6 +354,8 @@ std::cout << fl0; // (0, 0)
 std::string str() const;
 std::string str_mat() const;
 std::string str_numpy() const;
+std::string str_pythprint() const;
+std::string str_intializer() const;
 ```
 These functions output the `vvec` as a string in different formats. The _mat and _numpy versions generate text that can be pasted into a session of MATLAB/Octave or Python. Output looks like `(1,2,3)` (`str()`), `[1,2,3]` (`str_mat()`) or `np.array((1,2,3))` (`str_numpy()`). If you stream a `vvec` then `str()` is used:
 ```c++
@@ -361,6 +363,20 @@ sm::vvec<int> v = {1,2,3};   // Make a vvec called v
 std::cout << v;                 // Stream to stdout
 ```
 gives output `(1,2,3)`.
+
+`str_pythprint()` generates output that is similar to printing an array from Python (useful for comparison of arrays between Python and C++ programs). `str_intializer` generates output that you can paste as a C++ initializer list.
+
+You can pass an integer to any of these functions to set the number of elements per line of output:
+```c++
+sm::vvec<int> v = {1,2,3,4,5,6,7,8,9};
+std::cout << v.str_numpy(3);
+```
+output:
+```
+np.array((1,2,3,
+          4,5,6,
+          7,8,9))
+```
 
 ### Length, lengthen, shorten
 
