@@ -33,7 +33,7 @@ namespace sm {
 ```
 where `F` hints that the template arg is usually a floating point type (although it may be any signed arithmetic type). The data is stored in an `std::array` in column-major format; the left-most column of the matrix is stored in the first 4 elements of the array.
 
-Note that this class template (along with `mat22` and `mat33`) is not designed with template parameters for rows and columns; it retains the simplicity of providing just a square transform matrix.
+Note that this class template (along with `mat22` and `mat33`) is not designed with template parameters for rows and columns; it retains the simplicity of providing just a square transform matrix. The intention is to provide transformation operations without needing to bring in a great big matrix library like *Eigen* or *arma*. If you have more complex matrix manipulation needs, you can use a third party library (I use arma in these cases).
 
 ## Create a mat44
 
@@ -214,9 +214,75 @@ float scaling = 1.2f;
 m.scale (scaling);
 ```
 
-### Special setters
+### Special setter `frombasis`
 
-`frombasis` `perspective` and `orthographic`
+The function `frombasis` sets the matrix up to be a coordinate transformation, using a set of three basis vectors.
+
+```c++
+sm::vec<float> bx = { 0.707f, 0.707f, 0.0f };
+sm::vec<float> by = { -0.707f, 0.707f, 0.0f };
+sm::vec<float> bz = { 0, 0, 1 };
+
+sm::mat44<float> mfb;
+mfb.frombasis (bx, by, bz);
+```
+The matrix now encodes a transformation of a vector from the right handed Cartesian coordinate frame into the frame specified by the vectors bx, by and bz.
+```c++
+    std::cout << "With matrix\n\n" << mfb << ",\n\n" << sm::vec<float>::ux() << " transforms to "
+              << mfb * sm::vec<float>::ux() << std::endl << sm::vec<float>::uy() << " transforms to "
+              << mfb * sm::vec<float>::uy() << std::endl << sm::vec<float>::uz() << " transforms to "
+              << mfb * sm::vec<float>::uz() << std::endl << " and (1,2,3) transforms to "
+              << mfb * sm::vec<>{1,2,3} << std::endl;
+```
+gives output:
+```
+With matrix
+
+[ 0.707 , -0.707 , 0 , 0 ;
+  0.707 , 0.707 , 0 , 0 ;
+  0 , 0 , 1 , 0 ;
+  0 , 0 , 0 , 1 ],
+
+(1,0,0) transforms to (0.707000017,0.707000017,0,1)
+(0,1,0) transforms to (-0.707000017,0.707000017,0,1)
+(0,0,1) transforms to (0,0,1,1)
+ and (1,2,3) transforms to (-0.707000017,2.12100005,3,1)
+```
+
+### Special setter  `perspective`
+
+`perspective` sets up a perspective (or frustrum) projection, for use in computer graphics applications.
+
+The field of view for the projection is given in degrees, measured from the top of the field to the bottom of the field (rather than from the left to the right).
+
+The aspect ratio is "the number of multiples of the height that the width is". Greater than 1 for a wide-screen; less than 1 for a portrait screen.
+
+The near and far z values specify near and far projection planes and should not be the same.
+
+```c++
+float field_of_view_degrees = 30.0f;
+float aspect_ratio = 1.5f;
+float z_near = 0.01f;
+float z_far = 100.0f;
+sm::mat44<float> mpers;
+mpers.perspective (field_of_view_degrees, aspect_ratio, z_near, z_far);
+// Often, mpers is then pushed to the GPU as an 'OpenGL uniform' or similar.
+```
+
+### Special setter `orthographic`
+
+`orthographic` sets up an orthographic projection, for use in computer graphics applications.
+
+An orthographic projection requires that you specify a *viewing volume*. This function takes a pair of 2D vectors to specify the left-bottom and right-top of the volume, along with two scalars representing near and far z values.
+
+```c++
+sm::vec<float, 2> left_bottom = { -1, -1 };
+sm::vec<float, 2> right_top = { 1, 1 };
+float z_near = 0.01f;
+float z_far = 100.0f;
+sm::mat44<float> mpers;
+mpers.orthographic (left_bottom, right_top, z_near, z_far);
+```
 
 ## Matrix properties
 
