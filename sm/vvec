@@ -365,7 +365,7 @@ namespace sm
         {
             std::stringstream ss;
             ss << "[";
-            ss << std::setprecision (8) << std::setw (8);
+            ss << std::setprecision (8);
             this->str_comma_separated (ss, num_in_line, ' ', 1);
             ss << "]";
             return ss.str();
