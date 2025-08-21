@@ -87,6 +87,18 @@ namespace sm
         template <std::size_t Ny = N> requires (Ny > 3)
         constexpr S w() const noexcept { return (*this)[3]; }
 
+        // Unit x vector
+        template <std::size_t Ny = N> requires (Ny > 0)
+        static constexpr vec<S, Ny> ux() { return vec<S, Ny>{ S{1} }; }
+
+        // Unit y vector
+        template <std::size_t Ny = N> requires (Ny > 1)
+        static constexpr vec<S, Ny> uy() { return vec<S, Ny>{ S{0}, S{1} }; }
+
+        // Unit z vector
+        template <std::size_t Ny = N> requires (Ny > 2)
+        static constexpr vec<S, Ny> uz() { return vec<S, Ny>{ S{0}, S{0}, S{1} }; }
+
         //! Set data members from an std::vector
         template <typename Sy=S>
         void set_from (const std::vector<Sy>& vec) noexcept
