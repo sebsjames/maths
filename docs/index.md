@@ -42,7 +42,7 @@ s.transform (input, output); // Output will now be in the range [0, 1]
 ```
 
 ## Random numbers
-I wrap the modern C++ random number generation from `#include <random>` in `<sm/random>`. Currently the following distributions are provided: uniform, normal, lognormal, Poisson, exponential and Pareto.
+I wrap the modern C++ random number generation from `#include <random>` in `<sm/random>`. Currently the following distributions are provided: uniform, normal, lognormal, Poisson, exponential, Pareto and Von Mises.
 ```c++
 #include <sm/random>
 sm::rand_uniform<unsigned int> rng (0, 100);      // Uniform distribution in [0, 100]
