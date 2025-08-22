@@ -26,14 +26,14 @@ A 4x4 matrix class with a templated element type. `constexpr` capable.
 Defined as:
 ```c++
 namespace sm {
-    template <typename F>
+    template <typename F> requires std::is_floating_point_v<F>
     struct mat44 {
         // ...
         std::array<F, 16> mat;
 ```
-where `F` hints that the template arg is usually a floating point type (although it may be any signed arithmetic type). The data is stored in an `std::array` in column-major format; the left-most column of the matrix is stored in the first 4 elements of the array.
+where `F` must be a floating point type. The data is stored in an `std::array` in column-major format; the left-most column of the matrix is stored in the first 4 elements of the array.
 
-Note that this class template (along with `mat22` and `mat33`) is not designed with template parameters for rows and columns; it retains the simplicity of providing just a square transform matrix. The intention is to provide transformation operations without needing to bring in a great big matrix library like *Eigen* or *arma*. If you have more complex matrix manipulation needs, you can use a third party library (I use arma in these cases).
+Note that this class template (along with `mat22` and `mat33`) is not designed with template parameters for rows and columns; it retains the simplicity of providing just a square transform matrix. The intention is to provide transformation operations without needing to bring in a great big matrix library like *Eigen* or *arma*. If you have more complex matrix manipulation needs, you can use one of those third party libraries (I use arma).
 
 ## Create a mat44
 
