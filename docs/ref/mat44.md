@@ -288,18 +288,6 @@ mpers.orthographic (left_bottom, right_top, z_near, z_far);
 
 Returns a rotation
 
-## Matrix properties
-
-The determinant, trace, adjugate and cofactor of the matrix are available via these function calls:
-```c++
-sm::mat44<float> m;
-float d = m.determinant();
-float t = m.trace();
-std::array<float, 16> a = m.adjugate();
-std::array<float, 16> c = m.cofactor();
-```
-The adjugate and cofactor return `std::array` rather than `mat44` as they are usually used internally during a computation of the inverse.
-
 ## Matrix operations
 
 You can add, subtract and multiply `mat44` instances, and also add, subtract and multiply by scalars
@@ -325,3 +313,15 @@ sm::mat44<float> mt = m.transpose();        // Returns transposed matrix
 m.inverse_inplace();   // Invert in-place
 m.transpose_inplace(); // Transposes the matrix in place
 ```
+
+## Matrix properties
+
+The determinant, trace, adjugate and cofactor of the matrix are available via these function calls:
+```c++
+sm::mat44<float> m;
+float d = m.determinant();
+float t = m.trace();
+std::array<float, 16> a = m.adjugate();
+std::array<float, 16> c = m.cofactor();
+```
+The adjugate and cofactor return `std::array` rather than `mat44` as they are usually used internally during a computation of the inverse.

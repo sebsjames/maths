@@ -103,4 +103,18 @@ int main()
     //
     // sm::vec<double, 4> vam1 = {1,2,3,4};
     // std::cout << "mat44 + vec<T, 4>: " << (m1 + vam1) << std::endl;
+
+    // perspective
+    sm::mat44<double> p1 = sm::mat44<double>::perspective (30, 1.33, 0.1, 100);
+    std::cout << "\np1\n" << p1 << std::endl;
+    sm::mat44<double> p2;
+    p2.perspective_inplace (30, 1.33, 0.1, 100);
+
+    // orthographic
+    sm::vec<float, 2> ov1 = {-1,-1};
+    sm::vec<float, 2> ov2 = {2,2};
+    sm::mat44<float> o1 = sm::mat44<float>::orthographic (ov1, ov2, 0.1, 100);
+    std::cout << "\no1\n" << o1 << std::endl;
+    sm::mat44<float> o2;
+    o2.orthographic_inplace (ov1, ov2, 0.1, 100);
 }

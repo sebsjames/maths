@@ -139,28 +139,38 @@ namespace sm
             this->mat[15] = F{1};
         }
 
-        //! Create a transform matrix to transform a coordinate into the given coordinate basis set
-        constexpr void frombasis (const sm::vec<F> bx, const sm::vec<F> by, const sm::vec<F> bz)
+        //! Set *this from a transform matrix to transform a coordinate into the given coordinate basis set
+        constexpr void set_frombasis (const sm::vec<F> bx, const sm::vec<F> by, const sm::vec<F> bz)
         {
-            this->mat[0] = bx.x();
-            this->mat[1] = bx.y();
-            this->mat[2] = bx.z();
-            this->mat[3] = 0.0f;
+            (*this) = sm::mat44<F>::frombasis (bx, by, bz);
+        }
 
-            this->mat[4] = by.x();
-            this->mat[5] = by.y();
-            this->mat[6] = by.z();
-            this->mat[7] = 0.0f;
+        //! Create a transform matrix to transform a coordinate into the given coordinate basis set
+        static constexpr mat44<F> frombasis (const sm::vec<F> bx, const sm::vec<F> by, const sm::vec<F> bz)
+        {
+            sm::mat44<F> rtn;
 
-            this->mat[8] = bz.x();
-            this->mat[9] = bz.y();
-            this->mat[10] = bz.z();
-            this->mat[11] = 0.0f;
+            rtn[0] = bx.x();
+            rtn[1] = bx.y();
+            rtn[2] = bx.z();
+            rtn[3] = 0.0f;
 
-            this->mat[12] = 0.0f;
-            this->mat[13] = 0.0f;
-            this->mat[14] = 0.0f;
-            this->mat[15] = 1.0f;
+            rtn[4] = by.x();
+            rtn[5] = by.y();
+            rtn[6] = by.z();
+            rtn[7] = 0.0f;
+
+            rtn[8] = bz.x();
+            rtn[9] = bz.y();
+            rtn[10] = bz.z();
+            rtn[11] = 0.0f;
+
+            rtn[12] = 0.0f;
+            rtn[13] = 0.0f;
+            rtn[14] = 0.0f;
+            rtn[15] = 1.0f;
+
+            return rtn;
         }
 
         //! Access elements of the matrix (returns ref, so not const)
@@ -603,7 +613,7 @@ namespace sm
          * and https://danceswithcode.net/engineeringnotes/quaternions/quaternions.html)
          */
         template <typename T> requires std::is_arithmetic_v<T>
-        constexpr mat44<F> pure_rotation (const sm::quaternion<T>& q) noexcept
+        static constexpr mat44<F> pure_rotation (const sm::quaternion<T>& q) noexcept
         {
             const F qx = static_cast<F>(q.x);
             const F qy = static_cast<F>(q.y);
@@ -1023,7 +1033,7 @@ namespace sm
         }
 
         /*!
-         * Make a (frustrum) perspective projection
+         * Make a (frustrum) perspective projection in this matrix
          *
          * @fovDeg Field of view, in degrees. Measured from the top of the field to
          * the bottom of the field (rather than from the left to the right).
@@ -1036,37 +1046,56 @@ namespace sm
          *
          * @zFar The far plane.
          */
-        constexpr void perspective (F fovDeg, F aspect, F zNear, F zFar) noexcept
+        constexpr void perspective_inplace (F fovDeg, F aspect, F zNear, F zFar) noexcept
         {
-            // Aspect is going to be about 1.33 for a typical rectangular window wider
-            // than it is high.
+            (*this) = sm::mat44<F>::perspective (fovDeg, aspect, zNear, zFar);
+        }
+
+        /*!
+         * Make a (frustrum) perspective projection
+         *
+         * @fovDeg Field of view, in degrees. Measured from the top of the field to
+         * the bottom of the field (rather than from the left to the right).
+         *
+         * @aspect The field's aspect ratio. For a field which is wider than it is
+         * high, this will be >1. That is, this is "the number of multiples of the
+         * height that the width is"
+         *
+         * @zNear The near/projection plane.
+         *
+         * @zFar The far plane.
+         *
+         * \return the perspective projection matrix
+         */
+        static constexpr sm::mat44<F> perspective (F fovDeg, F aspect, F zNear, F zFar) noexcept
+        {
+            sm::mat44<F> pm;
 
             // Bail out if the projection volume is zero-sized.
-            if (zNear == zFar || aspect == F{0}) { return; }
+            if (zNear == zFar || aspect == F{0}) { return pm; }
 
             F fovRad_ov2 = fovDeg * sm::mathconst<F>::pi_over_360; // fovDeg/2 converted to radians
             F sineFov = sm::cem::sin (fovRad_ov2);
-            if (sineFov == F{0}) { return; }
+            if (sineFov == F{0}) { return pm; }
             F cotanFov = sm::cem::cos (fovRad_ov2) / sineFov;
             F clip = zFar - zNear;
 
             // Perspective matrix to multiply self by
-            std::array<F, 16> persMat;
-            persMat.fill (F{0});
-            persMat[0] = cotanFov / aspect; // n/(width/2) = 2n/width, or generally 2n/r-l
-            persMat[5] = cotanFov;          // n/(height/2) = 2n/height, or generally 2n/t-b
+            pm.mat.fill (F{0});
+            pm.mat[0] = cotanFov / aspect; // n/(width/2) = 2n/width, or generally 2n/r-l
+            pm.mat[5] = cotanFov;          // n/(height/2) = 2n/height, or generally 2n/t-b
             // For fully general frustrum not centered on the z axis, we would add these:
-            //persMat[8] = r+l/r-l
-            //persMat[9] = t+b/t-b
-            persMat[10] = -(zNear + zFar) / clip;
-            persMat[11] = F{-1};
-            persMat[14] = -(F{2} * zNear * zFar) / clip;
+            //pm.mat[8] = r+l/r-l
+            //pm.mat[9] = t+b/t-b
+            pm.mat[10] = -(zNear + zFar) / clip;
+            pm.mat[11] = F{-1};
+            pm.mat[14] = -(F{2} * zNear * zFar) / clip;
 
-            (*this) *= persMat;
+            return pm;
         }
 
         /*!
-         * Make an orthographic projection
+         * Make an orthographic projection into this matrix
          *
          * \param rt Right-top coordinate. rt[0] is 'x' and thus the right and rt[1] ('y') is the top
          *
@@ -1076,23 +1105,41 @@ namespace sm
          *
          * \param zNear The 'near' z coordinate of the canonical viewing volume
          */
-        constexpr void orthographic (const sm::vec<F, 2>& lb, const sm::vec<F, 2>& rt,
-                                     const F zNear, const F zFar) noexcept
+        constexpr void orthographic_inplace (const sm::vec<F, 2>& lb, const sm::vec<F, 2>& rt,
+                                             const F zNear, const F zFar) noexcept
         {
-            if (zNear == zFar) { return; }
+            (*this) = sm::mat44<F>::orthographic (lb, rt, zNear, zFar);
+        }
+
+        /*!
+         * Make an orthographic projection, returning as mat44
+         *
+         * \param rt Right-top coordinate. rt[0] is 'x' and thus the right and rt[1] ('y') is the top
+         *
+         * \param lb Left-bottom coordinate. lb[0] is 'x' and thus the left and lb[1] 'y' and is the bottom
+         *
+         * \param zFar The 'far' z coordinate of the canonical viewing volume
+         *
+         * \param zNear The 'near' z coordinate of the canonical viewing volume
+         */
+        static constexpr sm::mat44<F> orthographic (const sm::vec<F, 2>& lb, const sm::vec<F, 2>& rt,
+                                                    const F zNear, const F zFar) noexcept
+        {
+            sm::mat44<F> om;
+
+            if (zNear == zFar) { return om; }
 
             // Orthographic matrix to multiply self by
-            std::array<F, 16> orthoMat;
-            orthoMat.fill (F{0});
-            orthoMat[0] = F{2} / (rt[0] - lb[0]);              //      2/(r-l)
-            orthoMat[5] = F{2} / (rt[1] - lb[1]);              //      2/(t-b)
-            orthoMat[10] = F{-2} / (zFar - zNear);             //     -2/(f-n)
-            orthoMat[12] = -(rt[0] + lb[0]) / (rt[0] - lb[0]); // -(r+l)/(r-l)
-            orthoMat[13] = -(rt[1] + lb[1]) / (rt[1] - lb[1]); // -(t+b)/(t-b)
-            orthoMat[14] = -(zFar + zNear) / (zFar - zNear);   // -(f+n)/(f-n)
-            orthoMat[15] = F{1};
+            om.mat.fill (F{0});
+            om.mat[0] = F{2} / (rt[0] - lb[0]);              //      2/(r-l)
+            om.mat[5] = F{2} / (rt[1] - lb[1]);              //      2/(t-b)
+            om.mat[10] = F{-2} / (zFar - zNear);             //     -2/(f-n)
+            om.mat[12] = -(rt[0] + lb[0]) / (rt[0] - lb[0]); // -(r+l)/(r-l)
+            om.mat[13] = -(rt[1] + lb[1]) / (rt[1] - lb[1]); // -(t+b)/(t-b)
+            om.mat[14] = -(zFar + zNear) / (zFar - zNear);   // -(f+n)/(f-n)
+            om.mat[15] = F{1};
 
-            (*this) *= orthoMat;
+            return om;
         }
 
         //! Overload the stream output operator
