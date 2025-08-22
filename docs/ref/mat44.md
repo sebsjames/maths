@@ -216,15 +216,20 @@ m.scale (scaling);
 
 ### Special setter `frombasis`
 
-The function `frombasis` sets the matrix up to be a coordinate transformation, using a set of three basis vectors.
+```c++
+static constexpr mat44<F> frombasis (const sm::vec<F> bx, const sm::vec<F> by, const sm::vec<F> bz);
+constexpr void frombasis_inplace (const sm::vec<F> bx, const sm::vec<F> by, const sm::vec<F> bz);
+```
+
+The static function `frombasis` sets up a coordinate transformation, using a set of three basis vectors, which it returns.
+`frombasis_inplace` is the non-static counterpart.
 
 ```c++
 sm::vec<float> bx = { 0.707f, 0.707f, 0.0f };
 sm::vec<float> by = { -0.707f, 0.707f, 0.0f };
 sm::vec<float> bz = { 0, 0, 1 };
 
-sm::mat44<float> mfb;
-mfb.frombasis (bx, by, bz);
+sm::mat44<float> mfb = sm::mat44<float>::frombasis (bx, by, bz);
 ```
 The matrix now encodes a transformation of a vector from the right handed Cartesian coordinate frame into the frame specified by the vectors bx, by and bz.
 ```c++
@@ -251,7 +256,12 @@ With matrix
 
 ### Special setter  `perspective`
 
-`perspective` sets up a perspective (or frustrum) projection, for use in computer graphics applications.
+```c++
+static constexpr sm::mat44<F> perspective (F fovDeg, F aspect, F zNear, F zFar) noexcept;
+constexpr void perspective_inplace (F fovDeg, F aspect, F zNear, F zFar) noexcept;
+```
+
+`perspective` and `perspective_inplace` set up a perspective (or frustrum) projection, for use in computer graphics applications.
 
 The field of view for the projection is given in degrees, measured from the top of the field to the bottom of the field (rather than from the left to the right).
 
@@ -264,14 +274,20 @@ float field_of_view_degrees = 30.0f;
 float aspect_ratio = 1.5f;
 float z_near = 0.01f;
 float z_far = 100.0f;
-sm::mat44<float> mpers;
-mpers.perspective (field_of_view_degrees, aspect_ratio, z_near, z_far);
+sm::mat44<float> mpers = sm::mat44<float>::perspective (field_of_view_degrees, aspect_ratio, z_near, z_far);
 // Often, mpers is then pushed to the GPU as an 'OpenGL uniform' or similar.
 ```
 
 ### Special setter `orthographic`
 
-`orthographic` sets up an orthographic projection, for use in computer graphics applications.
+```c++
+static constexpr sm::mat44<F> orthographic (const sm::vec<F, 2>& lb, const sm::vec<F, 2>& rt,
+                                            const F zNear, const F zFar) noexcept;
+constexpr void orthographic_inplace (const sm::vec<F, 2>& lb, const sm::vec<F, 2>& rt,
+                                     const F zNear, const F zFar) noexcept;
+```
+
+`orthographic` and `orthographic_inplace` set up an orthographic projection, for use in computer graphics applications.
 
 An orthographic projection requires that you specify a *viewing volume*. This function takes a pair of 2D vectors to specify the left-bottom and right-top of the volume, along with two scalars representing near and far z values.
 
@@ -280,13 +296,19 @@ sm::vec<float, 2> left_bottom = { -1, -1 };
 sm::vec<float, 2> right_top = { 1, 1 };
 float z_near = 0.01f;
 float z_far = 100.0f;
-sm::mat44<float> mpers;
-mpers.orthographic (left_bottom, right_top, z_near, z_far);
+sm::mat44<float> mo;
+mo.orthographic_inplace (left_bottom, right_top, z_near, z_far);
 ```
 
 ### Special setter `pure_rotation`
 
-Returns a rotation
+```c++
+template <typename T> requires std::is_arithmetic_v<T>
+static constexpr mat44<F> pure_rotation (const sm::quaternion<T>& q) noexcept
+```
+
+This static method returns a rotation matrix. It places the rotation q
+into a mat44<F> and returns the matrix.
 
 ## Matrix operations
 
@@ -312,6 +334,33 @@ sm::mat44<float> mt = m.transpose();        // Returns transposed matrix
 
 m.inverse_inplace();   // Invert in-place
 m.transpose_inplace(); // Transposes the matrix in place
+```
+### Matrix operations on vectors
+
+You can, of course, multiply vectors by a `mat44`. Multiplication of a
+vector by a `mat44` always yields a four dimensional vector. If you
+are working in three dimensions, you simply ignore the last element of
+the returned vector.
+
+You should always use `sm::vec<>` as the vector type. The following will work fine:
+```c++
+// A perspective projection so that our matrix is not empty
+sm::mat44<float> m = sm::mat44<float>::perspective (50, 1.4, 0.1, 100);
+
+sm::vec<float, 3> v1 = { 1, 0, 0 };
+std::cout << "\n" << m << " * " << v1 << " = " << m * v1 << std::endl;
+
+sm::vec<float, 4> v2 = { 1, 1, 0, 0 };
+std::cout << "\n" << m << " * " << v2 << " = " << m * v2 << std::endl;
+```
+If you want the output to be a three dimensional vector, use `vec<>::less_one_dim()`:
+```c++
+sm::vec<float, 3> v3d = (m * v1).less_one_dim();
+```
+There *is* a definition of vector multiplication for a 4 element `std::array`, though this is really for internal use within `mat44`:
+```c++
+std::array<float, 4> a2 = { 1, 1, 0, 0 };
+std::array<float, 4> ares2 = (m * a2); // Note return object is also std::array
 ```
 
 ## Matrix properties

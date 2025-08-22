@@ -140,7 +140,7 @@ namespace sm
         }
 
         //! Set *this from a transform matrix to transform a coordinate into the given coordinate basis set
-        constexpr void set_frombasis (const sm::vec<F> bx, const sm::vec<F> by, const sm::vec<F> bz)
+        constexpr void frombasis_inplace (const sm::vec<F> bx, const sm::vec<F> by, const sm::vec<F> bz)
         {
             (*this) = sm::mat44<F>::frombasis (bx, by, bz);
         }
@@ -892,7 +892,7 @@ namespace sm
 
             return m;
         }
-
+#if 0
         //! Do matrix times vector multiplication, v = mat * v1
         constexpr std::array<F, 4> operator* (const std::array<F, 4>& v1) const noexcept
         {
@@ -903,7 +903,7 @@ namespace sm
             v[3] = this->mat[3] * v1[0] + this->mat[7] * v1[1] + this->mat[11] * v1[2] + this->mat[15] * v1[3];
             return v;
         }
-
+#endif
         //! Do matrix times vector multiplication, v = mat * v1
         constexpr sm::vec<F, 4> operator* (const sm::vec<F, 4>& v1) const noexcept
         {
