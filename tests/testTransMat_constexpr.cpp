@@ -142,9 +142,9 @@ constexpr int do_test()
 
     sm::mat44<float> mult4inv = mult4.inverse();
 
-    sm::vec<float, 4> v1 = {1,2,3,4};
-    sm::vec<float, 4> v2;
-    sm::vec<float, 4> v3;
+    std::array<float, 4> v1 = {1,2,3,4};
+    std::array<float, 4> v2;
+    std::array<float, 4> v3;
     v2 = mult4 * v1;
     v3 = mult4inv * v2;
 
