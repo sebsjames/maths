@@ -284,18 +284,44 @@ sm::mat44<float> mpers;
 mpers.orthographic (left_bottom, right_top, z_near, z_far);
 ```
 
+### Special setter `pure_rotation`
+
+Returns a rotation
+
 ## Matrix properties
 
+The determinant, trace, adjugate and cofactor of the matrix are available via these function calls:
 ```c++
 sm::mat44<float> m;
 float d = m.determinant();
 float t = m.trace();
+std::array<float, 16> a = m.adjugate();
+std::array<float, 16> c = m.cofactor();
 ```
+The adjugate and cofactor return `std::array` rather than `mat44` as they are usually used internally during a computation of the inverse.
 
 ## Matrix operations
 
+You can add, subtract and multiply `mat44` instances, and also add, subtract and multiply by scalars
+```c++
+sm::mat44<double> m1;
+sm::mat44<double> m2;
+sm::mat44<double> m3 = m1 + m2;
+sm::mat44<double> m4 = m1 - m2;
+sm::mat44<double> m5 = m1 * m2;
+m5 += m2;
+m4 -= m3;
+m4 *= m1;
+m4 *= 3;
+sm::mat44<double> m6 = m4 - 7.45;
+```
+
+You can obtain the inverse and transposed matrices or carry out these operations in-place:
 ```c++
 sm::mat44<float> m;
-sm::mat44<float> the_inverse = m.inverse(); // Returns the inverse.
-m.transpose(); // Transposes the matrix in place
+sm::mat44<float> mi = m.inverse(); // Returns the inverse.
+sm::mat44<float> mt = m.transpose();        // Returns transposed matrix
+
+m.inverse_inplace();   // Invert in-place
+m.transpose_inplace(); // Transposes the matrix in place
 ```
