@@ -357,7 +357,7 @@ If you want the output to be a three dimensional vector, use `vec<>::less_one_di
 ```c++
 sm::vec<float, 3> v3d = (m * v1).less_one_dim();
 ```
-There *is* a definition of vector multiplication for a 4 element `std::array`, though this is really for internal use within `mat44`:
+There *is* a definition of vector multiplication for a 4 element `std::array`, though I'd recommend using `sm::vec`. Nevertheless, you can do:
 ```c++
 std::array<float, 4> a2 = { 1, 1, 0, 0 };
 std::array<float, 4> ares2 = (m * a2); // Note return object is also std::array
