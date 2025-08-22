@@ -57,19 +57,6 @@ int main()
     mi3 = { 4,3,2,1, 4,3,2,1, 4,3,2,1, 4,3,2,1 };
     std::cout << "mi3 reassigned =\n" << mi3 << std::endl;
 
-    // frombasis
-    sm::mat44<float> mfb;
-    sm::vec<float> bx = { 0.707f, 0.707f, 0.0f };
-    sm::vec<float> by = { -0.707f, 0.707f, 0.0f };
-    sm::vec<float> bz = { 0, 0, 1 };
-    mfb.frombasis (bx, by, bz);
-
-    std::cout << "With matrix\n\n" << mfb << ",\n\n"
-              << sm::vec<float>::ux() << " transforms to " << mfb * sm::vec<float>::ux() << std::endl
-              << sm::vec<float>::uy() << " transforms to " << mfb * sm::vec<float>::uy() << std::endl
-              << sm::vec<float>::uz() << " transforms to " << mfb * sm::vec<float>::uz() << std::endl
-              << " and (1,2,3) transforms to " << mfb * sm::vec<>{1,2,3} << std::endl;
-
     // Addition and multiplication of matrices
     sm::mat44<double> m1;
     sm::mat44<double> m2;

@@ -19,18 +19,26 @@ int main()
     sm::vec<float> v3 = { mc::one_over_root_2, -mc::one_over_root_2, 0 };
 
     // Set our transform matrix from the basis vectors
-    T.frombasis (v1, v2, v3);
+    T.frombasis_inplace (v1, v2, v3);
 
     std::cout << "T set from the basis vectors\n\t" << v1<< "\n\t" << v2 << "\n\t" << v3 << " is\n" << T << std::endl;
 
-    sm::vec<float> ux = {1,0,0};
-    sm::vec<float> uy = {0,1,0};
-    sm::vec<float> uz = {0,0,1};
-
-    std::cout << "T * ux = " << T * ux << std::endl;
+    std::cout << "T * ux = " << T * sm::vec<float>::ux() << std::endl;
     std::cout << "Compare with v1 used to build T: " << v1 << std::endl;
-    std::cout << "T * uy = " << T * uy << std::endl;
+    std::cout << "T * uy = " << T * sm::vec<float>::uy() << std::endl;
     std::cout << "Compare with v2 used to build T: " << v2 << std::endl;
-    std::cout << "T * uz = " << T * uz << std::endl;
+    std::cout << "T * uz = " << T * sm::vec<float>::uz() << std::endl;
     std::cout << "Compare with v3 used to build T: " << v3 << std::endl;
+
+    // static frombasis that returns a mat44
+    sm::vec<double> bx = { 0.707f, 0.707f, 0.0f };
+    sm::vec<double> by = { -0.707f, 0.707f, 0.0f };
+    sm::vec<double> bz = { 0, 0, 1 };
+    sm::mat44<double> mfb = sm::mat44<double>::frombasis (bx, by, bz);
+
+    std::cout << "\nWith matrix\n\n" << mfb << ",\n\n"
+              << sm::vec<double>::ux() << " transforms to " << mfb * sm::vec<double>::ux() << std::endl
+              << sm::vec<double>::uy() << " transforms to " << mfb * sm::vec<double>::uy() << std::endl
+              << sm::vec<double>::uz() << " transforms to " << mfb * sm::vec<double>::uz() << std::endl
+              << " and (1,2,3) transforms to " << mfb * sm::vec<double>{1,2,3} << std::endl;
 }
