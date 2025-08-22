@@ -70,25 +70,37 @@ int main()
               << sm::vec<float>::uz() << " transforms to " << mfb * sm::vec<float>::uz() << std::endl
               << " and (1,2,3) transforms to " << mfb * sm::vec<>{1,2,3} << std::endl;
 
+    // Addition and multiplication of matrices
     sm::mat44<double> m1;
     sm::mat44<double> m2;
     sm::mat44<double> m3 = m1 + m2;
     sm::mat44<double> m4 = m1 - m2;
     sm::mat44<double> m5 = m1 * m2;
+    sm::mat44<double> m6 = m1 + 4.0;
+    sm::mat44<double> m7 = m1 - 4u;
+
     std::cout << m1 << "\n\n+\n" << m2 << "\n=\n" << m3 << std::endl;
     std::cout << m1 << "\n\n-\n" << m2 << "\n=\n" << m4 << std::endl;
     std::cout << m1 << "\n\n*\n" << m2 << "\n=\n" << m5 << std::endl;
-    sm::mat44<double> m6 = m1 + 4.0;
     std::cout << m1 << "\n\n+\n" << 4.0 << "\n=\n" << m6 << std::endl;
-    sm::mat44<double> m7 = m1 - 4u;
     std::cout << m1 << "\n\n-\n" << 4u << "\n=\n" << m7 << std::endl;
+    // += scalar
     m7 += 10.0f;
     std::cout << "\n\n+=10 gives\n" << m7 << std::endl;
+    // -= matrix
     m7 -= m2;
     std::cout << "\n\n-=\n " << m2 << " gives\n" << m7 << std::endl;
 
+    // mat44<T> * std::array<T, 16>
     std::array<double, 16> arr = { 1, 2, 3, 4, 1, 2, 3, 4, 5, 6, 7, 8, 5, 6, 7, 8 };
     std::cout << "mat44 * arr: " << (m1 * arr) << std::endl;
-
+    // mat44<T> + std::array<T, 16>
     std::cout << "mat44 + arr: " << (m1 + arr) << std::endl;
+
+    // mat44<double> + vec<double, N> should fail and does, because vec<> is not double
+    // and operator+ is defined for mat44<T> and const T&, so the argument must be
+    // castable to type T.
+    //
+    // sm::vec<double, 4> vam1 = {1,2,3,4};
+    // std::cout << "mat44 + vec<T, 4>: " << (m1 + vam1) << std::endl;
 }
