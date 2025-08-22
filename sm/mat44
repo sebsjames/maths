@@ -148,29 +148,29 @@ namespace sm
         //! Create a transform matrix to transform a coordinate into the given coordinate basis set
         static constexpr mat44<F> frombasis (const sm::vec<F> bx, const sm::vec<F> by, const sm::vec<F> bz)
         {
-            sm::mat44<F> rtn;
+            sm::mat44<F> m;
 
-            rtn[0] = bx.x();
-            rtn[1] = bx.y();
-            rtn[2] = bx.z();
-            rtn[3] = 0.0f;
+            m[0] = bx.x();
+            m[1] = bx.y();
+            m[2] = bx.z();
+            m[3] = 0.0f;
 
-            rtn[4] = by.x();
-            rtn[5] = by.y();
-            rtn[6] = by.z();
-            rtn[7] = 0.0f;
+            m[4] = by.x();
+            m[5] = by.y();
+            m[6] = by.z();
+            m[7] = 0.0f;
 
-            rtn[8] = bz.x();
-            rtn[9] = bz.y();
-            rtn[10] = bz.z();
-            rtn[11] = 0.0f;
+            m[8] = bz.x();
+            m[9] = bz.y();
+            m[10] = bz.z();
+            m[11] = 0.0f;
 
-            rtn[12] = 0.0f;
-            rtn[13] = 0.0f;
-            rtn[14] = 0.0f;
-            rtn[15] = 1.0f;
+            m[12] = 0.0f;
+            m[13] = 0.0f;
+            m[14] = 0.0f;
+            m[15] = 1.0f;
 
-            return rtn;
+            return m;
         }
 
         //! Access elements of the matrix (returns ref, so not const)
@@ -570,15 +570,15 @@ namespace sm
         constexpr mat44<F> inverse() noexcept
         {
             F det = this->determinant();
-            mat44<F> rtn;
+            mat44<F> m;
             if (det == F{0}) {
                 // The transform matrix has no inverse (determinant is 0)
-                rtn.mat.fill (F{0});
+                m.mat.fill (F{0});
             } else {
-                rtn.mat = this->adjugate();
-                rtn *= (F{1}/det);
+                m.mat = this->adjugate();
+                m *= (F{1} / det);
             }
-            return rtn;
+            return m;
         }
 
         /*!
@@ -594,13 +594,12 @@ namespace sm
         constexpr void inverse_inplace() noexcept
         {
             F det = this->determinant();
-            mat44<F> rtn;
             if (det == F{0}) {
                 // The transform matrix has no inverse (determinant is 0)
                 this->mat.fill (F{0});
             } else {
                 this->mat = this->adjugate();
-                *this *= (F{1}/det);
+                *this *= (F{1} / det);
             }
         }
 
@@ -708,19 +707,19 @@ namespace sm
         //! Returns the linear part of the 4x4 matrix (the top left 3x3 matrix)
         constexpr sm::mat33<F> linear() noexcept
         {
-            sm::mat33<F> x;
+            sm::mat33<F> m;
 
-            x[0] = this->mat[0];
-            x[1] = this->mat[1];
-            x[2] = this->mat[2];
-            x[3] = this->mat[4];
-            x[4] = this->mat[5];
-            x[5] = this->mat[6];
-            x[6] = this->mat[8];
-            x[7] = this->mat[9];
-            x[8] = this->mat[10];
+            m[0] = this->mat[0];
+            m[1] = this->mat[1];
+            m[2] = this->mat[2];
+            m[3] = this->mat[4];
+            m[4] = this->mat[5];
+            m[5] = this->mat[6];
+            m[6] = this->mat[8];
+            m[7] = this->mat[9];
+            m[8] = this->mat[10];
 
-            return x;
+            return m;
         }
 
         //! Returns the translation part of the 4x4 matrix (top three rows of last column)
@@ -791,9 +790,9 @@ namespace sm
         //! Return this + m2
         constexpr mat44<F> operator+ (const mat44<F>& m2) const noexcept
         {
-            mat44<F> result = { F{0} };
-            for (unsigned int i = 0; i < 16; ++i) { result[i] = this->mat[i] + m2.mat[i]; }
-            return result;
+            mat44<F> m = { F{0} };
+            for (unsigned int i = 0; i < 16; ++i) { m[i] = this->mat[i] + m2.mat[i]; }
+            return m;
         }
 
         //! Add scalar to this matrix
@@ -805,9 +804,9 @@ namespace sm
         //! Return this + scalar
         constexpr mat44<F> operator+ (const F& f) const noexcept
         {
-            mat44<F> result = { F{0} };
-            for (unsigned int i = 0; i < 16; ++i) { result[i] = this->mat[i] + f; }
-            return result;
+            mat44<F> m = { F{0} };
+            for (unsigned int i = 0; i < 16; ++i) { m[i] = this->mat[i] + f; }
+            return m;
         }
 
         //! Subtract m2 from this matrix
@@ -819,9 +818,9 @@ namespace sm
         //! Return this - m2
         constexpr mat44<F> operator- (const mat44<F>& m2) const noexcept
         {
-            mat44<F> result = { F{0} };
-            for (unsigned int i = 0; i < 16; ++i) { result[i] = this->mat[i] - m2.mat[i]; }
-            return result;
+            mat44<F> m = { F{0} };
+            for (unsigned int i = 0; i < 16; ++i) { m[i] = this->mat[i] - m2.mat[i]; }
+            return m;
         }
 
         //! Subtract scalar from this matrix
@@ -833,65 +832,65 @@ namespace sm
         //! Return this - scalar
         constexpr mat44<F> operator- (const F& f) const noexcept
         {
-            mat44<F> result = { F{0} };
-            for (unsigned int i = 0; i < 16; ++i) { result[i] = this->mat[i] - f; }
-            return result;
+            mat44<F> m = { F{0} };
+            for (unsigned int i = 0; i < 16; ++i) { m[i] = this->mat[i] - f; }
+            return m;
         }
 
         //! Right-multiply this->mat with m2
         constexpr void operator*= (const mat44<F>& m2) noexcept
         {
-            std::array<F, 16> result;
+            std::array<F, 16> m;
             // Top row
-            result[0] = this->mat[0] * m2.mat[0] + this->mat[4] * m2.mat[1] + this->mat[8] * m2.mat[2] + this->mat[12] * m2.mat[3];
-            result[4] = this->mat[0] * m2.mat[4] + this->mat[4] * m2.mat[5] + this->mat[8] * m2.mat[6] + this->mat[12] * m2.mat[7];
-            result[8] = this->mat[0] * m2.mat[8] + this->mat[4] * m2.mat[9] + this->mat[8] * m2.mat[10] + this->mat[12] * m2.mat[11];
-            result[12] = this->mat[0] * m2.mat[12] + this->mat[4] * m2.mat[13] + this->mat[8] * m2.mat[14] + this->mat[12] * m2.mat[15];
+            m[0] = this->mat[0] * m2.mat[0] + this->mat[4] * m2.mat[1] + this->mat[8] * m2.mat[2] + this->mat[12] * m2.mat[3];
+            m[4] = this->mat[0] * m2.mat[4] + this->mat[4] * m2.mat[5] + this->mat[8] * m2.mat[6] + this->mat[12] * m2.mat[7];
+            m[8] = this->mat[0] * m2.mat[8] + this->mat[4] * m2.mat[9] + this->mat[8] * m2.mat[10] + this->mat[12] * m2.mat[11];
+            m[12] = this->mat[0] * m2.mat[12] + this->mat[4] * m2.mat[13] + this->mat[8] * m2.mat[14] + this->mat[12] * m2.mat[15];
             // Second row
-            result[1] = this->mat[1] * m2.mat[0] + this->mat[5] * m2.mat[1] + this->mat[9] * m2.mat[2] + this->mat[13] * m2.mat[3];
-            result[5] = this->mat[1] * m2.mat[4] + this->mat[5] * m2.mat[5] + this->mat[9] * m2.mat[6] + this->mat[13] * m2.mat[7];
-            result[9] = this->mat[1] * m2.mat[8] + this->mat[5] * m2.mat[9] + this->mat[9] * m2.mat[10] + this->mat[13] * m2.mat[11];
-            result[13] = this->mat[1] * m2.mat[12] + this->mat[5] * m2.mat[13] + this->mat[9] * m2.mat[14] + this->mat[13] * m2.mat[15];
+            m[1] = this->mat[1] * m2.mat[0] + this->mat[5] * m2.mat[1] + this->mat[9] * m2.mat[2] + this->mat[13] * m2.mat[3];
+            m[5] = this->mat[1] * m2.mat[4] + this->mat[5] * m2.mat[5] + this->mat[9] * m2.mat[6] + this->mat[13] * m2.mat[7];
+            m[9] = this->mat[1] * m2.mat[8] + this->mat[5] * m2.mat[9] + this->mat[9] * m2.mat[10] + this->mat[13] * m2.mat[11];
+            m[13] = this->mat[1] * m2.mat[12] + this->mat[5] * m2.mat[13] + this->mat[9] * m2.mat[14] + this->mat[13] * m2.mat[15];
             // Third row
-            result[2] = this->mat[2] * m2.mat[0] + this->mat[6] * m2.mat[1] + this->mat[10] * m2.mat[2] + this->mat[14] * m2.mat[3];
-            result[6] = this->mat[2] * m2.mat[4] + this->mat[6] * m2.mat[5] + this->mat[10] * m2.mat[6] + this->mat[14] * m2.mat[7];
-            result[10] = this->mat[2] * m2.mat[8] + this->mat[6] * m2.mat[9] + this->mat[10] * m2.mat[10] + this->mat[14] * m2.mat[11];
-            result[14] = this->mat[2] * m2.mat[12] + this->mat[6] * m2.mat[13] + this->mat[10] * m2.mat[14] + this->mat[14] * m2.mat[15];
+            m[2] = this->mat[2] * m2.mat[0] + this->mat[6] * m2.mat[1] + this->mat[10] * m2.mat[2] + this->mat[14] * m2.mat[3];
+            m[6] = this->mat[2] * m2.mat[4] + this->mat[6] * m2.mat[5] + this->mat[10] * m2.mat[6] + this->mat[14] * m2.mat[7];
+            m[10] = this->mat[2] * m2.mat[8] + this->mat[6] * m2.mat[9] + this->mat[10] * m2.mat[10] + this->mat[14] * m2.mat[11];
+            m[14] = this->mat[2] * m2.mat[12] + this->mat[6] * m2.mat[13] + this->mat[10] * m2.mat[14] + this->mat[14] * m2.mat[15];
             // Bottom row
-            result[3] = this->mat[3] * m2.mat[0] + this->mat[7] * m2.mat[1] + this->mat[11] * m2.mat[2] + this->mat[15] * m2.mat[3];
-            result[7] = this->mat[3] * m2.mat[4] + this->mat[7] * m2.mat[5] + this->mat[11] * m2.mat[6] + this->mat[15] * m2.mat[7];
-            result[11] = this->mat[3] * m2.mat[8] + this->mat[7] * m2.mat[9] + this->mat[11] * m2.mat[10] + this->mat[15] * m2.mat[11];
-            result[15] = this->mat[3] * m2.mat[12] + this->mat[7] * m2.mat[13] + this->mat[11] * m2.mat[14] + this->mat[15] * m2.mat[15];
+            m[3] = this->mat[3] * m2.mat[0] + this->mat[7] * m2.mat[1] + this->mat[11] * m2.mat[2] + this->mat[15] * m2.mat[3];
+            m[7] = this->mat[3] * m2.mat[4] + this->mat[7] * m2.mat[5] + this->mat[11] * m2.mat[6] + this->mat[15] * m2.mat[7];
+            m[11] = this->mat[3] * m2.mat[8] + this->mat[7] * m2.mat[9] + this->mat[11] * m2.mat[10] + this->mat[15] * m2.mat[11];
+            m[15] = this->mat[3] * m2.mat[12] + this->mat[7] * m2.mat[13] + this->mat[11] * m2.mat[14] + this->mat[15] * m2.mat[15];
 
-            this->mat.swap (result);
+            this->mat.swap (m);
         }
 
         //! Right multiply this->mat with m2.mat.
         constexpr mat44<F> operator* (const mat44<F>& m2) const noexcept
         {
-            mat44<F> result;
+            mat44<F> m;
             // Top row
-            result.mat[0] = this->mat[0] * m2.mat[0] + this->mat[4] * m2.mat[1] + this->mat[8] * m2.mat[2] + this->mat[12] * m2.mat[3];
-            result.mat[4] = this->mat[0] * m2.mat[4] + this->mat[4] * m2.mat[5] + this->mat[8] * m2.mat[6] + this->mat[12] * m2.mat[7];
-            result.mat[8] = this->mat[0] * m2.mat[8] + this->mat[4] * m2.mat[9] + this->mat[8] * m2.mat[10] + this->mat[12] * m2.mat[11];
-            result.mat[12] = this->mat[0] * m2.mat[12] + this->mat[4] * m2.mat[13] + this->mat[8] * m2.mat[14] + this->mat[12] * m2.mat[15];
+            m.mat[0] = this->mat[0] * m2.mat[0] + this->mat[4] * m2.mat[1] + this->mat[8] * m2.mat[2] + this->mat[12] * m2.mat[3];
+            m.mat[4] = this->mat[0] * m2.mat[4] + this->mat[4] * m2.mat[5] + this->mat[8] * m2.mat[6] + this->mat[12] * m2.mat[7];
+            m.mat[8] = this->mat[0] * m2.mat[8] + this->mat[4] * m2.mat[9] + this->mat[8] * m2.mat[10] + this->mat[12] * m2.mat[11];
+            m.mat[12] = this->mat[0] * m2.mat[12] + this->mat[4] * m2.mat[13] + this->mat[8] * m2.mat[14] + this->mat[12] * m2.mat[15];
             // Second row
-            result.mat[1] = this->mat[1] * m2.mat[0] + this->mat[5] * m2.mat[1] + this->mat[9] * m2.mat[2] + this->mat[13] * m2.mat[3];
-            result.mat[5] = this->mat[1] * m2.mat[4] + this->mat[5] * m2.mat[5] + this->mat[9] * m2.mat[6] + this->mat[13] * m2.mat[7];
-            result.mat[9] = this->mat[1] * m2.mat[8] + this->mat[5] * m2.mat[9] + this->mat[9] * m2.mat[10] + this->mat[13] * m2.mat[11];
-            result.mat[13] = this->mat[1] * m2.mat[12] + this->mat[5] * m2.mat[13] + this->mat[9] * m2.mat[14] + this->mat[13] * m2.mat[15];
+            m.mat[1] = this->mat[1] * m2.mat[0] + this->mat[5] * m2.mat[1] + this->mat[9] * m2.mat[2] + this->mat[13] * m2.mat[3];
+            m.mat[5] = this->mat[1] * m2.mat[4] + this->mat[5] * m2.mat[5] + this->mat[9] * m2.mat[6] + this->mat[13] * m2.mat[7];
+            m.mat[9] = this->mat[1] * m2.mat[8] + this->mat[5] * m2.mat[9] + this->mat[9] * m2.mat[10] + this->mat[13] * m2.mat[11];
+            m.mat[13] = this->mat[1] * m2.mat[12] + this->mat[5] * m2.mat[13] + this->mat[9] * m2.mat[14] + this->mat[13] * m2.mat[15];
             // Third row
-            result.mat[2] = this->mat[2] * m2.mat[0] + this->mat[6] * m2.mat[1] + this->mat[10] * m2.mat[2] + this->mat[14] * m2.mat[3];
-            result.mat[6] = this->mat[2] * m2.mat[4] + this->mat[6] * m2.mat[5] + this->mat[10] * m2.mat[6] + this->mat[14] * m2.mat[7];
-            result.mat[10] = this->mat[2] * m2.mat[8] + this->mat[6] * m2.mat[9] + this->mat[10] * m2.mat[10] + this->mat[14] * m2.mat[11];
-            result.mat[14] = this->mat[2] * m2.mat[12] + this->mat[6] * m2.mat[13] + this->mat[10] * m2.mat[14] + this->mat[14] * m2.mat[15];
+            m.mat[2] = this->mat[2] * m2.mat[0] + this->mat[6] * m2.mat[1] + this->mat[10] * m2.mat[2] + this->mat[14] * m2.mat[3];
+            m.mat[6] = this->mat[2] * m2.mat[4] + this->mat[6] * m2.mat[5] + this->mat[10] * m2.mat[6] + this->mat[14] * m2.mat[7];
+            m.mat[10] = this->mat[2] * m2.mat[8] + this->mat[6] * m2.mat[9] + this->mat[10] * m2.mat[10] + this->mat[14] * m2.mat[11];
+            m.mat[14] = this->mat[2] * m2.mat[12] + this->mat[6] * m2.mat[13] + this->mat[10] * m2.mat[14] + this->mat[14] * m2.mat[15];
             // Bottom row
-            result.mat[3] = this->mat[3] * m2.mat[0] + this->mat[7] * m2.mat[1] + this->mat[11] * m2.mat[2] + this->mat[15] * m2.mat[3];
-            result.mat[7] = this->mat[3] * m2.mat[4] + this->mat[7] * m2.mat[5] + this->mat[11] * m2.mat[6] + this->mat[15] * m2.mat[7];
-            result.mat[11] = this->mat[3] * m2.mat[8] + this->mat[7] * m2.mat[9] + this->mat[11] * m2.mat[10] + this->mat[15] * m2.mat[11];
-            result.mat[15] = this->mat[3] * m2.mat[12] + this->mat[7] * m2.mat[13] + this->mat[11] * m2.mat[14] + this->mat[15] * m2.mat[15];
+            m.mat[3] = this->mat[3] * m2.mat[0] + this->mat[7] * m2.mat[1] + this->mat[11] * m2.mat[2] + this->mat[15] * m2.mat[3];
+            m.mat[7] = this->mat[3] * m2.mat[4] + this->mat[7] * m2.mat[5] + this->mat[11] * m2.mat[6] + this->mat[15] * m2.mat[7];
+            m.mat[11] = this->mat[3] * m2.mat[8] + this->mat[7] * m2.mat[9] + this->mat[11] * m2.mat[10] + this->mat[15] * m2.mat[11];
+            m.mat[15] = this->mat[3] * m2.mat[12] + this->mat[7] * m2.mat[13] + this->mat[11] * m2.mat[14] + this->mat[15] * m2.mat[15];
 
-            return result;
+            return m;
         }
 
         //! Do matrix times vector multiplication, v = mat * v1
@@ -983,7 +982,7 @@ namespace sm
         //! Return the matrix transposed
         constexpr mat44<F> transpose() noexcept
         {
-            mat44<F> rtn = *this;
+            mat44<F> m = *this;
             std::array<F, 6> a;
             a[0] = this->mat[4];
             a[1] = this->mat[8];
@@ -992,44 +991,44 @@ namespace sm
             a[4] = this->mat[13];
             a[5] = this->mat[14];
 
-            rtn[4] = this->mat[1];
-            rtn[8] = this->mat[2];
-            rtn[9] = this->mat[6];
-            rtn[12] = this->mat[3];
-            rtn[13] = this->mat[7];
-            rtn[14] = this->mat[11];
+            m[4] = this->mat[1];
+            m[8] = this->mat[2];
+            m[9] = this->mat[6];
+            m[12] = this->mat[3];
+            m[13] = this->mat[7];
+            m[14] = this->mat[11];
 
-            rtn[1] = a[0];  // mat[4]
-            rtn[2] = a[1];  // mat[8]
-            rtn[3] = a[3];  // mat[12]
-            rtn[6] = a[2];  // mat[9]
-            rtn[7] = a[4];  // mat[13]
-            rtn[11] = a[5]; // mat[14]
+            m[1] = a[0];  // mat[4]
+            m[2] = a[1];  // mat[8]
+            m[3] = a[3];  // mat[12]
+            m[6] = a[2];  // mat[9]
+            m[7] = a[4];  // mat[13]
+            m[11] = a[5]; // mat[14]
 
-            return rtn;
+            return m;
         }
 
         //! Transpose the matrix @cm, returning the transposed version.
         static constexpr std::array<F, 16> transpose (const std::array<F, 16>& cm) noexcept
         {
-            std::array<F, 16> rtn;
-            rtn[0] = cm[0];
-            rtn[4] = cm[1];
-            rtn[8] = cm[2];
-            rtn[12] = cm[3];
-            rtn[1] = cm[4];
-            rtn[5] = cm[5];
-            rtn[9] = cm[6];
-            rtn[13] = cm[7];
-            rtn[2] = cm[8];
-            rtn[6] = cm[9];
-            rtn[10] = cm[10];
-            rtn[14] = cm[11];
-            rtn[3] = cm[12];
-            rtn[7] = cm[13];
-            rtn[11] = cm[14];
-            rtn[15] = cm[15];
-            return rtn;
+            std::array<F, 16> m;
+            m[0] = cm[0];
+            m[4] = cm[1];
+            m[8] = cm[2];
+            m[12] = cm[3];
+            m[1] = cm[4];
+            m[5] = cm[5];
+            m[9] = cm[6];
+            m[13] = cm[7];
+            m[2] = cm[8];
+            m[6] = cm[9];
+            m[10] = cm[10];
+            m[14] = cm[11];
+            m[3] = cm[12];
+            m[7] = cm[13];
+            m[11] = cm[14];
+            m[15] = cm[15];
+            return m;
         }
 
         /*!
@@ -1069,29 +1068,29 @@ namespace sm
          */
         static constexpr sm::mat44<F> perspective (F fovDeg, F aspect, F zNear, F zFar) noexcept
         {
-            sm::mat44<F> pm;
+            sm::mat44<F> m;
 
             // Bail out if the projection volume is zero-sized.
-            if (zNear == zFar || aspect == F{0}) { return pm; }
+            if (zNear == zFar || aspect == F{0}) { return m; }
 
             F fovRad_ov2 = fovDeg * sm::mathconst<F>::pi_over_360; // fovDeg/2 converted to radians
             F sineFov = sm::cem::sin (fovRad_ov2);
-            if (sineFov == F{0}) { return pm; }
+            if (sineFov == F{0}) { return m; }
             F cotanFov = sm::cem::cos (fovRad_ov2) / sineFov;
             F clip = zFar - zNear;
 
-            // Perspective matrix to multiply self by
-            pm.mat.fill (F{0});
-            pm.mat[0] = cotanFov / aspect; // n/(width/2) = 2n/width, or generally 2n/r-l
-            pm.mat[5] = cotanFov;          // n/(height/2) = 2n/height, or generally 2n/t-b
+            // Build perspective matrix
+            m.mat.fill (F{0});
+            m.mat[0] = cotanFov / aspect; // n/(width/2) = 2n/width, or generally 2n/r-l
+            m.mat[5] = cotanFov;          // n/(height/2) = 2n/height, or generally 2n/t-b
             // For fully general frustrum not centered on the z axis, we would add these:
-            //pm.mat[8] = r+l/r-l
-            //pm.mat[9] = t+b/t-b
-            pm.mat[10] = -(zNear + zFar) / clip;
-            pm.mat[11] = F{-1};
-            pm.mat[14] = -(F{2} * zNear * zFar) / clip;
+            //m.mat[8] = r+l/r-l
+            //m.mat[9] = t+b/t-b
+            m.mat[10] = -(zNear + zFar) / clip;
+            m.mat[11] = F{-1};
+            m.mat[14] = -(F{2} * zNear * zFar) / clip;
 
-            return pm;
+            return m;
         }
 
         /*!
@@ -1125,21 +1124,21 @@ namespace sm
         static constexpr sm::mat44<F> orthographic (const sm::vec<F, 2>& lb, const sm::vec<F, 2>& rt,
                                                     const F zNear, const F zFar) noexcept
         {
-            sm::mat44<F> om;
+            sm::mat44<F> m;
 
-            if (zNear == zFar) { return om; }
+            if (zNear == zFar) { return m; }
 
-            // Orthographic matrix to multiply self by
-            om.mat.fill (F{0});
-            om.mat[0] = F{2} / (rt[0] - lb[0]);              //      2/(r-l)
-            om.mat[5] = F{2} / (rt[1] - lb[1]);              //      2/(t-b)
-            om.mat[10] = F{-2} / (zFar - zNear);             //     -2/(f-n)
-            om.mat[12] = -(rt[0] + lb[0]) / (rt[0] - lb[0]); // -(r+l)/(r-l)
-            om.mat[13] = -(rt[1] + lb[1]) / (rt[1] - lb[1]); // -(t+b)/(t-b)
-            om.mat[14] = -(zFar + zNear) / (zFar - zNear);   // -(f+n)/(f-n)
-            om.mat[15] = F{1};
+            // Build orthographic matrix
+            m.mat.fill (F{0});
+            m.mat[0] = F{2} / (rt[0] - lb[0]);              //      2/(r-l)
+            m.mat[5] = F{2} / (rt[1] - lb[1]);              //      2/(t-b)
+            m.mat[10] = F{-2} / (zFar - zNear);             //     -2/(f-n)
+            m.mat[12] = -(rt[0] + lb[0]) / (rt[0] - lb[0]); // -(r+l)/(r-l)
+            m.mat[13] = -(rt[1] + lb[1]) / (rt[1] - lb[1]); // -(t+b)/(t-b)
+            m.mat[14] = -(zFar + zNear) / (zFar - zNear);   // -(f+n)/(f-n)
+            m.mat[15] = F{1};
 
-            return om;
+            return m;
         }
 
         //! Overload the stream output operator
