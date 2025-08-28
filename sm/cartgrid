@@ -113,9 +113,9 @@ namespace sm
             sm::vec<float, 2> ctmp;
             for (auto c : cds) {
                 ctmp[0] = c[0] + x_step;
-                if (this->x_minmax.includes (ctmp[0]) == false) { continue; }
+                if (this->x_minmax.contains (ctmp[0]) == false) { continue; }
                 ctmp[1] = c[1] + y_step;
-                if (this->y_minmax.includes (ctmp[1]) == false) { continue; }
+                if (this->y_minmax.contains (ctmp[1]) == false) { continue; }
                 new_coords.push_back (ctmp);
             }
             return new_coords;
@@ -159,9 +159,9 @@ namespace sm
                 int orig_col = d_xi[inds[i]];
 
                 int x_moved = orig_col + x_step;
-                if (this->xi_minmax.includes (x_moved) == false) { continue; }
+                if (this->xi_minmax.contains (x_moved) == false) { continue; }
                 int y_moved = (orig_row + y_step);
-                if (this->yi_minmax.includes (y_moved) == false) { continue; }
+                if (this->yi_minmax.contains (y_moved) == false) { continue; }
                 new_indicies.push_back ((x_moved - this->xi_minmax.min) + w * (y_moved - yi_minmax.min));
 
                 if constexpr (debug_shift_indicies) {
