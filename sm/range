@@ -21,7 +21,6 @@
 #include <limits>
 #include <complex>
 #include <span>
-#include <tuple>
 #include <sm/trait_tests>
 #include <sm/constexpr_math>
 
