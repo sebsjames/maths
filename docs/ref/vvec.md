@@ -586,6 +586,23 @@ void log10_inplace();
 vvec<S> exp() const;     // element-wise exp
 void exp_inplace();
 ```
+**Gaussian** function
+```c++
+vvec<S> gauss (const S sigma, const S mu = S{0}) const;
+vvec<S> gauss_inplace (const S sigma, const S mu = S{0});
+```
+Compute Gaussian function of x (where x is the content of the vvec)
+```c++
+vvec<float> x;
+x.linspace (-10, 10, 200);
+vvec<float> gauss_x = x.gauss (3.0f, 1.2f);
+```
+**Logistic** function
+Compute the generalised logistic function of this vvec: f(x) = 1 / [ 1 + exp(-k*(x - x0)) ]
+```c++
+vvec<S> logistic (const S k = S{1}, const S x0 = S{0}) const;
+void logistic_inplace (const S k = S{1}, const S x0 = S{0});
+```
 **absolute value**/**magnitude**
 ```c++
 vvec<S> abs() const;     // element-wise abs()

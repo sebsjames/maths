@@ -1476,16 +1476,18 @@ namespace sm
         void abs_inplace() noexcept { for (auto& i : *this) { i = std::abs(i); } }
 
         //! Compute the symmetric Gaussian function
-        vvec<S> gauss (const S sigma) const
+        vvec<S> gauss (const S sigma, const S mu = S{0}) const
         {
             vvec<S> rtn(this->size());
-            auto _element = [sigma](S i) { return std::exp (i*i/(S{-2}*sigma*sigma)); };
+            const S c = S{1} / std::sqrt (sm::mathconst<S>::two_pi * sigma * sigma);
+            auto _element = [sigma, mu, c](S i) { return c * std::exp ((i - mu) * (i - mu) / (S{-2} * sigma * sigma)); };
             std::transform (this->begin(), this->end(), rtn.begin(), _element);
             return rtn;
         }
-        void gauss_inplace (const S sigma)
+        void gauss_inplace (const S sigma, const S mu = S{0})
         {
-            for (auto& i : *this) { i = std::exp (i*i/(S{-2}*sigma*sigma)); }
+            const S c = S{1} / std::sqrt (sm::mathconst<S>::two_pi * sigma * sigma);
+            for (auto& i : *this) { i = c * std::exp ((i - mu) * (i - mu) / (S{-2} * sigma * sigma)); }
         }
 
         //! \return a vvec containing the generalised logistic function of this vvec:
@@ -1510,8 +1512,8 @@ namespace sm
         vvec<S> smooth_gauss (const S sigma, const unsigned int n_sigma) const
         {
             sm::vvec<S> filter;
-            S hw = std::round(sigma*n_sigma);
-            std::size_t elements = static_cast<std::size_t>(2*hw) + 1;
+            S hw = std::round (sigma * n_sigma);
+            std::size_t elements = static_cast<std::size_t>(2 * hw) + 1;
             filter.linspace (-hw, hw, elements);
             filter.gauss_inplace (sigma);
             filter /= filter.sum();
@@ -1522,8 +1524,8 @@ namespace sm
         void smooth_gauss_inplace (const S sigma, const unsigned int n_sigma)
         {
             sm::vvec<S> filter;
-            S hw = std::round(sigma*n_sigma);
-            std::size_t elements = static_cast<std::size_t>(2*hw) + 1;
+            S hw = std::round (sigma * n_sigma);
+            std::size_t elements = static_cast<std::size_t>(2 * hw) + 1;
             filter.linspace (-hw, hw, elements);
             filter.gauss_inplace (sigma);
             filter /= filter.sum();
