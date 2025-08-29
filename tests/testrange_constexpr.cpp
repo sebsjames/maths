@@ -18,14 +18,14 @@ constexpr sm::range<float> test_update_and_search_init()
     return r;
 }
 
-constexpr bool test_update_and_includes()
+constexpr bool test_update_and_contains()
 {
     sm::range<float> r(2.0f, 4.0f); // also test 2 arg constructor
     r.update (1.0f);
     r.update (5.0f);
     int rtn = 0;
-    if (r.includes (3.0f) == false) { --rtn; }
-    if (r.includes (0.5f) == true) { --rtn; }
+    if (r.contains (3.0f) == false) { --rtn; }
+    if (r.contains (0.5f) == true) { --rtn; }
 
     return (rtn == 0 ? true : false);
 }
@@ -59,7 +59,7 @@ int main()
     } else {
         --rtn;
     }
-    constexpr bool tres = test_update_and_includes();
+    constexpr bool tres = test_update_and_contains();
     if (tres == false) { --rtn; }
 
     constexpr float spn = test_span();
