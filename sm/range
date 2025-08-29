@@ -206,8 +206,8 @@ namespace sm
                 this->max = d > this->max ? changed = true, d : this->max;
             } else {
                 // Does d extend the volume defined by min and max?
-                changed = sm::range<T>::vec_min (this->min, d);
-                changed = sm::range<T>::vec_max (this->max, d);
+                changed = sm::range<T>::vec_min (this->min, d) ? true : changed;
+                changed = sm::range<T>::vec_max (this->max, d) ? true : changed;
             }
             return changed;
         }
