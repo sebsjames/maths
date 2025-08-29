@@ -125,6 +125,36 @@ namespace sm
             return max_vec;
         }
 
+        // Compare contender with current minimum, cmin. If any element is less than
+        // element in cmin, change cmin and return true.
+        template<typename Ty=T>
+        requires (sm::number_type<Ty>::value == 0)
+        static constexpr bool vec_min (T& cmin, const T& contender) noexcept
+        {
+            using T_el=std::remove_reference_t<decltype(*std::begin(std::declval<T&>()))>;
+            std::size_t sz = sizeof (T) / sizeof (T_el);
+            bool changed = false;
+            for (std::size_t i = 0; i < sz; ++i) {
+                cmin[i] = contender[i] < cmin[i] ? changed = true, contender[i] : cmin[i];
+            }
+            return changed;
+        }
+
+        // Compare contender with current maximum, cmax. If any element is greater than
+        // element in cmax, change cmax and return true.
+        template<typename Ty=T>
+        requires (sm::number_type<Ty>::value == 0)
+        static constexpr bool vec_max (T& cmax, const T& contender) noexcept
+        {
+            using T_el=std::remove_reference_t<decltype(*std::begin(std::declval<T&>()))>;
+            std::size_t sz = sizeof (T) / sizeof (T_el);
+            bool changed = false;
+            for (std::size_t i = 0; i < sz; ++i) {
+                cmax[i] = contender[i] > cmax[i] ? changed = true, contender[i] : cmax[i];
+            }
+            return changed;
+        }
+
         // Return a range that is initialized to participate in a search for the max and
         // min through a range of data.
         //
@@ -176,8 +206,8 @@ namespace sm
                 this->max = d > this->max ? changed = true, d : this->max;
             } else {
                 // Does d extend the volume defined by min and max?
-                this->min = d < this->min ? changed = true, d : this->min;
-                this->max = d > this->max ? changed = true, d : this->max;
+                changed = sm::range<T>::vec_min (this->min, d);
+                changed = sm::range<T>::vec_max (this->max, d);
             }
             return changed;
         }

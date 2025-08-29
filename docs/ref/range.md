@@ -123,8 +123,8 @@ Determine a range from data. Here, we initialize a range with min taking the *ma
 ```c++
 sm::vvec<double> data (10, 0.0);
 data.randomize();
-range<double> r; // Default constructed range is [ 0, 0 ]
-r.search_init(); // prepare range for search
+sm::range<double> r; // Default constructed range is [ 0, 0 ]
+r.search_init();     // prepare range for search
 for (auto d : data) { r.update (d); } // update on each element of data
 std::cout << "The range of values in data was: " << r << std::endl;
 ```
@@ -135,5 +135,11 @@ sm::vvec<double> data;
 data.randomize();
 range<double> r (sm::range_init::for_search); // avoids need for r.search_init()
 for (auto d : data) { r.update (d); }
-std::cout << "The range of values in data was: " << r << std::endl;
+```
+or use the static `range<>::search_initialized`, which returns a suitable range:
+```c++
+sm::vvec<double> data;
+data.randomize();
+range<double> r = sm::range<double>search_initialized();
+for (auto d : data) { r.update (d); }
 ```
