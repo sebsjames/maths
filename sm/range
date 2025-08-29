@@ -125,29 +125,43 @@ namespace sm
             return max_vec;
         }
 
+        // Return a range that is initialized to participate in a search for the max and
+        // min through a range of data.
+        //
+        // Range can then be part of a loop through data with code like:
+        //
+        // sm::vvec<T> data;
+        // data.randomize();
+        // sm::range<T> r = sm::range<T>::search_initialized();
+        // for (auto d : data) { r.update (d); }
+        // std::cout << "The range of values in data was: " << r << std::endl;
+        static constexpr sm::range<T> search_initialized() noexcept
+        {
+            sm::range<T> si;
+            if constexpr (sm::number_type<T>::value == 2) { // range is complex
+                si.min = { std::numeric_limits<typename T::value_type>::max(), std::numeric_limits<typename T::value_type>::max() };
+                si.max = { std::numeric_limits<typename T::value_type>::lowest(), std::numeric_limits<typename T::value_type>::lowest() };
+            } else if constexpr (sm::number_type<T>::value == 1) { // range is scalar
+                si.min = std::numeric_limits<T>::max();
+                si.max = std::numeric_limits<T>::lowest();
+            } else {
+                si.min = sm::range<T>::max_vector<T>();
+                si.max = sm::range<T>::lowest_vector<T>();
+            }
+            return si;
+        }
+
         // Initialise the range to participate in a search for the max and min through a range of data.
         //
         // Range can then be part of a loop through data with code like:
         //
         // sm::vvec<T> data;
         // data.randomize();
-        // range<T> r;
+        // sm::range<T> r;
         // r.search_init();
         // for (auto d : data) { r.update (d); }
         // std::cout << "The range of values in data was: " << r << std::endl;
-        constexpr void search_init() noexcept
-        {
-            if constexpr (sm::number_type<T>::value == 2) { // range is complex
-                this->min = { std::numeric_limits<typename T::value_type>::max(), std::numeric_limits<typename T::value_type>::max() };
-                this->max = { std::numeric_limits<typename T::value_type>::lowest(), std::numeric_limits<typename T::value_type>::lowest() };
-            } else if constexpr (sm::number_type<T>::value == 1) { // range is scalar
-                this->min = std::numeric_limits<T>::max();
-                this->max = std::numeric_limits<T>::lowest();
-            } else {
-                this->min = sm::range<T>::max_vector<T>();
-                this->max = sm::range<T>::lowest_vector<T>();
-            }
-        }
+        constexpr void search_init() noexcept { *this = sm::range<T>::search_initialized(); }
 
         // Extend the range to include the given datum. Return true if the range changed.
         constexpr bool update (const T& d) noexcept
