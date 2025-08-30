@@ -509,7 +509,7 @@ namespace sm
         }
 
         // If possible, get the hex at the given rgb position
-        std::list<hex>::iterator findhexAt (const sm::vec<int, 3>& rgbpos)
+        std::list<hex>::iterator findhexat (const sm::vec<int, 3>& rgbpos)
         {
             std::list<sm::hex>::iterator hi = this->hexen.begin(); // First hex in hexen is always 0,0,0
 
