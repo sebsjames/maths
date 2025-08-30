@@ -65,15 +65,34 @@
 //! hex is inside the region
 #define HEX_INSIDE_REGION       0x400
 
-//! Four flags for client code to use for its own devices.
-#define HEX_USER_FLAG_0    0x10000000
-#define HEX_USER_FLAG_1    0x20000000
-#define HEX_USER_FLAG_2    0x40000000
-#define HEX_USER_FLAG_3    0x80000000
+//! Five unused flags pad the 'hexgrid' flags and the user flags
+#define HEX_UNUSED_FLAG_0 0x800
+#define HEX_UNUSED_FLAG_1 0x1000
+#define HEX_UNUSED_FLAG_2 0x2000
+#define HEX_UNUSED_FLAG_3 0x4000
+#define HEX_UNUSED_FLAG_4 0x8000
+
+//! Sixteen flags for client code to use for its own devices.
+#define HEX_USER_FLAG_0     0x00010000
+#define HEX_USER_FLAG_1     0x00020000
+#define HEX_USER_FLAG_2     0x00040000
+#define HEX_USER_FLAG_3     0x00080000
+#define HEX_USER_FLAG_4     0x00100000
+#define HEX_USER_FLAG_5     0x00200000
+#define HEX_USER_FLAG_6     0x00400000
+#define HEX_USER_FLAG_7     0x00800000
+#define HEX_USER_FLAG_8     0x01000000
+#define HEX_USER_FLAG_9     0x02000000
+#define HEX_USER_FLAG_10    0x04000000
+#define HEX_USER_FLAG_11    0x08000000
+#define HEX_USER_FLAG_12    0x10000000
+#define HEX_USER_FLAG_13    0x20000000
+#define HEX_USER_FLAG_14    0x40000000
+#define HEX_USER_FLAG_15    0x80000000
 //! Four bits high: all user flags set
-#define HEX_ALL_USER       0xf0000000
-//! Bitmask for all the flags that aren't the 4 user flags.
-#define HEX_NON_USER       0x0fffffff
+#define HEX_ALL_USER       0xffff0000
+//! Bitmask for all the flags that aren't the 16 user flags.
+#define HEX_NON_USER       0x0000ffff
 
 //! Neighbour (or edge, or side) positions
 #define HEX_NEIGHBOUR_POS_E       0x0
@@ -543,14 +562,14 @@ namespace sm
         //! Set the single user flag 0, 1 2 or 3 as given by the passed-in unsigned int uflg_num.
         void setUserFlag (unsigned int uflg_num)
         {
-            unsigned int flg = 0x1UL << (28+uflg_num);
+            unsigned int flg = HEX_USER_FLAG_0 << uflg_num;
             this->flags |= flg;
         }
 
         //! Un-setter corresponding to setUserFlag(unsigned int)
         void unsetUserFlag (unsigned int uflg_num)
         {
-            unsigned int flg = 0x1UL << (28+uflg_num);
+            unsigned int flg = HEX_USER_FLAG_0 << uflg_num;
             this->flags &= ~flg;
         }
 
@@ -560,7 +579,7 @@ namespace sm
         //! Getter for each user flag
         bool getUserFlag (unsigned int uflg_num) const
         {
-            unsigned int flg = 0x1UL << (28+uflg_num);
+            unsigned int flg = HEX_USER_FLAG_0 << uflg_num;
             return ((this->flags & flg) == flg);
         }
 

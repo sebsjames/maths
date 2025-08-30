@@ -2,6 +2,15 @@
 #include <utility>
 #include <sm/hex>
 
+void showflags (const sm::hex& h)
+{
+    std::cout << "User flags 0-15: ";
+    for (unsigned int i = 0; i < 16; ++i) {
+        std::cout << h.getUserFlag (i) << ",";
+    }
+    std::cout << std::endl;
+}
+
 int main()
 {
     int rtn = 0;
@@ -12,44 +21,50 @@ int main()
     unsigned int idx = 0;
     sm::hex h(idx, d, r, g);
 
-    std::cout << "User flags 0-3: " << h.getUserFlag(0) << "," << h.getUserFlag(1)
-         << "," << h.getUserFlag(2) << "," << h.getUserFlag(3) << " (init)" << std::endl;
+    showflags (h);
     if (h.getUserFlag(2) == true) {
         rtn -= 1;
     }
 
     h.setUserFlag(2);
-    std::cout << "User flags 0-3: " << h.getUserFlag(0) << "," << h.getUserFlag(1)
-         << "," << h.getUserFlag(2) << "," << h.getUserFlag(3) << " (set)" << std::endl;
+    showflags (h);
     if (h.getUserFlag(2) == false) {
         rtn -= 1;
     }
 
     h.unsetUserFlag(2);
-    std::cout << "User flags 0-3: " << h.getUserFlag(0) << "," << h.getUserFlag(1)
-         << "," << h.getUserFlag(2) << "," << h.getUserFlag(3) << " (unset)" << std::endl;
+    showflags (h);
     if (h.getUserFlag(2) == true) {
         rtn -= 1;
     }
 
     h.unsetUserFlag(2);
-    std::cout << "User flags 0-3: " << h.getUserFlag(0) << "," << h.getUserFlag(1)
-         << "," << h.getUserFlag(2) << "," << h.getUserFlag(3)  << " (unset again)" << std::endl;
+    showflags (h);
     if (h.getUserFlag(2) == true) {
         rtn -= 1;
     }
 
     h.setUserFlags (HEX_USER_FLAG_0 | HEX_USER_FLAG_3);
-    std::cout << "User flags 0-3: " << h.getUserFlag(0) << "," << h.getUserFlag(1)
-         << "," << h.getUserFlag(2) << "," << h.getUserFlag(3) << std::endl;
+    showflags (h);
     if (h.getUserFlag(0) == false || h.getUserFlag(3) == false) {
         rtn -= 1;
     }
 
     h.resetUserFlags();
-    std::cout << "User flags 0-3: " << h.getUserFlag(0) << "," << h.getUserFlag(1)
-         << "," << h.getUserFlag(2) << "," << h.getUserFlag(3) << std::endl;
+    showflags (h);
     if (h.getUserFlag(0) == true || h.getUserFlag(3) == true) {
+        rtn -= 1;
+    }
+
+    h.setUserFlags (HEX_USER_FLAG_0 | HEX_USER_FLAG_15);
+    showflags (h);
+    if (h.getUserFlag(0) == false || h.getUserFlag(15) == false) {
+        rtn -= 1;
+    }
+
+    h.resetUserFlags();
+    showflags (h);
+    if (h.getUserFlag(0) == true || h.getUserFlag(15) == true) {
         rtn -= 1;
     }
 
