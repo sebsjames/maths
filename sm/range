@@ -244,6 +244,29 @@ namespace sm
             }
         }
 
+        // If the range other intersects with this range, return true
+        constexpr bool intersects (const sm::range<T>& other) const noexcept
+        {
+            if constexpr (sm::number_type<T>::value == 2) { // range is complex
+                // Does other define a rectangle in the complex plane that intersects the one made by this->min and max?
+                bool othermin_inside = std::real(this->min) <= std::real(other.min) && std::imag(this->min) <= std::imag(other.min)
+                && std::real(this->max) >= std::real(other.min) && std::imag(this->max) >= std::imag(other.min);
+                bool othermax_inside = std::real(this->min) <= std::real(other.max) && std::imag(this->min) <= std::imag(other.max)
+                && std::real(this->max) >= std::real(other.max) && std::imag(this->max) >= std::imag(other.max);
+                return othermin_inside || othermax_inside;
+            } else if constexpr (sm::number_type<T>::value == 1) { // range is scalar
+                // If othermin is inside this or othermax is inside this then intersects is true:
+                return (other.min < this->max && other.min > this->min) || (other.max < this->max && other.max > this->min);
+            } else {
+                using T_el=std::remove_reference_t<decltype(*std::begin(std::declval<T&>()))>;
+                std::size_t sz = sizeof (T) / sizeof (T_el);
+                for (std::size_t i = 0; i < sz; ++i) {
+                    if (other.min[i] > this->max[i] || other.max[i] < this->min[i]) { return false; }
+                }
+                return true;
+            }
+        }
+
         // What's the 'span of the range'? Whether scalar or complex (or vector), it's max - min
         constexpr T span() const noexcept { return this->max - this->min; }
 
