@@ -32,6 +32,14 @@ int main()
     if (a.intersects(b) == true) { --rtn; }
     if (b.intersects(a) == true) { --rtn; }
 
+    b = { {.5, .5, -1000}, {.5, .5, 1000} };
+    if (a.intersects(b) == false) { --rtn; }
+    if (b.intersects(a) == false) { --rtn; }
+
+    b = { {1.5, 1.5, -1000}, {1.5, 1.5, 1000} };
+    if (a.intersects(b) == true) { --rtn; }
+    if (b.intersects(a) == true) { --rtn; }
+
     std::cout << std::endl << "Test " << (rtn < 0 ? "Failed" : "Passed") << std::endl;
     return rtn;
 }
