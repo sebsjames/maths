@@ -485,14 +485,18 @@ namespace sm::algo
     }
 
     // Does the line defined by p0->p1 pass through the box defined by the range box?
-    template<typename T>
+    template<typename T, int debug=0>
     static bool aabb_line_intersect (const sm::range<sm::vec<T, 3>>& box,
                                      const sm::vec<T, 3>& p0, const sm::vec<T, 3>& p1)
     {
-        std::cout << "    Box: " << box << " and line from " << p0 << " to " << p1 << std::endl;
+        if constexpr (debug) {
+            std::cout << "    Box: " << box << " and line from " << p0 << " to " << p1 << std::endl;
+        }
         auto line_intersect = [box, p0, p1](uint8_t dim)
         {
-            std::cout << "    Start of line_intersect() for dim " << (uint32_t)dim << std::endl;
+            if constexpr (debug > 1) {
+                std::cout << "    Start of line_intersect() for dim " << (uint32_t)dim << std::endl;
+            }
             sm::vec<T> p = p0;
             sm::vec<T> v = p1 - p0;
             sm::vec<T> n;
@@ -508,14 +512,18 @@ namespace sm::algo
             T ndotv = n.dot (v);
             T ndotp = n.dot (p);
             if (ndotv == T{0}) {
-                std::cout << "    No intersect at all\n";
+                if constexpr (debug > 1) {
+                    std::cout << "    No intersect at all\n";
+                }
                 return false;
             }
 
             T d = -box.min[dim];
             T t = -(ndotp + d) / ndotv;
             sm::vec<T> ip = p + v * t;
-            std::cout << "    first ipoint = " << ip << std::endl;
+            if constexpr (debug > 1) {
+                std::cout << "    first ipoint = " << ip << std::endl;
+            }
 
             // Logic test...
             bool isect1 = true;
@@ -525,7 +533,9 @@ namespace sm::algo
                 //}
                 if (j != dim && (ip[j] < box.min[j] || ip[j] > box.max[j])) {
                     //std::cout << " go false :I(\n";
-                    std::cout << "    False for dim " << (uint32_t)j << std::endl;
+                    if constexpr (debug > 1) {
+                        std::cout << "    False for dim " << (uint32_t)j << std::endl;
+                    }
                     isect1 = false;
                 }
             }
@@ -534,13 +544,17 @@ namespace sm::algo
             d = -box.max[dim];
             t = -(ndotp + d) / ndotv;
             ip = p + v * t;
-            std::cout << "    Second ipoint = " << ip << std::endl;
+            if constexpr (debug > 1) {
+                std::cout << "    Second ipoint = " << ip << std::endl;
+            }
 
             // Logic test...
             bool isect2 = true;
             for (uint8_t j = 0; j < 3; ++j) {
                 if (j != dim && (ip[j] < box.min[j] || ip[j] > box.max[j])) {
-                    std::cout << "    False for dim " << (uint32_t)j << std::endl;
+                    if constexpr (debug > 1) {
+                        std::cout << "    False for dim " << (uint32_t)j << std::endl;
+                    }
                     isect2 = false;
                 }
             }
