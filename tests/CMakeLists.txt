@@ -384,3 +384,12 @@ add_test(mat44_1 mat44_1)
 
 add_executable(algo_1 algo_1.cpp)
 add_test(algo_1 algo_1)
+
+add_executable(algo_2 algo_2.cpp)
+add_test(algo_2 algo_2)
+
+add_executable(range_intersects range_intersects.cpp)
+add_test(range_intersects range_intersects)
+
+add_executable(range_adding range_adding.cpp)
+add_test(range_adding range_intersects)
