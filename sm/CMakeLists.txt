@@ -41,6 +41,7 @@ install(
   rect
   scale
   trait_tests
+  util
   vec
   vvec
   winder
