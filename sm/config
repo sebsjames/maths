@@ -273,9 +273,21 @@ namespace sm
          *
          * e.g. some_program -co:varname=43 -co:"stringvar=something with spaces"
          *
-         * Currently only works for single parameter overrides (ones that you can read
-         * with config::getFloat() and similar) and not arrays or complex objects.
+         * Currently works for single parameter overrides (ones that you can read with
+         * config::getFloat() and similar) and ALSO for simple arrays. If you config override with a
+         * comma-separated list of values like this:
          *
+         * some_program -co:myarray=1,2,3,4
+         *
+         * The within some_program you will be able to
+         *
+         * sm::vec<float, 4> myvec = conf.get_vec<float, 4>("myarray");
+         *
+         * or
+         *
+         * sm::vvec<float> myvvec = conf.get_vvec<float>("myarray");
+         *
+         * And the overridden values will be used.
          */
         void process_args (int argc, char **argv)
         {
@@ -382,25 +394,49 @@ namespace sm
         template <typename T>
         sm::vvec<T> getvvec (const std::string& arrayname) const
         {
-            nlohmann::json ar;
-            if (this->root.contains(arrayname)) { ar = this->root[arrayname]; }
-            sm::vvec<T> rtn (ar.size(), T{0});
-            typename sm::vvec<T>::size_type i = 0U;
-            for (auto el : ar) { rtn[i++] = static_cast<T>(el); }
-            return rtn;
+            if (this->config_overrides.count (arrayname) > 0) {
+                // Interpret string as array
+                std::string ar_str = this->config_overrides.at (arrayname);
+                // simply interpret the string as a comma separated list
+                std::vector<std::string> arr = sm::util::string_to_vector (ar_str, ",");
+                sm::vvec<T> rtn (arr.size(), T{0});
+                for (std::size_t i = 0; i < arr.size(); ++i) {
+                    double d = std::atof (arr[i].c_str());
+                    rtn[i] = static_cast<T>(d);
+                }
+                return rtn;
+            } else {
+                nlohmann::json ar;
+                if (this->root.contains(arrayname)) { ar = this->root[arrayname]; }
+                sm::vvec<T> rtn (ar.size(), T{0});
+                typename sm::vvec<T>::size_type i = 0U;
+                for (auto el : ar) { rtn[i++] = static_cast<T>(el); }
+                return rtn;
+            }
         }
 
         // Get an array of numbers as a sm::vec.
         template <typename T, std::size_t N>
         sm::vec<T, N> getvec (const std::string& arrayname) const
         {
-            nlohmann::json ar;
-            if (this->root.contains(arrayname)) { ar = this->root[arrayname]; }
             sm::vec<T, N> rtn = {T{0}};
-            auto el = ar.begin();
-            for (std::size_t i = 0; i < N && i < ar.size(); ++i) {
-                rtn[i] = static_cast<T>(*el);
-                el++;
+            if (this->config_overrides.count (arrayname) > 0) {
+                // Interpret string as array
+                std::string ar_str = this->config_overrides.at (arrayname);
+                // simply interpret the string as a comma separated list
+                std::vector<std::string> arr = sm::util::string_to_vector (ar_str, ",");
+                for (std::size_t i = 0; i < arr.size() && i < N; ++i) {
+                    double d = std::atof (arr[i].c_str());
+                    rtn[i] = static_cast<T>(d);
+                }
+            } else {
+                nlohmann::json ar;
+                if (this->root.contains(arrayname)) { ar = this->root[arrayname]; }
+                auto el = ar.begin();
+                for (std::size_t i = 0; i < N && i < ar.size(); ++i) {
+                    rtn[i] = static_cast<T>(*el);
+                    el++;
+                }
             }
             return rtn;
         }
