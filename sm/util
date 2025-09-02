@@ -50,4 +50,14 @@ namespace sm::util
         return theVec;
     }
 
+    // Strip bracket characters from string
+    void strip_brackets (std::string& str)
+    {
+        static constexpr std::string_view bracket_chars {"{}[]()"};
+        std::string::size_type ptr = std::string::npos;
+        while ((ptr = str.find_last_of (bracket_chars, ptr)) != std::string::npos) {
+            str = str.erase (ptr, 1);
+        }
+    }
+
 } // namespace

@@ -395,9 +395,9 @@ namespace sm
         sm::vvec<T> getvvec (const std::string& arrayname) const
         {
             if (this->config_overrides.count (arrayname) > 0) {
-                // Interpret string as array
+                // Interpret string as csv, ignoring brackets
                 std::string ar_str = this->config_overrides.at (arrayname);
-                // simply interpret the string as a comma separated list
+                sm::util::strip_brackets (ar_str);
                 std::vector<std::string> arr = sm::util::string_to_vector (ar_str, ",");
                 sm::vvec<T> rtn (arr.size(), T{0});
                 for (std::size_t i = 0; i < arr.size(); ++i) {
@@ -421,9 +421,9 @@ namespace sm
         {
             sm::vec<T, N> rtn = {T{0}};
             if (this->config_overrides.count (arrayname) > 0) {
-                // Interpret string as array
+                // Interpret string as csv, ignoring brackets
                 std::string ar_str = this->config_overrides.at (arrayname);
-                // simply interpret the string as a comma separated list
+                sm::util::strip_brackets (ar_str);
                 std::vector<std::string> arr = sm::util::string_to_vector (ar_str, ",");
                 for (std::size_t i = 0; i < arr.size() && i < N; ++i) {
                     double d = std::atof (arr[i].c_str());
