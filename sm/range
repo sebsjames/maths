@@ -278,9 +278,7 @@ namespace sm
                 return othermin_inside || othermax_inside;
             } else if constexpr (sm::number_type<T>::value == 1) { // range is scalar
                 // If othermin is inside this or othermax is inside this then intersects is true:
-                bool truth_a = (other.min < this->max) && (other.min > this->min);
-                bool truth_b = (other.max < this->max) && (other.max > this->min);
-                return truth_a || truth_b;
+                return (other.min < this->max) && (other.min > this->min) || (other.max < this->max) && (other.max > this->min);
             } else {
                 using T_el=std::remove_reference_t<decltype(*std::begin(std::declval<T&>()))>;
                 std::size_t sz = sizeof (T) / sizeof (T_el);
