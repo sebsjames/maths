@@ -489,9 +489,10 @@ namespace sm::algo
     static bool aabb_line_intersect (const sm::range<sm::vec<T, 3>>& box,
                                      const sm::vec<T, 3>& p0, const sm::vec<T, 3>& p1)
     {
-        std::cout << "Box: " << box << " and line from " << p0 << " to " << p1 << std::endl;
+        std::cout << "    Box: " << box << " and line from " << p0 << " to " << p1 << std::endl;
         auto line_intersect = [box, p0, p1](uint8_t dim)
         {
+            std::cout << "    Start of line_intersect() for dim " << (uint32_t)dim << std::endl;
             sm::vec<T> p = p0;
             sm::vec<T> v = p1 - p0;
             sm::vec<T> n;
@@ -507,41 +508,43 @@ namespace sm::algo
             T ndotv = n.dot (v);
             T ndotp = n.dot (p);
             if (ndotv == T{0}) {
-                std::cout << "No intersect\n";
+                std::cout << "    No intersect at all\n";
                 return false;
             }
 
             T d = -box.min[dim];
             T t = -(ndotp + d) / ndotv;
             sm::vec<T> ip = p + v * t;
-            std::cout << "ipoint = " << ip << std::endl;
+            std::cout << "    first ipoint = " << ip << std::endl;
 
             // Logic test...
             bool isect1 = true;
             for (uint8_t j = 0; j < 3; ++j) {
-                if (j != dim) {
-                    std::cout << "Compare ip["<<(unsigned int)j<<"] = " << ip[j] << " with box min/max[j]: " << box.min[j] << " and " << box.max[j] << std::endl;
-                }
+                //if (j != dim) {
+                //    std::cout << "Compare ip["<<(unsigned int)j<<"] = " << ip[j] << " with box min/max[j]: " << box.min[j] << " and " << box.max[j] << std::endl;
+                //}
                 if (j != dim && (ip[j] < box.min[j] || ip[j] > box.max[j])) {
-                    std::cout << " go false :I(\n";
+                    //std::cout << " go false :I(\n";
+                    std::cout << "    False for dim " << (uint32_t)j << std::endl;
                     isect1 = false;
                 }
             }
-            std::cout << "isect1 is " << (isect1 ? "T":"F") << std::endl;
+            //std::cout << "isect1 is " << (isect1 ? "T":"F") << std::endl;
 
             d = -box.max[dim];
             t = -(ndotp + d) / ndotv;
             ip = p + v * t;
-            std::cout << "ipoint = " << ip << std::endl;
+            std::cout << "    Second ipoint = " << ip << std::endl;
 
             // Logic test...
             bool isect2 = true;
             for (uint8_t j = 0; j < 3; ++j) {
                 if (j != dim && (ip[j] < box.min[j] || ip[j] > box.max[j])) {
+                    std::cout << "    False for dim " << (uint32_t)j << std::endl;
                     isect2 = false;
                 }
             }
-            std::cout << "isect2 is " << (isect2 ? "T":"F") << std::endl;
+            //std::cout << "isect2 is " << (isect2 ? "T":"F") << std::endl;
 
             return isect1 || isect2;
 
@@ -549,7 +552,7 @@ namespace sm::algo
         bool one = line_intersect (0);
         bool two = line_intersect (1);
         bool three = line_intersect (2);
-        std::cout << "return " << ((one || two || three) ? "T":"F") << std::endl;
+        //std::cout << "return " << ((one || two || three) ? "T":"F") << std::endl;
         return (one || two || three);
     }
 
