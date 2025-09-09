@@ -99,6 +99,24 @@ namespace sm
         template <std::size_t Ny = N> requires (Ny > 2)
         static constexpr vec<S, Ny> uz() { return vec<S, Ny>{ S{0}, S{0}, S{1} }; }
 
+        // Unit vector in the Dim dimension. For example, u<0>() and ux() are equivalent
+        template <std::size_t Dim, std::size_t Ny = N>
+        static constexpr vec<S, Ny> u()
+        {
+            vec<S, Ny> unit = {};
+            unit[Dim] = S{1};
+            return unit;
+        }
+
+        // Another unit vector, but this one is not constexpr
+        template <std::size_t Ny = N>
+        static vec<S, Ny> u (const std::size_t dim)
+        {
+            vec<S, Ny> unit = {};
+            unit[dim] = S{1};
+            return unit;
+        }
+
         //! Set data members from an std::vector
         template <typename Sy=S>
         void set_from (const std::vector<Sy>& vec) noexcept
