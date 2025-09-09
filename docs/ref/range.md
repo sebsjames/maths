@@ -48,8 +48,10 @@ in graphics applications.
 
 ```c++
 sm::range<T> r;                              // Default range has min == max == T{0}
+sm::range<T> r = { T{0}, T{10} };            // Construct with initializer list
 sm::range<T> r(T{0}, T{10});                 // Construct with a defined interval [0, 10]
-sm::range<T> r (sm::range_init::for_search); // Construct ready for search
+sm::range<T> r (sm::range_init::for_search); // Construct ready for search...
+sm::range<T> r = sm::range<T>::search_initialized() // ...or initialize from a static function
 ```
 
 ## Set
