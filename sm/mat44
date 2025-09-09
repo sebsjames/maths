@@ -705,7 +705,7 @@ namespace sm
         }
 
         //! Returns the linear part of the 4x4 matrix (the top left 3x3 matrix)
-        constexpr sm::mat33<F> linear() noexcept
+        constexpr sm::mat33<F> linear() const noexcept
         {
             sm::mat33<F> m;
 
@@ -723,7 +723,7 @@ namespace sm
         }
 
         //! Returns the translation part of the 4x4 matrix (top three rows of last column)
-        constexpr sm::vec<F, 3> translation() noexcept
+        constexpr sm::vec<F, 3> translation() const noexcept
         {
             return { this->mat[12], this->mat[13], this->mat[14] };
         }
@@ -746,7 +746,7 @@ namespace sm
          * Hat tip for the algorithm:
          * https://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/
          */
-        constexpr sm::quaternion<F> rotation() noexcept
+        constexpr sm::quaternion<F> rotation() const noexcept
         {
             sm::quaternion<F> q;
 
