@@ -108,9 +108,9 @@ namespace sm
             return unit;
         }
 
-        // Another unit vector, but this one is not constexpr
+        // Another unit vector, but this one takes dim as an argument
         template <std::size_t Ny = N>
-        static vec<S, Ny> u (const std::size_t dim)
+        static constexpr vec<S, Ny> u (const std::size_t dim)
         {
             vec<S, Ny> unit = {};
             unit[dim] = S{1};

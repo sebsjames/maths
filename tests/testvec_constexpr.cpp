@@ -422,6 +422,13 @@ constexpr sm::vec<float, 2> vec_angle()
     return va;
 }
 
+template<int N>
+constexpr sm::vec<float, N> vec_unit (const std::size_t dim)
+{
+    if (dim >= N) { return sm::vec<float, N>{}; }
+    return sm::vec<float, N>::u(dim);
+}
+
 int main()
 {
     int rtn = 0;
@@ -540,6 +547,11 @@ int main()
 
     constexpr sm::vec<double, 3> result36 = vec_subtractequals();
     if (result36[0] != 0.0) { std::cout << "Fail 36\n"; rtn -= 1; }
+
+    constexpr sm::vec<float, 5> result37 = vec_unit<5>(1);
+    if (result37[0] != 0.0f || result37[1] != 1.0f || result37[2] != 0.0f) {
+        std::cout << "Fail 37\n"; rtn -= 1;
+    }
 
     return rtn;
 }
