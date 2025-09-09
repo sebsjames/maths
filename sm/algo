@@ -492,23 +492,14 @@ namespace sm::algo
         if constexpr (debug) {
             std::cout << "    Box: " << box << " and line from " << p0 << " to " << p1 << std::endl;
         }
-        auto line_intersect = [box, p0, p1](uint8_t dim)
+        auto line_intersect = [box, p0, p1](uint32_t dim)
         {
             if constexpr (debug > 1) {
-                std::cout << "    Start of line_intersect() for dim " << (uint32_t)dim << std::endl;
+                std::cout << "    Start of line_intersect() for dim " << dim << std::endl;
             }
             sm::vec<T> p = p0;
             sm::vec<T> v = p1 - p0;
-            sm::vec<T> n;
-            if (dim == 0) {
-                n = sm::vec<T>::ux(); // sm::vec<T>::u<0>() etc?
-            } else if (dim == 1) {
-                n = sm::vec<T>::uy();
-            } else if (dim == 2) {
-                n = sm::vec<T>::uz();
-            } else {
-                return false;
-            }
+            sm::vec<T> n = sm::vec<T>::u(dim);
             T ndotv = n.dot (v);
             T ndotp = n.dot (p);
             if (ndotv == T{0}) {
@@ -528,18 +519,13 @@ namespace sm::algo
             // Logic test...
             bool isect1 = true;
             for (uint8_t j = 0; j < 3; ++j) {
-                //if (j != dim) {
-                //    std::cout << "Compare ip["<<(unsigned int)j<<"] = " << ip[j] << " with box min/max[j]: " << box.min[j] << " and " << box.max[j] << std::endl;
-                //}
                 if (j != dim && (ip[j] < box.min[j] || ip[j] > box.max[j])) {
-                    //std::cout << " go false :I(\n";
                     if constexpr (debug > 1) {
                         std::cout << "    False for dim " << (uint32_t)j << std::endl;
                     }
                     isect1 = false;
                 }
             }
-            //std::cout << "isect1 is " << (isect1 ? "T":"F") << std::endl;
 
             d = -box.max[dim];
             t = -(ndotp + d) / ndotv;
