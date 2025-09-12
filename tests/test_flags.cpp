@@ -92,9 +92,43 @@ int main()
     std::cout << "Bit count: " << fl.count() << std::endl;
     if (fl.get() != uint32_t{15}) { --rtn; }
 
+    // Test multiple flags:
+    if (fl.test ({myflags::two, myflags::three})) {
+        std::cout << "Flags: two and three are set\n";
+    } else { --rtn; }
+
     // flip 2
     fl ^= myflags::two;
     if (fl.get() != uint32_t{13}) { --rtn; }
+
+    // Make sure a test of multiple flags when one is known to be unset does not return true
+    if (fl.test ({myflags::two, myflags::three})) {
+        std::cout << "Flags: After flip2, two and three are set\n";
+        --rtn;
+    }
+
+    // Save flags state:
+    sm::flags<myflags> fl_save = fl;
+
+    // More multiple flags set/reset/test attempts:
+    fl.reset();
+    fl.set ({myflags::two, myflags::three});
+    if (fl.test ({myflags::two, myflags::three})) {
+        std::cout << "Flags: After set (two, three), two and three are set\n";
+    } else { --rtn; }
+    if (fl.test (myflags::one)) { --rtn; }
+    if (fl.test (myflags::four)) { --rtn; }
+
+    fl.set ({myflags::two, myflags::three}, false);
+    if (fl.test (myflags::two)) { --rtn; }
+    if (fl.test (myflags::three)) { --rtn; }
+
+    fl.set ({myflags::one, myflags::three});
+    fl.reset ({myflags::one, myflags::three});
+    if (fl.any()) { --rtn; }
+
+    // Restore state
+    fl = fl_save;
 
     if (fl.test (myflags::two) == true) { --rtn; }
     if (fl.test (myflags::one) == false) { --rtn; }

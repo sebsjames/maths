@@ -28,9 +28,13 @@
  *
  * fl.set (myflags::flag_one);
  *
- * Test a flag:
+ * Test a flag is set:
  *
  * bool flag_one_is_set = fl.test (myflags::flag_one);
+ *
+ * Test several flags in one call to test with an initializer list:
+ *
+ * bool flags_one_and_two_set = fl.test ({myflags::flag_one, myflags::flag_two});
  *
  * Clear/reset a flag:
  *
@@ -51,6 +55,7 @@
 
 #include <compare>
 #include <type_traits>
+#include <initializer_list>
 
 namespace sm
 {
@@ -113,6 +118,18 @@ namespace sm
             }
         }
 
+        // Set several bits in a single call
+        constexpr void set (std::initializer_list<const E> flags, bool value = true) noexcept
+        {
+            I tbits = I{0};
+            for (auto flag : flags) { tbits |= (I{1} << static_cast<I>(flag)); }
+            if (value == true) {
+                this->bits |= tbits;
+            } else {
+                this->bits &= ~(tbits);
+            }
+        }
+
         // Flip a bit (in enum form)
         constexpr flags<E>& operator^=(const E& rhs) noexcept
         {
@@ -124,6 +141,14 @@ namespace sm
         constexpr void reset (const E& flag) noexcept
         {
             this->bits &= ~(I{1} << static_cast<I>(flag));
+        }
+
+        // Reset several flags in one call
+        constexpr void reset (std::initializer_list<const E> flags) noexcept
+        {
+            I tbits = I{0};
+            for (auto flag : flags) { tbits |= (I{1} << static_cast<I>(flag)); }
+            this->bits &= ~(tbits);
         }
 
         // Unset all (std::bitset-like function name)
@@ -139,6 +164,14 @@ namespace sm
         constexpr bool test (const E& flag) const noexcept
         {
             return (this->bits & (I{1} << static_cast<I>(flag))) > I{0} ? true : false;
+        }
+
+        // Test that multiple flags are set with an intializer list. True only if ALL are set
+        constexpr bool test (std::initializer_list<const E> flags) const noexcept
+        {
+            I tbits = I{0};
+            for (auto flag : flags) { tbits |= (I{1} << static_cast<I>(flag)); }
+            return (this->bits & tbits) == tbits;
         }
 
         // Get the underlying bits
