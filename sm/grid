@@ -230,6 +230,9 @@ namespace sm
             return ss.str();
         }
 
+        //! Default constructor does nothing. Call init() before use.
+        grid(){}
+
         //! Constructor
         grid (const I _w, const I _h,
               const sm::vec<C, 2> _dx = { C{1}, C{1} },
@@ -760,9 +763,9 @@ namespace sm
          * \return A new data vvec containing the resampled (and renormalised) hex pixel values
          */
         sm::vvec<float> resample_image (const sm::vvec<float>& image_data,
-                                           const unsigned int image_pixelwidth,
-                                           const sm::vec<float, 2>& image_scale,
-                                           const sm::vec<float, 2>& image_offset) const
+                                        const unsigned int image_pixelwidth,
+                                        const sm::vec<float, 2>& image_scale,
+                                        const sm::vec<float, 2>& image_offset) const
         {
             if (this->order != sm::gridorder::bottomleft_to_topright) {
                 throw std::runtime_error ("grid::resample_image: resampling assumes image has sm::gridorder::bottomleft_to_topright, so your grid should, too.");
