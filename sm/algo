@@ -556,4 +556,63 @@ namespace sm::algo
         return (one || two || three);
     }
 
+    // Return the distance to the intersection of ray l0, l with plane p0, n.
+    template<typename T>
+    T ray_plane_intersection (const sm::vec<T, 3>& p0, const sm::vec<T, 3>& n,
+                              const sm::vec<T, 3>& l0, const sm::vec<T, 3>& l)
+    {
+        constexpr T denom_thresh = std::numeric_limits<T>::epsilon() * 50;
+        T denom = l.dot (n);
+        if (sm::cem::abs(denom) < denom_thresh) {
+            // parallel; no intersection
+            return std::numeric_limits<T>::max();
+        } else {
+            return (p0 - l0).dot (n) / denom;
+        }
+    }
+
+    // Does the ray (l0, l) intersect with a disc radius r on plane (p0, n)?
+    template<typename T>
+    bool ray_disc_intersection (const sm::vec<T, 3>& p0, const sm::vec<T, 3>& n, const T& r,
+                                const sm::vec<T, 3>& l0, const sm::vec<T, 3>& l)
+    {
+        T t = sm::algo::ray_plane_intersection<T> (p0, n, l0, l);
+        if (t != std::numeric_limits<T>::max() && t != T{0}) {
+            sm::vec<T, 3> p = l0 + l * t;
+            sm::vec<T, 3> v = p - p0;
+            return (v.length_sq() <= r * r);
+        }
+        return false;
+    }
+
+    // Does the ray (l0, l) intersect with a triangle defined by t0, t1, t2?
+    template<typename T>
+    bool ray_tri_intersection (const sm::vec<T, 3>& t0, const sm::vec<T, 3>& t1, const sm::vec<T, 3>& t2,
+                               const sm::vec<T, 3>& l0, const sm::vec<T, 3>& l)
+    {
+        sm::vec<T, 3> n = (t1 - t0).cross (t2 - t0); //renormalize not necessary in ray_plane_intersection
+        if (n.dot (l) == T{0}) {
+            // ray and plane are perpendicular
+            return false;
+        }
+
+        T d = sm::algo::ray_plane_intersection<T> (t0, n, l0, l);
+        if (d < T{0}) { return false; } // triangle is behind ray
+        if (d == std::numeric_limits<T>::max()) { return false; } // ray and plane are parallel
+
+        // Compute hit point, p
+        sm::vec<T, 3> p = d * l + l0;
+
+        // Test if p is inside t0,t1,t2. What about order of t0,t1,t2?
+        sm::vec<T, 3> t0t1 = t1 - t0;
+        sm::vec<T, 3> t1t2 = t2 - t1;
+        sm::vec<T, 3> t0t2 = t0 - t2;
+        sm::vec<T, 3> t0p = p - t0;
+        sm::vec<T, 3> t1p = p - t1;
+        sm::vec<T, 3> t2p = p - t2;
+        return ((n.dot (t0t1.cross (t0p)) > T{0})
+                && (n.dot (t1t2.cross (t1p)) > T{0})
+                && (n.dot (t0t2.cross (t2p)) > T{0}));
+    }
+
 } // sm::algo
