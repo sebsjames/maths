@@ -585,21 +585,38 @@ namespace sm::algo
     }
 
     // Does the ray (l0, l) intersect with a triangle defined by t0, t1, t2? Return true/false. If
-    // true, p is the intersection coordinate.
-    template<typename T>
+    // true, p is the intersection coordinate. the order of the triangle indices is important (must
+    // be CW)
+    template<typename T, bool include_boundary = true, bool sided = true>
     bool ray_tri_intersection (const sm::vec<T, 3>& t0, const sm::vec<T, 3>& t1, const sm::vec<T, 3>& t2,
                                const sm::vec<T, 3>& l0, const sm::vec<T, 3>& l, sm::vec<T, 3>& p)
     {
         sm::vec<T, 3> n = (t1 - t0).cross (t2 - t0); // renormalize not necessary in ray_plane_intersection
-        if (n.dot (l) == T{0}) { return false; }     // ray and plane are perpendicular
+
+        // The dirn of n and the sign of n.l is determined by the order of the triangle indices,
+        // which may, from an OpenGL indices container, be in any direction (either c.w or
+        // anti-c.w). So we have to pay attention to the defined normal on the three vertices as well.
+        if constexpr (sided) {
+            // Only register rays hitting front of triangle (so n must be -ve)
+            if (n.dot (l) >= T{0}) { return false; }   // ray and plane are perpendicular or ray hits 'back'
+        } else {
+            if (n.dot (l) == T{0}) { return false; }   // ray and plane are perpendicular
+        }
         T d = sm::algo::ray_plane_intersection<T> (t0, n, l0, l);
         if (d < T{0}) { return false; }              // triangle is behind ray
         if (d == std::numeric_limits<T>::max()) { return false; } // ray and plane are parallel
         p = d * l + l0; // hit point, p
         // Test if p is inside t0,t1,t2.
-        return ((n.dot ((t1 - t0).cross (p - t0)) > T{0})
-                && (n.dot ((t2 - t1).cross (p - t1)) > T{0})
-                && (n.dot ((t0 - t2).cross (p - t2)) > T{0}));
+        if constexpr (include_boundary) {
+            // what if n was flipped?
+            return ((n.dot ((t1 - t0).cross (p - t0)) >= T{0}) // >= to include triangle boundary
+                    && (n.dot ((t2 - t1).cross (p - t1)) >= T{0})
+                    && (n.dot ((t0 - t2).cross (p - t2)) >= T{0}));
+        } else {
+            return ((n.dot ((t1 - t0).cross (p - t0)) > T{0})
+                    && (n.dot ((t2 - t1).cross (p - t1)) > T{0})
+                    && (n.dot ((t0 - t2).cross (p - t2)) > T{0}));
+        }
     }
 
 } // sm::algo
