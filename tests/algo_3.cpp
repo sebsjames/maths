@@ -24,33 +24,32 @@ int main()
     sm::vec<float, 3> t1 = {1, 1, 0};
     sm::vec<float, 3> t2 = {1, 0, 1};
 
-    sm::vec<float, 3> p = {};
-
-    bool inside = sm::algo::ray_tri_intersection<float> (t0, t1, t2, l0, l, p);
+    //std::tuple<bool, sm::vec<float>> rti;
+    auto [ inside, p ] = sm::algo::ray_tri_intersection<float> (t0, t1, t2, l0, l);
     std::cout << "Intersection of ray with triangle: " << (inside ? "IN" : "OUT") << " is at " << p << std::endl;
-    inside = sm::algo::ray_tri_intersection<float> (t0, t2, t1, l0, l, p);
+    std::tie (inside, p) = sm::algo::ray_tri_intersection<float> (t0, t2, t1, l0, l);
     std::cout << "Intersection of ray with rev triangle: " << (inside ? "IN" : "OUT") << " is at " << p << std::endl;
 
     l0 = {0, 0.5, 0.1};
     l = {1, 0, 0};
-    inside = sm::algo::ray_tri_intersection<float> (t0, t1, t2, l0, l, p);
+    std::tie (inside, p) = sm::algo::ray_tri_intersection<float> (t0, t1, t2, l0, l);
     std::cout << "Intersection of ray with triangle: " << (inside ? "IN" : "OUT") << " is at " << p << std::endl;
-    inside = sm::algo::ray_tri_intersection<float> (t0, t2, t1, l0, l, p);
+    std::tie (inside, p) = sm::algo::ray_tri_intersection<float> (t0, t2, t1, l0, l);
     std::cout << "Intersection of ray with rev triangle: " << (inside ? "IN" : "OUT") << " is at " << p << std::endl;
 
     l0 = {2, 0.5, 0.1};
     l = {1, 0, 0};
-    inside = sm::algo::ray_tri_intersection<float> (t0, t1, t2, l0, l, p);
+    std::tie (inside, p) = sm::algo::ray_tri_intersection<float> (t0, t1, t2, l0, l);
     std::cout << "Intersection of ray with triangle: " << (inside ? "IN" : "OUT") << " is at " << p << std::endl;
-    inside = sm::algo::ray_tri_intersection<float> (t0, t2, t1, l0, l, p);
+    std::tie (inside, p) = sm::algo::ray_tri_intersection<float> (t0, t2, t1, l0, l);
     std::cout << "Intersection of ray with rev triangle: " << (inside ? "IN" : "OUT") << " is at " << p << std::endl;
 
     l = {1, 1, 0};
     l0 = {0, -0.7, 0.1};
-    inside = sm::algo::ray_tri_intersection<float> (t0, t1, t2, l0, l, p);
+    std::tie (inside, p) = sm::algo::ray_tri_intersection<float> (t0, t1, t2, l0, l);
     std::cout << "Intersection of ray with triangle: " << (inside ? "IN" : "OUT") << " is at " << p << std::endl;
 
-    inside = sm::algo::ray_tri_intersection<float> (t0, t2, t1, l0, l, p);
+    std::tie (inside, p) = sm::algo::ray_tri_intersection<float> (t0, t2, t1, l0, l);
     std::cout << "Intersection of ray with rev triangle: " << (inside ? "IN" : "OUT") << " is at " << p << std::endl;
 
     return rtn;
