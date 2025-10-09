@@ -189,7 +189,7 @@ m.prerotate (axis, sm::mathconst<float>::pi_over_2);
 // m now encodes a rotation about (0,1,0) followed by a translation of (2,0,0)
 ```
 
-The rotate, prerotate, translate and pretranslate methods have equivalent names to similar functions in Eigen.
+The rotate, prerotate, translate and pretranslate methods have equivalent names to similar functions in Eigen (but *opposite* operation ordering! FIXME).
 
 In addition to rotate and translate functions, `mat44` provides
 `scale` functions:
