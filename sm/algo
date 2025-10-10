@@ -18,7 +18,6 @@
 #include <limits>
 #include <bitset>
 #include <tuple>
-#include <iostream> // for debug
 
 #include <sm/mathconst>
 #include <sm/constexpr_math> // constexpr math functions from Keith O'Hara
