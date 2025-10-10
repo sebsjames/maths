@@ -660,7 +660,8 @@ namespace sm
             *this =  m * *this;
         }
 
-        //! Rotate an angle theta radians about axis (specified as std::array)
+        //! Rotate an angle theta radians about axis (specified as std::array). axis is not
+        //! required to be normalized because quaternion::rotate will do this.
         template <typename T, std::size_t N = 3> requires std::is_arithmetic_v<T> && (N == 3 || N == 4)
         constexpr void rotate (const std::array<T, N>& axis, const T& theta) noexcept
         {
@@ -669,7 +670,8 @@ namespace sm
             this->rotate<T> (q);
         }
 
-        //! Rotate an angle theta radians about axis (specified as sm::vec)
+        //! Rotate an angle theta radians about axis (specified as sm::vec). axis is not required to
+        //! be normalized because quaternion::rotate will do this.
         template <typename T, std::size_t N = 3> requires std::is_arithmetic_v<T> && (N == 3 || N == 4)
         constexpr void rotate (const sm::vec<T, N>& axis, const T& theta) noexcept
         {
@@ -686,7 +688,8 @@ namespace sm
             *this *= m;
         }
 
-        //! Prerotate an angle theta radians about axis (specified as std::array)
+        //! Prerotate an angle theta radians about axis (specified as std::array). axis is not
+        //! required to be normalized because quaternion::rotate will do this.
         template <typename T, std::size_t N = 3> requires std::is_arithmetic_v<T> && (N == 3 || N == 4)
         constexpr void prerotate (const std::array<T, N>& axis, const T& theta) noexcept
         {
@@ -695,7 +698,8 @@ namespace sm
             this->prerotate<T> (q);
         }
 
-        //! Prerotate an angle theta radians about axis (specified as sm::vec)
+        //! Prerotate an angle theta radians about axis (specified as sm::vec). axis is not
+        //! required to be normalized because quaternion::rotate will do this.
         template <typename T, std::size_t N = 3> requires std::is_arithmetic_v<T> && (N == 3 || N == 4)
         constexpr void prerotate (const sm::vec<T, N>& axis, const T& theta) noexcept
         {
