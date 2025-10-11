@@ -206,7 +206,7 @@ namespace sm
 
         //! Apply translation specified by vector @dv
         template<typename T, std::size_t N = 3> requires std::is_arithmetic_v<T> && (N == 3 || N == 4)
-        constexpr void translate (const sm::vec<T, N>& dv) noexcept
+        constexpr void pretranslate (const sm::vec<T, N>& dv) noexcept
         {
             this->mat[12] += dv[0];
             this->mat[13] += dv[1];
@@ -215,7 +215,7 @@ namespace sm
 
         //! Apply translation specified by vector @dv provided as array of three coordinates
         template<typename T, std::size_t N = 3> requires std::is_arithmetic_v<T> && (N == 3 || N == 4)
-        constexpr void translate (const std::array<T, N>& dv) noexcept
+        constexpr void pretranslate (const std::array<T, N>& dv) noexcept
         {
             this->mat[12] += dv[0];
             this->mat[13] += dv[1];
@@ -224,7 +224,7 @@ namespace sm
 
         //! Apply translation specified by coordinates @dx, @dy and @dz.
         template<typename T> requires std::is_arithmetic_v<T>
-        constexpr void translate (const T& dx, const T& dy, const T& dz) noexcept
+        constexpr void pretranslate (const T& dx, const T& dy, const T& dz) noexcept
         {
             this->mat[12] += dx;
             this->mat[13] += dy;
@@ -233,7 +233,7 @@ namespace sm
 
         //! Apply pretranslation specified by vector @dv
         template<typename T, std::size_t N = 3> requires std::is_arithmetic_v<T> && (N == 3 || N == 4)
-        constexpr void pretranslate (const sm::vec<T, N>& dv) noexcept
+        constexpr void translate (const sm::vec<T, N>& dv) noexcept
         {
             mat44<T> trans_mat;
             trans_mat[12] = dv[0];
@@ -245,7 +245,7 @@ namespace sm
 
         //! Apply pretranslation specified by vector @dv provided as array of three coordinates
         template<typename T, std::size_t N = 3> requires std::is_arithmetic_v<T> && (N == 3 || N == 4)
-        constexpr void pretranslate (const std::array<T, N>& dv) noexcept
+        constexpr void translate (const std::array<T, N>& dv) noexcept
         {
             mat44<T> trans_mat;
             trans_mat[12] = dv[0];
@@ -257,7 +257,7 @@ namespace sm
 
         //! Apply pretranslation specified by coordinates @dx, @dy and @dz.
         template<typename T> requires std::is_arithmetic_v<T>
-        constexpr void pretranslate (const T& dx, const T& dy, const T& dz) noexcept
+        constexpr void translate (const T& dx, const T& dy, const T& dz) noexcept
         {
             mat44<T> trans_mat;
             trans_mat[12] = dx;
