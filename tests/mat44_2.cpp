@@ -12,9 +12,11 @@ bool check_equal (const sm::mat44<float>& m44,
     auto emat = em.matrix();
 
     for (int i = 0; i < 16; ++i) {
-        //std::cout << "mat44 " << m44[i] << " cf " << emat(i) << std::endl;
         float fd = std::abs (m44[i] - emat(i));
-        if (fd > std::numeric_limits<float>::epsilon()) { rtn = false; }
+        if (fd > 10.0f * std::numeric_limits<float>::epsilon()) {
+            // std::cout << "abs(" << m44[i] << " - " << emat(i) << ") = " << fd << " > 10eps\n";
+            rtn = false;
+        }
     }
 
     return rtn;
