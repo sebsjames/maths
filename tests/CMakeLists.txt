@@ -386,6 +386,11 @@ add_test(mat33_1 mat33_1)
 add_executable(mat44_1 mat44_1.cpp)
 add_test(mat44_1 mat44_1)
 
+# if have Eigen...
+add_executable(mat44_2 mat44_2.cpp)
+target_include_directories (mat44_2 BEFORE PRIVATE /usr/include/eigen3)
+add_test(mat44_2 mat44_2)
+
 add_executable(algo_1 algo_1.cpp)
 add_test(algo_1 algo_1)
 
