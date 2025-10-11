@@ -24,15 +24,21 @@ int main()
 
     // Translation of [1,0,0], then the rotation 90 deg around z axis
 
-    sm::vec<F> ux_about_z_truth_pretrans = { 0.0, 2.0, 0.0 };
-    sm::vec<F> uy_about_z_truth_pretrans = {-1.0, 1.0, 0.0 };
-    sm::vec<F> uz_about_z_truth_pretrans = { 0.0, 1.0, 1.0 };
+    sm::mat44<F> truth_mat_tr;
+    truth_mat_tr.translate (sm::vec<F>{1,0,0});
+    sm::mat44<F> truth_mat_rot;
+    truth_mat_rot.rotate (sm::vec<F>::uz(), sm::mathconst<F>::pi_over_2);
+    sm::mat44<F> truth_mat = truth_mat_tr * truth_mat_rot;
+
+    sm::vec<F> ux_about_z_truth_pretrans = (truth_mat * sm::vec<F>::ux()).less_one_dim(); //{ 0.0, 2.0, 0.0 };
+    sm::vec<F> uy_about_z_truth_pretrans = (truth_mat * sm::vec<F>::uy()).less_one_dim(); //{-1.0, 1.0, 0.0 };
+    sm::vec<F> uz_about_z_truth_pretrans = (truth_mat * sm::vec<F>::uz()).less_one_dim(); //{ 0.0, 1.0, 1.0 };
 
     sm::quaternion<F> qz (uz, mc::pi_over_2);
 
     sm::mat44<F> tmz_pt;
-    tmz_pt.rotate (qz);
-    tmz_pt.pretranslate (ux);
+    tmz_pt.rotate (qz);       // I * R
+    tmz_pt.pretranslate (ux); // T * (I * R) == T * R
 
     std::cout << "Linear part returned : " << tmz_pt.linear() << std::endl << std::endl;
     std::cout << "Translation part returned : " << tmz_pt.translation() << std::endl << std::endl;
@@ -42,19 +48,25 @@ int main()
     sm::vec<F, 4> uz_about_tmz_pt = tmz_pt * uz;
 
     std::cout << std::endl
-              << "ux: " << ux << " rotated about the z axis and pre-translated by ux using TM is " << ux_about_tmz_pt << "\nTRUTH : " << ux_about_z_truth_pretrans << std::endl << std::endl;
-    std::cout << "uy: " << uy << " rotated about the z axis and pre-translated by ux using TM is " << uy_about_tmz_pt << "\nTRUTH : " << uy_about_z_truth_pretrans << std::endl << std::endl;
-    std::cout << "uz: " << uz << " rotated about the z axis and pre-translated by ux using TM is " << uz_about_tmz_pt << "\nTRUTH : " << uz_about_z_truth_pretrans << std::endl << std::endl;
+              << "ux: " << ux << " rotated about the z axis and pre-translated by ux using TM is "
+              << ux_about_tmz_pt << "\nTRUTH : " << ux_about_z_truth_pretrans << std::endl << std::endl;
+    std::cout << "uy: " << uy << " rotated about the z axis and pre-translated by ux using TM is "
+              << uy_about_tmz_pt << "\nTRUTH : " << uy_about_z_truth_pretrans << std::endl << std::endl;
+    std::cout << "uz: " << uz << " rotated about the z axis and pre-translated by ux using TM is "
+              << uz_about_tmz_pt << "\nTRUTH : " << uz_about_z_truth_pretrans << std::endl << std::endl;
 
     // Had to scale the epsilon here because the pretranslate pushes the values further from 1.
     if    ((ux_about_tmz_pt.less_one_dim() - ux_about_z_truth_pretrans).abs().max() > 2.0 * std::numeric_limits<F>::epsilon()
         || (uy_about_tmz_pt.less_one_dim() - uy_about_z_truth_pretrans).abs().max() > 2.0 * std::numeric_limits<F>::epsilon()
-        || (uz_about_tmz_pt.less_one_dim() - uz_about_z_truth_pretrans).abs().max() > 2.0 * std::numeric_limits<F>::epsilon()) { --rtn; }
+        || (uz_about_tmz_pt.less_one_dim() - uz_about_z_truth_pretrans).abs().max() > 2.0 * std::numeric_limits<F>::epsilon()) {
+        std::cout << "1 failed\n";
+        --rtn;
+    }
 
     // Alternative ordering. pretranslate first, then rotate should give the same result
     sm::mat44<F> tmz_pt2;
-    tmz_pt2.pretranslate (ux);
-    tmz_pt2.rotate (qz);
+    tmz_pt2.pretranslate (ux); // T * I
+    tmz_pt2.rotate (qz);       // (T * I) * R == T * R
 
     // Translate first then rotate should also give the same result
     sm::mat44<F> tmz_pt3;
@@ -65,7 +77,12 @@ int main()
     std::cout << "tmz_pt2 * ux = " << ux_about_tmz_pt2<< " cf. tmz_pt * ux = " << ux_about_tmz_pt << std::endl;
     std::cout << "tmz_pt3 * ux = " << (tmz_pt3 * ux) << " cf. tmz_pt * ux = " << ux_about_tmz_pt << std::endl;
 
-    if ((tmz_pt3 * ux) != (tmz_pt2 * ux) || (tmz_pt2 * ux) != (tmz_pt * ux)) {
+    if ((tmz_pt2 * ux) != (tmz_pt * ux)) {
+        std::cout << "2 failed\n";
+        --rtn;
+    }
+    if ((tmz_pt3 * ux) != (tmz_pt * ux)) {
+        std::cout << "3 failed\n";
         --rtn;
     }
 

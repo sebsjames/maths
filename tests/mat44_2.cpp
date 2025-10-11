@@ -73,6 +73,9 @@ int main()
         --rtn;
     }
 
+    m1.setToIdentity();
+    em1.setIdentity();
+
     std::cout << (rtn == 0 ? "Test passed\n" : "Test failed\n");
     return rtn;
 }
