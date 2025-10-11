@@ -76,6 +76,37 @@ int main()
     m1.setToIdentity();
     em1.setIdentity();
 
+    // Rotate/prerotate
+    m1.translate (tv);
+    em1.translate (etv);
+
+    sm::mat44<float> m1r = m1;
+    sm::mat44<float> m1pr = m1;
+    m1r.rotate (ra, sm::mathconst<float>::pi_over_4);
+    m1pr.prerotate (ra, sm::mathconst<float>::pi_over_4);
+
+    Eigen::Transform<float, 3, Eigen::TransformTraits::Affine> em1pr = em1;
+    em1pr.prerotate(Eigen::AngleAxisf(sm::mathconst<float>::pi_over_4, era));
+    Eigen::Transform<float, 3, Eigen::TransformTraits::Affine> em1r = em1;
+    em1r.rotate(Eigen::AngleAxisf(sm::mathconst<float>::pi_over_4, era));
+
+    if (check_equal (m1r, em1r) == false) {
+        std::cout << "Fail, m1r != em1r\n";
+        --rtn;
+    }
+    if (check_equal (m1pr, em1pr) == false) {
+        std::cout << "Fail, m1pr != em1pr\n";
+        --rtn;
+    }
+    if (check_equal (m1r, em1pr) == true) {
+        std::cout << "Fail, m1r == em1pr\n";
+        --rtn;
+    }
+    if (check_equal (m1pr, em1r) == true) {
+        std::cout << "Fail, m1pr == em1r\n";
+        --rtn;
+    }
+
     std::cout << (rtn == 0 ? "Test passed\n" : "Test failed\n");
     return rtn;
 }

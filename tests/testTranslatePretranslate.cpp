@@ -25,14 +25,14 @@ int main()
     // Translation of [1,0,0], then the rotation 90 deg around z axis
 
     sm::mat44<F> truth_mat_tr;
-    truth_mat_tr.translate (sm::vec<F>{1,0,0});
+    truth_mat_tr.translate (ux);
     sm::mat44<F> truth_mat_rot;
-    truth_mat_rot.rotate (sm::vec<F>::uz(), sm::mathconst<F>::pi_over_2);
+    truth_mat_rot.rotate (uz, sm::mathconst<F>::pi_over_2);
     sm::mat44<F> truth_mat = truth_mat_tr * truth_mat_rot;
 
-    sm::vec<F> ux_about_z_truth_pretrans = (truth_mat * sm::vec<F>::ux()).less_one_dim(); //{ 0.0, 2.0, 0.0 };
-    sm::vec<F> uy_about_z_truth_pretrans = (truth_mat * sm::vec<F>::uy()).less_one_dim(); //{-1.0, 1.0, 0.0 };
-    sm::vec<F> uz_about_z_truth_pretrans = (truth_mat * sm::vec<F>::uz()).less_one_dim(); //{ 0.0, 1.0, 1.0 };
+    sm::vec<F> ux_about_z_truth_pretrans = (truth_mat * ux).less_one_dim(); //{ 0.0, 2.0, 0.0 };
+    sm::vec<F> uy_about_z_truth_pretrans = (truth_mat * uy).less_one_dim(); //{-1.0, 1.0, 0.0 };
+    sm::vec<F> uz_about_z_truth_pretrans = (truth_mat * uz).less_one_dim(); //{ 0.0, 1.0, 1.0 };
 
     sm::quaternion<F> qz (uz, mc::pi_over_2);
 
@@ -56,7 +56,7 @@ int main()
               << uz_about_tmz_pt << "\nTRUTH : " << uz_about_z_truth_pretrans << std::endl << std::endl;
 
     // Had to scale the epsilon here because the pretranslate pushes the values further from 1.
-    if    ((ux_about_tmz_pt.less_one_dim() - ux_about_z_truth_pretrans).abs().max() > 2.0 * std::numeric_limits<F>::epsilon()
+    if ((ux_about_tmz_pt.less_one_dim() - ux_about_z_truth_pretrans).abs().max() > 2.0 * std::numeric_limits<F>::epsilon()
         || (uy_about_tmz_pt.less_one_dim() - uy_about_z_truth_pretrans).abs().max() > 2.0 * std::numeric_limits<F>::epsilon()
         || (uz_about_tmz_pt.less_one_dim() - uz_about_z_truth_pretrans).abs().max() > 2.0 * std::numeric_limits<F>::epsilon()) {
         std::cout << "1 failed\n";
@@ -70,8 +70,8 @@ int main()
 
     // Translate first then rotate should also give the same result
     sm::mat44<F> tmz_pt3;
-    tmz_pt3.translate (ux);
-    tmz_pt3.rotate (qz);
+    tmz_pt3.translate (ux);    // I * T
+    tmz_pt3.rotate (qz);       // (I * T) * R == T * R
 
     sm::vec<F, 4> ux_about_tmz_pt2 = tmz_pt2 * ux;
     std::cout << "tmz_pt2 * ux = " << ux_about_tmz_pt2<< " cf. tmz_pt * ux = " << ux_about_tmz_pt << std::endl;
@@ -95,20 +95,23 @@ int main()
     sm::quaternion<F> qy (uy, mc::pi_over_2);
 
     sm::mat44<F> tmy_pt;
-    tmy_pt.rotate (qy);
-    tmy_pt.pretranslate (uy);
+    tmy_pt.rotate (qy);        // I * R
+    tmy_pt.pretranslate (uy);  // T * (I * R) == T * R
 
     sm::vec<F, 4> ux_about_tmy_pt = tmy_pt * ux;
     sm::vec<F, 4> uy_about_tmy_pt = tmy_pt * uy;
     sm::vec<F, 4> uz_about_tmy_pt = tmy_pt * uz;
 
     std::cout << std::endl
-              << "ux: " << ux << " rotated about the y axis and pre-translated by uy using TM is " << ux_about_tmy_pt << "\nTRUTH : " << ux_about_y_truth_pretrans << std::endl << std::endl;
-    std::cout << "uy: " << uy << " rotated about the y axis and pre-translated by uy using TM is " << uy_about_tmy_pt << "\nTRUTH : " << uy_about_y_truth_pretrans << std::endl << std::endl;
-    std::cout << "uz: " << uz << " rotated about the y axis and pre-translated by uy using TM is " << uz_about_tmy_pt << "\nTRUTH : " << uz_about_y_truth_pretrans << std::endl << std::endl;
+              << "ux: " << ux << " rotated about the y axis and pre-translated by uy using TM is "
+              << ux_about_tmy_pt << "\nTRUTH : " << ux_about_y_truth_pretrans << std::endl << std::endl;
+    std::cout << "uy: " << uy << " rotated about the y axis and pre-translated by uy using TM is "
+              << uy_about_tmy_pt << "\nTRUTH : " << uy_about_y_truth_pretrans << std::endl << std::endl;
+    std::cout << "uz: " << uz << " rotated about the y axis and pre-translated by uy using TM is "
+              << uz_about_tmy_pt << "\nTRUTH : " << uz_about_y_truth_pretrans << std::endl << std::endl;
 
-    // HAd to scale the epsilon here because the pretranslate pushes the values further from 1.
-    if    ((ux_about_tmy_pt.less_one_dim() - ux_about_y_truth_pretrans).abs().max() > 2.0 * std::numeric_limits<F>::epsilon()
+    // Had to scale the epsilon here because the pretranslate pushes the values further from 1.
+    if ((ux_about_tmy_pt.less_one_dim() - ux_about_y_truth_pretrans).abs().max() > 2.0 * std::numeric_limits<F>::epsilon()
         || (uy_about_tmy_pt.less_one_dim() - uy_about_y_truth_pretrans).abs().max() > 2.0 * std::numeric_limits<F>::epsilon()
         || (uz_about_tmy_pt.less_one_dim() - uz_about_y_truth_pretrans).abs().max() > 2.0 * std::numeric_limits<F>::epsilon()) { --rtn; }
 
