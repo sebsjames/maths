@@ -392,6 +392,9 @@ add_test(algo_1 algo_1)
 add_executable(algo_2 algo_2.cpp)
 add_test(algo_2 algo_2)
 
+add_executable(algo_3 algo_3.cpp)
+add_test(algo_3 algo_3)
+
 add_executable(range_intersects range_intersects.cpp)
 add_test(range_intersects range_intersects)
 
