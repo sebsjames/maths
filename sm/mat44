@@ -204,7 +204,7 @@ namespace sm
             return c;
         }
 
-        //! Apply translation specified by vector @dv
+        //! Apply pre-translation specified by vector @dv as this = m * this (pre-multiply)
         template<typename T, std::size_t N = 3> requires std::is_arithmetic_v<T> && (N == 3 || N == 4)
         constexpr void pretranslate (const sm::vec<T, N>& dv) noexcept
         {
@@ -213,7 +213,8 @@ namespace sm
             this->mat[14] += dv[2];
         }
 
-        //! Apply translation specified by vector @dv provided as array of three coordinates
+        //! Apply pre-translation specified by vector @dv provided as array of three coordinates as
+        //! this = m * this (pre-multiply)
         template<typename T, std::size_t N = 3> requires std::is_arithmetic_v<T> && (N == 3 || N == 4)
         constexpr void pretranslate (const std::array<T, N>& dv) noexcept
         {
@@ -222,7 +223,8 @@ namespace sm
             this->mat[14] += dv[2];
         }
 
-        //! Apply translation specified by coordinates @dx, @dy and @dz.
+        //! Apply pre-translation specified by coordinates @dx, @dy and @dz as this = m * this
+        //! (pre-multiply)
         template<typename T> requires std::is_arithmetic_v<T>
         constexpr void pretranslate (const T& dx, const T& dy, const T& dz) noexcept
         {
@@ -231,7 +233,7 @@ namespace sm
             this->mat[14] += dz;
         }
 
-        //! Apply pretranslation specified by vector @dv
+        //! Apply translation specified by vector @dv as this = this * m (post-multiply)
         template<typename T, std::size_t N = 3> requires std::is_arithmetic_v<T> && (N == 3 || N == 4)
         constexpr void translate (const sm::vec<T, N>& dv) noexcept
         {
@@ -243,7 +245,8 @@ namespace sm
             *this *= trans_mat;
         }
 
-        //! Apply pretranslation specified by vector @dv provided as array of three coordinates
+        //! Apply translation specified by vector @dv provided as array of three coordinates as this
+        //! = this * m (post-multiply)
         template<typename T, std::size_t N = 3> requires std::is_arithmetic_v<T> && (N == 3 || N == 4)
         constexpr void translate (const std::array<T, N>& dv) noexcept
         {
@@ -255,7 +258,8 @@ namespace sm
             *this *= trans_mat;
         }
 
-        //! Apply pretranslation specified by coordinates @dx, @dy and @dz.
+        //! Apply translation specified by coordinates @dx, @dy and @dz. as this = this * m
+        //! (post-multiply)
         template<typename T> requires std::is_arithmetic_v<T>
         constexpr void translate (const T& dx, const T& dy, const T& dz) noexcept
         {
@@ -285,7 +289,7 @@ namespace sm
             this->mat[10] *= scl_z;
         }
 
-        //! Scaling transformation by vector
+        //! Scaling transformation by vector. this = this * m (post-multiplication)
         template<typename T, std::size_t N = 3> requires std::is_arithmetic_v<T> && (N == 3 || N == 4)
         constexpr void scale (const sm::vec<T, N>& scl) noexcept
         {
@@ -302,6 +306,7 @@ namespace sm
             this->mat[10] *= scl[2];
         }
 
+        //! Scaling transformation by array. this = this * m (post-multiplication)
         template<typename T, std::size_t N = 3> requires std::is_arithmetic_v<T> && (N == 3 || N == 4)
         constexpr void scale (const std::array<T, N>& scl) noexcept
         {
@@ -318,6 +323,7 @@ namespace sm
             this->mat[10] *= scl[2];
         }
 
+        //! Scaling transformation by scalar. this = this * m (post-multiplication)
         template<typename T> requires std::is_arithmetic_v<T>
         constexpr void scale (const T& scl) noexcept
         {
@@ -652,16 +658,47 @@ namespace sm
             return m;
         }
 
-        //! Apply the rotation q to this as: rotn_matrix * this
+        //! Apply the rotation q to this as: this = m * this (pre-multiply)
         template <typename T> requires std::is_arithmetic_v<T>
-        constexpr void rotate (const sm::quaternion<T>& q) noexcept
+        constexpr void prerotate (const sm::quaternion<T>& q) noexcept
         {
             mat44<F> m = this->pure_rotation (q);
             *this =  m * *this;
         }
 
-        //! Rotate an angle theta radians about axis (specified as std::array). axis is not
-        //! required to be normalized because quaternion::rotate will do this.
+        //! Pre-rotate an angle theta radians about axis (specified as std::array). axis is not
+        //! required to be normalized because quaternion::rotate will do this. this = m * this
+        //! (pre-multiply)
+        template <typename T, std::size_t N = 3> requires std::is_arithmetic_v<T> && (N == 3 || N == 4)
+        constexpr void prerotate (const std::array<T, N>& axis, const T& theta) noexcept
+        {
+            sm::quaternion<T> q;
+            q.rotate (axis, theta);
+            this->prerotate<T> (q);
+        }
+
+        //! Pre-rotate an angle theta radians about axis (specified as sm::vec). axis is not
+        //! required to be normalized because quaternion::rotate will do this. this = m * this
+        //! (pre-multiply)
+        template <typename T, std::size_t N = 3> requires std::is_arithmetic_v<T> && (N == 3 || N == 4)
+        constexpr void prerotate (const sm::vec<T, N>& axis, const T& theta) noexcept
+        {
+            sm::quaternion<T> q;
+            q.rotate (axis, theta);
+            this->prerotate<T> (q);
+        }
+
+        //! Rotation by pure rotation matrix: this = this * m (post-multiply)
+        template <typename T> requires std::is_arithmetic_v<T>
+        constexpr void rotate (const sm::quaternion<T>& q) noexcept
+        {
+            mat44<F> m = this->pure_rotation (q);
+            *this *= m;
+        }
+
+        //! Rotate an angle theta radians about axis (specified as std::array). axis is not required
+        //! to be normalized because quaternion::rotate will do this. this = this * m
+        //! (post-multiply)
         template <typename T, std::size_t N = 3> requires std::is_arithmetic_v<T> && (N == 3 || N == 4)
         constexpr void rotate (const std::array<T, N>& axis, const T& theta) noexcept
         {
@@ -671,41 +708,13 @@ namespace sm
         }
 
         //! Rotate an angle theta radians about axis (specified as sm::vec). axis is not required to
-        //! be normalized because quaternion::rotate will do this.
+        //! be normalized because quaternion::rotate will do this. this = this * m (post-multiply)
         template <typename T, std::size_t N = 3> requires std::is_arithmetic_v<T> && (N == 3 || N == 4)
         constexpr void rotate (const sm::vec<T, N>& axis, const T& theta) noexcept
         {
             sm::quaternion<T> q;
             q.rotate (axis, theta);
             this->rotate<T> (q);
-        }
-
-        //! Pre-rotation by pure rotation matrix m: this * m
-        template <typename T> requires std::is_arithmetic_v<T>
-        constexpr void prerotate (const sm::quaternion<T>& q) noexcept
-        {
-            mat44<F> m = this->pure_rotation (q);
-            *this *= m;
-        }
-
-        //! Prerotate an angle theta radians about axis (specified as std::array). axis is not
-        //! required to be normalized because quaternion::rotate will do this.
-        template <typename T, std::size_t N = 3> requires std::is_arithmetic_v<T> && (N == 3 || N == 4)
-        constexpr void prerotate (const std::array<T, N>& axis, const T& theta) noexcept
-        {
-            sm::quaternion<T> q;
-            q.rotate (axis, theta);
-            this->prerotate<T> (q);
-        }
-
-        //! Prerotate an angle theta radians about axis (specified as sm::vec). axis is not
-        //! required to be normalized because quaternion::rotate will do this.
-        template <typename T, std::size_t N = 3> requires std::is_arithmetic_v<T> && (N == 3 || N == 4)
-        constexpr void prerotate (const sm::vec<T, N>& axis, const T& theta) noexcept
-        {
-            sm::quaternion<T> q;
-            q.rotate (axis, theta);
-            this->prerotate<T> (q);
         }
 
         //! Returns the linear part of the 4x4 matrix (the top left 3x3 matrix)
