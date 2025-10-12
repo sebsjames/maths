@@ -29,7 +29,7 @@ int main()
     sm::mat44<float> m1;
     auto ra = sm::vec<>{1,1,0};
     ra.renormalize();
-    m1.rotate (ra, sm::mathconst<float>::pi_over_4);
+    m1.rotate<false> (ra, sm::mathconst<float>::pi_over_4); // false saves extra renormalization
 
     Eigen::Transform<float, 3, Eigen::TransformTraits::Affine> em1;
     em1.setIdentity();
@@ -82,8 +82,8 @@ int main()
 
     sm::mat44<float> m1r = m1;
     sm::mat44<float> m1pr = m1;
-    m1r.rotate (ra, sm::mathconst<float>::pi_over_4);
-    m1pr.prerotate (ra, sm::mathconst<float>::pi_over_4);
+    m1r.rotate<true> (ra, sm::mathconst<float>::pi_over_4); // true renormalizes an already normal vector
+    m1pr.prerotate<false> (ra, sm::mathconst<float>::pi_over_4); // false is ok as ra already normal
 
     Eigen::Transform<float, 3, Eigen::TransformTraits::Affine> em1pr = em1;
     em1pr.prerotate(Eigen::AngleAxisf(sm::mathconst<float>::pi_over_4, era));

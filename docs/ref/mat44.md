@@ -219,13 +219,13 @@ a few computations, you can use:
 ```c++
 sm::vec<float> normalized_axis = { 0, 1, 0 };
 
-m.rotate<float, false> (normalized_axis, sm::mathconst<float>::pi_over_2);
+m.rotate<false> (normalized_axis, sm::mathconst<float>::pi_over_2);
 // or
-m.prerotate<float, false> (normalized_axis, sm::mathconst<float>::pi_over_2);
+m.prerotate<false> (normalized_axis, sm::mathconst<float>::pi_over_2);
 ```
 
-You have to manually pass the type (`float`) so that you can override
-the `renorm` template parameter whose default is `true`.
+You just have to override the `renorm` template parameter whose
+default is `true`.
 
 #### Scale
 

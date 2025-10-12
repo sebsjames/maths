@@ -658,18 +658,25 @@ namespace sm
             return m;
         }
 
-        //! Apply the rotation q to this as: this = m * this (pre-multiply)
+        //! Apply the rotation q to this as a pre-multiplication: this = R * this
         template <typename T> requires std::is_arithmetic_v<T>
-        constexpr void prerotate (const sm::quaternion<T>& q) noexcept
-        {
-            mat44<F> m = this->pure_rotation (q);
-            *this =  m * *this;
-        }
+        constexpr void prerotate (const sm::quaternion<T>& q) noexcept { *this = this->pure_rotation (q) * *this; }
 
-        //! Pre-rotate an angle theta radians about axis (specified as std::array). axis is not
-        //! required to be normalized because quaternion::rotate will do this. this = m * this
-        //! (pre-multiply)
-        template <typename T, bool renorm = true, std::size_t N = 3> requires std::is_arithmetic_v<T> && (N == 3 || N == 4)
+        /*!
+         * Pre-rotate an angle theta radians about axis (specified as std::array). By default, axis
+         * is not required to be normalized because quaternion::rotate will do this.
+         *
+         * Result is this = R * this  (rotation pre-multiplies)
+         *
+         * \tparam renorm If true, renormalize axis to length 1, if false, assume axis has already
+         * been renormalized
+         *
+         * \tparam T type for operations, usually compiler-detected from axis and theta
+         *
+         * \tparam N Number of elements in the axis vector, compiler-detected from axis. Allows
+         * passing of 3D and (3+1)D vectors
+         */
+        template <bool renorm = true, typename T = F, std::size_t N = 3> requires std::is_arithmetic_v<T> && (N == 3 || N == 4)
         constexpr void prerotate (const std::array<T, N>& axis, const T& theta) noexcept
         {
             sm::quaternion<T> q;
@@ -677,10 +684,21 @@ namespace sm
             this->prerotate<T> (q);
         }
 
-        //! Pre-rotate an angle theta radians about axis (specified as sm::vec). axis is not
-        //! required to be normalized because quaternion::rotate will do this. this = m * this
-        //! (pre-multiply)
-        template <typename T, bool renorm = true, std::size_t N = 3> requires std::is_arithmetic_v<T> && (N == 3 || N == 4)
+        /*!
+         * Pre-rotate an angle theta radians about axis (specified as sm::vec). By default, axis is
+         * not required to be normalized because quaternion::rotate will do this.
+         *
+         * Result is this = R * this  (rotation pre-multiplies)
+         *
+         * \tparam renorm If true, renormalize axis to length 1, if false, assume axis has already
+         * been renormalized
+         *
+         * \tparam T type for operations, usually compiler-detected from axis and theta
+         *
+         * \tparam N Number of elements in the axis vector, compiler-detected from axis. Allows
+         * passing of 3D and (3+1)D vectors
+         */
+        template <bool renorm = true, typename T = F, std::size_t N = 3> requires std::is_arithmetic_v<T> && (N == 3 || N == 4)
         constexpr void prerotate (const sm::vec<T, N>& axis, const T& theta) noexcept
         {
             sm::quaternion<T> q;
@@ -688,18 +706,25 @@ namespace sm
             this->prerotate<T> (q);
         }
 
-        //! Rotation by pure rotation matrix: this = this * m (post-multiply)
+        //! Rotation by post-multiplication of a pure rotation matrix: this = this * R
         template <typename T> requires std::is_arithmetic_v<T>
-        constexpr void rotate (const sm::quaternion<T>& q) noexcept
-        {
-            mat44<F> m = this->pure_rotation (q);
-            *this *= m;
-        }
+        constexpr void rotate (const sm::quaternion<T>& q) noexcept { *this *= this->pure_rotation (q); }
 
-        //! Rotate an angle theta radians about axis (specified as std::array). axis is not required
-        //! to be normalized because quaternion::rotate will do this. this = this * m
-        //! (post-multiply)
-        template <typename T, bool renorm = true, std::size_t N = 3> requires std::is_arithmetic_v<T> && (N == 3 || N == 4)
+        /*!
+         * Rotate an angle theta radians about axis (specified as std::array). By default, the axis
+         * is not required to be normalized because quaternion::rotate will do this.
+         *
+         * Result: this = this * R (post-multiplication)
+         *
+         * \tparam renorm If true, renormalize axis to length 1, if false, assume axis has already
+         * been renormalized
+         *
+         * \tparam T type for operations, usually compiler-detected from axis and theta
+         *
+         * \tparam N Number of elements in the axis vector, compiler-detected from axis. Allows
+         * passing of 3D and (3+1)D vectors
+         */
+        template <bool renorm = true, typename T = F, std::size_t N = 3> requires std::is_arithmetic_v<T> && (N == 3 || N == 4)
         constexpr void rotate (const std::array<T, N>& axis, const T& theta) noexcept
         {
             sm::quaternion<T> q;
@@ -707,9 +732,21 @@ namespace sm
             this->rotate<T> (q);
         }
 
-        //! Rotate an angle theta radians about axis (specified as sm::vec). axis is not required to
-        //! be normalized because quaternion::rotate will do this. this = this * m (post-multiply)
-        template <typename T, bool renorm = true, std::size_t N = 3> requires std::is_arithmetic_v<T> && (N == 3 || N == 4)
+        /*!
+         * Rotate an angle theta radians about axis (specified as sm::vec). By default, the axis is
+         * not required to be normalized because quaternion::rotate will do this.
+         *
+         * Result: this = this * R (post-multiplication)
+         *
+         * \tparam renorm If true, renormalize axis to length 1, if false, assume axis has already
+         * been renormalized
+         *
+         * \tparam T type for operations, usually compiler-detected from axis and theta
+         *
+         * \tparam N Number of elements in the axis vector, compiler-detected from axis. Allows
+         * passing of 3D and (3+1)D vectors
+         */
+        template <bool renorm = true, typename T = F, std::size_t N = 3> requires std::is_arithmetic_v<T> && (N == 3 || N == 4)
         constexpr void rotate (const sm::vec<T, N>& axis, const T& theta) noexcept
         {
             sm::quaternion<T> q;
