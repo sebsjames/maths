@@ -240,7 +240,6 @@ int main()
     sm::quaternion<float> rotn (sm::vec<float>{0, 0, 1}, sm::mathconst<float>::pi_over_4);
 
     // these two, applied to the same trmat used to do rotate-then-translate
-    // NOW they do translate then rotate
     trmat.translate (trans);
     trmat.rotate (rotn);
 

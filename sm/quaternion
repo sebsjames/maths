@@ -314,17 +314,17 @@ namespace sm
          * around the axis given by \a axis. Renormalize to finish. Axis can be given as a 3D
          * vector/array or as a 4D object (with last element being ignored).
          *
-         * By default, always_renorm_axis is true, and so this axis is renormalized before being
-         * passed to the core rotate method. You *may* set always_renorm_axis to false to save some
+         * By default, renorm_axis is true, and so this axis is renormalized before being
+         * passed to the core rotate method. You *may* set renorm_axis to false to save some
          * computations, but if you do, then the first 3 elements of your axis *must* encode a 3D
          * vector of length 1, otherwise, this function will not yield the rotation you expect!
          */
-        template <typename V, bool always_renorm_axis = true>
+        template <typename V, bool renorm_axis = true>
         requires (std::is_same_v<V, std::array<F, 3>> || std::is_same_v<V, sm::vec<F, 3>>
                   || std::is_same_v<V, std::array<F, 4>> || std::is_same_v<V, sm::vec<F, 4>>)
         constexpr void rotate (const V& axis, const F& angle) noexcept
         {
-            if constexpr (always_renorm_axis == true) {
+            if constexpr (renorm_axis == true) {
                 const F oneovermag = F{1} / sm::cem::sqrt (axis[0] * axis[0] + axis[1] * axis[1] + axis[2] * axis[2]);
                 this->rotate (axis[0] * oneovermag, axis[1] * oneovermag , axis[2] * oneovermag, angle);
             } else {

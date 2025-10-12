@@ -386,6 +386,12 @@ add_test(mat33_1 mat33_1)
 add_executable(mat44_1 mat44_1.cpp)
 add_test(mat44_1 mat44_1)
 
+if(Eigen3_FOUND)
+  add_executable(mat44_2 mat44_2.cpp)
+  target_include_directories (mat44_2 BEFORE PRIVATE ${EIGEN3_INCLUDE_DIR})
+  add_test(mat44_2 mat44_2)
+endif(Eigen3_FOUND)
+
 add_executable(algo_1 algo_1.cpp)
 add_test(algo_1 algo_1)
 
