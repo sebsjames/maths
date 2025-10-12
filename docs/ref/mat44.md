@@ -137,6 +137,8 @@ m.setToIdentity();
 
 Often, you want to set the values in the matrix by defining translations and rotations.
 
+#### Translation
+
 ```c++
 sm::mat44<float> m;
 sm::vec<float, 3> t = { 1, 2, 3 };
@@ -146,16 +148,47 @@ sm::mat44<float> m2;
 m2.translate (1.0f, 2.0f, 3.0f);
 ```
 
-`translate` applies the translation *after* any rotation that is
-specified in the linear part of the matrix (the top left 3x3 sub-matrix).
+`translate` applies the translation as a *post-multiplication* to the
+existing matrix (`m` in the code above). `m.translate (t)` is
+equivalent to the mathematical notation:
+
+**M** = **M** * **T**.
+
+**M** becomes a matrix that first applies the translation (because
+**T** is the right-most matrix in the multiplication) and then applies
+whatever transformation was originally in **M**.
+
+`pretranslate` applies a translation as a *pre-multiplication*, making
+`m.pretranslate (t)` equivalent to the following maths:
+
+**M** = **T** * **M**.
+
+With `pretranslate`, the requested translation is applied *following* any other
+transformtions that were specfied in **M**.
+
+`translate` and `pretranslate` have the same effect as the functions of
+the same names in [`Eigen::Transform`](https://libeigen.gitlab.io/eigen/docs-nightly/classEigen_1_1Transform.html).
+
+#### Rotation
 
 The `rotate` methods apply a rotation into the linear part of the matrix:
 
 ```c++
 sm::mat44<float> m;
 // Rotate by axis and angle
-sm::vec<float> axis = { 0, 1, 0 }; // You can also use std::array<float, 3>
+sm::vec<float> axis = { 1, 1, 0 }; // You can also use std::array<float, 3>
 m.rotate (axis, sm::mathconst<float>::pi_over_2);
+```
+
+The `rotate` methods *post-multiply* the 'this' matrix by a pure
+rotation matrix (again this is the same behaviour as Eigen), with the
+equivalent mathematical notation for a rotation matrix **R** being:
+
+**M** = **M** * **R**
+
+You can also rotate by passing a quaternion to `rotate`:
+
+```c++
 // Rotate using a sm::quaternion
 sm::mat44<float> m2;
 sm::quaternion<double> qd (axis.as_double(), sm::mathconst<double>::pi_over_4);
@@ -163,33 +196,38 @@ m2.rotate (qd); // Note that the quaternion does not have to have the same
                 // element type as the mat44
 ```
 
-The `rotate` methods pre-multipy the 'this' matrix by a pure rotation matrix.
+The axis in the quaternion constructor is always renormalized before
+being used to define a rotation.
 
-After applying a rotation with `rotate`, you can apply a translation that occurs *before* the rotation with `pretranslate`:
+Finally, there are the `prerotate` methods, which apply the rotation
+as a pre-multiplication.
+
+`prerotate` is equivalent to
+
+**M** = **R** * **M**
+
+with the rotation pre-multiplying the existing matrix and therefore
+*following* any transformations already encoded in *M*.
+
+##### Rotation axis
+
+Note that the `axis` passed to `rotate` (or `prerotate`) will be
+automatically renormalized (by code in `sm::quaternion`). If you know
+that your rotation axis is *already normalized*, and you want to save
+a few computations, you can use:
 
 ```c++
-sm::mat44<float> m;
-sm::vec<float> axis = { 0, 1, 0 };
-m.rotate (axis, sm::mathconst<float>::pi_over_2);
-sm::vec<float> t = { 2, 0, 0 }; // a translation
-m.pretranslate (t); // m now encodes a translation followed by a rotation about (0,1,0)
+sm::vec<float> normalized_axis = { 0, 1, 0 };
+
+m.rotate<float, false> (normalized_axis, sm::mathconst<float>::pi_over_2);
+// or
+m.prerotate<float, false> (normalized_axis, sm::mathconst<float>::pi_over_2);
 ```
 
-Finally, there are the `prerotate` methods, which apply a rotation
-before any existing rotations and translations that are already
-encoded in the matrix. These methods post-multiply the 'this' matrix
-with a pure rotation matrix.
+You have to manually pass the type (`float`) so that you can override
+the `renorm` template parameter whose default is `true`.
 
-```c++
-sm::mat44<float> m;
-sm::vec<float> t = { 2, 0, 0 };
-m.translate (t);
-sm::vec<float> axis = { 0, 1, 0 };
-m.prerotate (axis, sm::mathconst<float>::pi_over_2);
-// m now encodes a rotation about (0,1,0) followed by a translation of (2,0,0)
-```
-
-The rotate, prerotate, translate and pretranslate methods have equivalent names to similar functions in Eigen (but *opposite* operation ordering! FIXME).
+#### Scale
 
 In addition to rotate and translate functions, `mat44` provides
 `scale` functions:
