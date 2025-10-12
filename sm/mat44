@@ -669,22 +669,22 @@ namespace sm
         //! Pre-rotate an angle theta radians about axis (specified as std::array). axis is not
         //! required to be normalized because quaternion::rotate will do this. this = m * this
         //! (pre-multiply)
-        template <typename T, std::size_t N = 3> requires std::is_arithmetic_v<T> && (N == 3 || N == 4)
+        template <typename T, bool renorm = true, std::size_t N = 3> requires std::is_arithmetic_v<T> && (N == 3 || N == 4)
         constexpr void prerotate (const std::array<T, N>& axis, const T& theta) noexcept
         {
             sm::quaternion<T> q;
-            q.rotate (axis, theta);
+            q.template rotate<std::array<T, N>, renorm> (axis, theta);
             this->prerotate<T> (q);
         }
 
         //! Pre-rotate an angle theta radians about axis (specified as sm::vec). axis is not
         //! required to be normalized because quaternion::rotate will do this. this = m * this
         //! (pre-multiply)
-        template <typename T, std::size_t N = 3> requires std::is_arithmetic_v<T> && (N == 3 || N == 4)
+        template <typename T, bool renorm = true, std::size_t N = 3> requires std::is_arithmetic_v<T> && (N == 3 || N == 4)
         constexpr void prerotate (const sm::vec<T, N>& axis, const T& theta) noexcept
         {
             sm::quaternion<T> q;
-            q.rotate (axis, theta);
+            q.template rotate<sm::vec<T, N>, renorm> (axis, theta);
             this->prerotate<T> (q);
         }
 
@@ -699,21 +699,21 @@ namespace sm
         //! Rotate an angle theta radians about axis (specified as std::array). axis is not required
         //! to be normalized because quaternion::rotate will do this. this = this * m
         //! (post-multiply)
-        template <typename T, std::size_t N = 3> requires std::is_arithmetic_v<T> && (N == 3 || N == 4)
+        template <typename T, bool renorm = true, std::size_t N = 3> requires std::is_arithmetic_v<T> && (N == 3 || N == 4)
         constexpr void rotate (const std::array<T, N>& axis, const T& theta) noexcept
         {
             sm::quaternion<T> q;
-            q.rotate (axis, theta);
+            q.template rotate<std::array<T, N>, renorm> (axis, theta);
             this->rotate<T> (q);
         }
 
         //! Rotate an angle theta radians about axis (specified as sm::vec). axis is not required to
         //! be normalized because quaternion::rotate will do this. this = this * m (post-multiply)
-        template <typename T, std::size_t N = 3> requires std::is_arithmetic_v<T> && (N == 3 || N == 4)
+        template <typename T, bool renorm = true, std::size_t N = 3> requires std::is_arithmetic_v<T> && (N == 3 || N == 4)
         constexpr void rotate (const sm::vec<T, N>& axis, const T& theta) noexcept
         {
             sm::quaternion<T> q;
-            q.rotate (axis, theta);
+            q.template rotate<sm::vec<T, N>, renorm> (axis, theta);
             this->rotate<T> (q);
         }
 
