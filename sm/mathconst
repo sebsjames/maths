@@ -28,11 +28,9 @@ namespace sm
         static constexpr T ln_pi = T{1.1447298858494001741434273513530587116473};
 
         static constexpr T root_2 = T{1.414213562373095048801688724209698078569671875376948};
-        static constexpr T sqrt_of_2       = root_2;
         static constexpr T one_over_root_2 = T{1} / root_2;
 
         static constexpr T root_3 = T{1.732050807568877293527446341505872366942805253810381};
-        static constexpr T sqrt_of_3         = root_3;
         static constexpr T one_over_root_3   = T{1} / root_3;
         static constexpr T two_over_root_3   = T{2} / root_3;
         static constexpr T one_over_2_root_3 = T{1} / (T{2} * root_3);

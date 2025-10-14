@@ -1092,13 +1092,13 @@ namespace sm
          * The distance from the centre of the hex to any of the vertices. This is the
          * "long radius".
          */
-        float getLR() const { return (this->d/sm::mathconst<float>::sqrt_of_3); }
+        float getLR() const { return (this->d/sm::mathconst<float>::root_3); }
 
         /*!
          * The vertical distance from the centre of the hex to the "north east" vertex
          * of the hex.
          */
-        float getVtoNE() const { return (this->d/(2.0f*sm::mathconst<float>::sqrt_of_3)); }
+        float getVtoNE() const { return (this->d/(2.0f*sm::mathconst<float>::root_3)); }
 
         /*!
          * Compute and return the area of one hex in the grid. The area is that of 6
