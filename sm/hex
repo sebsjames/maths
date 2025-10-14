@@ -481,7 +481,7 @@ namespace sm
         //! Return twice the vertical distance between hex centres on adjacent rows.
         float getTwoV() const
         {
-            float tv = this->d * sm::mathconst<float>::sqrt_of_3;
+            float tv = this->d * sm::mathconst<float>::root_3;
             return tv;
         }
 
