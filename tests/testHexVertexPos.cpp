@@ -26,7 +26,7 @@ int main()
     std::cout << "hex vertex NW: " << vNW << std::endl;
 
 
-    float vto_ne = d/(2.0f * sm::mathconst<float>::sqrt_of_3);
+    float vto_ne = d/(2.0f * sm::mathconst<float>::root_3);
     // Test the numbers (non-exhaustive)
     if (vN[0] == 0.0f && vNE[1] == vto_ne && vSW[1] == -vto_ne) {
         std::cout << "PASS" << std::endl;
