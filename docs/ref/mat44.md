@@ -164,7 +164,7 @@ whatever transformation was originally in **M**.
 **M** = **T** * **M**.
 
 With `pretranslate`, the requested translation is applied *following* any other
-transformtions that were specfied in **M**.
+transformations that were specfied in **M**.
 
 `translate` and `pretranslate` have the same effect as the functions of
 the same names in [`Eigen::Transform`](https://libeigen.gitlab.io/eigen/docs-nightly/classEigen_1_1Transform.html).
@@ -212,16 +212,17 @@ with the rotation pre-multiplying the existing matrix and therefore
 ##### Rotation axis
 
 Note that the `axis` passed to `rotate` (or `prerotate`) will be
-automatically renormalized (by code in `sm::quaternion`). If you know
-that your rotation axis is *already normalized*, and you want to save
-a few computations, you can use:
+automatically renormalized. If you *know* that your rotation axis is
+already normalized and you want to save a few computations, or you
+have another reason for rotating about an unnormalized axis vector,
+you can use:
 
 ```c++
 sm::vec<float> normalized_axis = { 0, 1, 0 };
-
-m.rotate<false> (normalized_axis, sm::mathconst<float>::pi_over_2);
+constexpr bool renorm = false;
+m.rotate<renorm> (normalized_axis, sm::mathconst<float>::pi_over_2);
 // or
-m.prerotate<false> (normalized_axis, sm::mathconst<float>::pi_over_2);
+m.prerotate<renorm> (normalized_axis, sm::mathconst<float>::pi_over_2);
 ```
 
 You just have to override the `renorm` template parameter whose
