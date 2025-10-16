@@ -198,5 +198,10 @@ int main()
     cq.renormalize();
     std::cout << "cq after renormalize " << cq << std::endl;
 
+    sm::quaternion<float> minus_cq = -cq;
+    std::cout << "-cq " << minus_cq << std::endl;
+
+    if (minus_cq.w != -cq.w || minus_cq.x != -cq.x || minus_cq.y != -cq.y || minus_cq.z != -cq.z) { --rtn; }
+
     return rtn;
 }
