@@ -46,6 +46,23 @@ int main()
     std::cout << "range from vector: " << r_fromvec << std::endl;
     if (r_fromvec.min != -2 || r_fromvec.max != 19) { --rtn; }
 
+    // Non fully closed intervals:
+    sm::range<float, sm::range_endpoint::open, sm::range_endpoint::closed> ropensemi(0.0f, 1.0f);
+    std::cout << ropensemi << std::endl;
+
+    sm::range<float, sm::range_endpoint::closed, sm::range_endpoint::open> rsemiopen(0.0f, 1.0f);
+    std::cout << rsemiopen << std::endl;
+
+    if (ropensemi == rsemiopen) { --rtn; }
+    if ((ropensemi != rsemiopen) == false) { --rtn; }
+
+    if (ropensemi.contains (0.0f)) { --rtn; }
+    if (rsemiopen.contains (1.0f)) { --rtn; }
+    if (ropensemi.contains (0.5f) == false) { --rtn; }
+    if (rsemiopen.contains (0.5f) == false) { --rtn; }
+    if (ropensemi.contains (1.0f) == false) { --rtn; }
+    if (rsemiopen.contains (0.0f) == false) { --rtn; }
+
     std::cout << "Test " << (rtn == 0 ? "Passed" : "Failed") << std::endl;
     return rtn;
 }

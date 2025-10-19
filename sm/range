@@ -4,10 +4,13 @@
  *
  * See https://github.com/sebsjames/maths
  *
- * A tiny container class to hold the min and max of a range. I wanted a common type in
- * which to return minmax values for use in sm::vec and sm::vvec. An option would
- * have been an std::array, but I prefer this, as vvec doesn't otherwise need to include
+ * A (no longer quite so) tiny container class to hold the min and max of a range (or interval). I
+ * wanted a common type in which to return minmax values for use in sm::vec and sm::vvec. An option
+ * would have been an std::array, but I prefer this, as vvec doesn't otherwise need to include
  * <array>. range can be used in constexpr functions.
+ *
+ * The class has become a full interval class, covering (for most cases) closed, open and semi-open
+ * intervals, both for real numbers, complex numbers and vectors.
  *
  * Extra bonus: You can use this as an implementation of an axis-aligned bounding box!
  *
@@ -29,12 +32,24 @@ namespace sm
     // Different values to use to initialize a range object with
     enum class range_init { zeros, for_search };
 
-    // Forward declare the class and stream operator
-    template <typename T> struct range;
-    template <typename T> std::ostream& operator<< (std::ostream&, const range<T>&);
+    // Is the endpoint closed '[' or ']' or open '(' or ')'?
+    enum class range_endpoint { closed, open };
 
-    // range is a constexpr-friendly literal type defining a closed interval [min, max]
-    template <typename T>
+    // Forward declare the class and stream operator
+    template <typename T, range_endpoint infimum, range_endpoint supremum> struct range;
+
+    template <typename T, range_endpoint infimum, range_endpoint supremum>
+    std::ostream& operator<< (std::ostream&, const range<T, infimum, supremum>&);
+
+    // range is a constexpr-friendly literal type defining an interval [min, max], (min, max],
+    // [min, max) or (min, max).
+    //
+    // \tparam T The type representing the values in the range
+    // \tparam infimum How to interpret the min of the range as an endpoint (closed or open)
+    // \tparam supremum How to interpret the max of the range (closed or open)
+    template <typename T,
+              range_endpoint infimum = range_endpoint::closed,
+              range_endpoint supremum = range_endpoint::closed>
     struct range
     {
         // The minimum value in the closed interval
@@ -63,44 +78,70 @@ namespace sm
         std::string str() const
         {
             std::stringstream ss;
-            ss << "[" << this->min << ", " << this->max << "]";
+            if constexpr (infimum == range_endpoint::closed) {
+                ss << "[";
+            } else {
+                ss << "(";
+            }
+            ss << this->min << ", " << this->max;
+            if constexpr (supremum == range_endpoint::closed) {
+                ss << "]";
+            } else {
+                ss << ")";
+            }
             return ss.str();
         }
 
-        template<typename Ty=T>
+        template<typename Ty=T, range_endpoint infimum_y, range_endpoint supremum_y>
         requires std::is_floating_point_v<Ty>
-        constexpr bool operator== (const range<Ty>& rhs) const noexcept
+        constexpr bool operator== (const range<Ty, infimum_y, supremum_y>& rhs) const noexcept
         {
-            return (sm::cem::abs(this->min - static_cast<T>(rhs.min)) < std::numeric_limits<T>::epsilon()
-                    && sm::cem::abs(this->max - static_cast<T>(rhs.max)) < std::numeric_limits<T>::epsilon());
+            if constexpr (infimum_y != infimum || supremum_y != supremum) {
+                return false;
+            } else {
+                return (sm::cem::abs(this->min - static_cast<T>(rhs.min)) < std::numeric_limits<T>::epsilon()
+                        && sm::cem::abs(this->max - static_cast<T>(rhs.max)) < std::numeric_limits<T>::epsilon());
+            }
         }
 
-        template<typename Ty=T>
+        template<typename Ty=T, range_endpoint infimum_y, range_endpoint supremum_y>
         requires std::is_floating_point_v<Ty>
-        constexpr bool operator!= (const range<Ty>& rhs) const noexcept
+        constexpr bool operator!= (const range<Ty, infimum_y, supremum_y>& rhs) const noexcept
         {
-            return (sm::cem::abs(this->min - static_cast<T>(rhs.min)) > std::numeric_limits<T>::epsilon()
-                    || sm::cem::abs(this->max - static_cast<T>(rhs.max)) > std::numeric_limits<T>::epsilon());
+            if constexpr (infimum_y != infimum || supremum_y != supremum) {
+                return true;
+            } else {
+                return (sm::cem::abs(this->min - static_cast<T>(rhs.min)) > std::numeric_limits<T>::epsilon()
+                        || sm::cem::abs(this->max - static_cast<T>(rhs.max)) > std::numeric_limits<T>::epsilon());
+            }
         }
 
-        template<typename Ty=T>
+        template<typename Ty=T, range_endpoint infimum_y, range_endpoint supremum_y>
         requires std::is_integral_v<Ty>
-        constexpr bool operator== (const range<Ty>& rhs) const noexcept
+        constexpr bool operator== (const range<Ty, infimum_y, supremum_y>& rhs) const noexcept
         {
-            return (this->min == static_cast<T>(rhs.min) && this->max == static_cast<T>(rhs.max));
+            if constexpr (infimum_y != infimum || supremum_y != supremum) {
+                return false;
+            } else {
+                return (this->min == static_cast<T>(rhs.min) && this->max == static_cast<T>(rhs.max));
+            }
         }
 
-        template<typename Ty=T>
+        template<typename Ty=T, range_endpoint infimum_y, range_endpoint supremum_y>
         requires std::is_integral_v<Ty>
-        constexpr bool operator!= (const range<Ty>& rhs) const noexcept
+        constexpr bool operator!= (const range<Ty, infimum_y, supremum_y>& rhs) const noexcept
         {
-            return (this->min != static_cast<T>(rhs.min) || this->max != static_cast<T>(rhs.max));
+            if constexpr (infimum_y != infimum || supremum_y != supremum) {
+                return true;
+            } else {
+                return (this->min != static_cast<T>(rhs.min) || this->max != static_cast<T>(rhs.max));
+            }
         }
 
         // Adding to a range means adding to both min and max
-        constexpr sm::range<T> operator+ (const T& s) const noexcept
+        constexpr sm::range<T, infimum, supremum> operator+ (const T& s) const noexcept
         {
-            return sm::range<T>{ this->min + s, this->max + s };
+            return sm::range<T, infimum, supremum>{ this->min + s, this->max + s };
         }
         constexpr void operator+= (const T& s) noexcept
         {
@@ -109,9 +150,9 @@ namespace sm
         }
 
         // Subtracting from a range
-        constexpr sm::range<T> operator- (const T& s) const noexcept
+        constexpr sm::range<T, infimum, supremum> operator- (const T& s) const noexcept
         {
-            return sm::range<T>{ this->min - s, this->max - s };
+            return sm::range<T, infimum, supremum>{ this->min - s, this->max - s };
         }
         constexpr void operator-= (const T& s) noexcept
         {
@@ -129,7 +170,7 @@ namespace sm
         // sm::range<T> r = sm::range<T>::search_initialized();
         // for (auto d : data) { r.update (d); }
         // std::cout << "The range of values in data was: " << r << std::endl;
-        static constexpr sm::range<T> search_initialized() noexcept
+        static constexpr sm::range<T, infimum, supremum> search_initialized() noexcept
         {
             sm::range<T> si;
             if constexpr (sm::number_type<T>::value == 2) { // range is complex
@@ -139,8 +180,8 @@ namespace sm
                 si.min = std::numeric_limits<T>::max();
                 si.max = std::numeric_limits<T>::lowest();
             } else {
-                si.min = sm::range<T>::max_vector<T>();
-                si.max = sm::range<T>::lowest_vector<T>();
+                si.min = sm::range<T, infimum, supremum>::max_vector<T>();
+                si.max = sm::range<T, infimum, supremum>::lowest_vector<T>();
             }
             return si;
         }
@@ -155,10 +196,11 @@ namespace sm
         // r.search_init();
         // for (auto d : data) { r.update (d); }
         // std::cout << "The range of values in data was: " << r << std::endl;
-        constexpr void search_init() noexcept { *this = sm::range<T>::search_initialized(); }
+        constexpr void search_init() noexcept { *this = sm::range<T, infimum, supremum>::search_initialized(); }
 
         // Extend the range to include the given datum. Return true if the range changed.
-        constexpr bool update (const T& d) noexcept
+        template<typename Ty = T> requires (infimum == range_endpoint::closed) && (supremum == range_endpoint::closed)
+        constexpr bool update (const Ty& d) noexcept
         {
             bool changed = false;
             if constexpr (sm::number_type<T>::value == 2) { // range is complex
@@ -180,14 +222,24 @@ namespace sm
         constexpr bool contains (const T& v) const noexcept
         {
             if constexpr (sm::number_type<T>::value == 2) { // range is complex
-                // Is v inside the rectangle in the complex plane made by min and max?
-                return (std::real(v) <= std::real(this->max) && std::real(v) >= std::real(this->min)
-                        && std::imag(v) <= std::imag(this->max) && std::imag(v) >= std::imag(this->min));
-            } else if constexpr (sm::number_type<T>::value == 1) { // range is scalar
-                return (v <= this->max && v >= this->min);
+                if constexpr (infimum == range_endpoint::closed && supremum == range_endpoint::closed) {
+                    // Is v inside the rectangle in the complex plane made by min and max?
+                    return (std::real(v) <= std::real(this->max) && std::real(v) >= std::real(this->min)
+                            && std::imag(v) <= std::imag(this->max) && std::imag(v) >= std::imag(this->min));
+                } else {
+                    []<bool flag = false>() { static_assert(flag, "contains() for T complex not implemented for open/semi-open"); }();
+                }
             } else {
-                // Same logic for vector as for scalar
-                return (v <= this->max && v >= this->min);
+                // Same logic for vector and scalar T
+                if constexpr (infimum == range_endpoint::closed && supremum == range_endpoint::closed) {
+                    return (v <= this->max && v >= this->min);
+                } else if constexpr (infimum == range_endpoint::open && supremum == range_endpoint::closed) {
+                    return (v <= this->max && v > this->min);
+                } else if constexpr (infimum == range_endpoint::closed && supremum == range_endpoint::open) {
+                    return (v < this->max && v >= this->min);
+                } else if constexpr (infimum == range_endpoint::open && supremum == range_endpoint::open) {
+                    return (v < this->max && v > this->min);
+                }
             }
         }
 
@@ -245,7 +297,7 @@ namespace sm
             }
         }
 
-        // Static member to get a range from any old container of values.
+        // Static member to get a closed range from any old container of values.
         template <typename C> requires sm::is_copyable_container<C>::value
         static sm::range<T> get_from (const C& values)
         {
@@ -304,7 +356,7 @@ namespace sm
             }
         }
 
-        // Static member to get a range from a span of values
+        // Static member to get a closed range from a span of values
         static sm::range<T> get_from (const std::span<T> values)
         {
             if constexpr (sm::number_type<T>::value == 0) { // vector elements
@@ -419,10 +471,20 @@ namespace sm
     };
 
     // Output a string with notation "[min, max]" to indicate a closed interval
-    template <typename T>
-    std::ostream& operator<< (std::ostream& os, const range<T>& r)
+    template <typename T, range_endpoint infimum, range_endpoint supremum>
+    std::ostream& operator<< (std::ostream& os, const range<T, infimum, supremum>& r)
     {
-        os << "[" << r.min << ", " << r.max << "]";
+        if constexpr (infimum == range_endpoint::closed) {
+            os << "[";
+        } else {
+            os << "(";
+        }
+        os << r.min << ", " << r.max;
+        if constexpr (supremum == range_endpoint::closed) {
+            os << "]";
+        } else {
+            os << ")";
+        }
         return os;
     }
 
