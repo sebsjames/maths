@@ -244,24 +244,42 @@ namespace sm
         }
 
         // If the range other 'fits inside' this range, then this range contains (or encompasses) the range other.
-        constexpr bool contains (const sm::range<T>& other) const noexcept
+        template<typename Ty=T, range_endpoint infimum_y, range_endpoint supremum_y>
+        constexpr bool contains (const sm::range<Ty, infimum_y, supremum_y>& other) const noexcept
         {
             if constexpr (sm::number_type<T>::value == 2) { // range is complex
-                // Does other define a rectangle in the complex plane that fits inside the one made by this->min and max?
-                bool othermin_inside = std::real(this->min) <= std::real(other.min) && std::imag(this->min) <= std::imag(other.min)
-                && std::real(this->max) >= std::real(other.min) && std::imag(this->max) >= std::imag(other.min);
-                bool othermax_inside = std::real(this->min) <= std::real(other.max) && std::imag(this->min) <= std::imag(other.max)
-                && std::real(this->max) >= std::real(other.max) && std::imag(this->max) >= std::imag(other.max);
-                return othermin_inside && othermax_inside;
+                if constexpr (infimum == range_endpoint::closed && supremum == range_endpoint::closed
+                              && infimum_y == range_endpoint::closed && supremum_y == range_endpoint::closed) {
+                    // Does other define a rectangle in the complex plane that fits inside the one made by this->min and max?
+                    unsigned int other_inside = 0;
+                    other_inside = 1u & (std::real(this->min) <= std::real(other.min) && std::imag(this->min) <= std::imag(other.min)
+                                         && std::real(this->max) >= std::real(other.min) && std::imag(this->max) >= std::imag(other.min));
+                    other_inside |= (1u & (std::real(this->min) <= std::real(other.max) && std::imag(this->min) <= std::imag(other.max)
+                                           && std::real(this->max) >= std::real(other.max) && std::imag(this->max) >= std::imag(other.max))) << 1;
+                    return other_inside == 0x3;
+                } else {
+                    []<bool flag = false>() { static_assert(flag, "contains(range) for T complex not implemented for open/semi-open"); }();
+                }
             } else if constexpr (sm::number_type<T>::value == 1) { // range is scalar
-                return (this->min <= other.min && this->max >= other.max);
+                unsigned int other_inside = 0;
+                if constexpr (infimum == range_endpoint::open && infimum_y == range_endpoint::closed) {
+                    other_inside = 1u & (this->min < other.min);
+                } else {
+                    other_inside = 1u & (this->min <= other.min);
+                }
+                if constexpr (supremum == range_endpoint::open && supremum_y == range_endpoint::closed) {
+                    other_inside |= (0x1 & (this->max > other.max)) << 1;
+                } else {
+                    other_inside |= (0x1 & (this->max >= other.max)) << 1;
+                }
+                return other_inside == 0x3;
             } else {
                 return this->contains (this->min) && this->contains (this->max);
             }
         }
 
         // If the range other intersects with this range, return true
-        constexpr bool intersects (const sm::range<T>& other) const noexcept
+        constexpr bool intersects (const sm::range<T, infimum, supremum>& other) const noexcept
         {
             if constexpr (sm::number_type<T>::value == 2) { // range is complex
                 // Does other define a rectangle in the complex plane that intersects the one made by this->min and max?

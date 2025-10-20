@@ -404,5 +404,8 @@ add_test(algo_3 algo_3)
 add_executable(range_intersects range_intersects.cpp)
 add_test(range_intersects range_intersects)
 
+add_executable(range_contains range_contains.cpp)
+add_test(range_contains range_contains)
+
 add_executable(range_adding range_adding.cpp)
-add_test(range_adding range_intersects)
+add_test(range_adding range_adding)
