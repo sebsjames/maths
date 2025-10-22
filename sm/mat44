@@ -785,7 +785,8 @@ namespace sm
          * This does the equivalent of this->linear().rotation() (that is, you can find
          * mat33::rotation which is the same as this function).
          *
-         * It assumes that your 4x4 matrix encodes rotations without scaling.
+         * It assumes that your 4x4 matrix encodes rotations without scaling. You could use
+         * rotation_mat44().rotation() to first exclude a uniform or pre-applied scaling.
          *
          * It does *not* check that the matrix determinant is 1 (you could do that first if you need
          * to).
@@ -829,6 +830,70 @@ namespace sm
             }
 
             return q;
+        }
+
+        //! Obtain the rotation, excluding any uniform, or non-uniform-but-applied-before-rotations scaling.
+        constexpr sm::mat33<F> rotation_mat33() const noexcept
+        {
+            sm::vec<float, 3> c0 = { mat[0], mat[1], mat[2] };
+            sm::vec<float, 3> c1 = { mat[4], mat[5], mat[6] };
+            sm::vec<float, 3> c2 = { mat[8], mat[9], mat[10] };
+            c0 /= c0.length();
+            c1 /= c1.length();
+            c2 /= c2.length();
+            sm::mat33<float> m = { c0[0], c0[1], c0[2], c1[0], c1[1], c1[2], c2[0], c2[1], c2[2] };
+            return m;
+        }
+
+        //! Obtain the rotation, excluding any uniform, or non-uniform-but-applied-before-rotations scaling.
+        constexpr sm::mat44<F> rotation_mat44() const noexcept
+        {
+            sm::vec<float, 3> c0 = { mat[0], mat[1], mat[2] };
+            sm::vec<float, 3> c1 = { mat[4], mat[5], mat[6] };
+            sm::vec<float, 3> c2 = { mat[8], mat[9], mat[10] };
+            c0 /= c0.length();
+            c1 /= c1.length();
+            c2 /= c2.length();
+            sm::mat44<float> m = {
+                c0[0], c0[1], c0[2], F{0},
+                c1[0], c1[1], c1[2], F{0},
+                c2[0], c2[1], c2[2], F{0},
+                F{0},  F{0},  F{0},  F{1}
+            };
+            return m;
+        }
+
+        //! Obtain scaling from this matrix, returning as a vector of scale factors
+        constexpr sm::vec<F, 3> scaling_vec() const noexcept
+        {
+            return sm::vec<F, 3>{
+                sm::cem::sqrt (mat[0] * mat[0] + mat[1] * mat[1] + mat[2] * mat[2]), // length of 1st col
+                sm::cem::sqrt (mat[4] * mat[4] + mat[5] * mat[5] + mat[6] * mat[6]),
+                sm::cem::sqrt (mat[8] * mat[8] + mat[9] * mat[9] + mat[10] * mat[10])
+            };
+        }
+
+        //! Obtain scaling from this matrix, returning as a 3x3 mat33
+        constexpr sm::mat33<F> scaling_mat33() const noexcept
+        {
+            sm::mat33<F> m = {
+                sm::cem::sqrt (mat[0] * mat[0] + mat[1] * mat[1] + mat[2] * mat[2]),   F{0}, F{0},
+                F{0}, sm::cem::sqrt (mat[4] * mat[4] + mat[5] * mat[5] + mat[6] * mat[6]),   F{0},
+                F{0}, F{0}, sm::cem::sqrt (mat[8] * mat[8] + mat[9] * mat[9] + mat[10] * mat[10])
+            };
+            return m;
+        }
+
+        //! Obtain scaling from this matrix, returning as a 4x4 mat44
+        constexpr sm::mat44<F> scaling_mat44() const noexcept
+        {
+            sm::mat44<F> m = {
+                sm::cem::sqrt (mat[0] * mat[0] + mat[1] * mat[1] + mat[2] * mat[2]),   F{0}, F{0}, F{0},
+                F{0}, sm::cem::sqrt (mat[4] * mat[4] + mat[5] * mat[5] + mat[6] * mat[6]),   F{0}, F{0},
+                F{0}, F{0}, sm::cem::sqrt (mat[8] * mat[8] + mat[9] * mat[9] + mat[10] * mat[10]), F{0},
+                F{0}, F{0}, F{0},                                                                  F{1}
+            };
+            return m;
         }
 
         //! Add m2 to this matrix
