@@ -573,7 +573,7 @@ namespace sm
          * 2. Obtain the adjugate matrix
          * 3. Get the inverse by multiplying 1/determinant by the adjugate
          */
-        constexpr mat44<F> inverse() noexcept
+        constexpr mat44<F> inverse() const noexcept
         {
             F det = this->determinant();
             mat44<F> m;
@@ -1095,7 +1095,7 @@ namespace sm
         }
 
         //! Return the matrix transposed
-        constexpr mat44<F> transpose() noexcept
+        constexpr mat44<F> transpose() const noexcept
         {
             mat44<F> m = *this;
             std::array<F, 6> a;
