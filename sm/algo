@@ -542,7 +542,7 @@ namespace sm::algo
     // l is a vector giving the ray's direction and length Return true/false. If true, p is the
     // intersection coordinate. The order of the triangle indices is important (must be CW (? really
     // clockwise ?))
-    template<typename T, bool include_boundary = true, bool sided = true>
+    template<typename T, bool include_boundary = true, bool sided = true, bool debug_rti = false>
     std::tuple<bool, sm::vec<T, 3>> ray_tri_intersection (const sm::vec<T, 3>& t0, const sm::vec<T, 3>& t1, const sm::vec<T, 3>& t2,
                                                           const sm::vec<T, 3>& l0, const sm::vec<T, 3>& l)
     {
@@ -553,13 +553,34 @@ namespace sm::algo
         // anti-c.w). So we have to pay attention to the defined normal on the three vertices as well.
         if constexpr (sided) {
             // Only register rays hitting front of triangle (so n must be -ve)
-            if (n.dot (l) >= T{0}) { return { false, {} }; }   // ray and plane are perpendicular or ray hits 'back'
+            if (n.dot (l) >= T{0}) {
+                if constexpr (debug_rti) { std::cout << "ray hits the back, so no hit\n"; }
+                return { false, {} };
+            }   // ray and plane are perpendicular or ray hits 'back'
         } else {
-            if (n.dot (l) == T{0}) { return { false, {} }; }   // ray and plane are perpendicular
+            if (n.dot (l) == T{0}) {
+                if constexpr (debug_rti) { std::cout << "ray/plane are perp., so no hit\n"; }
+                return { false, {} };
+            }   // ray and plane are perpendicular
         }
         T d = sm::algo::ray_plane_intersection<T> (t0, n, l0, l);
-        if (d < T{0}) { return { false, {} }; }                // triangle is behind ray
-        if (d == std::numeric_limits<T>::max()) { return { false, {} }; } // ray and plane are parallel
+        if (d < T{0}) {
+            if constexpr (debug_rti) {
+                std::cout << "triangle behind ray, so no hit\n";
+                std::cout << "'{"
+                          << "\"t0\":" << t0.str_mat() << ","
+                          << "\"t1\":" << t1.str_mat() << ","
+                          << "\"t2\":" << t2.str_mat() << ","
+                          << "\"l0\":" << l0.str_mat() << ","
+                          << "\"l\":" << l.str_mat()
+                          << "}'\n";
+            }
+            return { false, {} };
+        }                // triangle is behind ray
+        if (d == std::numeric_limits<T>::max()) {
+            if constexpr (debug_rti) { std::cout << "ray/plane are parallel, so no hit\n"; }
+            return { false, {} };
+        } // ray and plane are parallel
         sm::vec<T, 3> p = d * l + l0; // hit point, p
         // Test if p is inside t0,t1,t2.
         bool isect = false;
@@ -573,6 +594,30 @@ namespace sm::algo
                      && (n.dot ((t2 - t1).cross (p - t1)) > T{0})
                      && (n.dot ((t0 - t2).cross (p - t2)) > T{0}));
         }
+
+        if constexpr (debug_rti) {
+            if (!isect) {
+                std::cout << "NO HIT, json for debug:\n";
+                // A debug string suitable to pass to a program that consumes json
+                std::cout << "'{"
+                          << "\"t0\":" << t0.str_mat() << ","
+                          << "\"t1\":" << t1.str_mat() << ","
+                          << "\"t2\":" << t2.str_mat() << ","
+                          << "\"l0\":" << l0.str_mat() << ","
+                          << "\"l\":" << l.str_mat()
+                          << "}'\n";
+            } else {
+                std::cout << "HIT, json for debug:\n";
+                std::cout << "'{"
+                          << "\"t0\":" << t0.str_mat() << ","
+                          << "\"t1\":" << t1.str_mat() << ","
+                          << "\"t2\":" << t2.str_mat() << ","
+                          << "\"l0\":" << l0.str_mat() << ","
+                          << "\"l\":" << l.str_mat()
+                          << "}'\n";
+            }
+        }
+
         return { isect, p };
     }
 
