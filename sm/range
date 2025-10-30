@@ -335,7 +335,7 @@ namespace sm
                 //    1 0 1  T
                 //    1 1 0  T
                 //    1 1 1  T
-                return (other_inside > 4 || (other_inside % 2 == 0));
+                return (other_inside > 4 || (other_inside % 2 /* != 0 */));
 
 #if 0 // originally:
                 return ((other.min < this->max) && (other.min > this->min)) || ((other.max < this->max) && (other.max > this->min));

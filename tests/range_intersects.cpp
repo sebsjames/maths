@@ -44,6 +44,9 @@ int main()
     sm::range<float> sa = { 4, 5 };
     sm::range<float, sm::range_endpoint::open, sm::range_endpoint::open> sb = { 5, 6 };
     std::cout << sa << ".intersects(" << sb << ") ? " << sa.intersects (sb) << std::endl;
+    if (sa.intersects (sb)) { --rtn; }
+    std::cout << sb << ".intersects(" << sa << ") ? " << sb.intersects (sa) << std::endl;
+    if (sb.intersects (sa)) { --rtn; }
 
     std::cout << std::endl << "Test " << (rtn < 0 ? "Failed" : "Passed") << std::endl;
     return rtn;
