@@ -60,7 +60,7 @@ namespace sm
      */
     struct config
     {
-        //! Default constructor, when config should be a class member. Call init() before use.
+        //! Default constructor, when config should be a class member. Call init() or parse() before use.
         config(){}
 
         //! Constructor which takes the path to the file that contains the JSON.
@@ -83,6 +83,14 @@ namespace sm
                 // JSON is open and parsed
                 this->ready = true;
             } // else We are creating a new Config, with no pre-existing content
+        }
+
+        //! Initialize from a string of JSON content (rather than a string that is a path to a JSON file)
+        void parse (const std::string& jsonstr)
+        {
+            this->thefile = "/tmp/jsonstr.json";
+            this->root = nlohmann::json::parse (jsonstr);
+            this->ready = true;
         }
 
 #ifndef _MSC_VER

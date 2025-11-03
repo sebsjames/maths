@@ -429,6 +429,12 @@ namespace sm
             mat[15] = F{1};
         }
 
+        //! Unary negate operator. -q represents the same rotation as q!
+        constexpr quaternion<F> operator-() const noexcept
+        {
+            return quaternion<F>{ -this->w, -this->x, -this->y, -this->z };
+        }
+
         //! Overload the stream output operator
         friend std::ostream& operator<< <F> (std::ostream& os, const quaternion<F>& q);
     };

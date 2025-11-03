@@ -509,6 +509,7 @@ namespace sm::algo
     }
 
     // Return the distance to the intersection of ray l0, l with plane p0, n.
+    // l0 is the ray origin, l is a vector giving the ray's direction and length
     template<typename T>
     T ray_plane_intersection (const sm::vec<T, 3>& p0, const sm::vec<T, 3>& n,
                               const sm::vec<T, 3>& l0, const sm::vec<T, 3>& l)
@@ -523,6 +524,7 @@ namespace sm::algo
     }
 
     // Does the ray (l0, l) intersect with a disc radius r on plane (p0, n)?
+    // l0 is the ray origin, l is a vector giving the ray's direction and length
     template<typename T>
     bool ray_disc_intersection (const sm::vec<T, 3>& p0, const sm::vec<T, 3>& n, const T& r,
                                 const sm::vec<T, 3>& l0, const sm::vec<T, 3>& l)
@@ -536,9 +538,10 @@ namespace sm::algo
         return false;
     }
 
-    // Does the ray (l0, l) intersect with a triangle defined by t0, t1, t2? Return true/false. If
-    // true, p is the intersection coordinate. The order of the triangle indices is important (must
-    // be CW (? really clockwise ?))
+    // Does the ray (l0, l) intersect with a triangle defined by t0, t1, t2?  l0 is the ray origin,
+    // l is a vector giving the ray's direction and length Return true/false. If true, p is the
+    // intersection coordinate. The order of the triangle indices is important (must be CW (? really
+    // clockwise ?))
     template<typename T, bool include_boundary = true, bool sided = true>
     std::tuple<bool, sm::vec<T, 3>> ray_tri_intersection (const sm::vec<T, 3>& t0, const sm::vec<T, 3>& t1, const sm::vec<T, 3>& t2,
                                                           const sm::vec<T, 3>& l0, const sm::vec<T, 3>& l)
