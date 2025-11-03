@@ -17,7 +17,7 @@ This is a maths library for your modern C++ projects. It was created for [mathpl
 ```c++
 #include <sm/mathconst>
 sm::mathconst<float>::pi      // A static constexpr float representation of pi
-sm::mathconst<double>::root_2 // Squart root of two, double precision
+sm::mathconst<double>::root_2 // Square root of two, double precision
 ```
 
 ## Closed intervals
