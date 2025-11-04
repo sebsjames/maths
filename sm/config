@@ -88,7 +88,7 @@ namespace sm
         //! Initialize from a string of JSON content (rather than a string that is a path to a JSON file)
         void parse (const std::string& jsonstr)
         {
-            this->thefile = "/tmp/jsonstr.json";
+            if (this->thefile.empty()) { this->thefile = "/tmp/jsonstr.json"; }
             this->root = nlohmann::json::parse (jsonstr);
             this->ready = true;
         }
