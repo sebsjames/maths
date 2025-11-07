@@ -594,7 +594,7 @@ namespace sm::algo
                      && (n.dot ((t2 - t1).cross (p - t1)) > T{0})
                      && (n.dot ((t0 - t2).cross (p - t2)) > T{0}));
         }
-
+#if 0
         if constexpr (debug_rti) {
             if (!isect) {
                 std::cout << "NO HIT, json for debug:\n";
@@ -617,7 +617,7 @@ namespace sm::algo
                           << "}'\n";
             }
         }
-
+#endif
         return { isect, p };
     }
 
