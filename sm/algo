@@ -566,14 +566,7 @@ namespace sm::algo
         T d = sm::algo::ray_plane_intersection<T> (t0, n, l0, l);
         if (d < T{0}) {
             if constexpr (debug_rti) {
-                std::cout << "triangle behind ray, so no hit\n";
-                std::cout << "'{"
-                          << "\"t0\":" << t0.str_mat() << ","
-                          << "\"t1\":" << t1.str_mat() << ","
-                          << "\"t2\":" << t2.str_mat() << ","
-                          << "\"l0\":" << l0.str_mat() << ","
-                          << "\"l\":" << l.str_mat()
-                          << "}'\n";
+                std::cout << "triangle behind ray (" << d << " < 0), so no hit\n";
             }
             return { false, {} };
         }                // triangle is behind ray
@@ -589,6 +582,14 @@ namespace sm::algo
             isect = ((n.dot ((t1 - t0).cross (p - t0)) >= T{0}) // >= to include triangle boundary
                      && (n.dot ((t2 - t1).cross (p - t1)) >= T{0})
                      && (n.dot ((t0 - t2).cross (p - t2)) >= T{0}));
+            if constexpr (debug_rti) {
+                if (!isect) {
+                    std::cout << "No intersection. Not all of these are >= 0:"
+                              << "\n (n.dot ((t1 - t0).cross (p - t0))) = " << (n.dot ((t1 - t0).cross (p - t0)))
+                              << "\n (n.dot ((t2 - t1).cross (p - t1))) = " << (n.dot ((t2 - t1).cross (p - t1)))
+                              << "\n (n.dot ((t0 - t2).cross (p - t2))) = " << (n.dot ((t0 - t2).cross (p - t2))) << std::endl;
+                }
+            }
         } else {
             isect = ((n.dot ((t1 - t0).cross (p - t0)) > T{0})
                      && (n.dot ((t2 - t1).cross (p - t1)) > T{0})
