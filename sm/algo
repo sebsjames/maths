@@ -554,24 +554,24 @@ namespace sm::algo
         if constexpr (sided) {
             // Only register rays hitting front of triangle (so n must be -ve)
             if (n.dot (l) >= T{0}) {
-                if constexpr (debug_rti) { std::cout << "ray hits the back, so no hit\n"; }
+                if constexpr (debug_rti) { std::cout << "RTI: ray hits the back, so no hit\n"; }
                 return { false, {} };
             }   // ray and plane are perpendicular or ray hits 'back'
         } else {
             if (n.dot (l) == T{0}) {
-                if constexpr (debug_rti) { std::cout << "ray/plane are perp., so no hit\n"; }
+                if constexpr (debug_rti) { std::cout << "RTI: ray/plane are perp., so no hit\n"; }
                 return { false, {} };
             }   // ray and plane are perpendicular
         }
         T d = sm::algo::ray_plane_intersection<T> (t0, n, l0, l);
         if (d < T{0}) {
             if constexpr (debug_rti) {
-                std::cout << "triangle behind ray (" << d << " < 0), so no hit\n";
+                std::cout << "RTI: triangle behind ray (" << d << " < 0), so no hit\n";
             }
             return { false, {} };
         }                // triangle is behind ray
         if (d == std::numeric_limits<T>::max()) {
-            if constexpr (debug_rti) { std::cout << "ray/plane are parallel, so no hit\n"; }
+            if constexpr (debug_rti) { std::cout << "RTI: ray/plane are parallel, so no hit\n"; }
             return { false, {} };
         } // ray and plane are parallel
         sm::vec<T, 3> p = d * l + l0; // hit point, p
@@ -584,7 +584,7 @@ namespace sm::algo
                      && (n.dot ((t0 - t2).cross (p - t2)) >= T{0}));
             if constexpr (debug_rti) {
                 if (!isect) {
-                    std::cout << "No intersection. Not all of these are >= 0:"
+                    std::cout << "RTI: No intersection. Not all of these are >= 0:"
                               << "\n (n.dot ((t1 - t0).cross (p - t0))) = " << (n.dot ((t1 - t0).cross (p - t0)))
                               << "\n (n.dot ((t2 - t1).cross (p - t1))) = " << (n.dot ((t2 - t1).cross (p - t1)))
                               << "\n (n.dot ((t0 - t2).cross (p - t2))) = " << (n.dot ((t0 - t2).cross (p - t2))) << std::endl;
@@ -598,7 +598,7 @@ namespace sm::algo
 #if 0
         if constexpr (debug_rti) {
             if (!isect) {
-                std::cout << "NO HIT, json for debug:\n";
+                std::cout << "RTI: NO HIT, json for debug:\n";
                 // A debug string suitable to pass to a program that consumes json
                 std::cout << "'{"
                           << "\"t0\":" << t0.str_mat() << ","
@@ -608,7 +608,7 @@ namespace sm::algo
                           << "\"l\":" << l.str_mat()
                           << "}'\n";
             } else {
-                std::cout << "HIT, json for debug:\n";
+                std::cout << "RTI: HIT, json for debug:\n";
                 std::cout << "'{"
                           << "\"t0\":" << t0.str_mat() << ","
                           << "\"t1\":" << t1.str_mat() << ","
