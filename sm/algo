@@ -622,31 +622,76 @@ namespace sm::algo
         return { isect, p };
     }
 
-    // Compute distance from point p to the edge from v0 to v1
+    // Compute distance-squared from point p to the line segment from v0 to v1. See https://paulbourke.net/geometry/
     template<typename T>
-    T dist_to_edge (const sm::vec<T, 3>& v0, const sm::vec<T, 3>& v1, const sm::vec<T, 3>& p)
+    T dist_to_lineseg_sq (const sm::vec<T, 3>& v0, const sm::vec<T, 3>& v1, const sm::vec<T, 3>& p)
     {
-        T d = T{0};
         sm::vec<T, 3> ev = v1 - v0; // edge vector
-        sm::vec<T, 3> pv = p - v0;  // vector from edge start to l0
-        T ang = ev.angle (pv);
-        if (!sm::cem::isnan (ang)) {
-            d = pv.length() * sm::cem::sin (ang);
-        } // else ev, pv are identical, so v1 and p must be identical
-        return d;
+        T l2 = ev.length_sq();
+        sm::vec<T, 3> pv = p - v0;
+        if (l2 == T{0}) { return pv.length_sq(); }
+        T t = pv.dot (ev) / l2; // what proportion of pv projects onto ev?
+
+        sm::vec<T, 3> pp = -p; // projection point '*'
+        if (t < T{0}) {
+            // Closest line seg end is v0
+            pp += v0;
+        } else  if (t > T{1}) {
+            // Closest line seg end is v1
+            pp += v1;
+        } else {
+            // It's the distance to the projection of p between v0 and v1
+            pp += (v0 + t * ev);
+        }
+        return pp.length_sq();
+
+        /*
+         * From '*' above is equivalent to the more easily understood:
+         *
+         * sm::vec<T, 3> pp = {}; // projection point
+         * if (t < T{0}) { pp = v0; } else if (t > T{1}) { pp = v1; } else { pp = (v0 + t * ev); }
+         * return (pp - p).length_sq();
+         */
     }
 
-    // Compute distance from l0 to the edges t0-t1, t1-t2 and t2-t0 and return the shortest one
+    // Compute distance from point p to the line segment from v0 to v1
     template<typename T>
-    T dist_to_tri_edge (const sm::vec<T, 3>& t0, const sm::vec<T, 3>& t1, const sm::vec<T, 3>& t2, const sm::vec<T, 3>& l0)
+    T dist_to_lineseg (const sm::vec<T, 3>& v0, const sm::vec<T, 3>& v1, const sm::vec<T, 3>& p)
+    {
+        return sm::cem::sqrt (sm::algo::dist_to_lineseg_sq (v0, v1, p));
+    }
+
+    // Compute the distances from p to the triangle edges t0-t1, t1-t2 and t2-t0 and return the shortest one
+    template<typename T>
+    T dist_to_tri_edge (const sm::vec<T, 3>& t0, const sm::vec<T, 3>& t1, const sm::vec<T, 3>& t2, const sm::vec<T, 3>& p)
     {
         T d = std::numeric_limits<T>::max();
 
-        T _d = sm::algo::dist_to_edge (t0, t1, l0);
+        T _d = sm::algo::dist_to_lineseg (t0, t1, p);
+        if (_d == T{0}) { return _d; }
         d = std::min (_d, d);
-        _d = sm::algo::dist_to_edge (t1, t2, l0);
+        _d = sm::algo::dist_to_lineseg (t1, t2, p);
+        if (_d == T{0}) { return _d; }
         d = std::min (_d, d);
-        _d = sm::algo::dist_to_edge (t2, t0, l0);
+        _d = sm::algo::dist_to_lineseg (t2, t0, p);
+        d = std::min (_d, d);
+
+        return d;
+    }
+
+    // Compute the squared distances from p to the triangle edges t0-t1, t1-t2 and t2-t0 and return the shortest one
+    template<typename T>
+    T dist_to_tri_edge_sq (const sm::vec<T, 3>& t0, const sm::vec<T, 3>& t1, const sm::vec<T, 3>& t2, const sm::vec<T, 3>& p)
+    {
+        T d = std::numeric_limits<T>::max();
+
+        T _d = sm::algo::dist_to_lineseg_sq (t0, t1, p);
+        if (_d == T{0}) { return _d; }
+        d = std::min (_d, d);
+        _d = sm::algo::dist_to_lineseg_sq (t1, t2, p);
+        if (_d == T{0}) { return _d; }
+        d = std::min (_d, d);
+        _d = sm::algo::dist_to_lineseg_sq (t2, t0, p);
         d = std::min (_d, d);
 
         return d;
