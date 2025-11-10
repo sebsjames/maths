@@ -623,16 +623,16 @@ namespace sm::algo
     }
 
     // Compute distance-squared from point p to the line segment from v0 to v1. See https://paulbourke.net/geometry/
-    template<typename T>
-    T dist_to_lineseg_sq (const sm::vec<T, 3>& v0, const sm::vec<T, 3>& v1, const sm::vec<T, 3>& p)
+    template<typename T, std::size_t N = 3>
+    T dist_to_lineseg_sq (const sm::vec<T, N>& v0, const sm::vec<T, N>& v1, const sm::vec<T, N>& p)
     {
-        sm::vec<T, 3> ev = v1 - v0; // edge vector
+        sm::vec<T, N> ev = v1 - v0; // edge vector
         T l2 = ev.length_sq();
-        sm::vec<T, 3> pv = p - v0;
+        sm::vec<T, N> pv = p - v0;
         if (l2 == T{0}) { return pv.length_sq(); }
         T t = pv.dot (ev) / l2; // what proportion of pv projects onto ev?
 
-        sm::vec<T, 3> pp = -p; // projection point '*'
+        sm::vec<T, N> pp = -p; // projection point '*'
         if (t < T{0}) {
             // Closest line seg end is v0
             pp += v0;
@@ -648,15 +648,15 @@ namespace sm::algo
         /*
          * From '*' above is equivalent to the more easily understood:
          *
-         * sm::vec<T, 3> pp = {}; // projection point
+         * sm::vec<T, N> pp = {}; // projection point
          * if (t < T{0}) { pp = v0; } else if (t > T{1}) { pp = v1; } else { pp = (v0 + t * ev); }
          * return (pp - p).length_sq();
          */
     }
 
     // Compute distance from point p to the line segment from v0 to v1
-    template<typename T>
-    T dist_to_lineseg (const sm::vec<T, 3>& v0, const sm::vec<T, 3>& v1, const sm::vec<T, 3>& p)
+    template<typename T, std::size_t N = 3>
+    T dist_to_lineseg (const sm::vec<T, N>& v0, const sm::vec<T, N>& v1, const sm::vec<T, N>& p)
     {
         return sm::cem::sqrt (sm::algo::dist_to_lineseg_sq (v0, v1, p));
     }
