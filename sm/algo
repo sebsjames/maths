@@ -622,4 +622,34 @@ namespace sm::algo
         return { isect, p };
     }
 
+    // Compute distance from point p to the edge from v0 to v1
+    template<typename T>
+    T dist_to_edge (const sm::vec<T, 3>& v0, const sm::vec<T, 3>& v1, const sm::vec<T, 3>& p)
+    {
+        T d = T{0};
+        sm::vec<T, 3> ev = v1 - v0; // edge vector
+        sm::vec<T, 3> pv = p - v0;  // vector from edge start to l0
+        T ang = ev.angle (pv);
+        if (!sm::cem::isnan (ang)) {
+            d = pv.length() * sm::cem::sin (ang);
+        } // else ev, pv are identical, so v1 and p must be identical
+        return d;
+    }
+
+    // Compute distance from l0 to the edges t0-t1, t1-t2 and t2-t0 and return the shortest one
+    template<typename T>
+    T dist_to_tri_edge (const sm::vec<T, 3>& t0, const sm::vec<T, 3>& t1, const sm::vec<T, 3>& t2, const sm::vec<T, 3>& l0)
+    {
+        T d = std::numeric_limits<T>::max();
+
+        T _d = sm::algo::dist_to_edge (t0, t1, l0);
+        d = std::min (_d, d);
+        _d = sm::algo::dist_to_edge (t1, t2, l0);
+        d = std::min (_d, d);
+        _d = sm::algo::dist_to_edge (t2, t0, l0);
+        d = std::min (_d, d);
+
+        return d;
+    }
+
 } // sm::algo
