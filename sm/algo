@@ -542,83 +542,59 @@ namespace sm::algo
     // l is a vector giving the ray's direction and length Return true/false. If true, p is the
     // intersection coordinate. The order of the triangle indices is important (must be CW (? really
     // clockwise ?))
-    template<typename T, bool include_boundary = true, bool sided = true, bool debug_rti = false>
+    // \tparam Ti the internal type for computations
+    template<typename T, typename Ti=T, bool include_boundary = true, bool sided = true, bool debug_rti = false>
     std::tuple<bool, sm::vec<T, 3>> ray_tri_intersection (const sm::vec<T, 3>& t0, const sm::vec<T, 3>& t1, const sm::vec<T, 3>& t2,
                                                           const sm::vec<T, 3>& l0, const sm::vec<T, 3>& l)
     {
-        sm::vec<T, 3> n = (t1 - t0).cross (t2 - t0); // renormalize not necessary in ray_plane_intersection
+        sm::vec<Ti, 3> _l = l.template as<Ti>();
+        sm::vec<Ti, 3> _n = (t1 - t0).cross (t2 - t0).template as<Ti>(); // renormalize not necessary in ray_plane_intersection
 
         // The dirn of n and the sign of n.l is determined by the order of the triangle indices,
         // which may, from an OpenGL indices container, be in any direction (either c.w or
         // anti-c.w). So we have to pay attention to the defined normal on the three vertices as well.
         if constexpr (sided) {
             // Only register rays hitting front of triangle (so n must be -ve)
-            if (n.dot (l) >= T{0}) {
+            if (_n.dot (_l) >= Ti{0}) {
                 if constexpr (debug_rti) { std::cout << "RTI: ray hits the back, so no hit\n"; }
                 return { false, {} };
-            }   // ray and plane are perpendicular or ray hits 'back'
+            } // ray and plane are perpendicular or ray hits 'back'
         } else {
-            if (n.dot (l) == T{0}) {
+            if (_n.dot (_l) == Ti{0}) {
                 if constexpr (debug_rti) { std::cout << "RTI: ray/plane are perp., so no hit\n"; }
                 return { false, {} };
-            }   // ray and plane are perpendicular
+            } // ray and plane are perpendicular
         }
-        T d = sm::algo::ray_plane_intersection<T> (t0, n, l0, l);
-        if (d < T{0}) {
+        sm::vec<Ti, 3> _l0 = l0.template as<Ti>();
+        sm::vec<Ti, 3> _t0 = t0.template as<Ti>();
+        sm::vec<Ti, 3> _t1 = t1.template as<Ti>();
+        sm::vec<Ti, 3> _t2 = t2.template as<Ti>();
+
+        Ti d = sm::algo::ray_plane_intersection<Ti> (_t0, _n, _l0, _l);
+        if (d < Ti{0}) {
             if constexpr (debug_rti) {
                 std::cout << "RTI: triangle behind ray (" << d << " < 0), so no hit\n";
             }
             return { false, {} };
-        }                // triangle is behind ray
-        if (d == std::numeric_limits<T>::max()) {
+        } // triangle is behind ray
+        if (d == std::numeric_limits<Ti>::max()) {
             if constexpr (debug_rti) { std::cout << "RTI: ray/plane are parallel, so no hit\n"; }
             return { false, {} };
         } // ray and plane are parallel
-        sm::vec<T, 3> p = d * l + l0; // hit point, p
+        sm::vec<Ti, 3> _p = d * _l + _l0; // hit point, p
         // Test if p is inside t0,t1,t2.
         bool isect = false;
         if constexpr (include_boundary) {
             // what if n was flipped?
-            isect = ((n.dot ((t1 - t0).cross (p - t0)) >= T{0}) // >= to include triangle boundary
-                     && (n.dot ((t2 - t1).cross (p - t1)) >= T{0})
-                     && (n.dot ((t0 - t2).cross (p - t2)) >= T{0}));
-            if constexpr (debug_rti) {
-                if (!isect) {
-                    std::cout << "RTI: No intersection. Not all of these are >= 0:"
-                              << "\n (n.dot ((t1 - t0).cross (p - t0))) = " << (n.dot ((t1 - t0).cross (p - t0)))
-                              << "\n (n.dot ((t2 - t1).cross (p - t1))) = " << (n.dot ((t2 - t1).cross (p - t1)))
-                              << "\n (n.dot ((t0 - t2).cross (p - t2))) = " << (n.dot ((t0 - t2).cross (p - t2))) << std::endl;
-                }
-            }
+            isect = ((_n.dot ((_t1 - _t0).cross (_p - _t0)) >= Ti{0}) // >= to include triangle boundary
+                     && (_n.dot ((_t2 - _t1).cross (_p - _t1)) >= Ti{0})
+                     && (_n.dot ((_t0 - _t2).cross (_p - _t2)) >= Ti{0}));
         } else {
-            isect = ((n.dot ((t1 - t0).cross (p - t0)) > T{0})
-                     && (n.dot ((t2 - t1).cross (p - t1)) > T{0})
-                     && (n.dot ((t0 - t2).cross (p - t2)) > T{0}));
+            isect = ((_n.dot ((_t1 - _t0).cross (_p - _t0)) > Ti{0})
+                     && (_n.dot ((_t2 - _t1).cross (_p - _t1)) > Ti{0})
+                     && (_n.dot ((_t0 - _t2).cross (_p - _t2)) > Ti{0}));
         }
-#if 0
-        if constexpr (debug_rti) {
-            if (!isect) {
-                std::cout << "RTI: NO HIT, json for debug:\n";
-                // A debug string suitable to pass to a program that consumes json
-                std::cout << "'{"
-                          << "\"t0\":" << t0.str_mat() << ","
-                          << "\"t1\":" << t1.str_mat() << ","
-                          << "\"t2\":" << t2.str_mat() << ","
-                          << "\"l0\":" << l0.str_mat() << ","
-                          << "\"l\":" << l.str_mat()
-                          << "}'\n";
-            } else {
-                std::cout << "RTI: HIT, json for debug:\n";
-                std::cout << "'{"
-                          << "\"t0\":" << t0.str_mat() << ","
-                          << "\"t1\":" << t1.str_mat() << ","
-                          << "\"t2\":" << t2.str_mat() << ","
-                          << "\"l0\":" << l0.str_mat() << ","
-                          << "\"l\":" << l.str_mat()
-                          << "}'\n";
-            }
-        }
-#endif
+        sm::vec<T, 3> p = _p.template as<T>();
         return { isect, p };
     }
 
