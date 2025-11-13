@@ -1463,6 +1463,22 @@ namespace sm
 
         //! Overload the stream output operator
         friend std::ostream& operator<< <S, N> (std::ostream& os, const vec<S, N>& v);
+
+        //! Define a hash function for sm::vec that can be passed to unordered_map to use vec as a key
+        // e.g.: std::unordered_map<sm::vec<float, 2>, int, sm::vec<float, 2>::hash> vec_keyed_unordered_map;
+        struct hash
+        {
+            std::size_t operator()(const vec<S, N>& v) const
+            {
+                if constexpr (N > 0u) {
+                    std::size_t h = std::hash<S>{}(v[0]);
+                    for (std::size_t n = 1u; n < N; ++n) { h ^= std::hash<S>{}(v[n]); }
+                    return h;
+                } else {
+                    return 0u;
+                }
+            }
+        };
     };
 
     template <typename S=float, std::size_t N=3>
