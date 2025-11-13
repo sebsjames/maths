@@ -16,23 +16,13 @@
 #include <complex>
 #include <cstdint>
 #include <limits>
-#include <bitset>
 #include <tuple>
+#include <vector>
 
 #include <sm/mathconst>
 #include <sm/constexpr_math> // constexpr math functions from Keith O'Hara
 #include <sm/range>
 #include <sm/vec>
-
-namespace sm
-{
-    enum class rotation_sense : uint32_t
-    {
-        colinear,
-        clockwise,
-        anticlockwise
-    };
-}
 
 namespace sm::algo
 {
@@ -253,91 +243,6 @@ namespace sm::algo
         return Vnm;
     }
 
-    //! Compute orientation of three points which form a triangle pqr.
-    //! \return 0 if co-linear, 1 if clockwise; 2 if anticlockwise
-    //! Algorithm, which uses slopes, taken from
-    //! https://www.geeksforgeeks.org/orientation-3-ordered-points/
-    template<typename T>
-    rotation_sense orientation (const sm::vec<T, 2>& p,
-                                const sm::vec<T, 2>& q,
-                                const sm::vec<T, 2>& r)
-    {
-        T val = (q[1] - p[1]) * (r[0] - q[0])  -  (q[0] - p[0]) * (r[1] - q[1]);
-        if (val == T{0}) { return rotation_sense::colinear; }
-        return (val > T{0}) ? rotation_sense::clockwise : rotation_sense::anticlockwise;
-    }
-
-    // Given three colinear points p, q, r, the function checks if
-    // point q lies on line segment 'pr'. Copied from:
-    // https://www.geeksforgeeks.org/check-if-two-given-line-segments-intersect/
-    template<typename T>
-    static bool onsegment (const sm::vec<T, 2>& p,
-                           const sm::vec<T, 2>& q,
-                           const sm::vec<T, 2>& r)
-    {
-        return (q[0] <= std::max(p[0], r[0]) && q[0] >= std::min(p[0], r[0])
-                && q[1] <= std::max(p[1], r[1]) && q[1] >= std::min(p[1], r[1]));
-    }
-
-    /*!
-     * Do the line segments p1-q1 and p2-q2 intersect? Are they instead colinear? Return these
-     * booleans in a bitset (bit0: intersection, bit1: colinear)
-     *
-     * \param p1 Start of line segment 1
-     * \param q1 End of line segment 1
-     * \param p2 Start of line segment 2
-     * \param q2 End of line segment 2
-     *
-     * \return A bitset whose bit 0 indicates if the lines intersect and whose bit 1 indicates
-     * if the lines are colinear
-     */
-    template<typename T>
-    static std::bitset<2> segments_intersect (const sm::vec<T, 2>& p1, const sm::vec<T, 2> q1,
-                                              const sm::vec<T, 2>& p2, const sm::vec<T, 2> q2)
-    {
-        std::bitset<2> rtn;
-        sm::rotation_sense p1q1p2 = sm::algo::orientation (p1, q1, p2);
-        sm::rotation_sense p1q1q2 = sm::algo::orientation (p1, q1, q2);
-        sm::rotation_sense p2q2p1 = sm::algo::orientation (p2, q2, p1);
-        sm::rotation_sense p2q2q1 = sm::algo::orientation (p2, q2, q1);
-        if (p1q1p2 != p1q1q2 && p2q2p1 != p2q2q1) { // They intersect
-            rtn.set(0, true);
-        } else { // Are they colinear?
-            if (p1q1p2 == sm::rotation_sense::colinear && sm::algo::onsegment (p1, p2, q1)) { rtn.set(1, true); }
-            else if (p1q1q2 == sm::rotation_sense::colinear && sm::algo::onsegment (p1, q2, q1)) { rtn.set(1, true); }
-            else if (p2q2p1 == sm::rotation_sense::colinear && sm::algo::onsegment (p2, p1, q2)) { rtn.set(1, true); }
-            else if (p2q2q1 == sm::rotation_sense::colinear && sm::algo::onsegment (p2, q1, q2)) { rtn.set(1, true); }
-        }
-
-        return rtn;
-    }
-
-    /*!
-     * Find the coordinate of the crossing point of the two line segments p1-q1 and p2-q2,
-     * *assuming* the segments intersect. Call this *after* you have used
-     * algo::segments_intersect!
-     *
-     * \param p1 Start of line segment 1
-     * \param q1 End of line segment 1
-     * \param p2 Start of line segment 2
-     * \param q2 End of line segment 2
-     *
-     * \return Coordinate of the crossing point
-     */
-    template<typename T>
-    static sm::vec<T, 2> crossing_point (const sm::vec<T, 2>& p1, const sm::vec<T, 2>& q1,
-                                            const sm::vec<T, 2>& p2, const sm::vec<T, 2>& q2)
-    {
-        sm::vec<T, 2> p = p1;
-        sm::vec<T, 2> r = p1 - q1;
-        sm::vec<T, 2> q = p2;
-        sm::vec<T, 2> s = p2 - q2;
-        auto t = (q - p).cross(s / r.cross(s));
-        sm::vec<T, 2> cross_point = p + t * r;
-        return cross_point;
-    }
-
-
     //! Bubble sort, high to low, order is returned in indices, values are left unchanged
     template<typename T>
     static void bubble_sort_hi_to_lo (const std::vector<T>& values, std::vector<unsigned int>& indices)
@@ -456,124 +361,6 @@ namespace sm::algo
         T m = cov_xy / ms_x[1];
         T c = ms_y[0] - (m * ms_x[0]);
         return sm::vec<T, 2>{m, c};
-    }
-
-    // Does the line defined by p0->p1 pass through the box defined by the range box?
-    template<typename T>
-    static bool aabb_line_intersect (const sm::range<sm::vec<T, 3>>& box,
-                                     const sm::vec<T, 3>& p0, const sm::vec<T, 3>& p1)
-    {
-        auto line_intersect = [box, p0, p1](uint32_t dim)
-        {
-            sm::vec<T> p = p0;
-            sm::vec<T> v = p1 - p0;
-            sm::vec<T> n = sm::vec<T>::u(dim);
-            T ndotv = n.dot (v);
-            T ndotp = n.dot (p);
-            if (ndotv == T{0}) {
-                return false; // No intersect at all
-            }
-
-            T d = -box.min[dim];
-            T t = -(ndotp + d) / ndotv;
-            sm::vec<T> ip = p + v * t;
-
-            // Logic test...
-            bool isect1 = true;
-            for (uint8_t j = 0; j < 3; ++j) {
-                if (j != dim && (ip[j] < box.min[j] || ip[j] > box.max[j])) {
-                    isect1 = false;
-                }
-            }
-
-            d = -box.max[dim];
-            t = -(ndotp + d) / ndotv;
-            ip = p + v * t;
-
-            // Logic test...
-            bool isect2 = true;
-            for (uint8_t j = 0; j < 3; ++j) {
-                if (j != dim && (ip[j] < box.min[j] || ip[j] > box.max[j])) {
-                    isect2 = false;
-                }
-            }
-
-            return isect1 || isect2;
-
-        };
-        bool one = line_intersect (0);
-        bool two = line_intersect (1);
-        bool three = line_intersect (2);
-
-        return (one || two || three);
-    }
-
-    // Return the distance to the intersection of ray l0, l with plane p0, n.
-    // l0 is the ray origin, l is a vector giving the ray's direction and length
-    template<typename T>
-    T ray_plane_intersection (const sm::vec<T, 3>& p0, const sm::vec<T, 3>& n,
-                              const sm::vec<T, 3>& l0, const sm::vec<T, 3>& l)
-    {
-        constexpr T denom_thresh = std::numeric_limits<T>::epsilon() * 50;
-        T denom = l.dot (n);
-        if (sm::cem::abs(denom) < denom_thresh) {
-            return std::numeric_limits<T>::max(); // parallel; no intersection
-        } else {
-            return (p0 - l0).dot (n) / denom;
-        }
-    }
-
-    // Does the ray (l0, l) intersect with a disc radius r on plane (p0, n)?
-    // l0 is the ray origin, l is a vector giving the ray's direction and length
-    template<typename T>
-    bool ray_disc_intersection (const sm::vec<T, 3>& p0, const sm::vec<T, 3>& n, const T& r,
-                                const sm::vec<T, 3>& l0, const sm::vec<T, 3>& l)
-    {
-        T t = sm::algo::ray_plane_intersection<T> (p0, n, l0, l);
-        if (t != std::numeric_limits<T>::max() && t != T{0}) {
-            sm::vec<T, 3> p = l0 + l * t;
-            sm::vec<T, 3> v = p - p0;
-            return (v.length_sq() <= r * r);
-        }
-        return false;
-    }
-
-    // Does the ray (l0, l) intersect with a triangle defined by t0, t1, t2?  l0 is the ray origin,
-    // l is a vector giving the ray's direction and length Return true/false. If true, p is the
-    // intersection coordinate. The order of the triangle indices is important (must be CW (? really
-    // clockwise ?))
-    template<typename T, bool include_boundary = true, bool sided = true>
-    std::tuple<bool, sm::vec<T, 3>> ray_tri_intersection (const sm::vec<T, 3>& t0, const sm::vec<T, 3>& t1, const sm::vec<T, 3>& t2,
-                                                          const sm::vec<T, 3>& l0, const sm::vec<T, 3>& l)
-    {
-        sm::vec<T, 3> n = (t1 - t0).cross (t2 - t0); // renormalize not necessary in ray_plane_intersection
-
-        // The dirn of n and the sign of n.l is determined by the order of the triangle indices,
-        // which may, from an OpenGL indices container, be in any direction (either c.w or
-        // anti-c.w). So we have to pay attention to the defined normal on the three vertices as well.
-        if constexpr (sided) {
-            // Only register rays hitting front of triangle (so n must be -ve)
-            if (n.dot (l) >= T{0}) { return { false, {} }; }   // ray and plane are perpendicular or ray hits 'back'
-        } else {
-            if (n.dot (l) == T{0}) { return { false, {} }; }   // ray and plane are perpendicular
-        }
-        T d = sm::algo::ray_plane_intersection<T> (t0, n, l0, l);
-        if (d < T{0}) { return { false, {} }; }                // triangle is behind ray
-        if (d == std::numeric_limits<T>::max()) { return { false, {} }; } // ray and plane are parallel
-        sm::vec<T, 3> p = d * l + l0; // hit point, p
-        // Test if p is inside t0,t1,t2.
-        bool isect = false;
-        if constexpr (include_boundary) {
-            // what if n was flipped?
-            isect = ((n.dot ((t1 - t0).cross (p - t0)) >= T{0}) // >= to include triangle boundary
-                     && (n.dot ((t2 - t1).cross (p - t1)) >= T{0})
-                     && (n.dot ((t0 - t2).cross (p - t2)) >= T{0}));
-        } else {
-            isect = ((n.dot ((t1 - t0).cross (p - t0)) > T{0})
-                     && (n.dot ((t2 - t1).cross (p - t1)) > T{0})
-                     && (n.dot ((t0 - t2).cross (p - t2)) > T{0}));
-        }
-        return { isect, p };
     }
 
 } // sm::algo
