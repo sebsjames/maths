@@ -1,5 +1,5 @@
 #include <iostream>
-#include <sm/algo>
+#include <sm/geometry>
 
 int main()
 {
@@ -10,11 +10,11 @@ int main()
     sm::vec<float> p0 = {0.5, -2, 0.5};
     sm::vec<float> p1 = {0.5,  2, 0.5};
 
-    if (sm::algo::aabb_line_intersect (box, p0, p1) == false) { --rtn; }
+    if (sm::geometry::aabb_line_intersect (box, p0, p1) == false) { --rtn; }
 
     p0 = {1.5, -2, 1.5};
     p1 = {1.5,  2, 1.5};
-    if (sm::algo::aabb_line_intersect (box, p0, p1) == true) { --rtn; }
+    if (sm::geometry::aabb_line_intersect (box, p0, p1) == true) { --rtn; }
 
     std::cout << "Test " << (rtn < 0 ? "Failed" : "Passed") << std::endl;
     return rtn;

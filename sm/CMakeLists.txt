@@ -21,6 +21,7 @@ install(
   edgeconv
   flags
   geometry
+  geometry_polyhedra
   gridfeatures
   grid
   hdfdata
