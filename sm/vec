@@ -1152,11 +1152,13 @@ namespace sm
             return rtn;
         }
 
-        // Convert 3D Cartesian (x,y,z) to spherical coordinates (rho, theta, phi) where theta is
-        // the angle about the z axis (range [0, 2pi]) and phi is the azimuthal angle (range [0,
-        // pi]).  This is the naming convention in mathematical texts. YOU MAY NEED TO SWITCH theta
-        // AND phi because some functions, including boost::math for its spherical harmonics uses a
-        // different convention, swapping theta and phi (the 'physics' convention)!
+        /*!
+         * Convert 3D Cartesian (x,y,z) to spherical coordinates (rho, theta, phi) where theta is
+         * the angle (in radians) about the z axis (range [0, 2pi]) and phi is the azimuthal angle
+         * (range [0, pi]).  This is the naming convention in mathematical texts. YOU MAY NEED TO
+         * SWITCH theta AND phi because some functions, including boost::math for its spherical
+         * harmonics uses a different convention, swapping theta and phi (the 'physics' convention)!
+         */
         template <std::size_t Ny = N> requires (Ny == 3)
         constexpr vec<S, Ny> cartesian_to_spherical() const noexcept
         {
@@ -1169,10 +1171,12 @@ namespace sm
             return spherical;
         }
 
-        // Convert spherical coordinates (rho, theta, phi) to 3D Cartesian (x,y,z) where
-        // theta is the angle about the z axis (range [0, 2pi]) and phi is the azimuthal
-        // angle (range [0, pi]).  This is the naming convention in mathematical texts,
-        // rather than the 'physics' convention.
+        /*!
+         * Convert spherical coordinates (rho, theta, phi) to 3D Cartesian (x,y,z) where theta is
+         * the angle in radians about the z axis (range [0, 2pi]) and phi is the azimuthal angle
+         * (range [0, pi]).  This is the naming convention in mathematical texts, rather than the
+         * 'physics' convention.
+         */
         template <std::size_t Ny = N> requires (Ny == 3)
         constexpr vec<S, Ny> spherical_to_cartesian() const noexcept
         {
@@ -1192,7 +1196,7 @@ namespace sm
         }
 
         /*!
-         * Return the magnitude of the angle between this vector and the other. Works
+         * Return the magnitude of the angle (in radians) between this vector and the other. Works
          * for any N.
          */
         constexpr S angle (const vec<S, N>& other) const noexcept
@@ -1202,12 +1206,11 @@ namespace sm
         }
 
         /*!
-         * Return this angle between this vector and the other. Works for any N.
+         * Return the angle in radians between this vector and the other. Works for any N.
          *
-         * axis is the axis of rotation, so this angle IS signed, positive if 'other' is
-         * at a positive right-handed angle wrt *this. axis does not need to be
-         * *exactly* the axis of rotation, though it could be. The exact direction of
-         * the axis of rotation can be obtained from this->cross (other), but this
+         * axis is the axis of rotation, so this angle IS signed, positive if 'other' is at a
+         * positive right-handed angle wrt *this. axis does not need to be *exactly* the axis of
+         * rotation, though it could be.
          */
         constexpr S angle (const vec<S, N>& other, const vec<S, N>& axis) const noexcept
         {
