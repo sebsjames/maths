@@ -232,7 +232,8 @@ namespace sm
         constexpr I sz = sizeof(I) * I{8};
         I bits = flags.get();
         for (I i = sz; i > I{0}; --i) {
-            os << ((bits >> (i - I{1}) & I{1}) ? '1' : '0');
+            // '0' is ASCII 0x30; '1' is ASCII 0x31
+            os << static_cast<char>((bits >> (i - I{1}) & I{1}) + 0x30);
         }
         os << 'b';
         return os;
