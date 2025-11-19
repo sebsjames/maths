@@ -23,6 +23,18 @@ enum class myflags2 : uint16_t
     eight
 };
 
+enum class myflags3 : int8_t
+{
+    one,
+    two,
+    three,
+    four,
+    five,
+    six,
+    seven,
+    eight
+};
+
 int main()
 {
     int rtn = 0;
@@ -65,6 +77,7 @@ int main()
     } else {
         std::cout << "flags: two is not set" << std::endl;
     }
+    std::cout << "Streaming flags: " << fl << std::endl;
     std::cout << "After set two, fl bits: " << fl.get() << std::endl;
     std::cout << "Bit count: " << fl.count() << std::endl;
     if (fl.get() != uint32_t{3}) { --rtn; }
@@ -164,9 +177,16 @@ int main()
     std::cout << "myflags::three : " << sm::flags<myflags>(myflags::three).get() << std::endl;
     std::cout << "myflags::four : " << sm::flags<myflags>(myflags::four).get() << std::endl;
 
+    std::cout << "myflags::three streamed: " << sm::flags<myflags>(myflags::three) << std::endl;
+
     // Test constructor with type E (myflags2) arg
     sm::flags<myflags2> fl5 (myflags2::four);
     if (fl5.get() != 8) { --rtn; }
+    std::cout << "A flags object with underlying type uint16_t: " << fl5 << std::endl;
+
+    sm::flags<myflags3> fl5i (myflags3::four);
+    if (fl5i.get() != 8) { --rtn; }
+    std::cout << "A flags object with underlying type  int8_t: " << fl5i << std::endl;
 
     // Test copy constructor (template deduction works)
     sm::flags fl6 (fl5);

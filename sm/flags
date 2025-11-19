@@ -56,9 +56,13 @@
 #include <compare>
 #include <type_traits>
 #include <initializer_list>
+#include <ostream>
 
 namespace sm
 {
+    template <typename E>  requires std::is_enum_v<E> struct flags;
+    template <typename E> std::ostream& operator<< (std::ostream&, const flags<E>&);
+
     template <typename E> requires std::is_enum_v<E>
     struct flags
     {
@@ -199,9 +203,23 @@ namespace sm
         explicit constexpr operator bool() const noexcept { return !!this->bits; }
         explicit constexpr operator I() const noexcept { return this->bits; }
 
+        friend std::ostream& operator<< <E> (std::ostream& os, const flags<E>& flags);
     private:
         I bits = I{0};
     };
+
+    template <typename E> requires std::is_enum_v<E>
+    std::ostream& operator<< (std::ostream& os, const flags<E>& flags)
+    {
+        using I = std::underlying_type_t<E>;
+        constexpr I sz = sizeof(I) * 8;
+        I bits = flags.get();
+        for (I i = sz; i > 0; --i) {
+            os << ((bits >> (i-1) & 0x1) ? '1' : '0');
+        }
+        os << 'b';
+        return os;
+    }
 
     // bitwise operators
     template <typename E> requires std::is_enum_v<E>
