@@ -202,6 +202,10 @@ int main()
     std::cout << "fl5 = " << fl5.get() << " !fl5 = " << !fl5 << std::endl;
     std::cout << "fl5 = " << fl5.get() << " !fl5 = " << !fl5 << std::endl;
 
+    enum class myflagsC : uint8_t { one, two, three, four };
+    std::cout << sm::flags<myflagsC>{myflagsC::one} << std::endl;
+    std::cout << sm::flags<myflagsC>{myflagsC::three} << std::endl;
+
     std::cout << (rtn ? "Failed\n" : "Success\n");
     return rtn;
 }

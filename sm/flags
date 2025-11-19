@@ -44,6 +44,23 @@
  *
  * fl.flip (myflags::flag_one);
  *
+ * You can stream your flags object:
+ *
+ * enum class myflags : uint8_t { one, two, three, four };
+ * std::cout << sm::flags<myflags>{myflags::one} << std::endl;
+ * std::cout << sm::flags<myflags>{myflags::three} << std::endl;
+ *
+ * Gives output:
+ *
+ * 00000001b
+ * 00000100b
+ *
+ * The output is a binary string representation, with '1' and '0' characters followed by a 'b'. The
+ * number of digits depends on the size of the underlying type (in this case, there are 8 bits in
+ * uint8_t). The binary string shows the first flag as the least significant bit to the right. For
+ * the example above, we get 00000001b for myflags::one and 00000100b for myflags::three:
+ *
+ *
  * This code was adapted from an idea in the Vulkan code base via
  * https://gist.github.com/fschoenberger/54c5342f220af510e1f78308a8994a45
  *
@@ -212,10 +229,10 @@ namespace sm
     std::ostream& operator<< (std::ostream& os, const flags<E>& flags)
     {
         using I = std::underlying_type_t<E>;
-        constexpr I sz = sizeof(I) * 8;
+        constexpr I sz = sizeof(I) * I{8};
         I bits = flags.get();
-        for (I i = sz; i > 0; --i) {
-            os << ((bits >> (i-1) & 0x1) ? '1' : '0');
+        for (I i = sz; i > I{0}; --i) {
+            os << ((bits >> (i - I{1}) & I{1}) ? '1' : '0');
         }
         os << 'b';
         return os;
