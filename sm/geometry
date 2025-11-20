@@ -337,4 +337,32 @@ namespace sm::geometry
         return d;
     }
 
+    // Find the 0, 1 or 2 points in space that the vector originating from l0 in direction l
+    // intersects with the sphere of radius s and centre s0.
+    template<typename T>
+    sm::vec<sm::vec<T, 3>, 2> ray_sphere_intersection (const sm::vec<T, 3>& s0, const T s, const sm::vec<T, 3>& l0, const sm::vec<T, 3>& l)
+    {
+        sm::vec<sm::vec<T, 3>, 2> rtn;
+        rtn[0] = {std::numeric_limits<T>::max()};
+        rtn[1] = {std::numeric_limits<T>::max()};
+        // Analytic solution
+        sm::vec<T, 3> L = l0 - s0;
+        T a = l.dot(l);
+        T b = T{2} * l.dot(L);
+        T c = L.dot(L) - s * s;
+        sm::vec<T, 2> t = sm::algo::solve_quadratic (a, b, c);
+        if (t[0] == std::numeric_limits<T>::max() && t[1] == t[0]) { return rtn; }
+
+        if (t[0] < T{0}) {
+            t[0] = t[1]; // If t0 is negative, let's use t1 instead.
+            if (t[0] < T{0}) { return rtn; } // Both t0 and t1 are negative.
+        }
+
+        // Compute rtn from t0, t1
+        rtn[0] = l0 + l * t[0];
+        rtn[1] = l0 + l * t[1];
+
+        return rtn;
+    }
+
 } // sm::geometry
