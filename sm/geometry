@@ -368,7 +368,14 @@ namespace sm::geometry
 
     namespace spherical_projection
     {
-        // Is xyz assumed to be on the sphere, or may it be outside/inside?
+        enum class type : uint32_t
+        {
+            mercator,
+            equirectangular,
+            cassini
+        };
+
+        // Position in xyz to latitude/longitude where z is 'up'
         template<typename T>
         sm::vec<T, 2> xyz_to_latlong (const sm::vec<T, 3>& xyz, const T& r_sph)
         {
@@ -407,8 +414,8 @@ namespace sm::geometry
         constexpr sm::vec<T, 2> cassini (const sm::vec<T, 2>& latlong, const T& r_sph)
         {
             return sm::vec<T, 2>{
-                sm::cem::asin (sm::cem::cos (latlong[0]) * sm::cem::sin (latlong[1])),
-                sm::cem::atan2 (sm::cem::sin (latlong[0]), sm::cem::cos(latlong[0]) * sm::cem::cos(latlong[1]))
+                r_sph * sm::cem::asin (sm::cem::cos (latlong[0]) * sm::cem::sin (latlong[1])),
+                r_sph * sm::cem::atan2 (sm::cem::sin (latlong[0]), sm::cem::cos(latlong[0]) * sm::cem::cos(latlong[1]))
             };
         }
 
