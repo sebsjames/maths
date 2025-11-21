@@ -19,6 +19,7 @@
 #include <sm/constexpr_math>
 #include <sm/range>
 #include <sm/vec>
+#include <sm/algo>
 
 namespace sm
 {
