@@ -366,4 +366,119 @@ namespace sm::geometry
         return rtn;
     }
 
+    namespace spherical_projection
+    {
+        // Is xyz assumed to be on the sphere, or may it be outside/inside?
+        template<typename T>
+        sm::vec<T, 2> xyz_to_latlong (const sm::vec<T, 3>& xyz, const T& r_sph)
+        {
+            return sm::vec<T, 2>{ sm::cem::asin (xyz[2] / r_sph), sm::cem::atan2 (xyz[1], xyz[0]) };
+        }
+
+        // Return planar Cartesian coordinates for the given latitude/longitude (in radians) on a
+        // sphere of radius r_sph given the Mercator mapping.
+        template<typename T>
+        constexpr sm::vec<T, 2> mercator (const sm::vec<T, 2>& latlong, const T& r_sph)
+        {
+            return sm::vec<T, 2>{
+                r_sph * latlong[1],
+                r_sph * sm::cem::log (sm::cem::tan ((latlong[0] + sm::mathconst<T>::pi_over_2) / T{2}))
+            };
+        }
+
+        // Return planar Cartesian coordinates for the given latitude/longitude (in radians) on a
+        // sphere of radius r_sph given the Equirectangular mapping.
+        template<typename T>
+        constexpr sm::vec<T, 2> equirectangular (const sm::vec<T, 2>& latlong, const T& r_sph)
+        {
+            constexpr T phi0 = T{0};
+            constexpr T phi1 = T{0};
+            constexpr T cosphi1 = sm::cem::cos (phi1);
+            constexpr T lambda0 = T{0};
+            return sm::vec<T, 2> {
+                r_sph * (latlong[1] - lambda0) * cosphi1,
+                r_sph * (latlong[0] - phi0)
+            };
+        }
+
+        // Return planar Cartesian coordinates for the given latitude/longitude (in radians) on a
+        // sphere of radius r_sph given the Cassini mapping.
+        template<typename T>
+        constexpr sm::vec<T, 2> cassini (const sm::vec<T, 2>& latlong, const T& r_sph)
+        {
+            return sm::vec<T, 2>{
+                sm::cem::asin (sm::cem::cos (latlong[0]) * sm::cem::sin (latlong[1])),
+                sm::cem::atan2 (sm::cem::sin (latlong[0]), sm::cem::cos(latlong[0]) * sm::cem::cos(latlong[1]))
+            };
+        }
+
+        template<typename T>
+        sm::vec<T, 3> latlong_to_xyz (const sm::vec<T, 2>& latlong, const T& r_sph)
+        {
+            T coslat = sm::cem::cos (latlong[0]); // latitude
+            T sinlat = sm::cem::sin (latlong[0]);
+            T coslong = sm::cem::cos (latlong[1]); // longitude
+            T sinlong = sm::cem::sin (latlong[1]);
+            return sm::vec<T, 3>{ r_sph * coslat * coslong, r_sph * coslat * sinlong , r_sph * sinlat };
+        }
+
+        // Return latitude, longitude (in radians) in a vec<T, 2> for the given 2D coordinate on a
+        // plane which was mapped using the equirectangular projection.
+        template<typename T>
+        constexpr sm::vec<T, 2> inverse_equirectangular (const sm::vec<T, 2>& xy, const T& r_sph)
+        {
+            constexpr T phi0 = T{0};
+            constexpr T phi1 = T{0};
+            constexpr T cosphi1 = sm::cem::cos (phi1);
+            constexpr T lambda0 = T{0};
+            return sm::vec<T, 2>{ xy[1] / r_sph + phi0,  xy[0] / (r_sph * cosphi1) + lambda0 };
+        }
+
+        // inverse_equirectangular, then converted into a 3D Cartesian coordinate
+        template<typename T>
+        constexpr sm::vec<T, 3> inverse_equirectangular_xyz (const sm::vec<T, 2>& xy, const T& r_sph)
+        {
+            return spherical_projection::latlong_to_xyz (spherical_projection::inverse_equirectangular (xy, r_sph), r_sph);
+        }
+
+        // Return latitude, longitude (in radians) in a vec<T, 2> for the given 2D coordinate on a
+        // plane which was mapped using the Cassini projection.
+        template<typename T>
+        constexpr sm::vec<T, 2> inverse_cassini (const sm::vec<T, 2>& xy, const T& r_sph)
+        {
+            constexpr T phi0 = T{0};
+            constexpr T lambda0 = T{0};
+            T d = xy[1] / r_sph + phi0;
+            return sm::vec<T, 2>{
+                sm::cem::asin (sm::cem::sin(d) * sm::cem::cos (xy[0] / r_sph)), // lat
+                lambda0 + sm::cem::atan2 (sm::cem::tan(xy[0] / r_sph), sm::cem::cos(d)) // long
+            };
+        }
+
+        // inverse_cassini, then converted into a 3D Cartesian coordinate
+        template<typename T>
+        constexpr sm::vec<T, 3> inverse_cassini_xyz (const sm::vec<T, 2>& xy, const T& r_sph)
+        {
+            return spherical_projection::latlong_to_xyz (spherical_projection::inverse_cassini (xy, r_sph), r_sph);
+        }
+
+        // Return latitude, longitude (in radians) in a vec<T, 2> for the given 2D coordinate on a
+        // plane which was mapped using the Mercator projection.
+        template<typename T>
+        constexpr sm::vec<T, 2> inverse_mercator (const sm::vec<T, 2>& xy, const T& r_sph)
+        {
+            return sm::vec<T, 2>{
+                T{2} * sm::cem::atan (sm::cem::exp (xy[1] / r_sph)) - sm::mathconst<T>::pi_over_2,
+                xy[0] / r_sph
+            };
+        }
+
+        // inverse_mercator, then converted into a 3D Cartesian coordinate
+        template<typename T>
+        constexpr sm::vec<T, 3> inverse_mercator_xyz (const sm::vec<T, 2>& xy, const T& r_sph)
+        {
+            return spherical_projection::latlong_to_xyz (spherical_projection::inverse_mercator (xy, r_sph), r_sph);
+        }
+    }
+
 } // sm::geometry
