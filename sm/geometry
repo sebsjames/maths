@@ -393,15 +393,24 @@ namespace sm::geometry
             };
         }
 
-        // Return planar Cartesian coordinates for the given latitude/longitude (in radians) on a
-        // sphere of radius r_sph given the Equirectangular mapping.
-        template<typename T>
+        /*
+         * Return planar Cartesian coordinates for the given latitude/longitude (in radians) on a
+         * sphere of radius r_sph given the Equirectangular mapping.
+         *
+         * \tparam T the floating point type to use when computing the projection
+         *
+         * \tparam lambda0 The central meridian for the map (radians)
+         *
+         * \tparam phi0 The central parallel of the map (radians)
+         *
+         * \tparam phi1 The latitude that will show true scale in radians (0 gives flat square; pi/4
+         * gives the Gall isographic projection, etc, for details see the Wikipedia page)
+         *
+         */
+        template<typename T, T lambda0 = T{0}, T phi0 = T{0}, T phi1 = T{0}>
         constexpr sm::vec<T, 2> equirectangular (const sm::vec<T, 2>& latlong, const T& r_sph)
         {
-            constexpr T phi0 = T{0};
-            constexpr T phi1 = T{0};
             constexpr T cosphi1 = sm::cem::cos (phi1);
-            constexpr T lambda0 = T{0};
             return sm::vec<T, 2> {
                 r_sph * (latlong[1] - lambda0) * cosphi1,
                 r_sph * (latlong[0] - phi0)
@@ -415,7 +424,7 @@ namespace sm::geometry
         {
             return sm::vec<T, 2>{
                 r_sph * sm::cem::asin (sm::cem::cos (latlong[0]) * sm::cem::sin (latlong[1])),
-                r_sph * sm::cem::atan2 (sm::cem::sin (latlong[0]), sm::cem::cos(latlong[0]) * sm::cem::cos(latlong[1]))
+                r_sph * sm::cem::atan2 (sm::cem::sin (latlong[0]), sm::cem::cos (latlong[0]) * sm::cem::cos (latlong[1]))
             };
         }
 
