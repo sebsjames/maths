@@ -387,10 +387,9 @@ namespace sm::geometry
         template<typename T>
         constexpr sm::vec<T, 2> mercator (const sm::vec<T, 2>& latlong, const T& r_sph)
         {
-            return sm::vec<T, 2>{
-                r_sph * latlong[1],
-                r_sph * sm::cem::log (sm::cem::tan ((latlong[0] + sm::mathconst<T>::pi_over_2) / T{2}))
-            };
+            T _tan = sm::cem::tan ((latlong[0] + sm::mathconst<T>::pi_over_2) / T{2});
+            if (_tan == T{0}) { _tan = sm::cem::tan (sm::mathconst<T>::pi_over_2); } // avoid inf in return
+            return sm::vec<T, 2>{ r_sph * latlong[1], r_sph * sm::cem::log (_tan) };
         }
 
         /*
