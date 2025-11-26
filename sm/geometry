@@ -382,14 +382,26 @@ namespace sm::geometry
             return sm::vec<T, 2>{ sm::cem::asin (xyz[2] / r_sph), sm::cem::atan2 (xyz[1], xyz[0]) };
         }
 
-        // Return planar Cartesian coordinates for the given latitude/longitude (in radians) on a
-        // sphere of radius r_sph given the Mercator mapping.
+        /*
+         * Return planar Cartesian coordinates for the given latitude/longitude (in radians) on a
+         * sphere of radius r_sph given the Mercator mapping. Longitude will be constrained to be
+         * between 0 and 2pi. Lambda0 is a longitudinal offset.
+         *
+         * \param latlong The latitude and longitude input to map, in radians. longitude
+         * (latlong[1]) will be shifted by lambda0 and constrained between 0 and 2pi.
+         *
+         * \param r_sph The radius of the sphere
+         *
+         * \param lambda0 The central meridian for the map (radians). A 'longitudinal offset'.
+         */
         template<typename T>
-        constexpr sm::vec<T, 2> mercator (const sm::vec<T, 2>& latlong, const T& r_sph)
+        constexpr sm::vec<T, 2> mercator (const sm::vec<T, 2>& latlong, const T& r_sph, const T lambda0 = T{0})
         {
-            T _tan = sm::cem::tan ((latlong[0] + sm::mathconst<T>::pi_over_2) / T{2});
+            T _tan = sm::cem::tan ( (latlong[0] + sm::mathconst<T>::pi_over_2) / T{2});
             if (_tan == T{0}) { _tan = sm::cem::tan (sm::mathconst<T>::pi_over_2); } // avoid inf in return
-            return sm::vec<T, 2>{ r_sph * latlong[1], r_sph * sm::cem::log (_tan) };
+            T _long = latlong[1] - lambda0;
+            sm::algo::zero_to_twopi (_long);
+            return sm::vec<T, 2>{ r_sph * _long, r_sph * sm::cem::log (_tan) };
         }
 
         /*
@@ -398,45 +410,57 @@ namespace sm::geometry
          *
          * \tparam T the floating point type to use when computing the projection
          *
-         * \tparam lambda0 The central meridian for the map (radians)
+         * \param latlong The latitude and longitude input to map, in radians. longitude
+         * (latlong[1]) will be shifted by lambda0 and constrained between 0 and 2pi.
          *
-         * \tparam phi0 The central parallel of the map (radians)
+         * \param r_sph The radius of the sphere
          *
-         * \tparam phi1 The latitude that will show true scale in radians (0 gives flat square; pi/4
-         * gives the Gall isographic projection, etc, for details see the Wikipedia page)
+         * \param lambda0 The central meridian for the map (radians). A 'longitudinal offset'.
          *
+         * \param phi0 The 'central parallel' of the map (radians). This gives a 'latitudinal
+         * offset'. The map is cycled.
+         *
+         * \param phi1 The latitude that will show true scale in radians (0 gives flat square; pi/4
+         * gives the Gall isographic projection, etc, for details see the Wikipedia page). This
+         * essentially scales the output 2D map in the x-direction.
          */
-        template<typename T, T lambda0 = T{0}, T phi0 = T{0}, T phi1 = T{0}>
-        constexpr sm::vec<T, 2> equirectangular (const sm::vec<T, 2>& latlong, const T& r_sph)
+        template<typename T>
+        constexpr sm::vec<T, 2> equirectangular (const sm::vec<T, 2>& latlong, const T& r_sph,
+                                                 const T lambda0 = T{0}, const T phi0 = T{0}, const T phi1 = T{0})
         {
-            constexpr T cosphi1 = sm::cem::cos (phi1);
-            return sm::vec<T, 2> {
-                r_sph * (latlong[1] - lambda0) * cosphi1,
-                r_sph * (latlong[0] - phi0)
-            };
+            T cosphi1 = sm::cem::cos (phi1);
+            T _long = latlong[1] - lambda0;
+            sm::algo::zero_to_twopi (_long);
+            T _lat = latlong[0] - phi0;
+            if (_lat <= -sm::mathconst<T>::pi_over_2) {
+                _lat += sm::mathconst<T>::pi;
+            } else if (_lat > sm::mathconst<T>::pi_over_2) {
+                _lat -= sm::mathconst<T>::pi;
+            }
+            return sm::vec<T, 2> { r_sph * _long * cosphi1, r_sph * _lat };
         }
 
-        // Return planar Cartesian coordinates for the given latitude/longitude (in radians) on a
-        // sphere of radius r_sph given the Cassini mapping.
+        /*
+         * Return planar Cartesian coordinates for the given latitude/longitude (in radians) on a
+         * sphere of radius r_sph given the Cassini mapping.
+         *
+         * \param latlong The latitude and longitude input to map, in radians. longitude
+         * (latlong[1]) will be shifted by lambda0 and constrained between 0 and 2pi.
+         *
+         * \param r_sph The radius of the sphere
+         *
+         * \param lambda0 The central meridian for the map (radians). A 'longitudinal offset'.
+         *
+         */
         template<typename T>
-        constexpr sm::vec<T, 2> cassini (const sm::vec<T, 2>& latlong, const T& r_sph)
+        constexpr sm::vec<T, 2> cassini (const sm::vec<T, 2>& latlong, const T& r_sph, const T lambda0 = T{0})
         {
-            T ll0 = latlong[0];
-            if (latlong[0] <= -sm::mathconst<T>::pi_over_2) {
-                std::cout << "Uh oh for " << latlong << std::endl;
-                ll0 += sm::mathconst<T>::two_pi;
-            }
-            //std::cout << "for latlong: " << latlong << ", atan2 ("<< sm::cem::sin (latlong[0]) << ", "
-            //          << (sm::cem::cos (latlong[0]) * sm::cem::cos (latlong[1])) << " might be inf" << std::endl;
-            sm::vec<T, 2> rtn = sm::vec<T, 2>{
-                r_sph * sm::cem::asin (sm::cem::cos (ll0) * sm::cem::sin (latlong[1])),
-                r_sph * sm::cem::atan2 (sm::cem::sin (ll0), sm::cem::cos (ll0) * sm::cem::cos (latlong[1]))
+            T _long = latlong[1] - lambda0;
+            sm::algo::zero_to_twopi (_long);
+            return sm::vec<T, 2>{
+                r_sph * sm::cem::asin (sm::cem::cos (latlong[0]) * sm::cem::sin (_long)),
+                r_sph * sm::cem::atan2 (sm::cem::sin (latlong[0]), sm::cem::cos (latlong[0]) * sm::cem::cos (_long))
             };
-            if (latlong[0] <= -sm::mathconst<T>::pi_over_2) {
-                std::cout << "returning " << rtn << std::endl;
-            }
-
-            return rtn;
         }
 
         template<typename T>
