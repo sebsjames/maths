@@ -375,11 +375,14 @@ namespace sm::geometry
             cassini
         };
 
-        // Position in xyz to latitude/longitude where z is 'up'
+        // Position in xyz (ECEF Cartesian coordinates) to latitude/longitude where z is 'up' and 0
+        // degrees longitude is the 'front of the earth' and the 'central meridian'
         template<typename T>
         sm::vec<T, 2> xyz_to_latlong (const sm::vec<T, 3>& xyz, const T& r_sph)
         {
-            return sm::vec<T, 2>{ sm::cem::asin (xyz[2] / r_sph), sm::cem::atan2 (xyz[1], xyz[0]) };
+            return sm::vec<T, 2>{
+                sm::cem::asin (xyz[2] / r_sph),
+                sm::cem::atan2 (xyz[0], xyz[1]) };
         }
 
         /*

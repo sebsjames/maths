@@ -401,3 +401,6 @@ add_test(range_intersects range_intersects)
 
 add_executable(range_adding range_adding.cpp)
 add_test(range_adding range_adding)
+
+add_executable(xyz_to_latlong xyz_to_latlong.cpp)
+add_test(xyz_to_latlong xyz_to_latlong)
