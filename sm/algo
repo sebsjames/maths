@@ -39,7 +39,7 @@ namespace sm::algo
         } else if (discr == 0) {
             x.set_from (F{-0.5} * b / a);
         } else {
-            F q = (b > 0) ? F{-0.5} * (b + sm::cem::sqrt(discr)) : F{-0.5} * (b - sm::cem::sqrt(discr));
+            F q = (b > F{0}) ? F{-0.5} * (b + sm::cem::sqrt (discr)) : F{-0.5} * (b - sm::cem::sqrt (discr));
             x[0] = q / a;
             x[1] = c / q;
             if (x[0] > x[1]) { x.rotate(); }; // rotate does swap for 2 element vector
