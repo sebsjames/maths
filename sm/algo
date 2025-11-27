@@ -36,7 +36,7 @@ namespace sm::algo
         F discr = b * b - F{4} * a * c;
         if (discr < F{0}) {
             return x;
-        } else if (discr == 0) {
+        } else if (discr == F{0}) {
             x.set_from (F{-0.5} * b / a);
         } else {
             F q = (b > F{0}) ? F{-0.5} * (b + sm::cem::sqrt (discr)) : F{-0.5} * (b - sm::cem::sqrt (discr));
