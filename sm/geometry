@@ -478,13 +478,10 @@ namespace sm::geometry
         // Return latitude, longitude (in radians) in a vec<T, 2> for the given 2D coordinate on a
         // plane which was mapped using the equirectangular projection.
         template<typename T>
-        constexpr sm::vec<T, 2> inverse_equirectangular (const sm::vec<T, 2>& xy, const T& r_sph)
+        constexpr sm::vec<T, 2> inverse_equirectangular (const sm::vec<T, 2>& xy, const T& r_sph,
+                                                         const T lambda0 = T{0}, const T phi0 = T{0}, const T phi1 = T{0})
         {
-            constexpr T phi0 = T{0};
-            constexpr T phi1 = T{0};
-            constexpr T cosphi1 = sm::cem::cos (phi1);
-            constexpr T lambda0 = T{0};
-            return sm::vec<T, 2>{ xy[1] / r_sph + phi0,  xy[0] / (r_sph * cosphi1) + lambda0 };
+            return sm::vec<T, 2>{ xy[1] / r_sph + phi0,  xy[0] / (r_sph * sm::cem::cos (phi1)) + lambda0 };
         }
 
         // inverse_equirectangular, then converted into a 3D Cartesian coordinate
