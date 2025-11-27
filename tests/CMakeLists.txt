@@ -404,3 +404,6 @@ add_test(range_adding range_adding)
 
 add_executable(xyz_to_latlong xyz_to_latlong.cpp)
 add_test(xyz_to_latlong xyz_to_latlong)
+
+add_executable(sph_projections sph_projections.cpp)
+add_test(sph_projections sph_projections)
