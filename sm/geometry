@@ -19,6 +19,7 @@
 #include <sm/constexpr_math>
 #include <sm/range>
 #include <sm/vec>
+#include <sm/algo>
 
 namespace sm
 {
@@ -335,6 +336,198 @@ namespace sm::geometry
         d = std::min (_d, d);
 
         return d;
+    }
+
+    // Find the 0, 1 or 2 points in space that the vector originating from l0 in direction l
+    // intersects with the sphere of radius s and centre s0.
+    template<typename T>
+    sm::vec<sm::vec<T, 3>, 2> ray_sphere_intersection (const sm::vec<T, 3>& s0, const T s, const sm::vec<T, 3>& l0, const sm::vec<T, 3>& l)
+    {
+        sm::vec<sm::vec<T, 3>, 2> rtn;
+        rtn[0] = {std::numeric_limits<T>::max()};
+        rtn[1] = {std::numeric_limits<T>::max()};
+        // Analytic solution
+        sm::vec<T, 3> L = l0 - s0;
+        T a = l.dot(l);
+        T b = T{2} * l.dot(L);
+        T c = L.dot(L) - s * s;
+        sm::vec<T, 2> t = sm::algo::solve_quadratic (a, b, c);
+        if (t[0] == std::numeric_limits<T>::max() && t[1] == t[0]) { return rtn; }
+
+        if (t[0] < T{0}) {
+            t[0] = t[1]; // If t0 is negative, let's use t1 instead.
+            if (t[0] < T{0}) { return rtn; } // Both t0 and t1 are negative.
+        }
+
+        // Compute rtn from t0, t1
+        rtn[0] = l0 + l * t[0];
+        rtn[1] = l0 + l * t[1];
+
+        return rtn;
+    }
+
+    namespace spherical_projection
+    {
+        enum class type : uint32_t
+        {
+            mercator,
+            equirectangular,
+            cassini
+        };
+
+        // Position in xyz (ECEF Cartesian coordinates) to latitude/longitude where z is 'up' and 0
+        // degrees longitude is the 'front of the earth' and the 'central meridian'. The output
+        // longitude will be in the interval (-pi, pi].
+        template<typename T>
+        sm::vec<T, 2> xyz_to_latlong (const sm::vec<T, 3>& xyz, const T& r_sph)
+        {
+            return sm::vec<T, 2>{ sm::cem::asin (xyz[2] / r_sph), sm::cem::atan2 (xyz[1], xyz[0]) };
+        }
+
+        /*
+         * Return planar Cartesian coordinates for the given latitude/longitude (in radians) on a
+         * sphere of radius r_sph given the Mercator mapping. Longitude will be constrained to be
+         * in the range (-pi, pi]. Lambda0 is a longitudinal offset.
+         *
+         * \param latlong The latitude and longitude input to map, in radians. longitude
+         * (latlong[1]) will be shifted by lambda0 and constrained between -pi and pi.
+         *
+         * \param r_sph The radius of the sphere
+         *
+         * \param lambda0 The central meridian for the map (radians). A 'longitudinal offset'.
+         */
+        template<typename T>
+        constexpr sm::vec<T, 2> mercator (const sm::vec<T, 2>& latlong, const T& r_sph, const T lambda0 = T{0})
+        {
+            T _tan = sm::cem::tan ( (latlong[0] + sm::mathconst<T>::pi_over_2) / T{2});
+            if (_tan == T{0}) { _tan = sm::cem::tan (sm::mathconst<T>::pi_over_2); } // avoid inf in return
+            T _long = latlong[1] - lambda0;
+            sm::algo::minus_pi_to_pi (_long);
+            return sm::vec<T, 2>{ r_sph * _long, r_sph * sm::cem::log (_tan) };
+        }
+
+        /*
+         * Return planar Cartesian coordinates for the given latitude/longitude (in radians) on a
+         * sphere of radius r_sph given the Equirectangular mapping.
+         *
+         * \tparam T the floating point type to use when computing the projection
+         *
+         * \param latlong The latitude and longitude input to map, in radians. longitude
+         * (latlong[1]) will be shifted by lambda0 and constrained between -pi and pi.
+         *
+         * \param r_sph The radius of the sphere
+         *
+         * \param lambda0 The central meridian for the map (radians). A 'longitudinal offset'.
+         *
+         * \param phi0 The 'central parallel' of the map (radians). This gives a 'latitudinal
+         * offset'. The map is cycled.
+         *
+         * \param phi1 The latitude that will show true scale in radians (0 gives flat square; pi/4
+         * gives the Gall isographic projection, etc, for details see the Wikipedia page). This
+         * essentially scales the output 2D map in the x-direction.
+         */
+        template<typename T>
+        constexpr sm::vec<T, 2> equirectangular (const sm::vec<T, 2>& latlong, const T& r_sph,
+                                                 const T lambda0 = T{0}, const T phi0 = T{0}, const T phi1 = T{0})
+        {
+            T cosphi1 = sm::cem::cos (phi1);
+            T _long = latlong[1] - lambda0;
+            sm::algo::minus_pi_to_pi (_long);
+            T _lat = latlong[0] - phi0;
+            if (_lat <= -sm::mathconst<T>::pi_over_2) {
+                _lat += sm::mathconst<T>::pi;
+            } else if (_lat > sm::mathconst<T>::pi_over_2) {
+                _lat -= sm::mathconst<T>::pi;
+            }
+            return sm::vec<T, 2> { r_sph * _long * cosphi1, r_sph * _lat };
+        }
+
+        /*
+         * Return planar Cartesian coordinates for the given latitude/longitude (in radians) on a
+         * sphere of radius r_sph given the Cassini mapping.
+         *
+         * \param latlong The latitude and longitude input to map, in radians. longitude
+         * (latlong[1]) will be shifted by lambda0 and constrained between -pi and pi.
+         *
+         * \param r_sph The radius of the sphere
+         *
+         * \param lambda0 The central meridian for the map (radians). A 'longitudinal offset'.
+         *
+         */
+        template<typename T>
+        constexpr sm::vec<T, 2> cassini (const sm::vec<T, 2>& latlong, const T& r_sph, const T lambda0 = T{0})
+        {
+            T _long = latlong[1] - lambda0;
+            sm::algo::minus_pi_to_pi (_long);
+            return sm::vec<T, 2>{
+                r_sph * sm::cem::asin (sm::cem::cos (latlong[0]) * sm::cem::sin (_long)),
+                r_sph * sm::cem::atan2 (sm::cem::sin (latlong[0]), sm::cem::cos (latlong[0]) * sm::cem::cos (_long))
+            };
+        }
+
+        template<typename T>
+        sm::vec<T, 3> latlong_to_xyz (const sm::vec<T, 2>& latlong, const T& r_sph)
+        {
+            T coslat = sm::cem::cos (latlong[0]);  // latitude
+            T sinlat = sm::cem::sin (latlong[0]);
+            T coslong = sm::cem::cos (latlong[1]); // longitude
+            T sinlong = sm::cem::sin (latlong[1]);
+            return sm::vec<T, 3>{ r_sph * coslat * coslong, r_sph * coslat * sinlong , r_sph * sinlat };
+        }
+
+        // Return latitude, longitude (in radians) in a vec<T, 2> for the given 2D coordinate on a
+        // plane which was mapped using the equirectangular projection.
+        template<typename T>
+        constexpr sm::vec<T, 2> inverse_equirectangular (const sm::vec<T, 2>& xy, const T& r_sph,
+                                                         const T lambda0 = T{0}, const T phi0 = T{0}, const T phi1 = T{0})
+        {
+            return sm::vec<T, 2>{ xy[1] / r_sph + phi0,  xy[0] / (r_sph * sm::cem::cos (phi1)) + lambda0 };
+        }
+
+        // inverse_equirectangular, then converted into a 3D Cartesian coordinate
+        template<typename T>
+        constexpr sm::vec<T, 3> inverse_equirectangular_xyz (const sm::vec<T, 2>& xy, const T& r_sph)
+        {
+            return spherical_projection::latlong_to_xyz (spherical_projection::inverse_equirectangular (xy, r_sph), r_sph);
+        }
+
+        // Return latitude, longitude (in radians) in a vec<T, 2> for the given 2D coordinate on a
+        // plane which was mapped using the Cassini projection.
+        template<typename T>
+        constexpr sm::vec<T, 2> inverse_cassini (const sm::vec<T, 2>& xy, const T& r_sph, const T lambda0 = T{0})
+        {
+            constexpr T phi0 = T{0};
+            T d = xy[1] / r_sph + phi0;
+            return sm::vec<T, 2>{
+                sm::cem::asin (sm::cem::sin(d) * sm::cem::cos (xy[0] / r_sph)),         // lat
+                lambda0 + sm::cem::atan2 (sm::cem::tan(xy[0] / r_sph), sm::cem::cos(d)) // long
+            };
+        }
+
+        // inverse_cassini, then converted into a 3D Cartesian coordinate
+        template<typename T>
+        constexpr sm::vec<T, 3> inverse_cassini_xyz (const sm::vec<T, 2>& xy, const T& r_sph)
+        {
+            return spherical_projection::latlong_to_xyz (spherical_projection::inverse_cassini (xy, r_sph), r_sph);
+        }
+
+        // Return latitude, longitude (in radians) in a vec<T, 2> for the given 2D coordinate on a
+        // plane which was mapped using the Mercator projection.
+        template<typename T>
+        constexpr sm::vec<T, 2> inverse_mercator (const sm::vec<T, 2>& xy, const T& r_sph, const T lambda0 = T{0})
+        {
+            return sm::vec<T, 2>{
+                T{2} * sm::cem::atan (sm::cem::exp (xy[1] / r_sph)) - sm::mathconst<T>::pi_over_2,
+                lambda0 + (xy[0] / r_sph)
+            };
+        }
+
+        // inverse_mercator, then converted into a 3D Cartesian coordinate
+        template<typename T>
+        constexpr sm::vec<T, 3> inverse_mercator_xyz (const sm::vec<T, 2>& xy, const T& r_sph)
+        {
+            return spherical_projection::latlong_to_xyz (spherical_projection::inverse_mercator (xy, r_sph), r_sph);
+        }
     }
 
 } // sm::geometry
