@@ -381,7 +381,7 @@ namespace sm::geometry
         template<typename T>
         sm::vec<T, 2> xyz_to_latlong (const sm::vec<T, 3>& xyz, const T& r_sph)
         {
-            return sm::vec<T, 2>{ sm::cem::asin (xyz[2] / r_sph), sm::cem::atan2 (xyz[0], xyz[1]) };
+            return sm::vec<T, 2>{ sm::cem::asin (xyz[2] / r_sph), sm::cem::atan2 (xyz[1], xyz[0]) };
         }
 
         /*
@@ -413,7 +413,7 @@ namespace sm::geometry
          * \tparam T the floating point type to use when computing the projection
          *
          * \param latlong The latitude and longitude input to map, in radians. longitude
-         * (latlong[1]) will be shifted by lambda0 and constrained between 0 and 2pi.
+         * (latlong[1]) will be shifted by lambda0 and constrained between -pi and pi.
          *
          * \param r_sph The radius of the sphere
          *
@@ -447,7 +447,7 @@ namespace sm::geometry
          * sphere of radius r_sph given the Cassini mapping.
          *
          * \param latlong The latitude and longitude input to map, in radians. longitude
-         * (latlong[1]) will be shifted by lambda0 and constrained between 0 and 2pi.
+         * (latlong[1]) will be shifted by lambda0 and constrained between -pi and pi.
          *
          * \param r_sph The radius of the sphere
          *
@@ -497,13 +497,12 @@ namespace sm::geometry
         // Return latitude, longitude (in radians) in a vec<T, 2> for the given 2D coordinate on a
         // plane which was mapped using the Cassini projection.
         template<typename T>
-        constexpr sm::vec<T, 2> inverse_cassini (const sm::vec<T, 2>& xy, const T& r_sph)
+        constexpr sm::vec<T, 2> inverse_cassini (const sm::vec<T, 2>& xy, const T& r_sph, const T lambda0 = T{0})
         {
             constexpr T phi0 = T{0};
-            constexpr T lambda0 = T{0};
             T d = xy[1] / r_sph + phi0;
             return sm::vec<T, 2>{
-                sm::cem::asin (sm::cem::sin(d) * sm::cem::cos (xy[0] / r_sph)), // lat
+                sm::cem::asin (sm::cem::sin(d) * sm::cem::cos (xy[0] / r_sph)),         // lat
                 lambda0 + sm::cem::atan2 (sm::cem::tan(xy[0] / r_sph), sm::cem::cos(d)) // long
             };
         }
@@ -518,11 +517,11 @@ namespace sm::geometry
         // Return latitude, longitude (in radians) in a vec<T, 2> for the given 2D coordinate on a
         // plane which was mapped using the Mercator projection.
         template<typename T>
-        constexpr sm::vec<T, 2> inverse_mercator (const sm::vec<T, 2>& xy, const T& r_sph)
+        constexpr sm::vec<T, 2> inverse_mercator (const sm::vec<T, 2>& xy, const T& r_sph, const T lambda0 = T{0})
         {
             return sm::vec<T, 2>{
                 T{2} * sm::cem::atan (sm::cem::exp (xy[1] / r_sph)) - sm::mathconst<T>::pi_over_2,
-                xy[0] / r_sph
+                lambda0 + (xy[0] / r_sph)
             };
         }
 
