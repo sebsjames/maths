@@ -574,15 +574,15 @@ namespace sm::cem // ConstExpr Math
                     atan(y/x));
         }
         template<typename T1, typename T2, typename TC = common_return_t<T1, T2>>
-        constexpr TC atan2_type_check (const T1 y, const T2 x) noexcept { return atan2_compute (static_cast<TC>(x), static_cast<TC>(y)); }
+        constexpr TC atan2_type_check (const T1 y, const T2 x) noexcept { return atan2_compute (static_cast<TC>(y), static_cast<TC>(x)); }
     }
     template<typename T1, typename T2>
     constexpr common_return_t<T1, T2> atan2 (const T1 y, const T2 x) noexcept
     {
         if (std::is_constant_evaluated()) {
-            return internal::atan2_type_check (x, y);
+            return internal::atan2_type_check (y, x);
         } else {
-            return std::atan2 (x, y);
+            return std::atan2 (y, x);
         }
     }
 
