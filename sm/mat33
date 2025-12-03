@@ -101,6 +101,29 @@ namespace sm
             this->mat[8] = F{1};
         }
 
+        //! Return the identity matrix
+        static constexpr mat33<F> identity() noexcept { return sm::mat33<F>{}; }
+
+        template <typename T> requires std::is_arithmetic_v<T>
+        static constexpr mat33<F> reflection (const sm::vec<T, 3>& n) noexcept
+        {
+            sm::mat33<F> r;
+            // Reflection matrix = I - 2 * N * N^T
+            r[0] = F{1} - n[0] * n[0] * F{2};
+            r[1] =        n[1] * n[0] * F{2};
+            r[2] =        n[2] * n[0] * F{2};
+
+            r[3] =        n[0] * n[1] * F{2};
+            r[4] = F{1} - n[1] * n[1] * F{2};
+            r[5] =        n[2] * n[1] * F{2};
+
+            r[6] =        n[0] * n[2] * F{2};
+            r[7] =        n[1] * n[2] * F{2};
+            r[8] = F{1} - n[2] * n[2] * F{2};
+
+            return r;
+        }
+
         //! Access elements of the matrix
         constexpr F& operator[] (unsigned int idx) noexcept { return this->mat[idx]; }
         // note: assume F is a built-in type here (safe - F will be float or double)
@@ -351,6 +374,54 @@ namespace sm
             }
 
             return q;
+        }
+
+        //! Add m2 to this matrix
+        constexpr void operator+= (const mat33<F>& m2) noexcept
+        {
+            for (unsigned int i = 0; i < 9; ++i) { this->mat[i] += m2.mat[i]; }
+        }
+
+        //! Return this + m2
+        constexpr mat33<F> operator+ (const mat33<F>& m2) const noexcept
+        {
+            mat33<F> m = { F{0} };
+            for (unsigned int i = 0; i < 9; ++i) { m[i] = this->mat[i] + m2.mat[i]; }
+            return m;
+        }
+
+        //! Add scalar to this matrix
+        constexpr void operator+= (const F& f) noexcept
+        {
+            for (unsigned int i = 0; i < 9; ++i) { this->mat[i] += f; }
+        }
+
+        //! Return this + scalar
+        constexpr mat33<F> operator+ (const F& f) const noexcept
+        {
+            mat33<F> m = { F{0} };
+            for (unsigned int i = 0; i < 9; ++i) { m[i] = this->mat[i] + f; }
+            return m;
+        }
+
+        //! Subtract m2 from this matrix
+        constexpr void operator-= (const mat33<F>& m2) noexcept
+        {
+            for (unsigned int i = 0; i < 9; ++i) { this->mat[i] -= m2.mat[i]; }
+        }
+
+        //! Return this - m2
+        constexpr mat33<F> operator- (const mat33<F>& m2) const noexcept
+        {
+            mat33<F> m = { F{0} };
+            for (unsigned int i = 0; i < 9; ++i) { m[i] = this->mat[i] - m2.mat[i]; }
+            return m;
+        }
+
+        //! Subtract scalar from this matrix
+        constexpr void operator-= (const F& f) noexcept
+        {
+            for (unsigned int i = 0; i < 9; ++i) { this->mat[i] -= f; }
         }
 
         //! *= operator for a scalar value.
