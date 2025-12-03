@@ -384,6 +384,9 @@ if(NOT APPLE)
   endif(Eigen3_FOUND)
 endif()
 
+add_executable(mat44_3 mat44_3.cpp)
+add_test(mat44_3 mat44_3)
+
 add_executable(algo_1 algo_1.cpp)
 add_test(algo_1 algo_1)
 

@@ -89,6 +89,9 @@ namespace sm
             this->mat[3] = F{1};
         }
 
+        //! Return the identity matrix
+        static constexpr mat22<F> identity() noexcept { return sm::mat22<F>{}; }
+
         //! Set this matrix up so that it would rotate a 2D vector by rot_rad radians, anticlockwise.
         constexpr void rotate (const F rot_rad) noexcept
         {

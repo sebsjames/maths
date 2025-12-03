@@ -139,6 +139,9 @@ namespace sm
             this->mat[15] = F{1};
         }
 
+        //! Return the identity matrix
+        static constexpr mat44<F> identity() noexcept { return sm::mat44<F>{}; }
+
         //! Set *this from a transform matrix to transform a coordinate into the given coordinate basis set
         constexpr void frombasis_inplace (const sm::vec<F> bx, const sm::vec<F> by, const sm::vec<F> bz)
         {
@@ -607,6 +610,19 @@ namespace sm
                 this->mat = this->adjugate();
                 *this *= (F{1} / det);
             }
+        }
+
+        // Set this mat44 up as a reflection transformation. Any existing transformation in the mat44 will be lost.
+        template <typename T> requires std::is_arithmetic_v<T>
+        static constexpr mat44<F> reflection (const sm::vec<T, 3>& p, const sm::vec<T, 3> n) noexcept
+        {
+            // Order of operations: Translate -p (so that we reflect about 0), reflect about 0, untranslate.
+            sm::mat44<F> tr1;
+            tr1.translate (-p);
+            sm::mat44<F> refl (sm::mat33<F>::reflection (n));
+            sm::mat44<F> tr2;
+            tr2.translate (p);
+            return /* tr1.inverse() or tr2 */ tr2 * refl * tr1;
         }
 
         /*!
