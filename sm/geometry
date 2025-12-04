@@ -338,6 +338,21 @@ namespace sm::geometry
         return d;
     }
 
+    // Does ray l0,l pass through/almost-nearly-through point p0? If so, return true
+    template<typename T>
+    bool ray_point_intersection (const sm::vec<T, 3>& p0, const sm::vec<T, 3>& l0, const sm::vec<T, 3>& l)
+    {
+        //std::cout << "Is " << p0 << " on ray " << l0 << "," << (l0 + l) << " ?" << std::endl;
+        constexpr T almost_enough = std::numeric_limits<T>::epsilon();
+        T dist = sm::geometry::dist_to_lineseg<T, 3> (l0, (l0 + l), p0);
+        if (dist <= almost_enough) {
+            //std::cout << "   dist = " << dist << " <= " << almost_enough << std::endl;
+            return true;
+        }
+        //std::cout << "   dist = " << dist << " > " << almost_enough << std::endl;
+        return false;
+    }
+
     // Find the 0, 1 or 2 points in space that the vector originating from l0 in direction l
     // intersects with the sphere of radius s and centre s0.
     template<typename T>
