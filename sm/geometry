@@ -342,14 +342,9 @@ namespace sm::geometry
     template<typename T>
     bool ray_point_intersection (const sm::vec<T, 3>& p0, const sm::vec<T, 3>& l0, const sm::vec<T, 3>& l)
     {
-        //std::cout << "Is " << p0 << " on ray " << l0 << "," << (l0 + l) << " ?" << std::endl;
-        constexpr T almost_enough = std::numeric_limits<T>::epsilon();
+        constexpr T close_enough = std::numeric_limits<T>::epsilon();
         T dist = sm::geometry::dist_to_lineseg<T, 3> (l0, (l0 + l), p0);
-        if (dist <= almost_enough) {
-            //std::cout << "   dist = " << dist << " <= " << almost_enough << std::endl;
-            return true;
-        }
-        //std::cout << "   dist = " << dist << " > " << almost_enough << std::endl;
+        if (dist <= close_enough) { return true; }
         return false;
     }
 
