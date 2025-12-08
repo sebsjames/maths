@@ -435,6 +435,14 @@ namespace sm
             return quaternion<F>{ -this->w, -this->x, -this->y, -this->z };
         }
 
+        //! glTF reads quaternion strings as x,y,z,w
+        std::string str_gltf() const
+        {
+            std::stringstream ss;
+            ss << this->x << "," << this->y << "," << this->z << "," << this->w;
+            return ss.str();
+        }
+
         //! Overload the stream output operator
         friend std::ostream& operator<< <F> (std::ostream& os, const quaternion<F>& q);
     };
