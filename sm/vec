@@ -178,6 +178,55 @@ namespace sm
         template <typename Sy=S>
         constexpr void set_from (const Sy& v) noexcept { std::fill (this->begin(), this->end(), v); }
 
+        //! Set from a tokenized string (commas by default). Works for simple types S
+        void set_from_str (const std::string& s, const std::string sep = ",")
+        {
+            if constexpr (std::is_same_v<std::decay_t<S>, float> || std::is_same_v<std::decay_t<S>, double>
+                          || std::is_same_v<std::decay_t<S>, int32_t> || std::is_same_v<std::decay_t<S>, int64_t>
+                          || std::is_same_v<std::decay_t<S>, uint32_t> || std::is_same_v<std::decay_t<S>, uint64_t>) {
+
+                if (sep.empty()) { return; } // Need to know separator
+
+                std::string::size_type ssz = sep.size(), a = 0, b = 0;
+                std::size_t i = 0;
+                while (a < s.size() && (b = s.find (sep, a)) != std::string::npos && i < N) {
+                    // convert s.substr (a, b-a) to type S and insert into *this[i++]
+                    if constexpr (std::is_same_v<std::decay_t<S>, float>) {
+                        (*this)[i++] = std::stof (s.substr (a, b - a));
+                    } else if constexpr (std::is_same_v<std::decay_t<S>, double>) {
+                        (*this)[i++] = std::stod (s.substr (a, b - a));
+                    } else if constexpr (std::is_same_v<std::decay_t<S>, int32_t>) {
+                        (*this)[i++] = std::stol (s.substr (a, b - a));
+                    } else if constexpr (std::is_same_v<std::decay_t<S>, int64_t>) {
+                        (*this)[i++] = std::stoll (s.substr (a, b - a));
+                    } else if constexpr (std::is_same_v<std::decay_t<S>, uint32_t>) {
+                        (*this)[i++] = std::stoul (s.substr (a, b - a));
+                    } else if constexpr (std::is_same_v<std::decay_t<S>, uint64_t>) {
+                        (*this)[i++] = std::stoull (s.substr (a, b - a));
+                    } // there's no else
+
+                    a = b + ssz;
+                }
+                // Last one has no separator
+                if (a < s.size() && i < N) {
+                    b = s.size();
+                    if constexpr (std::is_same_v<std::decay_t<S>, float>) {
+                        (*this)[i++] = std::stof (s.substr (a, b - a));
+                    } else if constexpr (std::is_same_v<std::decay_t<S>, double>) {
+                        (*this)[i++] = std::stod (s.substr (a, b - a));
+                    } else if constexpr (std::is_same_v<std::decay_t<S>, int32_t>) {
+                        (*this)[i++] = std::stol (s.substr (a, b - a));
+                    } else if constexpr (std::is_same_v<std::decay_t<S>, int64_t>) {
+                        (*this)[i++] = std::stoll (s.substr (a, b - a));
+                    } else if constexpr (std::is_same_v<std::decay_t<S>, uint32_t>) {
+                        (*this)[i++] = std::stoul (s.substr (a, b - a));
+                    } else if constexpr (std::is_same_v<std::decay_t<S>, uint64_t>) {
+                        (*this)[i++] = std::stoull (s.substr (a, b - a));
+                    } // there's no else
+                }
+            }
+        }
+
         /*!
          * Set a linear sequence into the vector from value start to value stop. Uses
          * the vec's size to determine how many values to create. You *can* use this
