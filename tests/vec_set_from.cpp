@@ -18,15 +18,16 @@ int main()
     sm::vec<uint32_t, 3> vul = {};
     sm::vec<uint64_t, 3> vull = {};
 
-    vf.set_from_str   (std::string(" 1,.2,3"));
-    vd.set_from_str   (std::string(".1,.2,3"));
-    vl.set_from_str   (std::string("10,-2,3"));
-    vll.set_from_str  (std::string(" 1,2,-3"));
-    vul.set_from_str  (std::string(" 1,2,3"));
-    vull.set_from_str (std::string(" 1,2,-3"));
+    vf.set_from   (" 1,.2,3");
+    vd.set_from   (std::string(".1,.2,3"));
+    vl.set_from   ("10,-2,3");
+    vll.set_from  (std::string(" 1,2,-3"));
+    vul.set_from  (" 1,2,3");
+    vull.set_from (std::string(" 1,2,-3"));
 
-    std::cout << "vf = " << vf << ", vd = " << vd << ", vl = " << vl << ", vll = " << vll << std::endl;
-    std::cout << "vul = " << vul << ", vull = " << vull << std::endl;
+    std::cout << "vf = " << vf << ", vd = " << vd
+              << "\nvl = " << vl << ", vll = " << vll
+              << "\nvul = " << vul << ", vull = " << vull << std::endl;
 
     if (vf[0] != std::stof ("1") || vf[1] != std::stof (".2") || vf[2] != std::stof ("3")) {
         std::cout << "vf: " << vf << std::endl;
@@ -56,6 +57,41 @@ int main()
     if (vull[0] != std::stoull ("1") || vull[1] != std::stoull ("2") || vull[2] != std::stoull ("-3")) {
         std::cout << "vull: " << vull << std::endl;
         std::cout << "stoll: " << std::stoull ("1") << ", " << std::stoull ("2") << ", " << std::stoull ("-3") << std::endl;
+        --rtn;
+    }
+
+    sm::vec<int, 4> v4;
+    v4.set_from ("1,2");
+    if (v4 != sm::vec<int, 4>{1,2,0,0}) {
+        std::cout << v4 << " != " << sm::vec<int, 4>{1,2,0,0} << std::endl;
+        --rtn;
+    }
+
+    // Empty fields are ok
+    v4.set_from ("1,,3,");
+    if (v4 != sm::vec<int, 4>{1,0,3,0}) {
+        std::cout << v4 << " != " << sm::vec<int, 4>{1,0,3,0} << std::endl;
+        --rtn;
+    }
+
+    try {
+        v4.set_from ("1,f,3,");
+        --rtn;
+    } catch (const std::exception& e) {
+        std::cout << "Expected exception: " << e.what() << std::endl;
+    }
+
+    // You can use other separators if you specify them in the 2nd arg
+    v4.set_from ("1 2", " ");
+    if (v4 != sm::vec<int, 4>{1,2,0,0}) {
+        std::cout << v4 << " != " << sm::vec<int, 4>{1,2,0,0} << std::endl;
+        --rtn;
+    }
+
+    // Separators can be multi-char
+    v4.set_from ("1sep2sep3sep4", "sep");
+    if (v4 != sm::vec<int, 4>{1,2,3,4}) {
+        std::cout << v4 << " != " << sm::vec<int, 4>{1,2,3,4} << std::endl;
         --rtn;
     }
 
