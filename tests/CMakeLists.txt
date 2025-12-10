@@ -95,6 +95,9 @@ add_test(testarray_asmapkey testarray_asmapkey)
 add_executable(testvecElementOps testvecElementOps.cpp)
 add_test(testvecElementOps testvecElementOps)
 
+add_executable(vec_set_from vec_set_from.cpp)
+add_test(vec_set_from vec_set_from)
+
 # Test the "mathematic vector made from an std::vector" code (this vvec is better for neural networks)
 add_executable(testvvec testvvec.cpp)
 add_test(testvvec testvvec)

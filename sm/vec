@@ -179,6 +179,75 @@ namespace sm
         constexpr void set_from (const Sy& v) noexcept { std::fill (this->begin(), this->end(), v); }
 
         /*!
+         * Set from a tokenized string (commas by default). Works for simple types S
+         *
+         * This function throws exceptions, which may originate from std::stof (and friends) due to
+         * bad input. For example, vec<float, 3>::set_from_str ("1,2,f") will throw an error because
+         * the third element is a bad numeric string. However, you *can* leave elements
+         * empty. vec<float, 3>::set_from_str ("1,,3") should result in a vec containing {1,0,3}
+         */
+        void set_from_str (const std::string& s, const std::string sep = ",")
+        {
+            if constexpr (false == (std::is_same_v<std::decay_t<S>, float> || std::is_same_v<std::decay_t<S>, double>
+                                    || std::is_same_v<std::decay_t<S>, int32_t> || std::is_same_v<std::decay_t<S>, int64_t>
+                                    || std::is_same_v<std::decay_t<S>, uint32_t> || std::is_same_v<std::decay_t<S>, uint64_t>)) {
+                // Causes compile-time error. If you find you need to set from string with S==unsigned char, or
+                // short 16 or something, then add the types here. For now stick to 32/64 bit types
+                []<bool flag = false>() { static_assert(flag, "set_from (string type) only for simple scalar types S"); }();
+            }
+
+            if (sep.empty()) { return; } // Need to know separator
+
+            *this = {}; // Zero first
+
+            std::string::size_type ssz = sep.size(), a = 0, b = 0;
+            std::size_t i = 0;
+            while (a < s.size() && (b = s.find (sep, a)) != std::string::npos && i < N) {
+                // convert s.substr (a, b-a) to type S and insert into *this[i++]
+                std::string sub = s.substr (a, b-a);
+                if (sub.empty()) {
+                    (*this)[i++] = S{0};
+                } else {
+                    if constexpr (std::is_same_v<std::decay_t<S>, float>) {
+                        (*this)[i++] = std::stof (s.substr (a, b - a));
+                    } else if constexpr (std::is_same_v<std::decay_t<S>, double>) {
+                        (*this)[i++] = std::stod (s.substr (a, b - a));
+                    } else if constexpr (std::is_same_v<std::decay_t<S>, int32_t>) {
+                        (*this)[i++] = std::stol (s.substr (a, b - a));
+                    } else if constexpr (std::is_same_v<std::decay_t<S>, int64_t>) {
+                        (*this)[i++] = std::stoll (s.substr (a, b - a));
+                    } else if constexpr (std::is_same_v<std::decay_t<S>, uint32_t>) {
+                        (*this)[i++] = std::stoul (s.substr (a, b - a));
+                    } else if constexpr (std::is_same_v<std::decay_t<S>, uint64_t>) {
+                        (*this)[i++] = std::stoull (s.substr (a, b - a));
+                    } // there's no else
+                }
+                a = b + ssz;
+            }
+            // Last element probably has no separator
+            if (a < s.size() && i < N) {
+                b = s.size();
+                if constexpr (std::is_same_v<std::decay_t<S>, float>) {
+                    (*this)[i++] = std::stof (s.substr (a, b - a));
+                } else if constexpr (std::is_same_v<std::decay_t<S>, double>) {
+                    (*this)[i++] = std::stod (s.substr (a, b - a));
+                } else if constexpr (std::is_same_v<std::decay_t<S>, int32_t>) {
+                    (*this)[i++] = std::stol (s.substr (a, b - a));
+                } else if constexpr (std::is_same_v<std::decay_t<S>, int64_t>) {
+                    (*this)[i++] = std::stoll (s.substr (a, b - a));
+                } else if constexpr (std::is_same_v<std::decay_t<S>, uint32_t>) {
+                    (*this)[i++] = std::stoul (s.substr (a, b - a));
+                } else if constexpr (std::is_same_v<std::decay_t<S>, uint64_t>) {
+                    (*this)[i++] = std::stoull (s.substr (a, b - a));
+                } // there's no else
+            }
+        }
+        //! Set from a tokenized string provided as std::string (commas by default). Works for simple types S
+        void set_from (const std::string& s, const std::string sep = ",") { this->set_from_str (s, sep); }
+        //! Set from a tokenized string provided as const char* (commas by default). Works for simple types S
+        void set_from (const char* s, const std::string sep = ",") { this->set_from_str (s, sep); }
+
+        /*!
          * Set a linear sequence into the vector from value start to value stop. Uses
          * the vec's size to determine how many values to create. You *can* use this
          * with integer types, but be prepared to notice strange rounding errors.
