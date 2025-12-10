@@ -95,5 +95,24 @@ int main()
         --rtn;
     }
 
+    sm::vec<unsigned int, 4> u4;
+    u4.set_from ("1,2");
+    if (u4 != sm::vec<unsigned int, 4>{1,2,0,0}) {
+        std::cout << u4 << " != " << sm::vec<unsigned int, 4>{1,2,0,0} << std::endl;
+        --rtn;
+    }
+
+    u4.set_from ("");
+    if (u4 != sm::vec<unsigned int, 4>{0,0,0,0}) {
+        std::cout << u4 << " != " << sm::vec<unsigned int, 4>{0,0,0,0} << std::endl;
+        --rtn;
+    }
+
+    u4.set_from (",,,,,,,");
+    if (u4 != sm::vec<unsigned int, 4>{0,0,0,0}) {
+        std::cout << u4 << " != " << sm::vec<unsigned int, 4>{0,0,0,0} << std::endl;
+        --rtn;
+    }
+
     return rtn;
 }

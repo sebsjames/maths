@@ -293,6 +293,37 @@ void set_lowest();
 ```
 This `set_from` overload fills all elements of the `sm::vec` with `v`. `zero()`, `set_max()` and `set_lowest()` fill all elements with `S{0}`, the maximum possible value for the type and the lowest possible value, respectively.
 
+There are also `set_from` overloads that allow the setting of a `vec` from a token-separated string:
+
+```c++
+void set_from (const std::string& s, const std::string sep = ",");
+void set_from (const char* s, const std::string sep = ",");
+```
+`sep` can be a single character or a token string.
+These overloads only work if the contained type ofthe `vec` is a 32 or 64 bit core numeric type such as `float`, `double`, `int`, or `uint64_t`.
+Note that these overloads may throw exceptions on bad input.
+
+Here are some examples
+```c++
+sm::vec<int, 4> v4;
+v4.set_from ("1,2,3,4");       // yields sm::vec<int, 4>{1,2,3,4}
+v4.set_from ("1,2,3,4,5,6,7"); // yields sm::vec<int, 4>{1,2,3,4}
+v4.set_from ("1,2,");          // yields sm::vec<int, 4>{1,2,0,0}
+v4.set_from ("1,2,,");         // yields sm::vec<int, 4>{1,2,0,0}
+v4.set_from ("1,2,A,");        // Throws exception
+v4.set_from ("");              // yields sm::vec<int, 4>{0,0,0,0}
+v4.set_from (",,,,,,,");       // yields sm::vec<int, 4>{0,0,0,0}
+```
+
+You can use a single character or token string as separator:
+
+```c++
+sm::vec<int, 4> v4;
+v4.set_from ("1 2 3 4", " ");         // yields sm::vec<int, 4>{1,2,3,4}
+v4.set_from ("1;2;3;4", ";");         // yields sm::vec<int, 4>{1,2,3,4}
+v4.set_from ("1sep2sep3sep4", "sep"); // yields sm::vec<int, 4>{1,2,3,4}
+```
+
 ### Numpy clones
 
 ```c++
