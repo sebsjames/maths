@@ -23,7 +23,7 @@ int main()
     vl.set_from_str   (std::string("10,-2,3"));
     vll.set_from_str  (std::string(" 1,2,-3"));
     vul.set_from_str  (std::string(" 1,2,3"));
-    vull.set_from_str (std::string(" 1,2,3"));
+    vull.set_from_str (std::string(" 1,2,-3"));
 
     std::cout << "vf = " << vf << ", vd = " << vd << ", vl = " << vl << ", vll = " << vll << std::endl;
     std::cout << "vul = " << vul << ", vull = " << vull << std::endl;
@@ -48,9 +48,9 @@ int main()
         std::cout << "stoll: " << std::stoll ("1") << ", " << std::stoll ("2") << ", " << std::stoll ("-3") << std::endl;
         --rtn;
     }
-    if (vul[0] != std::stoul ("10") || vul[1] != std::stoul ("-2") || vul[2] != std::stoul ("3")) {
+    if (vul[0] != std::stoul ("1") || vul[1] != std::stoul ("2") || vul[2] != std::stoul ("3")) {
         std::cout << "vul: " << vul << std::endl;
-        std::cout << "stoul: " << std::stoul ("10") << ", " << std::stoul ("-2") << ", " << std::stoul ("3") << std::endl;
+        std::cout << "stoul: " << std::stoul ("1") << ", " << std::stoul ("2") << ", " << std::stoul ("3") << std::endl;
         --rtn;
     }
     if (vull[0] != std::stoull ("1") || vull[1] != std::stoull ("2") || vull[2] != std::stoull ("-3")) {
