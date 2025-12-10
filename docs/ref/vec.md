@@ -25,9 +25,9 @@ Header file: [<sm/vec>](https://github.com/sebsjames/maths/blob/main/sm/vec). Te
 `sm::vec` is a fixed-size mathematical vector class. It derives
 from `std::array` and can be used in much the same way as its STL
 parent. It has iterators and you can apply STL algorithms. It is
-constexpr-capable, meaning that it can be incorporated into constexpr
+constexpr-capable, meaning that it can be incorporated into `constexpr`
 functions to do compile-time maths. The majority of its methods are
-`nopexcept` (they do *not* throw exceptions).
+`noexcept` (they do *not* throw exceptions).
 
 ```c++
 namespace sm
@@ -52,7 +52,7 @@ sm::vec<int, 4> v3 = v1 + v2;             // element-wise addition
 sm::vec<float, 3> u1 = { 1.0f, 0.0f, 0.0f };
 sm::vec<float, 3> u2 = { 0.0f, 1.0f, 0.0f };
 sm::vec<float, 3> u3 = u1.cross (u2);     // vector cross-product
-float dp = u1.dot (u3);                      // (scalar/dot/inner)-product
+float dp = u1.dot (u3);                   // (scalar/dot/inner)-product
 ```
 
 ## Design
@@ -65,7 +65,7 @@ visualization code. I wanted the data stored in a fixed size
 interface that would make coding with the class convenient, easy and
 enjoyable.
 
-While I could have created a class with an `std::array data` member, I
+While I could have created a class with an `std::array` data member, I
 thought that adding functions to an extended `std::array` would work
 very well. In practice, `sm::vec` is extremely convenient to use.
 
