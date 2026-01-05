@@ -201,6 +201,13 @@ namespace sm::geometry
         return false;
     }
 
+    // Return the projection of v onto the plane defined by its normal, n.
+    template<typename T>
+    sm::vec<T> vector_plane_projection (const sm::vec<T, 3>& n, const sm::vec<T, 3>& v)
+    {
+        return v - (v.dot (n) / n.dot(n)) * n;
+    }
+
     /*!
      * Does the ray (l0, l) intersect with a triangle defined by t0, t1, t2?  l0 is the ray origin,
      * l is a vector giving the ray's direction and length Return true/false. If true, p is the
