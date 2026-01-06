@@ -203,8 +203,8 @@ namespace sm::geometry
     }
 
     // Return the projection of the N dimensional vector v onto the hyperplane defined by the normal
-    // vector n.
-    template<typename T, std::size_t N> requires std::is_floating_point_v<T>
+    // vector n. Defined for N >= 2 and floating point elements.
+    template<typename T, std::size_t N> requires std::is_floating_point_v<T> && (N > 1)
     sm::vec<T, N> vector_plane_projection (const sm::vec<T, N>& n, const sm::vec<T, N>& v)
     {
         return v - (v.dot(n) / n.sos()) * n;
