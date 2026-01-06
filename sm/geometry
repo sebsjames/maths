@@ -205,7 +205,7 @@ namespace sm::geometry
     template<typename T>
     sm::vec<T> vector_plane_projection (const sm::vec<T, 3>& n, const sm::vec<T, 3>& v)
     {
-        return v - (v.dot (n) / n.dot(n)) * n;
+        return v - (v.dot(n) / n.sos()) * n;
     }
 
     /*!
