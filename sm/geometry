@@ -396,8 +396,8 @@ namespace sm::geometry
 
         // Convert a position in xyz (ECEF Cartesian coordinates) to latitude/longitude where z is
         // 'up' and 0 degrees longitude is the 'front of the earth' and the 'central meridian'. The
-        // output longitude will be in the interval (-pi, pi]. The length of the vector xyz is
-        // assumed to be the radius of the sphere.
+        // output longitude will be in the interval (-pi, pi]. The output latitude is in the range
+        // [-pi/2, pi/2]. The length of the vector xyz is assumed to be the radius of the sphere.
         template<typename T>
         sm::vec<T, 2> xyz_to_latlong (const sm::vec<T, 3>& xyz)
         {
