@@ -107,6 +107,24 @@ namespace sm
             return rtn;
         }
 
+        //! Return a quaternion that contains the elements of this quaternion in type \tparam T
+        template<typename T>
+        constexpr quaternion<T> as() const noexcept
+        {
+            quaternion<T> qr;
+            qr.w = static_cast<T>(this->w);
+            qr.x = static_cast<T>(this->x);
+            qr.y = static_cast<T>(this->y);
+            qr.z = static_cast<T>(this->z);
+            return qr;
+        }
+
+        //! Return this quaternion in single precision, float format
+        constexpr quaternion<float> as_float() const noexcept { return this->as<float>(); }
+
+        //! Return this quaternion in double precision, float format
+        constexpr quaternion<double> as_double() const noexcept { return this->as<double>(); }
+
         //! Assignment operators
         void operator= (const quaternion<F>& q2) noexcept
         {
