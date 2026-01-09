@@ -394,13 +394,25 @@ namespace sm::geometry
             cassini
         };
 
-        // Position in xyz (ECEF Cartesian coordinates) to latitude/longitude where z is 'up' and 0
-        // degrees longitude is the 'front of the earth' and the 'central meridian'. The output
-        // longitude will be in the interval (-pi, pi].
+        // Convert a position in xyz (ECEF Cartesian coordinates) to latitude/longitude where z is
+        // 'up' and 0 degrees longitude is the 'front of the earth' and the 'central meridian'. The
+        // output longitude will be in the interval (-pi, pi]. The output latitude is in the range
+        // [-pi/2, pi/2]. The length of the vector xyz is assumed to be the radius of the sphere.
         template<typename T>
-        sm::vec<T, 2> xyz_to_latlong (const sm::vec<T, 3>& xyz, const T& r_sph)
+        sm::vec<T, 2> xyz_to_latlong (const sm::vec<T, 3>& xyz)
         {
+            const T r_sph = xyz.length();
             return sm::vec<T, 2>{ sm::cem::asin (xyz[2] / r_sph), sm::cem::atan2 (xyz[1], xyz[0]) };
+        }
+
+        template<typename T>
+        sm::vec<T, 3> latlong_to_xyz (const sm::vec<T, 2>& latlong, const T& r_sph)
+        {
+            T coslat = sm::cem::cos (latlong[0]);  // latitude
+            T sinlat = sm::cem::sin (latlong[0]);
+            T coslong = sm::cem::cos (latlong[1]); // longitude
+            T sinlong = sm::cem::sin (latlong[1]);
+            return sm::vec<T, 3>{ r_sph * coslat * coslong, r_sph * coslat * sinlong , r_sph * sinlat };
         }
 
         /*
@@ -482,16 +494,6 @@ namespace sm::geometry
                 r_sph * sm::cem::asin (sm::cem::cos (latlong[0]) * sm::cem::sin (_long)),
                 r_sph * sm::cem::atan2 (sm::cem::sin (latlong[0]), sm::cem::cos (latlong[0]) * sm::cem::cos (_long))
             };
-        }
-
-        template<typename T>
-        sm::vec<T, 3> latlong_to_xyz (const sm::vec<T, 2>& latlong, const T& r_sph)
-        {
-            T coslat = sm::cem::cos (latlong[0]);  // latitude
-            T sinlat = sm::cem::sin (latlong[0]);
-            T coslong = sm::cem::cos (latlong[1]); // longitude
-            T sinlong = sm::cem::sin (latlong[1]);
-            return sm::vec<T, 3>{ r_sph * coslat * coslong, r_sph * coslat * sinlong , r_sph * sinlat };
         }
 
         // Return latitude, longitude (in radians) in a vec<T, 2> for the given 2D coordinate on a
