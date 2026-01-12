@@ -91,5 +91,20 @@ int main()
         --rtn;
     }
 
+    // sm::vec OUTSIDE
+    std::vector<sm::vec<float, 2>> lVecO;
+    lVecO.push_back ({0.0f,0.0f});
+    lVecO.push_back ({1000.0f,0.0f});
+    lVecO.push_back ({1000.0f,1000.0f});
+    lVecO.push_back ({0.0f,1000.0f});
+    lVecO.push_back ({0.0f,0.0f});
+    sm::winder w8(lVecO);
+    sm::vec<float, 2> px8 = {500.0f,2000.0f};
+    int wn8 = w8.wind (px8);
+    std::cout << "Winding number = " << wn8 << std::endl;
+    if (wn8 != 0) {
+        --rtn;
+    }
+
     return rtn;
 }

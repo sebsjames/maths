@@ -75,7 +75,8 @@ namespace sm
         winder (const C& _boundary) : boundary(_boundary) {}
 
         //! Compute the winding number of the coordinate px with respect to the boundary.
-        int wind (const T& px) {
+        int wind (const T& px)
+        {
             this->reset();
             for (auto bp : this->boundary) {
                 this->wind (px, bp);
@@ -94,7 +95,8 @@ namespace sm
         //! Convert two coordinate objects (whatever they may be) which define one
         //! vector (pt) into an angle (using std::atan2) of type double so that the
         //! method sm::winder::wind (const double&) may be called.
-        void wind (const T& px, const T& bp) {
+        void wind (const T& px, const T& bp)
+        {
             // Get angle from px to bp. First create pt, the vector pointing from px to
             // bp whose angle we will calculate.
             T pt;
@@ -106,7 +108,7 @@ namespace sm
                     pt.resize(2);
                 }
                 if constexpr (has_subtraction<T>::value == true) {
-                    if constexpr (debug_mode == true) { std::cout << "subtraction operator\n"; }
+                    if constexpr (debug_mode == true) { std::cout << "has subtraction operator\n"; }
                     pt = bp - px;
                 } else {
                     if constexpr (debug_mode == true) { std::cout << "subtracting array elements\n"; }
@@ -157,9 +159,9 @@ namespace sm
         //! Update this->angle, this->angle_last and this->angle_sum based on \a
         //! raw_angle. Note that there is no template specialization in this method;
         //! all the specialization is in sm::winder::wind (const T&, const T&).
-        void wind (const double& raw_angle) {
-
-            // Convert the raw angle which has range -pi -> 0 -> +pi into a tansformed angle with range 0->2pi:
+        void wind (const double& raw_angle)
+        {
+            // Convert the raw angle which has range -pi -> 0 -> +pi into a transformed angle with range 0->2pi:
             this->angle = raw_angle >= 0 ? raw_angle : (sm::mathconst<double>::two_pi + raw_angle);
             if constexpr (sm::debug_mode == true) { std::cout << "angle: " << this->angle << "\n"; }
 
@@ -183,7 +185,7 @@ namespace sm
             } else {
 
                 // Special treatment required ALSO if we crossed the 0 line without being on it.
-                if (this->angle_last > sm::mathconst<double>::pi && this->angle < sm::mathconst<double>::pi) {
+                if (this->angle_last > sm::mathconst<double>::three_pi_over_2 && this->angle < sm::mathconst<double>::pi_over_2) {
                     // crossed from 2pi side to 0 side: Clockwise
                     delta = this->angle + (sm::mathconst<double>::two_pi - this->angle_last);
                 } else if (this->angle_last < sm::mathconst<double>::pi_over_2 && this->angle > sm::mathconst<double>::three_pi_over_2) {
@@ -200,7 +202,8 @@ namespace sm
         }
 
         //! Reset the angle member variables
-        void reset() {
+        void reset()
+        {
             this->angle_last = double{-100};
             this->angle = double{0};
             this->angle_sum = double{0};
