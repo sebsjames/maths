@@ -241,9 +241,11 @@ add_executable(testRandom testRandom.cpp)
 add_test(testRandom testRandom)
 
 # Test winding number code
-add_executable(testWinder testWinder.cpp)
-target_link_libraries(testWinder)
-add_test(testWinder testWinder)
+add_executable(winder1 winder1.cpp)
+add_test(winder1 winder1)
+
+add_executable(winder2 winder2.cpp)
+add_test(winder2 winder2)
 
 # Test RandString generation
 add_executable(testRandString testRandString.cpp)
