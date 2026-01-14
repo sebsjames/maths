@@ -418,3 +418,7 @@ add_test(xyz_to_latlong xyz_to_latlong)
 
 add_executable(sph_projections sph_projections.cpp)
 add_test(sph_projections sph_projections)
+
+add_executable(test_polynomialsolver test_polynomialsolver.cpp)
+add_test(test_polynomialsolver test_polynomialsolver)
+

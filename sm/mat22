@@ -14,6 +14,7 @@
 #pragma once
 
 #include <cmath>
+#include <complex>
 #include <string>
 #include <sstream>
 #include <iostream>
@@ -272,6 +273,103 @@ namespace sm
                 this->mat[1] * v1[0] + this->mat[3] * v1[1]
             };
             return v;
+        }
+
+        /*!
+         * Compute the eigenvalues of this 2x2 matrix.
+         * Returns a vector of 2 complex eigenvalues.
+         * 
+         * For matrix A = [a c; b d], eigenvalues are the roots of:
+         * λ² - trace(A)λ + det(A) = 0
+         */
+        sm::vec<std::complex<F>, 2> eigenvalues() const noexcept
+        {
+            // Characteristic polynomial: λ² - trace(A)λ + det(A) = 0
+            F tr = this->trace();
+            
+            // Quadratic formula: λ = (tr ± √(tr² - 4*det)) / 2
+            F discriminant = tr * tr - F{4} * this->determinant();
+            
+            sm::vec<std::complex<F>, 2> lambdas;
+            
+            if (discriminant >= F{0}) {
+                // Real eigenvalues
+                F sqrt_disc = std::sqrt(discriminant);
+                lambdas[0] = std::complex<F>((tr + sqrt_disc) / F{2}, F{0});
+                lambdas[1] = std::complex<F>((tr - sqrt_disc) / F{2}, F{0});
+            } else {
+                // Complex conjugate eigenvalues
+                F real_part = tr / F{2};
+                F imag_part = std::sqrt(-discriminant) / F{2};
+                lambdas[0] = std::complex<F>(real_part, imag_part);
+                lambdas[1] = std::complex<F>(real_part, -imag_part);
+            }
+            
+            return lambdas;
+        }
+
+        /*!
+         * Find an eigenvector for a given eigenvalue.
+         * Returns a normalized eigenvector as a complex vector.
+         */
+        sm::vec<std::complex<F>, 2> eigenvector(const std::complex<F>& lambda) const noexcept
+        {
+            std::complex<F> a(this->mat[0], F{0});
+            std::complex<F> b(this->mat[1], F{0});
+            std::complex<F> c(this->mat[2], F{0});
+            std::complex<F> d(this->mat[3], F{0});
+            
+            sm::vec<std::complex<F>, 2> v;
+            
+            // Try first row: (a - λ)v₀ + c*v₁ = 0
+            std::complex<F> a_minus_lambda = a - lambda;
+            
+            if (std::abs(c) > std::abs(a_minus_lambda) * F{1e-10}) {
+                // Use: v₁ = 1, v₀ = -c / (a - λ)
+                v[1] = std::complex<F>(F{1}, F{0});
+                v[0] = -c / a_minus_lambda;
+            } else if (std::abs(b) > F{1e-10}) {
+                // Try second row: b*v₀ + (d - λ)v₁ = 0
+                // Use: v₀ = 1, v₁ = -b / (d - λ)
+                v[0] = std::complex<F>(F{1}, F{0});
+                v[1] = -b / (d - lambda);
+            } else {
+                // Degenerate case - use standard basis
+                v[0] = std::complex<F>(F{1}, F{0});
+                v[1] = std::complex<F>(F{0}, F{0});
+            }
+            
+            // Normalize
+            F norm = std::sqrt(std::norm(v[0]) + std::norm(v[1]));
+            if (norm > F{1e-10}) {
+                v[0] /= norm;
+                v[1] /= norm;
+            }
+            
+            return v;
+        }
+
+        /*!  
+         * Compute both eigenvalues and their corresponding eigenvectors.
+         * Returns a vector of 2 pairs, each containing an eigenvalue and its eigenvector.
+         */
+        struct Eigenpair {
+            std::complex<F> eigenvalue;
+            sm::vec<std::complex<F>, 2> eigenvector;
+        };
+        
+        sm::vec<Eigenpair, 2> eigenpairs() const noexcept
+        {
+            sm::vec<Eigenpair, 2> pairs;
+            sm::vec<std::complex<F>, 2> lambdas = this->eigenvalues();
+            
+            pairs[0].eigenvalue = lambdas[0];
+            pairs[0].eigenvector = this->eigenvector(lambdas[0]);
+            
+            pairs[1].eigenvalue = lambdas[1];
+            pairs[1].eigenvector = this->eigenvector(lambdas[1]);
+            
+            return pairs;
         }
 
         //! Overload the stream output operator
