@@ -375,11 +375,23 @@ add_test(testConfig testConfig)
 add_executable(test_zernike test_zernike.cpp)
 add_test(test_zernike test_zernike)
 
+add_executable(mat22_1 mat22_1.cpp)
+add_test(mat22_1 mat22_1)
+
+add_executable(mat22_eigenvalues mat22_eigenvalues.cpp)
+add_test(mat22_eigenvalues mat22_eigenvalues)
+
 add_executable(mat33_1 mat33_1.cpp)
 add_test(mat33_1 mat33_1)
 
+add_executable(mat33_eigenvalues mat33_eigenvalues.cpp)
+add_test(mat33_eigenvalues mat33_eigenvalues)
+
 add_executable(mat44_1 mat44_1.cpp)
 add_test(mat44_1 mat44_1)
+
+add_executable(mat44_eigenvalues mat44_eigenvalues.cpp)
+add_test(mat44_eigenvalues mat44_eigenvalues)
 
 if(NOT APPLE)
   if(Eigen3_FOUND)

@@ -141,6 +141,10 @@ private:
     
     static sm::vvec<std::complex<F>> solveCubic(F a3, F a2, F a1, F a0) {
         // Solve x^3 + a2*x^2 + a1*x + a0 = 0 using Cardano's method
+        // Leading coefficient a3 must be 1 (monic polynomial)
+        if (std::abs(a3 - F{1}) > EPSILON) {
+            throw std::invalid_argument("solveCubic expects monic polynomial (leading coefficient = 1)");
+        }
         
         // Convert to depressed cubic: t^3 + p*t + q = 0
         F p = a1 - a2 * a2 / F{3};
@@ -202,6 +206,10 @@ private:
     
     static sm::vvec<std::complex<F>> solveQuartic(F a4, F a3, F a2, F a1, F a0) {
         // Solve x^4 + a3*x^3 + a2*x^2 + a1*x + a0 = 0 using Ferrari's method
+        // Leading coefficient a4 must be 1 (monic polynomial)
+        if (std::abs(a4 - F{1}) > EPSILON) {
+            throw std::invalid_argument("solveQuartic expects monic polynomial (leading coefficient = 1)");
+        }
         
         // Convert to depressed quartic: y^4 + p*y^2 + q*y + r = 0
         F p = a2 - F{3} * a3 * a3 / F{8};
