@@ -139,6 +139,19 @@ private:
         }
     }
     
+    static sm::vvec<std::complex<F>> solveQuadraticComplex(const std::complex<F>& a, const std::complex<F>& b, const std::complex<F>& c) {
+        // Solve az^2 + bz + c = 0 with complex coefficients
+        // z = (-b ± sqrt(b² - 4ac)) / (2a)
+        std::complex<F> discriminant = b * b - F{4} * a * c;
+        std::complex<F> sqrt_disc = std::sqrt(discriminant);
+        
+        std::complex<F> denom = F{2} * a;
+        std::complex<F> root1 = (-b + sqrt_disc) / denom;
+        std::complex<F> root2 = (-b - sqrt_disc) / denom;
+        
+        return {root1, root2};
+    }
+    
     static sm::vvec<std::complex<F>> solveCubic(F a3, F a2, F a1, F a0) {
         // Solve x^3 + a2*x^2 + a1*x + a0 = 0 using Cardano's method
         // Leading coefficient a3 must be 1 (monic polynomial)
@@ -240,17 +253,26 @@ private:
                 }
             }
             
-            // Calculate intermediate values
-            std::complex<F> sqrtM = std::sqrt(m);
-            std::complex<F> sqrtN = std::sqrt(m * m - F{4} * r);
+            // Ferrari's factorization: y^4 + p*y^2 + q*y + r = (y^2 + s*y + t)(y^2 - s*y + u)
+            // Where: s^2 = m, t + u = p + m, t*u = r
+            std::complex<F> s = std::sqrt(m);
             
-            if ((sqrtM * q).real() < F{0}) {
-                sqrtN = -sqrtN;
+            // Find t and u as roots of: z^2 - (p+m)*z + r = 0
+            std::complex<F> sum_tu = p + m;
+            std::complex<F> prod_tu(r, F{0});
+            sm::vvec<std::complex<F>> tu_roots = solveQuadraticComplex(std::complex<F>(F{1}, F{0}), -sum_tu, prod_tu);
+            std::complex<F> t = tu_roots[0];
+            std::complex<F> u = tu_roots[1];
+            
+            // Verify and swap if needed to ensure s(u-t) = q
+            std::complex<F> q_check = s * (u - t);
+            if (std::abs(q_check - std::complex<F>(q, F{0})) > std::abs(s * (t - u) - std::complex<F>(q, F{0}))) {
+                std::swap(t, u);
             }
             
-            // Solve two quadratics
-            sm::vvec<std::complex<F>> quad1 = solveQuadratic(F{1}, sqrtM.real(), (m.real() + sqrtN.real()) / F{2});
-            sm::vvec<std::complex<F>> quad2 = solveQuadratic(F{1}, -sqrtM.real(), (m.real() - sqrtN.real()) / F{2});
+            // Solve two quadratics: y^2 + s*y + t = 0 and y^2 - s*y + u = 0
+            sm::vvec<std::complex<F>> quad1 = solveQuadraticComplex(std::complex<F>(F{1}, F{0}), s, t);
+            sm::vvec<std::complex<F>> quad2 = solveQuadraticComplex(std::complex<F>(F{1}, F{0}), -s, u);
             
             roots.insert(roots.end(), quad1.begin(), quad1.end());
             roots.insert(roots.end(), quad2.begin(), quad2.end());

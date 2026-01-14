@@ -18,21 +18,47 @@ int main()
     // Get eigenvalues
     sm::vec<std::complex<double>, 2> lambdas = A.eigenvalues();
     std::cout << "A.eigenvalues() returns:\n";
-    std::cout << "  λ₀ = " << lambdas[0] << "\n";
-    std::cout << "  λ₁ = " << lambdas[1] << "\n\n";
+    std::cout << "  λ₀ = " << lambdas[0].real();
+    if (std::abs(lambdas[0].imag()) > 1e-10) {
+        std::cout << " + " << lambdas[0].imag() << "i";
+    }
+    std::cout << "\n";
+    std::cout << "  λ₁ = " << lambdas[1].real();
+    if (std::abs(lambdas[1].imag()) > 1e-10) {
+        std::cout << " + " << lambdas[1].imag() << "i";
+    }
+    std::cout << "\n\n";
     
     // Get eigenvector for first eigenvalue
     sm::vec<std::complex<double>, 2> v0 = A.eigenvector(lambdas[0]);
     std::cout << "A.eigenvector(λ₀) returns:\n";
-    std::cout << "  v = [" << v0[0] << ", " << v0[1] << "]\n\n";
+    std::cout << "  v = [" << v0[0].real();
+    if (std::abs(v0[0].imag()) > 1e-10) {
+        std::cout << " + " << v0[0].imag() << "i";
+    }
+    std::cout << ", " << v0[1].real();
+    if (std::abs(v0[1].imag()) > 1e-10) {
+        std::cout << " + " << v0[1].imag() << "i";
+    }
+    std::cout << "]\n\n";
     
     // Get all eigenpairs at once
     sm::vec<sm::mat22<double>::Eigenpair, 2> pairs = A.eigenpairs();
     std::cout << "A.eigenpairs() returns both at once:\n";
     for (size_t i = 0; i < 2; ++i) {
-        std::cout << "  Pair " << i << ": λ = " << pairs[i].eigenvalue 
-                  << ", v = [" << pairs[i].eigenvector[0] << ", " 
-                  << pairs[i].eigenvector[1] << "]\n";
+        std::cout << "  Pair " << i << ": λ = " << pairs[i].eigenvalue.real();
+        if (std::abs(pairs[i].eigenvalue.imag()) > 1e-10) {
+            std::cout << " + " << pairs[i].eigenvalue.imag() << "i";
+        }
+        std::cout << ", v = [" << pairs[i].eigenvector[0].real();
+        if (std::abs(pairs[i].eigenvector[0].imag()) > 1e-10) {
+            std::cout << " + " << pairs[i].eigenvector[0].imag() << "i";
+        }
+        std::cout << ", " << pairs[i].eigenvector[1].real();
+        if (std::abs(pairs[i].eigenvector[1].imag()) > 1e-10) {
+            std::cout << " + " << pairs[i].eigenvector[1].imag() << "i";
+        }
+        std::cout << "]\n";
     }
     
     // Example 2: Rotation matrix (complex eigenvalues)
@@ -45,10 +71,20 @@ int main()
     sm::vec<std::complex<double>, 2> rot_lambdas = R.eigenvalues();
     std::cout << "R.eigenvalues() returns complex conjugates:\n";
     std::cout << std::fixed << std::setprecision(6);
-    std::cout << "  λ₀ = " << rot_lambdas[0].real() << " + " 
-              << rot_lambdas[0].imag() << "i\n";
-    std::cout << "  λ₁ = " << rot_lambdas[1].real() << " - " 
-              << -rot_lambdas[1].imag() << "i\n";
+    std::cout << "  λ₀ = " << rot_lambdas[0].real();
+    if (rot_lambdas[0].imag() >= 0) {
+        std::cout << " + " << rot_lambdas[0].imag() << "i";
+    } else {
+        std::cout << " - " << -rot_lambdas[0].imag() << "i";
+    }
+    std::cout << "\n";
+    std::cout << "  λ₁ = " << rot_lambdas[1].real();
+    if (rot_lambdas[1].imag() >= 0) {
+        std::cout << " + " << rot_lambdas[1].imag() << "i";
+    } else {
+        std::cout << " - " << -rot_lambdas[1].imag() << "i";
+    }
+    std::cout << "\n";
     
     // Example 3: 3x3 symmetric matrix
     std::cout << "\n\nExample 3: 3x3 Symmetric Matrix\n";
