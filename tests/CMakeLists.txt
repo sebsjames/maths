@@ -434,3 +434,5 @@ add_test(sph_projections sph_projections)
 add_executable(test_polynomialsolver test_polynomialsolver.cpp)
 add_test(test_polynomialsolver test_polynomialsolver)
 
+add_executable(graham_scan_1 graham_scan_1.cpp)
+add_test(graham_scan_1 graham_scan_1)
