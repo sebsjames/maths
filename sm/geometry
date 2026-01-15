@@ -148,7 +148,7 @@ namespace sm::geometry
             auto bv = b - lowestleft;
             T aa = av.angle();
             T bb = bv.angle();
-            if (aa == bb) {
+            if (std::abs (aa - bb) < std::numeric_limits<T>::epsilon()) {
                 // If co-linear, sort based on length
                 return av.length_sq() < bv.length_sq();
             }
