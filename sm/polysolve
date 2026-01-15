@@ -168,8 +168,8 @@ namespace sm::polysolve
             T offset = -a2_norm / T{3};
 
             roots.push_back (std::complex<T>(m * sm::cem::cos(theta) + offset, T{0}));
-            roots.push_back (std::complex<T>(m * sm::cem::cos(theta - T{2} * T(M_PI) / T{3}) + offset, T{0}));
-            roots.push_back (std::complex<T>(m * sm::cem::cos(theta - T{4} * T(M_PI) / T{3}) + offset, T{0}));
+            roots.push_back (std::complex<T>(m * sm::cem::cos(theta - sm::mathconst<T>::two_pi_over_3) + offset, T{0}));
+            roots.push_back (std::complex<T>(m * sm::cem::cos(theta - sm::mathconst<T>::four_pi_over_3) + offset, T{0}));
         } else {
             // One real root and two complex conjugate roots
             T offset = -a2_norm / T{3};
