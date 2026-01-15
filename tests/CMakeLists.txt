@@ -418,3 +418,6 @@ add_test(xyz_to_latlong xyz_to_latlong)
 
 add_executable(sph_projections sph_projections.cpp)
 add_test(sph_projections sph_projections)
+
+add_executable(graham_scan_1 graham_scan_1.cpp)
+add_test(graham_scan_1 graham_scan_1)

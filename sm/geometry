@@ -20,6 +20,7 @@
 #include <sm/constexpr_math>
 #include <sm/range>
 #include <sm/vec>
+#include <sm/vvec>
 #include <sm/algo>
 
 namespace sm
@@ -43,7 +44,7 @@ namespace sm::geometry
      * https://www.geeksforgeeks.org/orientation-3-ordered-points/
      */
     template<typename T>
-    rotation_sense orientation (const sm::vec<T, 2>& p, const sm::vec<T, 2>& q, const sm::vec<T, 2>& r)
+    constexpr rotation_sense orientation (const sm::vec<T, 2>& p, const sm::vec<T, 2>& q, const sm::vec<T, 2>& r)
     {
         T val = (q[1] - p[1]) * (r[0] - q[0])  -  (q[0] - p[0]) * (r[1] - q[1]);
         if (val == T{0}) { return rotation_sense::colinear; }
@@ -58,7 +59,7 @@ namespace sm::geometry
      * https://www.geeksforgeeks.org/check-if-two-given-line-segments-intersect/
      */
     template<typename T>
-    static bool onsegment (const sm::vec<T, 2>& p, const sm::vec<T, 2>& q, const sm::vec<T, 2>& r)
+    bool onsegment (const sm::vec<T, 2>& p, const sm::vec<T, 2>& q, const sm::vec<T, 2>& r)
     {
         return (q[0] <= std::max(p[0], r[0]) && q[0] >= std::min(p[0], r[0])
                 && q[1] <= std::max(p[1], r[1]) && q[1] >= std::min(p[1], r[1]));
@@ -77,8 +78,8 @@ namespace sm::geometry
      * if the lines are colinear
      */
     template<typename T>
-    static std::bitset<2> segments_intersect (const sm::vec<T, 2>& p1, const sm::vec<T, 2> q1,
-                                              const sm::vec<T, 2>& p2, const sm::vec<T, 2> q2)
+    std::bitset<2> segments_intersect (const sm::vec<T, 2>& p1, const sm::vec<T, 2> q1,
+                                       const sm::vec<T, 2>& p2, const sm::vec<T, 2> q2)
     {
         std::bitset<2> rtn;
         sm::rotation_sense p1q1p2 = sm::geometry::orientation (p1, q1, p2);
@@ -110,8 +111,8 @@ namespace sm::geometry
      * \return Coordinate of the crossing point
      */
     template<typename T>
-    static sm::vec<T, 2> crossing_point (const sm::vec<T, 2>& p1, const sm::vec<T, 2>& q1,
-                                         const sm::vec<T, 2>& p2, const sm::vec<T, 2>& q2)
+    sm::vec<T, 2> crossing_point (const sm::vec<T, 2>& p1, const sm::vec<T, 2>& q1,
+                                  const sm::vec<T, 2>& p2, const sm::vec<T, 2>& q2)
     {
         sm::vec<T, 2> p = p1;
         sm::vec<T, 2> r = p1 - q1;
@@ -122,10 +123,56 @@ namespace sm::geometry
         return cross_point;
     }
 
+    /*!
+     * Find the convex hull of the given points on a 2D plane using Graham's scan.
+     *
+     * Coded up with the help of the Wikipedia page on Graham's scan.
+     */
+    template<typename T> requires std::is_arithmetic_v<T>
+    sm::vvec<sm::vec<T, 2>> graham_scan (const sm::vvec<sm::vec<T, 2>>& points)
+    {
+        // Find the lowest left point in points
+        sm::vec<T, 2> lowestleft = { std::numeric_limits<T>::max(), std::numeric_limits<T>::max() };
+        for (auto p : points) {
+            if (p[1] < lowestleft[1]) {
+                lowestleft = p;
+            } else if (p[1] == lowestleft[1]) {
+                if (p[0] < lowestleft[0]) {
+                    lowestleft = p;
+                }
+            } // else lowestleft unchanged
+        }
+
+        // Sort a copy of points by polar angle wrt lowestleft
+        sm::vvec<sm::vec<T, 2>> psrtd = points;
+        std::sort (psrtd.begin(), psrtd.end(), [lowestleft](const sm::vec<T, 2>& a, const sm::vec<T, 2>& b){
+            auto av = a - lowestleft;
+            auto bv = b - lowestleft;
+            T aa = av.angle();
+            T bb = bv.angle();
+            if (std::abs (aa - bb) < std::numeric_limits<T>::epsilon()) {
+                // If co-linear, sort based on length
+                return av.length_sq() < bv.length_sq();
+            }
+            return aa < bb;
+        });
+
+        sm::vvec<sm::vec<T, 2>> chull = {}; // Return object. Treated as a stack (LIFO) with push_back() and pop_back()
+        for (auto p : psrtd) {
+            while (chull.size() > 1
+                   && sm::geometry::orientation<T> (chull[chull.size() - 2], chull.back(), p) != rotation_sense::anticlockwise) {
+                chull.pop_back();
+            }
+            chull.push_back (p);
+        }
+
+        return chull;
+    }
+
     // Does the line defined by p0->p1 pass through the box defined by the range box?
     template<typename T>
-    static bool aabb_line_intersect (const sm::range<sm::vec<T, 3>>& box,
-                                     const sm::vec<T, 3>& p0, const sm::vec<T, 3>& p1)
+    bool aabb_line_intersect (const sm::range<sm::vec<T, 3>>& box,
+                              const sm::vec<T, 3>& p0, const sm::vec<T, 3>& p1)
     {
         auto line_intersect = [box, p0, p1](uint32_t dim)
         {
