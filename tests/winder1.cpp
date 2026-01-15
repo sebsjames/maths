@@ -17,6 +17,7 @@ int main()
 {
     int rtn = 0;
 
+#if 0 // no longer supported
     // Test with plain old std::array (and put this one in a list, too)
     std::list<std::array<float, 2>> larray;
     larray.push_back ({0.0f,0.0f});
@@ -75,6 +76,7 @@ int main()
     if (wn6 != 1) {
         --rtn;
     }
+#endif
 
     // sm::vec
     std::vector<sm::vec<float, 2>> lVec;

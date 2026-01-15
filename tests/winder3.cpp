@@ -1,7 +1,7 @@
 #include <iostream>
 #include <vector>
-#include <sm/winder>
 #include <sm/vec>
+#include <sm/winder>
 
 /*
  * More tests for winder
@@ -35,13 +35,14 @@ int main()
     if (wn != 0) { --rtn; }
 
 
-    //px[1] -= 0.5f;
+#if 0
     for (int i = 0; i < 10; ++i) {
         std::cout << "pt = " << px.str_mat() << std::endl;
         wn = w.wind (px);
         std::cout << "Winding number for " << px << " = " << wn << std::endl;
         px[1] += 0.01f;
     }
+#endif
 
     std::cout << "Test " << (rtn ? "failed\n" : "passed\n");
     return rtn;
