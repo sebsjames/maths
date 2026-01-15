@@ -22,10 +22,11 @@
 
 #include <sm/mathconst>
 #include <sm/trait_tests>
+#include <sm/algo>
 
 namespace sm
 {
-    const bool debug_mode = false;
+    // see https://www.engr.colostate.edu/~dga/documents/papers/point_in_polygon.pdf for some extra info
 
     /*!
      * A winding number class
@@ -70,6 +71,9 @@ namespace sm
         static_assert (sm::is_copyable_container<C>::value == true);
         using T = typename C::value_type;
 
+        static constexpr bool debug_mode = true;
+        static constexpr bool debug_extra = false;
+
     public:
         //! Construct with the boundary reference.
         winder (const C& _boundary) : boundary(_boundary) {}
@@ -97,6 +101,7 @@ namespace sm
         //! method sm::winder::wind (const double&) may be called.
         void wind (const T& px, const T& bp)
         {
+            if constexpr (debug_extra == true) { std::cout << "Boundary point " << bp << std::endl; }
             // Get angle from px to bp. First create pt, the vector pointing from px to
             // bp whose angle we will calculate.
             T pt;
@@ -108,10 +113,10 @@ namespace sm
                     pt.resize(2);
                 }
                 if constexpr (has_subtraction<T>::value == true) {
-                    if constexpr (debug_mode == true) { std::cout << "has subtraction operator\n"; }
+                    if constexpr (debug_extra == true) { std::cout << "has subtraction operator\n"; }
                     pt = bp - px;
                 } else {
-                    if constexpr (debug_mode == true) { std::cout << "subtracting array elements\n"; }
+                    if constexpr (debug_extra == true) { std::cout << "subtracting array elements\n"; }
                     pt[0] = bp[0] - px[0];
                     pt[1] = bp[1] - px[1];
                 }
@@ -124,7 +129,7 @@ namespace sm
             } else {
                 // cv::Point, sm::BezCoord should fall through here.
                 if constexpr (has_subtraction<T>::value == true) {
-                    if constexpr (debug_mode == true) { std::cout << "has subtraction\n"; }
+                    if constexpr (debug_extra == true) { std::cout << "has subtraction\n"; }
                     pt = bp - px;
                 } else if constexpr (has_xy_members<T>::value == true) {
                     pt.x = bp.x - px.x;
@@ -137,19 +142,19 @@ namespace sm
             // Now compute the angle of the vector pt using std::atan2. Multiple specializations here, too.
             double raw_angle = 0.0;
             if constexpr (has_xy_methods<T>::value == true) {
-                if constexpr (debug_mode == true) { std::cout << "It's a type with x() and y() functions\n"; }
+                if constexpr (debug_extra == true) { std::cout << "It's a type with x() and y() functions\n"; }
                 raw_angle = std::atan2 (pt.y(), pt.x());
             } else if constexpr (has_xy_members<T>::value == true) {
-                if constexpr (debug_mode == true) { std::cout << "It's a type with x and y member attributes\n"; }
+                if constexpr (debug_extra == true) { std::cout << "It's a type with x and y member attributes\n"; }
                 raw_angle = std::atan2 (pt.y, pt.x);
             } else if constexpr (has_firstsecond_members<T>::value == true) {
-                if constexpr (debug_mode == true) { std::cout << "It's a type with first and second member attributes\n"; }
+                if constexpr (debug_extra == true) { std::cout << "It's a type with first and second member attributes\n"; }
                 raw_angle = std::atan2 (pt.second, pt.first);
             } else if constexpr (array_access_possible<T>::value == true) {
-                if constexpr (debug_mode == true) { std::cout << "It's a type with array access\n"; }
+                if constexpr (debug_extra == true) { std::cout << "It's a type with array access\n"; }
                 raw_angle = std::atan2 (pt[1], pt[0]);
             } else {
-                if constexpr (debug_mode == true) { std::cout << "Maybe it's a type that behaves like an array\n"; }
+                if constexpr (debug_extra == true) { std::cout << "Maybe it's a type that behaves like an array\n"; }
                 raw_angle = std::atan2 (pt[1], pt[0]);
             }
 
@@ -162,8 +167,9 @@ namespace sm
         void wind (const double& raw_angle)
         {
             // Convert the raw angle which has range -pi -> 0 -> +pi into a transformed angle with range 0->2pi:
-            this->angle = raw_angle >= 0 ? raw_angle : (sm::mathconst<double>::two_pi + raw_angle);
-            if constexpr (sm::debug_mode == true) { std::cout << "angle: " << this->angle << "\n"; }
+            this->angle = raw_angle;
+            sm::algo::zero_to_twopi (this->angle);
+            if constexpr (debug_mode == true) { std::cout << "angle: " << this->angle << "\n"; }
 
             // Set the initial angle.
             if (this->angle_last == double{-100}) { this->angle_last = angle; }
@@ -174,11 +180,14 @@ namespace sm
                 // Special treatment
                 if (this->angle_last > sm::mathconst<double>::pi) {
                     // Clockwise to 0
+                    if constexpr (debug_mode == true) { std::cout << "Clockwise change to 0\n"; }
                     delta = (sm::mathconst<double>::two_pi - this->angle_last);
                 } else if (this->angle_last < sm::mathconst<double>::pi) {
                     // Anti-clockwise to 0
+                    if constexpr (debug_mode == true) { std::cout << "Anti-clockwise change to 0\n"; }
                     delta = -this->angle_last;
                 } else { //angle_last must have been 0.0
+                    if constexpr (debug_mode == true) { std::cout << "Angle last was a0\n"; }
                     delta = double{0};
                 }
 
@@ -187,11 +196,19 @@ namespace sm
                 // Special treatment required ALSO if we crossed the 0 line without being on it.
                 if (this->angle_last > sm::mathconst<double>::three_pi_over_2 && this->angle < sm::mathconst<double>::pi_over_2) {
                     // crossed from 2pi side to 0 side: Clockwise
+                    if constexpr (debug_extra == true) {
+                        std::cout << "crossed from 2pi side to 0 side: Clockwise\n";
+                        std::cout << "delta = angle + (two_pi - angle_last)\n";
+                        std::cout << "      = " << angle << " + (" << sm::mathconst<float>::two_pi << " - " << angle_last << ")" << std::endl;
+                        std::cout << "      = " << this->angle + (sm::mathconst<double>::two_pi - this->angle_last) << std::endl;
+                    }
                     delta = this->angle + (sm::mathconst<double>::two_pi - this->angle_last);
                 } else if (this->angle_last < sm::mathconst<double>::pi_over_2 && this->angle > sm::mathconst<double>::three_pi_over_2) {
                     // crossed from 0 side to 2pi side: Anti-clockwise
+                    if constexpr (debug_extra == true) { std::cout << "crossed from 0 side to 2pi side: Anti-clockwise\n"; }
                     delta = - this->angle_last - (sm::mathconst<double>::two_pi - this->angle);
                 } else { // Both are > pi or both are < pi.
+                    if constexpr (debug_extra == true) { std::cout << "Both > pi or both < pi\n"; }
                     delta = (this->angle - this->angle_last);
                 }
             }
@@ -199,6 +216,9 @@ namespace sm
             // Update angle_last and angle_sum
             this->angle_last = this->angle;
             this->angle_sum += delta;
+            if constexpr (debug_mode == true) {
+                std::cout << "Angle sum is now " << this->angle_sum << std::endl;
+            }
         }
 
         //! Reset the angle member variables

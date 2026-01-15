@@ -247,6 +247,9 @@ add_test(winder1 winder1)
 add_executable(winder2 winder2.cpp)
 add_test(winder2 winder2)
 
+add_executable(winder3 winder3.cpp)
+add_test(winder3 winder3)
+
 # Test RandString generation
 add_executable(testRandString testRandString.cpp)
 add_test(testRandString testRandString)
