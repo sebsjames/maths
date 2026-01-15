@@ -22,7 +22,7 @@
 #include <initializer_list>
 #include <sm/vec>
 #include <sm/quaternion>
-#include <sm/polynomialsolver>
+#include <sm/polysolve>
 
 namespace sm
 {
