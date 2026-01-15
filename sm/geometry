@@ -144,9 +144,14 @@ namespace sm::geometry
         // Sort a copy of points by polar angle wrt lowestleft
         sm::vvec<sm::vec<T, 2>> psrtd = points;
         std::sort (psrtd.begin(), psrtd.end(), [lowestleft](const sm::vec<T, 2>& a, const sm::vec<T, 2>& b){
-            T aa = (a - lowestleft).angle();
-            T bb = (b - lowestleft).angle();
-            if (aa == bb) { std::cout << "Uh oh for points " << a << " and " << b << "\n"; }
+            auto av = a - lowestleft;
+            auto bv = b - lowestleft;
+            T aa = av.angle();
+            T bb = bv.angle();
+            if (aa == bb) {
+                // If co-linear, sort based on length
+                return av.length_sq() < bv.length_sq();
+            }
             return aa < bb;
         });
 
