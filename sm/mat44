@@ -31,7 +31,7 @@
 #include <sm/vec>
 #include <sm/constexpr_math>
 #include <sm/mat33>
-#include <sm/polynomialsolver>
+#include <sm/polysolve>
 
 namespace sm
 {
@@ -619,7 +619,7 @@ namespace sm
          * Returns a vector of 4 complex eigenvalues.
          * 
          * Uses the Faddeev-LeVerrier algorithm to compute the characteristic
-         * polynomial det(A - λI) = 0, then solves for roots using PolynomialSolver.
+         * polynomial det(A - lambda*I) = 0, then solves for roots using PolynomialSolver.
          */
         sm::vec<std::complex<F>, 4> eigenvalues() const noexcept
         {
@@ -644,7 +644,7 @@ namespace sm
                 }
             }
             
-            sm::vvec<std::complex<F>> roots_vec = PolynomialSolver<F>::solve(coeffs);
+            sm::vvec<std::complex<F>> roots_vec = sm::polysolve::solve<F>(coeffs);
             
             // Convert from sm::vvec to sm::vec for return type
             sm::vec<std::complex<F>, 4> roots;
@@ -662,7 +662,7 @@ namespace sm
          */
         sm::vec<std::complex<F>, 4> eigenvector(const std::complex<F>& lambda) const noexcept
         {
-            // Form (A - λI)
+            // Form (A - lambda*I)
             std::complex<F> A_minus_lambda[16];
             for (int i = 0; i < 16; ++i) {
                 A_minus_lambda[i] = std::complex<F>(this->mat[i], F{0});

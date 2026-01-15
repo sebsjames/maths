@@ -558,27 +558,27 @@ namespace sm
          * Compute the eigenvalues of this 3x3 matrix.
          * Returns a vector of 3 complex eigenvalues.
          * 
-         * Uses the characteristic polynomial det(A - λI) = 0, which gives:
-         * -λ³ + tr(A)λ² + c₁λ + det(A) = 0
+         * Uses the characteristic polynomial det(A - lambda*I) = 0, which gives:
+         * -lambda^3 + tr(A)*lambda^2 + c_1*lambda + det(A) = 0
          */
         sm::vec<std::complex<F>, 3> eigenvalues() const noexcept
         {
-            // Characteristic polynomial: det(λI - A) = 0
-            // Expanded: λ³ - tr(A)*λ² + c₁*λ - det(A) = 0
-            // where c₁ is the sum of principal 2x2 minors
+            // Characteristic polynomial: det(lambda*I - A) = 0
+            // Expanded: lambda^3 - tr(A)*lambda^2 + c_1*lambda - det(A) = 0
+            // where c_1 is the sum of principal 2x2 minors
             
-            F c2 = -this->trace();  // coefficient of λ²
+            F c2 = -this->trace();  // coefficient of lambda^2
             F c0 = -this->determinant();  // constant term
             
-            // c1 is the sum of principal 2x2 minors (coefficient of λ)
+            // c1 is the sum of principal 2x2 minors (coefficient of lambda)
             F c1 = (this->mat[0]*this->mat[4] - this->mat[1]*this->mat[3]) +
                    (this->mat[0]*this->mat[8] - this->mat[2]*this->mat[6]) +
                    (this->mat[4]*this->mat[8] - this->mat[5]*this->mat[7]);
             
-            // Use PolynomialSolver for cubic equation: λ³ + c2*λ² + c1*λ + c0 = 0
+            // Use PolynomialSolver for cubic equation: lambda^3 + c2*lambda^2 + c1*lambda + c0 = 0
             // Coefficients in order [a0, a1, a2, a3] for a3*x³ + a2*x² + a1*x + a0
             sm::vvec<F> coeffs = {c0, c1, c2, F{1}};
-            sm::vvec<std::complex<F>> roots_vec = PolynomialSolver<F>::solve(coeffs);
+            sm::vvec<std::complex<F>> roots_vec = sm::polysolve::solve<F>(coeffs);
             
             // Convert from sm::vvec to sm::vec for return type
             sm::vec<std::complex<F>, 3> roots;

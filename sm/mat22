@@ -280,14 +280,14 @@ namespace sm
          * Returns a vector of 2 complex eigenvalues.
          * 
          * For matrix A = [a c; b d], eigenvalues are the roots of:
-         * λ² - trace(A)λ + det(A) = 0
+         * lambda^2 - trace(A)*lambda + det(A) = 0
          */
         sm::vec<std::complex<F>, 2> eigenvalues() const noexcept
         {
-            // Characteristic polynomial: λ² - trace(A)λ + det(A) = 0
+            // Characteristic polynomial: lambda^2 - trace(A)*lambda + det(A) = 0
             F tr = this->trace();
             
-            // Quadratic formula: λ = (tr ± √(tr² - 4*det)) / 2
+            // Quadratic formula: lambda = (tr +/- sqrt(tr^2 - 4*det)) / 2
             F discriminant = tr * tr - F{4} * this->determinant();
             
             sm::vec<std::complex<F>, 2> lambdas;
@@ -321,16 +321,16 @@ namespace sm
             
             sm::vec<std::complex<F>, 2> v;
             
-            // Try first row: (a - λ)v₀ + c*v₁ = 0
+            // Try first row: (a - lambda)*v_0 + c*v_1 = 0
             std::complex<F> a_minus_lambda = a - lambda;
             
             if (std::abs(c) > std::abs(a_minus_lambda) * F{1e-10}) {
-                // Use: v₁ = 1, v₀ = -c / (a - λ)
+                // Use: v_1 = 1, v_0 = -c / (a - lambda)
                 v[1] = std::complex<F>(F{1}, F{0});
                 v[0] = -c / a_minus_lambda;
             } else if (std::abs(b) > F{1e-10}) {
-                // Try second row: b*v₀ + (d - λ)v₁ = 0
-                // Use: v₀ = 1, v₁ = -b / (d - λ)
+                // Try second row: b*v_0 + (d - lambda)*v_1 = 0
+                // Use: v_0 = 1, v_1 = -b / (d - lambda)
                 v[0] = std::complex<F>(F{1}, F{0});
                 v[1] = -b / (d - lambda);
             } else {

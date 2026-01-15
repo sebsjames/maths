@@ -46,7 +46,7 @@ namespace sm::polysolve
 {
     // Helper functions
     template <typename T = double> requires std::is_floating_point_v<T>
-    constexpr void remove_leading_zeros (sm::vvec<T>& coeffs) {
+    constexpr void remove_trailing_zeros (sm::vvec<T>& coeffs) {
         while (!coeffs.empty() && sm::cem::abs(coeffs.back()) < std::numeric_limits<T>::epsilon()) {
             coeffs.pop_back();
         }
@@ -359,7 +359,7 @@ namespace sm::polysolve
         for (const auto& coeff : coeffs) {
             c.push_back(static_cast<T>(coeff));
         }
-        remove_leading_zeros(c);
+        remove_trailing_zeros(c);
 
         if (c.empty() || (c.size() == 1 && sm::cem::abs(c[0]) < std::numeric_limits<T>::epsilon())) {
             throw std::invalid_argument("All coefficients are zero");
@@ -406,7 +406,7 @@ namespace sm::polysolve
         for (const auto& coeff : coeffs) {
             c.push_back(static_cast<T>(coeff));
         }
-        remove_leading_zeros(c);
+        remove_trailing_zeros(c);
 
         if (c.empty() || (c.size() == 1 && sm::cem::abs (c[0]) < std::numeric_limits<T>::epsilon())) {
             throw std::invalid_argument ("All coefficients are zero");
