@@ -303,7 +303,7 @@ namespace sm::polysolve
         T radius = T{1} + sm::cem::abs(c[degree - 1]);
 
         for (int i = 0; i < degree; ++i) {
-            T angle = T{2} * T(M_PI) * T(i) / T(degree) + T{0.4};
+            T angle = T{2} * sm::mathconst<T>::pi * T(i) / T(degree) + T{0.4};
             roots[i] = radius * std::complex<T>(sm::cem::cos (angle), sm::cem::sin (angle));
         }
 
