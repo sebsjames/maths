@@ -125,6 +125,8 @@ namespace sm::geometry
 
     /*!
      * Find the convex hull of the given points on a 2D plane using Graham's scan.
+     *
+     * Coded up with the help of the Wikipedia page on Graham's scan.
      */
     template<typename T> requires std::is_arithmetic_v<T>
     sm::vvec<sm::vec<T, 2>> graham_scan (const sm::vvec<sm::vec<T, 2>>& points)
