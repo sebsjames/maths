@@ -122,6 +122,45 @@ namespace sm::geometry
         return cross_point;
     }
 
+    /*!
+     * Find the convex hull of the given points on a 2D plane using Graham's scan.
+     */
+    template<typename T> requires std::is_arithmetic_v<T>
+    sm::vvec<sm::vec<T, 2>> graham_scan (const sm::vvec<sm::vec<T, 2>>& points)
+    {
+        // Find the lowest left point in points
+        sm::vec<T, 2> lowestleft = { std::numeric_limits<T>::max(), std::numeric_limits<T>::max() };
+        for (auto p : points) {
+            if (p[1] < lowestleft[1]) {
+                lowestleft = p;
+            } else if (p[1] == lowestleft[1]) {
+                if (p[0] < lowestleft[0]) {
+                    lowestleft = p;
+                }
+            } // else lowestleft unchanged
+        }
+
+        // Sort a copy of points by polar angle wrt lowestleft
+        sm::vvec<sm::vec<T, 2>> psrtd = points;
+        std::sort (psrtd.begin(), psrtd.end(), [lowestleft](const sm::vec<T, 2>& a, const sm::vec<T, 2>& b){
+            T aa = (a - lowestleft).angle();
+            T bb = (b - lowestleft).angle();
+            if (aa == bb) { std::cout << "Uh oh\n"; }
+            return aa < bb;
+        });
+
+        sm::vvec<sm::vec<T, 2>> chull = {}; // Return object. Treated as a stack (LIFO) with push_back() and pop_back()
+        for (auto p : psrtd) {
+            while (chull.size() > 1
+                   && sm::geometry::orientation<T> (chull[chull.size() - 2], chull.back(), p) != rotation_sense::anticlockwise) {
+                chull.pop_back();
+            }
+            chull.push_back (p);
+        }
+
+        return chull;
+    }
+
     // Does the line defined by p0->p1 pass through the box defined by the range box?
     template<typename T>
     static bool aabb_line_intersect (const sm::range<sm::vec<T, 3>>& box,
