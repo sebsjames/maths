@@ -34,14 +34,15 @@
 
 #pragma once
 
-#include <sm/vvec>
-#include <sm/vec>
 #include <complex>
 #include <cmath>
 #include <algorithm>
 #include <stdexcept>
 #include <limits>
 #include <type_traits>
+
+#include <sm/vvec>
+#include <sm/vec>
 
 namespace sm::polysolve
 {
@@ -60,7 +61,7 @@ namespace sm::polysolve
      * Implements Horner's method for evaluating the result of a polynomial
      */
     template <typename T = double> requires std::is_floating_point_v<T>
-    constexpr T evaluate_polynomial (const sm::vvec<T>& coeffs, T x)
+    constexpr T evaluate (const sm::vvec<T>& coeffs, T x)
     {
         T result = T{0};
         for (int i = coeffs.size() - 1; i >= 0; --i) {
@@ -73,7 +74,7 @@ namespace sm::polysolve
      * Horner's method for complex numbers
      */
     template <typename T = double> requires std::is_floating_point_v<T>
-    constexpr std::complex<T> evaluate_polynomial_complex (const sm::vvec<T>& coeffs, std::complex<T> x)
+    constexpr std::complex<T> evaluate_complex (const sm::vvec<T>& coeffs, std::complex<T> x)
     {
         std::complex<T> result(T{0}, T{0});
         for (int i = coeffs.size() - 1; i >= 0; --i) {
@@ -338,7 +339,7 @@ namespace sm::polysolve
         for (int iter = 0; iter < 100; ++iter) {
             bool converged = true;
             for (int i = 0; i < degree; ++i) {
-                std::complex<T> numerator = polysolve::evaluate_polynomial_complex<T>(c, roots[i]);
+                std::complex<T> numerator = polysolve::evaluate_complex<T>(c, roots[i]);
                 std::complex<T> denominator(T{1}, T{0});
                 for (int j = 0; j < degree; ++j) {
                     if (i != j) { denominator *= (roots[i] - roots[j]); }
