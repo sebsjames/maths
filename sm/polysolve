@@ -64,9 +64,7 @@ namespace sm::polysolve
     constexpr T evaluate (const sm::vvec<T>& coeffs, const T x)
     {
         T result = T{0};
-        for (int i = coeffs.size() - 1; i >= 0; --i) {
-            result = result * x + coeffs[i];
-        }
+        for (int i = coeffs.size() - 1; i >= 0; --i) { result = result * x + coeffs[i]; }
         return result;
     }
 
@@ -77,9 +75,7 @@ namespace sm::polysolve
     constexpr std::complex<T> evaluate_complex (const sm::vvec<T>& coeffs, const std::complex<T>& x)
     {
         std::complex<T> result(T{0}, T{0});
-        for (int i = coeffs.size() - 1; i >= 0; --i) {
-            result = result * x + coeffs[i];
-        }
+        for (int i = coeffs.size() - 1; i >= 0; --i) { result = result * x + coeffs[i]; }
         return result;
     }
 
@@ -303,9 +299,7 @@ namespace sm::polysolve
 
         // Transform back: x = y - a3_norm/4
         T offset = -a3_norm / T{4};
-        for (auto& root : roots) {
-            root += offset;
-        }
+        for (auto& root : roots) { root += offset; }
 
         polysolve::sort_roots (roots);
         return roots;
@@ -358,20 +352,20 @@ namespace sm::polysolve
 
     /*
      * Solve polynomial: a[n]*x^n + a[n-1]*x^(n-1) + ... + a[1]*x + a[0] = 0
-     * @tparam Ty Type of input coefficients
-     * @tparam N Size of coefficient array (degree + 1)
-     * @tparam T Type of output roots, and type used in solvers (defaults to input type Ty if not specified)
-     * @param coeffs Coefficients from lowest to highest degree [a0, a1, ..., an]
-     * @return Vector of complex roots sorted lexicographically by (real, imag).
+     * \tparam Ty Type of input coefficients
+     * \tparam N Size of coefficient array (degree + 1)
+     * \tparam T Type of output roots, and type used in solvers (defaults to input type Ty if not specified)
+     * \param coeffs Coefficients from lowest to highest degree [a0, a1, ..., an]
+     * \return Vector of complex roots sorted lexicographically by (real, imag).
      *         Real roots appear first in ascending order, followed by complex roots.
      */
     template <typename T, std::size_t N, typename Ty = T> requires (N >= 1) && std::is_floating_point_v<T> && std::is_floating_point_v<Ty>
     sm::vvec<std::complex<T>> solve (const sm::vec<Ty, N+1>& coeffs)
     {
-        // Convert sm::vec to sm::vvec
+        // Make a copy of coefficients in type T
         sm::vvec<T> c (N+1, T{0});
         for (std::size_t i = 0; i < N+1; ++i) { c[i] = static_cast<T>(coeffs[i]); }
-        polysolve::remove_trailing_zeros(c);
+        polysolve::remove_trailing_zeros (c);
 
         if (c.empty() || (c.size() == 1 && sm::cem::abs(c[0]) < std::numeric_limits<T>::epsilon())) {
             throw std::invalid_argument("All coefficients are zero");
@@ -379,12 +373,10 @@ namespace sm::polysolve
 
         int degree = c.size() - 1;
 
-        // Handle constant polynomial
-        if (degree == 0) {
-            return {}; // No roots
-        }
+        // Handle constant polynomial which has no roots
+        if (degree == 0) { return {}; }
 
-        // Use analytical solutions for degrees 1-4
+        // Use analytical solutions for degrees 1-4, numerical method for higher orders
         if constexpr (N == 1) {
             return polysolve::linear<T, Ty> (c[1], c[0]);
         } else if constexpr (N == 2) {
@@ -394,29 +386,26 @@ namespace sm::polysolve
         } else if constexpr (N == 4) {
             return polysolve::quartic<T, Ty> (c[4], c[3], c[2], c[1], c[0]);
         } else {
-            // Use numerical method for higher degrees
             return polysolve::high_order<T, Ty>(c);
         }
     }
 
     /*
      * Solve polynomial with runtime degree determination
-     * @tparam T Type of output roots
-     * @tparam Ty Type of input coefficients
-     * @param coeffs Coefficients from lowest to highest degree [a0, a1, ..., an]
-     * @return Vector of complex roots sorted lexicographically by (real, imag).
+     * \tparam T Type of output roots
+     * \tparam Ty Type of input coefficients
+     * \param coeffs Coefficients from lowest to highest degree [a0, a1, ..., an]
+     * \return Vector of complex roots sorted lexicographically by (real, imag).
      *         Real roots appear first in ascending order, followed by complex roots.
      */
     template <typename T, typename Ty=T> requires std::is_floating_point_v<T> && std::is_floating_point_v<Ty>
     sm::vvec<std::complex<T>> solve (const sm::vvec<Ty>& coeffs)
     {
-        if (coeffs.empty()) {
-            throw std::invalid_argument("Empty coefficient vector");
-        }
+        if (coeffs.empty()) { throw std::invalid_argument ("Empty coefficient vector"); }
 
+        // Make a copy of coefficients in type T
         sm::vvec<T> c = coeffs.template as<T>();
-
-        polysolve::remove_trailing_zeros(c);
+        polysolve::remove_trailing_zeros (c);
 
         if (c.empty() || (c.size() == 1 && sm::cem::abs (c[0]) < std::numeric_limits<T>::epsilon())) {
             throw std::invalid_argument ("All coefficients are zero");
@@ -427,26 +416,25 @@ namespace sm::polysolve
         // Handle constant polynomial which has no roots
         if (degree == 0) { return {}; }
 
-        // Use analytical solutions for degrees 1-4
+        // Use analytical solutions for degrees 1-4, numerical method for higher orders
         if (degree == 1) {
-            return linear<T>(c[1], c[0]);
+            return polysolve::linear<T> (c[1], c[0]);
         } else if (degree == 2) {
-            return quadratic<T>(c[2], c[1], c[0]);
+            return polysolve::quadratic<T> (c[2], c[1], c[0]);
         } else if (degree == 3) {
-            return cubic<T>(c[3], c[2], c[1], c[0]);
+            return polysolve::cubic<T> (c[3], c[2], c[1], c[0]);
         } else if (degree == 4) {
-            return quartic<T>(c[4], c[3], c[2], c[1], c[0]);
+            return polysolve::quartic<T> (c[4], c[3], c[2], c[1], c[0]);
         } else {
-            // Use numerical method for higher degrees
-            return high_order<T>(c);
+            return polysolve::high_order<T> (c);
         }
     }
 
     /*
      * Get only real roots (imaginary part < tolerance)
-     * @param coeffs Coefficients from lowest to highest degree
-     * @param tolerance Threshold for considering a root as real
-     * @return Vector of real roots in ascending order
+     * \param coeffs Coefficients from lowest to highest degree
+     * \param tolerance Threshold for considering a root as real
+     * \return Vector of real roots in ascending order
      */
     template <typename T = double, typename Ty = T> requires std::is_floating_point_v<T> && std::is_floating_point_v<Ty>
     constexpr sm::vvec<T> real (const sm::vvec<Ty>& coeffs, const T tolerance = T{100} * std::numeric_limits<T>::epsilon())
@@ -462,12 +450,12 @@ namespace sm::polysolve
 
     /*
      * Filter and return only real roots from polynomial solution using sm::vec
-     * @tparam Ty Type of input coefficients
-     * @tparam N Size of coefficient array (degree + 1)
-     * @tparam T Type of output (deduced from Ty by default)
-     * @param coeffs Coefficients from lowest to highest degree
-     * @param tolerance Threshold for considering a root as real
-     * @return Vector of real roots in ascending order
+     * \tparam Ty Type of input coefficients
+     * \tparam N Size of coefficient array (degree + 1)
+     * \tparam T Type of output (deduced from Ty by default)
+     * \param coeffs Coefficients from lowest to highest degree
+     * \param tolerance Threshold for considering a root as real
+     * \return Vector of real roots in ascending order
      */
     template <typename Ty, std::size_t N, typename T = Ty> requires std::is_floating_point_v<T> && std::is_floating_point_v<Ty>
     constexpr sm::vvec<T> real (const sm::vec<Ty, N+1>& coeffs, const T tolerance = T{100} * std::numeric_limits<T>::epsilon())
