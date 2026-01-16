@@ -58,6 +58,7 @@ void test_quadratic(int& rtn)
         std::cout << "FAILED" << std::endl;
         --rtn;
     }
+    if (std::real(roots[0] != 2.0) || std::real(roots[1] != 3.0)) { --rtn; }
 
     std::cout << "\n=== Quadratic (complex): x^2 + 1 = 0 ===" << std::endl;
     std::cout << "Expected: x = +/-i" << std::endl;
