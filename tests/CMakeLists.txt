@@ -431,8 +431,8 @@ add_test(xyz_to_latlong xyz_to_latlong)
 add_executable(sph_projections sph_projections.cpp)
 add_test(sph_projections sph_projections)
 
-add_executable(test_polynomialsolver test_polynomialsolver.cpp)
-add_test(test_polynomialsolver test_polynomialsolver)
+add_executable(polysolve_1 polysolve_1.cpp)
+add_test(polysolve_1 polysolve_1)
 
 add_executable(graham_scan_1 graham_scan_1.cpp)
 add_test(graham_scan_1 graham_scan_1)
