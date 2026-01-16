@@ -1,6 +1,4 @@
 #include <iostream>
-#include <cmath>
-#include <iomanip>
 #include <sm/quaternion>
 #include <sm/mat44>
 
@@ -20,12 +18,10 @@ int main()
     sm::quaternion<float> r = m1.rotation();
     if (r.w == 0.0f && r.x == sm::mathconst<float>::one_over_root_2
         && r.y == sm::mathconst<float>::one_over_root_2 && r.z == 0.0f) {
-        std::cout << "✓ Rotation quaternion test passed\n";
+        rtn = 0;
     } else {
-        --rtn;
-        std::cout << "✗ Rotation quaternion test failed\n";
+        rtn = 1;
     }
 
-    std::cout << (rtn == 0 ? "\nAll tests passed\n" : "\nSome tests failed\n");
     return rtn;
 }

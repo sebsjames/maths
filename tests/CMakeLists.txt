@@ -375,9 +375,6 @@ add_test(testConfig testConfig)
 add_executable(test_zernike test_zernike.cpp)
 add_test(test_zernike test_zernike)
 
-add_executable(mat22_1 mat22_1.cpp)
-add_test(mat22_1 mat22_1)
-
 add_executable(mat22_eigenvalues mat22_eigenvalues.cpp)
 add_test(mat22_eigenvalues mat22_eigenvalues)
 

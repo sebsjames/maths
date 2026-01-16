@@ -617,24 +617,23 @@ namespace sm
         /*!
          * Compute the eigenvalues of this 4x4 matrix.
          * Returns a vector of 4 complex eigenvalues.
-         * 
+         *
          * Uses the Faddeev-LeVerrier algorithm to compute the characteristic
-         * polynomial det(A - lambda*I) = 0, then solves for roots using PolynomialSolver.
+         * polynomial det(A - lambda*I) = 0, then solves for roots using polysolve.
          */
         sm::vec<std::complex<F>, 4> eigenvalues() const noexcept
         {
             // Use Faddeev-LeVerrier algorithm to get characteristic polynomial
-            sm::vvec<F> coeffs(5);
+            sm::vvec<F> coeffs(5, F{0});
             coeffs[4] = F{1};  // Leading coefficient
-            
+
             sm::mat44<F> M;
-            M.setToIdentity();
-            
+
             for (int k = 1; k <= 4; ++k) {
                 M = (*this) * M;  // M_k = A * M_{k-1}, where M_0 = I
                 F trace = M.trace();
                 coeffs[4 - k] = -trace / F(k);
-                
+
                 if (k < 4) {
                     // M = M_k + c_{n-k} * I
                     M[0] += coeffs[4 - k];
@@ -643,16 +642,16 @@ namespace sm
                     M[15] += coeffs[4 - k];
                 }
             }
-            
-            sm::vvec<std::complex<F>> roots_vec = sm::polysolve::solve<F>(coeffs);
-            
+
+            sm::vvec<std::complex<F>> roots_vec = sm::polysolve::solve<F> (coeffs);
+
             // Convert from sm::vvec to sm::vec for return type
             sm::vec<std::complex<F>, 4> roots;
             roots[0] = roots_vec[0];
             roots[1] = roots_vec[1];
             roots[2] = roots_vec[2];
             roots[3] = roots_vec[3];
-            
+
             return roots;
         }
 
@@ -660,8 +659,10 @@ namespace sm
          * Find an eigenvector for a given eigenvalue.
          * Returns a normalized eigenvector as a complex vector.
          */
-        sm::vec<std::complex<F>, 4> eigenvector(const std::complex<F>& lambda) const noexcept
+        sm::vec<std::complex<F>, 4> eigenvector (const std::complex<F>& lambda) const noexcept
         {
+            constexpr F my_epsilon = F{1e-14};
+
             // Form (A - lambda*I)
             std::complex<F> A_minus_lambda[16];
             for (int i = 0; i < 16; ++i) {
@@ -671,72 +672,71 @@ namespace sm
             A_minus_lambda[5] -= lambda;
             A_minus_lambda[10] -= lambda;
             A_minus_lambda[15] -= lambda;
-            
+
             sm::vec<std::complex<F>, 4> v;
-            
+
             // Simplified null space finder: use last component as free variable
             v[3] = std::complex<F>(F{1}, F{0});
-            
+
             // Back substitute (simplified approach)
-            constexpr F EPSILON = F{1e-14};
-            
-            if (std::abs(A_minus_lambda[10]) > EPSILON) {
+            if (std::abs(A_minus_lambda[10]) > my_epsilon) {
                 v[2] = -A_minus_lambda[14] / A_minus_lambda[10];
             } else {
                 v[2] = std::complex<F>(F{0}, F{0});
             }
-            
-            if (std::abs(A_minus_lambda[5]) > EPSILON) {
+
+            if (std::abs(A_minus_lambda[5]) > my_epsilon) {
                 v[1] = -(A_minus_lambda[9] * v[2] + A_minus_lambda[13]) / A_minus_lambda[5];
             } else {
                 v[1] = std::complex<F>(F{0}, F{0});
             }
-            
-            if (std::abs(A_minus_lambda[0]) > EPSILON) {
+
+            if (std::abs(A_minus_lambda[0]) > my_epsilon) {
                 v[0] = -(A_minus_lambda[4] * v[1] + A_minus_lambda[8] * v[2] + A_minus_lambda[12]) / A_minus_lambda[0];
             } else {
                 v[0] = std::complex<F>(F{1}, F{0});
             }
-            
+
             // Normalize
-            F norm = std::sqrt(std::norm(v[0]) + std::norm(v[1]) + std::norm(v[2]) + std::norm(v[3]));
-            
-            if (norm > EPSILON) {
+            F norm = std::sqrt (std::norm (v[0]) + std::norm (v[1]) + std::norm (v[2]) + std::norm (v[3]));
+
+            if (norm > my_epsilon) {
                 v[0] /= norm;
                 v[1] /= norm;
                 v[2] /= norm;
                 v[3] /= norm;
             }
-            
+
             return v;
         }
 
-        /*!  
+        /*!
          * Compute both eigenvalues and their corresponding eigenvectors.
          * Returns a vector of 4 pairs, each containing an eigenvalue and its eigenvector.
          */
-        struct Eigenpair {
-            std::complex<F> eigenvalue;
-            sm::vec<std::complex<F>, 4> eigenvector;
-        };
-        
-        sm::vec<Eigenpair, 4> eigenpairs() const noexcept
+        struct eigenpair
         {
-            sm::vec<Eigenpair, 4> pairs;
+            std::complex<F> eigenvalue = {};
+            sm::vec<std::complex<F>, 4> eigenvector = {};
+        };
+
+        sm::vec<eigenpair, 4> eigenpairs() const noexcept
+        {
+            sm::vec<eigenpair, 4> pairs = {};
             sm::vec<std::complex<F>, 4> lambdas = this->eigenvalues();
-            
+
             pairs[0].eigenvalue = lambdas[0];
-            pairs[0].eigenvector = this->eigenvector(lambdas[0]);
-            
+            pairs[0].eigenvector = this->eigenvector (lambdas[0]);
+
             pairs[1].eigenvalue = lambdas[1];
-            pairs[1].eigenvector = this->eigenvector(lambdas[1]);
-            
+            pairs[1].eigenvector = this->eigenvector (lambdas[1]);
+
             pairs[2].eigenvalue = lambdas[2];
-            pairs[2].eigenvector = this->eigenvector(lambdas[2]);
-            
+            pairs[2].eigenvector = this->eigenvector (lambdas[2]);
+
             pairs[3].eigenvalue = lambdas[3];
-            pairs[3].eigenvector = this->eigenvector(lambdas[3]);
-            
+            pairs[3].eigenvector = this->eigenvector (lambdas[3]);
+
             return pairs;
         }
 
