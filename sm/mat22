@@ -330,7 +330,7 @@ namespace sm
                 // Use: v_1 = 1, v_0 = -c / (a - lambda)
                 v[1] = std::complex<F>(F{1}, F{0});
                 v[0] = -c / a_minus_lambda;
-            } else if (std::abs (b) > my_epsilon) {
+            } else if (std::abs(b) > my_epsilon) {
                 // Try second row: b*v_0 + (d - lambda)*v_1 = 0
                 // Use: v_0 = 1, v_1 = -b / (d - lambda)
                 v[0] = std::complex<F>(F{1}, F{0});
@@ -343,10 +343,7 @@ namespace sm
 
             // Normalize
             F norm = std::sqrt (std::norm (v[0]) + std::norm (v[1]));
-            if (norm > my_epsilon) {
-                v[0] /= norm;
-                v[1] /= norm;
-            }
+            if (norm > my_epsilon) { v /= norm; }
 
             return v;
         }

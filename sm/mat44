@@ -663,8 +663,8 @@ namespace sm
         {
             constexpr F my_epsilon = F{1e-14};
 
-            // Form (A - lambda*I)
-            std::complex<F> A_minus_lambda[16];
+            // Form (A - lambda * I)
+            std::array<std::complex<F>, 16> A_minus_lambda = {};
             for (int i = 0; i < 16; ++i) {
                 A_minus_lambda[i] = std::complex<F>(this->mat[i], F{0});
             }
@@ -673,25 +673,25 @@ namespace sm
             A_minus_lambda[10] -= lambda;
             A_minus_lambda[15] -= lambda;
 
-            sm::vec<std::complex<F>, 4> v;
+            sm::vec<std::complex<F>, 4> v = {};
 
             // Simplified null space finder: use last component as free variable
             v[3] = std::complex<F>(F{1}, F{0});
 
             // Back substitute (simplified approach)
-            if (std::abs(A_minus_lambda[10]) > my_epsilon) {
+            if (std::abs (A_minus_lambda[10]) > my_epsilon) {
                 v[2] = -A_minus_lambda[14] / A_minus_lambda[10];
             } else {
                 v[2] = std::complex<F>(F{0}, F{0});
             }
 
-            if (std::abs(A_minus_lambda[5]) > my_epsilon) {
+            if (std::abs (A_minus_lambda[5]) > my_epsilon) {
                 v[1] = -(A_minus_lambda[9] * v[2] + A_minus_lambda[13]) / A_minus_lambda[5];
             } else {
                 v[1] = std::complex<F>(F{0}, F{0});
             }
 
-            if (std::abs(A_minus_lambda[0]) > my_epsilon) {
+            if (std::abs (A_minus_lambda[0]) > my_epsilon) {
                 v[0] = -(A_minus_lambda[4] * v[1] + A_minus_lambda[8] * v[2] + A_minus_lambda[12]) / A_minus_lambda[0];
             } else {
                 v[0] = std::complex<F>(F{1}, F{0});
@@ -699,13 +699,7 @@ namespace sm
 
             // Normalize
             F norm = std::sqrt (std::norm (v[0]) + std::norm (v[1]) + std::norm (v[2]) + std::norm (v[3]));
-
-            if (norm > my_epsilon) {
-                v[0] /= norm;
-                v[1] /= norm;
-                v[2] /= norm;
-                v[3] /= norm;
-            }
+            if (norm > my_epsilon) { v /= norm; }
 
             return v;
         }
