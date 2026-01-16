@@ -115,6 +115,22 @@ namespace sm::polysolve
     }
 
     /*
+     * Return the root of the complex linear polynomial f = a1 z + a0
+     */
+    template <typename T, typename Ty=T> requires std::is_floating_point_v<T> && std::is_floating_point_v<Ty>
+    sm::vvec<std::complex<T>> linear (const std::complex<Ty>& a1, const std::complex<Ty>& a0)
+    {
+        // Solve a1 z + a0 = 0 with complex coefficients
+        // z = -a0 / a1
+        std::complex<T> a1_conv(static_cast<T>(a1.real()), static_cast<T>(a1.imag()));
+        std::complex<T> a0_conv(static_cast<T>(a0.real()), static_cast<T>(a0.imag()));
+
+        std::complex<T> root = -a0_conv / a1_conv;
+
+        return { root };
+    }
+
+    /*
      * Return the roots of the quadratic polynomial f = a2 x^2 + a1 x + a0
      */
     template <typename T, typename Ty=T> requires std::is_floating_point_v<T> && std::is_floating_point_v<Ty>
