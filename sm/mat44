@@ -666,7 +666,7 @@ namespace sm
             // Form (A - lambda * I)
             std::array<std::complex<F>, 16> A_minus_lambda = {};
             for (int i = 0; i < 16; ++i) {
-                A_minus_lambda[i] = std::complex<F>(this->mat[i], F{0});
+                A_minus_lambda[i] = std::complex<F>{ this->mat[i], F{0} };
             }
             A_minus_lambda[0] -= lambda;
             A_minus_lambda[5] -= lambda;
@@ -676,25 +676,25 @@ namespace sm
             sm::vec<std::complex<F>, 4> v = {};
 
             // Simplified null space finder: use last component as free variable
-            v[3] = std::complex<F>(F{1}, F{0});
+            v[3] = std::complex<F>{ F{1}, F{0} };
 
             // Back substitute (simplified approach)
             if (std::abs (A_minus_lambda[10]) > my_epsilon) {
                 v[2] = -A_minus_lambda[14] / A_minus_lambda[10];
             } else {
-                v[2] = std::complex<F>(F{0}, F{0});
+                v[2] = std::complex<F>{ F{0}, F{0} };
             }
 
             if (std::abs (A_minus_lambda[5]) > my_epsilon) {
                 v[1] = -(A_minus_lambda[9] * v[2] + A_minus_lambda[13]) / A_minus_lambda[5];
             } else {
-                v[1] = std::complex<F>(F{0}, F{0});
+                v[1] = std::complex<F>{ F{0}, F{0} };
             }
 
             if (std::abs (A_minus_lambda[0]) > my_epsilon) {
                 v[0] = -(A_minus_lambda[4] * v[1] + A_minus_lambda[8] * v[2] + A_minus_lambda[12]) / A_minus_lambda[0];
             } else {
-                v[0] = std::complex<F>(F{1}, F{0});
+                v[0] = std::complex<F>{ F{1}, F{0} };
             }
 
             // Normalize

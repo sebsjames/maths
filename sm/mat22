@@ -295,14 +295,14 @@ namespace sm
             if (discriminant >= F{0}) {
                 // Real eigenvalues
                 F sqrt_disc = std::sqrt (discriminant);
-                lambdas[0] = std::complex<F>((tr + sqrt_disc) / F{2}, F{0});
-                lambdas[1] = std::complex<F>((tr - sqrt_disc) / F{2}, F{0});
+                lambdas[0] = std::complex<F>{ (tr + sqrt_disc) / F{2}, F{0} };
+                lambdas[1] = std::complex<F>{ (tr - sqrt_disc) / F{2}, F{0} };
             } else {
                 // Complex conjugate eigenvalues
                 F real_part = tr / F{2};
                 F imag_part = std::sqrt (-discriminant) / F{2};
-                lambdas[0] = std::complex<F>(real_part, imag_part);
-                lambdas[1] = std::complex<F>(real_part, -imag_part);
+                lambdas[0] = std::complex<F>{ real_part, imag_part };
+                lambdas[1] = std::complex<F>{ real_part, -imag_part };
             }
 
             return lambdas;
@@ -328,17 +328,17 @@ namespace sm
 
             if (std::abs(c) > std::abs (a_minus_lambda) * my_epsilon) {
                 // Use: v_1 = 1, v_0 = -c / (a - lambda)
-                v[1] = std::complex<F>(F{1}, F{0});
+                v[1] = std::complex<F>{ F{1}, F{0} };
                 v[0] = -c / a_minus_lambda;
             } else if (std::abs(b) > my_epsilon) {
                 // Try second row: b*v_0 + (d - lambda)*v_1 = 0
                 // Use: v_0 = 1, v_1 = -b / (d - lambda)
-                v[0] = std::complex<F>(F{1}, F{0});
+                v[0] = std::complex<F>{ F{1}, F{0} };
                 v[1] = -b / (d - lambda);
             } else {
                 // Degenerate case - use standard basis
-                v[0] = std::complex<F>(F{1}, F{0});
-                v[1] = std::complex<F>(F{0}, F{0});
+                v[0] = std::complex<F>{ F{1}, F{0} };
+                v[1] = std::complex<F>{ F{0}, F{0} };
             }
 
             // Normalize
