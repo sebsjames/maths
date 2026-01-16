@@ -74,10 +74,10 @@ int main()
         --rtn;
     }
 
-    // Test 4: Eigenpairs and verification (Av = lambdav)
-    std::cout << "Test 4: Eigenpair verification (Av = lambdav)" << std::endl;
+    // Test 4: eigenpairs and verification (Av = lambdav)
+    std::cout << "Test 4: eigenpair verification (Av = lambdav)" << std::endl;
     sm::mat33<float> A = {6.0f, -1.0f, 0.0f,  -1.0f, 5.0f, -1.0f,  0.0f, -1.0f, 4.0f};
-    sm::vec<sm::mat33<float>::Eigenpair, 3> pairs = A.eigenpairs();
+    sm::vec<sm::mat33<float>::eigenpair, 3> pairs = A.eigenpairs();
     std::cout << "  Matrix: Tridiagonal" << std::endl;
 
     bool all_verified = true;
@@ -110,7 +110,7 @@ int main()
     if (all_verified) {
         std::cout << "  All eigenpairs verified\n" << std::endl;
     } else {
-        std::cout << "  Eigenpair verification FAILED\n" << std::endl;
+        std::cout << "  eigenpair verification FAILED\n" << std::endl;
     }
 
     // Test 5: Individual eigenvector computation

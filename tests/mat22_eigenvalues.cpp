@@ -107,10 +107,10 @@ int main()
         --rtn;
     }
 
-    // Test 5: Eigenpairs and verification (Av = lambda v)
-    std::cout << "Test 5: Eigenpair verification (Av = lambda v)" << std::endl;
+    // Test 5: eigenpairs and verification (Av = lambda v)
+    std::cout << "Test 5: eigenpair verification (Av = lambda v)" << std::endl;
     sm::mat22<float> A = {1.0f, 2.0f, 2.0f, 1.0f};
-    sm::vec<sm::mat22<float>::Eigenpair, 2> pairs = A.eigenpairs();
+    sm::vec<sm::mat22<float>::eigenpair, 2> pairs = A.eigenpairs();
     std::cout << "  Matrix: [[1,2],[2,1]]" << std::endl;
 
     bool all_verified = true;
@@ -145,7 +145,7 @@ int main()
     if (all_verified) {
         std::cout << "  All eigenpairs verified\n" << std::endl;
     } else {
-        std::cout << "  Eigenpair verification FAILED\n" << std::endl;
+        std::cout << "  eigenpair verification FAILED\n" << std::endl;
     }
 
     // Test 6: Individual eigenvector computation

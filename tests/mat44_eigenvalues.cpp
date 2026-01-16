@@ -118,9 +118,9 @@ int main()
         }
     }
 
-    // Test 4: Eigenpair verification for diagonal matrix
+    // Test 4: eigenpair verification for diagonal matrix
     {
-        std::cout << "\nTest 4: Eigenpair verification (Av = lambda v) - diagonal matrix\n";
+        std::cout << "\nTest 4: eigenpair verification (Av = lambda v) - diagonal matrix\n";
         sm::mat44<double> A;
         A.setToIdentity();
         A[0] = 1.0;
@@ -130,7 +130,7 @@ int main()
 
         std::cout << "  Matrix: diag(1, 2, 3, 4)\n";
 
-        sm::vec<sm::mat44<double>::Eigenpair, 4> pairs = A.eigenpairs();
+        sm::vec<sm::mat44<double>::eigenpair, 4> pairs = A.eigenpairs();
 
         // For diagonal matrix, check a specific eigenvalue
         bool found_valid = false;
@@ -172,9 +172,9 @@ int main()
         }
 
         if (found_valid) {
-            std::cout << "  Eigenpair verification passed\n";
+            std::cout << "  eigenpair verification passed\n";
         } else {
-            std::cout << "  Eigenpair verification failed\n";
+            std::cout << "  eigenpair verification failed\n";
             --rtn;
         }
     }
