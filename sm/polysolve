@@ -28,6 +28,12 @@
  * - All solvers return roots in sorted order: lexicographic by (real, imag)
  *
  * See polysolve_1.cpp in mathplot/maths/tests/ for comprehensive examples
+ *
+ * Authors
+ * Alex Blenkinsop, using Claude Code 4.2
+ * Seb James
+ *
+ * Date January 2026
  */
 
 #pragma once
