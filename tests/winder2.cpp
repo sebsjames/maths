@@ -26,19 +26,28 @@ int main()
     bnd.push_back ({1.39652574,-0.502336323});
 
     sm::winder w (bnd);
-    sm::vec<float, 2> px = { 11,0 }; // outside, but fails!
+    sm::vec<float, 2> px = { 11,0 };
     std::cout << "pt = " << px.str_mat() << std::endl;
     int wn = w.wind (px);
     std::cout << "(outside) Winding number for " << px << " = " << wn << std::endl;
     if (wn != 0) { --rtn; }
+
+    if (rtn) {
+        std::cout << "Failed for initial outside wind point " << px << std::endl;
+        return rtn;
+    }
 
     // Check many outside locations
     for (int i = 0; i < 360; ++i) {
         px = { 11.0f * std::cos (i * sm::mathconst<float>::deg2rad), 11.0f * std::sin (i * sm::mathconst<float>::deg2rad) };
         wn = w.wind (px);
         std::cout << "(outside) Winding number for " << px << " = " << wn << std::endl;
-        if (wn != 0) { --rtn; }
+        if (wn != 0) { --rtn;
+            std::cout << "Failed for outside wind point " << px << std::endl;
+            break;
+        }
     }
+    if (rtn) { return rtn; }
 
     // inside
     px = { 0, 0 };
@@ -46,13 +55,23 @@ int main()
     std::cout << "(inside) Winding number for " << px << " = " << wn << std::endl;
     if (wn != 1) { --rtn; }
 
+    if (rtn) {
+        std::cout << "Failed for initial inside wind point " << px << std::endl;
+        return rtn;
+    }
+
     // Check many inside locations
     for (int i = 0; i < 360; ++i) {
         px = { 0.2f * std::cos (i * sm::mathconst<float>::deg2rad), 0.2f * std::sin (i * sm::mathconst<float>::deg2rad) };
         wn = w.wind (px);
         std::cout << "(inside) Winding number for " << px << " = " << wn << std::endl;
-        if (wn != 1) { --rtn; }
+        if (wn != 1) {
+            --rtn;
+            std::cout << "Failed for inside wind point " << px << std::endl;
+            break;
+        }
     }
 
+    std::cout << "Test " << (rtn ? "failed\n" : "passed\n");
     return rtn;
 }

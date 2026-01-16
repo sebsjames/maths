@@ -47,6 +47,7 @@ int main()
         --rtn;
     }
 
+#if 0 // std::pair is no longer supported in sm::winder
     // Test with pair (has first and second attributes)
     std::vector<std::pair<double, double>> vpair;
     vpair.push_back (std::pair(0.0,0.0));
@@ -60,6 +61,7 @@ int main()
     if (wn5 != 1) {
         --rtn;
     }
+#endif
 
     // sm::vvec
     std::list<sm::vvec<float>> lvVec;
