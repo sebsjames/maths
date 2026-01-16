@@ -7,6 +7,8 @@
 
 int main()
 {
+    constexpr double my_epsilon = 1e-10;
+
     std::cout << "Matrix Eigenvalue API Demonstration\n";
     std::cout << "====================================\n\n";
 
@@ -16,57 +18,57 @@ int main()
     sm::mat22<double> A = {1.0, 2.0, 2.0, 1.0};
     std::cout << "Matrix A =\n" << A.str() << std::endl;
 
-    // Get eigenvalues
+    // Get Eigenvalues
     sm::vec<std::complex<double>, 2> lambdas = A.eigenvalues();
     std::cout << "A.eigenvalues() returns:\n";
     std::cout << "  lambda_0 = " << lambdas[0].real();
-    if (std::abs(lambdas[0].imag()) > 1e-10) {
+    if (std::abs (lambdas[0].imag()) > my_epsilon) {
         std::cout << " + " << lambdas[0].imag() << "i";
     }
     std::cout << "\n";
     std::cout << "  lambda_1 = " << lambdas[1].real();
-    if (std::abs(lambdas[1].imag()) > 1e-10) {
+    if (std::abs (lambdas[1].imag()) > my_epsilon) {
         std::cout << " + " << lambdas[1].imag() << "i";
     }
     std::cout << "\n\n";
 
-    // Get eigenvector for first eigenvalue
-    sm::vec<std::complex<double>, 2> v0 = A.eigenvector(lambdas[0]);
+    // Get Eigenvector for first Eigenvalue
+    sm::vec<std::complex<double>, 2> v0 = A.eigenvector (lambdas[0]);
     std::cout << "A.eigenvector(lambda_0) returns:\n";
     std::cout << "  v = [" << v0[0].real();
-    if (std::abs(v0[0].imag()) > 1e-10) {
+    if (std::abs (v0[0].imag()) > my_epsilon) {
         std::cout << " + " << v0[0].imag() << "i";
     }
     std::cout << ", " << v0[1].real();
-    if (std::abs(v0[1].imag()) > 1e-10) {
+    if (std::abs(v0[1].imag()) > my_epsilon) {
         std::cout << " + " << v0[1].imag() << "i";
     }
     std::cout << "]\n\n";
 
-    // Get all eigenpairs at once
+    // Get all Eigenpairs at once
     sm::vec<sm::mat22<double>::eigenpair, 2> pairs = A.eigenpairs();
     std::cout << "A.eigenpairs() returns both at once:\n";
     for (size_t i = 0; i < 2; ++i) {
         std::cout << "  Pair " << i << ": lambda = " << pairs[i].eigenvalue.real();
-        if (std::abs(pairs[i].eigenvalue.imag()) > 1e-10) {
+        if (std::abs (pairs[i].eigenvalue.imag()) > my_epsilon) {
             std::cout << " + " << pairs[i].eigenvalue.imag() << "i";
         }
         std::cout << ", v = [" << pairs[i].eigenvector[0].real();
-        if (std::abs(pairs[i].eigenvector[0].imag()) > 1e-10) {
+        if (std::abs (pairs[i].eigenvector[0].imag()) > my_epsilon) {
             std::cout << " + " << pairs[i].eigenvector[0].imag() << "i";
         }
         std::cout << ", " << pairs[i].eigenvector[1].real();
-        if (std::abs(pairs[i].eigenvector[1].imag()) > 1e-10) {
+        if (std::abs (pairs[i].eigenvector[1].imag()) > my_epsilon) {
             std::cout << " + " << pairs[i].eigenvector[1].imag() << "i";
         }
         std::cout << "]\n";
     }
 
-    // Example 2: Rotation matrix (complex eigenvalues)
+    // Example 2: Rotation matrix (complex Eigenvalues)
     std::cout << "\n\nExample 2: 2x2 Rotation Matrix\n";
     std::cout << "-------------------------------\n";
     sm::mat22<double> R;
-    R.rotate(M_PI / 6.0);  // 30 degree rotation
+    R.rotate (sm::mathconst<double>::pi_over_6);  // 30 degree rotation
     std::cout << "Rotation matrix (30deg) =\n" << R.str() << std::endl;
 
     sm::vec<std::complex<double>, 2> rot_lambdas = R.eigenvalues();
@@ -99,8 +101,8 @@ int main()
         std::cout << "  lambda" << i << " = " << sym_lambdas[i].real() << "\n";
     }
 
-    // Example 4: Using with float type
-    std::cout << "\n\nExample 4: Using Float Precision\n";
+    // Example 4: Using single precision floating point
+    std::cout << "\n\nExample 4: Using Single Precision\n";
     std::cout << "---------------------------------\n";
     sm::mat22<float> F = {2.0f, 1.0f, 1.0f, 2.0f};
     std::cout << "Matrix F (float) =\n" << F.str() << std::endl;
@@ -113,8 +115,7 @@ int main()
     // Example 5: Identity matrix
     std::cout << "\n\nExample 5: Identity Matrix\n";
     std::cout << "--------------------------\n";
-    sm::mat33<double> I;
-    I.setToIdentity();
+    sm::mat33<double> I; // is identity on construction
     std::cout << "Identity matrix I =\n" << I.str() << std::endl;
 
     sm::vec<std::complex<double>, 3> id_lambdas = I.eigenvalues();
@@ -127,7 +128,6 @@ int main()
     std::cout << "\n\nExample 6: 4x4 Diagonal Matrix\n";
     std::cout << "-------------------------------\n";
     sm::mat44<double> D;
-    D.setToIdentity();
     D[0] = 2.0;
     D[5] = 3.0;
     D[10] = 5.0;
@@ -147,7 +147,7 @@ int main()
     std::cout << "\nD.eigenvalues() returns:\n";
     for (size_t i = 0; i < 4; ++i) {
         std::cout << "  lambda " << i << " = " << diag_lambdas[i].real();
-        if (std::abs(diag_lambdas[i].imag()) > 1e-10) {
+        if (std::abs (diag_lambdas[i].imag()) > my_epsilon) {
             std::cout << " + " << diag_lambdas[i].imag() << "i";
         }
         std::cout << "\n";
@@ -157,7 +157,6 @@ int main()
     std::cout << "\n\nExample 7: 4x4 eigenpairs\n";
     std::cout << "-------------------------\n";
     sm::mat44<double> B;
-    B.setToIdentity();
     B[0] = 1.0;
     B[5] = 2.0;
     B[10] = 3.0;
@@ -169,10 +168,10 @@ int main()
     std::cout << "\nB.eigenpairs() returns:\n";
     for (size_t i = 0; i < 4; ++i) {
         std::cout << "  Pair " << i << ": lambda = " << mat44_pairs[i].eigenvalue.real();
-        if (std::abs(mat44_pairs[i].eigenvalue.imag()) > 1e-10) {
+        if (std::abs (mat44_pairs[i].eigenvalue.imag()) > my_epsilon) {
             std::cout << " + " << mat44_pairs[i].eigenvalue.imag() << "i";
         }
-        std::cout << "\n              v = [";
+        std::cout << "\n          v = [";
         for (size_t j = 0; j < 4; ++j) {
             std::cout << std::fixed << std::setprecision(3)
                       << mat44_pairs[i].eigenvector[j].real();
