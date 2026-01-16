@@ -117,6 +117,7 @@ namespace sm
 
     private:
 
+        // Returns (bp - px) (for just the first two elements) in a vec<T_el, 2>
         sm::vec<T_el, 2> shiftpt (const T& px, const T& bp)
         {
             if constexpr (debug_mode == true) { std::cout << "Shifting boundary point " << bp << std::endl; }
@@ -138,7 +139,8 @@ namespace sm
                     pt[0] = bp.x - px.x;
                     pt[1] = bp.y - px.y;
                 } else {
-                    throw std::runtime_error ("Template code failed to find out how to subtract one coordinate from another.");
+                    []<bool flag = false>() { static_assert(flag, "Can't subtract one coordinate from another."); }();
+
                 }
             }
 
