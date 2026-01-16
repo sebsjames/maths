@@ -17,7 +17,6 @@ int main()
 {
     int rtn = 0;
 
-#if 0 // no longer supported
     // Test with plain old std::array (and put this one in a list, too)
     std::list<std::array<float, 2>> larray;
     larray.push_back ({0.0f,0.0f});
@@ -48,6 +47,7 @@ int main()
         --rtn;
     }
 
+#if 0 // std::pair is no longer supported in sm::winder
     // Test with pair (has first and second attributes)
     std::vector<std::pair<double, double>> vpair;
     vpair.push_back (std::pair(0.0,0.0));
@@ -61,6 +61,7 @@ int main()
     if (wn5 != 1) {
         --rtn;
     }
+#endif
 
     // sm::vvec
     std::list<sm::vvec<float>> lvVec;
@@ -76,7 +77,6 @@ int main()
     if (wn6 != 1) {
         --rtn;
     }
-#endif
 
     // sm::vec
     std::vector<sm::vec<float, 2>> lVec;
