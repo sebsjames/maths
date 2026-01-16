@@ -22,6 +22,7 @@
 #include <sm/vec>
 #include <sm/vvec>
 #include <sm/algo>
+#include <sm/polysolve>
 
 namespace sm
 {
@@ -417,6 +418,7 @@ namespace sm::geometry
         T a = l.dot(l);
         T b = T{2} * l.dot(L);
         T c = L.dot(L) - s * s;
+#if 0
         sm::vec<T, 2> t = sm::algo::solve_quadratic (a, b, c);
         if (t[0] == std::numeric_limits<T>::max() && t[1] == t[0]) { return rtn; }
 
@@ -430,6 +432,20 @@ namespace sm::geometry
         rtn[1] = l0 + l * t[1];
 
         return rtn;
+#else
+        sm::vvec<T> t = sm::polysolve::real<T, 3> (sm::vec<T, 3>{c, b, a});
+
+        if (t.size() > 1) {
+            if (t[0] < T{0} && t[1] < T{0}) { return rtn; } // both negative
+            if (t[0] < T{0}) { t[0] = t[1]; }
+            rtn[0] = l0 + l * t[0];
+            rtn[1] = l0 + l * t[1];
+        } else if (t.size() == 1) {
+            rtn[0] = l0 + l * t[0];
+        } else {
+            return rtn; // No roots
+        }
+#endif
     }
 
     namespace spherical_projection

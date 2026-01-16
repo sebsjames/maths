@@ -26,6 +26,7 @@
 
 namespace sm::algo
 {
+#if 0 // now we have sm::polysolve
     // Find roots of a x * x + b * x + c = 0 and return them in a two element vector. The value
     // numeric_limits<F>::max() means that there was no root. If both are max, then there were no
     // roots.
@@ -46,7 +47,7 @@ namespace sm::algo
         }
         return x;
     }
-
+#endif
     // Find the significant base10 columns in a floating point number of type F Return a
     // range whose max is the order of magnitude of the largest base10 column and whose
     // min is the order of magnitude of the smallest significant base10 column.
