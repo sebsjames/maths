@@ -61,7 +61,7 @@ namespace sm::polysolve
      * Implements Horner's method for evaluating the result of a polynomial
      */
     template <typename T = double> requires std::is_floating_point_v<T>
-    constexpr T evaluate (const sm::vvec<T>& coeffs, T x)
+    constexpr T evaluate (const sm::vvec<T>& coeffs, const T x)
     {
         T result = T{0};
         for (int i = coeffs.size() - 1; i >= 0; --i) {
@@ -74,7 +74,7 @@ namespace sm::polysolve
      * Horner's method for complex numbers
      */
     template <typename T = double> requires std::is_floating_point_v<T>
-    constexpr std::complex<T> evaluate_complex (const sm::vvec<T>& coeffs, std::complex<T> x)
+    constexpr std::complex<T> evaluate_complex (const sm::vvec<T>& coeffs, const std::complex<T>& x)
     {
         std::complex<T> result(T{0}, T{0});
         for (int i = coeffs.size() - 1; i >= 0; --i) {
@@ -105,7 +105,7 @@ namespace sm::polysolve
      * Return the root of the linear polynomial f = a1 x + a0
      */
     template <typename T, typename Ty=T> requires std::is_floating_point_v<T> && std::is_floating_point_v<Ty>
-    constexpr sm::vvec<std::complex<T>> linear (Ty a1, Ty a0)
+    constexpr sm::vvec<std::complex<T>> linear (const Ty a1, const Ty a0)
     {
         // Normalize: divide by leading coefficient
         T a0_norm = static_cast<T>(a0) / static_cast<T>(a1);
@@ -118,7 +118,7 @@ namespace sm::polysolve
      * Return the roots of the quadratic polynomial f = a2 x^2 + a1 x + a0
      */
     template <typename T, typename Ty=T> requires std::is_floating_point_v<T> && std::is_floating_point_v<Ty>
-    constexpr sm::vvec<std::complex<T>> quadratic (Ty a2, Ty a1, Ty a0)
+    constexpr sm::vvec<std::complex<T>> quadratic (const Ty a2, const Ty a1, const Ty a0)
     {
         // Normalize: divide by leading coefficient a2
         T a1_norm = static_cast<T>(a1) / static_cast<T>(a2);
@@ -170,7 +170,7 @@ namespace sm::polysolve
      * Return the roots of the cubic polynomial f = a3 x^3 + a2 x^2 + a1 x + a0
      */
     template <typename T, typename Ty=T> requires std::is_floating_point_v<T> && std::is_floating_point_v<Ty>
-    sm::vvec<std::complex<T>> cubic (Ty a3, Ty a2, Ty a1, Ty a0)
+    sm::vvec<std::complex<T>> cubic (const Ty a3, const Ty a2, const Ty a1, const Ty a0)
     {
         // Normalize: divide by leading coefficient a3
         T a2_norm = static_cast<T>(a2) / static_cast<T>(a3);
@@ -240,7 +240,7 @@ namespace sm::polysolve
      * Return the roots of the quartic polynomial f = a4 x^4 + a3 x^3 + a2 x^2 + a1 x + a0
      */
     template <typename T, typename Ty=T> requires std::is_floating_point_v<T> && std::is_floating_point_v<Ty>
-    sm::vvec<std::complex<T>> quartic (Ty a4, Ty a3, Ty a2, Ty a1, Ty a0)
+    sm::vvec<std::complex<T>> quartic (const Ty a4, const Ty a3, const Ty a2, const Ty a1, const Ty a0)
     {
         // Normalize: divide by leading coefficient a4
         T a3_norm = static_cast<T>(a3) / static_cast<T>(a4);
@@ -416,7 +416,7 @@ namespace sm::polysolve
 
         sm::vvec<T> c = coeffs.template as<T>();
 
-        remove_trailing_zeros(c);
+        polysolve::remove_trailing_zeros(c);
 
         if (c.empty() || (c.size() == 1 && sm::cem::abs (c[0]) < std::numeric_limits<T>::epsilon())) {
             throw std::invalid_argument ("All coefficients are zero");
@@ -449,7 +449,7 @@ namespace sm::polysolve
      * @return Vector of real roots in ascending order
      */
     template <typename T = double, typename Ty = T> requires std::is_floating_point_v<T> && std::is_floating_point_v<Ty>
-    constexpr sm::vvec<T> real (const sm::vvec<Ty>& coeffs, T tolerance = T{100} * std::numeric_limits<T>::epsilon())
+    constexpr sm::vvec<T> real (const sm::vvec<Ty>& coeffs, const T tolerance = T{100} * std::numeric_limits<T>::epsilon())
     {
         sm::vvec<std::complex<T>> complex_roots = polysolve::solve<T, Ty>(coeffs);
         sm::vvec<T> real_roots = {};
@@ -470,7 +470,7 @@ namespace sm::polysolve
      * @return Vector of real roots in ascending order
      */
     template <typename Ty, std::size_t N, typename T = Ty> requires std::is_floating_point_v<T> && std::is_floating_point_v<Ty>
-    constexpr sm::vvec<T> real (const sm::vec<Ty, N+1>& coeffs, T tolerance = T{100} * std::numeric_limits<T>::epsilon())
+    constexpr sm::vvec<T> real (const sm::vec<Ty, N+1>& coeffs, const T tolerance = T{100} * std::numeric_limits<T>::epsilon())
     {
         sm::vvec<std::complex<T>> complex_roots = polysolve::solve<T, N, Ty>(coeffs);
         sm::vvec<T> real_roots = {};
