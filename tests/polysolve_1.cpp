@@ -15,7 +15,8 @@ void print_roots(const sm::vvec<std::complex<double>>& roots)
     }
 }
 
-void test_linear(int& rtn) {
+void test_linear(int& rtn)
+{
     std::cout << "\n=== Linear: 2x - 6 = 0 ===" << std::endl;
     std::cout << "Expected: x = 3" << std::endl;
     sm::vvec<std::complex<double>> roots = sm::polysolve::solve<double, 1>(sm::vec<double, 2>{-6, 2});
@@ -47,7 +48,8 @@ void test_linear(int& rtn) {
     }
 }
 
-void test_quadratic(int& rtn) {
+void test_quadratic(int& rtn)
+{
     std::cout << "\n=== Quadratic: x^2 - 5x + 6 = 0 ===" << std::endl;
     std::cout << "Expected: x = 2, 3" << std::endl;
     sm::vvec<std::complex<double>> roots = sm::polysolve::solve<double, 2>(sm::vec<double, 3>{6, -5, 1});
