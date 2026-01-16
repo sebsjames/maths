@@ -418,23 +418,8 @@ namespace sm::geometry
         T a = l.dot(l);
         T b = T{2} * l.dot(L);
         T c = L.dot(L) - s * s;
-#if 1
-        sm::vec<T, 2> t = sm::algo::solve_quadratic (a, b, c);
-        if (t[0] == std::numeric_limits<T>::max() && t[1] == t[0]) { return rtn; }
-
-        if (t[0] < T{0}) {
-            t[0] = t[1]; // If t0 is negative, let's use t1 instead.
-            if (t[0] < T{0}) { return rtn; } // Both t0 and t1 are negative.
-        }
-
-        // Compute rtn from t0, t1
-        rtn[0] = l0 + l * t[0];
-        rtn[1] = l0 + l * t[1];
-
-        return rtn;
-#else
+        // Quadratic solver, returning real roots
         sm::vvec<T> t = sm::polysolve::real<T, 2> (sm::vec<T, 3>{c, b, a});
-
         if (t.size() > 1) {
             if (t[0] < T{0} && t[1] < T{0}) { return rtn; } // both negative
             if (t[0] < T{0}) { t[0] = t[1]; }
@@ -445,7 +430,6 @@ namespace sm::geometry
         } // else no roots
 
         return rtn;
-#endif
     }
 
     namespace spherical_projection
