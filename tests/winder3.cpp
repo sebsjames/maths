@@ -12,7 +12,6 @@ int main()
 
     // Make another boundary
     std::vector<sm::vec<float, 2>> bnd;
-
     bnd.push_back ({-1.151757,  -0.865333});
     bnd.push_back ({-0.580842,  -1.169353});
     bnd.push_back ({0.155741,  -1.100337});
@@ -27,22 +26,12 @@ int main()
     bnd.push_back ({-1.404027,  -0.269740});
 
     sm::winder w (bnd);
-    sm::vec<float, 2> px = { -0.27075, 1.4834 }; // outside, but says inside?!?
+    sm::vec<float, 2> px = { -0.27075, 1.4834 };
 
     std::cout << "pt = " << px.str_mat() << std::endl;
     int wn = w.wind (px);
     std::cout << "Winding number for " << px << " = " << wn << std::endl;
     if (wn != 0) { --rtn; }
-
-
-#if 0
-    for (int i = 0; i < 10; ++i) {
-        std::cout << "pt = " << px.str_mat() << std::endl;
-        wn = w.wind (px);
-        std::cout << "Winding number for " << px << " = " << wn << std::endl;
-        px[1] += 0.01f;
-    }
-#endif
 
     std::cout << "Test " << (rtn ? "failed\n" : "passed\n");
     return rtn;

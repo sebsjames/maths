@@ -26,7 +26,7 @@ int main()
     bnd.push_back ({1.39652574,-0.502336323});
 
     sm::winder w (bnd);
-    sm::vec<float, 2> px = { 11,0 }; // outside, but fails!
+    sm::vec<float, 2> px = { 11,0 };
     std::cout << "pt = " << px.str_mat() << std::endl;
     int wn = w.wind (px);
     std::cout << "(outside) Winding number for " << px << " = " << wn << std::endl;
