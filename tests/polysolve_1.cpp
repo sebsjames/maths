@@ -75,12 +75,12 @@ void test_quadratic(int& rtn)
 
     std::cout << "\n=== Quadratic: 2x^2 - 8x + 6 = 0 ===" << std::endl;
     std::cout << "Expected: x = 1, 3" << std::endl;
-    roots = sm::polysolve::solve<double, 2>(sm::vec<double, 3>{6, -8, 2});
+    roots = sm::polysolve::solve<double>(sm::vvec<double>{6, -8, 2});
     print_roots(roots);
 
     std::cout << "\n=== Quadratic: x^2 + 2x + 5 = 0 (complex) ===" << std::endl;
     std::cout << "Expected: x = -1 +/- 2i" << std::endl;
-    roots = sm::polysolve::solve<double, 2>(sm::vec<double, 3>{5, 2, 1});
+    roots = sm::polysolve::solve<double>(sm::vvec<double>{5, 2, 1});
     print_roots(roots);
 
     std::cout << "\n=== Quadratic: x^2 - 2 = 0 ===" << std::endl;
@@ -122,12 +122,12 @@ void test_cubic (int& rtn)
 
     std::cout << "\n=== Cubic: x^3 + 3x^2 + 3x + 1 = 0 ===" << std::endl;
     std::cout << "Expected: x = -1, -1, -1" << std::endl;
-    roots = sm::polysolve::solve<double, 3>(sm::vec<double, 4>{1, 3, 3, 1});
+    roots = sm::polysolve::solve<double>(sm::vvec<double>{1, 3, 3, 1});
     print_roots(roots);
 
     std::cout << "\n=== Cubic: 2x^3 - 4x^2 - 22x + 24 = 0 ===" << std::endl;
     std::cout << "Expected: x = -3, 1, 4" << std::endl;
-    roots = sm::polysolve::solve<double, 3>(sm::vec<double, 4>{24, -22, -4, 2});
+    roots = sm::polysolve::solve<double>(sm::vvec<double>{24, -22, -4, 2});
     print_roots(roots);
 
     std::cout << "\n=== Cubic: x^3 - 7x - 6 = 0 ===" << std::endl;
