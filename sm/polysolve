@@ -382,15 +382,15 @@ namespace sm::polysolve
 
         // Use analytical solutions for degrees 1-4, numerical method for higher orders
         if constexpr (N == 1) {
-            return polysolve::linear<T, Ty> (c[1], c[0]);
+            return polysolve::linear<T> (c[1], c[0]);
         } else if constexpr (N == 2) {
-            return polysolve::quadratic<T, Ty> (c[2], c[1], c[0]);
+            return polysolve::quadratic<T> (c[2], c[1], c[0]);
         } else if constexpr (N == 3) {
-            return polysolve::cubic<T, Ty> (c[3], c[2], c[1], c[0]);
+            return polysolve::cubic<T> (c[3], c[2], c[1], c[0]);
         } else if constexpr (N == 4) {
-            return polysolve::quartic<T, Ty> (c[4], c[3], c[2], c[1], c[0]);
+            return polysolve::quartic<T> (c[4], c[3], c[2], c[1], c[0]);
         } else {
-            return polysolve::high_order<T, Ty>(c);
+            return polysolve::high_order<T>(c);
         }
     }
 
