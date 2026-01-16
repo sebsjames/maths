@@ -70,7 +70,7 @@ namespace sm::polysolve
      * Horner's method for complex numbers
      */
     template <typename T> requires std::is_floating_point_v<T>
-    constexpr std::complex<T> evaluate_complex (const sm::vvec<T>& coeffs, const std::complex<T>& x)
+    constexpr std::complex<T> evaluate (const sm::vvec<T>& coeffs, const std::complex<T>& x)
     {
         std::complex<T> result(T{0}, T{0});
         for (int i = coeffs.size() - 1; i >= 0; --i) { result = result * x + coeffs[i]; }
@@ -140,7 +140,7 @@ namespace sm::polysolve
      * Return the roots of the complex quadratic polynomial f = a2 z^2 + a1 z + a0
      */
     template <typename T, typename Ty=T> requires std::is_floating_point_v<T> && std::is_floating_point_v<Ty>
-    sm::vvec<std::complex<T>> quadratic_complex (const std::complex<Ty>& a2, const std::complex<Ty>& a1, const std::complex<Ty>& a0)
+    sm::vvec<std::complex<T>> quadratic (const std::complex<Ty>& a2, const std::complex<Ty>& a1, const std::complex<Ty>& a0)
     {
         // Solve a2 z^2 + a1 z + a0 = 0 with complex coefficients
         // z = (-a1 +/- sqrt(a1^2 - 4 a2 a0)) / (2 a2)
@@ -277,7 +277,7 @@ namespace sm::polysolve
             // Find t and u as roots of: z^2 - (p + m) * z + r = 0
             std::complex<T> sum_tu = p + m;
             std::complex<T> prod_tu(r, T{0});
-            sm::vvec<std::complex<T>> tu_roots = polysolve::quadratic_complex<T> (std::complex<T>(T{1}, T{0}), -sum_tu, prod_tu);
+            sm::vvec<std::complex<T>> tu_roots = polysolve::quadratic<T> (std::complex<T>(T{1}, T{0}), -sum_tu, prod_tu);
             std::complex<T> t = tu_roots[0];
             std::complex<T> u = tu_roots[1];
 
@@ -288,8 +288,8 @@ namespace sm::polysolve
             }
 
             // Solve two quadratics: y^2 + s * y + t = 0 and y^2 - s * y + u = 0
-            sm::vvec<std::complex<T>> quad1 = polysolve::quadratic_complex<T> (std::complex<T>(T{1}, T{0}), s, t);
-            sm::vvec<std::complex<T>> quad2 = polysolve::quadratic_complex<T> (std::complex<T>(T{1}, T{0}), -s, u);
+            sm::vvec<std::complex<T>> quad1 = polysolve::quadratic<T> (std::complex<T>(T{1}, T{0}), s, t);
+            sm::vvec<std::complex<T>> quad2 = polysolve::quadratic<T> (std::complex<T>(T{1}, T{0}), -s, u);
 
             roots.insert (roots.end(), quad1.begin(), quad1.end());
             roots.insert (roots.end(), quad2.begin(), quad2.end());
@@ -331,7 +331,7 @@ namespace sm::polysolve
         for (int iter = 0; iter < 100; ++iter) {
             bool converged = true;
             for (int i = 0; i < degree; ++i) {
-                std::complex<T> numerator = polysolve::evaluate_complex<T>(c, roots[i]);
+                std::complex<T> numerator = polysolve::evaluate<T>(c, roots[i]);
                 std::complex<T> denominator(T{1}, T{0});
                 for (int j = 0; j < degree; ++j) {
                     if (i != j) { denominator *= (roots[i] - roots[j]); }
