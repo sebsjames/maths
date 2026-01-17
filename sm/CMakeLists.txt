@@ -35,7 +35,8 @@ install(
   mathconst
   nm_simplex
   onoff
-  polysolve 
+  pca
+  polysolve
   quaternion
   random
   range
