@@ -1,0 +1,78 @@
+// -*- C++ -*-
+/*
+ * This file is part of sebsjames/maths, a library of maths code for modern C++
+ *
+ * See https://github.com/sebsjames/maths
+ *
+ * Principle component analysis (up to 4D)
+ */
+
+#pragma once
+
+#include <cstdint>
+#include <type_traits>
+
+#include <sm/polysolve>
+
+namespace sm::pca
+{
+    template<typename T, uint32_t N> requires std::is_arithmetic_v<T>
+    struct result
+    {
+    };
+
+    template <typename T, uint32_t N> requires std::is_arithmetic_v<T> && (N > 0) && (N < 5)
+    pca::result<T, N> compute (const sm::vvec<sm::vec<T, N>>& data)
+    {
+        // Each dimension of the vec is a feature
+        sm::vec<sm::vvec<T>, N> x;
+        for (uint32_t j = 0; j < data.size(); ++j) {
+            for (uint32_t i = 0; i < N; ++i) {
+                x[i][j] = data[j][i];
+            }
+        }
+        return sm::algo::pca<T, N> (x);
+    }
+
+    template <typename T, uint32_t N> requires std::is_arithmetic_v<T> && (N > 0) && (N < 5)
+    pca::result<T, N> compute (const sm::vec<sm::vvec<T>, N>& x)
+    {
+        pca::result<T, N> rtn;
+
+        // 0. Sanity check
+        uint32_t dsz = x[0].size();
+        if (dsz == 0) { return rtn; }
+        for (uint32_t i = 1; i < N; ++i) {
+            if (dsz != x[i].size()) { return rtn; }
+        } // at end, we know all x[i] have same size, as required
+
+        // 1. Compute mean and std, normalize/standardize
+        sm::vec<sm::vec<T, 2>, N> mu_sig;
+        sm::vec<sm::vvec<T>, N> z;
+        for (uint32_t i = 0; i < N; ++i) {
+            mu_sig[i] = x[i].mean_std();
+            z[i] = (x[i] - mu_sig[i][0]) / mu_sig[i][1];
+        }
+        // 2. Calculate covariance matrix
+        std::array<T, N*N> cm = {}; // cov matrix, column-wise (like matNN)
+        for (uint32_t r = 0; r < N; ++r) {
+            for (uint32_t c = 0; c < N; ++c) {
+                for (uint32_t i = 0; i < dsz; ++i) {
+                    // cm[c + N * r] += z[r] - mu_sig // z or x???
+                }
+            }
+        }
+        if constexpr (N == 2) {
+            // mat22
+            // Get lambda
+        } else if constexpr (N == 3) {
+            // mat33
+            // Get lambda
+        } else if constexpr (N == 4) {
+            // mat44
+            // Get lambda
+        } else {
+            // compile error
+        }
+    }
+}
