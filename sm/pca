@@ -11,7 +11,9 @@
 
 #include <cstdint>
 #include <type_traits>
+#include <complex>
 
+#include <sm/mat22>
 #include <sm/polysolve>
 
 namespace sm::pca
@@ -20,19 +22,6 @@ namespace sm::pca
     struct result
     {
     };
-
-    template <typename T, uint32_t N> requires std::is_arithmetic_v<T> && (N > 0) && (N < 5)
-    pca::result<T, N> compute (const sm::vvec<sm::vec<T, N>>& data)
-    {
-        // Each dimension of the vec is a feature
-        sm::vec<sm::vvec<T>, N> x;
-        for (uint32_t j = 0; j < data.size(); ++j) {
-            for (uint32_t i = 0; i < N; ++i) {
-                x[i][j] = data[j][i];
-            }
-        }
-        return sm::algo::pca<T, N> (x);
-    }
 
     template <typename T, uint32_t N> requires std::is_arithmetic_v<T> && (N > 0) && (N < 5)
     pca::result<T, N> compute (const sm::vec<sm::vvec<T>, N>& x)
@@ -47,24 +36,42 @@ namespace sm::pca
         } // at end, we know all x[i] have same size, as required
 
         // 1. Compute mean and std, normalize/standardize
-        sm::vec<sm::vec<T, 2>, N> mu_sig;
+        sm::vec<sm::vec<T, 2>, N> mu_sig_x;
         sm::vec<sm::vvec<T>, N> z;
+        sm::vec<sm::vec<T, 2>, N> mu_sig_z;
         for (uint32_t i = 0; i < N; ++i) {
-            mu_sig[i] = x[i].mean_std();
-            z[i] = (x[i] - mu_sig[i][0]) / mu_sig[i][1];
+            mu_sig_x[i] = x[i].mean_std();
+            z[i] = (x[i] - mu_sig_x[i][0]) / mu_sig_x[i][1];
+            mu_sig_z[i] = z[i].mean_std(); // for cov. matrix calc
+            std::cout << "mu_sig_x[i]: " << mu_sig_x[i] << " mu_sig_z[i]: " << mu_sig_z[i] << std::endl;
         }
+
         // 2. Calculate covariance matrix
-        std::array<T, N*N> cm = {}; // cov matrix, column-wise (like matNN)
+        const T onmo = T{1} / (dsz - 1);
+        sm::vec<T, N * N> cm = {}; // cov matrix, column-wise (like matNN)
         for (uint32_t r = 0; r < N; ++r) {
             for (uint32_t c = 0; c < N; ++c) {
                 for (uint32_t i = 0; i < dsz; ++i) {
-                    // cm[c + N * r] += z[r] - mu_sig // z or x???
+                    //  in row 1, want cov (1, col), but cm is an array with column-wise data
+                    //cm[r * N + c] += (z[r][i] - mu_sig_z[r][0]) * (z[c][i] - mu_sig_z[c][0]);
+                    // THIS covariance matrix gives the right lambdas, below
+                    cm[r * N + c]   += (x[r][i] - mu_sig_x[r][0]) * (x[c][i] - mu_sig_x[c][0]);
                 }
+                cm[r * N + c] *= onmo;
             }
         }
+        //std::cout << "Cov matrix: " << cm << std::endl;
+
+        // 3. Compute Eigenvalues of the covariance matrix
         if constexpr (N == 2) {
             // mat22
             // Get lambda
+            sm::mat22<T> m (cm);
+            std::cout << "cov matrix:\n" << m << std::endl;
+            sm::vec<std::complex<T>, 2> l = m.eigenvalues();
+            std::cout << "lambdas: " << std::real(l[0]) << " + " << std::imag(l[0]) << "i and "
+                      << std::real(l[1]) << " + " << std::imag(l[1]) << "i\n";
+
         } else if constexpr (N == 3) {
             // mat33
             // Get lambda
@@ -74,5 +81,21 @@ namespace sm::pca
         } else {
             // compile error
         }
+
+        return rtn;
     }
-}
+
+    template <typename T, uint32_t N> requires std::is_arithmetic_v<T> && (N > 0) && (N < 5)
+    pca::result<T, N> compute (const sm::vvec<sm::vec<T, N>>& data)
+    {
+        // Each dimension of the vec is a feature
+        sm::vec<sm::vvec<T>, N> x;
+        for (uint32_t i = 0; i < N; ++i) { x[i].resize (data.size()); }
+        for (uint32_t j = 0; j < data.size(); ++j) {
+            for (uint32_t i = 0; i < N; ++i) { x[i][j] = data[j][i]; }
+        }
+        pca::result<T, N> res = pca::compute<T, N> (x);
+        return res;
+    }
+
+} // namespace
