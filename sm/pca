@@ -48,24 +48,21 @@ namespace sm::pca
 
         // 2. Calculate covariance matrix of both x AND z.
         const T dinv = T{1} / (dsz - 1);
-        sm::vec<T, N * N> cm_x = {}; // cov matrix, column-wise (like matNN)
-        sm::vec<T, N * N> cm_z = {}; // cov matrix, column-wise (like matNN)
+        sm::vec<T, N * N> cm_x = {}; // cov matrix, column-wise (like matNN) (unstandardized)
+        sm::vec<T, N * N> cm_z = {};
         for (uint32_t r = 0; r < N; ++r) {
             for (uint32_t c = 0; c < N; ++c) {
                 for (uint32_t i = 0; i < dsz; ++i) {
                     //  in row 1, want cov (1, col), but cm is an array with column-wise data
-                    // THIS covariance matrix is required to compute the *angles* of the principle component vectors
                     cm_z[r * N + c] += (z[r][i] - mu_sig_z[r][0]) * (z[c][i] - mu_sig_z[c][0]);
-                    // THIS covariance matrix gives the right lambdas, below
                     cm_x[r * N + c] += (x[r][i] - mu_sig_x[r][0]) * (x[c][i] - mu_sig_x[c][0]);
                 }
                 cm_x[r * N + c] *= dinv;
                 cm_z[r * N + c] *= dinv;
             }
         }
-        //std::cout << "Cov matrix: " << cm << std::endl;
 
-        // 3. Compute Eigenvalues of the covariance matrix
+        // 3. Compute Eigenvalues and vectors of the covariance matrix
         if constexpr (N == 2) {
             // Create two covariance matrices, cm_x allows for computation of lambdas
             sm::mat22<T> m (cm_x);
@@ -78,17 +75,20 @@ namespace sm::pca
             sm::mat22<T> m_z (cm_z);
             std::cout << "cov matrix z:\n" << m_z << std::endl;
 
-            sm::vec<std::complex<T>, 2> l_z = m_z.eigenvalues(); // want these in SAME order as m, so we know which is largest
-            sm::vec<T, 2> lmb_z = { std::real(l_z[0]) , std::real(l_z[1]) };
-            std::cout << "lambdas_z: " << lmb_z << "\n";
+            sm::vec<typename sm::mat22<T>::eigenpair, 2> eps = m_z.eigenpairs();
 
+            for (uint32_t i = 0; i < N; ++i) {
+                std::cout << "Eigenpair value: " << eps[i].eigenvalue << " and vector: " << eps[i].eigenvector[0] << " -- " << eps[i].eigenvector[1] << std::endl;
+            }
+
+#if 0
             sm::vec<T, 2> pc1vec = m.row(0);
             T angle1 = pc1vec.angle();
             std::cout << "Angle of first component " << pc1vec << " is " << angle1 * sm::mathconst<T>::rad2deg << std::endl;
             sm::vec<T, 2> pc2vec = m.row(1);
             T angle2 = pc2vec.angle();
             std::cout << "Angle of 2nd component " << pc2vec << " is " << angle2 * sm::mathconst<T>::rad2deg << std::endl;
-
+#endif
 
         } else if constexpr (N == 3) {
             // mat33
