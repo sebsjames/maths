@@ -1171,12 +1171,14 @@ namespace sm
             for (S val : *this) {
                 if constexpr (test_for_nans) {
                     if (std::isnan (val)) {
+                        std::cout << "nan\n";
                         ++n_nans; continue;
                     }
                 }
                 sos_deviations += ((val - _mean) * (val - _mean));
             }
-            Sy variance = sos_deviations / (this->size() - 1 - n_nans);
+            Sy variance = sos_deviations / (this->size() - 1 - n_nans); // which one?
+            // Sy variance = sos_deviations / (this->size() - n_nans); // This one agrees with numpy
             return variance;
         }
 
@@ -1212,7 +1214,7 @@ namespace sm
         template<bool test_for_nans = false, typename Sy=S>
         sm::vec<Sy, 2> mean_std() const noexcept
         {
-            if (this->empty()) { return sm::vec<Sy, 2>{};; }
+            if (this->empty()) { return sm::vec<Sy, 2>{}; }
             sm::vec<Sy, 2> ms = this->mean_variance<test_for_nans, Sy>();
             ms[1] = std::sqrt (ms[1]);
             return ms;

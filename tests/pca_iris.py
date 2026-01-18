@@ -9,7 +9,7 @@ n_samples, n_features = X.shape
 print('Number of samples:', n_samples)
 print('Number of features:', n_features)
 
-# import numpy as np
+import numpy as np
 
 def mean(x): # np.mean(X, axis = 0)
     return sum(x)/len(x)
@@ -20,6 +20,7 @@ def std(x): # np.std(X, axis = 0)
 def Standardize_data(X):
     print ('mean: {}'.format (mean(X)))
     print ('std: {}'.format (std(X)))
+    print ('np.std: {}'.format (np.std(X, axis = 0)))
     return (X - mean(X))/std(X)
 
 X_std = Standardize_data(X)
@@ -31,7 +32,6 @@ def covariance(x):
 cov_mat = covariance(X_std) # np.cov(X_std.T)
 print ('covariance matrix: {}'.format (cov_mat))
 
-import numpy as np
 from numpy.linalg import eig
 
 # Eigendecomposition of covariance matrix
