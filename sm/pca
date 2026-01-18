@@ -77,7 +77,7 @@ namespace sm::pca
         sm::vec<sm::vvec<T>, N> z;
         for (uint32_t i = 0; i < N; ++i) {
             std::cout << "x[" << i << "].std() = " << x[i].std() << std::endl;
-            mu_sig_x[i] = x[i].mean_std(); // CHECK STD!!!!
+            mu_sig_x[i] = x[i].mean_std();
             std::cout << "mu_sig_x["<< i << ": " << mu_sig_x[i] << std::endl;
             z[i] = (x[i] - mu_sig_x[i][0]) / mu_sig_x[i][1];
         }
