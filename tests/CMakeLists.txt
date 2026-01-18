@@ -436,3 +436,6 @@ add_test(polysolve_1 polysolve_1)
 
 add_executable(graham_scan_1 graham_scan_1.cpp)
 add_test(graham_scan_1 graham_scan_1)
+
+add_executable(pca_iris pca_iris.cpp)
+add_test(pca_iris pca_iris)
