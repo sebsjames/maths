@@ -439,3 +439,6 @@ add_test(graham_scan_1 graham_scan_1)
 
 add_executable(pca_iris pca_iris.cpp)
 add_test(pca_iris pca_iris)
+
+add_executable(mat_1 mat_1.cpp)
+add_test(mat_1 mat_1)
