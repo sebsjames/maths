@@ -12,6 +12,7 @@
  */
 #pragma once
 
+#include <cstdint>
 #include <cmath>
 #include <vector>
 #include <iostream>
@@ -1160,8 +1161,9 @@ namespace sm
             }
         }
 
-        //! \return the variance of the elements
-        template<bool test_for_nans = false, typename Sy=S>
+        //! \return the variance of the elements. Passing template arg correction = -1
+        //! estimates a population variance from the sample
+        template<bool test_for_nans = false, typename Sy=S, int64_t correction = 0>
         Sy variance() const noexcept
         {
             if (this->empty()) { return S{0}; }
@@ -1177,13 +1179,14 @@ namespace sm
                 }
                 sos_deviations += ((val - _mean) * (val - _mean));
             }
-            Sy variance = sos_deviations / (this->size() - 1 - n_nans); // which one?
-            // Sy variance = sos_deviations / (this->size() - n_nans); // This one agrees with numpy
+            int64_t sz = this->size();
+            Sy variance = sos_deviations / (sz + correction - n_nans);
             return variance;
         }
 
-        //! \return the mean(rtn[0]) and variance(rtn[1]) of the elements
-        template<bool test_for_nans = false, typename Sy=S>
+        //! \return the mean(rtn[0]) and variance(rtn[1]) of the elements. Passing
+        //! template arg correction = -1 estimates a population variance from the sample
+        template<bool test_for_nans = false, typename Sy=S, int64_t correction = 0>
         sm::vec<Sy, 2> mean_variance() const noexcept
         {
             if (this->empty()) { return sm::vec<Sy, 2>{}; }
@@ -1198,7 +1201,8 @@ namespace sm
                 }
                 sos_deviations += ((val - _mean) * (val - _mean));
             }
-            Sy variance = sos_deviations / (this->size() - 1 - n_nans);
+            int64_t sz = this->size();
+            Sy variance = sos_deviations / (sz + correction - n_nans);
             return sm::vec<Sy, 2>{ _mean, variance };
         }
 
