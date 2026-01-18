@@ -30,7 +30,7 @@ namespace sm::pca
     sm::vec<T, N * N> covariance2 (const sm::vec<sm::vvec<T>, N>& z)
     {
         uint32_t dsz = z[0].size();
-        sm::vec<sm::vec<T, 2>, N> mu_sig;
+        sm::vec<sm::vvec<T>, N> mu_sig;
         for (uint32_t i = 0; i < N; ++i) { mu_sig[i] = z[i].mean_std(); }
         sm::vec<T, N * N> cm = {}; // cov matrix, column-wise (like matNN)
         for (uint32_t r = 0; r < N; ++r) {
@@ -73,7 +73,7 @@ namespace sm::pca
         } // at end, we know all x[i] have same size, as required
 
         // 1. Compute mean and std, normalize/standardize
-        sm::vec<sm::vec<T, 2>, N> mu_sig_x;
+        sm::vec<sm::vvec<T>, N> mu_sig_x;
         sm::vec<sm::vvec<T>, N> z;
         for (uint32_t i = 0; i < N; ++i) {
             std::cout << "x[" << i << "].std() = " << x[i].std() << std::endl;
