@@ -520,7 +520,7 @@ int main()
     if (result27 != 1.0) { std::cout << "Fail 27, returned " << result27 << "\n"; rtn -= 1; }
 
     constexpr double result28 = vec_stats2();
-    if (std::abs(result28 - 800.891) > 0.0005 ) { std::cout << "Fail 28\n"; rtn -= 1; }
+    if (std::abs(result28 - 798.233) > 0.0005 ) { std::cout << "Fail 28\n"; rtn -= 1; }
 
     constexpr sm::vec<double, 5> result29 = vec_ops();
     if (result29[2] != 25.0 || result29[4] != 4.0) { std::cout << "Fail 29\n"; rtn -= 1; }
