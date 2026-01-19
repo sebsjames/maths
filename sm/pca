@@ -1,0 +1,169 @@
+// -*- C++ -*-
+/*
+ * This file is part of sebsjames/maths, a library of maths code for modern C++
+ *
+ * See https://github.com/sebsjames/maths
+ *
+ * Principle component analysis (up to 4D)
+ */
+
+#pragma once
+
+#include <cstdint>
+#include <type_traits>
+#include <complex>
+
+#include <sm/mat22>
+#include <sm/mat33>
+#include <sm/mat44>
+#include <sm/polysolve>
+
+namespace sm::pca
+{
+    template<typename T, uint32_t N> requires std::is_arithmetic_v<T>
+    struct result
+    {
+    };
+
+    // Compute covariance using the summing method
+    template<typename T, uint32_t N> requires std::is_arithmetic_v<T>
+    sm::vec<T, N * N> covariance2 (const sm::vec<sm::vvec<T>, N>& z)
+    {
+        uint32_t dsz = z[0].size();
+        sm::vec<sm::vvec<T>, N> mu_sig;
+        for (uint32_t i = 0; i < N; ++i) { mu_sig[i] = z[i].mean_std(); }
+        sm::vec<T, N * N> cm = {}; // cov matrix, column-wise (like matNN)
+        for (uint32_t r = 0; r < N; ++r) {
+            for (uint32_t c = 0; c < N; ++c) {
+                for (uint32_t i = 0; i < dsz; ++i) {
+                    //  in row 1, want cov (1, col), but cm is an array with column-wise data
+                    cm[r * N + c] += (z[r][i] - mu_sig[r][0]) * (z[c][i] - mu_sig[c][0]);
+                }
+                cm[r * N + c] /= (dsz - 1);
+            }
+        }
+
+        return cm;
+    }
+
+    // Compute covariance using the matrix multiplication x.T * X / (dsz-1)
+    template<typename T, uint32_t N> requires std::is_arithmetic_v<T>
+    sm::vec<T, N * N> covariance (const sm::vec<sm::vvec<T>, N>& z)
+    {
+        uint32_t dsz = z[0].size();
+        sm::vec<T, N * N> cm = {}; // cov matrix, column-wise (like matNN)
+        for (uint32_t r = 0; r < N; ++r) {
+            for (uint32_t c = 0; c < N; ++c) {
+                cm[r * N + c] = z[c].dot (z[r]) / (dsz - 1);
+            }
+        }
+        return cm;
+    }
+
+    template <typename T, uint32_t N> requires std::is_arithmetic_v<T> && (N > 0) && (N < 5)
+    pca::result<T, N> compute (const sm::vec<sm::vvec<T>, N>& x)
+    {
+        pca::result<T, N> rtn;
+
+        // 0. Sanity check
+        uint32_t dsz = x[0].size();
+        if (dsz == 0) { return rtn; }
+        for (uint32_t i = 1; i < N; ++i) {
+            if (dsz != x[i].size()) { return rtn; }
+        } // at end, we know all x[i] have same size, as required
+
+        // 1. Compute mean and std, normalize/standardize
+        sm::vec<sm::vvec<T>, N> mu_sig_x;
+        sm::vec<sm::vvec<T>, N> z;
+        for (uint32_t i = 0; i < N; ++i) {
+            std::cout << "x[" << i << "].std() = " << x[i].std() << std::endl;
+            mu_sig_x[i] = x[i].mean_std();
+            std::cout << "mu_sig_x["<< i << ": " << mu_sig_x[i] << std::endl;
+            z[i] = (x[i] - mu_sig_x[i][0]) / mu_sig_x[i][1];
+        }
+
+        // 2. Calculate covariance matrix of both x AND z.
+        const T dinv = T{1} / (dsz - 1);
+        std::cout << "dinv = " << dinv << std::endl;
+        sm::vec<T, N * N> cm_z = pca::covariance<T, N> (z);
+
+        // 3. Compute Eigenvalues and vectors of the covariance matrix
+        if constexpr (N == 2) {
+            sm::mat22<T> m_z (cm_z);
+
+            std::cout << "cov matrix:\n" << m_z << std::endl;
+
+            sm::vec<typename sm::mat22<T>::eigenpair, N> eps = m_z.eigenpairs();
+
+            std::cout << "Eigenvalues:\n";
+            for (uint32_t i = 0; i < N; ++i) { std::cout << eps[i].eigenvalue << "\n"; }
+            std::cout << std::endl;
+
+            std::cout << "Eigenvectors:\n";
+            for (uint32_t i = 0; i < N; ++i) {
+                std::cout << "[";
+                for (uint32_t j = 0; j < N; ++j) {
+                    std::cout << eps[i].eigenvector[j] << " ";
+                }
+                std::cout << "]" << std::endl;
+            }
+
+#if 0
+            sm::vec<sm::vvec<T>, N> x_proj;
+            for (uint32_t r = 0; r < N; ++r) {
+                x_proj[r] = z[r].dot (eps[i].eigenvector[0]);
+            }
+#endif
+
+#if 0
+            sm::vec<T, 2> pc1vec = m.row(0);
+            T angle1 = pc1vec.angle();
+            std::cout << "Angle of first component " << pc1vec << " is " << angle1 * sm::mathconst<T>::rad2deg << std::endl;
+            sm::vec<T, 2> pc2vec = m.row(1);
+            T angle2 = pc2vec.angle();
+            std::cout << "Angle of 2nd component " << pc2vec << " is " << angle2 * sm::mathconst<T>::rad2deg << std::endl;
+#endif
+
+        } else if constexpr (N == 3) {
+            // mat33
+
+        } else if constexpr (N == 4) {
+            sm::mat44<T> m_z (cm_z);
+            std::cout << "cov matrix:\n" << m_z << std::endl;
+
+            sm::vec<typename sm::mat44<T>::eigenpair, N> eps = m_z.eigenpairs();
+
+            std::cout << "Eigenvalues:\n";
+            for (uint32_t i = 0; i < N; ++i) { std::cout << eps[i].eigenvalue << "\n"; }
+            std::cout << std::endl;
+
+            std::cout << "Eigenvectors:\n";
+            for (uint32_t i = 0; i < N; ++i) {
+                std::cout << "[";
+                for (uint32_t j = 0; j < N; ++j) {
+                    std::cout << eps[i].eigenvector[j] << " ";
+                }
+                std::cout << "]" << std::endl;
+            }
+
+        } else {
+            // compile error
+        }
+
+        return rtn;
+    }
+
+    template <typename T, uint32_t N> requires std::is_arithmetic_v<T> && (N > 0) && (N < 5)
+    pca::result<T, N> compute (const sm::vvec<sm::vec<T, N>>& data)
+    {
+        // Each dimension of the vec is a feature. Repackage...
+        sm::vec<sm::vvec<T>, N> x;
+        for (uint32_t i = 0; i < N; ++i) { x[i].resize (data.size()); }
+        for (uint32_t j = 0; j < data.size(); ++j) {
+            for (uint32_t i = 0; i < N; ++i) { x[i][j] = data[j][i]; }
+        }
+        // ...and call the other overload
+        return pca::compute<T, N> (x);
+    }
+
+} // namespace

@@ -381,17 +381,26 @@ add_test(test_zernike test_zernike)
 add_executable(mat22_eigenvalues mat22_eigenvalues.cpp)
 add_test(mat22_eigenvalues mat22_eigenvalues)
 
+add_executable(mat22_eigenvectors mat22_eigenvectors.cpp)
+add_test(mat22_eigenvectors mat22_eigenvectors)
+
 add_executable(mat33_1 mat33_1.cpp)
 add_test(mat33_1 mat33_1)
 
 add_executable(mat33_eigenvalues mat33_eigenvalues.cpp)
 add_test(mat33_eigenvalues mat33_eigenvalues)
 
+add_executable(mat33_eigenvectors mat33_eigenvectors.cpp)
+add_test(mat33_eigenvectors mat33_eigenvectors)
+
 add_executable(mat44_1 mat44_1.cpp)
 add_test(mat44_1 mat44_1)
 
 add_executable(mat44_eigenvalues mat44_eigenvalues.cpp)
 add_test(mat44_eigenvalues mat44_eigenvalues)
+
+add_executable(mat44_eigenvectors mat44_eigenvectors.cpp)
+add_test(mat44_eigenvectors mat44_eigenvectors)
 
 if(NOT APPLE)
   if(Eigen3_FOUND)
@@ -436,3 +445,9 @@ add_test(polysolve_1 polysolve_1)
 
 add_executable(graham_scan_1 graham_scan_1.cpp)
 add_test(graham_scan_1 graham_scan_1)
+
+add_executable(pca_iris pca_iris.cpp)
+add_test(pca_iris pca_iris)
+
+#add_executable(mat_1 mat_1.cpp)
+#add_test(mat_1 mat_1)
