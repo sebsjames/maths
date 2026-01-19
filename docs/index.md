@@ -9,6 +9,8 @@ nav_order: 0
 {: .no_toc}
 This is a maths library for your modern C++ projects. It was created for [mathplot](https://github.com/sebsjames/mathplot) and has been used in all of my recent scientific modelling work. I wanted a set of classes that would be *convenient* and *pleasurable* to use when coding straightforward mathematics. On this page, I'll give you a taste of what you can do with the library. For full details, refer to the Reference pages.
 
+Lookin for the git repository? **[github.com/sebsjames/maths](https://github.com/sebsjames/maths)**
+
 - TOC
 {:toc}
 
@@ -122,6 +124,7 @@ The grid classes `sm::hexgrid` and `sm::cargrid` make use of Bezier curves to sp
 
 There are a number of well known algorithms that I've had need of. These include:
 
+* Polynomial solvers (`<sm/polysolve>`)
 * An efficient implementation of the boxfilter algorithm (`<sm/boxfilter>`)
 * A winding number computation (`<sm/winder>`)
 * Image resampling methods in `sm::hexgrid` and `sm::cartgrid`
