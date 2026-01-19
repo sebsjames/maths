@@ -14,7 +14,6 @@
 #pragma once
 
 #include <cmath>
-#include <complex>
 #include <string>
 #include <sstream>
 #include <iostream>
@@ -273,103 +272,6 @@ namespace sm
                 this->mat[1] * v1[0] + this->mat[3] * v1[1]
             };
             return v;
-        }
-
-        /*!
-         * Compute the eigenvalues of this 2x2 matrix.
-         * Returns a vector of 2 complex eigenvalues.
-         *
-         * For matrix A = [a c; b d], eigenvalues are the roots of:
-         * lambda^2 - trace(A) * lambda + det(A) = 0
-         */
-        sm::vec<std::complex<F>, 2> eigenvalues() const noexcept
-        {
-            // Characteristic polynomial: lambda^2 - trace(A)*lambda + det(A) = 0
-            F tr = this->trace();
-
-            // Quadratic formula: lambda = (tr +/- sqrt(tr^2 - 4*det)) / 2
-            F discriminant = tr * tr - F{4} * this->determinant();
-
-            sm::vec<std::complex<F>, 2> lambdas = {};
-
-            if (discriminant >= F{0}) {
-                // Real eigenvalues
-                F sqrt_disc = std::sqrt (discriminant);
-                lambdas[0] = std::complex<F>{ (tr + sqrt_disc) / F{2}, F{0} };
-                lambdas[1] = std::complex<F>{ (tr - sqrt_disc) / F{2}, F{0} };
-            } else {
-                // Complex conjugate eigenvalues
-                F real_part = tr / F{2};
-                F imag_part = std::sqrt (-discriminant) / F{2};
-                lambdas[0] = std::complex<F>{ real_part, imag_part };
-                lambdas[1] = std::complex<F>{ real_part, -imag_part };
-            }
-
-            return lambdas;
-        }
-
-        /*!
-         * Find an eigenvector for a given eigenvalue.
-         * Returns a normalized eigenvector as a complex vector.
-         */
-        sm::vec<std::complex<F>, 2> eigenvector (const std::complex<F>& lambda) const noexcept
-        {
-            constexpr F my_epsilon = F{1e-10};
-
-            std::complex<F> a(this->mat[0], F{0});
-            std::complex<F> b(this->mat[1], F{0});
-            std::complex<F> c(this->mat[2], F{0});
-            std::complex<F> d(this->mat[3], F{0});
-
-            sm::vec<std::complex<F>, 2> v = {};
-
-            // Try first row: (a - lambda) * v_0 + c * v_1 = 0
-            std::complex<F> a_minus_lambda = a - lambda;
-
-            if (std::abs(c) > std::abs (a_minus_lambda) * my_epsilon) {
-                // Use: v_1 = 1, v_0 = -c / (a - lambda)
-                v[1] = std::complex<F>{ F{1}, F{0} };
-                v[0] = -c / a_minus_lambda;
-            } else if (std::abs(b) > my_epsilon) {
-                // Try second row: b*v_0 + (d - lambda)*v_1 = 0
-                // Use: v_0 = 1, v_1 = -b / (d - lambda)
-                v[0] = std::complex<F>{ F{1}, F{0} };
-                v[1] = -b / (d - lambda);
-            } else {
-                // Degenerate case - use standard basis
-                v[0] = std::complex<F>{ F{1}, F{0} };
-                v[1] = std::complex<F>{ F{0}, F{0} };
-            }
-
-            // Normalize
-            F norm = std::sqrt (std::norm (v[0]) + std::norm (v[1]));
-            if (norm > my_epsilon) { v /= norm; }
-
-            return v;
-        }
-
-        /*!
-         * Compute both eigenvalues and their corresponding eigenvectors.
-         * Returns a vector of 2 pairs, each containing an eigenvalue and its eigenvector.
-         */
-        struct eigenpair
-        {
-            std::complex<F> eigenvalue = {};
-            sm::vec<std::complex<F>, 2> eigenvector = {};
-        };
-
-        sm::vec<eigenpair, 2> eigenpairs() const noexcept
-        {
-            sm::vec<eigenpair, 2> pairs = {};
-            sm::vec<std::complex<F>, 2> lambdas = this->eigenvalues();
-
-            pairs[0].eigenvalue = lambdas[0];
-            pairs[0].eigenvector = this->eigenvector (lambdas[0]);
-
-            pairs[1].eigenvalue = lambdas[1];
-            pairs[1].eigenvector = this->eigenvector (lambdas[1]);
-
-            return pairs;
         }
 
         //! Overload the stream output operator
