@@ -12,6 +12,7 @@
  */
 #pragma once
 
+#include <cstdint>
 #include <cmath>
 #include <array>
 #include <iostream>
@@ -834,17 +835,19 @@ namespace sm
             return sum / this->size();
         }
 
-        //! Return the variance of the elements
-        template<typename Sy=S>
+        //! Return the variance of the elements. Passing template arg correction = -1
+        //! estimates a population variance from the sample
+        template<typename Sy=S, int64_t correction = 0>
         constexpr Sy variance() const noexcept
         {
             if (this->empty()) { return S{0}; }
             Sy _mean = this->mean<Sy>();
             Sy sos_deviations = Sy{0};
             for (S val : *this) {
-                sos_deviations += ((val-_mean)*(val-_mean));
+                sos_deviations += ((val - _mean) * (val - _mean));
             }
-            Sy variance = sos_deviations / (this->size()-1);
+            int64_t sz = this->size();
+            Sy variance = sos_deviations / (sz + correction);
             return variance;
         }
 

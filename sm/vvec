@@ -12,6 +12,7 @@
  */
 #pragma once
 
+#include <cstdint>
 #include <cmath>
 #include <vector>
 #include <iostream>
@@ -1160,11 +1161,35 @@ namespace sm
             }
         }
 
-        //! \return the variance of the elements
-        template<bool test_for_nans = false, typename Sy=S>
+        //! \return the variance of the elements. Passing template arg correction = -1
+        //! estimates a population variance from the sample
+        template<bool test_for_nans = false, typename Sy=S, int64_t correction = 0>
         Sy variance() const noexcept
         {
             if (this->empty()) { return S{0}; }
+            Sy _mean = this->mean<test_for_nans, Sy>();
+            Sy sos_deviations = Sy{0};
+            std::size_t n_nans = 0u;
+            for (S val : *this) {
+                if constexpr (test_for_nans) {
+                    if (std::isnan (val)) {
+                        std::cout << "nan\n";
+                        ++n_nans; continue;
+                    }
+                }
+                sos_deviations += ((val - _mean) * (val - _mean));
+            }
+            int64_t sz = this->size();
+            Sy variance = sos_deviations / (sz + correction - n_nans);
+            return variance;
+        }
+
+        //! \return the mean(rtn[0]) and variance(rtn[1]) of the elements. Passing
+        //! template arg correction = -1 estimates a population variance from the sample
+        template<bool test_for_nans = false, typename Sy=S, int64_t correction = 0>
+        sm::vvec<Sy> mean_variance() const noexcept
+        {
+            if (this->empty()) { return sm::vvec<Sy>{}; }
             Sy _mean = this->mean<test_for_nans, Sy>();
             Sy sos_deviations = Sy{0};
             std::size_t n_nans = 0u;
@@ -1176,8 +1201,9 @@ namespace sm
                 }
                 sos_deviations += ((val - _mean) * (val - _mean));
             }
-            Sy variance = sos_deviations / (this->size() - 1 - n_nans);
-            return variance;
+            int64_t sz = this->size();
+            Sy variance = sos_deviations / (sz + correction - n_nans);
+            return sm::vvec<Sy>{ _mean, variance };
         }
 
         //! \return the standard deviation of the elements
@@ -1186,6 +1212,16 @@ namespace sm
         {
             if (this->empty()) { return Sy{0}; }
             return std::sqrt (this->variance<test_for_nans, Sy>());
+        }
+
+        //! \return mean (rtn[0]) and standard deviation (rtn[1]) of the elements
+        template<bool test_for_nans = false, typename Sy=S>
+        sm::vvec<Sy> mean_std() const noexcept
+        {
+            if (this->empty()) { return sm::vvec<Sy>{}; }
+            sm::vvec<Sy> ms = this->mean_variance<test_for_nans, Sy>();
+            ms[1] = std::sqrt (ms[1]);
+            return ms;
         }
 
         //! \return the sum of the elements. If elements are of a constrained type, you can call this something like:
