@@ -101,16 +101,30 @@ namespace sm
         requires sm::is_copyable_fixedsize<std::decay_t<Ty>>::value
         constexpr bool operator== (const range<Ty>& rhs) const noexcept
         {
-            using T_el=std::remove_reference_t<decltype(*std::begin(std::declval<T&>()))>;
-            return (this->min == rhs.min.template as<T_el>() && this->max == rhs.max.template as<T_el>());
+            bool test1e = true;
+            for (uint32_t i = 0; i < this->min.size(); ++i) {
+                if (this->min[i] != rhs.min[i]) { test1e = false; }
+            }
+            bool test2e = true;
+            for (uint32_t i = 0; i < this->min.size(); ++i) {
+                if (this->max[i] != rhs.max[i]) { test2e = false; }
+            }
+            return (test1e == true && test2e == true);
         }
 
         template <typename Ty=T>
         requires sm::is_copyable_fixedsize<std::decay_t<Ty>>::value
         constexpr bool operator!= (const range<Ty>& rhs) const noexcept
         {
-            using T_el=std::remove_reference_t<decltype(*std::begin(std::declval<T&>()))>;
-            return (this->min != rhs.min.template as<T_el>() || this->max != rhs.max.template as<T_el>());
+            bool test1ne = false;
+            for (uint32_t i = 0; i < this->min.size(); ++i) {
+                if (this->min[i] != rhs.min[i]) { test1ne = true; }
+            }
+            bool test2ne = false;
+            for (uint32_t i = 0; i < this->min.size(); ++i) {
+                if (this->max[i] != rhs.max[i]) { test2ne = true; }
+            }
+            return (test1ne || test2ne);
         }
 
         // Adding to a range means adding to both min and max
