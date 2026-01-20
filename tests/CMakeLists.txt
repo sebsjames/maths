@@ -147,6 +147,9 @@ add_test(testvvec_at_signed testvvec_at_signed)
 add_executable(testvvec_nans testvvec_nans.cpp)
 add_test(testvvec_nans testvvec_nans)
 
+add_executable(vvec_range_extent vvec_range_extent.cpp)
+add_test(vvec_range_extent vvec_range_extent)
+
 add_executable(test_trait_tests test_trait_tests.cpp)
 add_test(test_trait_tests test_trait_tests)
 
@@ -415,6 +418,9 @@ add_test(range_intersects range_intersects)
 
 add_executable(range_adding range_adding.cpp)
 add_test(range_adding range_adding)
+
+add_executable(range_vectorequality range_vectorequality.cpp)
+add_test(range_vectorequality range_vectorequality)
 
 add_executable(xyz_to_latlong xyz_to_latlong.cpp)
 add_test(xyz_to_latlong xyz_to_latlong)
