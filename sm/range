@@ -97,6 +97,22 @@ namespace sm
             return (this->min != static_cast<T>(rhs.min) || this->max != static_cast<T>(rhs.max));
         }
 
+        template <typename Ty=T>
+        requires sm::is_copyable_fixedsize<std::decay_t<Ty>>::value
+        constexpr bool operator== (const range<Ty>& rhs) const noexcept
+        {
+            using T_el=std::remove_reference_t<decltype(*std::begin(std::declval<T&>()))>;
+            return (this->min == rhs.min.template as<T_el>() && this->max == rhs.max.template as<T_el>());
+        }
+
+        template <typename Ty=T>
+        requires sm::is_copyable_fixedsize<std::decay_t<Ty>>::value
+        constexpr bool operator!= (const range<Ty>& rhs) const noexcept
+        {
+            using T_el=std::remove_reference_t<decltype(*std::begin(std::declval<T&>()))>;
+            return (this->min != rhs.min.template as<T_el>() || this->max != rhs.max.template as<T_el>());
+        }
+
         // Adding to a range means adding to both min and max
         constexpr sm::range<T> operator+ (const T& s) const noexcept
         {
