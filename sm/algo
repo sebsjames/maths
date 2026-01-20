@@ -51,22 +51,22 @@ namespace sm::algo
     // range whose max is the order of magnitude of the largest base10 column and whose
     // min is the order of magnitude of the smallest significant base10 column.
     template <typename F> requires std::is_floating_point_v<F>
-    constexpr sm::range<int> significant_cols (const F& f)
+    constexpr sm::range<int32_t> significant_cols (const F& f)
     {
-        sm::range<int> sigcols = { 0, 0 };
+        sm::range<int32_t> sigcols = { 0, 0 };
 
         // If NaN or infinity, return 0, 0. Or something else?
         if (sm::cem::isnan(f) || sm::cem::isinf(f)) { return sigcols; }
 
         // How many sig figures does the type (float, double...) support?
         constexpr F epsilon = std::numeric_limits<F>::epsilon();
-        constexpr int type_sf = static_cast<int>(sm::cem::floor (sm::cem::log10 (F{1} / epsilon)));
+        constexpr int32_t type_sf = static_cast<int32_t>(sm::cem::floor (sm::cem::log10 (F{1} / epsilon)));
 
         // copy absolute value of f
         F fcpy = f > F{0} ? f : -f;
 
         // Find the biggest column
-        sigcols.max = static_cast<int>(sm::cem::floor (sm::cem::log10 (fcpy)));
+        sigcols.max = static_cast<int32_t>(sm::cem::floor (sm::cem::log10 (fcpy)));
 
         // Initialize smallest column
         sigcols.min = sigcols.max;
@@ -89,7 +89,7 @@ namespace sm::algo
             // Is col val very close to 10? Break if so. This should relate to epsilon and current position
             if (colval > F{8}) {
                 // additional cols depends on max precision of type and current col.
-                int cols_remaining = type_sf - (sigcols.max - sigcols.min); // How many significant column have we already used?
+                int32_t cols_remaining = type_sf - (sigcols.max - sigcols.min); // How many significant column have we already used?
                 if (cols_remaining > 0) {
                     F additional_cols = sm::cem::pow (F{10}, cols_remaining);
                     if (sm::cem::abs((fcpy - colval * tentothe) - tentothe) < (tentothe / additional_cols)) {
@@ -112,9 +112,9 @@ namespace sm::algo
     // Return the amount of precision (significant figures in base 10) required for the
     // floating point number f
     template <typename F> requires std::is_floating_point_v<F>
-    constexpr int significant_figs (const F& f)
+    constexpr int32_t significant_figs (const F& f)
     {
-        sm::range<int> sc = sm::algo::significant_cols<F> (f);
+        sm::range<int32_t> sc = sm::algo::significant_cols<F> (f);
         return sc.span();
     }
 
@@ -122,25 +122,25 @@ namespace sm::algo
     // 1 is 10s, 0 is 1s, -1 is tenths, -2 hundreds, etc. So round_to_col (1.2345f, -2)
     // should return 1.23f.
     template <typename F> requires std::is_floating_point_v<F>
-    constexpr F round_to_col (const F& f, const int mincol)
+    constexpr F round_to_col (const F& f, const int32_t mincol)
     {
         if (sm::cem::isnan(f) || sm::cem::isinf(f)) { return f; }
         // How many sig figures does the type (float, double...) support?
         constexpr F epsilon = std::numeric_limits<F>::epsilon();
-        constexpr int type_sf = static_cast<int>(sm::cem::floor (sm::cem::log10 (F{1} / epsilon)));
+        constexpr int32_t type_sf = static_cast<int32_t>(sm::cem::floor (sm::cem::log10 (F{1} / epsilon)));
 
         // Save sign and a positive version of the input
-        int sign = f > F{0} ? 1 : -1;
+        int32_t sign = f > F{0} ? 1 : -1;
         F fcpy = f > F{0} ? f : -f;
         // Find the biggest column
-        int maxcol = static_cast<int>(sm::cem::floor (sm::cem::log10 (fcpy)));
+        int32_t maxcol = static_cast<int32_t>(sm::cem::floor (sm::cem::log10 (fcpy)));
         // We will need to use 10^maxcol
         F tentothe = sm::cem::pow (F{10}, maxcol);
         // If user passed a mincol that's too big, return number rounded to maxcol
         if (mincol > maxcol) { return (sign > 0 ? tentothe : -tentothe); }
         F rounded = F{0};
         // Loop down curcol until we hit the limit for type F or mincol
-        for (int curcol = maxcol; curcol >= mincol && curcol > (maxcol - type_sf); --curcol) {
+        for (int32_t curcol = maxcol; curcol >= mincol && curcol > (maxcol - type_sf); --curcol) {
             // What's the value in this column?
             F colval = sm::cem::floor(fcpy / tentothe);
             // Add to rounded
@@ -209,8 +209,8 @@ namespace sm::algo
     requires (std::is_integral_v<UI> && !std::is_signed_v<UI> && std::is_integral_v<I> && std::is_signed_v<I>)
     T Plm (const UI l, const I m, const T x)
     {
-        unsigned int absm = m >= 0 ? static_cast<unsigned int>(m) : static_cast<unsigned int>(-m);
-        return std::assoc_legendre (static_cast<unsigned int>(l), absm, x);
+        uint32_t absm = m >= 0 ? static_cast<uint32_t>(m) : static_cast<uint32_t>(-m);
+        return std::assoc_legendre (static_cast<uint32_t>(l), absm, x);
     }
 
     //! Compute the real spherical harmonic function with pre-computed normalization term Nlm.
@@ -266,18 +266,18 @@ namespace sm::algo
 
     //! Bubble sort, high to low, order is returned in indices, values are left unchanged
     template<typename T>
-    static void bubble_sort_hi_to_lo (const std::vector<T>& values, std::vector<unsigned int>& indices)
+    void bubble_sort_hi_to_lo (const std::vector<T>& values, std::vector<uint32_t>& indices)
     {
         std::vector<T> vcopy = values;
 
         // Init indices to be a sequence
-        for (unsigned int i = 0; i < indices.size(); ++i) { indices[i] = i; }
+        for (uint32_t i = 0; i < indices.size(); ++i) { indices[i] = i; }
 
         T value = T{0};
-        unsigned int index = 0u;
-        unsigned int jplus = 0u;
-        for (unsigned int i = 0u; i < vcopy.size(); ++i) {
-            for (unsigned int j = 0u; j < vcopy.size()-1u; ++j) {
+        uint32_t index = 0u;
+        uint32_t jplus = 0u;
+        for (uint32_t i = 0u; i < vcopy.size(); ++i) {
+            for (uint32_t j = 0u; j < vcopy.size()-1u; ++j) {
                 jplus = j+1;
                 if (vcopy[j] < vcopy[jplus]) {
                     // Swap value in the copy
@@ -295,18 +295,18 @@ namespace sm::algo
 
     //! Bubble sort, low to high, order is returned in indices, values are left unchanged
     template<typename T>
-    static void bubble_sort_lo_to_hi (const std::vector<T>& values, std::vector<unsigned int>& indices)
+    void bubble_sort_lo_to_hi (const std::vector<T>& values, std::vector<uint32_t>& indices)
     {
         std::vector<T> vcopy = values;
 
         // Init indices to be a sequence
-        for (unsigned int i = 0; i < indices.size(); ++i) { indices[i] = i; }
+        for (uint32_t i = 0; i < indices.size(); ++i) { indices[i] = i; }
 
         T value = T{0};
-        unsigned int index = 0u;
-        unsigned int jplus = 0u;
-        for (unsigned int i = 0u; i < vcopy.size(); ++i) {
-            for (unsigned int j = 0u; j < vcopy.size()-1u; ++j) {
+        uint32_t index = 0u;
+        uint32_t jplus = 0u;
+        for (uint32_t i = 0u; i < vcopy.size(); ++i) {
+            for (uint32_t j = 0u; j < vcopy.size()-1u; ++j) {
                 jplus = j+1;
                 if (vcopy[j] > vcopy[jplus]) {
                     // Swap value in the copy
@@ -324,7 +324,7 @@ namespace sm::algo
 
     //! Return mean and sum of squared deviations from the mean
     template < template <typename, typename> typename C, typename T, typename Al=std::allocator<T> >
-    static sm::vec<T, 2> meansos (const C<T, Al>& values)
+    sm::vec<T, 2> meansos (const C<T, Al>& values)
     {
         sm::vec<T, 2> meansos = {T{0},T{0}};
         if (values.empty()) { return meansos; }
@@ -341,7 +341,7 @@ namespace sm::algo
 
     //! Covariance of two sets of numbers
     template < template <typename, typename> typename C, typename T, typename Al=std::allocator<T> >
-    static T covariance (const C<T, Al>& x, const C<T, Al>& y)
+    T covariance (const C<T, Al>& x, const C<T, Al>& y)
     {
         if (x.empty() || y.empty()) { throw std::runtime_error ("x or y is empty."); }
         if (x.size() != y.size()) {
@@ -358,7 +358,7 @@ namespace sm::algo
 
     //! Covariance of two sets of numbers, where means of x and y have already been computed
     template < template <typename, typename> typename C, typename T, typename Al=std::allocator<T> >
-    static T covariance (const C<T, Al>& x, const T mean_x, const C<T, Al>& y, const T mean_y)
+    T covariance (const C<T, Al>& x, const T mean_x, const C<T, Al>& y, const T mean_y)
     {
         if (x.empty() || y.empty()) { throw std::runtime_error ("x or y is empty."); }
         if (x.size() != y.size()) {
@@ -374,7 +374,7 @@ namespace sm::algo
     //! Linear regression. Return slope (first) and offset (second) (m and c from 'y
     //! = mx + c') in an vec<T, 2>
     template < template <typename, typename> typename C, typename T, typename Al=std::allocator<T> >
-    static sm::vec<T, 2> linregr (const C<T, Al>& x, const C<T, Al>& y)
+    sm::vec<T, 2> linregr (const C<T, Al>& x, const C<T, Al>& y)
     {
         sm::vec<T, 2> ms_x = algo::meansos<C, T, Al> (x);
         sm::vec<T, 2> ms_y = algo::meansos<C, T, Al> (y);

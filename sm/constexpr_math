@@ -61,9 +61,9 @@ namespace sm::cem // ConstExpr Math
     template<typename ...T>
     using common_return_t = return_t<common_t<T...>>;
 
-    static constexpr int log_max_iter_small = 25;
-    static constexpr int exp_max_iter_small = 25;
-    static constexpr int sqrt_max_iter = 100;
+    static constexpr int32_t log_max_iter_small = 25;
+    static constexpr int32_t exp_max_iter_small = 25;
+    static constexpr int32_t sqrt_max_iter = 100;
 
     // constexpr capable abs for use until C++23 (and beyond)
     template<class T> requires std::is_arithmetic_v<T>
@@ -95,7 +95,7 @@ namespace sm::cem // ConstExpr Math
     constexpr bool isfinite (const T x) noexcept { return (!cem::isnan(x)) && (!cem::isinf(x)); }
 
     // signum
-    template<typename T> constexpr int sgn (const T x) noexcept { return (x > T{0} ? 1 : (x < T{0} ? -1 : 0)); }
+    template<typename T> constexpr int32_t sgn (const T x) noexcept { return (x > T{0} ? 1 : (x < T{0} ? -1 : 0)); }
 
     // signbit
 #ifdef _MSC_VER
@@ -134,9 +134,9 @@ namespace sm::cem // ConstExpr Math
     namespace internal // log
     {
         template<typename T>
-        constexpr T log_cf_main (const T xx, const int depth_end) noexcept
+        constexpr T log_cf_main (const T xx, const int32_t depth_end) noexcept
         {
-            int depth = log_max_iter_small - 1;
+            int32_t depth = log_max_iter_small - 1;
             T res = T(2 * (depth + 1) - 1);
             while (depth > depth_end - 1) {
                 res = T(2 * depth - 1) - T(depth * depth) * xx / res;
@@ -149,7 +149,7 @@ namespace sm::cem // ConstExpr Math
         template<typename T>
         constexpr T log_main (const T x) noexcept { return (log_cf_begin ((x - T{1}) / (x + T{1}))); }
 
-        constexpr long double log_mantissa_integer (const int x) noexcept
+        constexpr long double log_mantissa_integer (const int32_t x) noexcept
         {
             return (x == 2  ? 0.6931471805599453094172321214581765680755L :
                     x == 3  ? 1.0986122886681096913952452369225257046475L :
@@ -165,7 +165,7 @@ namespace sm::cem // ConstExpr Math
         template<typename T>
         constexpr T log_mantissa (const T x) noexcept
         {
-            return (log_main(x / T(static_cast<int>(x))) + T(log_mantissa_integer(static_cast<int>(x))));
+            return (log_main(x / T(static_cast<int32_t>(x))) + T(log_mantissa_integer(static_cast<int32_t>(x))));
         }
 
         template<typename T>
@@ -268,7 +268,7 @@ namespace sm::cem // ConstExpr Math
     namespace internal // ceil
     {
         template<typename T>
-        constexpr int ceil_resid (const T x, const T x_whole) noexcept { return ((x > T{0}) && (x > x_whole)); }
+        constexpr int32_t ceil_resid (const T x, const T x_whole) noexcept { return ((x > T{0}) && (x > x_whole)); }
         template<typename T>
         constexpr T ceil_int (const T x, const T x_whole) noexcept { return (x_whole + static_cast<T>(ceil_resid(x,x_whole))); }
         template<typename T>
@@ -276,7 +276,7 @@ namespace sm::cem // ConstExpr Math
         template<>
         constexpr float ceil_check_internal<float> (const float x) noexcept
         {
-            return (cem::abs(x) >= 8388608.f ? x : ceil_int(x, float(static_cast<int>(x))));
+            return (cem::abs(x) >= 8388608.f ? x : ceil_int(x, float(static_cast<int32_t>(x))));
         }
         template<>
         constexpr double ceil_check_internal<double> (const double x) noexcept
@@ -304,7 +304,7 @@ namespace sm::cem // ConstExpr Math
     namespace internal // floor
     {
         template<typename T>
-        constexpr int floor_resid (const T x, const T x_whole) noexcept { return ((x < T{0}) && (x < x_whole)); }
+        constexpr int32_t floor_resid (const T x, const T x_whole) noexcept { return ((x < T{0}) && (x < x_whole)); }
         template<typename T>
         constexpr T floor_int (const T x, const T x_whole) noexcept { return (x_whole - static_cast<T>(floor_resid (x,x_whole))); }
         template<typename T>
@@ -312,7 +312,7 @@ namespace sm::cem // ConstExpr Math
         template<>
         constexpr float floor_check_internal<float> (const float x) noexcept
         {
-            return (cem::abs(x) >= 8388608.f ? x : floor_int (x, float(static_cast<int>(x))));
+            return (cem::abs(x) >= 8388608.f ? x : floor_int (x, float(static_cast<int32_t>(x))));
         }
         template<>
         constexpr double floor_check_internal<double> (const double x) noexcept
@@ -426,9 +426,9 @@ namespace sm::cem // ConstExpr Math
     namespace internal // exp
     {
         template<typename T>
-        constexpr T exp_cf_recur (const T x, const int depth_end) noexcept
+        constexpr T exp_cf_recur (const T x, const int32_t depth_end) noexcept
         {
-            int depth = exp_max_iter_small - 1;
+            int32_t depth = exp_max_iter_small - 1;
             T res = T{1};
             while (depth > depth_end - 1) {
                 res = T{1} + x / T(depth - 1) - x / depth / res;
@@ -589,7 +589,7 @@ namespace sm::cem // ConstExpr Math
     namespace internal
     {
         template<typename T>
-        constexpr T sqrt_recur (const T x, const T xn, const int count) noexcept
+        constexpr T sqrt_recur (const T x, const T xn, const int32_t count) noexcept
         {
             return (cem::abs(xn - x/xn) / (T{1} + xn) < std::numeric_limits<T>::min() ? xn :
                     count < sqrt_max_iter ? sqrt_recur (x, T{0.5}*(xn + x/xn), count+1) : xn);
@@ -638,7 +638,7 @@ namespace sm::cem // ConstExpr Math
                     tan_series_exp_long (x - sm::mathconst<T>::pi_over_2));
         }
         template<typename T>
-        constexpr T tan_cf_recur (const T xx, const int depth, const int max_depth) noexcept
+        constexpr T tan_cf_recur (const T xx, const int32_t depth, const int32_t max_depth) noexcept
         {
             return (depth < max_depth ? T(2 * depth - 1) - xx / tan_cf_recur (xx, depth + 1, max_depth) : T(2 * depth - 1));
         }
@@ -650,7 +650,7 @@ namespace sm::cem // ConstExpr Math
                     x > T{1} ? x / tan_cf_recur (x * x, 1, 35) : x / tan_cf_recur (x * x, 1, 25));
         }
         template<typename T>
-        constexpr T tan_begin (const T x, const int count = 0) noexcept
+        constexpr T tan_begin (const T x, const int32_t count = 0) noexcept
         {
             return (x > sm::mathconst<T>::pi ? count > 1 ? std::numeric_limits<T>::quiet_NaN() :
                     tan_begin (x - sm::mathconst<T>::pi * cem::floor (x / sm::mathconst<T>::pi), count+1 ) :

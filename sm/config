@@ -137,9 +137,9 @@ namespace sm
          *
          * And the overridden values will be used.
          */
-        void process_args (int argc, char **argv)
+        void process_args (int32_t argc, char **argv)
         {
-            for (int i = 0; i < argc; ++i) {
+            for (int32_t i = 0; i < argc; ++i) {
                 std::string arg(argv[i]);
                 std::string::size_type pos = std::string::npos;
                 // co for 'Config override'
@@ -175,9 +175,9 @@ namespace sm
                     } else {
                         rtn = std::stoi (bval) > 0 ? true : false;
                     }
-                } else if constexpr (std::is_same<std::decay_t<T>, int>::value == true) {
+                } else if constexpr (std::is_same<std::decay_t<T>, int32_t>::value == true) {
                     rtn = std::stoi (this->config_overrides.at(thing));
-                } else if constexpr (std::is_same<std::decay_t<T>, unsigned int>::value == true) {
+                } else if constexpr (std::is_same<std::decay_t<T>, uint32_t>::value == true) {
                     rtn = std::stoul (this->config_overrides.at(thing));
                 } else if constexpr (std::is_same<std::decay_t<T>, float>::value == true) {
                     rtn = std::stof (this->config_overrides.at(thing));
@@ -209,13 +209,13 @@ namespace sm
         {
             return this->get<bool> (thing, defaultval);
         }
-        int getInt (const std::string& thing, int defaultval) const
+        int32_t getInt (const std::string& thing, int32_t defaultval) const
         {
-            return this->get<int> (thing, defaultval);
+            return this->get<int32_t> (thing, defaultval);
         }
-        unsigned int getUInt (const std::string& thing, unsigned int defaultval) const
+        uint32_t getUInt (const std::string& thing, uint32_t defaultval) const
         {
-            return this->get<unsigned int> (thing, defaultval);
+            return this->get<uint32_t> (thing, defaultval);
         }
         float getFloat (const std::string& thing, float defaultval) const
         {

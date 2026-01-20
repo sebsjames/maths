@@ -56,7 +56,7 @@ namespace sm
      * A class implementing a Nelder Mead simplex of points, and the associated methods for
      * manipulating those points on the way to discovering a minimum of a function.
      *
-     * This could be re-written with template <typename T, unsigned int N> where N is the
+     * This could be re-written with template <typename T, uint32_t N> where N is the
      * dimensionality of the search, and using sm::vec<T, N+1> as the type for
      * vertices.
      */
@@ -76,7 +76,7 @@ namespace sm
         T sigma = T{0.5};
 
         //! The number of dimensions in the search. There are n+1 vertices in the simplex.
-        unsigned int n = 2U;
+        uint32_t n = 2U;
 
         //! Do we *descend* to the *minimum* metric value/fitness/objective function value? By
         //! default we DO. Set this to false to instead ascend to the maximum metric value.
@@ -84,12 +84,12 @@ namespace sm
 
         //! Increment every time the algorithm performs an operation of some sort. For
         //! this NM algorithm, I increment every time the simplex changes shape.
-        unsigned long long int operation_count = 0ULL;
+        uint64_t operation_count = 0ULL;
 
         //! If set >0, then if operation_count exceeds too_many_operations, then
         //! ReadyToStop is set (and a warning emitted). Arriving at
         //! too_many_operations probably means termination_threshold was set too low.
-        unsigned long long int too_many_operations = 0ULL;
+        uint64_t too_many_operations = 0ULL;
 
         //! Client code should set the termination threshold to be suitable for the problem. When
         //! the standard deviation of the values of the objective function at the vertices of the
@@ -124,7 +124,7 @@ namespace sm
         //! vertices and values in the order of the metric. The first index in this vector indexes
         //! the "best" value in values/vertices. If downhill==true, then the first index indexes the
         //! lowest value in values, otherwise it indexes the highest value in values.
-        sm::vvec<unsigned int> vertex_order;
+        sm::vvec<uint32_t> vertex_order;
 
         //! This tells client code what it needs to do next. It either needs to order the points or
         //! compute a new objective function value for the reflected point xr;
@@ -148,7 +148,7 @@ namespace sm
             // if (initial_vertices.size() < 2) { /* Error! */ }
             this->n = initial_vertices.size() - 1;
             this->allocate();
-            unsigned int i = 0U;
+            uint32_t i = 0U;
             for (sm::vvec<T>& v : this->vertices) {
                 v = initial_vertices[i++];
             }
@@ -178,7 +178,7 @@ namespace sm
             this->state = nm_simplex_state::NeedToComputeThenOrder;
         }
         //! General constructor for n dimensional simplex
-        nm_simplex (const unsigned int _n): n(_n) { this->allocate(); }
+        nm_simplex (const uint32_t _n): n(_n) { this->allocate(); }
 
         //! Reset the algorithm ready to go again
         void reset (const sm::vvec<sm::vvec<T>>& initial_vertices)
@@ -187,7 +187,7 @@ namespace sm
             this->operation_count = 0ULL;
             this->n = initial_vertices.size() - 1;
             this->allocate();
-            unsigned int i = 0U;
+            uint32_t i = 0U;
             for (sm::vvec<T>& v : this->vertices) { v = initial_vertices[i++]; }
             this->state = nm_simplex_state::NeedToComputeThenOrder;
         }
@@ -208,7 +208,7 @@ namespace sm
         void step()
         {
             if (this->state == nm_simplex_state::NeedToComputeThenOrder) {
-                for (unsigned int i = 0; i <= this->n; ++i) {
+                for (uint32_t i = 0; i <= this->n; ++i) {
                     this->values[i] = this->objective (this->vertices[i]);
                 }
                 this->order();
@@ -278,7 +278,7 @@ namespace sm
         void reflect()
         {
             this->operation_count++;
-            unsigned int worst = this->vertex_order[this->n];
+            uint32_t worst = this->vertex_order[this->n];
             this->xr = this->x0 + (this->x0 - this->vertices[worst]) * this->alpha;
             this->state = nm_simplex_state::NeedToComputeReflection;
         }
@@ -359,7 +359,7 @@ namespace sm
         void contract()
         {
             this->operation_count++;
-            unsigned int worst = this->vertex_order[this->n];
+            uint32_t worst = this->vertex_order[this->n];
             this->xc = this->x0 + (this->vertices[worst] - this->x0) * this->rho;
             this->state = nm_simplex_state::NeedToComputeContraction;
         }
@@ -368,7 +368,7 @@ namespace sm
         void apply_contraction (const T _xc_value)
         {
             this->xc_value = _xc_value;
-            unsigned int worst = this->vertex_order[this->n];
+            uint32_t worst = this->vertex_order[this->n];
             if ((this->downhill && this->xc_value < this->values[worst])
                 || (this->downhill == false && this->xc_value > this->values[worst])) {
                 // contracted is better than worst
@@ -384,7 +384,7 @@ namespace sm
         void shrink()
         {
             this->operation_count++;
-            for (unsigned int i = 1; i <= this->n; ++i) {
+            for (uint32_t i = 1; i <= this->n; ++i) {
                 this->vertices[i] = this->vertices[0] + (this->vertices[i] - this->vertices[0]) * this->sigma;
             }
             this->state = nm_simplex_state::NeedToComputeThenOrder;
@@ -396,7 +396,7 @@ namespace sm
         {
             this->x0.zero();
             // For each simplex vertex except the worst vertex
-            for (unsigned int i = 0; i<this->n; ++i) { // *excluding* i==n
+            for (uint32_t i = 0; i<this->n; ++i) { // *excluding* i==n
                 this->x0 += this->vertices[this->vertex_order[i]];
             }
             this->x0 /= static_cast<T>(this->n);
@@ -413,8 +413,8 @@ namespace sm
             this->xc.resize (this->n, T{0});
             this->values.resize (this->n+1, T{0});
             this->vertex_order.resize (this->n+1, 0U);
-            unsigned int i = 0;
-            for (unsigned int& vo : this->vertex_order) { vo = i++; }
+            uint32_t i = 0;
+            for (uint32_t& vo : this->vertex_order) { vo = i++; }
         }
     };
 

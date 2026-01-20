@@ -21,6 +21,7 @@
 #include <stdexcept>
 #include <cmath>
 #include <cstddef>
+#include <cstdint>
 #include <concepts>
 
 // Armadillo has a bug (up to versions after 14.6.0) in which if ARMA_USE_ARPACK is
@@ -63,7 +64,7 @@ namespace sm
      * has a total number of elements given by N(N+1)/2, which for 21 rows is 21(22)/2 =
      * 210.
      */
-    const std::array<unsigned int, 231> Pascal =
+    const std::array<uint32_t, 231> Pascal =
     {1,
      1,1,
      1,2,1,
@@ -86,7 +87,7 @@ namespace sm
      1,19,171,969,3876,11628,27132,50388,75582,92378,92378,75582,50388,27132,11628,3876,969,171,19,1,
      1,20,190,1140,4845,15504,38760,77520,125970,167960,184756,167960,125970,77520,38760,15504,4845,1140,190,20,1};
     //! How many rows in the table above.
-    const unsigned int PascalRows = 21;
+    const uint32_t PascalRows = 21;
 
     /*!
      * A Bezier curve class which allows the computation of Cartesian coordinates
@@ -109,7 +110,7 @@ namespace sm
         bezcurve (sm::vvec<sm::vec<F, 2>> cp)
         {
             this->C.set_size (cp.size(), 2);
-            int i = 0;
+            int32_t i = 0;
             for (auto c : cp) {
                 this->C(i, 0) = c[0];
                 this->C(i, 1) = c[1];
@@ -175,11 +176,11 @@ namespace sm
         bezcurve (const sm::vec<F, 2>& ip, const sm::vec<F, 2>& fp,
                   const sm::vvec<sm::vec<F, 2>>& cp)
         {
-            unsigned int n_ctrls = cp.size()+2;
+            uint32_t n_ctrls = cp.size()+2;
             this->C.set_size (n_ctrls, 2);
             this->C(0, 0) = ip[0];
             this->C(0, 1) = ip[1];
-            unsigned int i = 1;
+            uint32_t i = 1;
             for (auto cpi : cp) {
                 this->C(i, 0) = cpi[0];
                 this->C(i, 1) = cpi[1];
@@ -193,7 +194,7 @@ namespace sm
         void updateControls (const sm::vvec<sm::vec<F, 2>>& cp)
         {
             this->C.set_size (cp.size(), 2);
-            int i = 0;
+            int32_t i = 0;
             for (auto c : cp) {
                 this->C(i, 0) = c[0];
                 this->C(i, 1) = c[1];
@@ -349,9 +350,9 @@ namespace sm
 
             // Convert the middle rows of C to vector<F> to be the first NM vertex
             sm::vvec<F> v0;
-            int startrow = 2;
-            int endrow = 2; // 2 means don't change the angle of the end of the curve
-            for (int r = startrow; r < static_cast<int>(C.n_rows) - endrow; ++r) {
+            int32_t startrow = 2;
+            int32_t endrow = 2; // 2 means don't change the angle of the end of the curve
+            for (int32_t r = startrow; r < static_cast<int32_t>(C.n_rows) - endrow; ++r) {
                 v0.push_back (this->C(r,0));
                 v0.push_back (this->C(r,1));
             }
@@ -418,7 +419,7 @@ namespace sm
 
                 if (simp.state == nm_simplex_state::NeedToComputeThenOrder) {
                     // 1. apply objective to each vertex
-                    for (unsigned int i = 0; i <= simp.n; ++i) {
+                    for (uint32_t i = 0; i <= simp.n; ++i) {
                         this->setCFromV (simp.vertices[i], startrow);
                         this->init(); // Re-setup this bezcurve
                         simp.values[i] = this->computeObjective (points);
@@ -512,7 +513,7 @@ namespace sm
         void fit (const sm::vvec<sm::vec<F, 2>>& points)
         {
             // Set the order for the curve
-            int n = points.size();
+            int32_t n = points.size();
             this->order = n - 1;
 
             // Empty C here, in advance of this->matrixSetup(), and make sure it has the
@@ -522,7 +523,7 @@ namespace sm
             // This call to matrixSetup will set up this->M (required for the fit)
             this->matrixSetup();
 
-            int i = 0;
+            int32_t i = 0;
 
             // Note that you really need double precision in the matrices whilst
             // computing a Bezier best fit. If we use single precision, the fits are
@@ -556,7 +557,7 @@ namespace sm
             // that we're looking for.
             arma::Mat<double> TT (n, n, arma::fill::ones);
             for (i = 0; i < n; ++i) {
-                for (int j = 0; j < n; ++j) {
+                for (int32_t j = 0; j < n; ++j) {
                     double s = S(i, 0);
                     TT(i, j) = std::pow (s, j);
                 }
@@ -579,7 +580,7 @@ namespace sm
         bezcurve<F> derivative() const
         {
             arma::Mat<F> deriv_cp(this->order, 2);
-            for (unsigned int i = 0; i < this->order; ++i) {
+            for (uint32_t i = 0; i < this->order; ++i) {
                 deriv_cp.row(i) = this->order * (this->C.row(i + 1) - this->C.row(i));
             }
             return sm::bezcurve<F> (deriv_cp);
@@ -593,7 +594,7 @@ namespace sm
          */
         std::pair<arma::Mat<F>, arma::Mat<F>> split (F z) const
         {
-            int n = this->order + 1;
+            int32_t n = this->order + 1;
             // 'z prime':
             F zp = z - F{1};
             arma::Mat<F> C1 (n, 2, arma::fill::zeros);
@@ -601,9 +602,9 @@ namespace sm
             F sign0 = F{1};
             F sign = sign0;
             arma::Mat<F> Q (n, n, arma::fill::zeros);
-            for (int i = 0; i < n; ++i) {
+            for (int32_t i = 0; i < n; ++i) {
                 sign = sign0;
-                for (int j = 0; j <= i; ++j) {
+                for (int32_t j = 0; j <= i; ++j) {
                     F binom = static_cast<F>(bezcurve::binomial_lookup(i, j));
                     Q(i,j) = sign * binom * std::pow(z, j) * std::pow (zp, i - j);
                     sign = sign > F{0} ? F{-1} : F{1};
@@ -612,7 +613,7 @@ namespace sm
             }
             C1 = Q * this->C;
             // Shift rows then flip
-            for (int i = 0; i < n; ++i) {
+            for (int32_t i = 0; i < n; ++i) {
                 Q.row(i) = arma::shift (Q.row(i), (n - i - 1));
             }
             C2 = arma::flipud (Q) * this->C;
@@ -625,10 +626,10 @@ namespace sm
          * parameter space. The first point will be the start of the curve (t==0) and
          * the last point will be at the end of the curve (t==1).
          */
-        std::vector<bezcoord<F>> computePoints (unsigned int n) const
+        std::vector<bezcoord<F>> computePoints (uint32_t n) const
         {
             std::vector<bezcoord<F>> rtn;
-            for (unsigned int i = 0; i < n; ++i) {
+            for (uint32_t i = 0; i < n; ++i) {
                 F t = i / static_cast<F>(n);
                 rtn.push_back (this->computePoint (t));
             }
@@ -710,9 +711,9 @@ namespace sm
         bezcoord<F> computePointMatrix (F t) const
         {
             this->checkt(t);
-            int mp = this->order + 1;
+            int32_t mp = this->order + 1;
             arma::Mat<F> T(1, mp, arma::fill::ones);// First element is one anyway
-            for (int i = 1; i < mp; ++i) {
+            for (int32_t i = 1; i < mp; ++i) {
                 T(i) = std::pow (t, static_cast<double>(i));
             }
             arma::Mat<F> bp = T * this->MC;
@@ -728,7 +729,7 @@ namespace sm
             sm::vec<F, 2> b;
             // x
             b[0] = std::pow(t_, this->order) * this->C(0,0);
-            for(unsigned int k=1; k<this->order; k++) {
+            for(uint32_t k=1; k<this->order; k++) {
                 b[0] += static_cast<F> (bezcurve::binomial_lookup(this->order, k))
                     * std::pow (t_, this->order-k) * std::pow (t, k) * this->C(k,0);
             }
@@ -736,7 +737,7 @@ namespace sm
 
             // y
             b[1] = std::pow(t_, this->order) * this->C(0,1);
-            for (unsigned int k=1; k<this->order; k++) {
+            for (uint32_t k=1; k<this->order; k++) {
                 b[1] += static_cast<F> (bezcurve::binomial_lookup(this->order, k))
                     * std::pow (t_, this->order-k) * std::pow (t, k) * this->C(k,1);
             }
@@ -789,7 +790,7 @@ namespace sm
          * For debugging - output, as a string, the bezcoords of this curve, choosing
          * numPoints points evenly spaced in the parameter space t=[0,1].
          */
-        std::string output (unsigned int numPoints) const
+        std::string output (uint32_t numPoints) const
         {
             std::stringstream ss;
             std::vector<bezcoord<F>> points = this->computePoints (numPoints);
@@ -878,14 +879,14 @@ namespace sm
         //! Getter for the control points in vector pair format
         sm::vvec<sm::vec<F, 2>> getControls() const {
             sm::vvec<sm::vec<F, 2>> rtn;
-            for (unsigned int r = 0; r<this->C.n_rows; ++r) {
+            for (uint32_t r = 0; r<this->C.n_rows; ++r) {
                 rtn.push_back (sm::vec<F, 2>({this->C(r, 0), this->C(r, 1)}));
             }
             return rtn;
         }
 
         //! Get the order of the curve
-        unsigned int getOrder() const { return this->order; }
+        uint32_t getOrder() const { return this->order; }
 
     private:
 
@@ -903,7 +904,7 @@ namespace sm
          * Set C from the vector for floats vf, which ONLY changes the rows of C from
          * startrow and on.
          */
-        void setCFromV (const std::vector<F>& vf, int r)
+        void setCFromV (const std::vector<F>& vf, int32_t r)
         {
             for (std::size_t i = 0U; i < vf.size(); i+=2) {
                 this->C(r, 0) = vf[i];
@@ -916,7 +917,7 @@ namespace sm
          * Compute an approximation to the distance along the curve, by computing
          * npoints and summing their linear separations.
          */
-        F computeLength (unsigned int npoints) const
+        F computeLength (uint32_t npoints) const
         {
             std::vector<bezcoord<F>> pts = this->computePoints (npoints);
             F dist = F{0};
@@ -1013,9 +1014,9 @@ namespace sm
          * values. OR to get n,k, step along a number given by the triangle sequence
          * (n(n+1)/2) and then step another k space to the result.
          */
-        static unsigned int binomial_lookup (unsigned int n, unsigned int k)
+        static uint32_t binomial_lookup (uint32_t n, uint32_t k)
         {
-            unsigned int idx = (n * (n + 1u) / 2u) + k;
+            uint32_t idx = (n * (n + 1u) / 2u) + k;
             return sm::Pascal[idx];
         }
 
@@ -1194,7 +1195,7 @@ namespace sm
          * a cubic Bezier, 2 is a quadratic Bezier, etc. Note that 0th order Bezier
          * curve does not exist; so the constructor must update this number.
          */
-        unsigned int order = 0;
+        uint32_t order = 0;
 
         /*
          * Matrix representation
@@ -1219,12 +1220,12 @@ namespace sm
             }
 
             // Set up M.
-            int m = static_cast<int>(this->order);
-            int mp = m + 1; // order + 1
-            int r = 0;
+            int32_t m = static_cast<int32_t>(this->order);
+            int32_t mp = m + 1; // order + 1
+            int32_t r = 0;
             this->M.set_size (mp, mp);
             this->M.zeros();
-            for (int i = 0; i < mp; ++i) { // i is column
+            for (int32_t i = 0; i < mp; ++i) { // i is column
                 for (r = 0; r < mp - i; ++r) { // r is row
                     F element = static_cast<F>(bezcurve::binomial_lookup (m, i))
                         * static_cast<F>(bezcurve::binomial_lookup (m - i, m - i - r))

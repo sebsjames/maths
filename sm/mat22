@@ -13,6 +13,7 @@
  */
 #pragma once
 
+#include <cstdint>
 #include <cmath>
 #include <string>
 #include <sstream>
@@ -43,7 +44,7 @@ namespace sm
         constexpr mat22 (std::initializer_list<F> other) noexcept
         {
             this->mat.zero();
-            unsigned int i = 0u;
+            uint32_t i = 0u;
             for (F elem : other) {
                 this->mat[i++] = elem;
                 if (i == 4u) { break; } // only first 4 elements can be copied
@@ -102,12 +103,12 @@ namespace sm
         }
 
         //! Access elements of the matrix
-        constexpr F& operator[] (unsigned int idx) noexcept { return this->mat[idx]; }
+        constexpr F& operator[] (uint32_t idx) noexcept { return this->mat[idx]; }
         // note: assume F is a built-in type here (safe - F will be float or double)
-        constexpr F operator[] (unsigned int idx) const noexcept  { return this->mat[idx]; }
+        constexpr F operator[] (uint32_t idx) const noexcept  { return this->mat[idx]; }
 
         //! Access a given row of the matrix
-        constexpr sm::vec<F, 2> row (unsigned int idx) const noexcept // unsigned char would be enough capacity!
+        constexpr sm::vec<F, 2> row (uint32_t idx) const noexcept // unsigned char would be enough capacity!
         {
             sm::vec<F, 2> r = {F{0}, F{0}};
             if (idx > 1U) { return r; }
@@ -117,7 +118,7 @@ namespace sm
         }
 
         //! Access a given column of the matrix
-        constexpr sm::vec<F, 2> col (unsigned int idx) const noexcept
+        constexpr sm::vec<F, 2> col (uint32_t idx) const noexcept
         {
             sm::vec<F, 3> c = {F{0}, F{0}};
             if (idx > 1U) { return c; }
@@ -209,7 +210,7 @@ namespace sm
         template <typename T=F>
         constexpr void operator*= (const T& f) noexcept
         {
-            for (unsigned int i = 0; i<4; ++i) { this->mat[i] *= f; }
+            for (uint32_t i = 0; i<4; ++i) { this->mat[i] *= f; }
         }
 
         //! Right-multiply this->mat with m2.
