@@ -45,6 +45,7 @@
 
 #include <stdexcept>
 #include <cmath>
+#include <cstdint>
 #include <cstddef>
 #include <string>
 #include <sstream>
@@ -373,7 +374,7 @@ namespace sm
      *
      * \sa scale_impl_base
      */
-    template <int ntype = 0, typename T=float, typename S=float>
+    template <int32_t ntype = 0, typename T=float, typename S=float>
     struct scale_impl : public scale_impl_base<T, S>
     {
         //! In a vector implementation we have to get the type of the components of the vector type
@@ -490,7 +491,7 @@ namespace sm
         //! Getter for params
         //! \param idx The index into #params
         //! \return The specified element of #params
-        S_el getParams (unsigned int idx) { return this->params[idx]; }
+        S_el getParams (uint32_t idx) { return this->params[idx]; }
 
         //! Get all the params
         sm::vvec<S_el> getParams() { return this->params; }
@@ -653,7 +654,7 @@ namespace sm
         //! Getter for params
         //! \param idx The index into #params
         //! \return The specified element of #params
-        S getParams (unsigned int idx) { return this->params[idx]; }
+        S getParams (uint32_t idx) { return this->params[idx]; }
 
         //! Get all the params
         sm::vvec<S> getParams() { return this->params; }

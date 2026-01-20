@@ -12,6 +12,7 @@
 
 #pragma once
 
+#include <cstdint>
 #include <limits>
 #include <list>
 #include <vector>
@@ -121,7 +122,7 @@ namespace sm
             std::cout << "Number of curves: " << this->curves.size() << std::endl;
             typename std::list<bezcurve<F>>::const_iterator i = this->curves.begin();
             while (i != this->curves.end()) {
-                std::cout << i->output(static_cast<unsigned int>(20));
+                std::cout << i->output(static_cast<uint32_t>(20));
                 ++i;
             }
             std::cout << "------ End bezcurvepath ------" << std::endl;
@@ -239,7 +240,7 @@ namespace sm
          * points along the curve. @invertY has the same meaning as in the other
          * overload of this function.
          */
-        void computePoints (unsigned int nPoints, bool invertY = false)
+        void computePoints (uint32_t nPoints, bool invertY = false)
         {
             // Get end-to-end distance and compute a candidate step, then call other
             // overload.
@@ -256,7 +257,7 @@ namespace sm
 
             F etoe = this->getEndToEnd();
             F step = etoe/(nPoints-1);
-            unsigned int actualPoints = 0;
+            uint32_t actualPoints = 0;
 
             while (actualPoints != nPoints) {
                 this->points.clear();

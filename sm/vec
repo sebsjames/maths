@@ -37,7 +37,7 @@ namespace sm
      * An N dimensional vector class template which derives from std::array. vec
      * components are of scalar type S. It is anticipated that S will be set either to
      * floating point scalar types such as float or double, or to integer scalar types
-     * such as int, long long int and so on. Thus, a typical (and in fact, the default)
+     * such as int32_t, long long int and so on. Thus, a typical (and in fact, the default)
      * signature would be:
      *
      * vec<float, 3> v;
@@ -192,7 +192,7 @@ namespace sm
             if constexpr (false == (std::is_same_v<std::decay_t<S>, float> || std::is_same_v<std::decay_t<S>, double>
                                     || std::is_same_v<std::decay_t<S>, int32_t> || std::is_same_v<std::decay_t<S>, int64_t>
                                     || std::is_same_v<std::decay_t<S>, uint32_t> || std::is_same_v<std::decay_t<S>, uint64_t>)) {
-                // Causes compile-time error. If you find you need to set from string with S==unsigned char, or
+                // Causes compile-time error. If you find you need to set from string with S==uint8_t, or
                 // short 16 or something, then add the types here. For now stick to 32/64 bit types
                 []<bool flag = false>() { static_assert(flag, "set_from (string type) only for simple scalar types S"); }();
             }
@@ -320,11 +320,13 @@ namespace sm
         //! Return this vec in double precision, float format
         constexpr vec<double, N> as_double() const noexcept { return this->as<double>(); }
 
-        //! Return this vec in single precision, int format
-        constexpr vec<int, N> as_int() const noexcept { return this->as<int>(); }
+        //! Return this vec in single precision, int32_t format
+        constexpr vec<int32_t, N> as_int() const noexcept { return this->as<int32_t>(); }
+        constexpr vec<int32_t, N> as_int32_t() const noexcept { return this->as<int32_t>(); }
 
-        //! Return this vec in single precision, unsigned int format
-        constexpr vec<unsigned int, N> as_uint() const noexcept { return this->as<unsigned int>(); }
+        //! Return this vec in single precision, uint32_t format
+        constexpr vec<uint32_t, N> as_uint() const noexcept { return this->as<uint32_t>(); }
+        constexpr vec<uint32_t, N> as_uint32_t() const noexcept { return this->as<uint32_t>(); }
 
         //! \return the first and last elements in the vec as a two element vec. If *this is
         //! empty, return a 2 element vec containing zeros.
@@ -346,8 +348,8 @@ namespace sm
                 } else {
                     ss << sep;
                 }
-                if constexpr (std::is_same<S, unsigned char>::value == true || std::is_same<S, char>::value == true) {
-                    ss << static_cast<int>(i);
+                if constexpr (std::is_same<S, uint8_t>::value == true || std::is_same<S, char>::value == true) {
+                    ss << static_cast<int32_t>(i);
                 } else { ss << i; }
             }
         }
@@ -467,7 +469,7 @@ namespace sm
         }
 
         //! Templated rotate for integral types T
-        template <typename T=int>
+        template <typename T=int32_t>
         constexpr void rotate (T n) noexcept
         {
             static_assert (std::numeric_limits<T>::is_integer);
@@ -1077,11 +1079,11 @@ namespace sm
          * unique vecs.
          *
          * This can also be an issue with using a sm::vec as a key to an std::map. So similarly
-         * do something like this to create a map with a key type sm::vec<int, 2> and a value
+         * do something like this to create a map with a key type sm::vec<int32_t, 2> and a value
          * type std::string:
          *
-         *    auto _cmp = [](sm::vec<int,2> a, sm::vec<int,2> b){return a.lexical_lessthan(b);};
-         *    std::map<sm::vec<int, 2>, std::string, decltype(_cmp)> themap(_cmp);
+         *    auto _cmp = [](sm::vec<int32_t,2> a, sm::vec<int32_t,2> b){return a.lexical_lessthan(b);};
+         *    std::map<sm::vec<int32_t, 2>, std::string, decltype(_cmp)> themap(_cmp);
          */
         template<typename Sy=S>
         bool lexical_lessthan (const vec<Sy, N>& rhs) const noexcept
@@ -1095,7 +1097,7 @@ namespace sm
          * return true.
          */
         template<typename Sy=S>
-        bool lexical_lessthan_beyond_epsilon (const vec<Sy, N>& rhs, const int n_eps = 1) const noexcept
+        bool lexical_lessthan_beyond_epsilon (const vec<Sy, N>& rhs, const int32_t n_eps = 1) const noexcept
         {
             for (std::size_t i = 0; i < N; ++i) {
                 const Sy _this = (*this)[i];
@@ -1540,7 +1542,7 @@ namespace sm
         friend std::ostream& operator<< <S, N> (std::ostream& os, const vec<S, N>& v);
 
         //! Define a hash function for sm::vec that can be passed to unordered_map to use vec as a key
-        // e.g.: std::unordered_map<sm::vec<float, 2>, int, sm::vec<float, 2>::hash> vec_keyed_unordered_map;
+        // e.g.: std::unordered_map<sm::vec<float, 2>, int32_t, sm::vec<float, 2>::hash> vec_keyed_unordered_map;
         struct hash
         {
             std::size_t operator()(const vec<S, N>& v) const

@@ -8,10 +8,11 @@
  */
 #pragma once
 
+#include <cstdint>
+#include <utility>
 #include <sm/vec>
 #include <sm/vvec>
 #include <sm/hexgrid>
-#include <utility>
 
 namespace sm
 {
@@ -22,7 +23,7 @@ namespace sm
         // same coordinate frame as data.
         hexyhisto (const sm::vvec<sm::vec<T>>& data, hexgrid* hg)
         {
-            unsigned int n = hg->num();
+            uint32_t n = hg->num();
             this->counts.resize(n, 0);
             this->proportions.resize(n, T{0});
 

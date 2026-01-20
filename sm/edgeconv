@@ -11,6 +11,7 @@
 
 #pragma once
 
+#include <cstdint>
 #include <stdexcept>
 #include <sm/vvec>
 #include <sm/vec>
@@ -26,7 +27,7 @@ namespace sm::algo
      * for either axis, which allows for other assumptions about the way the 1D array fills a
      * rectangle.
      */
-    template<typename T, int w, bool invert_vert_edges=false, bool invert_horz_edges=false>
+    template<typename T, int32_t w, bool invert_vert_edges=false, bool invert_horz_edges=false>
     void edgeconv_2d (const sm::vvec<T>& data, sm::vvec<T>& v_edges, sm::vvec<T>& h_edges)
     {
         if (v_edges.size() != data.size() || h_edges.size() != data.size()) {
@@ -36,9 +37,9 @@ namespace sm::algo
             throw std::runtime_error ("Pass in separate memory for the results.");
         }
 
-        int lastrow_index = data.size() - w;
+        int32_t lastrow_index = data.size() - w;
 
-        for (int i = 0; i < static_cast<int>(data.size()); ++i) {
+        for (int32_t i = 0; i < static_cast<int32_t>(data.size()); ++i) {
             if ((i+1)%w == 0) { // on last column; do horizontal wrapping
                 if constexpr (invert_vert_edges == true) {
                     v_edges[i] =  data[i] - data[i-w+1];
@@ -65,12 +66,12 @@ namespace sm::algo
     }
 
     // fixed sized arrays version.
-    template<typename T, int w, int h, bool invert_vert_edges=false, bool invert_horz_edges=false>
+    template<typename T, int32_t w, int32_t h, bool invert_vert_edges=false, bool invert_horz_edges=false>
     void edgeconv_2d (const sm::vec<T, w*h>& data, sm::vec<T, w*h>& v_edges, sm::vec<T, w*h>& h_edges)
     {
-        int lastrow_index = (w*h) - w;
+        int32_t lastrow_index = (w*h) - w;
 
-        for (int i = 0; i < w*h; ++i) {
+        for (int32_t i = 0; i < w*h; ++i) {
             if ((i+1)%w == 0) { // on last column; do horizontal wrapping
                 if constexpr (invert_vert_edges == true) {
                     v_edges[i] =  data[i] - data[i-w+1];

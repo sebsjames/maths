@@ -18,6 +18,7 @@
  */
 #pragma once
 
+#include <cstdint>
 #include <array>
 #include <string>
 #include <sstream>
@@ -78,7 +79,7 @@ namespace sm
         //! Initializer list construction
         constexpr mat44 (std::initializer_list<F> other) noexcept
         {
-            unsigned int i = 0u;
+            uint32_t i = 0u;
             for (i = 0u; i < 16u; ++i) { this->mat[i] = F{0}; }
             i = 0u;
             for (F elem : other) {
@@ -177,13 +178,13 @@ namespace sm
         }
 
         //! Access elements of the matrix (returns ref, so not const)
-        constexpr F& operator[] (const unsigned int idx) noexcept { return this->mat[idx]; }
+        constexpr F& operator[] (const uint32_t idx) noexcept { return this->mat[idx]; }
 
         //! Access elements of the matrix with const promise
-        constexpr F operator[] (const unsigned int idx) const noexcept { return this->mat[idx]; }
+        constexpr F operator[] (const uint32_t idx) const noexcept { return this->mat[idx]; }
 
         //! Access a given row of the matrix
-        constexpr sm::vec<F, 4> row (unsigned int idx) const noexcept
+        constexpr sm::vec<F, 4> row (uint32_t idx) const noexcept
         {
             sm::vec<F, 4> r = {F{0}, F{0}, F{0}, F{0}};
             if (idx > 3U) { return r; }
@@ -195,7 +196,7 @@ namespace sm
         }
 
         //! Access a given column of the matrix
-        constexpr sm::vec<F, 4> col (unsigned int idx) const noexcept
+        constexpr sm::vec<F, 4> col (uint32_t idx) const noexcept
         {
             sm::vec<F, 4> c = {F{0}, F{0}, F{0}, F{0}};
             if (idx > 3U) { return c; }
@@ -915,56 +916,56 @@ namespace sm
         //! Add m2 to this matrix
         constexpr void operator+= (const mat44<F>& m2) noexcept
         {
-            for (unsigned int i = 0; i < 16; ++i) { this->mat[i] += m2.mat[i]; }
+            for (uint32_t i = 0; i < 16; ++i) { this->mat[i] += m2.mat[i]; }
         }
 
         //! Return this + m2
         constexpr mat44<F> operator+ (const mat44<F>& m2) const noexcept
         {
             mat44<F> m = { F{0} };
-            for (unsigned int i = 0; i < 16; ++i) { m[i] = this->mat[i] + m2.mat[i]; }
+            for (uint32_t i = 0; i < 16; ++i) { m[i] = this->mat[i] + m2.mat[i]; }
             return m;
         }
 
         //! Add scalar to this matrix
         constexpr void operator+= (const F& f) noexcept
         {
-            for (unsigned int i = 0; i < 16; ++i) { this->mat[i] += f; }
+            for (uint32_t i = 0; i < 16; ++i) { this->mat[i] += f; }
         }
 
         //! Return this + scalar
         constexpr mat44<F> operator+ (const F& f) const noexcept
         {
             mat44<F> m = { F{0} };
-            for (unsigned int i = 0; i < 16; ++i) { m[i] = this->mat[i] + f; }
+            for (uint32_t i = 0; i < 16; ++i) { m[i] = this->mat[i] + f; }
             return m;
         }
 
         //! Subtract m2 from this matrix
         constexpr void operator-= (const mat44<F>& m2) noexcept
         {
-            for (unsigned int i = 0; i < 16; ++i) { this->mat[i] -= m2.mat[i]; }
+            for (uint32_t i = 0; i < 16; ++i) { this->mat[i] -= m2.mat[i]; }
         }
 
         //! Return this - m2
         constexpr mat44<F> operator- (const mat44<F>& m2) const noexcept
         {
             mat44<F> m = { F{0} };
-            for (unsigned int i = 0; i < 16; ++i) { m[i] = this->mat[i] - m2.mat[i]; }
+            for (uint32_t i = 0; i < 16; ++i) { m[i] = this->mat[i] - m2.mat[i]; }
             return m;
         }
 
         //! Subtract scalar from this matrix
         constexpr void operator-= (const F& f) noexcept
         {
-            for (unsigned int i = 0; i < 16; ++i) { this->mat[i] -= f; }
+            for (uint32_t i = 0; i < 16; ++i) { this->mat[i] -= f; }
         }
 
         //! Return this - scalar
         constexpr mat44<F> operator- (const F& f) const noexcept
         {
             mat44<F> m = { F{0} };
-            for (unsigned int i = 0; i < 16; ++i) { m[i] = this->mat[i] - f; }
+            for (uint32_t i = 0; i < 16; ++i) { m[i] = this->mat[i] - f; }
             return m;
         }
 
@@ -1061,14 +1062,14 @@ namespace sm
         template <typename T=F> requires std::is_arithmetic_v<T>
         constexpr void operator*= (const T& f) noexcept
         {
-            for (unsigned int i = 0; i<16; ++i) { this->mat[i] *= f; }
+            for (uint32_t i = 0; i<16; ++i) { this->mat[i] *= f; }
         }
 
         //! Equality operator. True if all elements match
         constexpr bool operator== (const mat44<F>& rhs) const noexcept
         {
-            unsigned int ndiff = 0;
-            for (unsigned int i = 0; i < 16 && ndiff == 0; ++i) {
+            uint32_t ndiff = 0;
+            for (uint32_t i = 0; i < 16 && ndiff == 0; ++i) {
                 ndiff += this->mat[i] == rhs.mat[i] ? 0 : 1;
             }
             return ndiff == 0;
@@ -1077,8 +1078,8 @@ namespace sm
         //! Not equals
         constexpr bool operator!= (const mat44<F>& rhs) const noexcept
         {
-            unsigned int ndiff = 0;
-            for (unsigned int i = 0; i < 16 && ndiff == 0; ++i) {
+            uint32_t ndiff = 0;
+            for (uint32_t i = 0; i < 16 && ndiff == 0; ++i) {
                 ndiff += this->mat[i] == rhs.mat[i] ? 0 : 1;
             }
             return ndiff > 0;

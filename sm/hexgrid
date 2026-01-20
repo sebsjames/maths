@@ -26,6 +26,7 @@
 # include <sm/hdfdata>
 #endif
 
+#include <cstdint>
 #include <set>
 #include <list>
 #include <string>
@@ -79,9 +80,9 @@ namespace sm
          */
         alignas(alignof(std::vector<float>)) std::vector<float> d_x;
         alignas(alignof(std::vector<float>)) std::vector<float> d_y;
-        alignas(8) std::vector<int> d_ri;
-        alignas(8) std::vector<int> d_gi;
-        alignas(8) std::vector<int> d_bi;
+        alignas(8) std::vector<int32_t> d_ri;
+        alignas(8) std::vector<int32_t> d_gi;
+        alignas(8) std::vector<int32_t> d_bi;
 
         /*
          * Neighbour iterators. For use when the stride to the neighbour ne or nw is
@@ -91,18 +92,18 @@ namespace sm
          * parallelogram and rectangular domain cases, if the domain is hexagonal or
          * arbitrary boundary, then even this is not true.
          */
-        alignas(8) std::vector<int> d_ne;
-        alignas(8) std::vector<int> d_nne;
-        alignas(8) std::vector<int> d_nnw;
-        alignas(8) std::vector<int> d_nw;
-        alignas(8) std::vector<int> d_nsw;
-        alignas(8) std::vector<int> d_nse;
+        alignas(8) std::vector<int32_t> d_ne;
+        alignas(8) std::vector<int32_t> d_nne;
+        alignas(8) std::vector<int32_t> d_nnw;
+        alignas(8) std::vector<int32_t> d_nw;
+        alignas(8) std::vector<int32_t> d_nsw;
+        alignas(8) std::vector<int32_t> d_nse;
 
         /*!
          * Flags, such as "on boundary", "inside boundary", "outside boundary", "has
          * neighbour east", etc.
          */
-        alignas(8) std::vector<unsigned int> d_flags;
+        alignas(8) std::vector<uint32_t> d_flags;
 
         /*!
          * Distance to boundary for any hex.
@@ -113,27 +114,27 @@ namespace sm
          * The length of a row in the domain. The first hex in the first row will
          * overhang to the left.
          */
-        unsigned int d_rowlen = 0;
+        uint32_t d_rowlen = 0;
 
         /*!
          * The number of rows in the domain.
          */
-        unsigned int d_numrows = 0;
+        uint32_t d_numrows = 0;
 
         /*!
          * d_rowlen * d_numrows is the domain size in number of hexes. Client code
          * will create vectors of length d_size and hold the variables pertaining to
          * the hex domain therein.
          */
-        unsigned int d_size = 0;
+        uint32_t d_size = 0;
 
         /*!
          * How many additional hexes to grow out to the left and right; top and
          * bottom? Set this to a larger number if the boundary is expected to grow
          * during a simulation.
          */
-        unsigned int d_growthbuffer_horz = 0;
-        unsigned int d_growthbuffer_vert = 0;
+        uint32_t d_growthbuffer_horz = 0;
+        uint32_t d_growthbuffer_vert = 0;
 
         //! Add entries to all the d_ vectors for the hex pointed to by hi.
         void d_push_back (std::list<hex>::iterator hi)
@@ -246,7 +247,7 @@ namespace sm
             hgdata.add_contained_vals ("/d_x", d_x);
             hgdata.add_contained_vals ("/d_y", d_y);
             hgdata.add_contained_vals ("/d_distToBoundary", d_distToBoundary);
-            // vector<int>
+            // vector<int32_t>
             hgdata.add_contained_vals ("/d_ri", d_ri);
             hgdata.add_contained_vals ("/d_gi", d_gi);
             hgdata.add_contained_vals ("/d_bi", d_bi);
@@ -258,13 +259,13 @@ namespace sm
             hgdata.add_contained_vals ("/d_nsw", d_nsw);
             hgdata.add_contained_vals ("/d_nse", d_nse);
 
-            // vector<unsigned int>
+            // vector<uint32_t>
             hgdata.add_contained_vals ("/d_flags", d_flags);
 
             // list<hex> hexen
             // for i in list, save hex
             std::list<sm::hex>::const_iterator h = this->hexen.begin();
-            unsigned int hcount = 0;
+            uint32_t hcount = 0;
             while (h != this->hexen.end()) {
                 // Make up a path
                 std::string h5path = "/hexen/" + std::to_string(hcount);
@@ -316,9 +317,9 @@ namespace sm
             // save hexgrid::vertexE, etc
             this->gridReduced = true;
 
-            unsigned int hcount = 0;
+            uint32_t hcount = 0;
             hgdata.read_val ("/hcount", hcount);
-            for (unsigned int i = 0; i < hcount; ++i) {
+            for (uint32_t i = 0; i < hcount; ++i) {
                 std::string h5path = "/hexen/" + std::to_string(i);
                 sm::hex h (hgdata, h5path);
                 this->hexen.push_back (h);
@@ -331,7 +332,7 @@ namespace sm
                 // For each hex, six loops through hexen:
                 if (_h.has_ne() == true) {
                     bool matched = false;
-                    unsigned int neighb_it = (unsigned int) this->d_ne[_h.vi];
+                    uint32_t neighb_it = (uint32_t) this->d_ne[_h.vi];
                     std::list<sm::hex>::iterator hi = this->hexen.begin();
                     while (hi != this->hexen.end()) {
                         if (hi->vi == neighb_it) {
@@ -348,7 +349,7 @@ namespace sm
 
                 if (_h.has_nne() == true) {
                     bool matched = false;
-                    unsigned int neighb_it = (unsigned int) this->d_nne[_h.vi];
+                    uint32_t neighb_it = (uint32_t) this->d_nne[_h.vi];
                     std::list<sm::hex>::iterator hi = this->hexen.begin();
                     while (hi != this->hexen.end()) {
                         if (hi->vi == neighb_it) {
@@ -365,7 +366,7 @@ namespace sm
 
                 if (_h.has_nnw() == true) {
                     bool matched = false;
-                    unsigned int neighb_it = (unsigned int) this->d_nnw[_h.vi];
+                    uint32_t neighb_it = (uint32_t) this->d_nnw[_h.vi];
                     std::list<sm::hex>::iterator hi = this->hexen.begin();
                     while (hi != this->hexen.end()) {
                         if (hi->vi == neighb_it) {
@@ -382,7 +383,7 @@ namespace sm
 
                 if (_h.has_nw() == true) {
                     bool matched = false;
-                    unsigned int neighb_it = (unsigned int) this->d_nw[_h.vi];
+                    uint32_t neighb_it = (uint32_t) this->d_nw[_h.vi];
                     std::list<sm::hex>::iterator hi = this->hexen.begin();
                     while (hi != this->hexen.end()) {
                         if (hi->vi == neighb_it) {
@@ -399,7 +400,7 @@ namespace sm
 
                 if (_h.has_nsw() == true) {
                     bool matched = false;
-                    unsigned int neighb_it = (unsigned int) this->d_nsw[_h.vi];
+                    uint32_t neighb_it = (uint32_t) this->d_nsw[_h.vi];
                     std::list<sm::hex>::iterator hi = this->hexen.begin();
                     while (hi != this->hexen.end()) {
                         if (hi->vi == neighb_it) {
@@ -416,7 +417,7 @@ namespace sm
 
                 if (_h.has_nse() == true) {
                     bool matched = false;
-                    unsigned int neighb_it = (unsigned int) this->d_nse[_h.vi];
+                    uint32_t neighb_it = (uint32_t) this->d_nse[_h.vi];
                     std::list<sm::hex>::iterator hi = this->hexen.begin();
                     while (hi != this->hexen.end()) {
                         if (hi->vi == neighb_it) {
@@ -509,13 +510,13 @@ namespace sm
         }
 
         // If possible, get the hex at the given rgb position
-        std::list<hex>::iterator findhexat (const sm::vec<int, 3>& rgbpos)
+        std::list<hex>::iterator findhexat (const sm::vec<int32_t, 3>& rgbpos)
         {
             std::list<sm::hex>::iterator hi = this->hexen.begin(); // First hex in hexen is always 0,0,0
 
             // +ri is East
-            int inc = rgbpos[0] > 0 ? 1 : -1;
-            for (int ri = 0; ri != rgbpos[0] && hi != this->hexen.end(); ri+=inc) {
+            int32_t inc = rgbpos[0] > 0 ? 1 : -1;
+            for (int32_t ri = 0; ri != rgbpos[0] && hi != this->hexen.end(); ri+=inc) {
                 if (inc > 0) {
                     hi = hi->has_ne() ? hi->ne : this->hexen.end();
                 } else {
@@ -525,7 +526,7 @@ namespace sm
 
             // gi is NorthEast
             inc = rgbpos[1] > 0 ? 1 : -1;
-            for (int ri = 0; ri != rgbpos[1] && hi != this->hexen.end(); ri+=inc) {
+            for (int32_t ri = 0; ri != rgbpos[1] && hi != this->hexen.end(); ri+=inc) {
                 if (inc > 0) {
                     hi = hi->has_nne() ? hi->nne : this->hexen.end();
                 } else {
@@ -535,7 +536,7 @@ namespace sm
 
             // bi is NorthWest
             inc = rgbpos[2] > 0 ? 1 : -1;
-            for (int ri = 0; ri != rgbpos[2] && hi != this->hexen.end(); ri+=inc) {
+            for (int32_t ri = 0; ri != rgbpos[2] && hi != this->hexen.end(); ri+=inc) {
                 if (inc > 0) {
                     hi = hi->has_nnw() ? hi->nnw : this->hexen.end();
                 } else {
@@ -574,7 +575,7 @@ namespace sm
             }
 
             // Check that the boundary is contiguous.
-            std::set<unsigned int> seen;
+            std::set<uint32_t> seen;
             std::list<sm::hex>::iterator hi = bpoint;
             if (this->boundaryContiguous (bpoint, hi, seen) == false) {
                 std::stringstream ee;
@@ -659,7 +660,7 @@ namespace sm
 
             // Check that the boundary is contiguous.
             {
-                std::set<unsigned int> seen;
+                std::set<uint32_t> seen;
                 std::list<sm::hex>::iterator hi = nearbyBoundaryPoint;
                 if (this->boundaryContiguous (nearbyBoundaryPoint, hi, seen) == false) {
                     std::stringstream ee;
@@ -710,7 +711,7 @@ namespace sm
 
             // Check that the boundary is contiguous.
             {
-                std::set<unsigned int> seen;
+                std::set<uint32_t> seen;
                 std::list<sm::hex>::iterator hi = nearbyBoundaryPoint;
                 if (this->boundaryContiguous (nearbyBoundaryPoint, hi, seen) == false) {
                     std::stringstream ee;
@@ -763,7 +764,7 @@ namespace sm
                 bpi->setFlag (HEX_IS_BOUNDARY | HEX_INSIDE_BOUNDARY);
             }
             // Check that the boundary is contiguous.
-            std::set<unsigned int> seen;
+            std::set<uint32_t> seen;
             std::list<sm::hex>::iterator hi = bpi;
             if (this->boundaryContiguous (bpi, hi, seen) == false) {
                 std::stringstream ee;
@@ -848,8 +849,8 @@ namespace sm
          * \param c centre argument so that the parallelogram centre is offset from the coordinate origin
          * \return A vector of the coordinates of points on the generated pgram
          */
-        std::vector<bezcoord<float>> parallelogramCompute (const int re, const int gne,
-                                                           const int rw, const int gsw,
+        std::vector<bezcoord<float>> parallelogramCompute (const int32_t re, const int32_t gne,
+                                                           const int32_t rw, const int32_t gsw,
                                                            const sm::vec<float, 2> c = {0.0f, 0.0f})
         {
             std::vector<sm::bezcoord<float>> bpoints;
@@ -858,26 +859,26 @@ namespace sm
             xy += c;
 
             // 'Draw' bottom
-            for (int i = 0; i < 2*(rw+re); ++i) {
+            for (int32_t i = 0; i < 2*(rw+re); ++i) {
                 sm::bezcoord<float> b(xy);
                 bpoints.push_back (b);
                 xy[0] += this->d/2.0f;
             }
             // Right
-            for (int i = 0; i < 2*(gsw+gne); ++i) {
+            for (int32_t i = 0; i < 2*(gsw+gne); ++i) {
                 sm::bezcoord<float> b(xy);
                 bpoints.push_back (b);
                 xy[0] += this->d/4.0f;
                 xy[1] += this->v/2.0f;
             }
             // Top
-            for (int i = 0; i < 2*(rw+re); ++i) {
+            for (int32_t i = 0; i < 2*(rw+re); ++i) {
                 sm::bezcoord<float> b(xy);
                 bpoints.push_back (b);
                 xy[0] -= this->d/2.0f;
             }
             // Left
-            for (int i = 0; i < 2*(gsw+gne); ++i) {
+            for (int32_t i = 0; i < 2*(gsw+gne); ++i) {
                 sm::bezcoord<float> b(xy);
                 bpoints.push_back (b);
                 xy[0] -= this->d/4.0f;
@@ -986,7 +987,7 @@ namespace sm
         /*!
          * Set up a parallelogram boundary extending r hexes to the E and g hexes to the NE
          */
-        void setParallelogramBoundary (const int r, const int g,
+        void setParallelogramBoundary (const int32_t r, const int32_t g,
                                        const sm::vec<float, 2> c = {0.0f, 0.0f}, bool offset=true)
         {
             std::vector<sm::bezcoord<float>> bpoints = parallelogramCompute (r, g, r, g, c);
@@ -998,14 +999,14 @@ namespace sm
          *
          * return The number of hexes in the grid.
          */
-        unsigned int num() const { return this->hexen.size(); }
+        uint32_t num() const { return this->hexen.size(); }
 
         /*!
          * \brief Obtain the vector index of the last hex in hexen.
          *
          * return hex::vi from the last hex in the grid.
          */
-        unsigned int lastVectorIndex() const { return this->hexen.rbegin()->vi; }
+        uint32_t lastVectorIndex() const { return this->hexen.rbegin()->vi; }
 
         /*!
          * Output some text information about the hexgrid.
@@ -1016,7 +1017,7 @@ namespace sm
             ss << "hex grid with " << this->hexen.size() << " hexes.\n";
             auto i = this->hexen.begin();
             float lasty = this->hexen.front().y;
-            unsigned int rownum = 0;
+            uint32_t rownum = 0;
             ss << "\nRow/Ring " << rownum++ << ":\n";
             while (i != this->hexen.end()) {
                 if (i->y > lasty) {
@@ -1055,7 +1056,7 @@ namespace sm
         float width() const
         {
             // {xmin, xmax, ymin, ymax, gi at xmin, gi at xmax}
-            std::array<int, 6> extents = this->findBoundaryExtents();
+            std::array<int32_t, 6> extents = this->findBoundaryExtents();
             float xmin = this->d * float(extents[0]);
             float xmax = this->d * float(extents[1]);
             return (xmax - xmin);
@@ -1066,7 +1067,7 @@ namespace sm
          */
         float depth() const
         {
-            std::array<int, 6> extents = this->findBoundaryExtents();
+            std::array<int32_t, 6> extents = this->findBoundaryExtents();
             float ymin = this->v * float(extents[2]);
             float ymax = this->v * float(extents[3]);
             return (ymax - ymin);
@@ -1261,7 +1262,7 @@ namespace sm
 
             // Check that the region boundary is contiguous.
             {
-                std::set<unsigned int> seen;
+                std::set<uint32_t> seen;
                 std::list<sm::hex>::iterator hi = nearbyRegionBoundaryPoint;
                 if (this->regionBoundaryContiguous (nearbyRegionBoundaryPoint, hi, seen) == false) {
                     std::stringstream ee;
@@ -1288,7 +1289,7 @@ namespace sm
 
         //! Obtain a hexagonal region of hexes around a given central hex, marked by its
         //! d_ index. This is easier than getting a properly circular region of hexes.
-        std::vector<std::list<hex>::iterator> gethexagonalRegion (unsigned int centreindex, float radius)
+        std::vector<std::list<hex>::iterator> gethexagonalRegion (uint32_t centreindex, float radius)
         {
             std::vector<std::list<sm::hex>::iterator> theRegion;
 
@@ -1308,19 +1309,19 @@ namespace sm
             // (otherwise you end up with a snowflake shaped disc)
             std::list<hex>::iterator h;
             std::list<hex>::iterator h2; // for the tangent direction
-            for (unsigned short i = 0; i < 6; ++i) {
+            for (uint16_t i = 0; i < 6; ++i) {
                 h = sh;
                 if (h->has_neighbour(i)) {
                     h = h->get_neighbour(i);
                     theRegion.push_back (h);
-                    int j = 1;
-                    unsigned short tangentdir = (i+4)%6;
+                    int32_t j = 1;
+                    uint16_t tangentdir = (i+4)%6;
                     while (this->d*j < radius) {
                         if (h->has_neighbour(i)) {
                             h = h->get_neighbour(i);
                             theRegion.push_back (h);
                             h2 = h;
-                            for (int k = 0; k<=(j-1); ++k) {
+                            for (int32_t k = 0; k<=(j-1); ++k) {
                                 // Go in tangentdir
                                 if (h2->has_neighbour (tangentdir)) {
                                     h2 = h2->get_neighbour (tangentdir);
@@ -1385,8 +1386,8 @@ namespace sm
                     // variable path because going directly in r direction then directly
                     // in g direction could take us temporarily outside the boundary of
                     // the hexgrid.
-                    int rr = kh.ri;
-                    int gg = kh.gi;
+                    int32_t rr = kh.ri;
+                    int32_t gg = kh.gi;
                     bool failed = false;
                     bool finished = false;
                     //while (gg != 0 && rr != 0) {
@@ -1457,12 +1458,12 @@ namespace sm
          * \return A new data vvec containing the resampled (and renormalised) hex pixel values
          */
         sm::vvec<float> resampleImage (const sm::vvec<float>& image_data,
-                                          const unsigned int image_pixelwidth,
+                                          const uint32_t image_pixelwidth,
                                           const sm::vec<float, 2>& image_scale,
                                           const sm::vec<float, 2>& image_offset)
         {
-            unsigned int csz = image_data.size();
-            sm::vec<unsigned int, 2> image_pixelsz = {image_pixelwidth, csz / image_pixelwidth};
+            uint32_t csz = image_data.size();
+            sm::vec<uint32_t, 2> image_pixelsz = {image_pixelwidth, csz / image_pixelwidth};
 
             // Return data object for the resampled result
             sm::vvec<float> expr_resampled(this->num(), 0.0f);
@@ -1496,9 +1497,9 @@ namespace sm
 #pragma omp parallel for // parallel on this outer loop gives best result (5.8 s vs 7 s)
             for (typename std::vector<float>::size_type xi = 0u; xi < this->d_x.size(); ++xi) {
                 float expr = 0.0f;
-                for (unsigned int i = 0; i < csz; ++i) {
+                for (uint32_t i = 0; i < csz; ++i) {
                     // Get x/y pixel coords:
-                    sm::vec<unsigned int, 2> idx = {(i % image_pixelsz[0]), (i / image_pixelsz[0])};
+                    sm::vec<uint32_t, 2> idx = {(i % image_pixelsz[0]), (i / image_pixelsz[0])};
                     // Get the coordinates of the pixel at index i (in hexgrid units):
                     sm::vec<float, 2> posn = (dist_per_pix * idx) - input_centering_offset + image_offset;
                     // Distance from input pixel to output hex:
@@ -1585,7 +1586,7 @@ namespace sm
         template <typename T>
         bool shiftdata (sm::vvec<T>& image_data, const sm::vec<float, 2>& dx)
         {
-            unsigned int csz = image_data.size();
+            uint32_t csz = image_data.size();
             sm::vvec<T> shifted(csz, T{0});
 
             // If g and r are purely integral, then the transform is simple; copy data
@@ -1604,7 +1605,7 @@ namespace sm
             // How many integral steps in r and g axes?
             vec<float, 2> int_rg_f = rg.trunc();
             // Convert to int
-            vec<int, 2> int_rg = { static_cast<int>(std::round (int_rg_f[0])), static_cast<int>(std::round (int_rg_f[1])) };
+            vec<int32_t, 2> int_rg = { static_cast<int32_t>(std::round (int_rg_f[0])), static_cast<int32_t>(std::round (int_rg_f[1])) };
             if constexpr (debug_hexshift) { std::cout << "integral steps: " << int_rg << std::endl; }
             vec<float, 2> int_xy = {
                 (int_rg_f[0] * this->d + int_rg_f[1] * this->d * 0.5f),
@@ -1664,20 +1665,20 @@ namespace sm
                 std::list<hex>::iterator dest_hex = h;
                 if (datatocopy) std::cout << "Copying hex data at " << h->outputRG() << "...";
                 if (int_rg[1] > 0) {
-                    for (int j = 0; j < int_rg[1] && dest_hex->has_nne(); ++j) {
+                    for (int32_t j = 0; j < int_rg[1] && dest_hex->has_nne(); ++j) {
                         dest_hex = dest_hex->nne;
                     }
                 } else {
-                    for (int j = 0; j > int_rg[1] && dest_hex->has_nsw(); --j) {
+                    for (int32_t j = 0; j > int_rg[1] && dest_hex->has_nsw(); --j) {
                         dest_hex = dest_hex->nsw;
                     }
                 }
                 if (int_rg[0] > 0) {
-                    for (int j = 0; j < int_rg[0] && dest_hex->has_ne(); ++j) {
+                    for (int32_t j = 0; j < int_rg[0] && dest_hex->has_ne(); ++j) {
                         dest_hex = dest_hex->ne;
                     }
                 } else {
-                    for (int j = 0; j > int_rg[0] && dest_hex->has_nw(); --j) {
+                    for (int32_t j = 0; j > int_rg[0] && dest_hex->has_nw(); --j) {
                         dest_hex = dest_hex->nw;
                     }
                 }
@@ -2068,7 +2069,7 @@ namespace sm
                     float pw = (2.0f * lr - minpp) * sm::mathconst<float>::root_3_over_2;
 
                     // use pps.argmin to find out which of the directions the shift is in
-                    unsigned int hidx = pps.argmin();
+                    uint32_t hidx = pps.argmin();
 
                     rtn[0] = (a1 + t1) / hexarea;
 
@@ -2129,7 +2130,7 @@ namespace sm
         }
 
         //! Deals with another kind of "colinear overlap".
-        vec<float, 19> compute_overlap_colinear2 (const unsigned int _rotation)
+        vec<float, 19> compute_overlap_colinear2 (const uint32_t _rotation)
         {
             if constexpr (debug_hexshift) {std::cout << __FUNCTION__ << " called with rotation " << _rotation << "\n"; }
             vec<float, 19> rtn;
@@ -2148,7 +2149,7 @@ namespace sm
             return rtn;
         }
         //! And the other 6 permutations of colinear overlap
-        vec<float, 19> compute_overlap_colinear3 (const unsigned int _rotation)
+        vec<float, 19> compute_overlap_colinear3 (const uint32_t _rotation)
         {
             if constexpr (debug_hexshift) { std::cout << __FUNCTION__ << " called with rotation " << _rotation << "\n"; }
             vec<float, 19> rtn;
@@ -2172,7 +2173,7 @@ namespace sm
         //! east-ish of the base hex, or is it in one of the other 5 rotationally
         //! symmetric positions? Depending on rotatation, p1-6 and q1-6 are defined in
         //! differing (but rotationally symmetric) locations.
-        sm::mat22<float> setup_hexoverlap_geometry (const unsigned int _rotation)
+        sm::mat22<float> setup_hexoverlap_geometry (const uint32_t _rotation)
         {
             float lr = this->getLR();
             sm::mat22<float> rotn;
@@ -2272,7 +2273,7 @@ namespace sm
 
         // Like compute_overlap_far, but with one edge parallel to the east edge of the
         // base hex.
-        vec<float, 19> compute_overlap_far2 (const unsigned int _rotation)
+        vec<float, 19> compute_overlap_far2 (const uint32_t _rotation)
         {
             if constexpr (debug_hexshift) { std::cout << __FUNCTION__ << " called\n"; }
 
@@ -2381,7 +2382,7 @@ namespace sm
         // edge case. If the shift goes beyond this, the base hex is shifted by another
         // full hex in the r or g directions. This has one edge parallel to the NE edge
         // of the base hex.
-        vec<float, 19> compute_overlap_far (const unsigned int _rotation)
+        vec<float, 19> compute_overlap_far (const uint32_t _rotation)
         {
             if constexpr (debug_hexshift) { std::cout << __FUNCTION__ << " called rotation " << _rotation << "\n"; }
 
@@ -2502,7 +2503,7 @@ namespace sm
          * increment. _rotation=0 means 0 degrees; _rotation=1 means 60 degrees
          * anticlockwise, and so on.
          */
-        vec<float, 19> compute_overlap (const unsigned int _rotation)
+        vec<float, 19> compute_overlap (const uint32_t _rotation)
         {
             if constexpr (debug_hexshift) { std::cout << __FUNCTION__ << " called for rotation=" << _rotation << "\n"; }
 
@@ -2626,7 +2627,7 @@ namespace sm
 
         // Similar to compute_overlap(), but slightly permuted. This is called when the
         // shifted hex overlaps on by 'one corner'.
-        vec<float, 19> compute_overlap_corner (const unsigned int _rotation)
+        vec<float, 19> compute_overlap_corner (const uint32_t _rotation)
         {
             if constexpr (debug_hexshift) { std::cout << __FUNCTION__ << " called rotation: " << _rotation << "\n"; }
 
@@ -2766,7 +2767,7 @@ namespace sm
             // Find hex nearest limits. Really?
             //std::cout << "Bottom left hex is " << bl_hex->outputCart() << std::endl;
 
-            int count = 0;
+            int32_t count = 0;
             std::list<hex>::iterator row_start = bl_hex;
             if (onR) {
                 // go to end of each row and wrap back to the start. This may only work
@@ -2794,7 +2795,7 @@ namespace sm
             }
 
             std::list<hex>::iterator col_start = bl_hex;
-            int vcount = 0;
+            int32_t vcount = 0;
             if (onG) { // scan up columns in the 'G' direction
                 // First col
                 std::list<hex>::iterator cur_hex = col_start;
@@ -2810,7 +2811,7 @@ namespace sm
                 //std::cout << "Firstcol. set SE hex of " << bl_hex->nw->outputRG() << " to " << cur_hex->ne->outputRG() << std::endl;
 
                 // Rest of the rows
-                for (int i = 0; i < count; ++i) { // NB: Assumes every row the same length
+                for (int32_t i = 0; i < count; ++i) { // NB: Assumes every row the same length
                     col_start = col_start->ne;
                     cur_hex = col_start;
                     while (cur_hex->has_nne()) { cur_hex = cur_hex->nne; }
@@ -2833,14 +2834,14 @@ namespace sm
             if (onR && onG) {
                 std::list<hex>::iterator cur_hex = row_start;
                 // First row
-                for (int i = 0; i < count; ++i) { cur_hex = cur_hex->ne; }
+                for (int32_t i = 0; i < count; ++i) { cur_hex = cur_hex->ne; }
                 row_start->set_nnw(cur_hex->nne);
                 cur_hex->set_nse(row_start->nsw);
                 // Rest of the rows
-                for (int j = 0; j < vcount; ++j) {
+                for (int32_t j = 0; j < vcount; ++j) {
                     row_start = row_start->nne;
                     cur_hex = row_start;
-                    for (int i = 0; i < count; ++i) { cur_hex = cur_hex->ne; }
+                    for (int32_t i = 0; i < count; ++i) { cur_hex = cur_hex->ne; }
                     row_start->set_nnw(cur_hex->nne);
                     cur_hex->set_nse(row_start->nsw);
                 }
@@ -2889,12 +2890,12 @@ namespace sm
         {
             // Use span_x to determine how many rings out to traverse.
             float halfX = this->x_span/2.0f;
-            unsigned int maxRing = std::abs(std::ceil(halfX/this->d));
+            uint32_t maxRing = std::abs(std::ceil(halfX/this->d));
 
             // "Creating hexagonal hex grid with maxRing: " << maxRing
 
             // The "vector iterator" - this is an identity iterator that is added to each hex in the grid.
-            unsigned int vi = 0;
+            uint32_t vi = 0;
 
             // Vectors of list-iterators to hexes in this->hexen. Used to keep a track of nearest
             // neighbours. I'm using vector, rather than a list as this allows fast random access of
@@ -2907,8 +2908,8 @@ namespace sm
             std::vector<std::list<sm::hex>::iterator>* nextPrevRing = &prevRingOdd;
 
             // Direction iterators used in the loop for creating hexes
-            int ri = 0;
-            int gi = 0;
+            int32_t ri = 0;
+            int32_t gi = 0;
 
             // Create central "ring" first (the single hex)
             this->hexen.emplace_back (vi++, this->d, ri, gi);
@@ -2921,20 +2922,20 @@ namespace sm
 
             // Now build up the rings around it, setting neighbours as we go. Each ring has 6 more hexes
             // than the previous one (except for ring 1, which has 6 instead of 1 in the centre).
-            unsigned int numInRing = 6;
+            uint32_t numInRing = 6;
 
             // How many hops in the same direction before turning a corner?  Increases for each
             // ring. Increases by 1 in each ring.
-            unsigned int ringSideLen = 1;
+            uint32_t ringSideLen = 1;
 
             // These are used to iterate along the six sides of the hexagonal ring that's inside, but
             // adjacent to the hexagonal ring that's under construction.
-            int walkstart = 0;
-            int walkinc = 0;
-            int walkmin = walkstart-1;
-            int walkmax = 1;
+            int32_t walkstart = 0;
+            int32_t walkinc = 0;
+            int32_t walkmin = walkstart-1;
+            int32_t walkmax = 1;
 
-            for (unsigned int ring = 1; ring <= maxRing; ++ring) {
+            for (uint32_t ring = 1; ring <= maxRing; ++ring) {
 
                 // Set start ri, gi. This moves up a hex and left a hex onto the start hex of the new ring.
                 --ri; ++gi;
@@ -2945,7 +2946,7 @@ namespace sm
                 // started. walkstart has the starting iterator number for the vertices of the hexagon.
 
                 // Walk in the r direction first:
-                for (unsigned int i = 0; i<ringSideLen; ++i) {
+                for (uint32_t i = 0; i<ringSideLen; ++i) {
 
                     this->hexen.emplace_back (vi++, this->d, ri++, gi);
                     auto hi = this->hexen.end(); hi--;
@@ -2965,7 +2966,7 @@ namespace sm
                     // but as this won't have been added to the ring, we have to leave it
 
                     // 2. SW neighbour
-                    int j = walkstart + (int)i - 1;
+                    int32_t j = walkstart + (int)i - 1;
                     if (j>walkmin && j<walkmax) {
                         // Set my SW neighbour:
                         hi->set_nsw ((*prevRing)[j]);
@@ -2989,7 +2990,7 @@ namespace sm
                 walkmax   += walkinc;
 
                 // Walk in -b direction
-                for (unsigned int i = 0; i<ringSideLen; ++i) {
+                for (uint32_t i = 0; i<ringSideLen; ++i) {
                     this->hexen.emplace_back (vi++, this->d, ri++, gi--);
                     auto hi = this->hexen.end(); hi--;
                     auto lasthi = hi;
@@ -3011,7 +3012,7 @@ namespace sm
                     }
 
                     // 2. W neighbour
-                    int j = walkstart + (int)i - 1;
+                    int32_t j = walkstart + (int)i - 1;
                     if (j>walkmin && j<walkmax) {
                         // Set my W neighbour:
                         hi->set_nw ((*prevRing)[j]);
@@ -3034,7 +3035,7 @@ namespace sm
                 walkmax += walkinc;
 
                 // Walk in -g direction
-                for (unsigned int i = 0; i<ringSideLen; ++i) {
+                for (uint32_t i = 0; i<ringSideLen; ++i) {
 
                     this->hexen.emplace_back (vi++, this->d, ri, gi--);
                     auto hi = this->hexen.end(); hi--;
@@ -3057,7 +3058,7 @@ namespace sm
                     }
 
                     // 2. NW neighbour
-                    int j = walkstart + (int)i - 1;
+                    int32_t j = walkstart + (int)i - 1;
                     if (j>walkmin && j<walkmax) {
                         // Set my NW neighbour:
                         hi->set_nnw ((*prevRing)[j]);
@@ -3081,7 +3082,7 @@ namespace sm
                 walkmax += walkinc;
 
                 // Walk in -r direction
-                for (unsigned int i = 0; i<ringSideLen; ++i) {
+                for (uint32_t i = 0; i<ringSideLen; ++i) {
 
                     this->hexen.emplace_back (vi++, this->d, ri--, gi);
                     auto hi = this->hexen.end(); hi--;
@@ -3104,7 +3105,7 @@ namespace sm
                     }
 
                     // 2. NE neighbour:
-                    int j = walkstart + (int)i - 1;
+                    int32_t j = walkstart + (int)i - 1;
                     if (j>walkmin && j<walkmax) {
                         // Set my NE neighbour:
                         hi->set_nne ((*prevRing)[j]);
@@ -3127,7 +3128,7 @@ namespace sm
                 walkmax += walkinc;
 
                 // Walk in b direction
-                for (unsigned int i = 0; i<ringSideLen; ++i) {
+                for (uint32_t i = 0; i<ringSideLen; ++i) {
                     this->hexen.emplace_back (vi++, this->d, ri--, gi++);
                     auto hi = this->hexen.end(); hi--;
                     auto lasthi = hi;
@@ -3149,7 +3150,7 @@ namespace sm
                     }
 
                     // 2. E neighbour:
-                    int j = walkstart + (int)i - 1;
+                    int32_t j = walkstart + (int)i - 1;
                     if (j>walkmin && j<walkmax) {
                         // Set my E neighbour:
                         hi->set_ne ((*prevRing)[j]);
@@ -3172,7 +3173,7 @@ namespace sm
                 walkmax += walkinc;
 
                 // Walk in g direction up to almost the last hex
-                for (unsigned int i = 0; i<ringSideLen; ++i) {
+                for (uint32_t i = 0; i<ringSideLen; ++i) {
 
                     this->hexen.emplace_back (vi++, this->d, ri, gi++);
                     auto hi = this->hexen.end(); hi--;
@@ -3202,7 +3203,7 @@ namespace sm
                     }
 
                     // 2. E neighbour:
-                    int j = walkstart + (int)i - 1;
+                    int32_t j = walkstart + (int)i - 1;
                     if (j>walkmin && j<walkmax) {
                         // Set my SE neighbour:
                         hi->set_nse ((*prevRing)[j]);
@@ -3278,7 +3279,7 @@ namespace sm
                 // Found no boundary hex
                 return false;
             }
-            std::set<unsigned int> seen;
+            std::set<uint32_t> seen;
             std::list<sm::hex>::const_iterator hi = bhi;
             return this->boundaryContiguous (bhi, hi, seen);
         }
@@ -3291,7 +3292,7 @@ namespace sm
          * pointers to the hexes on the boundary.
          */
         bool boundaryContiguous (std::list<hex>::const_iterator bhi,
-                                 std::list<hex>::const_iterator hi, std::set<unsigned int>& seen)
+                                 std::list<hex>::const_iterator hi, std::set<uint32_t>& seen)
         {
             bool rtn = false;
             std::list<sm::hex>::const_iterator hi_next;
@@ -3353,7 +3354,7 @@ namespace sm
          * boundary hex iterator #bhi.
          */
         bool regionBoundaryContiguous (std::list<hex>::const_iterator bhi,
-                                       std::list<hex>::const_iterator hi, std::set<unsigned int>& seen)
+                                       std::list<hex>::const_iterator hi, std::set<uint32_t>& seen)
         {
             bool rtn = false;
             std::list<sm::hex>::const_iterator hi_next;
@@ -3514,8 +3515,8 @@ namespace sm
          * with region boundaries.
          */
         void markFromBoundary (std::list<hex>::iterator hi,
-                               unsigned int bdryFlag = HEX_IS_BOUNDARY,
-                               unsigned int insideFlag = HEX_INSIDE_BOUNDARY)
+                               uint32_t bdryFlag = HEX_IS_BOUNDARY,
+                               uint32_t insideFlag = HEX_INSIDE_BOUNDARY)
         {
             this->markFromBoundary (&(*hi), bdryFlag, insideFlag);
         }
@@ -3532,8 +3533,8 @@ namespace sm
          * with region boundaries.
          */
         void markFromBoundary (std::list<hex*>::iterator hi,
-                               unsigned int bdryFlag = HEX_IS_BOUNDARY,
-                               unsigned int insideFlag = HEX_INSIDE_BOUNDARY)
+                               uint32_t bdryFlag = HEX_IS_BOUNDARY,
+                               uint32_t insideFlag = HEX_INSIDE_BOUNDARY)
         {
             this->markFromBoundary ((*hi), bdryFlag, insideFlag);
         }
@@ -3550,14 +3551,14 @@ namespace sm
          * with region boundaries.
          */
         void markFromBoundary (sm::hex* hi,
-                               unsigned int bdryFlag = HEX_IS_BOUNDARY,
-                               unsigned int insideFlag = HEX_INSIDE_BOUNDARY)
+                               uint32_t bdryFlag = HEX_IS_BOUNDARY,
+                               uint32_t insideFlag = HEX_INSIDE_BOUNDARY)
         {
             // Find a marked-inside hex next to this boundary hex. This will be the first direction to mark
             // a line of inside hexes in.
             std::list<sm::hex>::iterator first_inside = this->hexen.begin();
-            unsigned short firsti = 0;
-            for (unsigned short i = 0; i < 6; ++i) {
+            uint16_t firsti = 0;
+            for (uint16_t i = 0; i < 6; ++i) {
                 if (hi->has_neighbour(i)
                     && hi->get_neighbour(i)->testFlags(insideFlag) == true
                     && hi->get_neighbour(i)->testFlags(bdryFlag) == false
@@ -3594,9 +3595,9 @@ namespace sm
         /*!
          * Common code used by markFromBoundary()
          */
-        void markFromBoundaryCommon (std::list<hex>::iterator first_inside, unsigned short firsti,
-                                     unsigned int bdryFlag = HEX_IS_BOUNDARY,
-                                     unsigned int insideFlag = HEX_INSIDE_BOUNDARY)
+        void markFromBoundaryCommon (std::list<hex>::iterator first_inside, uint16_t firsti,
+                                     uint32_t bdryFlag = HEX_IS_BOUNDARY,
+                                     uint32_t insideFlag = HEX_INSIDE_BOUNDARY)
         {
             // From the "first inside the boundary hex" head in the direction specified by firsti until a
             // boundary hex is reached.
@@ -3666,14 +3667,14 @@ namespace sm
          */
         bool findNextBoundaryNeighbour (std::list<hex>::iterator& bhi,
                                         std::deque<std::list<hex>::iterator>& recently_seen,
-                                        unsigned int n_recents = 2U,
-                                        unsigned int bdryFlag = HEX_IS_BOUNDARY,
-                                        unsigned int insideFlag = HEX_INSIDE_BOUNDARY) const
+                                        uint32_t n_recents = 2U,
+                                        uint32_t bdryFlag = HEX_IS_BOUNDARY,
+                                        uint32_t insideFlag = HEX_INSIDE_BOUNDARY) const
         {
             bool gotnextneighbour = false;
 
             // From each boundary hex, loop round all 6 neighbours until we get to a new neighbour
-            for (unsigned short i = 0; i < 6 && gotnextneighbour == false; ++i) {
+            for (uint16_t i = 0; i < 6 && gotnextneighbour == false; ++i) {
 
                 // This is "if it's a neighbour and the neighbour is a boundary hex"
                 if (bhi->has_neighbour(i) && bhi->get_neighbour(i)->testFlags(bdryFlag)) {
@@ -3691,10 +3692,10 @@ namespace sm
                     }
                     if (hex_already_seen) { continue; }
 
-                    unsigned short i_opp = ((i+3)%6);
+                    uint16_t i_opp = ((i+3)%6);
 
                     // Go round each of the candidate boundary hex's neighbours (but j!=i)
-                    for (unsigned short j = 0; j < 6; ++j) {
+                    for (uint16_t j = 0; j < 6; ++j) {
 
                         // Ignore the candidate boundary hex itself. if j==i_opp, then
                         // i's neighbour in dirn sm::hex::neighbour_pos(j) is the
@@ -3727,8 +3728,8 @@ namespace sm
          * boundary.
          */
         void markhexesInside (std::list<hex>::iterator hi,
-                              unsigned int bdryFlag = HEX_IS_BOUNDARY,
-                              unsigned int insideFlag = HEX_INSIDE_BOUNDARY)
+                              uint32_t bdryFlag = HEX_IS_BOUNDARY,
+                              uint32_t insideFlag = HEX_INSIDE_BOUNDARY)
         {
             // Run to boundary, marking as we go
             std::list<sm::hex>::iterator bhi(hi);
@@ -3743,7 +3744,7 @@ namespace sm
 
             // a deque to hold the 'n_recents' most recently seen boundary hexes.
             std::deque<std::list<sm::hex>::iterator> recently_seen;
-            unsigned int n_recents = 16U; // 2 should be sufficient for boundaries with double thickness
+            uint32_t n_recents = 16U; // 2 should be sufficient for boundaries with double thickness
             // sections. If problems occur, trying increasing this.
             bool gotnext = this->findNextBoundaryNeighbour (bhi, recently_seen, n_recents, bdryFlag, insideFlag);
             // Loop around boundary, marking inwards in all possible directions from each boundary hex
@@ -3757,7 +3758,7 @@ namespace sm
          * Recursively mark hexes to be kept if they are inside the rectangular hex
          * domain.
          */
-        void markhexesInsideRectangularDomain (const std::array<int, 6>& extnts)
+        void markhexesInsideRectangularDomain (const std::array<int32_t, 6>& extnts)
         {
             // Check ri,gi,bi and reduce to equivalent ri,gi,bi=0.  Use gi to determine whether outside
             // top/bottom region Add gi contribution to ri to determine whether outside left/right region
@@ -3821,7 +3822,7 @@ namespace sm
         /*!
          * Mark hexes to be kept if they are in a parallelogram domain.
          */
-        void markhexesInsideParallelogramDomain (const std::array<int, 6>& extnts)
+        void markhexesInsideParallelogramDomain (const std::array<int32_t, 6>& extnts)
         {
             // Check ri,gi,bi and reduce to equivalent ri,gi,bi=0.  Use gi to determine whether outside
             // top/bottom region Add gi contribution to ri to determine whether outside left/right region
@@ -3912,14 +3913,14 @@ namespace sm
          * the bottom line is parity-matched with the line on which the left and right
          * most boundary hexes are found.
          */
-        std::array<int, 6> findBoundaryExtents() const
+        std::array<int32_t, 6> findBoundaryExtents() const
         {
             // Return object contains {ri-left, ri-right, gi-bottom, gi-top, gi at ri-left, gi at ri-right}
             // i.e. {xmin, xmax, ymin, ymax, gi at xmin, gi at xmax}
-            std::array<int, 6> rtn = {{0,0,0,0,0,0}};
+            std::array<int32_t, 6> rtn = {{0,0,0,0,0,0}};
 
             // Check to see if there are any boundary hexes at all.
-            unsigned int bhcount = 0;
+            uint32_t bhcount = 0;
             for (auto h : this->hexen) { bhcount += h.testFlags(HEX_IS_BOUNDARY) == true ? 1 : 0; }
             if (bhcount == 0) { return rtn; }
 
@@ -3975,7 +3976,7 @@ namespace sm
          */
         void renumberVectorIndices()
         {
-            unsigned int vi = 0;
+            uint32_t vi = 0;
             this->vhexen.clear();
             auto hi = this->hexen.begin();
             while (hi != this->hexen.end()) {

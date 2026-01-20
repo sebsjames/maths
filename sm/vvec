@@ -213,11 +213,13 @@ namespace sm
         //! \return this vvec in double precision format
         vvec<double> as_double() const { return this->as<double>(); }
 
-        //! \return this vvec in single precision, int format
-        vvec<int> as_int() const { return this->as<int>(); }
+        //! \return this vvec in single precision, int32_t format
+        vvec<int32_t> as_int() const { return this->as<int32_t>(); }
+        vvec<int32_t> as_int32_t() const { return this->as<int32_t>(); }
 
-        //! \return this vvec in single precision, unsigned int format
-        vvec<unsigned int> as_uint() const { return this->as<unsigned int>(); }
+        //! \return this vvec in single precision, uint32_t format
+        vvec<uint32_t> as_uint() const { return this->as<uint32_t>(); }
+        vvec<uint32_t> as_uint32_t() const { return this->as<uint32_t>(); }
 
         //! \return the first and last elements in the vvec as a two element vector. If *this is
         //! empty, return a 2 element vvec containing zeros.
@@ -288,28 +290,28 @@ namespace sm
          * leading_spaces: How many leading spaces to insert after a newline
          */
         void str_comma_separated (std::stringstream& ss,
-                                  const unsigned int num_in_line=std::numeric_limits<unsigned int>::max(),
-                                  const char sep = ',', const unsigned int leading_spaces = 0) const
+                                  const uint32_t num_in_line=std::numeric_limits<uint32_t>::max(),
+                                  const char sep = ',', const uint32_t leading_spaces = 0) const
         {
             if (this->empty()) { return; }
             bool first = true;
-            unsigned int elementcount = 0;
+            uint32_t elementcount = 0;
             auto w = ss.width();
             std::string nothing = "";
             std::string end_line = "\n";
-            for (unsigned int sp = 0; sp < leading_spaces; ++sp) { end_line += " "; }
+            for (uint32_t sp = 0; sp < leading_spaces; ++sp) { end_line += " "; }
             for (auto i : *this) {
                 if (first) {
-                    // Test for char/unsigned char and cast to int to avoid being interpreted as ascii
-                    if constexpr (std::is_same<S, unsigned char>::value == true || std::is_same<S, char>::value == true) {
-                        ss << std::setw(w) << static_cast<int>(i);
+                    // Test for char/uint8_t and cast to int32_t to avoid being interpreted as ascii
+                    if constexpr (std::is_same<S, uint8_t>::value == true || std::is_same<S, char>::value == true) {
+                        ss << std::setw(w) << static_cast<int32_t>(i);
                     } else { ss << std::setw(w) << i; }
                     first = false;
                     if (elementcount == num_in_line - 1) { ss << std::setw(0) << end_line; }
                 } else {
                     ss << std::setw(0) << sep << std::setw(0) << (elementcount%num_in_line==0 ? end_line : nothing);
-                    if constexpr (std::is_same<S, unsigned char>::value == true || std::is_same<S, char>::value == true) {
-                        ss << std::setw(w) << static_cast<int>(i);
+                    if constexpr (std::is_same<S, uint8_t>::value == true || std::is_same<S, char>::value == true) {
+                        ss << std::setw(w) << static_cast<int32_t>(i);
                     } else { ss << std::setw(w) << i; }
                 }
                 ++elementcount;
@@ -324,7 +326,7 @@ namespace sm
          * \return A 'coordinate format' string such as "(1,1,2)", "(0.2,0.4)" or
          * "(5,4,5,5,40)".
          */
-        std::string str (const unsigned int num_in_line=std::numeric_limits<unsigned int>::max()) const
+        std::string str (const uint32_t num_in_line=std::numeric_limits<uint32_t>::max()) const
         {
             std::stringstream ss;
             ss << std::setprecision (std::numeric_limits<S>::max_digits10);
@@ -335,7 +337,7 @@ namespace sm
         }
 
         //! Output the vector in a form suitable to paste into MATLAB or Octave
-        std::string str_mat (const unsigned int num_in_line=std::numeric_limits<unsigned int>::max()) const
+        std::string str_mat (const uint32_t num_in_line=std::numeric_limits<uint32_t>::max()) const
         {
             std::stringstream ss;
             ss << std::setprecision (std::numeric_limits<S>::max_digits10);
@@ -349,7 +351,7 @@ namespace sm
          * Output the vector in a form suitable to paste into Python, as a numpy vector,
          * assuming you imported numpy as np
          */
-        std::string str_numpy (const unsigned int num_in_line=std::numeric_limits<unsigned int>::max()) const
+        std::string str_numpy (const uint32_t num_in_line=std::numeric_limits<uint32_t>::max()) const
         {
             std::stringstream ss;
             ss << std::setprecision (std::numeric_limits<S>::max_digits10);
@@ -362,7 +364,7 @@ namespace sm
         /*!
          * Output in format the same as if the array were printed with a Python print command
          */
-        std::string str_pythprint (const unsigned int num_in_line=6) const
+        std::string str_pythprint (const uint32_t num_in_line=6) const
         {
             std::stringstream ss;
             ss << "[";
@@ -373,7 +375,7 @@ namespace sm
         }
 
         //! Output in a form that can be used as an initializer list in C++
-        std::string str_initializer (const unsigned int num_in_line=std::numeric_limits<unsigned int>::max()) const
+        std::string str_initializer (const uint32_t num_in_line=std::numeric_limits<uint32_t>::max()) const
         {
             std::stringstream ss;
             ss << std::setprecision (std::numeric_limits<S>::max_digits10);
@@ -523,7 +525,7 @@ namespace sm
          * n=1, and the vvec length is N, then element 0->N-1, 1->0, 2->1, etc. To rotate to
          * the right, you can use -n.
          */
-        template <typename T=int>
+        template <typename T=int32_t>
         void rotate (T n)
         {
             static_assert (std::numeric_limits<T>::is_integer);
@@ -987,12 +989,12 @@ namespace sm
          */
         vvec<float> crossing_points (const S& val, const wrapdata wrap = wrapdata::none) const
         {
-            int n = this->size();
+            int32_t n = this->size();
             vvec<float> crossings;
             if (wrap == wrapdata::none) {
                 S lastval = (*this)[0];
                 // What about the very first one? By definition, it can't cross.
-                for (int i = 1; i < n; ++i) {
+                for (int32_t i = 1; i < n; ++i) {
                     if ((*this)[i] == val) {
                         // Positive or negative crossing?
                         if (i == n-1) {
@@ -1016,7 +1018,7 @@ namespace sm
                 }
             } else { // wrapdata::wrap
                 S lastval = (*this)[n-1];
-                for (int i = 0; i < n; ++i) {
+                for (int32_t i = 0; i < n; ++i) {
                     if ((*this)[i] == val) {
                         // Positive or negative crossing?
                         if (i == n-1) {
@@ -1226,7 +1228,7 @@ namespace sm
 
         //! \return the sum of the elements. If elements are of a constrained type, you can call this something like:
         //! vvec<uint8_t> uv (256, 10);
-        //! unsigned int thesum = uv.sum<false, unsigned int>();
+        //! uint32_t thesum = uv.sum<false, uint32_t>();
         //! If test_for_nans is true, then sum is performed ignoring any nan values
         template<bool test_for_nans = false, typename Sy=S>
         Sy sum() const noexcept
@@ -1242,7 +1244,7 @@ namespace sm
         //! \return the product of the elements. If elements are of a constrained type, you can call
         //! this something like:
         //! vvec<uint8_t> uv (256, 10);
-        //! unsigned int theproduct = uv.product<unsigned int>();
+        //! uint32_t theproduct = uv.product<uint32_t>();
         template<bool test_for_nans = false, typename Sy=S>
         Sy product() const noexcept
         {
@@ -1545,7 +1547,7 @@ namespace sm
         //! Smooth the vector by convolving with a gaussian filter with Gaussian width
         //! sigma and overall width 2*sigma*n_sigma
         template<wrapdata wrap = wrapdata::none>
-        vvec<S> smooth_gauss (const S sigma, const unsigned int n_sigma) const
+        vvec<S> smooth_gauss (const S sigma, const uint32_t n_sigma) const
         {
             sm::vvec<S> filter;
             S hw = std::round (sigma * n_sigma);
@@ -1557,7 +1559,7 @@ namespace sm
         }
         //! Gaussian smoothing in place
         template<wrapdata wrap = wrapdata::none>
-        void smooth_gauss_inplace (const S sigma, const unsigned int n_sigma)
+        void smooth_gauss_inplace (const S sigma, const uint32_t n_sigma)
         {
             sm::vvec<S> filter;
             S hw = std::round (sigma * n_sigma);
@@ -1577,10 +1579,10 @@ namespace sm
                  resize_output resize_out = resize_output::no>
         vvec<S> convolve (const vvec<S>& kernel) const
         {
-            int sz = this->size();
-            int osz = sz;           // osz is size of output vvec
-            int kw = kernel.size(); // kernel width
-            int zki = 0;            // zero of the kernel index (or how many steps 'right'
+            int32_t sz = this->size();
+            int32_t osz = sz;           // osz is size of output vvec
+            int32_t kw = kernel.size(); // kernel width
+            int32_t zki = 0;            // zero of the kernel index (or how many steps 'right'
                                     // to shift the reversed kernel before starting)
             if constexpr (centre == centre_kernel::yes) { zki = kw / 2; }
             if constexpr (resize_out == resize_output::yes) { osz += (kw - 1); }
@@ -1588,12 +1590,12 @@ namespace sm
                 if (kw > sz) { throw std::runtime_error ("if wrapping, kernel width must be <= data size"); }
             }
             vvec<S> rtn(osz);
-            for (int i = 0; i < osz; ++i) {
+            for (int32_t i = 0; i < osz; ++i) {
                 // For each element, i, compute the convolution sum
                 S sum = S{0};
-                for (int j = 0; j < kw; ++j) {
+                for (int32_t j = 0; j < kw; ++j) {
                     // ii is the index into the data by which kernel[j] should be multiplied
-                    int ii = i - j + zki; // -j effectively 'flips' the kernel, as is required by
+                    int32_t ii = i - j + zki; // -j effectively 'flips' the kernel, as is required by
                                           // the definition of convolution
                     if constexpr (wrap == wrapdata::wrap) {
                         // Handle wrapping around the data
@@ -1612,11 +1614,11 @@ namespace sm
                  resize_output resize_out = resize_output::no>
         void convolve_inplace (const vvec<S>& kernel)
         {
-            int sz = this->size();
+            int32_t sz = this->size();
             vvec<S> d(*this);        // We make a copy of *this;
-            int osz = sz;            // osz is size of output vvec
-            int kw = kernel.size();  // kernel width
-            int zki = 0;             // zero of the kernel index
+            int32_t osz = sz;            // osz is size of output vvec
+            int32_t kw = kernel.size();  // kernel width
+            int32_t zki = 0;             // zero of the kernel index
             if constexpr (centre == centre_kernel::yes) { zki = kw / 2; }
             if constexpr (resize_out == resize_output::yes) {
                 osz += (kw - 1);
@@ -1625,12 +1627,12 @@ namespace sm
             if constexpr (wrap == wrapdata::wrap) {
                 if (kw > sz) { throw std::runtime_error ("if wrapping, kernel width must be <= data size"); }
             }
-            for (int i = 0; i < osz; ++i) {
+            for (int32_t i = 0; i < osz; ++i) {
                 // For each element, i, compute the convolution sum
                 S sum = S{0};
-                for (int j = 0; j < kw; ++j) {
+                for (int32_t j = 0; j < kw; ++j) {
                     // ii is the index into the data by which kernel[j] should be multiplied
-                    int ii = i - j + zki;
+                    int32_t ii = i - j + zki;
                     if constexpr (wrap == wrapdata::wrap) {
                         // Handle wrapping around the data
                         ii += ii < 0 ? sz : 0;
@@ -1647,12 +1649,12 @@ namespace sm
         //! datum and its adjacent neighbours.
         vvec<S> diff (const wrapdata wrap = wrapdata::none)
         {
-            int n = this->size();
+            int32_t n = this->size();
             vvec<S> rtn (n);
             if (wrap == wrapdata::none) {
                 S last = (*this)[0];
                 rtn[0] = (*this)[1] - last;
-                for (int i = 1; i < n-1; ++i) {
+                for (int32_t i = 1; i < n-1; ++i) {
                     S difn = S{0.5} * (((*this)[i] - last) + ((*this)[i+1] - (*this)[i]));
                     last = (*this)[i];
                     rtn[i] = difn;
@@ -1660,7 +1662,7 @@ namespace sm
                 rtn[n-1] = (*this)[n-1] - last;
             } else {
                 S last = (*this)[n-1];
-                for (int i = 0; i < n; ++i) {
+                for (int32_t i = 0; i < n; ++i) {
                     S next = (i == n-1) ? (*this)[0] : (*this)[i+1];
                     S difn = S{0.5} * (((*this)[i] - last) + (next         - (*this)[i]));
                     last = (*this)[i];
@@ -1672,11 +1674,11 @@ namespace sm
         //! Compute the discrete differential of the data in *this
         void diff_inplace (const wrapdata wrap = wrapdata::none)
         {
-            int n = this->size();
+            int32_t n = this->size();
             if (wrap == wrapdata::none) {
                 S last = (*this)[0];
                 (*this)[0] = (*this)[1] - last; // first step precedes loop
-                for (int i = 1; i < n-1; ++i) {
+                for (int32_t i = 1; i < n-1; ++i) {
                     S difn = S{0.5} * (((*this)[i] - last) + ((*this)[i+1] - (*this)[i]));
                     last = (*this)[i];
                     (*this)[i] = difn;
@@ -1685,7 +1687,7 @@ namespace sm
             } else { // DO wrap
                 S first = (*this)[0];
                 S last = (*this)[n-1];
-                for (int i = 0; i < n; ++i) {
+                for (int32_t i = 0; i < n; ++i) {
                     S next = (i == n-1) ? first : (*this)[i+1];
                     S difn = S{0.5} * (((*this)[i] - last) + (next         - (*this)[i]));
                     last = (*this)[i];
@@ -1699,7 +1701,7 @@ namespace sm
         vvec<S> element_compare_gteq (const S val) const
         {
             vvec<S> comparison(this->size(), S{0});
-            for (unsigned int i = 0; i < this->size(); ++i) {
+            for (uint32_t i = 0; i < this->size(); ++i) {
                 comparison[i] = (*this)[i] >= val ? S{1} : S{0};
             }
             return comparison;
@@ -1707,7 +1709,7 @@ namespace sm
         vvec<S> element_compare_gt (const S val) const
         {
             vvec<S> comparison(this->size(), S{0});
-            for (unsigned int i = 0; i < this->size(); ++i) {
+            for (uint32_t i = 0; i < this->size(); ++i) {
                 comparison[i] = (*this)[i] > val ? S{1} : S{0};
             }
             return comparison;
@@ -1715,7 +1717,7 @@ namespace sm
         vvec<S> element_compare_lt (const S val) const
         {
             vvec<S> comparison(this->size(), S{0});
-            for (unsigned int i = 0; i < this->size(); ++i) {
+            for (uint32_t i = 0; i < this->size(); ++i) {
                 comparison[i] = (*this)[i] < val ? S{1} : S{0};
             }
             return comparison;
@@ -1723,7 +1725,7 @@ namespace sm
         vvec<S> element_compare_lte (const S val) const
         {
             vvec<S> comparison(this->size(), S{0});
-            for (unsigned int i = 0; i < this->size(); ++i) {
+            for (uint32_t i = 0; i < this->size(); ++i) {
                 comparison[i] = (*this)[i] <= val ? S{1} : S{0};
             }
             return comparison;
@@ -1731,7 +1733,7 @@ namespace sm
         vvec<S> element_compare_eq (const S val) const
         {
             vvec<S> comparison(this->size(), S{0});
-            for (unsigned int i = 0; i < this->size(); ++i) {
+            for (uint32_t i = 0; i < this->size(); ++i) {
                 comparison[i] = (*this)[i] == val ? S{1} : S{0};
             }
             return comparison;
@@ -1739,7 +1741,7 @@ namespace sm
         vvec<S> element_compare_neq (const S val) const
         {
             vvec<S> comparison(this->size(), S{0});
-            for (unsigned int i = 0; i < this->size(); ++i) {
+            for (uint32_t i = 0; i < this->size(); ++i) {
                 comparison[i] = (*this)[i] != val ? S{1} : S{0};
             }
             return comparison;
@@ -1808,7 +1810,7 @@ namespace sm
          * return true.
          */
         template<typename Sy=S>
-        bool lexical_lessthan_beyond_epsilon (const vvec<Sy>& rhs, const int n_eps = 1) const
+        bool lexical_lessthan_beyond_epsilon (const vvec<Sy>& rhs, const int32_t n_eps = 1) const
         {
             if (rhs.size() != this->size()) {
                 throw std::runtime_error ("lexical_lessthan_beyond_epsilon: rhs dims should equal vvec's dims");

@@ -13,6 +13,7 @@
  */
 #pragma once
 
+#include <cstdint>
 #include <string>
 #include <list>
 #include <array>
@@ -151,7 +152,7 @@ namespace sm
          * Constructor taking index, dimension and integer position indices. Computes Cartesian
          * location from these.
          */
-        hex (const unsigned int& idx, const float& d_, const int& r_, const int& g_)
+        hex (const uint32_t& idx, const float& d_, const int32_t& r_, const int32_t& g_)
         {
             this->vi = idx;
             this->d = d_;
@@ -239,7 +240,7 @@ namespace sm
             h5data.read_val (dpath.c_str(), this->bi);
             dpath = h5path + "/distToBoundary";
             h5data.read_val (dpath.c_str(), this->distToBoundary);
-            unsigned int flgs = 0;
+            uint32_t flgs = 0;
             dpath = h5path + "/flags";
             h5data.read_val (dpath.c_str(), flgs);
             this->flags = flgs;
@@ -408,7 +409,7 @@ namespace sm
          * some hex elements?  Simple - I can re-set the vi indices after creating a grid of hex
          * elements and then pruning down.
          */
-        unsigned int vi;
+        uint32_t vi;
 
         /*!
          * This is the index into the d_ vectors in hexgrid which can be used to find
@@ -420,7 +421,7 @@ namespace sm
          * have this attribute di in addition to the vector index vi, which provides an index into
          * list<hex> or vector<hex> objects which either are, or are arranged like, hexgrid::hexen
          */
-        unsigned int di = 0;
+        uint32_t di = 0;
 
         //! Cartesian coordinate 'x' of the centre of the hex. Public, for direct access by client code.
         float x = 0.0f;
@@ -493,34 +494,34 @@ namespace sm
         /*!
          * Index in r direction - positive "East", that is in the +x direction.
          */
-        int ri = 0;
+        int32_t ri = 0;
         /*!
          * Index in g direction - positive "NorthEast". In a direction 30 degrees East of North or
          * 60 degrees North of East.
          */
-        int gi = 0;
+        int32_t gi = 0;
         /*!
          * Index in b direction - positive "NorthWest". In a direction 30 degrees West of North
          */
-        int bi = 0;
+        int32_t bi = 0;
 
         //! Getter for this->flags
-        unsigned int getFlags() const { return this->flags; }
+        uint32_t getFlags() const { return this->flags; }
 
         //! Set one or more flags, defined by flg, true
-        void setFlag (unsigned int flg) { this->flags |= flg; }
+        void setFlag (uint32_t flg) { this->flags |= flg; }
         //! Alias for hex::setFlag
-        void setFlags (unsigned int flgs) { this->flags |= flgs; }
+        void setFlags (uint32_t flgs) { this->flags |= flgs; }
 
         //! Unset one or more flags, defined by flg, i.e. set false
-        void unsetFlag (unsigned int flg) { this->flags &= ~(flg); }
+        void unsetFlag (uint32_t flg) { this->flags &= ~(flg); }
         //! Alias for hex::unsetFlag
-        void unsetFlags (unsigned int flgs) { this->flags &= ~(flgs); }
+        void unsetFlags (uint32_t flgs) { this->flags &= ~(flgs); }
 
         //! If flags match flg, then return true
-        bool testFlag (unsigned int flg) const { return (this->flags & flg) == flg ? true : false; }
+        bool testFlag (uint32_t flg) const { return (this->flags & flg) == flg ? true : false; }
         //! Alias for hex::testFlag
-        bool testFlags (unsigned int flgs) const { return (this->flags & flgs) == flgs ? true : false; }
+        bool testFlags (uint32_t flgs) const { return (this->flags & flgs) == flgs ? true : false; }
 
         /*!
          * Set to true if this hex has been marked as being on a boundary. It is expected that
@@ -550,26 +551,26 @@ namespace sm
         void unsetInsideDomain() { this->flags &= ~HEX_INSIDE_DOMAIN; }
 
         /*!
-         * Set the HEX_USER_FLAG_0/1/2/3 from the passed in unsigned int.
+         * Set the HEX_USER_FLAG_0/1/2/3 from the passed in uint32_t.
          *
          * E.g. hex->setUserFlags (HEX_USER_FLAG_0 | HEX_USER_FLAG_1);
          *
          * This will set HEX_USER_FLAG_0 and HEX_USER_FLAG_1 AND UNSET HEX_USER_FLAG_2 &
          * HEX_USER_FLAG_3.
          */
-        void setUserFlags (unsigned int uflgs) { this->flags |= (uflgs & HEX_ALL_USER); }
+        void setUserFlags (uint32_t uflgs) { this->flags |= (uflgs & HEX_ALL_USER); }
 
-        //! Set the single user flag 0, 1 2 or 3 as given by the passed-in unsigned int uflg_num.
-        void setUserFlag (unsigned int uflg_num)
+        //! Set the single user flag 0, 1 2 or 3 as given by the passed-in uint32_t uflg_num.
+        void setUserFlag (uint32_t uflg_num)
         {
-            unsigned int flg = HEX_USER_FLAG_0 << uflg_num;
+            uint32_t flg = HEX_USER_FLAG_0 << uflg_num;
             this->flags |= flg;
         }
 
-        //! Un-setter corresponding to setUserFlag(unsigned int)
-        void unsetUserFlag (unsigned int uflg_num)
+        //! Un-setter corresponding to setUserFlag(uint32_t)
+        void unsetUserFlag (uint32_t uflg_num)
         {
-            unsigned int flg = HEX_USER_FLAG_0 << uflg_num;
+            uint32_t flg = HEX_USER_FLAG_0 << uflg_num;
             this->flags &= ~flg;
         }
 
@@ -577,9 +578,9 @@ namespace sm
         void resetUserFlags() { this->flags &= HEX_NON_USER; }
 
         //! Getter for each user flag
-        bool getUserFlag (unsigned int uflg_num) const
+        bool getUserFlag (uint32_t uflg_num) const
         {
-            unsigned int flg = HEX_USER_FLAG_0 << uflg_num;
+            uint32_t flg = HEX_USER_FLAG_0 << uflg_num;
             return ((this->flags & flg) == flg);
         }
 
@@ -857,7 +858,7 @@ namespace sm
          * the overload of get_vertex_coord which accepts a single, unsigned short
          * argument.
          */
-        sm::vec<float, 2> get_vertex_coord (unsigned int ni) const
+        sm::vec<float, 2> get_vertex_coord (uint32_t ni) const
         {
             sm::vec<float, 2> rtn = { -2.0f, -2.0f };
             if (ni > 5) { return rtn; }
@@ -870,7 +871,7 @@ namespace sm
          * the overload of get_vertex_coord which accepts a single, unsigned short
          * argument.
          */
-        sm::vec<float, 2> get_vertex_coord (int ni) const
+        sm::vec<float, 2> get_vertex_coord (int32_t ni) const
         {
             sm::vec<float, 2> rtn = { -3.0f, -3.0f };
             if (ni > 5) {
@@ -891,7 +892,7 @@ namespace sm
          * distinguishing between vertices and hex centres on a hexgrid.
          */
         template <typename F>
-        bool compare_vertex_coord (int ni, sm::vec<F, 2>& coord) const
+        bool compare_vertex_coord (int32_t ni, sm::vec<F, 2>& coord) const
         {
             sm::vec<float, 2> vc = this->get_vertex_coord (ni);
             if (std::abs(vc[0] - coord[0]) < this->d/100
@@ -907,7 +908,7 @@ namespace sm
         {
             // check each of my vertices, if any match coord, then return true.
             bool rtn = false;
-            for (unsigned int ni = 0; ni < 6; ++ni) {
+            for (uint32_t ni = 0; ni < 6; ++ni) {
                 if (this->compare_vertex_coord (ni, coord) == true) {
                     rtn = true;
                     break;
@@ -991,7 +992,7 @@ namespace sm
 
     private:
         //! The flags for this hex.
-        unsigned int flags = 0x0;
+        uint32_t flags = 0x0;
     };
 
 } // namespace sm

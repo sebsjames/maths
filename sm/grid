@@ -15,6 +15,7 @@
 
 #pragma once
 
+#include <cstdint>
 #include <stdexcept>
 #include <string>
 #include <sstream>
@@ -67,7 +68,7 @@ namespace sm
      * compiled time test will be performed to ensure it is a signed type.
      *
      */
-    template<typename I = unsigned int, typename C = float>
+    template<typename I = uint32_t, typename C = float>
     struct grid
     {
     private:
@@ -265,14 +266,14 @@ namespace sm
                 }
                 // Place the result of w*h in a very large capacity signed integer type and check
                 // that it won't overflow I.
-                long long int test = this->w * this->h;
+                int64_t test = this->w * this->h;
                 if (test > std::numeric_limits<I>::max()) {
                     throw std::runtime_error ("Use a larger capacity type for I");
                 }
             } else {
                 // I is unsigned. Place the result of w*h in a very large capacity unsigned integer
                 // type and check if it would overflow I.
-                unsigned long long int test = this->w * this->h;
+                uint64_t test = this->w * this->h;
                 if (test > std::numeric_limits<I>::max()) {
                     throw std::runtime_error ("Use a larger capacity type for I");
                 }
@@ -736,7 +737,7 @@ namespace sm
          * \param delta The [x, y] displacement vector (in units of number of pixels).
          * \return The index of the moved pixel
          */
-        I shift_index (const I ind, const sm::vec<int, 2> delta) const
+        I shift_index (const I ind, const sm::vec<int32_t, 2> delta) const
         {
             I new_col = this->col_after_x_shift (ind, delta[0]);
             if (new_col == std::numeric_limits<I>::max()) { return std::numeric_limits<I>::max(); }
@@ -763,7 +764,7 @@ namespace sm
          * \return A new data vvec containing the resampled (and renormalised) hex pixel values
          */
         sm::vvec<float> resample_image (const sm::vvec<float>& image_data,
-                                        const unsigned int image_pixelwidth,
+                                        const uint32_t image_pixelwidth,
                                         const sm::vec<float, 2>& image_scale,
                                         const sm::vec<float, 2>& image_offset) const
         {
@@ -789,8 +790,8 @@ namespace sm
                 return expr_resampled;
             }
 
-            unsigned int csz = image_data.size();
-            sm::vec<unsigned int, 2> image_pixelsz = {image_pixelwidth, csz / image_pixelwidth};
+            uint32_t csz = image_data.size();
+            sm::vec<uint32_t, 2> image_pixelsz = {image_pixelwidth, csz / image_pixelwidth};
 
             // Before scaling, image assumed to have width 1, height whatever
             sm::vec<float, 2> image_dims = { 1.0f, 0.0f };
@@ -811,9 +812,9 @@ namespace sm
 #pragma omp parallel for // parallel on this outer loop gives best result (5.8 s vs 7 s)
             for (typename std::vector<float>::size_type xi = 0u; xi < this->v_c.size(); ++xi) {
                 float expr = 0.0f;
-                for (unsigned int i = 0; i < csz; ++i) {
+                for (uint32_t i = 0; i < csz; ++i) {
                     // Get x/y pixel coords:
-                    sm::vec<unsigned int, 2> idx = {(i % image_pixelsz[0]), (i / image_pixelsz[0])};
+                    sm::vec<uint32_t, 2> idx = {(i % image_pixelsz[0]), (i / image_pixelsz[0])};
                     // Get the coordinates of the input pixel at index idx (in target units):
                     sm::vec<float, 2> posn = (dist_per_pix * idx) + image_offset;
                     // Distance from input pixel to output pixel:
