@@ -7,7 +7,9 @@ nav_order: 0
 ---
 # Welcome to Seb's maths
 {: .no_toc}
-This is a maths library for your modern C++ projects. It was created for [mathplot](https://github.com/sebsjames/mathplot) and has been used in all of my recent scientific modelling work. I wanted a set of classes that would be *convenient* and *pleasurable* to use when coding straightforward mathematics. On this page, I'll give you a taste of what you can do with the library. For full details, refer to the Reference pages.
+This is a maths library for your modern C++ projects.   ([source code on Github](https://github.com/sebsjames/maths)).
+
+*sebsjames/maths* was created for [mathplot](https://sebsjames.github.io/mathplot/) and has been used in all of my recent scientific modelling work. I wanted a set of classes that would be *convenient* and *pleasurable* to use when coding straightforward mathematics. On this page, I'll give you a taste of what you can do with the library. For full details, refer to the Reference pages.
 
 - TOC
 {:toc}
