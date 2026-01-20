@@ -20,7 +20,7 @@ int main()
 
     for (unsigned int i = 0; i < num_bootstraps; ++i) {
         normally_distributed.set_from (rnorm.get(num_samples));
-        double eom = sm::bootstrap<double>::error_of_mean (normally_distributed, 512);
+        double eom = sm::bootstrap::error_of_mean<double> (normally_distributed, 512);
         double absdiff = std::abs(eom - normally_distributed.std()/std::sqrt(normally_distributed.size()));
         absdiffs[i] = absdiff;
     }
@@ -43,7 +43,7 @@ int main()
         sm::rand_normal<double, std::mt19937_64> rnorm_sigdiff (5.5, 1);
         sm::vvec<double> dist_sigdiff;
         dist_sigdiff.set_from (rnorm_sigdiff.get(num_samples));
-        sm::vec<double,2> asl_sigdiff = sm::bootstrap<double>::ttest_equalityofmeans (normally_distributed, dist_sigdiff, num_bootstraps);
+        sm::vec<double,2> asl_sigdiff = sm::bootstrap::ttest_equalityofmeans<double> (normally_distributed, dist_sigdiff, num_bootstraps);
         std::cout << "Achieved significance level for different dist: " << asl_sigdiff[0] << " (with minasl: " << asl_sigdiff[1] << ")\n";
         // asl_sigdiff[0] should be 0.
         if (asl_sigdiff[0] > asl_sigdiff[1]) {
@@ -55,7 +55,7 @@ int main()
         sm::rand_normal<double, std::mt19937_64> rnorm_nonsigdiff (5.0, 1.5);
         sm::vvec<double> dist_nonsigdiff;
         dist_nonsigdiff.set_from (rnorm_nonsigdiff.get(num_samples));
-        sm::vec<double,2> asl_nonsigdiff = sm::bootstrap<double>::ttest_equalityofmeans (normally_distributed, dist_nonsigdiff, num_bootstraps);
+        sm::vec<double,2> asl_nonsigdiff = sm::bootstrap::ttest_equalityofmeans<double> (normally_distributed, dist_nonsigdiff, num_bootstraps);
         std::cout << "Achieved significance level for non-different dist: " << asl_nonsigdiff[0] << " (with minasl: " << asl_nonsigdiff[1] << ")\n";
         // asl_nonsigdiff[0] should be about 0.4, but can be as low as 0.044
         non_sig_diffs[n] = asl_nonsigdiff[0];

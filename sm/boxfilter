@@ -36,7 +36,7 @@ namespace sm::algo
      * \tparam T_o The type of the output data
      */
     template<typename T, int boxside, int w, bool onlysum = false, typename T_o = T>
-    static void boxfilter_2d (const sm::vvec<T>& data, sm::vvec<T_o>& result)
+    void boxfilter_2d (const sm::vvec<T>& data, sm::vvec<T_o>& result)
     {
         if constexpr (boxside % 2 == 0) {
             throw std::runtime_error ("boxfilter_2d was not designed for even box filter squares (set boxside template param. to an odd value)");
@@ -126,7 +126,7 @@ namespace sm::algo
      * contributions and divide by box area.
      */
     template<typename T, int boxside, int w, int h, bool onlysum = false, typename T_o = T>
-    static void boxfilter_2d (const std::array<T, w * h>& data, std::array<T_o, w * h>& result)
+    void boxfilter_2d (const std::array<T, w * h>& data, std::array<T_o, w * h>& result)
     {
         static_assert ((boxside > 0 && (boxside % 2) > 0),
                        "boxfilter_2d was not designed for even box filter squares (set boxside template param. to an odd value)");
@@ -206,7 +206,7 @@ namespace sm::algo
      * contributions and divide by box area.
      */
     template<typename T, int boxside, bool onlysum = false>
-    static void boxfilter_2d (const sm::vvec<T>& data, sm::vvec<T>& result, const int w)
+    void boxfilter_2d (const sm::vvec<T>& data, sm::vvec<T>& result, const int w)
     {
         if constexpr (boxside % 2 == 0) {
             throw std::runtime_error ("boxfilter_2d was not designed for even box filter squares (set boxside template param. to an odd value)");

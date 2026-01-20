@@ -447,7 +447,6 @@ namespace sm::geometry
 
             return vneighb_vectors_per_vertex;
         }
-
     };
 
     /*!
@@ -474,7 +473,7 @@ namespace sm::geometry
      * an icosahedron
      */
     template<typename F>
-    inline polyhedron<F> icosahedron()
+    polyhedron<F> icosahedron()
     {
         sm::geometry::polyhedron<F> ico;
         ico.vertices.resize(12);

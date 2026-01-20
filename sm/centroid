@@ -33,7 +33,7 @@ namespace sm::algo
     template < template <typename, typename> typename Container,
                typename T,
                typename Allocator=std::allocator<T> >
-    static T centroid (const Container<T, Allocator>& coords)
+    T centroid (const Container<T, Allocator>& coords)
     {
         T _centroid(*coords.begin());
 
@@ -89,7 +89,8 @@ namespace sm::algo
 
     //! Centroid of a set of 2D coordinates @points.
     template<typename T>
-    static sm::vec<T, 2> centroid2D (const std::vector<sm::vec<T, 2>> points) {
+    sm::vec<T, 2> centroid2D (const std::vector<sm::vec<T, 2>> points)
+    {
         sm::vec<T, 2> centroid;
         centroid[0] = T{0};
         centroid[1] = T{0};
@@ -106,7 +107,8 @@ namespace sm::algo
     //! Centroid of a set of 2D coordinates @points, assumed to be in order
     //! x1,y1,x2,y2,etc
     template<typename T>
-    static sm::vec<T, 2> centroid2D (const std::vector<T> points) {
+    sm::vec<T, 2> centroid2D (const std::vector<T> points)
+    {
         sm::vec<T, 2> centroid;
         centroid[0] = T{0};
         centroid[1] = T{0};
@@ -125,7 +127,8 @@ namespace sm::algo
     //! x1,y1,z1, x2,y2,z2, etc
     // *Used in Stalefish only (I think)
     template<typename T>
-    static std::array<T,3> centroid3D (const std::vector<T> points) {
+    std::array<T,3> centroid3D (const std::vector<T> points)
+    {
         std::array<T,3> centroid;
         centroid[0] = T{0};
         centroid[1] = T{0};
@@ -145,7 +148,8 @@ namespace sm::algo
 
     //! Centroid 4 3D coordinates
     template<typename T>
-    static std::array<T,3> centroid3D (const std::array<T, 12> points) {
+    std::array<T,3> centroid3D (const std::array<T, 12> points)
+    {
         std::array<T,3> centroid;
         centroid[0] = T{0};
         centroid[1] = T{0};

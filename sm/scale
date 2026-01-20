@@ -57,7 +57,8 @@
 namespace sm
 {
     //! \brief A label for what kind of scaling transformation to make
-    enum class scaling_function {
+    enum class scaling_function
+    {
         Linear,
         Logarithmic
     };

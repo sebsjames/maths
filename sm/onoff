@@ -18,7 +18,7 @@ namespace sm::algo
 {
     // Do an on-centre, off-surround filtering for a pixel in data and its 8 neighbours
     template<typename T, int w, bool horz_wrap=true>
-    static void oncentre_offsurround (const sm::vvec<T>& data, sm::vvec<T>& result)
+    void oncentre_offsurround (const sm::vvec<T>& data, sm::vvec<T>& result)
     {
         if (result.size() != data.size()) {
             throw std::runtime_error ("The data vector is not the same size as the result vector.");
