@@ -98,31 +98,35 @@ namespace sm
         }
 
         template <typename Ty=T>
-        requires sm::is_copyable_fixedsize<std::decay_t<Ty>>::value
+        requires sm::is_copyable_fixedsize<std::decay_t<T>>::value && sm::is_copyable_fixedsize<std::decay_t<Ty>>::value
         constexpr bool operator== (const range<Ty>& rhs) const noexcept
         {
+            if (rhs.min.size() != this->min.size()) { return false; }
+            using T_el=std::remove_reference_t<decltype(*std::begin(std::declval<T&>()))>;
             bool test1e = true;
             for (uint32_t i = 0; i < this->min.size(); ++i) {
-                if (this->min[i] != rhs.min[i]) { test1e = false; }
+                if (this->min[i] != static_cast<T_el>(rhs.min[i])) { test1e = false; }
             }
             bool test2e = true;
             for (uint32_t i = 0; i < this->min.size(); ++i) {
-                if (this->max[i] != rhs.max[i]) { test2e = false; }
+                if (this->max[i] != static_cast<T_el>(rhs.max[i])) { test2e = false; }
             }
             return (test1e && test2e);
         }
 
         template <typename Ty=T>
-        requires sm::is_copyable_fixedsize<std::decay_t<Ty>>::value
+        requires sm::is_copyable_fixedsize<std::decay_t<T>>::value && sm::is_copyable_fixedsize<std::decay_t<Ty>>::value
         constexpr bool operator!= (const range<Ty>& rhs) const noexcept
         {
+            if (rhs.min.size() != this->min.size()) { return true; }
+            using T_el=std::remove_reference_t<decltype(*std::begin(std::declval<T&>()))>;
             bool test1ne = false;
             for (uint32_t i = 0; i < this->min.size(); ++i) {
-                if (this->min[i] != rhs.min[i]) { test1ne = true; }
+                if (this->min[i] != static_cast<T_el>(rhs.min[i])) { test1ne = true; }
             }
             bool test2ne = false;
             for (uint32_t i = 0; i < this->min.size(); ++i) {
-                if (this->max[i] != rhs.max[i]) { test2ne = true; }
+                if (this->max[i] != static_cast<T_el>(rhs.max[i])) { test2ne = true; }
             }
             return (test1ne || test2ne);
         }
