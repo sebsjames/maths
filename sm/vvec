@@ -925,7 +925,7 @@ namespace sm
          * For vvec of vecs. The range of vec lengths in this vvec of vecs. Define this as the
          * shortest vector to the longest vector.
          *
-         * \return a sm::range containing shortest to longest.
+         * \return an sm::range containing the shortest vector as min and the longest vector as max.
          */
         template <typename Sy=S> requires sm::is_copyable_fixedsize<std::decay_t<Sy>>::value
         sm::range<S> range_of_length() const
