@@ -891,13 +891,13 @@ namespace sm
         //! pass 'true' as the template arg, then you can test for nans, and return the min/max of
         //! the rest of the numbers
         template<bool test_for_nans = false>
-        sm::range<S> minmax() const { return this->range<test_for_nans>(); }
+        sm::range<S> minmax() const noexcept { return this->range<test_for_nans>(); }
 
         //! \return the range of values in the vvec (the min and max values). If you pass 'true' as
         //! the template arg, then you can test for nans, and return the min/max of the rest of the
         //! numbers
         template<bool test_for_nans = false, typename Sy = S> requires std::is_scalar_v<std::decay_t<Sy>>
-        sm::range<S> range() const
+        sm::range<S> range() const noexcept
         {
             sm::range<S> r;
             if constexpr (test_for_nans) {
@@ -928,7 +928,7 @@ namespace sm
          * \return an sm::range containing the shortest vector as min and the longest vector as max.
          */
         template <typename Sy=S> requires sm::is_copyable_fixedsize<std::decay_t<Sy>>::value
-        sm::range<S> range_of_length() const
+        sm::range<S> range_of_length() const noexcept
         {
             sm::range<S> r;
             r.min = this->shortest();
@@ -946,7 +946,7 @@ namespace sm
          * Same as vvec<>::extent
          */
         template <typename Sy=S> requires sm::is_copyable_fixedsize<std::decay_t<Sy>>::value
-        sm::range<S> range() const
+        sm::range<S> range() const noexcept
         {
             constexpr S s = {};                  // A dummy variable whose size is stored as sz
             constexpr std::size_t sz = s.size(); // Should work for S=std::array or sm::vec
@@ -971,7 +971,7 @@ namespace sm
 
         // The extent if S is scalar is just the same as range; a sm::range<S> is returned.
         template <typename Sy=S> requires std::is_scalar_v<std::decay_t<Sy>>
-        sm::range<S> extent() const { return this->range(); }
+        sm::range<S> extent() const noexcept { return this->range(); }
 
         /*!
          * For a vvec of vecs/arrays extent (that is, S is a sm::vec or std::array),
