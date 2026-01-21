@@ -109,7 +109,7 @@ namespace sm
             for (uint32_t i = 0; i < this->min.size(); ++i) {
                 if (this->max[i] != rhs.max[i]) { test2e = false; }
             }
-            return (test1e == true && test2e == true);
+            return (test1e && test2e);
         }
 
         template <typename Ty=T>
