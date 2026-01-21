@@ -6,9 +6,6 @@
 #include <sm/vvec>
 #include <sm/vec>
 
-using std::cout;
-using std::endl;
-
 int main()
 {
     int rtn = 0;
@@ -93,7 +90,7 @@ int main()
     if (vvshrt.argmax() != 3) { --rtn; }
     if (vvshrt.arglongest() != 3) { --rtn; }
 
-    auto vrng = vvshrt.range();
+    auto vrng = vvshrt.range_of_length();
     std::cout << "\nvvshrt range: " << vrng << std::endl;
     if (vrng.min == vvshrt[1] && vrng.max == vvshrt[3]) {
         // Good

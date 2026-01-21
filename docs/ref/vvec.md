@@ -402,11 +402,20 @@ sm::vvec<float> v = { 1, 2, 3 };
 sm::range<float> r = v.range();
 std::cout << "vvec max: " << r.max << " and min: " << r.min << std::endl;
 ```
-If the contained type is itself a vector, then `vvec::range()` returns the shortest vector as min and the longest as max.
+If the contained type is itself a vector, then range() returns a range of two vectors which define a volume that will enclose all the vectors contained in the vvec.
+The vvec's values must be given in some fixed size vector type, such as `std::array<>` or `sm::vec<>` (otherwise the function will not compile).
 
 ```c++
 sm::vvec<sm::vec<int, 2>> v = { {-1, -3},   {-2, 4},  {3, 5} };
 sm::range<sm::vec<int, 2>> r = v.range();
+std::cout << "r.min: " << r.min; // {-2, -3}
+std::cout << "r.max: " << r.max; // {3, 5}
+```
+As an alternative, `vvec::range_of_length()` returns the shortest vector as min and the longest as max:
+
+```c++
+sm::vvec<sm::vec<int, 2>> v = { {-1, -3},   {-2, 4},  {3, 5} };
+sm::range<sm::vec<int, 2>> r = v.range_of_length();
 std::cout << "r.min: " << r.min; // {-1, -3}
 std::cout << "r.max: " << r.max; // {3, 5}
 ```
@@ -439,16 +448,7 @@ bool checkunit() const; // return true if length is 1 (to within vvec::unitThres
 ```
 ### Extent
 
-The 'extent' of a vvec of scalar values is the same as its range (and `vvec<S>::extent()` simply sub-calls `vvec<S>::range()` for scalar `S`).
-However, for a vvec of vector values, the extent returns a range of two vectors which define a volume that will enclose all the vectors contained in the vvec.
-The vectors values must be given in some fixed size type, such as `std::array<>` or `sm::vec<>` (otherwise the function will not compile).
-
-```c++
-sm::vvec<sm::vec<int, 2>> v = { {-1, -3},   {-2, 4},  {3, 5} };
-sm::range<sm::vec<int, 2>> r = v.extent();
-std::cout << "r.min: " << r.min; // {-2, -3}
-std::cout << "r.max: " << r.max; // {3, 5}
-```
+The 'extent' of a vvec is the same as its range. vvec::extent() is provided as as alias for vvec::range().
 
 ### Finding elements
 

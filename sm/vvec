@@ -891,13 +891,13 @@ namespace sm
         //! pass 'true' as the template arg, then you can test for nans, and return the min/max of
         //! the rest of the numbers
         template<bool test_for_nans = false>
-        sm::range<S> minmax() const { return this->range<test_for_nans>(); }
+        sm::range<S> minmax() const noexcept { return this->range<test_for_nans>(); }
 
         //! \return the range of values in the vvec (the min and max values). If you pass 'true' as
         //! the template arg, then you can test for nans, and return the min/max of the rest of the
         //! numbers
         template<bool test_for_nans = false, typename Sy = S> requires std::is_scalar_v<std::decay_t<Sy>>
-        sm::range<S> range() const
+        sm::range<S> range() const noexcept
         {
             sm::range<S> r;
             if constexpr (test_for_nans) {
@@ -922,33 +922,31 @@ namespace sm
         }
 
         /*!
-         * vvec of vecs version of range(). Define this as the shortest vector to the
-         * longest vector.
+         * For vvec of vecs. The range of vec lengths in this vvec of vecs. Define this as the
+         * shortest vector to the longest vector.
+         *
+         * \return an sm::range containing the shortest vector as min and the longest vector as max.
          */
         template <typename Sy=S> requires sm::is_copyable_fixedsize<std::decay_t<Sy>>::value
-        sm::range<S> range() const
+        sm::range<S> range_of_length() const noexcept
         {
             sm::range<S> r;
-            r.min = this->min(); // the shortest vec
-            r.max = this->max(); // the longest vec
+            r.min = this->shortest();
+            r.max = this->longest();
             return r;
         }
 
-        // The extent if S is scalar is just the same as range; a sm::range<S> is returned.
-        template <typename Sy=S> requires std::is_scalar_v<std::decay_t<Sy>>
-        sm::range<S> extent() const { return this->range(); }
-
         /*!
-         * For a vvec of vecs/arrays extent (that is, S is a sm::vec or std::array),
-         * we return a range with min containing the minimum value for each dimension
-         * and max containing the max value for each dimension. This gives the
-         * N-dimensional volume that contains all the coordinates in the vvec.
+         * vvec of vecs version of range().
          *
-         * This function is enabled for S types that are fixed size containers
-         * (sm::is_copyable_fixedsize).
+         * \return a range with min containing the minimum value for each dimension and max
+         * containing the max value for each dimension. This gives the N-dimensional volume that
+         * contains all the coordinates in the vvec.
+         *
+         * Same as vvec<>::extent
          */
         template <typename Sy=S> requires sm::is_copyable_fixedsize<std::decay_t<Sy>>::value
-        sm::range<S> extent() const noexcept
+        sm::range<S> range() const noexcept
         {
             constexpr S s = {};                  // A dummy variable whose size is stored as sz
             constexpr std::size_t sz = s.size(); // Should work for S=std::array or sm::vec
@@ -970,6 +968,22 @@ namespace sm
             }
             return sm::range<S>{min, max};
         }
+
+        // The extent if S is scalar is just the same as range; a sm::range<S> is returned.
+        template <typename Sy=S> requires std::is_scalar_v<std::decay_t<Sy>>
+        sm::range<S> extent() const noexcept { return this->range(); }
+
+        /*!
+         * For a vvec of vecs/arrays extent (that is, S is a sm::vec or std::array),
+         * we return a range with min containing the minimum value for each dimension
+         * and max containing the max value for each dimension. This gives the
+         * N-dimensional volume that contains all the coordinates in the vvec.
+         *
+         * This function is enabled for S types that are fixed size containers
+         * (sm::is_copyable_fixedsize).
+         */
+        template <typename Sy=S> requires sm::is_copyable_fixedsize<std::decay_t<Sy>>::value
+        sm::range<S> extent() const noexcept { return this->range(); }
 
         /*!
          * \brief Finds the 'crossing points' of a function
