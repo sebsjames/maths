@@ -24,7 +24,7 @@ int main()
     std::cout << "Range of " << vd << " is\n" << vr << std::endl;
 
     std::cout << "Calling vd.extent()\n";
-    auto ve = vd.extent();
+    sm::range<sm::vec<double, 3>> ve = vd.extent();
     std::cout << "Extent of " << vd << " is\n" << ve << std::endl;
 
     // Range and extent should be the same
