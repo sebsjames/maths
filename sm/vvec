@@ -931,8 +931,8 @@ namespace sm
         sm::range<S> range_of_length() const
         {
             sm::range<S> r;
-            r.min = this->min(); // the shortest vec
-            r.max = this->max(); // the longest vec
+            r.min = this->shortest();
+            r.max = this->longest();
             return r;
         }
 
