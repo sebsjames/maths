@@ -104,6 +104,13 @@ namespace sm
                     }
                 }
             }
+            if (dataset_id < 0) {
+                std::stringstream ee;
+                ee << __PRETTY_FUNCTION__ << ": H5Dcreate2 for path " << path
+                   << " dtype_id " << dtype_id << " and space_id " << space_id
+                   << " failed (it returned dataset_id = " << dataset_id << ")";
+                throw std::runtime_error (ee.str());
+            }
             return dataset_id;
         }
 
@@ -115,6 +122,12 @@ namespace sm
          */
         void check_dataset_space_2_dims (hid_t dataset_id, hsize_t dim0, hsize_t dim1)
         {
+            if (dataset_id < 0) {
+                std::stringstream ee;
+                ee << "In:\n" << __PRETTY_FUNCTION__
+                   << "\nError: dataset_id is not valid (should be >= 0)";
+                throw std::runtime_error (ee.str());
+            }
             hid_t space_id = H5Dget_space (dataset_id);
             if (space_id >= 0) {
                 hsize_t dims[2] = {0,0};
@@ -142,7 +155,8 @@ namespace sm
                     std::cout << "Info: Opening a dataset which used to be larger than the data I'm about to write into it.\n";
                 }
             } else {
-                std::cout  << __PRETTY_FUNCTION__ << ": No existing space; continue...\n";
+                std::cout  << __PRETTY_FUNCTION__ << ": No existing space opening dataset_id " << dataset_id << "; (space_id = "
+                           << space_id << ") continue...\n";
             }
         }
 
