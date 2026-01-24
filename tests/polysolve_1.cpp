@@ -15,8 +15,20 @@ void print_roots (const sm::vvec<std::complex<double>>& roots)
     }
 }
 
+// Return true if rt matches rt_expect
+bool test_root (const std::complex<double>& rt,
+                const std::complex<double>& rt_expect,
+                double thresh = std::numeric_limits<double>::epsilon())
+{
+    bool real_part = std::abs(std::real(rt) - std::real(rt_expect)) <= thresh;
+    bool imag_part = std::abs(std::imag(rt) - std::imag(rt_expect)) <= thresh;
+    return real_part && imag_part;
+}
+
 void test_linear (int& rtn)
 {
+    std::cout << "\n=== LINEAR TESTS ===\n";
+
     std::cout << "\n=== Linear: 2x - 6 = 0 ===" << std::endl;
     std::cout << "Expected: x = 3" << std::endl;
     sm::vvec<std::complex<double>> roots = sm::polysolve::solve<double, 1>(sm::vec<double, 2>{-6, 2});
@@ -42,6 +54,8 @@ void test_linear (int& rtn)
 
 void test_quadratic (int& rtn)
 {
+    std::cout << "\n=== QUADRATIC TESTS ===\n";
+
     std::cout << "\n=== Quadratic: x^2 - 5x + 6 = 0 ===" << std::endl;
     std::cout << "Expected: x = 2, 3" << std::endl;
     sm::vvec<std::complex<double>> roots = sm::polysolve::solve<double, 2>(sm::vec<double, 3>{6, -5, 1});
@@ -93,69 +107,82 @@ void test_quadratic (int& rtn)
     if (rtn) { throw std::runtime_error ("FAILED"); }
 
     std::cout << "\n=== Quadratic: 3x^2 + 6x + 9 = 0 ===" << std::endl;
-    std::cout << "Expected: complex conjugate roots" << std::endl;
+    std::cout << "Expected: complex conjugate roots -1 +/- sqrt(2)" << std::endl;
     roots = sm::polysolve::solve<double, 2>(sm::vec<double, 3>{9, 6, 3});
     print_roots(roots);
     if (roots.size() != 2) { --rtn; }
     if (roots[0] != std::conj (roots[1])) { --rtn; }
-    // Fixme. Make sure this is right: -1 +/- sqrt(2)
     if (roots[0] != std::complex<double>{-1, -sm::mathconst<double>::root_2}
         || roots[1] != std::complex<double>{-1, sm::mathconst<double>::root_2}) { --rtn; }
     if (rtn) { throw std::runtime_error ("FAILED"); }
-
-    --rtn; // Still need to actually work out each one of the above!
 }
 
 void test_cubic (int& rtn)
 {
-    --rtn; // Because this test is WRONG! 1 and 3 are not roots of that eqn
+    std::cout << "\n=== CUBIC TESTS ===\n";
+
     std::cout << "\n=== Cubic: x^3 - 6x^2 + 11x - 6 = 0 ===" << std::endl;
     std::cout << "Expected: x = 1, 2, 3" << std::endl;
     sm::vvec<std::complex<double>> roots = sm::polysolve::solve<double, 3>(sm::vec<double, 4>{-6, 11, -6, 1});
     print_roots(roots);
-    if (roots.size() != 3) { --rtn; }
+    if (roots.size() != 3) { throw std::runtime_error ("Wrong number of roots"); }
+    if (test_root (roots[0], std::complex<double>{1, 0}) == false
+        || test_root (roots[1], std::complex<double>{2, 0}) == false
+        || test_root (roots[2], std::complex<double>{3, 0}) == false)
+    { throw std::runtime_error ("FAILED"); }
 
     std::cout << "\n=== Cubic: x^3 - 1 = 0 (cube roots of unity) ===" << std::endl;
     std::cout << "Expected: x = 1, -0.5+/-0.866i" << std::endl;
     roots = sm::polysolve::solve<double, 3>(sm::vec<double, 4>{-1, 0, 0, 1});
     print_roots(roots);
-    if (roots.size() != 3) { --rtn; }
+    if (roots.size() != 3) { throw std::runtime_error ("Wrong number of roots"); }
+    if (test_root (roots[0], std::complex<double>{-0.5, -sm::mathconst<double>::root_3_over_2}) == false
+        || test_root (roots[1], std::complex<double>{-0.5, sm::mathconst<double>::root_3_over_2}) == false
+        || test_root (roots[2], std::complex<double>{1, 0}) == false)
+    { throw std::runtime_error ("FAILED"); }
 
+    --rtn; // Have checked preceding tests.
     std::cout << "\n=== Cubic: x^3 + 8 = 0 ===" << std::endl;
     std::cout << "Expected: x = -2, 1+/-sqrt(3)i" << std::endl;
     roots = sm::polysolve::solve<double, 3>(sm::vec<double, 4>{8, 0, 0, 1});
     print_roots(roots);
-    if (roots.size() != 3) { --rtn; }
+    if (roots.size() != 3) { throw std::runtime_error ("Wrong number of roots"); }
+    if (rtn) { throw std::runtime_error ("FAILED"); }
 
     std::cout << "\n=== Cubic: x^3 - 3x^2 + 3x - 1 = 0 (repeated root) ===" << std::endl;
     std::cout << "Expected: x = 1, 1, 1 (triple root)" << std::endl;
     roots = sm::polysolve::solve<double, 3>(sm::vec<double, 4>{-1, 3, -3, 1});
     print_roots(roots);
-    if (roots.size() != 3) { --rtn; }
+    if (roots.size() != 3) { throw std::runtime_error ("Wrong number of roots"); }
+    if (rtn) { throw std::runtime_error ("FAILED"); }
 
     std::cout << "\n=== Cubic: x^3 + 3x^2 + 3x + 1 = 0 ===" << std::endl;
     std::cout << "Expected: x = -1, -1, -1" << std::endl;
     roots = sm::polysolve::solve<double>(sm::vvec<double>{1, 3, 3, 1});
     print_roots(roots);
-    if (roots.size() != 3) { --rtn; }
+    if (roots.size() != 3) { throw std::runtime_error ("Wrong number of roots"); }
+    if (rtn) { throw std::runtime_error ("FAILED"); }
 
     std::cout << "\n=== Cubic: 2x^3 - 4x^2 - 22x + 24 = 0 ===" << std::endl;
     std::cout << "Expected: x = -3, 1, 4" << std::endl;
     roots = sm::polysolve::solve<double>(sm::vvec<double>{24, -22, -4, 2});
     print_roots(roots);
-    if (roots.size() != 3) { --rtn; }
+    if (roots.size() != 3) { throw std::runtime_error ("Wrong number of roots"); }
+    if (rtn) { throw std::runtime_error ("FAILED"); }
 
     std::cout << "\n=== Cubic: x^3 - 7x - 6 = 0 ===" << std::endl;
     std::cout << "Expected: x = -1, -2, 3" << std::endl;
     roots = sm::polysolve::solve<double, 3>(sm::vec<double, 4>{-6, -7, 0, 1});
     print_roots(roots);
-    if (roots.size() != 3) { --rtn; }
+    if (roots.size() != 3) { throw std::runtime_error ("Wrong number of roots"); }
+    if (rtn) { throw std::runtime_error ("FAILED"); }
 
     std::cout << "\n=== Cubic: x^3 - 15x - 4 = 0 ===" << std::endl;
     std::cout << "Expected: three real roots" << std::endl;
     roots = sm::polysolve::solve<double, 3>(sm::vec<double, 4>{-4, -15, 0, 1});
     print_roots(roots);
-    if (roots.size() != 3) { --rtn; }
+    if (roots.size() != 3) { throw std::runtime_error ("Wrong number of roots"); }
+    if (rtn) { throw std::runtime_error ("FAILED"); }
 }
 
 void test_quartic (int& rtn)
