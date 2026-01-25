@@ -181,15 +181,15 @@ void test_cubic()
     test_polysolve<double> (sm::vvec<double>{1, 3, 3, 1},
                             sm::vvec<std::complex<double>>{{-1, 0}, {-1, 0}, {-1, 0}},
                             (std::numeric_limits<double>::epsilon() * 1.0));
-
+    // 2x^3 - 4x^2 - 22x + 24 = 0
     test_polysolve<double> (sm::vvec<double>{24, -22, -4, 2},
                             sm::vvec<std::complex<double>>{{-3, 0}, {1, 0}, {4, 0}},
                             (std::numeric_limits<double>::epsilon() * 5.0));
-
+    // x^3 - 7x - 6 = 0
     test_polysolve<double> (sm::vvec<double>{-6, -7, 0, 1},
                             sm::vvec<std::complex<double>>{{-2, 0}, {-1, 0}, {3, 0}},
                             (std::numeric_limits<double>::epsilon() * 5.0));
-
+    // x^3 - 15x - 4 = 0
     test_polysolve<double> (sm::vvec<double>{-4, -15, 0, 1},
                             sm::vvec<std::complex<double>>{{(-2.0 - sm::mathconst<double>::root_3), 0},
                                                            {(sm::mathconst<double>::root_3 - 2.0), 0},
