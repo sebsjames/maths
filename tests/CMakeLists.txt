@@ -175,8 +175,8 @@ add_test(mat_4x4 mat_4x4)
 
 if(NOT APPLE)
   # constexpr mat44
-  add_executable(testTransMat_constexpr testTransMat_constexpr.cpp)
-  add_test(testTransMat_constexpr testTransMat_constexpr)
+  add_executable(mat_4x4_constexpr mat_4x4_constexpr.cpp)
+  add_test(mat_4x4_constexpr mat_4x4_constexpr)
 endif()
 
 add_executable(mat_4_translate mat_4_translate.cpp)
