@@ -66,6 +66,35 @@ void test_polysolve (const sm::vvec<T>& poly,
     }
 }
 
+// Test, but force use of the high order numerical method
+template<typename T>
+void test_polysolve_highorder (const sm::vvec<T>& poly,
+                               const sm::vvec<std::complex<T>>& expected_roots,
+                               const T thresh = std::numeric_limits<T>::epsilon())
+{
+    std::cout << "\nPolynomial: ";
+    for (uint32_t i = poly.size(); i > 0; i--) {
+        if (poly[i-1] != T{0}) {
+            std::cout << ((poly[i-1] > T{0} && i != poly.size()) ? "+" : "") << poly[i-1];
+            if (i - 1 > 0) { std::cout << "x^" << (i-1); }
+            std::cout << " ";
+        }
+    }
+    std::cout << " = 0" << std::endl;
+    std::cout << "Expected: x = " << std::endl;
+    for (auto er : expected_roots) {
+        std::cout << er << ", ";
+    }
+    std::cout << std::endl;
+    sm::vvec<std::complex<T>> roots = sm::polysolve::high_order<T>(poly);
+    print_roots (roots, thresh);
+    if (roots.size() != expected_roots.size()) { throw std::runtime_error ("Wrong number of roots"); }
+    for (uint32_t i = 0; i < expected_roots.size(); ++i) {
+        if (test_root (roots[i], expected_roots[i], thresh) == false)
+        { throw std::runtime_error ("FAILED"); }
+    }
+}
+
 void test_linear()
 {
     std::cout << "\n=== LINEAR TESTS ===\n";
@@ -288,9 +317,18 @@ void test_failures()
 {
     std::cout << "\n=== FALSE FAILURES (THESE SHOULD PASS) ===\n";
 
-    // This is a real failure?? from test_mixed_roots(). Expected roots obtained from https://www.wolframalpha.com
+    // x^3 - 4.5x^2 + 6.25x - 1.875 = 0  -  high_order<> computes the right result
+    test_polysolve_highorder<double> (sm::vvec<double>{-1.875, 6.25, -4.5, 1},
+                                      sm::vvec<std::complex<double>>{{0.4100094639209213574907889, 0},
+                                                                     {2.044995268039539321254606, -0.625347524626481535021127},
+                                                                     {2.044995268039539321254606, 0.625347524626481535021127}},
+                                      (std::numeric_limits<double>::epsilon() * 4.0));
+
+    // The cubic<> method FAILS for this polynomial. Expected roots obtained from
+    // https://www.wolframalpha.com. polysolve::high_order<> agrees with Wolframalpha
+    //
     // x^3 - 4.5x^2 + 6.25x - 1.875 = 0
-    test_polysolve<double> (sm::vvec<double>{-1.875, 6.25, -4.5, 1},
+    test_polysolve<double> (sm::vvec<double>{-1.875, 6.25, -4.5, 1}, // Cubic
                             sm::vvec<std::complex<double>>{{0.4100094639209213574907889, 0},
                                                            {2.044995268039539321254606, -0.625347524626481535021127},
                                                            {2.044995268039539321254606, 0.625347524626481535021127}},
