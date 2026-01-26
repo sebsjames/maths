@@ -2,26 +2,26 @@
 #include <array>
 #include <cmath>
 #include <sm/vec>
-#include <sm/mat44>
+#include <sm/mat>
 
-void setMatrixSequence (sm::mat44<float>& tm)
+void setMatrixSequence (sm::mat<float, 4>& tm)
 {
-    tm.mat[0] = 0;
-    tm.mat[1] = 1;
-    tm.mat[2] = 2;
-    tm.mat[3] = 3;
-    tm.mat[4] = 4;
-    tm.mat[5] = 5;
-    tm.mat[6] = 6;
-    tm.mat[7] = 7;
-    tm.mat[8] = 8;
-    tm.mat[9] = 9;
-    tm.mat[10] = 10;
-    tm.mat[11] = 11;
-    tm.mat[12] = 12;
-    tm.mat[13] = 13;
-    tm.mat[14] = 14;
-    tm.mat[15] = 15;
+    tm.arr[0] = 0;
+    tm.arr[1] = 1;
+    tm.arr[2] = 2;
+    tm.arr[3] = 3;
+    tm.arr[4] = 4;
+    tm.arr[5] = 5;
+    tm.arr[6] = 6;
+    tm.arr[7] = 7;
+    tm.arr[8] = 8;
+    tm.arr[9] = 9;
+    tm.arr[10] = 10;
+    tm.arr[11] = 11;
+    tm.arr[12] = 12;
+    tm.arr[13] = 13;
+    tm.arr[14] = 14;
+    tm.arr[15] = 15;
 }
 
 int main()
@@ -29,145 +29,125 @@ int main()
     int rtn = 0;
 
     // Test assignment
-    sm::mat44<float> tm1;
+    sm::mat<float, 4> tm1;
     setMatrixSequence (tm1);
-    sm::mat44<float> tm2 = tm1;
+    sm::mat<float, 4> tm2 = tm1;
     std::cout << "After assignment:\n" << tm2 << std::endl;
     for (unsigned int i = 0; i<16; ++i) {
-        if (tm2.mat[i] != (float)i) {
+        if (tm2.arr[i] != (float)i) {
             ++rtn;
         }
     }
-    tm2 = static_cast<sm::mat44<float>>(tm1);
+    tm2 = static_cast<sm::mat<float, 4>>(tm1);
     std::cout << "After second assignment:\n" << tm2 << std::endl;
     for (unsigned int i = 0; i<16; ++i) {
-        if (tm2.mat[i] != (float)i) {
+        if (tm2.arr[i] != (float)i) {
             ++rtn;
         }
     }
     // Test multiplication
-    sm::mat44<float> mult1;
+    sm::mat<float, 4> mult1;
     setMatrixSequence (mult1);
     std::cout << "mult1\n" << mult1 << std::endl;
 
-    sm::mat44<float> mult2;
-    mult2.mat[0] = 15;
-    mult2.mat[1] = 14;
-    mult2.mat[2] = 13;
-    mult2.mat[3] = 12;
-    mult2.mat[4] = 11;
-    mult2.mat[5] = 10;
-    mult2.mat[6] = 9;
-    mult2.mat[7] = 8;
-    mult2.mat[8] = 7;
-    mult2.mat[9] = 6;
-    mult2.mat[10] = 5;
-    mult2.mat[11] = 4;
-    mult2.mat[12] = 3;
-    mult2.mat[13] = 2;
-    mult2.mat[14] = 1;
-    mult2.mat[15] = 0;
+    sm::mat<float, 4> mult2;
+    mult2.arr[0] = 15;
+    mult2.arr[1] = 14;
+    mult2.arr[2] = 13;
+    mult2.arr[3] = 12;
+    mult2.arr[4] = 11;
+    mult2.arr[5] = 10;
+    mult2.arr[6] = 9;
+    mult2.arr[7] = 8;
+    mult2.arr[8] = 7;
+    mult2.arr[9] = 6;
+    mult2.arr[10] = 5;
+    mult2.arr[11] = 4;
+    mult2.arr[12] = 3;
+    mult2.arr[13] = 2;
+    mult2.arr[14] = 1;
+    mult2.arr[15] = 0;
     std::cout << "mult2\n" << mult2 << std::endl;
 
-    sm::mat44<float> mult3 = mult1 * mult2;
+    sm::mat<float, 4> mult3 = mult1 * mult2;
     std::cout << "mult1 * mult2 =\n" << mult3 << std::endl;
 
-    if (mult3.mat[0] != 304
-        || mult3.mat[1] != 358
-        || mult3.mat[2] != 412
-        || mult3.mat[3] != 466
-        || mult3.mat[4] != 208
-        || mult3.mat[5] != 246
-        || mult3.mat[6] != 284
-        || mult3.mat[7] != 322
-        || mult3.mat[8] != 112
-        || mult3.mat[9] != 134
-        || mult3.mat[10] != 156
-        || mult3.mat[11] != 178
-        || mult3.mat[12] != 16
-        || mult3.mat[13] != 22
-        || mult3.mat[14] != 28
-        || mult3.mat[15] != 34
+    if (mult3.arr[0] != 304
+        || mult3.arr[1] != 358
+        || mult3.arr[2] != 412
+        || mult3.arr[3] != 466
+        || mult3.arr[4] != 208
+        || mult3.arr[5] != 246
+        || mult3.arr[6] != 284
+        || mult3.arr[7] != 322
+        || mult3.arr[8] != 112
+        || mult3.arr[9] != 134
+        || mult3.arr[10] != 156
+        || mult3.arr[11] != 178
+        || mult3.arr[12] != 16
+        || mult3.arr[13] != 22
+        || mult3.arr[14] != 28
+        || mult3.arr[15] != 34
         ) {
         ++rtn;
     }
-    auto mult1cpy = mult1;
+
     mult1 *= mult2; // *= mat44
     std::cout << "mult1 *= mult2 gives\n" << mult1 << std::endl;
-    if (mult1.mat[0] != 304
-        || mult1.mat[1] != 358
-        || mult1.mat[2] != 412
-        || mult1.mat[3] != 466
-        || mult1.mat[4] != 208
-        || mult1.mat[5] != 246
-        || mult1.mat[6] != 284
-        || mult1.mat[7] != 322
-        || mult1.mat[8] != 112
-        || mult1.mat[9] != 134
-        || mult1.mat[10] != 156
-        || mult1.mat[11] != 178
-        || mult1.mat[12] != 16
-        || mult1.mat[13] != 22
-        || mult1.mat[14] != 28
-        || mult1.mat[15] != 34
+    if (mult1.arr[0] != 304
+        || mult1.arr[1] != 358
+        || mult1.arr[2] != 412
+        || mult1.arr[3] != 466
+        || mult1.arr[4] != 208
+        || mult1.arr[5] != 246
+        || mult1.arr[6] != 284
+        || mult1.arr[7] != 322
+        || mult1.arr[8] != 112
+        || mult1.arr[9] != 134
+        || mult1.arr[10] != 156
+        || mult1.arr[11] != 178
+        || mult1.arr[12] != 16
+        || mult1.arr[13] != 22
+        || mult1.arr[14] != 28
+        || mult1.arr[15] != 34
         ) {
         ++rtn;
     }
-
-    mult1cpy *= mult2.mat; // *= array
-    if (mult1cpy.mat[0] != 304
-        || mult1cpy.mat[1] != 358
-        || mult1cpy.mat[2] != 412
-        || mult1cpy.mat[3] != 466
-        || mult1cpy.mat[4] != 208
-        || mult1cpy.mat[5] != 246
-        || mult1cpy.mat[6] != 284
-        || mult1cpy.mat[7] != 322
-        || mult1cpy.mat[8] != 112
-        || mult1cpy.mat[9] != 134
-        || mult1cpy.mat[10] != 156
-        || mult1cpy.mat[11] != 178
-        || mult1cpy.mat[12] != 16
-        || mult1cpy.mat[13] != 22
-        || mult1cpy.mat[14] != 28
-        || mult1cpy.mat[15] != 34
-        ) {
-        ++rtn;
-    }
-
 
     // Test 4x4 determinant
     std::array<float, 16> fourfour = { 2.0f, 7.0f, 5.0f, 6.0f, 8.0f, 1.0f, 3.0f, 6.0f, 2.0f, 8.0f, -1.0f, 7.0f, 7.0f, 0.0f, 1.0f, 7.0f };
-    float det_td2 = sm::mat44<float>::determinant (fourfour);
+    float det_td2 = sm::mat<float, 4>::determinant (fourfour);
     std::cout << "Determinant = " << det_td2 << " (expect 816)" << std::endl;
     if (det_td2 != 816.0f) {
         ++rtn;
     }
 
     // Test matrix inversion
-    sm::mat44<float> mult4;
-    mult4.mat[0] = 15;
-    mult4.mat[1] = 17;
-    mult4.mat[2] = 0;
-    mult4.mat[3] = 0;
-    mult4.mat[4] = 2;
-    mult4.mat[5] = 10;
-    mult4.mat[6] = 0;
-    mult4.mat[7] = 0;
-    mult4.mat[8] = 0;
-    mult4.mat[9] = 0;
-    mult4.mat[10] = 5;
-    mult4.mat[11] = 4;
-    mult4.mat[12] = 0;
-    mult4.mat[13] = 0;
-    mult4.mat[14] = 1;
-    mult4.mat[15] = 0;
+    sm::mat<float, 4> mult4;
+    mult4.arr[0] = 15;
+    mult4.arr[1] = 17;
+    mult4.arr[2] = 0;
+    mult4.arr[3] = 0;
+    mult4.arr[4] = 2;
+    mult4.arr[5] = 10;
+    mult4.arr[6] = 0;
+    mult4.arr[7] = 0;
+    mult4.arr[8] = 0;
+    mult4.arr[9] = 0;
+    mult4.arr[10] = 5;
+    mult4.arr[11] = 4;
+    mult4.arr[12] = 0;
+    mult4.arr[13] = 0;
+    mult4.arr[14] = 1;
+    mult4.arr[15] = 0;
 
-    sm::mat44<float> m4timesarray = mult4 * fourfour;
+    sm::mat<float, 4> mfourfour (fourfour);
+
+    sm::mat<float, 4> m4timesarray = mult4 * mfourfour;
     std::cout << "m4timesarray\n" << m4timesarray << std::endl;
 
 
-    sm::mat44<float> mult4inv = mult4.inverse();
+    sm::mat<float, 4> mult4inv = mult4.inverse();
     std::cout << "mult4\n" << mult4 << std::endl;
     std::cout << "mult4.inverse():\n" << mult4inv << std::endl;
 
@@ -213,11 +193,11 @@ int main()
         ++rtn;
     }
 
-    sm::mat44<float> mult4inv_copy = mult4inv;
+    sm::mat<float, 4> mult4inv_copy = mult4inv;
     if (mult4inv_copy != mult4inv) { ++rtn; }
 
     // Test scaling
-    sm::mat44<double> scaler;
+    sm::mat<double, 4> scaler;
     sm::vec<double, 4> v4d = { 2.0, 3.0, 4.0, 1.0 };
     sm::vec<float, 3> scale_vec = { 2.0f, 2.0f, 2.0f };
     scaler.scale (scale_vec);
@@ -235,7 +215,7 @@ int main()
     std::cout << v4d << " scaled by " << scale_vec << " and then in all dims by " << second_scale << " and then by 0.025f, 0.025f, 0.025f = " << (scaler * v4d) << std::endl;
 
     // Test translate then rotate
-    sm::mat44<float> trmat;
+    sm::mat<float, 4> trmat;
     sm::vec<float> trans = { 1, 0, 0 };
     sm::quaternion<float> rotn (sm::vec<float>{0, 0, 1}, sm::mathconst<float>::pi_over_4);
 
@@ -248,7 +228,7 @@ int main()
     std::cout << "translate-then-rotate vector = " << tr_res << std::endl;
 
     // Recapitulate old behaviour
-    sm::mat44<float> rot_then_trans;
+    sm::mat<float, 4> rot_then_trans;
 
     // these two, applied to the same trmat used to do rotate-then-translate
     // NOW they do translate then rotate
@@ -258,8 +238,8 @@ int main()
     tr_res = rot_then_trans * uy;
     std::cout << "rotate-then-translate vector = " << tr_res << std::endl;
 
-    // Test that array indexing of a const mat44 will compile
-    const sm::mat44<float> m1id;
+    // Test that array indexing of a const mat<> will compile
+    const sm::mat<float, 4> m1id;
     float m1id0 = m1id[0];
     std::cout << "m1id[0] = " << m1id0 << std::endl;
 

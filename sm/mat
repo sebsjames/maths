@@ -1533,6 +1533,9 @@ namespace sm
 
             std::array<F, Nr * Nc> m;
 
+            // Copy diagonal to m
+            for (uint32_t c = 0; c < Nc; ++c) { m[c * Nr + c] = cm[c * Nr + c]; }
+
             uint32_t i = 0;
             for (uint32_t c = 0; c < (Nc / 2) + 1; ++c) {
                 for (uint32_t r = c + 1; r < Nr; ++r) {

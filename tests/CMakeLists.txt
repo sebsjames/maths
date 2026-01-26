@@ -169,9 +169,9 @@ add_test(testScaleVector testScaleVector)
 add_executable(testScale_complex testScale_complex.cpp)
 add_test(testScale_complex testScale_complex)
 
-# Test sm::mat44 (4x4 matrix)
-add_executable(testTransformMatrix testTransformMatrix.cpp)
-add_test(testTransformMatrix testTransformMatrix)
+# Test sm::mat<T, 4> (4x4 matrix)
+add_executable(mat_4x4 mat_4x4.cpp)
+add_test(mat_4x4 mat_4x4)
 
 if(NOT APPLE)
   # constexpr mat44
@@ -398,9 +398,6 @@ add_test(mat_3_1 mat_3_1)
 
 add_executable(mat_3_general mat_3_general.cpp)
 add_test(mat_3_general mat_3_general)
-
-add_executable(mat44_1 mat44_1.cpp)
-add_test(mat44_1 mat44_1)
 
 add_executable(mat_2_general mat_2_general.cpp)
 add_test(mat_2_general mat_2_general)
