@@ -357,11 +357,9 @@ namespace sm
             F det = F{0};
 
             if constexpr (Nr == 2) {
-
                 det = ((cm[0] * cm[3]) - (cm[1] * cm[2]));
 
             } else if constexpr (Nr == 3) {
-
                 det = (cm[0] * cm[4] * cm[8])
                 + (cm[3] * cm[7] * cm[2])
                 + (cm[6] * cm[1] * cm[5])
@@ -444,7 +442,17 @@ namespace sm
          * 1. Get the cofactor matrix (with this->cofactor())
          * 2. Obtain the adjugate matrix by transposing the cofactor matrix
          */
-        constexpr std::array<F, Nr * Nc> adjugate() const noexcept { return mat<F, Nr, Nc>::transpose (this->cofactor()); }
+        constexpr std::array<F, Nr * Nc> adjugate() const noexcept
+        {
+            std::array<F, Nr * Nc> adj = {};
+            if constexpr (Nr == Nc && Nr == 2) {
+                // Simple recipe for 2x2:
+                adj = { this->arr[3], -this->arr[1], -this->arr[2], this->arr[0] };
+            } else {
+                adj = mat<F, Nr, Nc>::transpose (this->cofactor());
+            }
+            return adj;
+        }
 
         /*!
          * Compute the cofactor matrix of this->arr. Recipe:
@@ -656,7 +664,6 @@ namespace sm
 
             } else {
                 []<bool flag = false>() { static_assert(flag, "cofactor provided only for 3x3 and 4x4 matrices"); }();
-
             }
 
             return cofac;
@@ -1405,42 +1412,36 @@ namespace sm
         }
 
         //! Do matrix times vector multiplication, v = mat * v1
-        constexpr std::array<F, 4> operator* (const std::array<F, 4>& v1) const noexcept
+        constexpr std::array<F, Nr> operator* (const std::array<F, Nr>& v1) const noexcept
         {
-            if constexpr (Nr != Nc || Nr != 4) { []<bool flag = false>() { static_assert(flag, "valid only for 4x4 matrices"); }(); }
-            std::array<F, 4> v;
-            v[0] = this->arr[0] * v1[0] + this->arr[4] * v1[1] + this->arr[8] * v1[2] + this->arr[12] * v1[3];
-            v[1] = this->arr[1] * v1[0] + this->arr[5] * v1[1] + this->arr[9] * v1[2] + this->arr[13] * v1[3];
-            v[2] = this->arr[2] * v1[0] + this->arr[6] * v1[1] + this->arr[10] * v1[2] + this->arr[14] * v1[3];
-            v[3] = this->arr[3] * v1[0] + this->arr[7] * v1[1] + this->arr[11] * v1[2] + this->arr[15] * v1[3];
+            std::array<F, Nr> v = {};
+            for (uint32_t r = 0; r < Nr; ++r) {
+                for (uint32_t c = 0; c < Nc; ++c) { v[r] += this->arr[r + c * Nr] * v1[c]; }
+            }
             return v;
         }
 
         //! Do matrix times vector multiplication, v = mat * v1
-        constexpr sm::vec<F, 4> operator* (const sm::vec<F, 4>& v1) const noexcept
+        constexpr sm::vec<F, Nr> operator* (const sm::vec<F, Nr>& v1) const noexcept
         {
-            if constexpr (Nr != Nc || Nr != 4) { []<bool flag = false>() { static_assert(flag, "valid only for 4x4 matrices"); }(); }
-            sm::vec<F, 4> v;
-            v[0] = this->arr[0] * v1.x() + this->arr[4] * v1.y() + this->arr[8] * v1.z() + this->arr[12] * v1.w();
-            v[1] = this->arr[1] * v1.x() + this->arr[5] * v1.y() + this->arr[9] * v1.z() + this->arr[13] * v1.w();
-            v[2] = this->arr[2] * v1.x() + this->arr[6] * v1.y() + this->arr[10] * v1.z() + this->arr[14] * v1.w();
-            v[3] = this->arr[3] * v1.x() + this->arr[7] * v1.y() + this->arr[11] * v1.z() + this->arr[15] * v1.w();
+            sm::vec<F, Nr> v = {};
+            for (uint32_t r = 0; r < Nr; ++r) {
+                for (uint32_t c = 0; c < Nc; ++c) { v[r] += this->arr[r + c * Nr] * v1[c]; }
+            }
             return v;
         }
 
-        //! Do matrix times vector multiplication, v = mat * v1.
-        constexpr sm::vec<F, 4> operator* (const sm::vec<F, 3>& v1) const noexcept
+        //! Do matrix times vector multiplication, v = mat * v1, for the special case that we have a 4x4 matrix and a 3D vector
+        constexpr sm::vec<F, Nr> operator* (const sm::vec<F, Nr - 1>& v1) const noexcept
         {
             if constexpr (Nr != Nc || Nr != 4) { []<bool flag = false>() { static_assert(flag, "valid only for 4x4 matrices"); }(); }
             sm::vec<F, 4> v;
-            v[0] = this->arr[0] * v1.x() + this->arr[4] * v1.y() + this->arr[8] * v1.z() + this->arr[12];
-            v[1] = this->arr[1] * v1.x() + this->arr[5] * v1.y() + this->arr[9] * v1.z() + this->arr[13];
-            v[2] = this->arr[2] * v1.x() + this->arr[6] * v1.y() + this->arr[10] * v1.z() + this->arr[14];
-            v[3] = this->arr[3] * v1.x() + this->arr[7] * v1.y() + this->arr[11] * v1.z() + this->arr[15];
+            v[0] = this->arr[0] * v1[0] + this->arr[4] * v1[1] + this->arr[8] * v1[2] + this->arr[12];
+            v[1] = this->arr[1] * v1[0] + this->arr[5] * v1[1] + this->arr[9] * v1[2] + this->arr[13];
+            v[2] = this->arr[2] * v1[0] + this->arr[6] * v1[1] + this->arr[10] * v1[2] + this->arr[14];
+            v[3] = this->arr[3] * v1[0] + this->arr[7] * v1[1] + this->arr[11] * v1[2] + this->arr[15];
             return v;
         }
-
-        // Matrix times vector. Can it be general? Prolly.
 
         //! *= operator for a scalar value.
         template <typename T=F> requires std::is_arithmetic_v<T>
