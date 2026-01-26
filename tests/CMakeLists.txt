@@ -402,6 +402,9 @@ add_test(mat_3_general mat_3_general)
 add_executable(mat44_1 mat44_1.cpp)
 add_test(mat44_1 mat44_1)
 
+add_executable(mat_2_general mat_2_general.cpp)
+add_test(mat_2_general mat_2_general)
+
 #add_executable(mat44_eigenvalues mat44_eigenvalues.cpp)
 #add_test(mat44_eigenvalues mat44_eigenvalues)
 

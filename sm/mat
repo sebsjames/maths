@@ -1025,6 +1025,16 @@ namespace sm
             this->rotate<T> (q);
         }
 
+        //! Set this matrix up so that it would rotate a 2D vector by rot_rad radians, anticlockwise.
+        template <typename T = F> requires std::is_arithmetic_v<T> && (Nr == 2) && (Nc == 2)
+        constexpr void rotate (const T rot_rad) noexcept
+        {
+            this->arr[0] = sm::cem::cos (rot_rad);
+            this->arr[1] = sm::cem::sin (rot_rad);
+            this->arr[2] = -this->arr[1]; // -sin
+            this->arr[3] = this->arr[0];
+        }
+
         //! Returns the linear part of the 4x4 matrix (the top left 3x3 matrix)
         constexpr sm::mat<F, 3> linear() const noexcept
         {
@@ -1429,6 +1439,8 @@ namespace sm
             v[3] = this->arr[3] * v1.x() + this->arr[7] * v1.y() + this->arr[11] * v1.z() + this->arr[15];
             return v;
         }
+
+        // Matrix times vector. Can it be general? Prolly.
 
         //! *= operator for a scalar value.
         template <typename T=F> requires std::is_arithmetic_v<T>
