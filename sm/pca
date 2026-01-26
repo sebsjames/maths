@@ -13,9 +13,7 @@
 #include <type_traits>
 #include <complex>
 
-#include <sm/mat22>
-#include <sm/mat33>
-#include <sm/mat44>
+#include <sm/mat>
 #include <sm/polysolve>
 
 namespace sm::pca
@@ -85,15 +83,16 @@ namespace sm::pca
         // 2. Calculate covariance matrix of both x AND z.
         const T dinv = T{1} / (dsz - 1);
         std::cout << "dinv = " << dinv << std::endl;
-        sm::vec<T, N * N> cm_z = pca::covariance<T, N> (z);
+        [[maybe_unused]] sm::vec<T, N * N> cm_z = pca::covariance<T, N> (z);
 
         // 3. Compute Eigenvalues and vectors of the covariance matrix
         if constexpr (N == 2) {
-            sm::mat22<T> m_z (cm_z);
+#if 0
+            sm::mat<T, 2> m_z (cm_z);
 
             std::cout << "cov matrix:\n" << m_z << std::endl;
 
-            sm::vec<typename sm::mat22<T>::eigenpair, N> eps = m_z.eigenpairs();
+            sm::vec<typename sm::mat<T, 2>::eigenpair, N> eps = m_z.eigenpairs();
 
             std::cout << "Eigenvalues:\n";
             for (uint32_t i = 0; i < N; ++i) { std::cout << eps[i].eigenvalue << "\n"; }
@@ -107,6 +106,7 @@ namespace sm::pca
                 }
                 std::cout << "]" << std::endl;
             }
+#endif
 
 #if 0
             sm::vec<sm::vvec<T>, N> x_proj;
@@ -125,13 +125,14 @@ namespace sm::pca
 #endif
 
         } else if constexpr (N == 3) {
-            // mat33
+            // mat<T, 3>
 
         } else if constexpr (N == 4) {
-            sm::mat44<T> m_z (cm_z);
+#if 0
+            sm::mat<T, 4> m_z (cm_z);
             std::cout << "cov matrix:\n" << m_z << std::endl;
 
-            sm::vec<typename sm::mat44<T>::eigenpair, N> eps = m_z.eigenpairs();
+            sm::vec<typename sm::mat<T, 4>::eigenpair, N> eps = m_z.eigenpairs();
 
             std::cout << "Eigenvalues:\n";
             for (uint32_t i = 0; i < N; ++i) { std::cout << eps[i].eigenvalue << "\n"; }
@@ -145,7 +146,7 @@ namespace sm::pca
                 }
                 std::cout << "]" << std::endl;
             }
-
+#endif
         } else {
             // compile error
         }
