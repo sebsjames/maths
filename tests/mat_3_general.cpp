@@ -103,8 +103,8 @@ int main()
     mult1 *= mult2;
     std::cout << "mult1 *= mult2 gives\n" << mult1 << std::endl;
     mult1 = mult1save; // tests copy
-    mult1 *= mult2.arr;
-    std::cout << "mult1 *= mult2.arr gives\n" << mult1 << std::endl;
+    mult1 *= mult2;
+    std::cout << "mult1 *= mult2 gives\n" << mult1 << std::endl;
 
     if (mult1.arr[0] != 120
         || mult1.arr[1] != 162

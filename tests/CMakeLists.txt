@@ -396,8 +396,8 @@ add_test(mat33_1 mat33_1)
 add_executable(mat_3_1 mat_3_1.cpp)
 add_test(mat_3_1 mat_3_1)
 
-#add_executable(mat_3_general mat_3_general.cpp)
-#add_test(mat_3_general mat_3_general)
+add_executable(mat_3_general mat_3_general.cpp)
+add_test(mat_3_general mat_3_general)
 
 add_executable(mat44_1 mat44_1.cpp)
 add_test(mat44_1 mat44_1)
