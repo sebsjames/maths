@@ -91,69 +91,38 @@ void test_linear (int& rtn)
     if (rtn) { throw std::runtime_error ("FAILED"); }
 }
 
-void test_quadratic (int& rtn)
+void test_quadratic()
 {
     std::cout << "\n=== QUADRATIC TESTS ===\n";
 
-    std::cout << "\n=== Quadratic: x^2 - 5x + 6 = 0 ===" << std::endl;
-    std::cout << "Expected: x = 2, 3" << std::endl;
-    sm::vvec<std::complex<double>> roots = sm::polysolve::solve<double, 2>(sm::vec<double, 3>{6, -5, 1});
-    print_roots(roots);
-    if (roots.size() != 2) { --rtn; }
-    if (roots[0] != std::complex<double>{2, 0} || roots[1] != std::complex<double>{3, 0}) { --rtn; }
-    if (rtn) { throw std::runtime_error ("FAILED"); }
-
-    std::cout << "\n=== Quadratic (complex): x^2 + 1 = 0 ===" << std::endl;
-    std::cout << "Expected: x = +/-i" << std::endl;
-    roots = sm::polysolve::solve<double, 2>(sm::vec<double, 3>{1, 0, 1});
-    print_roots(roots);
-    if (roots.size() != 2) { --rtn; }
-    if (roots[0] != std::complex<double>{0, -1} || roots[1] != std::complex<double>{0, 1}) { --rtn; }
-    if (rtn) { throw std::runtime_error ("FAILED"); }
-
-    std::cout << "\n=== Quadratic: x^2 + 4x + 4 = 0 (repeated root) ===" << std::endl;
-    std::cout << "Expected: x = -2, -2" << std::endl;
-    roots = sm::polysolve::solve<double, 2>(sm::vec<double, 3>{4, 4, 1});
-    print_roots(roots);
-    if (roots.size() != 2) { --rtn; }
-    if (roots[0] != std::complex<double>{-2, 0} || roots[1] != std::complex<double>{-2, 0}) { --rtn; }
-    if (rtn) { std::cout << "FAILED" << std::endl; }
-    if (rtn) { throw std::runtime_error ("FAILED"); }
-
-    std::cout << "\n=== Quadratic: 2x^2 - 8x + 6 = 0 ===" << std::endl;
-    std::cout << "Expected: x = 1, 3" << std::endl;
-    roots = sm::polysolve::solve<double>(sm::vvec<double>{6, -8, 2});
-    print_roots(roots);
-    if (roots.size() != 2) { --rtn; }
-    if (roots[0] != std::complex<double>{1, 0} || roots[1] != std::complex<double>{3, 0}) { --rtn; }
-    if (rtn) { throw std::runtime_error ("FAILED"); }
-
-    std::cout << "\n=== Quadratic: x^2 + 2x + 5 = 0 (complex) ===" << std::endl;
-    std::cout << "Expected: x = -1 +/- 2i" << std::endl;
-    roots = sm::polysolve::solve<double>(sm::vvec<double>{5, 2, 1});
-    print_roots(roots);
-    if (roots.size() != 2) { --rtn; }
-    if (roots[0] != std::complex<double>{-1, -2} || roots[1] != std::complex<double>{-1, 2}) { --rtn; }
-    if (rtn) { throw std::runtime_error ("FAILED"); }
-
-    std::cout << "\n=== Quadratic: x^2 - 2 = 0 ===" << std::endl;
-    std::cout << "Expected: x = +/-sqrt(2) ~= +/-1.414" << std::endl;
-    roots = sm::polysolve::solve<double, 2>(sm::vec<double, 3>{-2, 0, 1});
-    print_roots(roots);
-    if (roots.size() != 2) { --rtn; }
-    if (roots[0] != std::complex<double>{-sm::mathconst<double>::root_2, 0}
-        || roots[1] != std::complex<double>{sm::mathconst<double>::root_2, 0}) { --rtn; }
-    if (rtn) { throw std::runtime_error ("FAILED"); }
-
-    std::cout << "\n=== Quadratic: 3x^2 + 6x + 9 = 0 ===" << std::endl;
-    std::cout << "Expected: complex conjugate roots -1 +/- sqrt(2)" << std::endl;
-    roots = sm::polysolve::solve<double, 2>(sm::vec<double, 3>{9, 6, 3});
-    print_roots(roots);
-    if (roots.size() != 2) { --rtn; }
-    if (roots[0] != std::conj (roots[1])) { --rtn; }
-    if (roots[0] != std::complex<double>{-1, -sm::mathconst<double>::root_2}
-        || roots[1] != std::complex<double>{-1, sm::mathconst<double>::root_2}) { --rtn; }
-    if (rtn) { throw std::runtime_error ("FAILED"); }
+    // x^2 - 5x + 6 = 0
+    test_polysolve<double> (sm::vvec<double>{6, -5, 1},
+                            sm::vvec<std::complex<double>>{{2, 0}, {3, 0}},
+                            (std::numeric_limits<double>::epsilon() * 1.0));
+    // x^2 + 1 = 0 (complex roots)
+    test_polysolve<double> (sm::vvec<double>{1, 0, 1},
+                            sm::vvec<std::complex<double>>{{0, -1}, {0, 1}},
+                            (std::numeric_limits<double>::epsilon() * 1.0));
+    // x^2 + 4x + 4 = 0 (repeated root)
+    test_polysolve<double> (sm::vvec<double>{4, 4, 1},
+                            sm::vvec<std::complex<double>>{{-2, 0}, {-2, 0}},
+                            (std::numeric_limits<double>::epsilon() * 1.0));
+    // 2x^2 - 8x + 6 = 0
+    test_polysolve<double> (sm::vvec<double>{6, -8, 2},
+                            sm::vvec<std::complex<double>>{{1, 0}, {3, 0}},
+                            (std::numeric_limits<double>::epsilon() * 1.0));
+    // x^2 + 2x + 5 = 0 (complex)
+    test_polysolve<double> (sm::vvec<double>{5, 2, 1},
+                            sm::vvec<std::complex<double>>{{-1, -2}, {-1, 2}},
+                            (std::numeric_limits<double>::epsilon() * 1.0));
+    // x^2 - 2 = 0
+    test_polysolve<double> (sm::vvec<double>{-2, 0, 1},
+                            sm::vvec<std::complex<double>>{{-sm::mathconst<double>::root_2, 0}, {sm::mathconst<double>::root_2, 0}},
+                            (std::numeric_limits<double>::epsilon() * 1.0));
+    // 3x^2 + 6x + 9 = 0 (complex conjugate roots)
+    test_polysolve<double> (sm::vvec<double>{9, 6, 3},
+                            sm::vvec<std::complex<double>>{{-1, -sm::mathconst<double>::root_2}, {-1, sm::mathconst<double>::root_2}},
+                            (std::numeric_limits<double>::epsilon() * 1.0));
 }
 
 void test_cubic()
@@ -199,7 +168,7 @@ void test_cubic()
 
 void test_quartic (int& rtn)
 {
-    throw std::runtime_error ("quartic tests not complete (and also, should implement test_polysolve for all the test cases");
+    //throw std::runtime_error ("quartic tests not complete (and also, should implement test_polysolve for all the test cases");
 
     std::cout << "\n=== Quartic: x^4 - 10x^2 + 9 = 0 (biquadratic) ===" << std::endl;
     std::cout << "Expected: x = +/-1, +/-3" << std::endl;
@@ -476,14 +445,14 @@ void test_template_types (int& rtn)
 int main()
 {
     int rtn = 0;
-    std::cout << "Polynomial Solver Extended Test Suite" << std::endl;
-    std::cout << "======================================" << std::endl;
+    std::cout << "Polynomial Solver Tests" << std::endl;
+    std::cout << "=======================" << std::endl;
     std::cout << "Testing analytical solutions (degrees 1-4) and" << std::endl;
     std::cout << "numerical Durand-Kerner method (degree > 4)" << std::endl;
 
     try {
         test_linear (rtn);
-        test_quadratic (rtn);
+        test_quadratic();
         test_cubic();
         test_quartic (rtn);
         test_real_roots (rtn);
