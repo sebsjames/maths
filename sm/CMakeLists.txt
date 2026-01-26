@@ -29,9 +29,7 @@ install(
   hexgrid
   hexyhisto
   histo
-  mat22
-  mat33
-  mat44
+  mat
   mathconst
   nm_simplex
   onoff

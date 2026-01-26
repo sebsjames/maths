@@ -6,15 +6,15 @@
 #include <sm/mathconst>
 #include <sm/vec>
 #include <sm/quaternion>
-#include <sm/mat44>
+#include <sm/mat>
 
 int main()
 {
     // A quaternion, used to specify a rotation (here, pi/4 radians about the y axis)
     sm::quaternion<float> q1 (sm::vec<float>{0,1,0}, sm::mathconst<float>::pi_over_4);
 
-    // A transformation matrix, which is initialized as the identity matrix
-    sm::mat44<float> t;
+    // A 4x4 transformation matrix, which is initialized as the identity matrix
+    sm::mat<float, 4> t; // sm::mat<float, 4, 4> is equivalent
 
     t.rotate (q1); // Rotate is not really constexpr capable // still nok
 
@@ -33,7 +33,7 @@ int main()
     sm::vec<float, 3> v1 = { 1, 0, 0 };
 
     // Apply the transformation to v1; multiply v1 by the transformation matrix. There
-    // are operator* overloads for mat44<T> * sm::vec<T, 3> and for mat44<T> *
+    // are operator* overloads for mat<T, 4> * sm::vec<T, 3> and for mat<T, 4> *
     // sm::vec<T, 4>, but both return vec<T, 4>:
     //
     sm::vec<float, 4> v_4d = t * v1;
@@ -43,28 +43,28 @@ int main()
     std::cout << "Result of our rotation/translation then scaling of " << v1 << " is: " << v_4d
               << " or " << v_3d << " in three dimensions\n";
 
-    sm::mat44<float> mi = { 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16 };
+    sm::mat<float, 4> mi = { 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16 };
     std::cout << "mi =\n" << mi << std::endl;
 
-    sm::mat44<float> mi0 = { 1,2,3,4 };
+    sm::mat<float, 4> mi0 = { 1,2,3,4 };
     std::cout << "mi0 =\n" << mi0 << std::endl;
 
-    sm::mat44<float> mi2 = std::array<float, 16>{ 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16 };
+    sm::mat<float, 4> mi2 = std::array<float, 16>{ 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16 };
     std::cout << "mi2 =\n" << mi2 << std::endl;
-    sm::mat44<float> mi3 = sm::vec<float, 16>{ 2,2,2,2 };
+    sm::mat<float, 4> mi3 = sm::vec<float, 16>{ 2,2,2,2 };
     std::cout << "mi3 =\n" << mi3 << std::endl;
 
     mi3 = { 4,3,2,1, 4,3,2,1, 4,3,2,1, 4,3,2,1 };
     std::cout << "mi3 reassigned =\n" << mi3 << std::endl;
 
     // Addition and multiplication of matrices
-    sm::mat44<double> m1;
-    sm::mat44<double> m2;
-    sm::mat44<double> m3 = m1 + m2;
-    sm::mat44<double> m4 = m1 - m2;
-    sm::mat44<double> m5 = m1 * m2;
-    sm::mat44<double> m6 = m1 + 4.0;
-    sm::mat44<double> m7 = m1 - 4u;
+    sm::mat<double, 4> m1;
+    sm::mat<double, 4> m2;
+    sm::mat<double, 4> m3 = m1 + m2;
+    sm::mat<double, 4> m4 = m1 - m2;
+    sm::mat<double, 4> m5 = m1 * m2;
+    sm::mat<double, 4> m6 = m1 + 4.0;
+    sm::mat<double, 4> m7 = m1 - 4u;
 
     std::cout << m1 << "\n\n+\n" << m2 << "\n=\n" << m3 << std::endl;
     std::cout << m1 << "\n\n-\n" << m2 << "\n=\n" << m4 << std::endl;
@@ -78,13 +78,11 @@ int main()
     m7 -= m2;
     std::cout << "\n\n-=\n " << m2 << " gives\n" << m7 << std::endl;
 
-    // mat44<T> * std::array<T, 16>
     std::array<double, 16> arr = { 1, 2, 3, 4, 1, 2, 3, 4, 5, 6, 7, 8, 5, 6, 7, 8 };
-    std::cout << "mat44 * arr: " << (m1 * arr) << std::endl;
-    // mat44<T> + std::array<T, 16>
+    // mat44<T> + std::array<T, 16>std::array<T, 16>
     std::cout << "mat44 + arr: " << (m1 + arr) << std::endl;
 
-    // mat44<double> + vec<double, N> should fail and does, because vec<> is not double
+    // mat<double, 4> + vec<double, N> should fail and does, because vec<> is not double
     // and operator+ is defined for mat44<T> and const T&, so the argument must be
     // castable to type T.
     //
@@ -92,16 +90,16 @@ int main()
     // std::cout << "mat44 + vec<T, 4>: " << (m1 + vam1) << std::endl;
 
     // perspective
-    sm::mat44<double> p1 = sm::mat44<double>::perspective (30, 1.33, 0.1, 100);
+    sm::mat<double, 4> p1 = sm::mat<double, 4>::perspective (30, 1.33, 0.1, 100);
     std::cout << "\np1\n" << p1 << std::endl;
-    sm::mat44<double> p2;
+    sm::mat<double, 4> p2;
     p2.perspective_inplace (30, 1.33, 0.1, 100);
 
     // orthographic
     sm::vec<float, 2> ov1 = {-1,-1};
     sm::vec<float, 2> ov2 = {2,2};
-    sm::mat44<float> o1 = sm::mat44<float>::orthographic (ov1, ov2, 0.1, 100);
+    sm::mat<float, 4> o1 = sm::mat<float, 4>::orthographic (ov1, ov2, 0.1, 100);
     std::cout << "\no1\n" << o1 << std::endl;
-    sm::mat44<float> o2;
+    sm::mat<float, 4> o2;
     o2.orthographic_inplace (ov1, ov2, 0.1, 100);
 }

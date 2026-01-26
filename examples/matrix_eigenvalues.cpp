@@ -1,9 +1,7 @@
 #include <iostream>
 #include <iomanip>
 
-#include <sm/mat22>
-#include <sm/mat33>
-#include <sm/mat44>
+#include <sm/mat>
 
 int main()
 {

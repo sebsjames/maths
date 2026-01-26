@@ -4,7 +4,7 @@
 #include <iostream>
 #include <sm/mathconst>
 #include <sm/vec>
-#include <sm/mat44>
+#include <sm/mat>
 
 int main()
 {
@@ -12,7 +12,7 @@ int main()
     using mc = sm::mathconst<float>;
 
     // A transformation matrix, which is initialized as the identity matrix
-    sm::mat44<float> T;
+    sm::mat<float, 4> T;
 
     sm::vec<float> v1 = { 0, mc::one_over_root_2, mc::one_over_root_2 };
     sm::vec<float> v2 = { -1, 0, 0 };
@@ -34,7 +34,7 @@ int main()
     sm::vec<double> bx = { 0.707f, 0.707f, 0.0f };
     sm::vec<double> by = { -0.707f, 0.707f, 0.0f };
     sm::vec<double> bz = { 0, 0, 1 };
-    sm::mat44<double> mfb = sm::mat44<double>::frombasis (bx, by, bz);
+    sm::mat<double, 4> mfb = sm::mat<double, 4>::frombasis (bx, by, bz);
 
     std::cout << "\nWith matrix\n\n" << mfb << ",\n\n"
               << sm::vec<double>::ux() << " transforms to " << mfb * sm::vec<double>::ux() << std::endl
