@@ -2,7 +2,7 @@
 #include <sm/vec>
 #include <sm/mathconst>
 #include <sm/random>
-#include <sm/mat44>
+#include <sm/mat>
 
 int main()
 {
@@ -11,7 +11,7 @@ int main()
     sm::vec<float> axis = {1, 0, 1}; // Non-length 1 vector
     auto theta = sm::mathconst<float>::pi_over_4;
 
-    sm::mat44<float> rmat;
+    sm::mat<float, 4> rmat;
     rmat.rotate (axis, theta);
 
     auto rv = (rmat * sm::vec<>::ux()).less_one_dim();
@@ -24,7 +24,7 @@ int main()
     q.renormalize();
     std::cout << "after renormalization of q, we get " << q << std::endl;
 
-    rmat.setToIdentity();
+    rmat.set_identity();
     axis.renormalize();
     rmat.rotate (axis, theta);
 
