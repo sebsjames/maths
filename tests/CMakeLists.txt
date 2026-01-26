@@ -179,8 +179,8 @@ if(NOT APPLE)
   add_test(testTransMat_constexpr testTransMat_constexpr)
 endif()
 
-add_executable(testTranslatePretranslate testTranslatePretranslate.cpp)
-add_test(testTranslatePretranslate testTranslatePretranslate)
+add_executable(mat_4_translate mat_4_translate.cpp)
+add_test(mat_4_translate mat_4_translate)
 
 # Test sm::mat33 (3x3 matrix)
 add_executable(testMatrix33 testMatrix33.cpp)
