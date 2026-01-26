@@ -19,6 +19,28 @@ namespace sm
         static constexpr T zero = T{0};
         static constexpr T one  = T{1};
 
+        static constexpr T half           = T{1} / T{2};
+        static constexpr T one_half       = T{1} / T{2};
+        static constexpr T one_third      = T{1} / T{3};
+        static constexpr T quarter        = T{1} / T{4};
+        static constexpr T one_quarter    = T{1} / T{4};
+        static constexpr T one_fourth     = T{1} / T{4};
+        static constexpr T one_fifth      = T{1} / T{5};
+        static constexpr T one_sixth      = T{1} / T{6};
+        static constexpr T one_seventh    = T{1} / T{7};
+        static constexpr T one_eighth     = T{1} / T{8};
+        static constexpr T one_ninth      = T{1} / T{9};
+
+        static constexpr T two_thirds     = T{2} / T{3};
+        static constexpr T two_fifths     = T{2} / T{5};
+        static constexpr T two_sevenths   = T{2} / T{7};
+        static constexpr T two_ninths     = T{2} / T{9};
+
+        static constexpr T three_quarters = T{3} / T{4};
+        static constexpr T three_fifths   = T{3} / T{5};
+        static constexpr T three_sevenths = T{3} / T{7};
+        static constexpr T three_eighths  = T{3} / T{8};
+
         // e - the base of the natural logarithm
         static constexpr T e = T{2.7182818284590452353602874713526624977572};
 
