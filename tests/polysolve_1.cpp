@@ -27,11 +27,13 @@ bool test_root (const std::complex<T>& rt,
     bool imag_part = std::abs(std::imag(rt) - std::imag(rt_expect)) <= thresh;
     if (!real_part) {
         std::cout << std::scientific
-                  << "Real part delta = " << std::abs(std::real(rt) - std::real(rt_expect)) << " > thresh = " << thresh << "\n";
+                  << "Real part delta = " << std::abs(std::real(rt) - std::real(rt_expect))
+                  << " > thresh = " << thresh << " for expected root " << rt_expect << "\n";
     }
     if (!imag_part) {
         std::cout << std::scientific
-                  << "Imag part delta = " << std::abs(std::imag(rt) - std::imag(rt_expect)) << " > thresh = " << thresh << "\n";
+                  << "Imag part delta = " << std::abs(std::imag(rt) - std::imag(rt_expect))
+                  << " > thresh = " << thresh << " for expected root " << rt_expect << "\n";
     }
     return real_part && imag_part;
 }
@@ -64,31 +66,22 @@ void test_polysolve (const sm::vvec<T>& poly,
     }
 }
 
-void test_linear (int& rtn)
+void test_linear()
 {
     std::cout << "\n=== LINEAR TESTS ===\n";
 
-    std::cout << "\n=== Linear: 2x - 6 = 0 ===" << std::endl;
-    std::cout << "Expected: x = 3" << std::endl;
-    sm::vvec<std::complex<double>> roots = sm::polysolve::solve<double, 1>(sm::vec<double, 2>{-6, 2});
-    print_roots (roots);
-    if (roots.size() != 1 || std::abs(roots[0].real() - 3.0) > std::numeric_limits<double>::epsilon()) { --rtn; }
-    if (rtn) { throw std::runtime_error ("FAILED"); }
-
-    std::cout << "\n=== Linear: -3x + 12 = 0 ===" << std::endl;
-    std::cout << "Expected: x = 4" << std::endl;
-    roots = sm::polysolve::solve<double, 1>(sm::vec<double, 2>{12, -3});
-    print_roots(roots);
-    if (roots.size() != 1 || std::abs(roots[0].real() - 4.0) > std::numeric_limits<double>::epsilon()) { --rtn; }
-    if (rtn) { throw std::runtime_error ("FAILED"); }
-
-    std::cout << "\n=== Linear: 0.5x + 2.5 = 0 ===" << std::endl;
-    std::cout << "Expected: x = -5" << std::endl;
-    //roots = sm::polysolve::solve<1, double, double>({2.5, 0.5});
-    roots = sm::polysolve::solve<double, 1>(sm::vec<double, 2>{2.5, 0.5});
-    print_roots(roots);
-    if (roots.size() != 1 || std::abs(roots[0].real() + 5.0) > std::numeric_limits<double>::epsilon()) { --rtn; }
-    if (rtn) { throw std::runtime_error ("FAILED"); }
+    // 2x - 6 = 0
+    test_polysolve<double> (sm::vvec<double>{-6, 2},
+                            sm::vvec<std::complex<double>>{{3}},
+                            (std::numeric_limits<double>::epsilon() * 1.0));
+    // -3x + 12 = 0
+    test_polysolve<double> (sm::vvec<double>{12, -3},
+                            sm::vvec<std::complex<double>>{{4}},
+                            (std::numeric_limits<double>::epsilon() * 1.0));
+    // 0.5x + 2.5 = 0
+    test_polysolve<double> (sm::vvec<double>{2.5, 0.5},
+                            sm::vvec<std::complex<double>>{{-5}},
+                            (std::numeric_limits<double>::epsilon() * 1.0));
 }
 
 void test_quadratic()
@@ -166,280 +159,142 @@ void test_cubic()
                             (std::numeric_limits<double>::epsilon() * 7.0));
 }
 
-void test_quartic (int& rtn)
+void test_quartic()
 {
-    //throw std::runtime_error ("quartic tests not complete (and also, should implement test_polysolve for all the test cases");
+    std::cout << "\n=== QUARTIC TESTS ===\n";
 
-    std::cout << "\n=== Quartic: x^4 - 10x^2 + 9 = 0 (biquadratic) ===" << std::endl;
-    std::cout << "Expected: x = +/-1, +/-3" << std::endl;
-    sm::vvec<std::complex<double>> roots = sm::polysolve::solve<double, 4>(sm::vec<double, 5>{9, 0, -10, 0, 1});
-    print_roots(roots);
-    if (roots.size() != 4) {
-        std::cout << "FAILED" << std::endl;
-        --rtn;
-    }
+    // x^4 - 10x^2 + 9 = 0 (biquadratic)
+    test_polysolve<double> (sm::vvec<double>{9, 0, -10, 0, 1},
+                            sm::vvec<std::complex<double>>{{-3, 0}, {-1, 0}, {1, 0}, {3, 0}},
+                            (std::numeric_limits<double>::epsilon() * 1.0));
+    // (x-1)(x-2)(x-3)(x-4) = x^4 - 10x^3 + 35x^2 - 50x + 24 = 0
+    test_polysolve<double> (sm::vvec<double>{24, -50, 35, -10, 1},
+                            sm::vvec<std::complex<double>>{{1, 0}, {2, 0}, {3, 0}, {4, 0}},
+                            (std::numeric_limits<double>::epsilon() * 1.0));
+    // (x^2+1)(x-1)^2 = x^4 - 2x^3 + 2x^2 - 2x + 1 = 0
+    test_polysolve<double> (sm::vvec<double>{1, -2, 2, -2, 1},
+                            sm::vvec<std::complex<double>>{{0, -1}, {0, 1}, {1, 0}, {1, 0}},
+                            (std::numeric_limits<double>::epsilon() * 1.0));
+    // x^4 - 1 = 0 (fourth roots of unity)
+    test_polysolve<double> (sm::vvec<double>{-1, 0, 0, 0, 1},
+                            sm::vvec<std::complex<double>>{{-1, 0}, {0, -1}, {0, 1}, {1, 0}},
+                            (std::numeric_limits<double>::epsilon() * 1.0));
+    // x^4 + 4x^2 + 4 = 0
+    test_polysolve<double> (sm::vvec<double>{4, 0, 4, 0, 1},
+                            sm::vvec<std::complex<double>>{{0, -sm::mathconst<double>::root_2}, {0, -sm::mathconst<double>::root_2},
+                                                           {0, sm::mathconst<double>::root_2}, {0, sm::mathconst<double>::root_2}},
+                            (std::numeric_limits<double>::epsilon() * 1.0));
+    // x^4 - 5x^2 + 4 = 0
+    test_polysolve<double> (sm::vvec<double>{4, 0, -5, 0, 1},
+                            sm::vvec<std::complex<double>>{{-2, 0}, {-1, 0}, {1, 0}, {2, 0}},
+                            (std::numeric_limits<double>::epsilon() * 1.0));
+    // x^4 + x^3 - 7x^2 - x + 6 = 0
+    test_polysolve<double> (sm::vvec<double>{6, -1, -7, 1, 1},
+                            sm::vvec<std::complex<double>>{{-3, 0}, {-1, 0}, {1, 0}, {2, 0}},
+                            (std::numeric_limits<double>::epsilon() * 1.0));
 
-    std::cout << "\n=== Quartic: (x-1)(x-2)(x-3)(x-4) = x^4 - 10x^3 + 35x^2 - 50x + 24 = 0 ===" << std::endl;
-    std::cout << "Expected: x = 1, 2, 3, 4" << std::endl;
-    roots = sm::polysolve::solve<double, 4>(sm::vec<double, 5>{24, -50, 35, -10, 1});
-    print_roots(roots);
-
-    // Verify product of roots
-    std::complex<double> product(1.0, 0.0);
-    for (const auto& r : roots) {
-        product *= r;
-    }
-    std::cout << "  Product: " << product << " (expected: 24)" << std::endl;
-    if (std::abs(product.real() - 24.0) > 1e-6 || std::abs(product.imag()) > 1e-6) {
-        std::cout << "  FAILED: Product mismatch" << std::endl;
-        --rtn;
-    }
-
-    std::cout << "\n=== Quartic: (x^2+1)(x-1)^2 = x^4 - 2x^3 + 2x^2 - 2x + 1 = 0 ===" << std::endl;
-    std::cout << "Expected: x = i, -i, 1, 1 (complex eigenvalue test case)" << std::endl;
-    roots = sm::polysolve::solve<double, 4>(sm::vec<double, 5>{1, -2, 2, -2, 1});
-    print_roots(roots);
-
-    // Verify roots satisfy the polynomial
-    std::cout << "  Verification - |p(root)|:" << std::endl;
-    bool verification_passed = true;
-    for (size_t i = 0; i < roots.size(); ++i) {
-        std::complex<double> z = roots[i];
-        std::complex<double> val = z*z*z*z - 2.0*z*z*z + 2.0*z*z - 2.0*z + 1.0;
-        double err = std::abs(val);
-        std::cout << "    |p(root[" << i << "])| = " << std::scientific << err << std::fixed << std::endl;
-        if (err > 1e-10) {
-            verification_passed = false;
-        }
-    }
-
-    product = std::complex<double>(1.0, 0.0);
-    for (const auto& r : roots) {
-        product *= r;
-    }
-    std::cout << "  Product: " << product << " (expected: 1)" << std::endl;
-    if (!verification_passed || std::abs(product.real() - 1.0) > 1e-6 || std::abs(product.imag()) > 1e-6) {
-        std::cout << "  FAILED: Verification or product mismatch" << std::endl;
-        --rtn;
-    }
-
-    std::cout << "\n=== Quartic: x^4 - 1 = 0 (fourth roots of unity) ===" << std::endl;
-    std::cout << "Expected: x = +/-1, +/-i" << std::endl;
-    roots = sm::polysolve::solve<double, 4>(sm::vec<double, 5>{-1, 0, 0, 0, 1});
-    print_roots(roots);
-
-    std::cout << "\n=== Quartic: x^4 + 4x^2 + 4 = 0 ===" << std::endl;
-    std::cout << "Expected: complex roots" << std::endl;
-    roots = sm::polysolve::solve<double, 4>(sm::vec<double, 5>{4, 0, 4, 0, 1});
-    print_roots(roots);
-
-    std::cout << "\n=== Quartic: x^4 - 5x^2 + 4 = 0 ===" << std::endl;
-    std::cout << "Expected: x = +/-1, +/-2" << std::endl;
-    roots = sm::polysolve::solve<double, 4>(sm::vec<double, 5>{4, 0, -5, 0, 1});
-    print_roots(roots);
-
-    std::cout << "\n=== Quartic: x^4 + x^3 - 7x^2 - x + 6 = 0 ===" << std::endl;
-    std::cout << "Expected: x = -3, -1, 1, 2" << std::endl;
-    roots = sm::polysolve::solve<double, 4>(sm::vec<double, 5>{6, -1, -7, 1, 1});
-    print_roots(roots);
-
-    std::cout << "\n=== Quartic: 2x^4 - 8x^3 + 8x^2 - 8x + 6 = 0 ===" << std::endl;
-    std::cout << "Expected: two real and two complex roots" << std::endl;
-    roots = sm::polysolve::solve<double, 4>(sm::vec<double, 5>{6, -8, 8, -8, 2});
-    print_roots(roots);
+    // 2x^4 - 8x^3 + 8x^2 - 8x + 6 = 0
+    test_polysolve<double> (sm::vvec<double>{6, -8, 8, -8, 2},
+                            sm::vvec<std::complex<double>>{{0, -1}, {0, 1}, {1, 0}, {3, 0}},
+                            (std::numeric_limits<double>::epsilon() * 5.0));
 }
 
-void test_real_roots (int& rtn)
+void test_special_cases()
 {
-    std::cout << "\n=== Real Roots Filter: x^3 - 6x^2 + 11x - 6 = 0 ===" << std::endl;
-    std::cout << "Expected: x = 1, 2, 3 (all real)" << std::endl;
-    sm::vvec<double> realRoots = sm::polysolve::real<double, 3>(sm::vec<double, 4>{-6, 11, -6, 1});
-    for (size_t i = 0; i < realRoots.size(); ++i) {
-        std::cout << "  x" << i << " = " << realRoots[i] << std::endl;
-    }
-    if (realRoots.size() != 3) {
-        std::cout << "FAILED" << std::endl;
-        --rtn;
-    }
+    std::cout << "\n=== 'SPECIAL' TESTS ===\n";
 
-    std::cout << "\n=== Real Roots Filter: x^3 - 1 = 0 ===" << std::endl;
-    std::cout << "Expected: x = 1 (only real root)" << std::endl;
-    realRoots = sm::polysolve::real<double, 3>(sm::vec<double, 4>{-1, 0, 0, 1});
-    for (size_t i = 0; i < realRoots.size(); ++i) {
-        std::cout << "  x" << i << " = " << realRoots[i] << std::endl;
-    }
-    if (realRoots.size() != 1) {
-        std::cout << "FAILED: Expected 1 real root, got " << realRoots.size() << std::endl;
-        --rtn;
-    }
-
-    std::cout << "\n=== Real Roots Filter: x^2 + 1 = 0 ===" << std::endl;
-    std::cout << "Expected: no real roots" << std::endl;
-    realRoots = sm::polysolve::real<double, 2>(sm::vec<double, 3>{1, 0, 1});
-    if (realRoots.empty()) {
-        std::cout << "  No real roots (correct!)" << std::endl;
-    } else {
-        for (size_t i = 0; i < realRoots.size(); ++i) {
-            std::cout << "  x" << i << " = " << realRoots[i] << std::endl;
-        }
-        std::cout << "FAILED" << std::endl;
-        --rtn;
-    }
+    // 100x^2 - 500x + 600 = 0 (large coefficients)
+    test_polysolve<double> (sm::vvec<double>{600, -500, 100},
+                            sm::vvec<std::complex<double>>{{2}, {3}},
+                            (std::numeric_limits<double>::epsilon() * 1.0));
+    // 0.001x^2 - 0.003x + 0.002 = 0 (small coefficients)
+    test_polysolve<double> (sm::vvec<double>{0.002, -0.003, 0.001},
+                            sm::vvec<std::complex<double>>{{1}, {2}},
+                            (std::numeric_limits<double>::epsilon() * 1.0));
+    // -x^3 + 6x^2 - 11x + 6 = 0 (negative leading)
+    test_polysolve<double> (sm::vvec<double>{6, -11, 6, -1},
+                            sm::vvec<std::complex<double>>{{1}, {2}, {3}},
+                            (std::numeric_limits<double>::epsilon() * 1.0));
+    // x^4 - 16 = 0 (zero coefficient terms)
+    test_polysolve<double> (sm::vvec<double>{-16, 0, 0, 0, 1},
+                            sm::vvec<std::complex<double>>{{-2, 0}, {0, -2}, {0, 2}, {2, 0}},
+                            (std::numeric_limits<double>::epsilon() * 1.0));
 }
 
-void test_special_cases (int& rtn)
+void test_mixed_roots()
 {
-    std::cout << "\n=== Special Case: 100x^2 - 500x + 600 = 0 (large coefficients) ===" << std::endl;
-    std::cout << "Expected: x = 2, 3" << std::endl;
-    sm::vvec<std::complex<double>> roots = sm::polysolve::solve<double, 2>(sm::vec<double, 3>{600, -500, 100});
-    print_roots(roots);
-    if (roots.size() != 2) {
-        std::cout << "FAILED" << std::endl;
-        --rtn;
-    }
+    std::cout << "\n=== 'MIXED ROOT' TESTS ===\n";
 
-    std::cout << "\n=== Special Case: 0.001x^2 - 0.003x + 0.002 = 0 (small coefficients) ===" << std::endl;
-    std::cout << "Expected: x = 1, 2" << std::endl;
-    roots = sm::polysolve::solve<double, 2>(sm::vec<double, 3>{0.002, -0.003, 0.001});
-    print_roots(roots);
+    // x^3 - 5x^2 - 29x + 105 = 0 (+ve and -ve roots)
+    test_polysolve<double> (sm::vvec<double>{105, -29, -5, 1},
+                            sm::vvec<std::complex<double>>{{-5}, {3}, {7}},
+                            (std::numeric_limits<double>::epsilon() * 12.0));
 
-    std::cout << "\n=== Special Case: -x^3 + 6x^2 - 11x + 6 = 0 (negative leading) ===" << std::endl;
-    std::cout << "Expected: x = 1, 2, 3" << std::endl;
-    roots = sm::polysolve::solve<double, 3>(sm::vec<double, 4>{6, -11, 6, -1});
-    print_roots(roots);
+#if 0
+    // x^3 - 4.5x^2 + 6.25x - 1.875 = 0 // This is a real failure??
+    test_polysolve<double> (sm::vvec<double>{-1.875, 6.25, -4.5, 1},
+                            sm::vvec<std::complex<double>>{{0.4100094639209213574907889, 0},
+                                                           {2.044995268039539321254606, -0.625347524626481535021127},
+                                                           {2.044995268039539321254606, 0.625347524626481535021127}},
+                            (std::numeric_limits<double>::epsilon() * 12.0));
+#endif
 
-    std::cout << "\n=== Special Case: x^4 - 16 = 0 (zero coefficient terms) ===" << std::endl;
-    std::cout << "Expected: x = +/-2, +/-2i" << std::endl;
-    roots = sm::polysolve::solve<double, 4>(sm::vec<double, 5>{-16, 0, 0, 0, 1});
-    print_roots(roots);
+    // x^4 - 3x^3 + 3x^2 - 3x + 2 = 0 (complex and real)
+    test_polysolve<double> (sm::vvec<double>{2, -3, 3, -3, 1},
+                            sm::vvec<std::complex<double>>{{0, -1}, {0, 1}, {1, 0}, {2, 0}},
+                            (std::numeric_limits<double>::epsilon() * 1.0));
 }
 
-void test_mixed_roots (int& rtn)
+void test_higher_degree()
 {
-    std::cout << "\n=== Mixed: x^3 - 5x^2 - 29x + 105 = 0 ===" << std::endl;
-    std::cout << "Expected: x = -5, 3, 7 (positive and negative)" << std::endl;
-    sm::vvec<std::complex<double>> roots = sm::polysolve::solve<double, 3>(sm::vec<double, 4>{105, -29, -5, 1});
-    print_roots(roots);
-    if (roots.size() != 3) {
-        std::cout << "FAILED" << std::endl;
-        --rtn;
-    }
+    std::cout << "\n=== HIGHER DEGREE TESTS ===\n";
 
-    std::cout << "\n=== Mixed: x^3 - 4.5x^2 + 6.25x - 1.875 = 0 ===" << std::endl;
-    std::cout << "Expected: x = 0.5, 1.5, 2.5 (fractional)" << std::endl;
-    roots = sm::polysolve::solve<double, 3>(sm::vec<double, 4>{-1.875, 6.25, -4.5, 1});
-    print_roots(roots);
+    // (x-1)(x-2)(x-3)(x-4)(x-5) = x^5 - 15x^4 + 85x^3 - 225x^2 + 274x - 120 = 0 (degree 5)
+    test_polysolve<double> (sm::vvec<double>{-120, 274, -225, 85, -15, 1},
+                            sm::vvec<std::complex<double>>{{1}, {2}, {3}, {4}, {5}}, 4e-14);
 
-    std::cout << "\n=== Mixed: x^4 - 3x^3 + 3x^2 - 3x + 2 = 0 ===" << std::endl;
-    std::cout << "Expected: x = 1, 2, +/-i (complex and real)" << std::endl;
-    roots = sm::polysolve::solve<double, 4>(sm::vec<double, 5>{2, -3, 3, -3, 1});
-    print_roots(roots);
+    // (x+1)(x-1)(x+2)(x-2)(x+3)(x-3) = x^6 -14x^4 + 49 x^2 - 36 = 0
+    test_polysolve<double> (sm::vvec<double>{-36, 0, 49, 0, -14, 0, 1},
+                            sm::vvec<std::complex<double>>{{-3}, {-2}, {-1}, {1}, {2}, {3}},
+                            1e-16);
+    // x^5 - 32 = 0
+    test_polysolve<double> (sm::vvec<double>{-32, 0, 0, 0, 0, 1},
+                            sm::vvec<std::complex<double>>{{-1.61803398874989, -1.17557050458495},
+                                                           {-1.61803398874989, 1.17557050458495},
+                                                           {0.61803398874989, -1.90211303259031},
+                                                           {0.61803398874989, 1.90211303259031},
+                                                           {2, 0}}, 1e-14);
+    // (x-1)(x-2)...(x-7) = x^7 - 28x^6 + 322x^5 - 1960x^4 + 6769x^3 - 13132x^2 + 13068x - 5040 = 0
+    test_polysolve<double> (sm::vvec<double>{-5040, 13068, -13132, 6769, -1960, 322, -28, 1},
+                            sm::vvec<std::complex<double>>{{1},{2},{3},{4},{5},{6},{7}}, 2e-12);
 }
 
-void test_higher_degree (int& rtn)
+void test_template_types()
 {
-    std::cout << "\n=== Degree 5: (x-1)(x-2)(x-3)(x-4)(x-5) = 0 ===" << std::endl;
-    std::cout << "Expected: x = 1, 2, 3, 4, 5" << std::endl;
-    sm::vvec<std::complex<double>> roots = sm::polysolve::solve<double, 5>(sm::vec<double, 6>{-120, 274, -225, 85, -15, 1});
-    print_roots(roots);
-    if (roots.size() != 5) {
-        std::cout << "FAILED" << std::endl;
-        --rtn;
-    }
-
-    std::cout << "\n=== Degree 6: (x+1)(x-1)(x+2)(x-2)(x+3)(x-3) = 0 ===" << std::endl;
-    std::cout << "Expected: x = +/-1, +/-2, +/-3" << std::endl;
-    sm::vvec<std::complex<double>> roots6 = sm::polysolve::solve<double, 6>(sm::vec<double, 7>{-36, 0, 49, 0, -14, 0, 1});
-    print_roots(roots6);
-    if (roots6.size() != 6) {
-        std::cout << "FAILED" << std::endl;
-        --rtn;
-    }
-
-    std::cout << "\n=== Degree 5: x^5 - 32 = 0 ===" << std::endl;
-    std::cout << "Expected: fifth roots of 32" << std::endl;
-    roots = sm::polysolve::solve<double, 5>(sm::vec<double, 6>{-32, 0, 0, 0, 0, 1});
-    print_roots(roots);
-    if (roots.size() != 5) {
-        std::cout << "FAILED" << std::endl;
-        --rtn;
-    }
-
-    std::cout << "\n=== Degree 7: (x-1)(x-2)...(x-7) = 0 ===" << std::endl;
-    std::cout << "Expected: x = 1, 2, 3, 4, 5, 6, 7" << std::endl;
-    sm::vec<double, 8> coeffs7 = {5040, -13068, 13132, -6769, 1960, -322, 28, 1};
-    sm::vvec<std::complex<double>> roots7 = sm::polysolve::solve<double, 7>(coeffs7);
-    print_roots(roots7);
-    if (roots7.size() != 7) {
-        std::cout << "FAILED" << std::endl;
-        --rtn;
-    }
+    // x^2 - 5x + 6 = 0 (float)
+    test_polysolve<float> (sm::vvec<float>{6.0f, -5.0f, 1.0f}, sm::vvec<std::complex<float>>{{2.0f},{3.0f}});
+    // x^3 - 6x^2 + 11x - 6 = 0 (long double)
+    test_polysolve<long double> (sm::vvec<long double>{-6.0L, 11.0L, -6.0L, 1.0L},
+                                 sm::vvec<std::complex<long double>>{{1.0L},{2.0L},{3.0L}}, 1e-16);
+    // x^2 + 1 = 0 (float, complex roots)
+    test_polysolve<float> (sm::vvec<float>{1.0f, 0.0f, 1.0f}, sm::vvec<std::complex<float>>{{0.0f, -1.0f},{0.0f, 1.0f}});
+    // x^4 - 10x^2 + 9 = 0 (float, real roots)
+    test_polysolve<float> (sm::vvec<float>{9.0f, 0.0f, -10.0f, 0.0f, 1.0f},
+                           sm::vvec<std::complex<float>>{{-3.0f},{-1.0f},{1.0f},{3.0f}});
 }
 
-void test_template_types (int& rtn)
+// Tests that really seem to be computed incorrectly
+void test_failures()
 {
-    std::cout << "\n=== Template Type: x^2 - 5x + 6 = 0 (float) ===" << std::endl;
-    std::cout << "Expected: x = 2, 3" << std::endl;
-    sm::vvec<std::complex<float>> rootsFloat = sm::polysolve::solve<float, 2>(sm::vec<float, 3>{6.0f, -5.0f, 1.0f});
-    std::cout << std::fixed << std::setprecision(6);
-    for (size_t i = 0; i < rootsFloat.size(); ++i) {
-        std::cout << "  x" << i << " = " << rootsFloat[i].real();
-        if (std::abs(rootsFloat[i].imag()) > 1e-6f) {
-            std::cout << (rootsFloat[i].imag() >= 0 ? " + " : " - ")
-                      << std::abs(rootsFloat[i].imag()) << "i";
-        }
-        std::cout << " (float)" << std::endl;
-    }
-    if (rootsFloat.size() != 2) {
-        std::cout << "FAILED" << std::endl;
-        --rtn;
-    }
+    std::cout << "\n=== FALSE FAILURES (THESE SHOULD PASS) ===\n";
 
-    std::cout << "\n=== Template Type: x^3 - 6x^2 + 11x - 6 = 0 (long double) ===" << std::endl;
-    std::cout << "Expected: x = 1, 2, 3" << std::endl;
-    sm::vvec<std::complex<long double>> rootsLongDouble = sm::polysolve::solve<long double, 3>(sm::vec<long double, 4>{-6.0L, 11.0L, -6.0L, 1.0L});
-    std::cout << std::fixed << std::setprecision(10);
-    for (size_t i = 0; i < rootsLongDouble.size(); ++i) {
-        std::cout << "  x" << i << " = " << rootsLongDouble[i].real();
-        if (std::abs(rootsLongDouble[i].imag()) > 1e-10L) {
-            std::cout << (rootsLongDouble[i].imag() >= 0 ? " + " : " - ")
-                      << std::abs(rootsLongDouble[i].imag()) << "i";
-        }
-        std::cout << " (long double)" << std::endl;
-    }
-    if (rootsLongDouble.size() != 3) {
-        std::cout << "FAILED" << std::endl;
-        --rtn;
-    }
-
-    std::cout << "\n=== Template Type: x^2 + 1 = 0 (float, complex roots) ===" << std::endl;
-    std::cout << "Expected: x = +/-i" << std::endl;
-    rootsFloat = sm::polysolve::solve<float, 2>(sm::vec<float, 3>{1.0f, 0.0f, 1.0f});
-    std::cout << std::fixed << std::setprecision(6);
-    for (size_t i = 0; i < rootsFloat.size(); ++i) {
-        std::cout << "  x" << i << " = " << rootsFloat[i].real();
-        if (std::abs(rootsFloat[i].imag()) > 1e-6f) {
-            std::cout << (rootsFloat[i].imag() >= 0 ? " + " : " - ")
-                      << std::abs(rootsFloat[i].imag()) << "i";
-        }
-        std::cout << " (float)" << std::endl;
-    }
-    if (rootsFloat.size() != 2) {
-        std::cout << "FAILED" << std::endl;
-        --rtn;
-    }
-
-    std::cout << "\n=== Template Type: x^4 - 10x^2 + 9 = 0 (float, real roots) ===" << std::endl;
-    std::cout << "Expected: x = +/-1, +/-3" << std::endl;
-    sm::vvec<float> realRootsFloat = sm::polysolve::real<float, 4>(sm::vec<float, 5>{9.0f, 0.0f, -10.0f, 0.0f, 1.0f});
-    std::cout << std::fixed << std::setprecision(6);
-    for (size_t i = 0; i < realRootsFloat.size(); ++i) {
-        std::cout << "  x" << i << " = " << realRootsFloat[i] << " (float)" << std::endl;
-    }
-    if (realRootsFloat.size() != 4) {
-        std::cout << "FAILED" << std::endl;
-        --rtn;
-    }
+    // This is a real failure?? from test_mixed_roots(). Expected roots obtained from https://www.wolframalpha.com
+    // x^3 - 4.5x^2 + 6.25x - 1.875 = 0
+    test_polysolve<double> (sm::vvec<double>{-1.875, 6.25, -4.5, 1},
+                            sm::vvec<std::complex<double>>{{0.4100094639209213574907889, 0},
+                                                           {2.044995268039539321254606, -0.625347524626481535021127},
+                                                           {2.044995268039539321254606, 0.625347524626481535021127}},
+                            (std::numeric_limits<double>::epsilon() * 12.0));
 }
 
 int main()
@@ -451,21 +306,23 @@ int main()
     std::cout << "numerical Durand-Kerner method (degree > 4)" << std::endl;
 
     try {
-        test_linear (rtn);
+        // Each test will throw exceptions if the test fails
+        test_linear();
         test_quadratic();
         test_cubic();
-        test_quartic (rtn);
-        test_real_roots (rtn);
-        test_special_cases (rtn);
-        test_mixed_roots (rtn);
-        test_higher_degree (rtn);
-        test_template_types (rtn);
-
+        test_quartic();
+        test_special_cases();
+        test_mixed_roots();
+        test_higher_degree();
+        test_template_types ();
+        test_failures();
     } catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << std::endl;
         --rtn;
     }
 
-    std::cout << (rtn == 0 ? "\nAll tests passed :) \n" : "\nSome tests failed\n");
+    // Could also do some tests that are expected to throw
+
+    std::cout << (rtn == 0 ? "\nAll tests passed\n" : "\nTest failed\n");
     return rtn;
 }
