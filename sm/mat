@@ -152,7 +152,15 @@ namespace sm
         constexpr void set_zero() noexcept { this->arr.fill (F{0}); }
 
         //! Return the identity matrix
-        static constexpr mat<F, Nr, Nc> identity() noexcept { return sm::mat<F, Nr, Nc>{}; }
+        static constexpr mat<F, Nr, Nc> identity() noexcept
+        {
+            if constexpr (Nr != Nc) {
+                []<bool flag = false>() { static_assert(flag, "this function applies to square matrices"); }();
+            }
+            return sm::mat<F, Nr, Nc>{};
+        }
+
+        static constexpr mat<F, Nr, Nc> zero() noexcept { return sm::mat<F, Nr, Nc>{{0}}; }
 
         //! Set *this from a transform matrix to transform a coordinate into the given coordinate basis set
         constexpr void frombasis_inplace (const sm::vec<F> bx, const sm::vec<F> by, const sm::vec<F> bz)

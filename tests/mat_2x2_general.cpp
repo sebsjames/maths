@@ -108,5 +108,13 @@ int main()
     const sm::mat<double, 2> c5; // Yields id matrix?
     for (int i = 0; i < 4; ++i) { if (idmat[i] != c5[i]) { ++rtn; } }
 
+    std::cout << "zero matrix:\n" << sm::mat<double, 2>::zero() << std::endl;
+
+    std::cout << "zero matrix:\n" << sm::mat<double, 8, 9>::zero() << std::endl;
+
+    if (sm::mat<double, 8, 9>::zero().arr.size() != 72) { --rtn; }
+
+    if (sm::mat<double, 3>::zero().arr.sum() != 0.0) { --rtn; }
+
     return rtn;
 }
