@@ -77,7 +77,7 @@
 
 namespace sm
 {
-    template <typename E>  requires std::is_enum_v<E> struct flags;
+    template <typename E> requires std::is_enum_v<E> struct flags;
     template <typename E> std::ostream& operator<< (std::ostream&, const flags<E>&);
 
     template <typename E> requires std::is_enum_v<E>
@@ -88,32 +88,38 @@ namespace sm
         // constructors
         constexpr flags() noexcept : bits(I{0}) {}
         constexpr flags(E flag) noexcept : bits( I{1} << static_cast<I>(flag) ) {}
-        constexpr flags(flags<E> const& rhs) noexcept = default;
+        constexpr flags(const flags<E>& rhs) noexcept = default;
         constexpr explicit flags(I _bits) noexcept : bits(_bits) {}
 
         // logical operator
         constexpr bool operator!() const noexcept { return !this->bits; }
 
         // bitwise operators
-        constexpr flags<E> operator&(flags<E> const& rhs) const noexcept { return flags<E>(this->bits & rhs.bits); }
-        constexpr flags<E> operator|(flags<E> const& rhs) const noexcept { return flags<E>(this->bits | rhs.bits); }
-        constexpr flags<E> operator^(flags<E> const& rhs) const noexcept { return flags<E>(this->bits ^ rhs.bits); }
+        constexpr flags<E> operator&(const flags<E>& rhs) const noexcept { return flags<E>(this->bits & rhs.bits); }
+        constexpr flags<E> operator|(const flags<E>& rhs) const noexcept { return flags<E>(this->bits | rhs.bits); }
+        constexpr flags<E> operator^(const flags<E>& rhs) const noexcept { return flags<E>(this->bits ^ rhs.bits); }
         constexpr flags<E> operator~() const noexcept { return flags<E>(bits ^ I{-1}); }
 
         // assignment operators
-        constexpr flags<E>& operator=(flags<E> const& rhs) noexcept = default;
+        constexpr flags<E>& operator=(const flags<E>& rhs) noexcept = default;
 
-        constexpr flags<E>& operator|=(flags<E> const& rhs) noexcept
+        constexpr flags<E>& operator=(const I& rhs) noexcept
+        {
+            this->bits = rhs;
+            return *this;
+        }
+
+        constexpr flags<E>& operator|=(const flags<E>& rhs) noexcept
         {
             this->bits |= rhs.bits;
             return *this;
         }
-        constexpr flags<E>& operator&=(flags<E> const& rhs) noexcept
+        constexpr flags<E>& operator&=(const flags<E>& rhs) noexcept
         {
             this->bits &= rhs.bits;
             return *this;
         }
-        constexpr flags<E>& operator^=(flags<E> const& rhs) noexcept
+        constexpr flags<E>& operator^=(const flags<E>& rhs) noexcept
         {
             this->bits ^= rhs.bits;
             return *this;
@@ -198,6 +204,9 @@ namespace sm
         // Get the underlying bits
         constexpr I get() const noexcept { return this->bits; }
 
+        // Set bits from number of type I
+        constexpr void set (const I& _bits) { this->bits = _bits; }
+
         // Return the number of flags set true
         constexpr I count() const noexcept
         {
@@ -241,19 +250,19 @@ namespace sm
 
     // bitwise operators
     template <typename E> requires std::is_enum_v<E>
-    constexpr flags<E> operator&(E flag, flags<E> const& flags) noexcept
+    constexpr flags<E> operator&(E flag, const flags<E>& flags) noexcept
     {
         return flags.operator&(flag);
     }
 
     template <typename E> requires std::is_enum_v<E>
-    constexpr flags<E> operator|(E flag, flags<E> const& flags) noexcept
+    constexpr flags<E> operator|(E flag, const flags<E>& flags) noexcept
     {
         return flags.operator|(flag);
     }
 
     template <typename E> requires std::is_enum_v<E>
-    constexpr flags<E> operator^(E flag, flags<E> const& flags) noexcept
+    constexpr flags<E> operator^(E flag, const flags<E>& flags) noexcept
     {
         return flags.operator^(flag);
     }
