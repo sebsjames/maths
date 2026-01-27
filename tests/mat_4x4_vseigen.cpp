@@ -1,11 +1,11 @@
 #include <iostream>
 #include <sm/quaternion>
-#include <sm/mat44>
+#include <sm/mat>
 
 #include <Eigen/Dense>
 #include <Eigen/Geometry>
 
-bool check_equal (const sm::mat44<float>& m44,
+bool check_equal (const sm::mat<float, 4, 4>& m44,
                   const Eigen::Transform<float, 3, Eigen::TransformTraits::Affine>& em)
 {
     bool rtn = true;
@@ -26,7 +26,7 @@ int main()
 {
     int rtn = 0;
     // Check that .translate is same as Eigen
-    sm::mat44<float> m1;
+    sm::mat<float, 4> m1;
     auto ra = sm::vec<>{1,1,0};
     ra.renormalize();
     m1.rotate<false> (ra, sm::mathconst<float>::pi_over_4); // false saves extra renormalization
@@ -41,9 +41,9 @@ int main()
 
     auto tv = sm::vec<>{1,2,3};
     Eigen::Vector3f etv(tv[0], tv[1], tv[2]);
-    sm::mat44<float> m1pt = m1;
+    sm::mat<float, 4> m1pt = m1;
     m1pt.pretranslate (tv);
-    sm::mat44<float> m1t = m1;
+    sm::mat<float, 4> m1t = m1;
     m1t.translate (tv);
     Eigen::Transform<float, 3, Eigen::TransformTraits::Affine> em1pt = em1;
     em1pt.pretranslate(etv);
@@ -73,15 +73,15 @@ int main()
         --rtn;
     }
 
-    m1.setToIdentity();
+    m1.set_identity();
     em1.setIdentity();
 
     // Rotate/prerotate
     m1.translate (tv);
     em1.translate (etv);
 
-    sm::mat44<float> m1r = m1;
-    sm::mat44<float> m1pr = m1;
+    sm::mat<float, 4> m1r = m1;
+    sm::mat<float, 4> m1pr = m1;
     m1r.rotate<true> (ra, sm::mathconst<float>::pi_over_4); // true renormalizes an already normal vector
     m1pr.prerotate<false> (ra, sm::mathconst<float>::pi_over_4); // false is ok as ra already normal
 

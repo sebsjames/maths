@@ -1,12 +1,12 @@
 #include <iostream>
 #include <sm/quaternion>
-#include <sm/mat33>
+#include <sm/mat>
 
 int main()
 {
     int rtn = 0;
 
-    sm::mat33<float> m1 = { 0, 1, 0,  1, 0, 0,  0, 0, -1 };
+    sm::mat<float, 3> m1 = { 0, 1, 0,  1, 0, 0,  0, 0, -1 };
 
     std::cout << "m1:\n" << m1 << std::endl;
 
