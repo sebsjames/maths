@@ -115,7 +115,7 @@ int main()
     }
 
     // Test 4x4 determinant
-    std::array<float, 16> fourfour = { 2.0f, 7.0f, 5.0f, 6.0f, 8.0f, 1.0f, 3.0f, 6.0f, 2.0f, 8.0f, -1.0f, 7.0f, 7.0f, 0.0f, 1.0f, 7.0f };
+    sm::vec<float, 16> fourfour = { 2.0f, 7.0f, 5.0f, 6.0f, 8.0f, 1.0f, 3.0f, 6.0f, 2.0f, 8.0f, -1.0f, 7.0f, 7.0f, 0.0f, 1.0f, 7.0f };
     float det_td2 = sm::mat<float, 4>::determinant (fourfour);
     std::cout << "Determinant = " << det_td2 << " (expect 816)" << std::endl;
     if (det_td2 != 816.0f) {

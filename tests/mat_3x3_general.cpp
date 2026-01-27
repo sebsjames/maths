@@ -38,7 +38,7 @@ int main()
 
     // Test 3x3 determinant
     sm::mat<float, 3> td;
-    std::array<float, 9> threethree = { 1.0f, 0.0f, 2.0f, 1.0f, 1.0f, 3.5f, 3.0f, 2.0f, 120.0f };
+    sm::vec<float, 9> threethree = { 1.0f, 0.0f, 2.0f, 1.0f, 1.0f, 3.5f, 3.0f, 2.0f, 120.0f };
     float det_td2 = td.determinant (threethree);
     std::cout << "Determinant = " << det_td2 << " (expect 111)" << std::endl;
     if (det_td2 != 111.0f) { ++rtn; }

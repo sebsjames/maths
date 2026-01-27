@@ -88,7 +88,12 @@ namespace sm
             }
         }
         //! Construct with an array
-        constexpr mat (const std::array<F, Nr * Nc>& other) noexcept { this->arr = other; }
+        constexpr mat (const std::array<F, Nr * Nc>& other) noexcept
+        {
+            std::copy (other.begin(), other.end(), this->arr.begin());
+        }
+        //! Construct with a vec
+        constexpr mat (const sm::vec<F, Nr * Nc>& other) noexcept { this->arr = other; }
         //! User-declared copy constructor
         constexpr mat (const mat<F, Nr, Nc>& other) noexcept : arr(other.arr) {}
         //! User-declared copy assignment constructor
@@ -97,7 +102,7 @@ namespace sm
             arr = other.arr;
             return *this;
         }
-        //! Explicitly defaulted  move constructor
+        //! Explicitly defaulted move constructor
         mat (mat<F, Nr, Nc>&& other) noexcept = default;
         //! Explicitly defaulted move assignment constructor
         mat<F, Nr, Nc>& operator= (mat<F, Nr, Nc>&& other) noexcept = default;
@@ -106,10 +111,10 @@ namespace sm
          * The transformation matrix data, arranged in column major format to be OpenGL
          * friendly.
          */
-        alignas(std::array<F, Nr * Nc>) std::array<F, Nr * Nc> arr;
+        alignas(sm::vec<F, Nr * Nc>) sm::vec<F, Nr * Nc> arr;
 
         //! Return a string representation of the passed-in array (assumed column major and containing Nc columns)
-        static std::string str (const std::array<F, Nr * Nc>& _arr) noexcept
+        static std::string str (const sm::vec<F, Nr * Nc>& _arr) noexcept
         {
             std::stringstream ss;
             ss <<"[ ";
@@ -347,7 +352,7 @@ namespace sm
         }
 
         //! Compute determinant for 3x3 or 4x4 matrix @cm
-        static constexpr F determinant (const std::array<F, Nr * Nc>& cm) noexcept
+        static constexpr F determinant (const sm::vec<F, Nr * Nc>& cm) noexcept
         {
             if constexpr (Nr != Nc) {
                 []<bool flag = false>() { static_assert(flag, "valid only for square matrices"); }();
@@ -368,7 +373,7 @@ namespace sm
 
             } else if constexpr (Nr == 4) {
                 // Configure the 3x3 matrices that have to be evaluated to get the 4x4 det.
-                std::array<F, 9> cm33;
+                sm::vec<F, 9> cm33;
 
                 // First 3x3 matrix
                 cm33[0] = cm[5];
@@ -441,9 +446,9 @@ namespace sm
          * 1. Get the cofactor matrix (with this->cofactor())
          * 2. Obtain the adjugate matrix by transposing the cofactor matrix
          */
-        constexpr std::array<F, Nr * Nc> adjugate() const noexcept
+        constexpr sm::vec<F, Nr * Nc> adjugate() const noexcept
         {
-            std::array<F, Nr * Nc> adj = {};
+            sm::vec<F, Nr * Nc> adj = {};
             if constexpr (Nr == Nc && Nr == 2) {
                 // Simple recipe for 2x2:
                 adj = { this->arr[3], -this->arr[1], -this->arr[2], this->arr[0] };
@@ -458,11 +463,11 @@ namespace sm
          * 1. Create matrix of minors
          * 2. Multiply matrix of minors by a checkerboard pattern to give the cofactor matrix
          */
-        constexpr std::array<F, Nr * Nc> cofactor() const noexcept
+        constexpr sm::vec<F, Nr * Nc> cofactor() const noexcept
         {
             if constexpr (Nr != Nc) { []<bool flag = false>() { static_assert(flag, "valid only for square matrices"); }(); }
 
-            std::array<F, Nr * Nc> cofac;
+            sm::vec<F, Nr * Nc> cofac;
 
             if constexpr (Nr == 3) {
 
@@ -471,7 +476,7 @@ namespace sm
                 // alternating pattern of +/- as we go.
 
                 // 0.
-                std::array<F, 4> minorElem;
+                sm::vec<F, 4> minorElem;
                 minorElem[0] = this->arr[4];
                 minorElem[1] = this->arr[5];
                 minorElem[2] = this->arr[7];
@@ -529,7 +534,7 @@ namespace sm
                 // alternating pattern of +/- as we go.
 
                 // 0.
-                std::array<F, 9> minorElem;
+                sm::vec<F, 9> minorElem;
                 minorElem[0] = this->arr[5];
                 minorElem[3] = this->arr[9];
                 minorElem[6] = this->arr[13];
@@ -1163,7 +1168,7 @@ namespace sm
         template<typename Fy=F, uint32_t Nry = Nr, uint32_t Ncy = Nc> requires (Nc == Nry)
         constexpr void operator*= (const mat<Fy, Nry, Ncy>& m2) noexcept
         {
-            std::array<F, Nr * Ncy> m;
+            sm::vec<F, Nr * Ncy> m;
 
             if constexpr (Nr == 2 && Nc == 2) {
                 // Top row
@@ -1353,7 +1358,7 @@ namespace sm
 
             constexpr uint32_t N_diamond = ((Nr * Nc) - Nr ) / 2;
 
-            std::array<F, N_diamond> a;
+            sm::vec<F, N_diamond> a;
 
             uint32_t i = 0;
             for (uint32_t c = 0; c < (Nc / 2) + 1; ++c) {
@@ -1377,7 +1382,7 @@ namespace sm
 
             constexpr uint32_t N_diamond = ((Nr * Nc) - Nr ) / 2;
 
-            std::array<F, N_diamond> a;
+            sm::vec<F, N_diamond> a;
 
             mat<F, Nc, Nr> m = *this;
 
@@ -1399,15 +1404,15 @@ namespace sm
         }
 
         //! Transpose the matrix @cm, returning the transposed version.
-        static constexpr std::array<F, Nr * Nc> transpose (const std::array<F, Nr * Nc>& cm) noexcept
+        static constexpr sm::vec<F, Nr * Nc> transpose (const sm::vec<F, Nr * Nc>& cm) noexcept
         {
             if constexpr (Nr != Nc) { []<bool flag = false>() { static_assert(flag, "valid only for square matrices"); }(); }
 
             constexpr uint32_t N_diamond = ((Nr * Nc) - Nr ) / 2;
 
-            std::array<F, N_diamond> a;
+            sm::vec<F, N_diamond> a;
 
-            std::array<F, Nr * Nc> m;
+            sm::vec<F, Nr * Nc> m;
 
             // Copy diagonal to m
             for (uint32_t c = 0; c < Nc; ++c) { m[c * Nr + c] = cm[c * Nr + c]; }
