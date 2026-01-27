@@ -2,7 +2,7 @@
 // and quaternion multiplication
 
 #include <sm/quaternion>
-#include <sm/mat44>
+#include <sm/mat>
 #include <sm/vec>
 #include <sm/mathconst>
 
@@ -91,7 +91,7 @@ int main()
 
     std::cout << "\n\n";
 
-    sm::mat44<F> tmx;
+    sm::mat<F, 4> tmx;
     tmx.rotate (qx);
     sm::vec<F, 4> ux_about_tmx = tmx * ux;
     sm::vec<F, 4> uy_about_tmx = tmx * uy;
@@ -104,7 +104,7 @@ int main()
         || (uy_about_tmx.less_one_dim() - uy_about_x_truth).abs().max() > std::numeric_limits<F>::epsilon()
         || (uz_about_tmx.less_one_dim() - uz_about_x_truth).abs().max() > std::numeric_limits<F>::epsilon()) { --rtn; }
 
-    sm::mat44<F> tmy;
+    sm::mat<F, 4> tmy;
     tmy.rotate (qy);
     sm::vec<F, 4> ux_about_tmy = tmy * ux;
     sm::vec<F, 4> uy_about_tmy = tmy * uy;
@@ -118,7 +118,7 @@ int main()
         || (uy_about_tmy.less_one_dim() - uy_about_y_truth).abs().max() > std::numeric_limits<F>::epsilon()
         || (uz_about_tmy.less_one_dim() - uz_about_y_truth).abs().max() > std::numeric_limits<F>::epsilon()) { --rtn; }
 
-    sm::mat44<F> tmz;
+    sm::mat<F, 4> tmz;
     tmz.rotate (qz);
     sm::vec<F, 4> ux_about_tmz = tmz * ux;
     sm::vec<F, 4> uy_about_tmz = tmz * uy;

@@ -4,7 +4,7 @@
 #include <sm/mathconst>
 #include <sm/vec>
 #include <sm/quaternion>
-#include <sm/mat44>
+#include <sm/mat>
 
 #ifndef FLT
 typedef float F;
@@ -16,19 +16,19 @@ int main()
 {
     int rtn = 0;
 
-    constexpr sm::vec<F> ux = { 1, 0, 0 };
-    constexpr sm::vec<F> uy = { 0, 1, 0 };
-    constexpr sm::vec<F> uz = { 0, 0, 1 };
+    constexpr sm::vec<F> ux = sm::vec<F>::ux();
+    constexpr sm::vec<F> uy = sm::vec<F>::uy();
+    constexpr sm::vec<F> uz = sm::vec<F>::uz();
 
     using mc = sm::mathconst<F>;
 
     // Translation of [1,0,0], then the rotation 90 deg around z axis
 
-    sm::mat44<F> truth_mat_tr;
+    sm::mat<F, 4> truth_mat_tr;
     truth_mat_tr.translate (ux);
-    sm::mat44<F> truth_mat_rot;
+    sm::mat<F, 4> truth_mat_rot;
     truth_mat_rot.rotate (uz, sm::mathconst<F>::pi_over_2);
-    sm::mat44<F> truth_mat = truth_mat_tr * truth_mat_rot;
+    sm::mat<F, 4> truth_mat = truth_mat_tr * truth_mat_rot;
 
     sm::vec<F> ux_about_z_truth_pretrans = (truth_mat * ux).less_one_dim(); //{ 0.0, 2.0, 0.0 };
     sm::vec<F> uy_about_z_truth_pretrans = (truth_mat * uy).less_one_dim(); //{-1.0, 1.0, 0.0 };
@@ -36,7 +36,7 @@ int main()
 
     sm::quaternion<F> qz (uz, mc::pi_over_2);
 
-    sm::mat44<F> tmz_pt;
+    sm::mat<F, 4> tmz_pt;
     tmz_pt.rotate (qz);       // I * R
     tmz_pt.pretranslate (ux); // T * (I * R) == T * R
 
@@ -64,12 +64,12 @@ int main()
     }
 
     // Alternative ordering. pretranslate first, then rotate should give the same result
-    sm::mat44<F> tmz_pt2;
+    sm::mat<F, 4> tmz_pt2;
     tmz_pt2.pretranslate (ux); // T * I
     tmz_pt2.rotate (qz);       // (T * I) * R == T * R
 
     // Translate first then rotate should also give the same result
-    sm::mat44<F> tmz_pt3;
+    sm::mat<F, 4> tmz_pt3;
     tmz_pt3.translate (ux);    // I * T
     tmz_pt3.rotate (qz);       // (I * T) * R == T * R
 
@@ -94,7 +94,7 @@ int main()
 
     sm::quaternion<F> qy (uy, mc::pi_over_2);
 
-    sm::mat44<F> tmy_pt;
+    sm::mat<F, 4> tmy_pt;
     tmy_pt.rotate (qy);        // I * R
     tmy_pt.pretranslate (uy);  // T * (I * R) == T * R
 

@@ -172,27 +172,6 @@ add_test(testScaleVector testScaleVector)
 add_executable(testScale_complex testScale_complex.cpp)
 add_test(testScale_complex testScale_complex)
 
-# Test sm::mat44 (4x4 matrix)
-add_executable(testTransformMatrix testTransformMatrix.cpp)
-add_test(testTransformMatrix testTransformMatrix)
-
-if(NOT APPLE)
-  # constexpr mat44
-  add_executable(testTransMat_constexpr testTransMat_constexpr.cpp)
-  add_test(testTransMat_constexpr testTransMat_constexpr)
-endif()
-
-add_executable(testTranslatePretranslate testTranslatePretranslate.cpp)
-add_test(testTranslatePretranslate testTranslatePretranslate)
-
-# Test sm::mat33 (3x3 matrix)
-add_executable(testMatrix33 testMatrix33.cpp)
-add_test(testMatrix33 testMatrix33)
-
-# Test sm::mat22 (2x2 matrix)
-add_executable(testMatrix22 testMatrix22.cpp)
-add_test(testMatrix22 testMatrix22)
-
 # Test Hex::get_vertex_coord()
 add_executable(testHexVertexPos testHexVertexPos.cpp)
 add_test(testHexVertexPos testHexVertexPos)
@@ -381,22 +360,39 @@ add_test(testConfig testConfig)
 add_executable(test_zernike test_zernike.cpp)
 add_test(test_zernike test_zernike)
 
-add_executable(mat33_1 mat33_1.cpp)
-add_test(mat33_1 mat33_1)
+add_executable(mat_2x2_general mat_2x2_general.cpp)
+add_test(mat_2x2_general mat_2x2_general)
 
-add_executable(mat44_1 mat44_1.cpp)
-add_test(mat44_1 mat44_1)
+add_executable(mat_3x3_basic mat_3x3_basic.cpp)
+add_test(mat_3x3_basic mat_3x3_basic)
+
+add_executable(mat_3x3_general mat_3x3_general.cpp)
+add_test(mat_3x3_general mat_3x3_general)
+
+# Test sm::mat<T, 4> (4x4 matrix)
+add_executable(mat_4x4 mat_4x4.cpp)
+add_test(mat_4x4 mat_4x4)
+
+add_executable(mat_4x4_translate mat_4x4_translate.cpp)
+add_test(mat_4x4_translate mat_4x4_translate)
+
+add_executable(mat_4x4_basic2 mat_4x4_basic2.cpp)
+add_test(mat_4x4_basic2 mat_4x4_basic2)
+
+add_executable(mat_4x4_reflection mat_4x4_reflection.cpp)
+add_test(mat_4x4_reflection mat_4x4_reflection)
 
 if(NOT APPLE)
+  # constexpr mat44
+  add_executable(mat_4x4_constexpr mat_4x4_constexpr.cpp)
+  add_test(mat_4x4_constexpr mat_4x4_constexpr)
+
   if(Eigen3_FOUND)
-    add_executable(mat44_2 mat44_2.cpp)
-    target_include_directories (mat44_2 BEFORE PRIVATE ${EIGEN3_INCLUDE_DIR})
-    add_test(mat44_2 mat44_2)
+    add_executable(mat_4x4_vseigen mat_4x4_vseigen.cpp)
+    target_include_directories (mat_4x4_vseigen BEFORE PRIVATE ${EIGEN3_INCLUDE_DIR})
+    add_test(mat_4x4_vseigen mat_4x4_vseigen)
   endif(Eigen3_FOUND)
 endif()
-
-add_executable(mat44_3 mat44_3.cpp)
-add_test(mat44_3 mat44_3)
 
 add_executable(algo_1 algo_1.cpp)
 add_test(algo_1 algo_1)
@@ -418,9 +414,6 @@ add_test(range_intersects range_intersects)
 
 add_executable(range_adding range_adding.cpp)
 add_test(range_adding range_adding)
-
-add_executable(range_vectorequality range_vectorequality.cpp)
-add_test(range_vectorequality range_vectorequality)
 
 add_executable(xyz_to_latlong xyz_to_latlong.cpp)
 add_test(xyz_to_latlong xyz_to_latlong)
