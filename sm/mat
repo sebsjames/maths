@@ -128,7 +128,7 @@ namespace sm
                     if (c != Nc - 1) {
                         ss << ", ";
                     } else {
-                        if (r != Nr - 1) { ss << " \n"; }
+                        if (r != Nr - 1) { ss << " ;\n"; }
                     }
                 }
             }

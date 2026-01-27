@@ -26,6 +26,8 @@ add_executable(mat33 mat33.cpp)
 add_executable(mat44 mat44.cpp)
 add_executable(mat44_frombasis mat44_frombasis.cpp)
 
+add_executable(mat_nonsquare mat_nonsquare.cpp)
+
 add_executable(hexgrid hexgrid.cpp)
 
 add_executable(vonmises vonmises.cpp)
