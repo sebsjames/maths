@@ -201,6 +201,34 @@ namespace sm
         }
 
         /*!
+         * \brief Transform a span of scalars or vectors.
+         *
+         * This uses the scaling parameters \b params (scale_impl::params) to scale the input \a
+         * data. If #do_autoscale is true and this->ready() is false, then the parameters are computed
+         * from the input \a data.
+         *
+         * \param data The input data
+         * \param output The scaled output
+         */
+        template <typename Container>
+        requires sm::is_copyable_container<Container>::value
+        void transform (const std::span<T> data, Container& output)
+        {
+            std::size_t dsize = data.size();
+            if (output.size() != dsize) {
+                throw std::runtime_error ("scale_impl_base::transform(): Ensure data.size()==output.size()");
+            }
+            if (this->do_autoscale == true && !this->ready()) {
+                this->compute_scaling_from_data (data); // not const
+            } else if (this->do_autoscale == false && !this->ready()) {
+                throw std::runtime_error ("scale_impl_base::transform(): Params are not set and do_autoscale is set false. Can't transform.");
+            }
+            typename std::span<T>::iterator di = data.begin();
+            typename Container::iterator oi = output.begin();
+            while (di != data.end()) { *oi++ = this->transform_one (*di++); }
+        }
+
+        /*!
          * \brief Inverse transform a container of scalars or vectors.
          */
         template <typename OContainer, typename Container=OContainer>
