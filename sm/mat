@@ -25,7 +25,6 @@
 #include <iostream>
 #include <type_traits>
 #include <initializer_list>
-#include <complex>
 
 #include <sm/mathconst>
 #include <sm/quaternion>
