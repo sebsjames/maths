@@ -89,37 +89,21 @@ int main()
 
     // Rotation matrices
     sm::quaternion<float> qfm (1, 2, -3, 4); // NOT unit.
-    std::array<float, 16> matA = qfm.rotationMatrix();
-    std::array<float, 16> matB = qfm.unitRotationMatrix();
-    //std::array<float, 16> matC;
-    //qfm.rotationMatrix2(matC);
-    sm::vec<float, 16> vmatA;
-    vmatA.set_from (matA);
-    sm::vec<float, 16> vmatB;
-    vmatB.set_from (matB);
-    //sm::vec<float, 16> vmatC;
-    //vmatC.set_from (matC);
+    sm::vec<float, 16> vmatA = qfm.rotation_matrix();
+    sm::vec<float, 16> vmatB = qfm.unit_rotation_matrix();
+
     std::cout << "Rotation matrices of non-unit qfm\n";
-    std::cout << "rotationMatrix:     " << vmatA << std::endl;
-    //std::cout << "unitRotationMatrix2: " << vmatC << std::endl;
-    std::cout << "unitRotationMatrix: " << vmatB << std::endl;
+    std::cout << "rotation_matrix:     " << vmatA << std::endl;
+    std::cout << "unit_rotation_matrix: " << vmatB << std::endl;
 
 
     std::cout << "Rotation matrices of unit qfm\n";
     qfm.renormalize();
-    std::array<float, 16> matAA = qfm.rotationMatrix();
-    std::array<float, 16> matBB = qfm.unitRotationMatrix();
-    //std::array<float, 16> matCC;
-    //qfm.rotationMatrix2(matCC);
-    sm::vec<float, 16> vmatAA;
-    vmatAA.set_from (matAA);
-    sm::vec<float, 16> vmatBB;
-    vmatBB.set_from (matBB);
-    //sm::vec<float, 16> vmatCC;
-    //vmatCC.set_from (matCC);
-    std::cout << "rotationMatrix:     " << vmatAA << std::endl;
-    //std::cout << "unitRotationMatrix2: " << vmatCC << std::endl;
-    std::cout << "unitRotationMatrix: " << vmatBB << std::endl;
+    sm::vec<float, 16> vmatAA = qfm.rotation_matrix();
+    sm::vec<float, 16> vmatBB = qfm.unit_rotation_matrix();
+
+    std::cout << "rotation_matrix:     " << vmatAA << std::endl;
+    std::cout << "unit_rotation_matrix: " << vmatBB << std::endl;
 
 
     sm::vec<float> myaxis = { 1, 2, 3 };
@@ -157,8 +141,8 @@ int main()
         metric_rangef.update (metricf);
     }
     std::cout << "metric_range (float): " << metric_rangef << std::endl;
-    // metric_range should be smaller than unitThresh
-    if (metric_rangef.max > sm::quaternion<float>::unitThresh()) {
+    // metric_range should be smaller than unit_thresh
+    if (metric_rangef.max > sm::quaternion<float>::unit_thresh()) {
         --rtn;
     }
 
@@ -178,8 +162,8 @@ int main()
         metric_ranged.update (metricd);
     }
     std::cout << "metric_range (double): " << metric_ranged << std::endl;
-    // metric_range should be smaller than unitThresh
-    if (metric_ranged.max > sm::quaternion<double>::unitThresh()) {
+    // metric_range should be smaller than unit_thresh
+    if (metric_ranged.max > sm::quaternion<double>::unit_thresh()) {
         --rtn;
     }
 
