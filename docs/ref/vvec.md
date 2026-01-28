@@ -296,7 +296,7 @@ Three functions to fill a `vvec` with random numbers:
 ```c++
 void randomize();                // fill from uniform random number generator, range [0,1).
 void randomize (S min, S max)    // fill from uniform RNG, range [min,max).
-void randomizeN (S _mean, S _sd) // fill from normal RNG with given mean and std. deviation.
+void randomize_normal (S _mean, S _sd) // fill from normal RNG with given mean and std. deviation.
 ```
 
 ### Re-ordering elements
@@ -444,7 +444,7 @@ template <typename Sy=S, std::enable_if_t<!std::is_integral<std::decay_t<Sy>>::v
 Check whether your renormalized vector is a unit vector:
 
 ```c++
-bool checkunit() const; // return true if length is 1 (to within vvec::unitThresh = 0.001)
+bool checkunit() const; // return true if length is 1 (to within vvec::unit_thresh = 0.001)
 ```
 ### Extent
 

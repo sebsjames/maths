@@ -48,10 +48,10 @@ constexpr int test_quat1()
     q2.rotate (std::array<float, 3>{1.0f, 0.0f, 0.0f}, mc::pi_over_2);
     q2.rotate (sm::vec<float, 3>{1.0f, 0.0f, 0.0f}, mc::pi_over_2);
 
-    std::array<float, 16> am = q1.rotationMatrix();
+    sm::vec<float, 16> am = q1.rotation_matrix();
     if (am[0] != 1.0f) { am[0] += 1.0f; } // Just avoid unused variable for am
 
-    std::array<float, 16> am2 = q2.unitRotationMatrix();
+    sm::vec<float, 16> am2 = q2.unit_rotation_matrix();
     if (am2[0] != 1.0f) { am2[0] += 1.0f; } // Just avoid unused variable for am
 
     sm::quaternion<float> qinvert = q1.invert();

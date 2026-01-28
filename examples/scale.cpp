@@ -63,19 +63,19 @@ int main()
     std::cout << "With scale::compute_scaling (1, 32), " << vv1 << " scales to: " << vvresult << "\n";
 
     // To compute a scale which transforms every number to 1, you can do this:
-    s.setParams(0, 1); // For a linear sm::scale, the parameters are gradient, offset
+    s.set_params(0, 1); // For a linear sm::scale, the parameters are gradient, offset
     s.transform (vv1, vvresult);
-    std::cout << "With scale::setParams(0,1) " << vv1 << " scales to: " << vvresult << "\n";
+    std::cout << "With scale::set_params(0,1) " << vv1 << " scales to: " << vvresult << "\n";
 
     // To set a scaling which doubles every number and adds 1:
-    s.setParams(2, 1);
+    s.set_params(2, 1);
     s.transform (vv1, vvresult);
-    std::cout << "With scale::setParams(2,1) " << vv1 << " scales to: " << vvresult << "\n";
+    std::cout << "With scale::set_params(2,1) " << vv1 << " scales to: " << vvresult << "\n";
 
     // To compute a scale which transforms every number to 0, you can do this:
-    s.setParams(0, 0);
+    s.set_params(0, 0);
     s.transform (vv1, vvresult);
-    std::cout << "With scale::setParams(0,0) " << vv1 << " scales to: " << vvresult << "\n";
+    std::cout << "With scale::set_params(0,0) " << vv1 << " scales to: " << vvresult << "\n";
 
     // This is often useful, so it has an alias function:
     s.null_scaling();

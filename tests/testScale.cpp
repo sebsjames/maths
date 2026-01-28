@@ -349,7 +349,7 @@ int main ()
     // compute_scaling with two numbers
     sm::scale<float> scxx;
     scxx.compute_scaling (1,1);
-    std::cout << "scxx params: " << scxx.getParams() << std::endl;
+    std::cout << "scxx params: " << scxx.get_params() << std::endl;
     std::cout << "Using scxx, 0 scales to " << scxx.transform_one (0.0f) << std::endl;
     std::cout << "Using scxx, 1 scales to " << scxx.transform_one (1.0f) << std::endl;
     std::cout << "Using scxx, 10 scales to " << scxx.transform_one (10.0f) << std::endl;

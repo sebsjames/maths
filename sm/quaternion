@@ -74,7 +74,7 @@ namespace sm
          */
         constexpr void renormalize() noexcept
         {
-            F oneovermag = F{1} / sm::cem::sqrt (w*w + x*x + y*y + z*z);
+            F oneovermag = F{1} / sm::cem::sqrt (w * w + x * x + y * y + z * z);
             this->w *= oneovermag;
             this->x *= oneovermag;
             this->y *= oneovermag;
@@ -85,7 +85,7 @@ namespace sm
          * The threshold outside of which the quaternion is no longer considered to be a
          * unit quaternion.
          */
-        static constexpr F unitThresh() noexcept
+        static constexpr F unit_thresh() noexcept
         {
             // Note: std::float16_t comes with C++23
             if constexpr (std::is_same<F, float>::value) {
@@ -99,9 +99,9 @@ namespace sm
         constexpr bool checkunit() noexcept
         {
             bool rtn = true;
-            F metric = F{1} - (w*w + x*x + y*y + z*z);
+            F metric = F{1} - (w * w + x * x + y * y + z * z);
 
-            if (sm::cem::abs(metric) > sm::quaternion<F>::unitThresh()) {
+            if (sm::cem::abs(metric) > sm::quaternion<F>::unit_thresh()) {
                 rtn = false;
             }
             return rtn;
@@ -270,11 +270,11 @@ namespace sm
         }
 
         //! Return the magnitude of the quaternion (aka the norm)
-        constexpr F magnitude() const noexcept { return sm::cem::sqrt (w*w + x*x + y*y + z*z); }
+        constexpr F magnitude() const noexcept { return sm::cem::sqrt (w * w + x * x + y * y + z * z); }
         //! Return the norm of the quaternion (aka the magnitude)
-        constexpr F norm() const noexcept { return sm::cem::sqrt (w*w + x*x + y*y + z*z); }
+        constexpr F norm() const noexcept { return sm::cem::sqrt (w * w + x * x + y * y + z * z); }
         //! Sometimes you'll want the norm squared. Save the sm::cem::sqrt and a multiplication.
-        constexpr F norm_squared() const noexcept { return (w*w + x*x + y*y + z*z); }
+        constexpr F norm_squared() const noexcept { return (w * w + x * x + y * y + z * z); }
 
         //! Reset to a zero rotation
         constexpr void reset() noexcept
@@ -376,10 +376,10 @@ namespace sm
          *  2  6 10 14
          *  3  7 11 15
          */
-        constexpr std::array<F, 16> rotationMatrix() const noexcept
+        constexpr sm::vec<F, 16> rotation_matrix() const noexcept
         {
-            std::array<F, 16> mat;
-            this->rotationMatrix (mat);
+            sm::vec<F, 16> mat;
+            this->rotation_matrix (mat);
             return mat;
         }
 
@@ -388,21 +388,21 @@ namespace sm
          * this quaternion. This function *does not assume that the quaternion representing the
          * rotation is a unit quaternion*.
          */
-        constexpr void rotationMatrix (std::array<F, 16>& mat) const noexcept
+        constexpr void rotation_matrix (sm::vec<F, 16>& mat) const noexcept
         {
-            mat[0] = w*w + x*x - y*y - z*z;
-            mat[1] = F{2}*x*y + F{2}*w*z;
-            mat[2] = F{2}*x*z - F{2}*w*y;
+            mat[0] = w * w + x * x - y * y - z * z;
+            mat[1] = F{2} * x * y + F{2} * w * z;
+            mat[2] = F{2} * x * z - F{2} * w * y;
             mat[3] = F{0};
 
-            mat[4] = F{2}*x*y - F{2}*w*z;
-            mat[5] = w*w - x*x + y*y - z*z;
-            mat[6] = F{2}*y*z + F{2}*w*x;
+            mat[4] = F{2} * x * y - F{2} * w * z;
+            mat[5] = w * w - x * x + y * y - z * z;
+            mat[6] = F{2} * y * z + F{2} * w * x;
             mat[7] = F{0};
 
-            mat[8] = F{2}*x*z + F{2}*w*y;
-            mat[9] = F{2}*y*z - F{2}*w*x;
-            mat[10] = w*w - x*x - y*y + z*z;
+            mat[8] = F{2} * x * z + F{2} * w * y;
+            mat[9] = F{2} * y * z - F{2} * w * x;
+            mat[10] = w * w - x * x - y * y + z * z;
             mat[11] = F{0};
 
             mat[12] = F{0};
@@ -411,34 +411,34 @@ namespace sm
             mat[15] = F{1};
 
             // Without this renormalization, the quaternion *would* have to be unit.
-            F one_over_norm_squared = F{1} / this->norm_squared();
-            for (auto& e : mat) { e *= one_over_norm_squared; }
+            mat /= this->norm_squared();
         }
 
         //! Obtain rotation matrix assuming this IS a unit quaternion
-        constexpr std::array<F, 16> unitRotationMatrix() const noexcept
+        constexpr sm::vec<F, 16> unit_rotation_matrix() const noexcept
         {
-            std::array<F, 16> mat;
-            this->unitRotationMatrix (mat);
+            sm::vec<F, 16> mat;
+            this->unit_rotation_matrix (mat);
             return mat;
         }
 
-        //! Rotate the matrix \a mat by this quaternion, *assuming it's a unit quaternion*.
-        constexpr void unitRotationMatrix (std::array<F, 16>& mat) const noexcept
+        //! Populate 4x4 transform matrix \a mat with the rotation represented by this quaternion,
+        //! *assuming it's a unit quaternion*.
+        constexpr void unit_rotation_matrix (sm::vec<F, 16>& mat) const noexcept
         {
-            mat[0] = F{1} - F{2}*y*y - F{2}*z*z;
-            mat[1] = F{2}*x*y + F{2}*w*z;
-            mat[2] = F{2}*x*z - F{2}*w*y;
+            mat[0] = F{1} - F{2} * y * y - F{2} * z * z;
+            mat[1] = F{2} * x * y + F{2} * w * z;
+            mat[2] = F{2} * x * z - F{2} * w * y;
             mat[3] = F{0};
 
-            mat[4] = F{2}*x*y - F{2}*w*z;
-            mat[5] = F{1} - F{2}*x*x - F{2}*z*z;
-            mat[6] = F{2}*y*z + F{2}*w*x;
+            mat[4] = F{2} * x * y - F{2} * w * z;
+            mat[5] = F{1} - F{2} * x * x - F{2} * z * z;
+            mat[6] = F{2} * y * z + F{2} * w * x;
             mat[7] = F{0};
 
-            mat[8] = F{2}*x*z + F{2}*w*y;
-            mat[9] = F{2}*y*z - F{2}*w*x;
-            mat[10] = F{1} - F{2}*x*x - F{2}*y*y;
+            mat[8] = F{2} * x * z + F{2} * w * y;
+            mat[9] = F{2} * y * z - F{2} * w * x;
+            mat[10] = F{1} - F{2} * x * x - F{2} * y * y;
             mat[11] = F{0};
 
             mat[12] = F{0};
