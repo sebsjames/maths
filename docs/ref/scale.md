@@ -151,14 +151,14 @@ s.output_range = { 1.0f, 2.0f };
 
 The scaling parameters are stored in a member `sm::vvec` object called `params`. Both linear and logarithmic scaling functions require two parameters. You can set the params with
 ```c++
-void setParams (S p0, S p1);
+void set_params (S p0, S p1);
 ```
 For a linear scaling, param 0 is gradient (or 'm') and param 1 is offset (or 'c'). Note that the type of the params is the *output* type, `S`.
 
 There are corresponding getters for the params (these are from the scalar scale implementation):
 ```c++
-S getParams (size_t idx) { return this->params[idx]; }
-sm::vvec<S> getParams() { return this->params; }
+S get_params (size_t idx) { return this->params[idx]; }
+sm::vvec<S> get_params() { return this->params; }
 ```
 
 It is the scaling parameters that determine if the `sm::scale` object is `ready()` (returns true if params size is > 1) and `reset()` simply calls `clear()` on `scale::params`.
@@ -206,7 +206,7 @@ sid.null_scaling();
 std::cout << 2.0 << " null-scales to " << sid.transform_one (2.0) << std::endl; // "2.0 null-scales to 0.0"
 ```
 
-`scale::null_scaling()` is equivalent to calling `scale::setParams (0, 0)`.
+`scale::null_scaling()` is equivalent to calling `scale::set_params (0, 0)`.
 
 ### Logarithmic scaling
 

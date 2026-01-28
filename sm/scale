@@ -334,14 +334,14 @@ namespace sm
         bool do_autoscale = false;
 
         // Set type for transformations/autoscaling
-        void setType (scaling_function t)
+        void set_type (scaling_function t)
         {
             // Reset, because any autoscaling will need to be re-computed
             this->reset();
             this->type = t;
         }
 
-        scaling_function getType() { return this->type; }
+        scaling_function get_type() { return this->type; }
 
         void setlog()
         {
@@ -421,7 +421,7 @@ namespace sm
                 throw std::runtime_error ("scale_impl<0=vector>::transform_one(): This transform function is for Linear scaling only");
             }
             if (params.size() != 2) {
-                throw std::runtime_error ("scale_impl<0=vector>::transform_one(): For linear scaling of ND vector lengths, need 2 params (set do_autoscale or call setParams())");
+                throw std::runtime_error ("scale_impl<0=vector>::transform_one(): For linear scaling of ND vector lengths, need 2 params (set do_autoscale or call set_params())");
             }
             S rtn(datum);
             T_el vec_len = this->vec_length (datum);
@@ -502,13 +502,13 @@ namespace sm
         virtual void null_scaling()
         {
             this->do_autoscale = false;
-            this->setParams (S_el{0}, S_el{0});
+            this->set_params (S_el{0}, S_el{0});
         }
 
         //! Set params for a two parameter scaling
         //! \param p0 The zeroth parameter
         //! \param p1 The first parameter
-        void setParams (S_el p0, S_el p1)
+        void set_params (S_el p0, S_el p1)
         {
             this->do_autoscale = false;
             this->params.resize (2, S_el{0});
@@ -519,10 +519,10 @@ namespace sm
         //! Getter for params
         //! \param idx The index into #params
         //! \return The specified element of #params
-        S_el getParams (uint32_t idx) { return this->params[idx]; }
+        S_el get_params (uint32_t idx) { return this->params[idx]; }
 
         //! Get all the params
-        sm::vvec<S_el> getParams() { return this->params; }
+        sm::vvec<S_el> get_params() { return this->params; }
 
         //! return string representation of params
         std::string params_str() const { return this->params.str(); }
@@ -665,13 +665,13 @@ namespace sm
         virtual void null_scaling()
         {
             this->do_autoscale = false;
-            this->setParams (S{0}, S{0});
+            this->set_params (S{0}, S{0});
         }
 
         //! Set params for a two parameter scaling
         //! \param p0 The zeroth parameter
         //! \param p1 The first parameter
-        void setParams (S p0, S p1)
+        void set_params (S p0, S p1)
         {
             this->do_autoscale = false;
             this->params.resize (2, S{0});
@@ -682,10 +682,10 @@ namespace sm
         //! Getter for params
         //! \param idx The index into #params
         //! \return The specified element of #params
-        S getParams (uint32_t idx) { return this->params[idx]; }
+        S get_params (uint32_t idx) { return this->params[idx]; }
 
         //! Get all the params
-        sm::vvec<S> getParams() { return this->params; }
+        sm::vvec<S> get_params() { return this->params; }
 
         //! return string representation of params
         std::string params_str() const { return this->params.str(); }
