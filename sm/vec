@@ -540,7 +540,7 @@ namespace sm
          * numbers drawn from a uniform distribution between \a min and \a
          * max. Strictly, the range is [min, max)
          */
-        void randomizeN (S _mean, S _sd) noexcept
+        void randomize_normal (S _mean, S _sd) noexcept
         {
             rand_normal<S> rn (_mean, _sd);
             rn.get (*this);
@@ -552,7 +552,7 @@ namespace sm
          * error value is smaller than the unit threshold, we call the vector a unit vector to
          * within the tolerances that we can compute.
          */
-        static constexpr S unitThresh() noexcept
+        static constexpr S unit_thresh() noexcept
         {
             // Note: std::float16_t comes with C++23
             if constexpr (std::is_same<S, float>::value) {
@@ -574,7 +574,7 @@ namespace sm
         {
             auto subtract_squared = [](Sy a, Sy b) { return static_cast<Sy>(a - b * b); };
             const Sy metric = std::accumulate (this->begin(), this->end(), Sy{1}, subtract_squared);
-            if (sm::cem::abs(metric) > sm::vec<Sy>::unitThresh()) {
+            if (sm::cem::abs(metric) > sm::vec<Sy>::unit_thresh()) {
                 return false;
             }
             return true;
