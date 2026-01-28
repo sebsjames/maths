@@ -79,15 +79,15 @@ sm::vvec<sm::vec<float, 3>> vector_of_vecs = {} // vvec of vecs? No problem.
 
 ## Quaternions and transform matrices
 
-The classes `sm::quaternion`, `sm::mat44`, `sm::mat33` and `sm::mat22` fulfil your vector transformation needs.
+The classes `sm::quaternion`, `sm::mat` fulfil your vector transformation needs.
 ```c++
 #include <sm/quaternion>
 sm::quaternion<float> q1 (sm::vec<float>{0, 0, 1}, sm::mathconst<float>::pi_over_2);
 sm::quaternion<float> q2 (sm::vec<float>{0, 1, 1}, sm::mathconst<float>::pi_over_4);
 sm::quaternion<float> q3 = q1 * q2;
 
-#include <sm/mat44>
-sm::mat44<float> m;
+#include <sm/mat>
+sm::mat<float, 4> m;
 m.prerotate (q3)                     // Set a (pre)rotation from a quaternion
 m.translate (sm::vec<float>{0,1,2}); // Set a translation into the matrix
 sm::vec<float, 3> v = {0,0,1};
@@ -96,7 +96,7 @@ sm::vec<float, 4> vout = m * v;      // Transform a 3D vector, always get a 4D r
 
 ## Constexpr maths
 
-`sm::vec`, `sm::quaternion` and `sm::mat44` are all `constexpr` capable in C++20. For this I had to incorporate a constexpr capable set of the basic math functions to stand in place of those from the `std` namespace. Find these in the `sm::cem` namespace with `#include <constexpr_maths>`. Adapted from Keith O'Hara's GCE Math library with thanks.
+`sm::vec`, `sm::quaternion` and `sm::mat` are all `constexpr` capable in C++20. For this I had to incorporate a constexpr capable set of the basic math functions to stand in place of those from the `std` namespace. Find these in the `sm::cem` namespace with `#include <constexpr_maths>`. Adapted from Keith O'Hara's GCE Math library with thanks.
 
 ## Two dimensional grids
 
