@@ -344,7 +344,7 @@ Three functions to fill a `vec` with random numbers:
 ```c++
 void randomize();                // fill from uniform random number generator, range [0,1).
 void randomize (S min, S max)    // fill from uniform RNG, range [min,max).
-void randomizeN (S _mean, S _sd) // fill from normal RNG with given mean and std. deviation.
+void randomize_normal (S _mean, S _sd) // fill from normal RNG with given mean and std. deviation.
 ```
 
 ### Plus-one/less-one dimension
@@ -449,7 +449,7 @@ template <typename Sy=S, std::enable_if_t<!std::is_integral<std::decay_t<Sy>>::v
 Check whether your renormalized vector is a unit vector:
 
 ```c++
-bool checkunit() const; // return true if length is 1 (to within vec::unitThresh = 0.001)
+bool checkunit() const; // return true if length is 1 (to within vec::unit_thresh = 0.001)
 ```
 
 ### Finding elements
