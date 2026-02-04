@@ -11,6 +11,8 @@
 #include <string>
 #include <vector>
 #include <stdexcept>
+#include <fstream>
+#include <sm/trait_tests>
 
 namespace sm::util
 {
@@ -57,6 +59,29 @@ namespace sm::util
         std::string::size_type ptr = std::string::npos;
         while ((ptr = str.find_last_of (bracket_chars, ptr)) != std::string::npos) {
             str = str.erase (ptr, 1);
+        }
+    }
+
+    // Write an item of type T to fout, assumed open. T can be basic types or fixed size containers (sm::vec/std::array)
+    template<typename T> requires (std::is_arithmetic_v<T> == true || sm::is_copyable_fixedsize<std::decay_t<T>>::value == true)
+    void binary_write (std::ofstream& fout, const T& from)
+    {
+        if constexpr (sm::is_copyable_fixedsize<std::decay_t<T>>::value == true) {
+            for (auto el : from) { fout.write (reinterpret_cast<const char*>(&el), sizeof el); }
+        } else {
+            // Should be ok for float, double, uint32_t etc
+            fout.write (reinterpret_cast<const char*>(&from), sizeof from);
+        }
+    }
+
+    // Read an item of type T from fin, which is assumed to be open
+    template<typename T> requires (std::is_arithmetic_v<T> == true || sm::is_copyable_fixedsize<std::decay_t<T>>::value == true)
+    void binary_read (std::ifstream& fin, T& into)
+    {
+        if constexpr (sm::is_copyable_fixedsize<std::decay_t<T>>::value == true) {
+            for (auto& el : into) { fin.read (reinterpret_cast<char*>(&el), sizeof el); }
+        } else {
+            fin.read (reinterpret_cast<char*>(&into), sizeof into);
         }
     }
 

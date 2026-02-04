@@ -423,3 +423,6 @@ add_test(sph_projections sph_projections)
 
 add_executable(graham_scan_1 graham_scan_1.cpp)
 add_test(graham_scan_1 graham_scan_1)
+
+add_executable(util1 util1.cpp)
+add_test(util1 util1)
