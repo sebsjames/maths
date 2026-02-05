@@ -38,5 +38,35 @@ int main()
             }
         }
     }
+
+    // What if we open a config that doesn't exist?
+    {
+        sm::config config("non-existent.json");
+        // If you open a non-existent json, then config.ready will be false
+        std::cout << "config.ready? : " << config.ready << std::endl;
+        if (config.ready) { --rtn; }
+
+        // BUT, you can still can get functions, and you will get the defaults:
+        std::cout << "Get non existent float field from non existent config: "
+                  << config.get<float> ("imaginary", 1.0f) << std::endl;
+        float itllbeone = config.get<float> ("imaginary", 1.0f);
+        if (itllbeone != 1.0f) { --rtn; }
+        std::cout << "Get non existent string field from non existent config: "
+                  << config.get<std::string> ("imaginary chars", "The default") << std::endl;
+        std::string str = config.get<std::string> ("imaginary chars", "The default");
+        if (str != "The default") { --rtn; }
+
+        // Get a vvec and it should be empty
+        sm::vvec<float> vv = config.getvvec<float> ("a_name");
+        std::cout << "We get a vvec from an empty config: " << vv << std::endl;
+        if (!vv.empty()) { --rtn; }
+
+        // Get a vec and it should be all zeros
+        sm::vec<int32_t, 2> v = config.getvec<int32_t, 2> ("a_name");
+        std::cout << "We get a vec from an empty config: " << v << std::endl;
+        if (v[0] != 0 || v[1] != 0) { --rtn; }
+    }
+
+    std::cout << "sm::config test " << (rtn ? "FAILED\n" : "PASSED\n");
     return rtn;
 }
