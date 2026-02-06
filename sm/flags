@@ -34,7 +34,11 @@
  *
  * Test several flags in one call to test with an initializer list:
  *
- * bool flags_one_and_two_set = fl.test ({myflags::flag_one, myflags::flag_two});
+ * bool flags_one_AND_two_set = fl.test ({myflags::flag_one, myflags::flag_two});
+ *
+ * Or use any_of() for an OR test:
+ *
+ * bool flags_one_OR_two_set = fl.any_of ({myflags::flag_one, myflags::flag_two});
  *
  * Clear/reset a flag:
  *
@@ -199,6 +203,14 @@ namespace sm
             I tbits = I{0};
             for (auto flag : flags) { tbits |= (I{1} << static_cast<I>(flag)); }
             return (this->bits & tbits) == tbits;
+        }
+
+        // True if any of the multiple flags in the intializer list are set. True if ANY are set
+        constexpr bool any_of (std::initializer_list<const E> flags) const noexcept
+        {
+            I tbits = I{0};
+            for (auto flag : flags) { tbits |= (I{1} << static_cast<I>(flag)); }
+            return (this->bits & tbits) != I{0};
         }
 
         // Get the underlying bits
