@@ -3,7 +3,7 @@ title: sm::range
 parent: Reference
 layout: page
 permalink: /ref/range
-nav_order: 1
+nav_order: 5
 ---
 # sm::range
 {: .no_toc}

@@ -3,7 +3,7 @@ layout: page
 title: sm::vec
 parent: Reference
 permalink: /ref/vec/
-nav_order: 9
+nav_order: 0
 ---
 # sm::vec
 {: .no_toc}

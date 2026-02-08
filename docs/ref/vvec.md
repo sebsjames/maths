@@ -3,7 +3,7 @@ layout: page
 parent: Reference
 title: sm::vvec
 permalink: /ref/vvec/
-nav_order: 10
+nav_order: 1
 ---
 # sm::vvec
 {: .no_toc}

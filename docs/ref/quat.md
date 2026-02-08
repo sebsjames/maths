@@ -3,7 +3,7 @@ layout: page
 title: sm::quaternion
 parent: Reference
 permalink: /ref/quaternion/
-nav_order: 4
+nav_order: 3
 ---
 # sm::quaternion
 {: .no_toc }

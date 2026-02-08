@@ -3,7 +3,7 @@ title: sm::histo
 parent: Reference
 permalink: /ref/histo
 layout: page
-nav_order: 11
+nav_order: 9
 ---
 # sm::histo
 {: .no_toc}
