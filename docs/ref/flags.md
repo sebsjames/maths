@@ -24,7 +24,7 @@ Header file: [<sm/flags>](https://github.com/sebsjames/maths/blob/main/sm/flags)
 
 A Boolean flags class. `sm::flags` is for Boolean state or options in your programs.
 It's as compact as using a C-style approach (integer types, preprocessor definitions and bit-wise operations), but it has a semantically meaningful C++ syntax.
-Although you can store state in `std::bitset`, there is no way to refer to elements of the state in terms of an enum without ugly use of static casts.
+Although you *can* store state in `std::bitset`, there is no way to refer to elements of the state in terms of an enum without ugly use of static casts.
 
 This code was adapted from an idea in the Vulkan code base via [this gist](https://gist.github.com/fschoenberger/54c5342f220af510e1f78308a8994a45) which makes it possible to have neat, meaningful and efficient code like:
 
@@ -44,11 +44,11 @@ The flags class is templated on type `E` which is required to be an enumerated c
         // ...
 ```
 
-The underlying type of E is whatever integer type was chosen for the class.
+The underlying type of E is whatever integer type was chosen for the class (the type after the ':' in the `enum class`).
 
 ### Quick start
 
-You generally create your own enum class to use with a flags instance.
+You generally create your own enum class to use with a flags instance. Here is one which uses `uint64_t` as the underlying type:
 
 ```c++
 enum class myflags : uint64_t { // up to 64 flags are possible with this underlying type
@@ -57,16 +57,17 @@ enum class myflags : uint64_t { // up to 64 flags are possible with this underly
 };
 ```
 
-It is up to you to ensure that your enum class does not contain more flags than there are bits in the underlying type!
+**Important**: It is up to you to ensure that your enum class does not contain more flags than there are bits in the underlying type! There's no way that I know of for the compiler to test this.
+
 The size of the underlying type determines how much storage an instance of the flags class will use. In this case, it's 64 bits or 8 bytes.
 
 Now you can create an object of type `sm::flags<>`:
 ```c++
 sm::flags<myflags> fl;
 ```
-By default, all flags here will be 0 or *false*.
+By default, all flags here will be 0 or **false**.
 
-Set a flag on `fl` to *true*:
+Set a flag on `fl` to **true**:
 ```c++
 fl.set (myflags::flag_one);
 ```
@@ -76,11 +77,33 @@ Test the flag is set:
 bool flag_one_is_set = fl.test (myflags::flag_one);
 ```
 
+### Construct
+
+The no-args constructor sets all flags to **false**
+```c++
+sm::flags<myflags> fl; // test anything and get false
+```
+You can also construct with a single enumerated flag
+```c++
+sm::flags<myflags> fl (myflags::flag_one); // initialized with only flag_one set.
+```
+or with an integer specifying the initial state:
+```c++
+uint64_t istate = 0x1;
+sm::flags<myflags> fl (istate); // initialized with only flag_one set.
+```
+Lastly, you can construct with another flags object:
+```c++
+sm::flags<myflags> fl1;
+fl1.set (myflags::flag_one);
+sm::flags<myflags> fl2 (fl1);
+```
+
 ### Set flags
 
 You can set a single flag as above with `fl.set (myflags::flag_one)`.
 
-If you need to clear a flag (i.e. set it to *false*) you can either call `set` with an additional argument:
+If you need to clear a flag (i.e. set it to **false**) you can either call `set` with an additional argument:
 
 ```c++
 fl.set (myflags::flag_one, false);
@@ -107,19 +130,35 @@ fl.flip (myflags::flag_one);
 
 ### Test flags
 
-The `test` method allows you to query a flag. For a single flag it's just `fl.test (myflags::flag_two)` which returns a `bool`.
+The `flags::test` method allows you to query a flag. For a single flag it's just `fl.test (myflags::flag_two)` which returns a `bool`.
 
 You can test several flags in one call to test with an initializer list:
 ```c++
 bool flags_one_AND_two_set = fl.test ({myflags::flag_one, myflags::flag_two});
 ```
-You can also use the alias `all_of` which returns true if all of the flags in the list are true:
+You can also use the alias `flags::all_of` which returns true if all of the flags in the list are true:
 ```c++
 bool flags_one_AND_two_set = fl.all_of ({myflags::flag_one, myflags::flag_two});
 ```
-To test whether *any* of a list of flags is set, use `any_of()`:
+To test whether *any* of a list of flags is set, use `flags::any_of`:
 ```c++
 bool flags_one_OR_two_set = fl.any_of ({myflags::flag_one, myflags::flag_two});
+```
+You can also test if *any* flag is set:
+```c++
+bool any_set = fl.any();
+```
+or if *no* flag is set:
+```c++
+bool none_set = fl.none();
+```
+You can get a count of the number of flags set, returned in the underlying type for the enum class:
+```c++
+uint64_t number_set = fl.count();
+```
+You can also get the flags state in the underlying type:
+```c++
+uint64_t flags_state = fl.get();
 ```
 
 ### Writing a default settings function
@@ -162,3 +201,15 @@ The output is a binary string representation, with '1' and '0' characters follow
 The number of digits depends on the size of the underlying type (in this case, there are 8 bits in uint8_t).
 The binary string shows the first flag as the least significant bit to the right.
 For the example above, we get `00000001b` for `myflags::one` and `00000100b` for `myflags::three`
+
+### Operations on flags
+
+As alternatives to `flags::test` and `flags::set`, you can apply Boolean operators with enumerated class arguments to your `sm::flags` objects:
+```c++
+// Set
+fl |= myflags::one;
+fl |= myflags::two;
+
+// Flip
+fl ^= myflags::one;
+```
