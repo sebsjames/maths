@@ -2,7 +2,7 @@
 layout: page
 title: sm::mat
 parent: Reference
-nav_order: 7
+nav_order: 2
 permalink: /ref/mat/
 ---
 # sm::mat

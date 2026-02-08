@@ -3,8 +3,7 @@ title: sm::hdfdata
 parent: Reference
 layout: page
 permalink: /ref/hdf5
-nav_order: 14
-has_children: true
+nav_order: 13
 ---
 # sm::hdfdata
 ## HDF5 data storage and retrieval

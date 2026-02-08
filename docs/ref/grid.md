@@ -2,7 +2,7 @@
 layout: page
 title: sm::grid
 parent: Reference
-nav_order: 12
+nav_order: 8
 permalink: /ref/grid/
 ---
 # sm::grid

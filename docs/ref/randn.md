@@ -3,7 +3,7 @@ layout: page
 title: sm::rand*
 parent: Reference
 permalink: /ref/random/
-nav_order: 3
+nav_order: 7
 ---
 # sm::rand*
 {: .no_toc}
