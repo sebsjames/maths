@@ -163,26 +163,26 @@ uint64_t flags_state = fl.get();
 
 ### Writing a default settings function
 
-Often, flags are a member of a class, and you want a set of default flags to be set at construction.
-This can be a `constexpr` function for maximum runtime efficiency.
+Often, flags are a member of a class, and you want a set of default flags to be set when the class is instantiated.
+This can be achieved with a `constexpr` function for maximum runtime efficiency.
 
 ```c++
 enum class myflags : uint8_t { one, two, three, four };
 struct A // A class with flags
 {
-    sm::flags<myflags> fl;
-
     // Set default flags for this class ('two' and 'three' are true)
-    constexpr void default_flags()
+    constexpr sm::flags<myflags> default_flags()
     {
-        this->fl.reset();
-        this->fl.set (myflags::two);
-        this->fl.set (myflags::three);
+        sm::flags<myflags> f;
+        f.set (myflags::one, false);
+        f.set (myflags::two, true);
+        f.set (myflags::three, true);
+        f.set (myflags::four, false);
+        return f;
     }
 
-    // Constructor calls default_flags() method
-    A() { default_flags(); }
-}
+    sm::flags<myflags> fl = default_flags();
+};
 ```
 ### Output
 
