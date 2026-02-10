@@ -91,8 +91,15 @@ namespace sm
         {
             std::copy (other.begin(), other.end(), this->arr.begin());
         }
-        //! Construct with a vec
+        //! Construct with a vec containing the matrix values
         constexpr mat (const sm::vec<F, Nr * Nc>& other) noexcept { this->arr = other; }
+        //! Construct with a 3D or 4D vec specifying a translation (4x4 matrix only)
+        template<typename T, std::size_t N = 3> requires std::is_arithmetic_v<T> && (N == 3 || N == 4) && (Nr == 4) && (Nc == 4)
+        constexpr mat (const sm::vec<T, N>& trns) noexcept
+        {
+            this->set_identity();
+            this->pretranslate (trns);
+        }
         //! User-declared copy constructor
         constexpr mat (const mat<F, Nr, Nc>& other) noexcept : arr(other.arr) {}
         //! User-declared copy assignment constructor
