@@ -108,6 +108,21 @@ sm::mat<double, 4> m2 = { {} };  // Yields a null matrix
 sm::mat<double, 4> m3 = { 0.0 }; // Yields a null matrix
 ```
 
+You can create a 4x4 matrix with an initial translation by passing a 3D or 4D vec to the constructor:
+
+```c++
+sm::mat<float, 4> initialized_as_translation (sm::vec<float, 3>{1,2,3});
+std::cout << initialized_as_translation << std::endl;
+```
+Outputs:
+
+```
+[  1, 0, 0, 1 ;
+   0, 1, 0, 2 ;
+   0, 0, 1, 3 ;
+   0, 0, 0, 1  ]
+```
+
 ## Set data in the sm::mat
 
 ### Raw access to the elements
