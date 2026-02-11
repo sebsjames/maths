@@ -28,7 +28,9 @@ add_executable(mat44_frombasis mat44_frombasis.cpp)
 
 add_executable(mat_nonsquare mat_nonsquare.cpp)
 
-add_executable(hexgrid hexgrid.cpp)
+if(ARMADILLO_FOUND)
+  add_executable(hexgrid hexgrid.cpp)
+endif()
 
 add_executable(vonmises vonmises.cpp)
 
