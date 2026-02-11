@@ -409,6 +409,9 @@ add_test(geometry_4 geometry_4)
 add_executable(geometry_5 geometry_5.cpp)
 add_test(geometry_5 geometry_5)
 
+add_executable(geometry_6 geometry_6.cpp)
+add_test(geometry_6 geometry_6)
+
 add_executable(range_intersects range_intersects.cpp)
 add_test(range_intersects range_intersects)
 
