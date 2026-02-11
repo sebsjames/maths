@@ -257,13 +257,11 @@ namespace sm::geometry
         return v - (v.dot(n) / n.sos()) * n;
     }
 
-    // Return the area of the 3D triangle
+    // Return the area of the 3D triangle - half of the unnormalized normal vector
     template<typename T>
     T tri_area (const sm::vec<T, 3>& t0, const sm::vec<T, 3>& t1, const sm::vec<T, 3>& t2)
     {
-        sm::vec<T, 3> _n = (t1 - t0).cross (t2 - t0);
-        const T area = T{0.5} * _n.length();
-        return area;
+        return T{0.5} * (t1 - t0).cross (t2 - t0).length();
     }
 
     /*!
