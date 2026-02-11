@@ -106,7 +106,7 @@ namespace sm
         constexpr flags<E> operator&(const flags<E>& rhs) const noexcept { return flags<E>(this->bits & rhs.bits); }
         constexpr flags<E> operator|(const flags<E>& rhs) const noexcept { return flags<E>(this->bits | rhs.bits); }
         constexpr flags<E> operator^(const flags<E>& rhs) const noexcept { return flags<E>(this->bits ^ rhs.bits); }
-        constexpr flags<E> operator~() const noexcept { return flags<E>(bits ^ I{-1}); }
+        constexpr flags<E> operator~() const noexcept { return flags<E>(~this->bits); }
 
         // assignment operators
         constexpr flags<E>& operator=(const flags<E>& rhs) noexcept = default;
@@ -132,6 +132,8 @@ namespace sm
             this->bits ^= rhs.bits;
             return *this;
         }
+        constexpr bool operator== (const flags<E>& rhs) const noexcept { return this->bits == rhs.bits; }
+        constexpr bool operator!= (const flags<E>& rhs) const noexcept { return this->bits != rhs.bits; }
 
         // Set from a bit
         constexpr flags<E>& operator|=(const E& rhs) noexcept
@@ -269,24 +271,29 @@ namespace sm
     }
 
     // bitwise operators
+
+    // e.g. sm::flags fl4 = myflags::four & fl3;
     template <typename E> requires std::is_enum_v<E>
     constexpr flags<E> operator&(E flag, const flags<E>& flags) noexcept
     {
         return flags.operator&(flag);
     }
 
+    // e.g sm::flags fl4 = myflags::four | fl3;
     template <typename E> requires std::is_enum_v<E>
     constexpr flags<E> operator|(E flag, const flags<E>& flags) noexcept
     {
         return flags.operator|(flag);
     }
 
+    // e.g sm::flags fl4 = myflags::four ^ fl3;
     template <typename E> requires std::is_enum_v<E>
     constexpr flags<E> operator^(E flag, const flags<E>& flags) noexcept
     {
         return flags.operator^(flag);
     }
 
+#if 1 // Haven't managed to invoke these...
     // bitwise operators on E
     template <typename E> requires std::is_enum_v<E>
     inline constexpr flags<E> operator&(E lhs, E rhs) noexcept
@@ -311,5 +318,5 @@ namespace sm
     {
         return ~(flags<E>(flag));
     }
-
+#endif
 } // namespace sm

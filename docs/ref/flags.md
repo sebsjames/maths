@@ -101,10 +101,15 @@ sm::flags<myflags> fl2 (fl1);
 
 ### Set flags
 
-You can set a single flag as above with `fl.set (myflags::flag_one)`.
-
+You can set a single flag as above with
+```c++
+fl.set (myflags::flag_one);
+```
+or use 'operator style':
+```c++
+fl |= myflags::flag_one;
+```
 If you need to clear a flag (i.e. set it to **false**) you can either call `set` with an additional argument:
-
 ```c++
 fl.set (myflags::flag_one, false);
 ```
@@ -112,6 +117,8 @@ or you can use the `reset` method (the `flags` methods are chosen to be similar 
 ```c++
 fl.reset (myflags::flag_one);
 ```
+*To add: operator style reset.*
+
 You can reset *all* the flags with `fl.reset()`.
 
 You can also set several flags to **true** at once with an initializer list:
@@ -126,8 +133,9 @@ fl.set ({myflags::flag_one, myflags::flag_two}, false);
 You can flip (i.e. toggle) a flag:
 ```c++
 fl.flip (myflags::flag_one);
+// or use operator style:
+fl ^= myflags::one;
 ```
-
 ### Test flags
 
 The `flags::test` method allows you to query a flag. For a single flag it's just `fl.test (myflags::flag_two)` which returns a `bool`.
@@ -201,15 +209,3 @@ The output is a binary string representation, with '1' and '0' characters follow
 The number of digits depends on the size of the underlying type (in this case, there are 8 bits in uint8_t).
 The binary string shows the first flag as the least significant bit to the right.
 For the example above, we get `00000001b` for `myflags::one` and `00000100b` for `myflags::three`
-
-### Operations on flags
-
-As alternatives to `flags::test` and `flags::set`, you can apply Boolean operators with enumerated class arguments to your `sm::flags` objects:
-```c++
-// Set
-fl |= myflags::one;
-fl |= myflags::two;
-
-// Flip
-fl ^= myflags::one;
-```
