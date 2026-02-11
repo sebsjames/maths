@@ -44,7 +44,14 @@ int main()
     area = sm::geometry::tri_area (t0, t1, t2);
     std::cout << "Area: (should be 0.5) " << area << std::endl;
 
-    if (area != 0.5f) { --rtn; }
+    // Allow precision error here:
+    if (std::abs(area - 0.5f) > 1e-7) { --rtn; }
+
+    if (rtn == 0) {
+        std::cout << "PASSED\n";
+    } else {
+        std::cout << "FAILED\n";
+    }
 
     return rtn;
 }
