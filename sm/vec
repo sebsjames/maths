@@ -309,9 +309,13 @@ namespace sm
         template<typename T>
         constexpr vec<T, N> as() const noexcept
         {
-            vec<T, N> v = { T{0} };
-            v += *this;
-            return v;
+            if constexpr (std::is_same_v<S, T> == true) {
+                return *this;
+            } else {
+                vec<T, N> v = { T{0} };
+                v += *this;
+                return v;
+            }
         }
 
         //! Return this vec in single precision, float format
