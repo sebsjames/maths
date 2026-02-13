@@ -229,7 +229,7 @@ namespace sm::geometry
         T dist = (p0 - l0).dot (n) / denom;
         if (sm::cem::isnan (dist) || sm::cem::isinf (dist)) {
             // If dist == NaN, then planes were parallel.
-            return std::numeric_limits<T>::max(); // meaning parallel; no intersection
+            return std::numeric_limits<T>::max(); // parallel; no intersection
         } else {
             return dist;
         }
