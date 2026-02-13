@@ -74,5 +74,26 @@ int main()
     std::tie (inside, p) = sm::geometry::ray_tri_intersection<float> (t0, t1, t2, l0, l);
     std::cout << "Intersection of VERTEX ray with rev triangle: " << (inside ? "IN" : "OUT") << " is at " << p << std::endl;
 
+    // Ray plane intersection with parallel or almost parallel planes
+
+    // Perfectly parallel
+    l0 = {1.0f, 0.0f, 0.0f};
+    l = {0.0f, 1.0f, 0.0f};
+    std::cout << std::endl;
+    t = sm::geometry::ray_plane_intersection<float> (p0, n, l0, l);
+    std::cout << "Distance to ray intersection with parallel plane = " << t << std::endl;
+    std::cout << "Plane intersection coordinate: " << (l0 + l * t) << std::endl;
+    if (t != std::numeric_limits<float>::max()) { --rtn; }
+
+    // Almost parallel
+    std::cout << std::endl;
+    l = {0, 1.0f + std::numeric_limits<float>::epsilon(), 0};
+    t = sm::geometry::ray_plane_intersection<float> (p0, n, l0, l);
+    std::cout << "Distance to ray intersection with almost parallel plane = " << t << std::endl;
+    std::cout << "Plane intersection coordinate: " << (l0 + l * t) << std::endl;
+    if (t != std::numeric_limits<float>::max()) { --rtn; }
+
+    if (rtn) { std::cout << "FAILED\n"; } else { std::cout << "SUCCEEDED\n"; }
+
     return rtn;
 }
