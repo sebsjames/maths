@@ -225,12 +225,13 @@ namespace sm::geometry
     T ray_plane_intersection (const sm::vec<T, 3>& p0, const sm::vec<T, 3>& n,
                               const sm::vec<T, 3>& l0, const sm::vec<T, 3>& l)
     {
-        constexpr T denom_thresh = std::numeric_limits<T>::epsilon() * 50;
         T denom = l.dot (n);
-        if (sm::cem::abs(denom) < denom_thresh) {
-            return std::numeric_limits<T>::max(); // parallel; no intersection
+        T dist = (p0 - l0).dot (n) / denom;
+        if (sm::cem::isnan (dist) || sm::cem::isinf (dist)) {
+            // If dist == NaN, then planes were parallel.
+            return std::numeric_limits<T>::max(); // meaning parallel; no intersection
         } else {
-            return (p0 - l0).dot (n) / denom;
+            return dist;
         }
     }
 
