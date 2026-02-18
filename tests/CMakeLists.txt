@@ -429,3 +429,6 @@ add_test(graham_scan_1 graham_scan_1)
 
 add_executable(util1 util1.cpp)
 add_test(util1 util1)
+
+add_executable(polysolve_1 polysolve_1.cpp)
+add_test(polysolve_1 polysolve_1)
