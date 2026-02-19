@@ -182,100 +182,39 @@ namespace sm::polysolve
         return roots;
     }
 
-    // Subroutine for cubic()
-    template <typename T>
-    void cubic_three_distinct_roots (sm::vvec<std::complex<T>>& roots, const T p, const T q, const T t_to_x)
-    {
-        std::cout << "Three distinct real roots\n";
-        T m = T{2} * sm::cem::sqrt (-p / T{3});
-        T theta = sm::cem::acos (T{3} * q / (p * m)) / T{3};
-        roots.push_back (std::complex<T>{ m * sm::cem::cos (theta) + t_to_x, T{0} });
-        roots.push_back (std::complex<T>{ m * sm::cem::cos (theta - sm::mathconst<T>::two_pi_over_3) + t_to_x, T{0} });
-        roots.push_back (std::complex<T>{ m * sm::cem::cos (theta - sm::mathconst<T>::four_pi_over_3) + t_to_x, T{0} });
-    }
-
-    // Subroutine for cubic()
-    template <typename T>
-    void cubic_special_case_triple_root (sm::vvec<std::complex<T>>& roots, const T p, const T q, const T t_to_x)
-    {
-        if (p == T{0}) {
-            std::cout << "Special case: p = 0 and q = 0 (triple root at origin)\n";
-            // Triple roots at origin
-            roots.push_back (std::complex<T>{ T{0} + t_to_x, T{0} });
-            roots.push_back (std::complex<T>{ T{0} + t_to_x, T{0} });
-            roots.push_back (std::complex<T>{ T{0} + t_to_x, T{0} });
-        } else {
-            std::cout << "Special case: p != 0 (triple root)\n";
-            roots.push_back (std::complex<T>{ T{3} * (q / p) + t_to_x, T{0} });
-            roots.push_back (std::complex<T>{ T{-3/2} * (q / p) + t_to_x, T{0} });
-            roots.push_back (std::complex<T>{ T{-3/2} * (q / p) + t_to_x, T{0} });
-        }
-    }
-
-    // Subroutine for cubic()
-    template <typename T>
-    void cubic_one_real_two_cmplx (sm::vvec<std::complex<T>>& roots, const T p, const T q, const T t_to_x)
-    {
-        std::cout << "(non special:) One real root and two complex conjugate roots\n";
-        // Failure path if t_to_x != 0 i.e. if a2_norm != 0.
-        T cardanos_disc = q * q / T{4} + p * p * p / T{27};
-        std::cout << "Cardano's discriminant: " << cardanos_disc << std::endl;
-        T sqrt_disc = sm::cem::sqrt (sm::cem::abs (cardanos_disc));
-        std::cout << "sqrt of Cardano's discriminant: " << sqrt_disc << std::endl;
-        T min_q_over_2 = -q / T{2};
-        std::cout << "-q/2 = " << min_q_over_2 << std::endl;
-        std::cout << "t_to_x = " << t_to_x << std::endl;
-
-        // This is the Failure path if t_to_x != 0
-        T u1 = min_q_over_2 + sqrt_disc;
-        T u2 = min_q_over_2 - sqrt_disc;
-        std::cout << "u1: " << u1 << " u2: " << u2 << std::endl;
-        std::complex<T> cmplx_cr_u1 = std::pow (std::complex<T>{ u1, T{0} }, T{1.0 / 3.0});
-        std::complex<T> cmplx_cr_u2 = std::pow (std::complex<T>{ u2, T{0} }, T{1.0 / 3.0});
-        std::cout << "cmplx_cr_u1: " << cmplx_cr_u1 << " cmplx_cr_u2: " << cmplx_cr_u2 << std::endl;
-        std::complex<T> epsilon1(T{-0.5}, sm::mathconst<T>::root_3_over_2); // Cube root of unity
-
-        // Already tested a discriminant before calling this function
-        if (cardanos_disc >= T{0}) {
-            std::cout << "Cardano's disc >= 0\n";
-        } else {
-            std::cout << "Cardano's disc < 0\n"; // unexpected
-        }
-
-        std::complex<T> t0 = cmplx_cr_u1 + cmplx_cr_u2;
-        std::complex<T> t1 = epsilon1 * cmplx_cr_u1 + std::conj (epsilon1) * cmplx_cr_u2;
-        std::complex<T> t2 = std::conj (epsilon1) * cmplx_cr_u1 + epsilon1 * cmplx_cr_u2;
-
-        roots.push_back (t0 + t_to_x);
-        roots.push_back (t1 + t_to_x);
-        roots.push_back (t2 + t_to_x);
-    }
-
     /*
      * Return the roots of the cubic polynomial f = a3 x^3 + a2 x^2 + a1 x + a0
+     *
+     * Follows the Numerical Recipes in C, 2nd ed. description of Cardano's method (p 184)
      */
     template <typename T, typename Ty=T> requires std::is_floating_point_v<T> && std::is_floating_point_v<Ty>
     sm::vvec<std::complex<T>> cubic (const Ty a3, const Ty a2, const Ty a1, const Ty a0)
     {
-        const T a = static_cast<T>(a3);
-        const T b = static_cast<T>(a2);
-        const T c = static_cast<T>(a1);
-        const T d = static_cast<T>(a0);
-        // Convert to depressed cubic: t^3 + p*t + q = 0
-        T p = (T{3} * a * c - b * b) / (T{3} * a * a);
-        T q = ((T{2} * b * b * b)  -  (T{9} * a * b * c)  +  (T{27} * a * a * d)) / (T{27} * a * a * a);
-        T t_to_x = -b / (T{3} * a);
-        T discriminant = -(T{4} * p * p * p + T{27} * q * q);
-        std::cout << "discriminant = " << discriminant << std::endl;
+        const T a = static_cast<T>(a2 / a3);
+        const T b = static_cast<T>(a1 / a3);
+        const T c = static_cast<T>(a0 / a3);
+        const T Q = ((a * a) - (T{3} * b)) / T{9};
+        const T R = ((T{2} * a * a * a) - (T{9} * a * b) + (T{27} * c)) / T{54};
+        const T Q3 = Q * Q * Q;
+        const T R2 = R * R;
+        const T a_over_3 = a / T{3};
 
         sm::vvec<std::complex<T>> roots = {};
-
-        if (discriminant > T{0}) {
-            cubic_three_distinct_roots (roots, p, q, t_to_x);
-        } else if (discriminant < T{0}) {
-            cubic_one_real_two_cmplx (roots, p, q, t_to_x);
-        } else { // discriminant is 0
-            cubic_special_case_triple_root (roots, p, q, t_to_x);
+        if (R2 < Q3) {
+            // three real roots
+            const T theta = sm::cem::acos (R / sm::cem::sqrt (Q3));
+            const T m2rootQ = -T{2} * sm::cem::sqrt (Q);
+            roots.push_back (std::complex<T>{ m2rootQ * sm::cem::cos (theta / T{3}) - a_over_3,                               T{0} });
+            roots.push_back (std::complex<T>{ m2rootQ * sm::cem::cos ((theta + sm::mathconst<T>::two_pi) / T{3})  - a_over_3, T{0} });
+            roots.push_back (std::complex<T>{ m2rootQ * sm::cem::cos ((theta - sm::mathconst<T>::two_pi) / T{3})  - a_over_3, T{0} });
+        } else {
+            const T thesqrt = sm::cem::sqrt (R2 - Q3);
+            constexpr T one_third = T{1} / T{3};
+            const T A = -sm::cem::sgn (R) * std::pow ((sm::cem::abs(R) + thesqrt), one_third);
+            const T B = (A == T{0} ? T{0} : (Q / A));
+            roots.push_back (std::complex<T>{ (A + B) - a_over_3          ,  T{0}                                      });
+            roots.push_back (std::complex<T>{ T{-0.5} * (A + B) - a_over_3,  sm::mathconst<T>::root_3_over_2 * (A - B) });
+            roots.push_back (std::complex<T>{ T{-0.5} * (A + B) - a_over_3, -sm::mathconst<T>::root_3_over_2 * (A - B) });
         }
 
         polysolve::sort_roots (roots);
