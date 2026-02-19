@@ -190,31 +190,30 @@ namespace sm::polysolve
     template <typename T, typename Ty=T> requires std::is_floating_point_v<T> && std::is_floating_point_v<Ty>
     sm::vvec<std::complex<T>> cubic (const Ty a3, const Ty a2, const Ty a1, const Ty a0)
     {
-        const T a = static_cast<T>(a2 / a3);
-        const T b = static_cast<T>(a1 / a3);
-        const T c = static_cast<T>(a0 / a3);
-        const T Q = ((a * a) - (T{3} * b)) / T{9};
-        const T R = ((T{2} * a * a * a) - (T{9} * a * b) + (T{27} * c)) / T{54};
-        const T Q3 = Q * Q * Q;
-        const T R2 = R * R;
-        const T a_over_3 = a / T{3};
+        const T a2_norm = static_cast<T>(a2 / a3);
+        const T a1_norm = static_cast<T>(a1 / a3);
+        const T a0_norm = static_cast<T>(a0 / a3);
+        const T q = ((a2_norm * a2_norm) - (T{3} * a1_norm)) / T{9};
+        const T r = ((T{2} * a2_norm * a2_norm * a2_norm) - (T{9} * a2_norm * a1_norm) + (T{27} * a0_norm)) / T{54};
+        const T q3 = q * q * q;
+        const T r2 = r * r;
+        const T a2n_over_3 = a2_norm / T{3};
 
         sm::vvec<std::complex<T>> roots = {};
-        if (R2 < Q3) {
+        if (r2 < q3) {
             // three real roots
-            const T theta = sm::cem::acos (R / sm::cem::sqrt (Q3));
-            const T m2rootQ = -T{2} * sm::cem::sqrt (Q);
-            roots.push_back (std::complex<T>{ m2rootQ * sm::cem::cos (theta / T{3}) - a_over_3,                               T{0} });
-            roots.push_back (std::complex<T>{ m2rootQ * sm::cem::cos ((theta + sm::mathconst<T>::two_pi) / T{3})  - a_over_3, T{0} });
-            roots.push_back (std::complex<T>{ m2rootQ * sm::cem::cos ((theta - sm::mathconst<T>::two_pi) / T{3})  - a_over_3, T{0} });
+            const T theta = sm::cem::acos (r / sm::cem::sqrt (q3));
+            const T m2rootq = -T{2} * sm::cem::sqrt (q);
+            roots.push_back (std::complex<T>{ m2rootq * sm::cem::cos (theta / T{3}) - a2n_over_3,                               T{0} });
+            roots.push_back (std::complex<T>{ m2rootq * sm::cem::cos ((theta + sm::mathconst<T>::two_pi) / T{3})  - a2n_over_3, T{0} });
+            roots.push_back (std::complex<T>{ m2rootq * sm::cem::cos ((theta - sm::mathconst<T>::two_pi) / T{3})  - a2n_over_3, T{0} });
         } else {
-            const T thesqrt = sm::cem::sqrt (R2 - Q3);
             constexpr T one_third = T{1} / T{3};
-            const T A = -sm::cem::sgn (R) * std::pow ((sm::cem::abs (R) + thesqrt), one_third);
-            const T B = (A == T{0} ? T{0} : (Q / A));
-            roots.push_back (std::complex<T>{ (A + B) - a_over_3          ,  T{0}                                      });
-            roots.push_back (std::complex<T>{ T{-0.5} * (A + B) - a_over_3,  sm::mathconst<T>::root_3_over_2 * (A - B) });
-            roots.push_back (std::complex<T>{ T{-0.5} * (A + B) - a_over_3, -sm::mathconst<T>::root_3_over_2 * (A - B) });
+            const T a = -sm::cem::sgn (r) * std::pow ((sm::cem::abs (r) + sm::cem::sqrt (r2 - q3)), one_third);
+            const T b = (a == T{0} ? T{0} : (q / a));
+            roots.push_back (std::complex<T>{ (a + b) - a2n_over_3          ,  T{0}                                      });
+            roots.push_back (std::complex<T>{ T{-0.5} * (a + b) - a2n_over_3,  sm::mathconst<T>::root_3_over_2 * (a - b) });
+            roots.push_back (std::complex<T>{ T{-0.5} * (a + b) - a2n_over_3, -sm::mathconst<T>::root_3_over_2 * (a - b) });
         }
 
         polysolve::sort_roots (roots);
