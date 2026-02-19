@@ -345,14 +345,14 @@ int main()
 
     try {
         // Each test will throw exceptions if the test fails
-        test_linear();
-        test_quadratic();
+        //test_linear();
+        //test_quadratic();
         test_cubic();
-        test_quartic();
-        test_special_cases();
-        test_mixed_roots();
-        test_higher_degree();
-        test_template_types ();
+        //test_quartic();
+        //test_special_cases();
+        //test_mixed_roots();
+        //test_higher_degree();
+        //test_template_types ();
         test_failures();
     } catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << std::endl;

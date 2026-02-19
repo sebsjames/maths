@@ -185,52 +185,79 @@ namespace sm::polysolve
     /*
      * Return the roots of the cubic polynomial f = a3 x^3 + a2 x^2 + a1 x + a0
      */
+//#define WIKILIKE 1
     template <typename T, typename Ty=T> requires std::is_floating_point_v<T> && std::is_floating_point_v<Ty>
     sm::vvec<std::complex<T>> cubic (const Ty a3, const Ty a2, const Ty a1, const Ty a0)
     {
+#ifdef WIKILIKE
+        const T a = static_cast<T>(a3);
+        const T b = static_cast<T>(a2);
+        const T c = static_cast<T>(a1);
+        const T d = static_cast<T>(a0);
+#else
         // Normalize: divide by leading coefficient a3
         T a2_norm = static_cast<T>(a2) / static_cast<T>(a3);
         T a1_norm = static_cast<T>(a1) / static_cast<T>(a3);
         T a0_norm = static_cast<T>(a0) / static_cast<T>(a3);
         // Solve x^3 + a2_norm*x^2 + a1_norm*x + a0_norm = 0 using Cardano's method
-
+#endif
         // Convert to depressed cubic: t^3 + p*t + q = 0
+#ifdef WIKILIKE
+        T p = T{3} * a * c - b * b / (T{3} * a * a);
+        T q = (T{2} * b * b * b - T{9} * a * b * c + T{27} * a * a * d) / (T{27} * a * a * a);
+#else
         T p = a1_norm - a2_norm * a2_norm / T{3};
         T q = T{2} * a2_norm * a2_norm * a2_norm / T{27} - a2_norm * a1_norm / T{3} + a0_norm;
+#endif
+
         T discriminant = -(T{4} * p * p * p + T{27} * q * q);
 
         sm::vvec<std::complex<T>> roots = {};
 
+#ifdef WIKILIKE
+        std::cout << "discriminant = " << discriminant << std::endl;
+        T offset = -b / (T{3} * a);
+#else
+        T offset = -a2_norm / T{3};
+#endif
         if (discriminant > std::numeric_limits<T>::epsilon()) {
             // Three distinct real roots
+            std::cout << "Three distinct real roots\n";
             T m = T{2} * sm::cem::sqrt (-p / T{3});
             T theta = sm::cem::acos (T{3} * q / (p * m)) / T{3};
-            T offset = -a2_norm / T{3};
 
             roots.push_back (std::complex<T>{ m * sm::cem::cos (theta) + offset, T{0} });
             roots.push_back (std::complex<T>{ m * sm::cem::cos (theta - sm::mathconst<T>::two_pi_over_3) + offset, T{0} });
             roots.push_back (std::complex<T>{ m * sm::cem::cos (theta - sm::mathconst<T>::four_pi_over_3) + offset, T{0} });
         } else {
-            // One real root and two complex conjugate roots
-            T offset = -a2_norm / T{3};
 
+            // Failure path if offset != 0
+
+            // One real root and two complex conjugate roots
             if (sm::cem::abs(p) < std::numeric_limits<T>::epsilon() && sm::cem::abs(q) < std::numeric_limits<T>::epsilon()) {
-                // Special case: p = 0 and q = 0 (triple root at origin)
+                std::cout << "Special case: p = 0 and q = 0 (triple root at origin)\n";
                 T t = -std::cbrt(q);
                 roots.push_back (std::complex<T>{ t + offset, T{0} });
                 roots.push_back (std::complex<T>{ t + offset, T{0} });
                 roots.push_back (std::complex<T>{ t + offset, T{0} });
             } else {
+                std::cout << "(non special:) One real root and two complex conjugate roots\n";
+                // Failure path if offset != 0 i.e. if a2_norm != 0.
                 T disc = q * q / T{4} + p * p * p / T{27};
                 T sqrtDisc = sm::cem::sqrt (sm::cem::abs (disc));
 
                 std::complex<T> u, v;
                 if (disc >= T{0}) {
-                    T val1 = -q / T{2} + sqrtDisc;
-                    T val2 = -q / T{2} - sqrtDisc;
-                    u = std::pow (std::complex<T> (val1, T{0}), T{1} / T{3});
-                    v = std::pow (std::complex<T> (val2, T{0}), T{1} / T{3});
+                    std::cout << "disc >= 0\n";
+                    // Failure path if offset != 0
+                    T val1 = (-q / T{2}) + sqrtDisc;
+                    T val2 = (-q / T{2}) - sqrtDisc;
+                    u = std::pow (std::complex<T>{ val1, T{0} }, T{1} / T{3});
+                    v = std::pow (std::complex<T>{ val2, T{0} }, T{1} / T{3});
                 } else {
+                    std::cout << "disc < 0\n";
+                    // NOT TESTED!!!
+                    throw std::runtime_error ("This code path is not tested\n");
                     std::complex<T> w(-q / T{2}, sqrtDisc);
                     u = std::pow (w, T{1} / T{3});
                     v = std::conj(u);
