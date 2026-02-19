@@ -5,7 +5,7 @@
  * General polynomial solver functions
  *
  * This header provides:
- * - polysolve<F>: Solves polynomial equations a_n*x^n + ... + a_1*x + a_0 = 0
+ * - Functions in the sm::polysolve namespace, with the top-level function being sm::polysolve::solve()
  *
  * Features:
  * - Analytical solvers for degrees 1-4:
@@ -19,25 +19,26 @@
  * Usage:
  *   #include <sm/polysolve>
  *   sm::vvec<double> coeffs = {6.0, -5.0, 1.0};         // [a0, a1, a2] for x^2 - 5x + 6 = 0
- *   auto roots = polysolve::solve<double> (coeffs);     // Returns sm::vvec<std::complex<double>>
- *   auto real_roots = polysolve::real<double> (coeffs); // Returns sm::vvec<double>
+ *   sm::vvec<std::complex<double>> roots = polysolve::solve<double> (coeffs);
+ *   sm::vvec<double> real_roots = polysolve::real<double> (coeffs);
  *
  * Notes:
  * - Coefficient order when presented in an array is [a0, a1, ..., an] for a_n*x^n + ... + a_1*x + a_0 = 0
  * - Functions return complex roots (may be real with zero imaginary part)
  * - All solvers return roots in sorted order: lexicographic by (real, imag)
  *
- * See polysolve_1.cpp in mathplot/maths/tests/ for comprehensive examples
+ * See polysolve_1.cpp in mathplot/maths/tests/ for a set of tests
  *
  * Authors
  * Alex Blenkinsop, using Claude Code 4.2
- * Seb James
+ * Seb James, un-fscking the AI code.
  *
- * Date January 2026
+ * Date Jan - Feb 2026
  */
 
 #pragma once
 
+#include <cstdint>
 #include <complex>
 #include <cmath>
 #include <algorithm>
@@ -68,7 +69,7 @@ namespace sm::polysolve
     constexpr T evaluate (const sm::vvec<T>& coeffs, const T x)
     {
         T result = T{0};
-        for (int i = coeffs.size() - 1; i >= 0; --i) { result = result * x + coeffs[i]; }
+        for (int32_t i = coeffs.size() - 1; i >= 0; --i) { result = result * x + coeffs[i]; }
         return result;
     }
 
@@ -79,7 +80,7 @@ namespace sm::polysolve
     constexpr std::complex<T> evaluate (const sm::vvec<T>& coeffs, const std::complex<T>& x)
     {
         std::complex<T> result(T{0}, T{0});
-        for (int i = coeffs.size() - 1; i >= 0; --i) { result = result * x + coeffs[i]; }
+        for (int32_t i = coeffs.size() - 1; i >= 0; --i) { result = result * x + coeffs[i]; }
         return result;
     }
 
@@ -303,7 +304,7 @@ namespace sm::polysolve
     template <typename T, typename Ty=T> requires std::is_floating_point_v<T> && std::is_floating_point_v<Ty>
     sm::vvec<std::complex<T>> high_order (const sm::vvec<Ty>& coeffs)
     {
-        int degree = coeffs.size() - 1;
+        int32_t degree = coeffs.size() - 1;
 
         // Convert coeffs to type T
         sm::vvec<T> c = coeffs.template as<T>();
@@ -312,18 +313,18 @@ namespace sm::polysolve
         sm::vvec<std::complex<T>> roots (degree);
         T radius = T{1} + sm::cem::abs (c[degree - 1]);
 
-        for (int i = 0; i < degree; ++i) {
+        for (int32_t i = 0; i < degree; ++i) {
             T angle = sm::mathconst<T>::two_pi * T(i) / T(degree) + T{0.4};
             roots[i] = radius * std::complex<T>{ sm::cem::cos (angle), sm::cem::sin (angle) };
         }
 
         // The iterative solver
-        for (int iter = 0; iter < 100; ++iter) {
+        for (int32_t iter = 0; iter < 100; ++iter) {
             bool converged = true;
-            for (int i = 0; i < degree; ++i) {
-                std::complex<T> numerator = polysolve::evaluate<T>(c, roots[i]);
-                std::complex<T> denominator(T{1}, T{0});
-                for (int j = 0; j < degree; ++j) {
+            for (int32_t i = 0; i < degree; ++i) {
+                std::complex<T> numerator = polysolve::evaluate<T> (c, roots[i]);
+                std::complex<T> denominator = { T{1}, T{0} };
+                for (int32_t j = 0; j < degree; ++j) {
                     if (i != j) { denominator *= (roots[i] - roots[j]); }
                 }
                 if (std::abs (denominator) < std::numeric_limits<T>::epsilon()) { continue; }
@@ -347,19 +348,19 @@ namespace sm::polysolve
      * \return Vector of complex roots sorted lexicographically by (real, imag).
      *         Real roots appear first in ascending order, followed by complex roots.
      */
-    template <typename T, std::size_t N, typename Ty = T> requires (N >= 1) && std::is_floating_point_v<T> && std::is_floating_point_v<Ty>
-    sm::vvec<std::complex<T>> solve (const sm::vec<Ty, N+1>& coeffs)
+    template <typename T, uint32_t N, typename Ty = T> requires (N >= 1) && std::is_floating_point_v<T> && std::is_floating_point_v<Ty>
+    sm::vvec<std::complex<T>> solve (const sm::vec<Ty, N + 1>& coeffs)
     {
         // Make a copy of coefficients in type T
-        sm::vvec<T> c (N+1, T{0});
-        for (std::size_t i = 0; i < N+1; ++i) { c[i] = static_cast<T>(coeffs[i]); }
+        sm::vvec<T> c (N + 1, T{0});
+        for (uint32_t i = 0u; i < N + 1; ++i) { c[i] = static_cast<T>(coeffs[i]); }
         polysolve::remove_trailing_zeros (c);
 
         if (c.empty() || (c.size() == 1 && sm::cem::abs (c[0]) < std::numeric_limits<T>::epsilon())) {
             throw std::invalid_argument("All coefficients are zero");
         }
 
-        int degree = c.size() - 1;
+        int32_t degree = c.size() - 1;
 
         // Handle constant polynomial which has no roots
         if (degree == 0) { return {}; }
@@ -399,7 +400,7 @@ namespace sm::polysolve
             throw std::invalid_argument ("All coefficients are zero");
         }
 
-        int degree = c.size() - 1;
+        int32_t degree = c.size() - 1;
 
         // Handle constant polynomial which has no roots
         if (degree == 0) { return {}; }
@@ -445,8 +446,8 @@ namespace sm::polysolve
      * \param tolerance Threshold for considering a root as real
      * \return Vector of real roots in ascending order
      */
-    template <typename T, std::size_t N, typename Ty = T> requires std::is_floating_point_v<T> && std::is_floating_point_v<Ty>
-    constexpr sm::vvec<T> real (const sm::vec<Ty, N+1>& coeffs, const T tolerance = T{100} * std::numeric_limits<T>::epsilon())
+    template <typename T, uint32_t N, typename Ty = T> requires std::is_floating_point_v<T> && std::is_floating_point_v<Ty>
+    constexpr sm::vvec<T> real (const sm::vec<Ty, N + 1>& coeffs, const T tolerance = T{100} * std::numeric_limits<T>::epsilon())
     {
         sm::vvec<std::complex<T>> complex_roots = polysolve::solve<T, N, Ty>(coeffs);
         sm::vvec<T> real_roots = {};
