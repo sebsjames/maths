@@ -79,7 +79,7 @@ namespace sm::polysolve
     template <typename T> requires std::is_floating_point_v<T>
     constexpr std::complex<T> evaluate (const sm::vvec<T>& coeffs, const std::complex<T>& x)
     {
-        std::complex<T> result(T{0}, T{0});
+        std::complex<T> result = { T{0}, T{0} };
         for (int32_t i = coeffs.size() - 1; i >= 0; --i) { result = result * x + coeffs[i]; }
         return result;
     }
@@ -93,7 +93,7 @@ namespace sm::polysolve
     template <typename T> requires std::is_floating_point_v<T>
     constexpr void sort_roots (sm::vvec<std::complex<T>>& roots)
     {
-        std::sort(roots.begin(), roots.end(), [](const std::complex<T>& a, const std::complex<T>& b) {
+        std::sort (roots.begin(), roots.end(), [](const std::complex<T>& a, const std::complex<T>& b) {
             if (sm::cem::abs (a.real() - b.real()) > std::numeric_limits<T>::epsilon()) {
                 return a.real() < b.real();
             }
@@ -109,7 +109,7 @@ namespace sm::polysolve
     constexpr sm::vvec<std::complex<T>> linear (const Ty a1, const Ty a0)
     {
         // Normalize: divide by leading coefficient
-        T a0_norm = static_cast<T>(a0) / static_cast<T>(a1);
+        const T a0_norm = static_cast<T>(a0 / a1);
         // a1*x + a0 = 0 => x + a0_norm = 0
         // x = -a0_norm
         return { std::complex<T>{ -a0_norm, T{0} } };
@@ -138,21 +138,21 @@ namespace sm::polysolve
     constexpr sm::vvec<std::complex<T>> quadratic (const Ty a2, const Ty a1, const Ty a0)
     {
         // Normalize: divide by leading coefficient a2
-        T a1_norm = static_cast<T>(a1) / static_cast<T>(a2);
-        T a0_norm = static_cast<T>(a0) / static_cast<T>(a2);
+        const T a1_norm = static_cast<T>(a1 / a2);
+        const T a0_norm = static_cast<T>(a0 / a2);
         // x^2 + a1_norm * x + a0_norm = 0
         // x = (-a1_norm +/- sqrt(a1_norm^2 - 4 * a0_norm)) / 2
-        T discriminant = a1_norm * a1_norm - T{4} * a0_norm;
+        const T discriminant = a1_norm * a1_norm - T{4} * a0_norm;
 
         sm::vvec<std::complex<T>> roots = {};
         if (discriminant >= T{0}) {
-            T sqrtD = sm::cem::sqrt (discriminant);
-            T r1 = (-a1_norm + sqrtD) / T{2};
-            T r2 = (-a1_norm - sqrtD) / T{2};
+            const T sqrtD = sm::cem::sqrt (discriminant);
+            const T r1 = (-a1_norm + sqrtD) / T{2};
+            const T r2 = (-a1_norm - sqrtD) / T{2};
             roots = { std::complex<T>{ r1, T{0} }, std::complex<T>{ r2, T{0} } };
         } else {
-            T real_part = -a1_norm / T{2};
-            T imag_part = sm::cem::sqrt (-discriminant) / T{2};
+            const T real_part = -a1_norm / T{2};
+            const T imag_part = sm::cem::sqrt (-discriminant) / T{2};
             roots = { std::complex<T>{ real_part, -imag_part }, std::complex<T>{ real_part, imag_part } };
         }
         polysolve::sort_roots (roots);
@@ -167,16 +167,16 @@ namespace sm::polysolve
     {
         // Solve a2 z^2 + a1 z + a0 = 0 with complex coefficients
         // z = (-a1 +/- sqrt(a1^2 - 4 a2 a0)) / (2 a2)
-        std::complex<T> a2_conv(static_cast<T>(a2.real()), static_cast<T>(a2.imag()));
-        std::complex<T> a1_conv(static_cast<T>(a1.real()), static_cast<T>(a1.imag()));
-        std::complex<T> a0_conv(static_cast<T>(a0.real()), static_cast<T>(a0.imag()));
+        const std::complex<T> a2_conv = { static_cast<T>(a2.real()), static_cast<T>(a2.imag()) };
+        const std::complex<T> a1_conv = { static_cast<T>(a1.real()), static_cast<T>(a1.imag()) };
+        const std::complex<T> a0_conv = { static_cast<T>(a0.real()), static_cast<T>(a0.imag()) };
 
-        std::complex<T> discriminant = a1_conv * a1_conv - T{4} * a2_conv * a0_conv;
-        std::complex<T> sqrt_disc = std::sqrt (discriminant);
+        const std::complex<T> discriminant = a1_conv * a1_conv - T{4} * a2_conv * a0_conv;
+        const std::complex<T> sqrt_disc = std::sqrt (discriminant);
 
-        std::complex<T> denom = T{2} * a2_conv;
-        std::complex<T> root1 = (-a1_conv + sqrt_disc) / denom;
-        std::complex<T> root2 = (-a1_conv - sqrt_disc) / denom;
+        const std::complex<T> denom = T{2} * a2_conv;
+        const std::complex<T> root1 = (-a1_conv + sqrt_disc) / denom;
+        const std::complex<T> root2 = (-a1_conv - sqrt_disc) / denom;
 
         sm::vvec<std::complex<T>> roots = { root1, root2 };
         polysolve::sort_roots (roots);
@@ -228,16 +228,16 @@ namespace sm::polysolve
     sm::vvec<std::complex<T>> quartic (const Ty a4, const Ty a3, const Ty a2, const Ty a1, const Ty a0)
     {
         // Normalize: divide by leading coefficient a4
-        T a3_norm = static_cast<T>(a3) / static_cast<T>(a4);
-        T a2_norm = static_cast<T>(a2) / static_cast<T>(a4);
-        T a1_norm = static_cast<T>(a1) / static_cast<T>(a4);
-        T a0_norm = static_cast<T>(a0) / static_cast<T>(a4);
+        const T a3_norm = static_cast<T>(a3 / a4);
+        const T a2_norm = static_cast<T>(a2 / a4);
+        const T a1_norm = static_cast<T>(a1 / a4);
+        const T a0_norm = static_cast<T>(a0 / a4);
         // Solve x^4 + a3_norm*x^3 + a2_norm*x^2 + a1_norm*x + a0_norm = 0 using Ferrari's method
 
         // Convert to depressed quartic: y^4 + p*y^2 + q*y + r = 0
-        T p = a2_norm - T{3} * a3_norm * a3_norm / T{8};
-        T q = a3_norm * a3_norm * a3_norm / T{8} - a3_norm * a2_norm / T{2} + a1_norm;
-        T r = -T{3} * a3_norm * a3_norm * a3_norm * a3_norm / T{256} + a3_norm * a3_norm * a2_norm / T{16} - a3_norm * a1_norm / T{4} + a0_norm;
+        const T p = a2_norm - T{3} * a3_norm * a3_norm / T{8};
+        const T q = a3_norm * a3_norm * a3_norm / T{8} - a3_norm * a2_norm / T{2} + a1_norm;
+        const T r = -T{3} * a3_norm * a3_norm * a3_norm * a3_norm / T{256} + a3_norm * a3_norm * a2_norm / T{16} - a3_norm * a1_norm / T{4} + a0_norm;
 
         sm::vvec<std::complex<T>> roots = {};
 
@@ -247,7 +247,7 @@ namespace sm::polysolve
             sm::vvec<std::complex<T>> quad_roots = polysolve::quadratic<T> (T{1}, p, r);
 
             for (const auto& root : quad_roots) {
-                std::complex<T> sqrt_root = std::sqrt (root);
+                const std::complex<T> sqrt_root = std::sqrt (root);
                 roots.push_back (sqrt_root);
                 roots.push_back (-sqrt_root);
             }
@@ -263,19 +263,19 @@ namespace sm::polysolve
 
             // Ferrari's factorization: y^4 + p * y^2 + q * y + r = (y^2 + s * y + t)(y^2 - s * y + u)
             // Where: s^2 = m, t + u = p + m, t * u = r
-            std::complex<T> s = std::sqrt(m);
+            const std::complex<T> s = std::sqrt(m);
 
             // Find t and u as roots of: z^2 - (p + m) * z + r = 0
-            std::complex<T> sum_tu = p + m;
-            std::complex<T> prod_tu(r, T{0});
+            const std::complex<T> sum_tu = p + m;
+            const std::complex<T> prod_tu = { r, T{0} };
             sm::vvec<std::complex<T>> tu_roots = polysolve::quadratic<T> (std::complex<T>{ T{1}, T{0} }, -sum_tu, prod_tu);
-            std::complex<T> t = tu_roots[0];
-            std::complex<T> u = tu_roots[1];
+            const std::complex<T>& t = tu_roots[0];
+            const std::complex<T>& u = tu_roots[1];
 
             // Verify and swap if needed to ensure s(u-t) = q
-            std::complex<T> q_check = s * (u - t);
+            const std::complex<T> q_check = s * (u - t);
             if (std::abs (q_check - std::complex<T>{ q, T{0} }) > std::abs (s * (t - u) - std::complex<T>{ q, T{0} })) {
-                std::swap (t, u);
+                std::swap (tu_roots[0], tu_roots[1]);
             }
 
             // Solve two quadratics: y^2 + s * y + t = 0 and y^2 - s * y + u = 0
@@ -287,7 +287,7 @@ namespace sm::polysolve
         }
 
         // Transform back: x = y - a3_norm/4
-        T offset = -a3_norm / T{4};
+        const T offset = -a3_norm / T{4};
         for (auto& root : roots) { root += offset; }
 
         polysolve::sort_roots (roots);
@@ -304,17 +304,22 @@ namespace sm::polysolve
     template <typename T, typename Ty=T> requires std::is_floating_point_v<T> && std::is_floating_point_v<Ty>
     sm::vvec<std::complex<T>> high_order (const sm::vvec<Ty>& coeffs)
     {
-        int32_t degree = coeffs.size() - 1;
+        const int32_t degree = coeffs.size() - 1;
 
         // Convert coeffs to type T
-        sm::vvec<T> c = coeffs.template as<T>();
+        sm::vvec<T> c;
+        if constexpr (std::is_same_v<Ty, T> == true) {
+            c = coeffs;
+        } else {
+            c = coeffs.template as<T>();
+        }
 
         // Initialize roots in a circle
         sm::vvec<std::complex<T>> roots (degree);
-        T radius = T{1} + sm::cem::abs (c[degree - 1]);
+        const T radius = T{1} + sm::cem::abs (c[degree - 1]);
 
         for (int32_t i = 0; i < degree; ++i) {
-            T angle = sm::mathconst<T>::two_pi * T(i) / T(degree) + T{0.4};
+            const T angle = sm::mathconst<T>::two_pi * T(i) / T(degree) + T{0.4};
             roots[i] = radius * std::complex<T>{ sm::cem::cos (angle), sm::cem::sin (angle) };
         }
 
@@ -360,7 +365,7 @@ namespace sm::polysolve
             throw std::invalid_argument("All coefficients are zero");
         }
 
-        int32_t degree = c.size() - 1;
+        const int32_t degree = c.size() - 1;
 
         // Handle constant polynomial which has no roots
         if (degree == 0) { return {}; }
@@ -375,7 +380,7 @@ namespace sm::polysolve
         } else if constexpr (N == 4) {
             return polysolve::quartic<T> (c[4], c[3], c[2], c[1], c[0]);
         } else {
-            return polysolve::high_order<T>(c);
+            return polysolve::high_order<T> (c);
         }
     }
 
@@ -393,14 +398,20 @@ namespace sm::polysolve
         if (coeffs.empty()) { throw std::invalid_argument ("Empty coefficient vector"); }
 
         // Make a copy of coefficients in type T
-        sm::vvec<T> c = coeffs.template as<T>();
+        sm::vvec<T> c;
+        if constexpr (std::is_same_v<Ty, T> == true) {
+            c = coeffs;
+        } else {
+            c = coeffs.template as<T>();
+        }
+
         polysolve::remove_trailing_zeros (c);
 
         if (c.empty() || (c.size() == 1 && sm::cem::abs (c[0]) < std::numeric_limits<T>::epsilon())) {
             throw std::invalid_argument ("All coefficients are zero");
         }
 
-        int32_t degree = c.size() - 1;
+        const int32_t degree = c.size() - 1;
 
         // Handle constant polynomial which has no roots
         if (degree == 0) { return {}; }
@@ -428,7 +439,7 @@ namespace sm::polysolve
     template <typename T, typename Ty = T> requires std::is_floating_point_v<T> && std::is_floating_point_v<Ty>
     constexpr sm::vvec<T> real (const sm::vvec<Ty>& coeffs, const T tolerance = T{100} * std::numeric_limits<T>::epsilon())
     {
-        sm::vvec<std::complex<T>> complex_roots = polysolve::solve<T, Ty>(coeffs);
+        sm::vvec<std::complex<T>> complex_roots = polysolve::solve<T, Ty> (coeffs);
         sm::vvec<T> real_roots = {};
         for (const std::complex<T>& root : complex_roots) {
             if (sm::cem::abs (root.imag()) < tolerance) { real_roots.push_back (root.real()); }
@@ -449,7 +460,7 @@ namespace sm::polysolve
     template <typename T, uint32_t N, typename Ty = T> requires std::is_floating_point_v<T> && std::is_floating_point_v<Ty>
     constexpr sm::vvec<T> real (const sm::vec<Ty, N + 1>& coeffs, const T tolerance = T{100} * std::numeric_limits<T>::epsilon())
     {
-        sm::vvec<std::complex<T>> complex_roots = polysolve::solve<T, N, Ty>(coeffs);
+        sm::vvec<std::complex<T>> complex_roots = polysolve::solve<T, N, Ty> (coeffs);
         sm::vvec<T> real_roots = {};
         for (const std::complex<T>& root : complex_roots) {
             if (sm::cem::abs (root.imag()) < tolerance) { real_roots.push_back (root.real()); }
