@@ -810,7 +810,9 @@ namespace sm
             }
         }
 
-#ifndef __APPLE__ // There is no std::cyl_bessel_i on Mac, apparently
+        // There is no std::cyl_bessel_i on Mac and libc++
+        // https://releases.llvm.org/19.1.0/projects/libcxx/docs/Status/SpecialMath.html
+#if !defined(__APPLE__) && !defined(_LIBCPP_VERSION)
         /*!
          * Return probability density function value, P(x)
          */
