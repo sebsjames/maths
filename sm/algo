@@ -203,7 +203,9 @@ namespace sm::algo
         return std::sqrt ( mc::one_over_four_pi * (T{2} * static_cast<T>(l) + T{1}) * (sm::algo::factorial<T, I>(l - absm) / sm::algo::factorial<T, I>(l + absm)));
     }
 
-#ifndef __APPLE__ // There is no std::assoc_legendre on Mac, apparently
+    // There is no std::assoc_legendre on Mac and libc++
+    // https://releases.llvm.org/19.1.0/projects/libcxx/docs/Status/SpecialMath.html
+#if !defined(__APPLE__) && !defined(_LIBCPP_VERSION)
     //! Wraps std::assoc_legendre, allowing signed m (abs(m) always passed to std::assoc_legendre)
     template <typename T, typename UI, typename I>
     requires (std::is_integral_v<UI> && !std::is_signed_v<UI> && std::is_integral_v<I> && std::is_signed_v<I>)
