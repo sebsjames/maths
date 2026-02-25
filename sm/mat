@@ -965,14 +965,13 @@ namespace sm
         }
 
         /*!
-         * Returns the rotation part of the 4x4 matrix (the top left 3x3 matrix, as returned by
-         * mat::linear) as a quaternion.
+         * Returns either the rotation part of the 4x4 matrix (the top left 3x3 matrix, as returned
+         * by mat::linear) as a quaternion or the entire 3x3 matrix as a quaternion.
          *
-         * This does the equivalent of this->linear().rotation() (that is, you can find
-         * mat33::rotation which is the same as this function).
+         * In a 4x4 matrix, this does the equivalent of this->linear().rotation()
          *
          * It assumes that your 4x4 matrix encodes rotations without scaling. You could use
-         * rotationmat44().rotation() to first exclude a uniform or pre-applied scaling.
+         * mat<F, 4>::rotation() to first exclude a uniform or pre-applied scaling.
          *
          * It does *not* check that the matrix determinant is 1 (you could do that first if you need
          * to).
@@ -986,7 +985,7 @@ namespace sm
         constexpr sm::quaternion<F> rotation() const noexcept
         {
             if constexpr ((Nr != 4 && Nr != 3) || Nr != Nc) {
-                []<bool flag = false>() { static_assert(flag, "valid only for 4x4 matrices"); }();
+                []<bool flag = false>() { static_assert(flag, "valid only for 3x3 and 4x4 matrices"); }();
             }
 
             sm::quaternion<F> q;
@@ -1343,6 +1342,15 @@ namespace sm
         constexpr void operator*= (const T& f) noexcept
         {
             for (uint32_t i = 0; i < Nr * Nc; ++i) { this->arr[i] *= f; }
+        }
+
+        //! * operator for a scalar value.
+        template <typename T=F> requires std::is_arithmetic_v<T>
+        constexpr mat<F, Nr, Nc> operator* (const T& f) noexcept
+        {
+            mat<F, Nr, Nc> m = {};
+            for (uint32_t i = 0; i < Nr * Nc; ++i) { m[i] = this->arr[i] * f; }
+            return m;
         }
 
         //! Equality operator. True if all elements match
