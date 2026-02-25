@@ -96,7 +96,7 @@ namespace sm
         }
 
         //! Test to see if this quaternion is a unit quaternion.
-        constexpr bool checkunit() noexcept
+        constexpr bool checkunit() const noexcept
         {
             bool rtn = true;
             F metric = F{1} - (w * w + x * x + y * y + z * z);
@@ -243,6 +243,50 @@ namespace sm
             q.y = this->y / f;
             q.z = this->z / f;
             return q;
+        }
+
+        // Interpolate between this quaternion and the quaternion q2. spherical linear interpolation
+        // This code was adapted from Eigen (thanks Eigen!)
+        constexpr quaternion<F> slerp (const quaternion<F>& q2, const F t) const noexcept
+        {
+            quaternion<F> interpolated;
+
+            if (t < F{0} || t > F{1}) { return interpolated; }
+            if (!this->checkunit()) { return interpolated; }
+            if (!q2.checkunit()) {  return interpolated; }
+
+            constexpr F one = F{1} - std::numeric_limits<F>::epsilon();
+            sm::vec<F, 4> my_coeffs = { w, x, y, z };
+            sm::vec<F, 4> q2_coeffs = { q2.w, q2.x, q2.y, q2.z };
+            const F d = my_coeffs.dot (q2_coeffs);
+            const F absD = sm::cem::abs (d);
+
+            F scale0 = {};
+            F scale1 = {};
+
+            if (absD >= one) {
+                scale0 = F{1} - t;
+                scale1 = t;
+            } else {
+                // theta is the angle between the 2 quaternions
+                F theta = sm::cem::acos (absD);
+                F sinTheta = sm::cem::sqrt (F{1} - absD * absD);
+                scale0 = sm::cem::sin ((F{1} - t) * theta) / sinTheta;
+                scale1 = sm::cem::sin ((t * theta)) / sinTheta;
+            }
+            if (d < F{0}) { scale1 = -scale1; }
+
+            //sm::vec<F> new_coeffs = scale0 * my_coeffs + scale1 * q2_coeffs;
+            my_coeffs *= scale0;
+            q2_coeffs *= scale1;
+            my_coeffs += q2_coeffs;
+
+            interpolated.w = my_coeffs[0];
+            interpolated.x = my_coeffs[1];
+            interpolated.y = my_coeffs[2];
+            interpolated.z = my_coeffs[3];
+
+            return interpolated;
         }
 
         //! Invert the rotation represented by this quaternion and return the result.
