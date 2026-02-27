@@ -1247,7 +1247,7 @@ namespace sm
             this->arr.swap (m);
         }
 
-        //! Right multiply this->arr with m2.arr. Make general NOW
+        //! Right multiply this->arr with m2.arr
         template<typename Fy=F, uint32_t Nry = Nr, uint32_t Ncy = Nc> requires (Nc == Nry) && std::is_arithmetic_v<Fy>
         constexpr mat<F, Nr, Ncy> operator* (const mat<Fy, Nry, Ncy>& m2) const noexcept
         {
