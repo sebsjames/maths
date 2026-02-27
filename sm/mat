@@ -958,6 +958,33 @@ namespace sm
             return { this->arr[12], this->arr[13], this->arr[14] };
         }
 
+        //! Returns a ready-to-use translation matrix
+        static constexpr mat<F, 4> translation (const sm::vec<F, 3>& t)
+        {
+            if constexpr (Nr != 4 || Nr != Nc) { []<bool flag = false>() { static_assert(flag, "valid only for 4x4 matrices"); }(); }
+            sm::mat<F, 4> m;
+            m.pretranslate (t);
+            return m;
+        }
+
+        static constexpr mat<F, 4> translation (const sm::vec<F, 4>& t)
+        {
+            if constexpr (Nr != 4 || Nr != Nc) { []<bool flag = false>() { static_assert(flag, "valid only for 4x4 matrices"); }(); }
+            sm::mat<F, 4> m;
+            m.pretranslate (t);
+            return m;
+        }
+
+        //! Returns a ready-to-use rotation matrix
+        template<typename Fy> requires std::is_floating_point_v<Fy>
+        static constexpr mat<F, 4> rotation (const sm::vec<Fy, 3>& axis, const Fy& theta)
+        {
+            if constexpr ((Nr != 4 && Nr != 3) || Nr != Nc) { []<bool flag = false>() { static_assert(flag, "valid only for a 3x3 or 4x4 matrix"); }(); }
+            sm::mat<F, 4> m;
+            m.rotate (axis, theta);
+            return m;
+        }
+
         /*!
          * Returns either the rotation part of the 4x4 matrix (the top left 3x3 matrix, as returned
          * by mat::linear) as a quaternion or the entire 3x3 matrix as a quaternion.
