@@ -8,6 +8,13 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+# Add cmake directory to cmake modules path
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
+
+# A build-failure test from https://github.com/iboB/icm
+#include(icm_build_failure_parse_and_run)
+include(icm_build_failure_testing)
+
 include(CheckIncludeFileCXX) # CHECK_INCLUDE_FILE_CXX will be used in later scripts
 
 # If I *require* std::format, I can start using it across this library. That

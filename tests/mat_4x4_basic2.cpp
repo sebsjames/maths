@@ -56,36 +56,5 @@ int main()
         if (m3x2 != m3 * 2) { --rtn; }
     }
 
-    {
-        // What happens when we add a vec to a mat<float, 4>?
-        sm::mat<float, 4> m;
-        m.translate (sm::vec<float>{1,2,3});
-        sm::mat<float, 4> m1 = m;
-
-        std::cout << "m:\n"<<m << "\nm1:\n" << m1 << std::endl;
-
-        sm::vec<float, 3> v3 = {0.1f, 0.2f, 0.3f};
-        sm::vec<float, 4> v4 = {0.1f, 0.2f, 0.3f, 0.4f};
-        sm::vec<float, 16> v16 = {0.1f, 0.2f, 0.3f, 0.4f};
-
-        // m1 = m + v
-        std::cout << "m + v3\n" << (m + v3) << std::endl;    // Should not compile
-        std::cout << "m + v4\n" << (m + v4) << std::endl;    // Should not compile
-        std::cout << "m + v16\n" << (m + v16) << std::endl;  // Ideally should not compile, even though it might be useful
-
-        m1 = m; m1 += v3;
-        std::cout << "m += v3\n" << m1 << std::endl;    // Should not compile
-        m1 = m; m1 += v4;
-        std::cout << "m += v4\n" << m1 << std::endl;    // Should not compile
-        m1 = m; m1 += v16;
-        std::cout << "m += v16\n" << m1 << std::endl;  // Ideally should not compile, even though it might be useful
-
-        // m1 = m * v
-        std::cout << "m * v3\n" << (m * v3) << std::endl; // output vector. Uses explicit function template
-        std::cout << "m * v4\n" << (m * v4) << std::endl; // output vector
-        //std::cout << "m * v16\n" << (m * v16) << std::endl; // should not compile (and does not)
-
-    }
-
     return rtn;
 }
