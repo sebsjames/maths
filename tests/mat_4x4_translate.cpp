@@ -115,6 +115,7 @@ int main()
         || (uy_about_tmy_pt.less_one_dim() - uy_about_y_truth_pretrans).abs().max() > 2.0 * std::numeric_limits<F>::epsilon()
         || (uz_about_tmy_pt.less_one_dim() - uz_about_y_truth_pretrans).abs().max() > 2.0 * std::numeric_limits<F>::epsilon()) { --rtn; }
 
+#ifdef ALLOW_INIT_WITH_TRANS
     sm::mat<F, 4> init_with_trans (sm::vec<F, 4>{1, 2, 1, 0});
     std::cout << "init_with_trans:\n" << init_with_trans << " has translation " << init_with_trans.translation() << std::endl;
     sm::mat<F, 4> init_with_trans3 (sm::vec<F, 3>{1, 2, 1});
@@ -122,7 +123,7 @@ int main()
     if (init_with_trans.translation() != sm::vec<F, 3>{1, 2, 1} || init_with_trans3.translation() != sm::vec<F, 3>{1, 2, 1}) {
         --rtn;
     }
-
+#endif
     if (rtn == 0) {
         std::cout << "Pretranslation tests PASSED\n";
     } else {

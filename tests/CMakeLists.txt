@@ -581,4 +581,67 @@ if(NOT WIN32) # exclude Windows CI from doing the compile failure tests for now
     ERROR_MATCHES "Should not compile"
   )
 
+  #
+  # Init with vec
+  #
+
+  icm_add_build_failure_test(
+    NAME mat_fail_4x4initwithv3
+    SOURCES mat_fail_4x4initwithv3.cpp
+    LABELS build-failure
+    ERROR_MATCHES "Should not compile"
+  )
+
+  icm_add_build_failure_test(
+    NAME mat_fail_4x4initwithv4
+    SOURCES mat_fail_4x4initwithv4.cpp
+    LABELS build-failure
+    ERROR_MATCHES "Should not compile"
+  )
+
+  add_executable(mat_succeed_4x4initwithv16 mat_succeed_4x4initwithv16.cpp)
+  add_test (mat_succeed_4x4initwithv16 mat_succeed_4x4initwithv16)
+
+  #
+  # mat = vec (allow for same-size vec)
+  #
+  add_executable(mat_succeed_assignvec mat_succeed_assignvec.cpp)
+  add_test (mat_succeed_assignvec mat_succeed_assignvec)
+
+  icm_add_build_failure_test(
+    NAME mat_fail_assignvec_diffsize
+    SOURCES mat_fail_assignvec_diffsize.cpp
+    LABELS build-failure
+    ERROR_MATCHES "Should not compile"
+  )
+
+  #
+  # mat == vec (disallow)
+  #
+
+  icm_add_build_failure_test(
+    NAME mat_fail_equalityvec
+    SOURCES mat_fail_equalityvec.cpp
+    LABELS build-failure
+    ERROR_MATCHES "Should not compile"
+  )
+
+  icm_add_build_failure_test(
+    NAME mat_fail_equalityvec4
+    SOURCES mat_fail_equalityvec4.cpp
+    LABELS build-failure
+    ERROR_MATCHES "Should not compile"
+  )
+
+  #
+  # mat != vec (disallow)
+  #
+
+  icm_add_build_failure_test(
+    NAME mat_fail_nonequalityvec
+    SOURCES mat_fail_nonequalityvec.cpp
+    LABELS build-failure
+    ERROR_MATCHES "Should not compile"
+  )
+
 endif(NOT WIN32)
