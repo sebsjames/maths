@@ -1122,13 +1122,15 @@ namespace sm
         }
 
         //! Add m2 to this matrix
-        constexpr void operator+= (const mat<F, Nr, Nc>& m2) noexcept
+        template<typename Fy=F>
+        constexpr void operator+= (const mat<Fy, Nr, Nc>& m2) noexcept
         {
             for (uint32_t i = 0; i < Nr * Nc; ++i) { this->arr[i] += m2.arr[i]; }
         }
 
         //! Return this + m2
-        constexpr mat<F, Nr, Nc> operator+ (const mat<F, Nr, Nc>& m2) const noexcept
+        template<typename Fy=F>
+        constexpr mat<F, Nr, Nc> operator+ (const mat<Fy, Nr, Nc>& m2) const noexcept
         {
             mat<F, Nr, Nc> m = {};
             for (uint32_t i = 0; i < Nr * Nc; ++i) { m[i] = this->arr[i] + m2.arr[i]; }
@@ -1136,13 +1138,15 @@ namespace sm
         }
 
         //! Add scalar to this matrix
-        constexpr void operator+= (const F& f) noexcept
+        template<typename Fy=F> requires std::is_arithmetic_v<Fy>
+        constexpr void operator+= (const Fy& f) noexcept
         {
             for (uint32_t i = 0; i < Nr * Nc; ++i) { this->arr[i] += f; }
         }
 
         //! Return this + scalar
-        constexpr mat<F, Nr, Nc> operator+ (const F& f) const noexcept
+        template<typename Fy=F> requires std::is_arithmetic_v<Fy>
+        constexpr mat<F, Nr, Nc> operator+ (const Fy& f) const noexcept
         {
             mat<F, Nr, Nc> m = {};
             for (uint32_t i = 0; i < Nr * Nc; ++i) { m[i] = this->arr[i] + f; }
@@ -1150,13 +1154,15 @@ namespace sm
         }
 
         //! Subtract m2 from this matrix
-        constexpr void operator-= (const mat<F, Nr, Nc>& m2) noexcept
+        template<typename Fy=F> requires std::is_arithmetic_v<Fy>
+        constexpr void operator-= (const mat<Fy, Nr, Nc>& m2) noexcept
         {
             for (uint32_t i = 0; i < Nr * Nc; ++i) { this->arr[i] -= m2.arr[i]; }
         }
 
         //! Return this - m2
-        constexpr mat<F, Nr, Nc> operator- (const mat<F, Nr, Nc>& m2) const noexcept
+        template<typename Fy=F> requires std::is_arithmetic_v<Fy>
+        constexpr mat<F, Nr, Nc> operator- (const mat<Fy, Nr, Nc>& m2) const noexcept
         {
             mat<F, Nr, Nc> m = {};
             for (uint32_t i = 0; i < Nr * Nc; ++i) { m[i] = this->arr[i] - m2.arr[i]; }
@@ -1164,13 +1170,15 @@ namespace sm
         }
 
         //! Subtract scalar from this matrix
-        constexpr void operator-= (const F& f) noexcept
+        template<typename Fy=F> requires std::is_arithmetic_v<Fy>
+        constexpr void operator-= (const Fy& f) noexcept
         {
             for (uint32_t i = 0; i < Nr * Nc; ++i) { this->arr[i] -= f; }
         }
 
         //! Return this - scalar
-        constexpr mat<F, Nr, Nc> operator- (const F& f) const noexcept
+        template<typename Fy=F> requires std::is_arithmetic_v<Fy>
+        constexpr mat<F, Nr, Nc> operator- (const Fy& f) const noexcept
         {
             mat<F, Nr, Nc> m = {};
             for (uint32_t i = 0; i < Nr * Nc; ++i) { m[i] = this->arr[i] - f; }
@@ -1178,7 +1186,7 @@ namespace sm
         }
 
         //! Right-multiply this->arr with m2
-        template<typename Fy=F, uint32_t Nry = Nr, uint32_t Ncy = Nc> requires (Nc == Nry)
+        template<typename Fy=F, uint32_t Nry = Nr, uint32_t Ncy = Nc> requires (Nc == Nry) && std::is_arithmetic_v<Fy>
         constexpr void operator*= (const mat<Fy, Nry, Ncy>& m2) noexcept
         {
             sm::vec<F, Nr * Ncy> m;
@@ -1240,7 +1248,7 @@ namespace sm
         }
 
         //! Right multiply this->arr with m2.arr. Make general NOW
-        template<typename Fy=F, uint32_t Nry = Nr, uint32_t Ncy = Nc> requires (Nc == Nry)
+        template<typename Fy=F, uint32_t Nry = Nr, uint32_t Ncy = Nc> requires (Nc == Nry) && std::is_arithmetic_v<Fy>
         constexpr mat<F, Nr, Ncy> operator* (const mat<Fy, Nry, Ncy>& m2) const noexcept
         {
             mat<F, Nr, Ncy> m;

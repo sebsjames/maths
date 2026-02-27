@@ -438,9 +438,11 @@ add_test(util1 util1)
 # mat times vec
 #
 
+# Only 4x4 matrices can be multiplied with an (N-1) D vector
 add_executable(mat_succeed_4x4timesv3 mat_succeed_4x4timesv3.cpp)
 add_test (mat_succeed_4x4timesv3 mat_succeed_4x4timesv3)
 
+# Matrix times vector is generally ok, as long as vector is right size
 add_executable(mat_succeed_4x4timesv4 mat_succeed_4x4timesv4.cpp)
 add_test (mat_succeed_4x4timesv4 mat_succeed_4x4timesv4)
 
@@ -456,7 +458,20 @@ icm_add_build_failure_test(
 # mat *= vec
 #
 
-# To build add "-test" to the NAME
+icm_add_build_failure_test(
+  NAME mat_fail_4x4timeseqlsv3
+  SOURCES mat_fail_4x4timeseqlsv3.cpp
+  LABELS build-failure
+  ERROR_MATCHES "Should not compile"
+)
+
+icm_add_build_failure_test(
+  NAME mat_fail_4x4timeseqlsv4
+  SOURCES mat_fail_4x4timeseqlsv4.cpp
+  LABELS build-failure
+  ERROR_MATCHES "Should not compile"
+)
+
 icm_add_build_failure_test(
   NAME mat_fail_4x4timeseqlsv16
   SOURCES mat_fail_4x4timeseqlsv16.cpp
