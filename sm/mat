@@ -1121,13 +1121,23 @@ namespace sm
             return m;
         }
 
-        //! Add m2 to this matrix
+        //! Add m2 to this matrix // match vec<F, 3,4,16>
         constexpr void operator+= (const mat<F, Nr, Nc>& m2) noexcept
         {
             for (uint32_t i = 0; i < Nr * Nc; ++i) { this->arr[i] += m2.arr[i]; }
         }
 
-        //! Return this + m2
+        //! Adds the vec v to this matrix as a translation
+        template<typename T, std::size_t N = 3> requires std::is_arithmetic_v<T> && (N == 3 || N == 4) && (Nr == 4) && (Nc == 4)
+        constexpr void operator+= (const sm::vec<T, N>& v) noexcept
+        {
+            //std::cout << "+= v gives translate(v)\n";
+            //this->translate (v); // or pretranslate?
+            std::cout << "+= v could give pretranslate(v)\n";
+            this->pretranslate (v);
+        }
+
+        //! Return this + m2 // match vec<F, 3,4,16>
         constexpr mat<F, Nr, Nc> operator+ (const mat<F, Nr, Nc>& m2) const noexcept
         {
             mat<F, Nr, Nc> m = {};
@@ -1149,13 +1159,13 @@ namespace sm
             return m;
         }
 
-        //! Subtract m2 from this matrix
+        //! Subtract m2 from this matrix // match vec<F, 3,4,16>
         constexpr void operator-= (const mat<F, Nr, Nc>& m2) noexcept
         {
             for (uint32_t i = 0; i < Nr * Nc; ++i) { this->arr[i] -= m2.arr[i]; }
         }
 
-        //! Return this - m2
+        //! Return this - m2 // match vec<F, 3,4,16>
         constexpr mat<F, Nr, Nc> operator- (const mat<F, Nr, Nc>& m2) const noexcept
         {
             mat<F, Nr, Nc> m = {};
@@ -1181,6 +1191,7 @@ namespace sm
         template<typename Fy=F, uint32_t Nry = Nr, uint32_t Ncy = Nc> requires (Nc == Nry)
         constexpr void operator*= (const mat<Fy, Nry, Ncy>& m2) noexcept
         {
+            std::cout << "*= (mat)\n";
             sm::vec<F, Nr * Ncy> m;
 
             if constexpr (Nr == 2 && Nc == 2) {
@@ -1239,7 +1250,7 @@ namespace sm
             this->arr.swap (m);
         }
 
-        //! Right multiply this->arr with m2.arr. Make general NOW
+        //! Right multiply this->arr with m2.arr. Make general NOW // match vec<F, 3,4,16>
         template<typename Fy=F, uint32_t Nry = Nr, uint32_t Ncy = Nc> requires (Nc == Nry)
         constexpr mat<F, Nr, Ncy> operator* (const mat<Fy, Nry, Ncy>& m2) const noexcept
         {
@@ -1318,6 +1329,7 @@ namespace sm
         //! Do matrix times vector multiplication, v = mat * v1
         constexpr sm::vec<F, Nr> operator* (const sm::vec<F, Nr>& v1) const noexcept
         {
+            std::cout << "explicit mat * vec\n";
             sm::vec<F, Nr> v = {};
             for (uint32_t r = 0; r < Nr; ++r) {
                 for (uint32_t c = 0; c < Nc; ++c) { v[r] += this->arr[r + c * Nr] * v1[c]; }
@@ -1328,6 +1340,7 @@ namespace sm
         //! Do matrix times vector multiplication, v = mat * v1, for the special case that we have a 4x4 matrix and a 3D vector
         constexpr sm::vec<F, Nr> operator* (const sm::vec<F, Nr - 1>& v1) const noexcept
         {
+            std::cout << "explicit mat * vec(N-1)\n";
             if constexpr (Nr != Nc || Nr != 4) { []<bool flag = false>() { static_assert(flag, "valid only for 4x4 matrices"); }(); }
             sm::vec<F, 4> v;
             v[0] = this->arr[0] * v1[0] + this->arr[4] * v1[1] + this->arr[8] * v1[2] + this->arr[12];
