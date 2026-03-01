@@ -1,4 +1,8 @@
 mkdir build
 cd build
 cmake .. -GNinja
-cmake --build . --target use_range
+cmake --build . --target use_range use_range2
+# verbose:
+cmake --build . --target use_range use_range2 --verbose
+# to clean:
+cmake --build . --target clean
