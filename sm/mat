@@ -969,7 +969,7 @@ namespace sm
 
         static constexpr mat<F, 4> translation (const sm::vec<F, 4>& t)
         {
-            if constexpr (Nr != 4 || Nr != Nc) { []<bool flag = false>() { static_assert(flag, "valid only for 4x4 matrices"); }(); }
+            if constexpr (Nr != 4 || Nc != 4) { []<bool flag = false>() { static_assert(flag, "valid only for 4x4 matrices"); }(); }
             sm::mat<F, 4> m;
             m.pretranslate (t);
             return m;
