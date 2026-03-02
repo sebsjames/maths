@@ -10,7 +10,7 @@
  * \author Seb James (with thanks to Konrad Rudolph and Miguel Avila for code review)
  * \date April 2020
  */
-#pragma once
+module;
 
 #include <cstdint>
 #include <cmath>
@@ -27,7 +27,14 @@
 #include <cstddef>
 #include <sm/constexpr_math>
 #include <sm/random>
-#include <sm/range>
+
+// random is only imported because it is used internally within vec
+//import sm.random;
+
+// We export sm.range as well as importing it because sm::vec may return a range (sm::vec::range())
+export import sm.range;
+
+export module sm.vec;
 
 namespace sm
 {
@@ -61,7 +68,7 @@ namespace sm
      * vec<float, 3> v;
      * v[0] = 1.0f; v[1] = 1.0f; v[2] = 1.0f;
      */
-    template <typename S, std::size_t N> struct vec;
+    export template <typename S, std::size_t N> struct vec;
 
     /*!
      * Template friendly mechanism to overload the stream operator.
@@ -70,9 +77,9 @@ namespace sm
      * stream operator overloading. Example adapted from
      * https://stackoverflow.com/questions/4660123
      */
-    template <typename S, std::size_t N> std::ostream& operator<< (std::ostream&, const vec<S, N>&);
+    export template <typename S, std::size_t N> std::ostream& operator<< (std::ostream&, const vec<S, N>&);
 
-    template <typename S=float, std::size_t N=3>
+    export template <typename S=float, std::size_t N=3>
     struct vec : public std::array<S, N>
     {
         //! \return the first component of the vector
@@ -344,7 +351,7 @@ namespace sm
         //! Stream the elements of the vector into \a ss as a comma separated list.
         void str_comma_separated (std::stringstream& ss, const char sep = ',') const
         {
-            ss << std::setprecision (std::numeric_limits<S>::max_digits10);
+            ss.precision (std::numeric_limits<S>::max_digits10);
             bool first = true;
             for (auto i : *this) {
                 if (first) {

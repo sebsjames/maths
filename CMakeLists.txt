@@ -1,5 +1,5 @@
-cmake_minimum_required(VERSION 3.14)
-project(maths)
+cmake_minimum_required(VERSION 3.28.5)
+project(maths LANGUAGES CXX)
 
 message(STATUS "Install prefix: ${CMAKE_INSTALL_PREFIX}")
 message(STATUS "  (This can be changed with `cmake -DCMAKE_INSTALL_PREFIX=/some/place`")
@@ -102,6 +102,12 @@ if(OpenMP_CXX_FOUND)
   endif()
 endif()
 
+# Will need to do this for files that have no suffix but are C++ module code
+set_source_files_properties (
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/vec
+  PROPERTIES LANGUAGE CXX)
+
 # Lib finding
 
 # Find the HDF5 library. To prefer the use of static linking of HDF5, set HDF5_USE_STATIC_LIBRARIES first
@@ -137,7 +143,7 @@ if(BUILD_TESTS)
 endif(BUILD_TESTS)
 
 # Example code (you can also see tests/ for examples)
-option(BUILD_EXAMPLES "Build examples" ON)
+option(BUILD_EXAMPLES "Build examples" OFF)
 if(BUILD_EXAMPLES)
   add_subdirectory(examples)
 endif(BUILD_EXAMPLES)

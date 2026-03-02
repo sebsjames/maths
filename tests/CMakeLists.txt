@@ -3,6 +3,27 @@
 # All #includes in test programs have to be #include <sm/header>
 include_directories(BEFORE ${PROJECT_SOURCE_DIR})
 
+set_source_files_properties (
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/vec
+  PROPERTIES LANGUAGE CXX)
+
+add_executable(range_intersects range_intersects.cpp)
+target_sources(range_intersects
+  PUBLIC FILE_SET CXX_MODULES
+  BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES ${PROJECT_SOURCE_DIR}/sm/range ${PROJECT_SOURCE_DIR}/sm/vec)
+#target_compile_features(range_intersects PUBLIC cxx_std_20)
+add_test(range_intersects range_intersects)
+
+#add_executable(range_adding range_adding.cpp)
+#add_test(range_adding range_adding)
+
+
+
+
+if (0) # DEVELOPMENT
+
 if(HDF5_FOUND)
   # Test HDF file access
   add_executable(testhdfdata1 testhdfdata1.cpp)
@@ -645,3 +666,5 @@ if(NOT WIN32) # exclude Windows CI from doing the compile failure tests for now
   )
 
 endif(NOT WIN32)
+
+endif(0) # DEVELOPMENT
