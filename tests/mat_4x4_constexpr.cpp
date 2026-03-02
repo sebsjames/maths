@@ -194,6 +194,24 @@ constexpr int do_test()
     mult4inv_copy.set_identity();
     if (mult4inv_copy[0] != 1.0f) { ++rtn; }
 
+    const sm::vec<float, 3> vt = {1,2,3};
+    sm::mat<float, 4> tln = sm::mat<float, 4>::translation (vt);
+    sm::mat<float, 4> rotn = sm::mat<float, 4>::rotation (sm::vec<float, 3>::ux(), sm::mathconst<float>::pi);
+
+    sm::mat<float, 4> tln1;
+    tln1.translate (vt);
+
+    sm::mat<float, 4> rotn1;
+    rotn1.rotate (sm::vec<float, 3>::ux(), sm::mathconst<float>::pi);
+
+    if (tln1 != tln) { ++rtn; }
+
+    if (rotn1 != rotn) { ++rtn; }
+
+    const sm::vec<float, 4> vt2 = {1,2,3,0};
+    sm::mat<float, 4> tln2 = sm::mat<float, 4>::translation (vt2);
+    if (tln2 != tln) { ++rtn; }
+
     return rtn;
 }
 
