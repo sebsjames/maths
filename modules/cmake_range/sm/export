@@ -1,0 +1,12 @@
+// -*- C++ -*-
+#pragma once
+// Macros for handling compatability with/without modules
+#ifndef sm_trad_include
+# ifndef sm_export
+# define sm_export export
+# endif
+#else
+# ifndef sm_export
+# define sm_export
+# endif
+#endif
