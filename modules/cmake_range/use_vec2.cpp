@@ -1,6 +1,6 @@
 #include <iostream>
 import sm.vec;
-//import sm.range;
+import sm.range; // no absolutely necessary, as sm.vec exports sm.range
 
 int main()
 {
@@ -9,7 +9,8 @@ int main()
     std::cout << "vec contains: " << v.str() << std::endl;
 
     std::cout << "vec range: " << v.range() << std::endl;
-#if 0
+
+    // Explicit use of sm::range
     auto r = sm::range<float>::search_initialized();
 
     r.update (1.0f);
@@ -19,5 +20,4 @@ int main()
 
     std::cout << "Range is [" << r.min << ", " << r.max << "]" << std::endl;
     std::cout << r << std::endl;
-#endif
 }
