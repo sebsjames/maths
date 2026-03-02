@@ -483,3 +483,12 @@ namespace sm
     }
 
 } // namespace sm
+
+#if 0 // These lines are ok if they're needed
+template class sm::range<float>;
+template class sm::range<double>;
+template class sm::range<int32_t>;
+template class sm::range<uint32_t>;
+template class sm::range<int64_t>;
+template class sm::range<uint64_t>;
+#endif
