@@ -1177,6 +1177,15 @@ namespace sm
             return std::accumulate (this->begin(), this->end(), S{0}, _element_fails) == S{0} ? true : false;
         }
 
+        //! C++ modules change
+        //! With modules (or g++-14?) we apparently no longer inherit operator!=
+        constexpr bool operator!= (const vec<S, N>& rhs) const noexcept
+        {
+            uint32_t ndiff = 0;
+            for (uint32_t i = 0; i < N && ndiff == 0; ++i) { ndiff += (*this)[i] == rhs[i] ? 0 : 1; }
+            return ndiff > 0;
+        }
+
         /*!
          * Unary negate operator
          *

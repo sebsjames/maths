@@ -9,15 +9,14 @@ set_source_files_properties (
   PROPERTIES LANGUAGE CXX)
 
 add_executable(range_intersects range_intersects.cpp)
-target_sources(range_intersects
-  PUBLIC FILE_SET CXX_MODULES
-  BASE_DIRS ${PROJECT_SOURCE_DIR}
+target_sources(range_intersects PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES ${PROJECT_SOURCE_DIR}/sm/range ${PROJECT_SOURCE_DIR}/sm/vec)
-#target_compile_features(range_intersects PUBLIC cxx_std_20)
 add_test(range_intersects range_intersects)
 
-#add_executable(range_adding range_adding.cpp)
-#add_test(range_adding range_adding)
+add_executable(range_adding range_adding.cpp)
+target_sources(range_adding PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES ${PROJECT_SOURCE_DIR}/sm/range ${PROJECT_SOURCE_DIR}/sm/vec)
+add_test(range_adding range_adding)
 
 
 

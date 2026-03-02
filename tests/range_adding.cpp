@@ -1,6 +1,6 @@
 #include <iostream>
-#include <sm/vec>
-#include <sm/range>
+import sm.vec;
+import sm.range;
 
 int main()
 {
