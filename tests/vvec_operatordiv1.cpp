@@ -2,8 +2,10 @@
  * Test the different possibilities for dividing a vvec of scalars/vecs by scalar/vec/vvec etc
  */
 
-#include <sm/vvec>
-#include <sm/vec>
+#include <iostream>
+
+import sm.vvec;
+import sm.vec;
 
 int main()
 {

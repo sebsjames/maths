@@ -2,8 +2,10 @@
  * Test the different possibilities for adding scalar/vec/vvec etc to a vvec of scalars/vecs
  */
 
-#include <sm/vvec>
-#include <sm/vec>
+#include <iostream>
+
+import sm.vvec;
+import sm.vec;
 
 int main()
 {

@@ -175,6 +175,23 @@ target_sources(vvec_operatormult1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJEC
   ${PROJECT_SOURCE_DIR}/sm/vvec)
 add_test(vvec_operatormult1 vvec_operatormult1)
 
+add_executable(vvec_operatordiv1 vvec_operatordiv1.cpp)
+target_sources(vvec_operatordiv1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/random
+  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/vvec)
+add_test(vvec_operatordiv1 vvec_operatordiv1)
+
+add_executable(vvec_operatoradd1 vvec_operatoradd1.cpp)
+target_sources(vvec_operatoradd1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/random
+  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/vvec)
+add_test(vvec_operatoradd1 vvec_operatoradd1)
 
 if (0) # DEVELOPMENT
 
@@ -241,12 +258,6 @@ if(NOT APPLE)
   add_test(testQuat_constexpr testQuat_constexpr)
 endif()
 
-
-add_executable(testvvec_operatordiv testvvec_operatordiv.cpp)
-add_test(testvvec_operatordiv testvvec_operatordiv)
-
-add_executable(testvvec_operatoradd testvvec_operatoradd.cpp)
-add_test(testvvec_operatoradd testvvec_operatoradd)
 
 add_executable(testvvec_convolutions testvvec_convolutions.cpp)
 add_test(testvvec_convolutions testvvec_convolutions)
