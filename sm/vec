@@ -1180,9 +1180,16 @@ namespace sm
         //! With modules (or g++-14?) we apparently no longer inherit operator!=
         constexpr bool operator!= (const vec<S, N>& rhs) const noexcept
         {
-            uint32_t ndiff = 0;
-            for (uint32_t i = 0; i < N && ndiff == 0; ++i) { ndiff += (*this)[i] == rhs[i] ? 0 : 1; }
-            return ndiff > 0;
+            uint32_t ndiff = 0u;
+            for (uint32_t i = 0u; i < N && ndiff == 0u; ++i) { ndiff += (*this)[i] == rhs[i] ? 0u : 1u; }
+            return ndiff > 0u;
+        }
+
+        constexpr bool operator== (const vec<S, N>& rhs) const noexcept
+        {
+            uint32_t ndiff = 0u;
+            for (uint32_t i = 0u; i < N && ndiff == 0u; ++i) { ndiff += (*this)[i] == rhs[i] ? 0u : 1u; }
+            return ndiff == 0u;
         }
 
         /*!
@@ -1577,7 +1584,7 @@ namespace sm
         };
     };
 
-    template <typename S=float, std::size_t N=3>
+    export template <typename S=float, std::size_t N=3>
     std::ostream& operator<< (std::ostream& os, const vec<S, N>& v)
     {
         os << v.str();
@@ -1588,13 +1595,12 @@ namespace sm
     // e.g. vec<float> denom = {1,2,3}; vec<float> result = float(1) / denom;
 
     //! Scalar * vec<> (commutative; lhs * rhs == rhs * lhs, so return rhs * lhs)
-    template <typename T, typename S, std::size_t N> requires std::is_arithmetic_v<T>
+    export template <typename T, typename S, std::size_t N> requires std::is_arithmetic_v<T>
     constexpr vec<S, N> operator* (T lhs, const vec<S, N>& rhs) noexcept { return rhs * lhs; }
 
     //! Scalar / vec<>
-    template <typename T, typename S, std::size_t N> requires std::is_arithmetic_v<T>
+    export template <typename T, typename S, std::size_t N> requires std::is_arithmetic_v<T>
     constexpr vec<S, N> operator/ (T lhs, const vec<S, N>& rhs) noexcept
-
     {
         vec<S, N> division;
         auto lhs_div_by_vec = [lhs](S elmnt) { return static_cast<S>(lhs / elmnt); };
@@ -1603,11 +1609,11 @@ namespace sm
     }
 
     //! Scalar + vec<> (commutative)
-    template <typename T, typename S, std::size_t N> requires std::is_arithmetic_v<T>
+    export template <typename T, typename S, std::size_t N> requires std::is_arithmetic_v<T>
     constexpr vec<S, N> operator+ (T lhs, const vec<S, N>& rhs) noexcept { return rhs + lhs; }
 
     //! Scalar - vec<>
-    template <typename T, typename S, std::size_t N> requires std::is_arithmetic_v<T>
+    export template <typename T, typename S, std::size_t N> requires std::is_arithmetic_v<T>
     constexpr vec<S, N> operator- (T lhs, const vec<S, N>& rhs) noexcept
     {
         vec<S, N> subtraction;

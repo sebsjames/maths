@@ -1,9 +1,10 @@
+#include <iostream>
 #include <set>
 #include <algorithm>
 #include <complex>
 
 #include <sm/mathconst>
-#include <sm/vec>
+import sm.vec;
 
 int main()
 {

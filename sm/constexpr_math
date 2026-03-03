@@ -61,10 +61,6 @@ namespace sm::cem // ConstExpr Math
     template<typename ...T>
     using common_return_t = return_t<common_t<T...>>;
 
-    static constexpr int32_t log_max_iter_small = 25;
-    static constexpr int32_t exp_max_iter_small = 25;
-    static constexpr int32_t sqrt_max_iter = 100;
-
     // constexpr capable abs for use until C++23 (and beyond)
     template<class T> requires std::is_arithmetic_v<T>
     constexpr auto abs (const T& x) noexcept { return x < T{0} ? -x : x; }
@@ -136,6 +132,7 @@ namespace sm::cem // ConstExpr Math
         template<typename T>
         constexpr T log_cf_main (const T xx, const int32_t depth_end) noexcept
         {
+            constexpr int32_t log_max_iter_small = 25;
             int32_t depth = log_max_iter_small - 1;
             T res = T(2 * (depth + 1) - 1);
             while (depth > depth_end - 1) {
@@ -428,6 +425,7 @@ namespace sm::cem // ConstExpr Math
         template<typename T>
         constexpr T exp_cf_recur (const T x, const int32_t depth_end) noexcept
         {
+            constexpr int32_t exp_max_iter_small = 25;
             int32_t depth = exp_max_iter_small - 1;
             T res = T{1};
             while (depth > depth_end - 1) {
@@ -591,6 +589,7 @@ namespace sm::cem // ConstExpr Math
         template<typename T>
         constexpr T sqrt_recur (const T x, const T xn, const int32_t count) noexcept
         {
+            constexpr int32_t sqrt_max_iter = 100;
             return (cem::abs(xn - x/xn) / (T{1} + xn) < std::numeric_limits<T>::min() ? xn :
                     count < sqrt_max_iter ? sqrt_recur (x, T{0.5}*(xn + x/xn), count+1) : xn);
         }

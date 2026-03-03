@@ -41,6 +41,17 @@ target_sources(randstring1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURC
   ${PROJECT_SOURCE_DIR}/sm/random)
 add_test(randstring1 randstring1)
 
+# test sm::vec.
+add_executable(vec1 vec1.cpp)
+target_sources(vec1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/random
+)
+add_test(vec1 vec1)
+
+
 
 if (0) # DEVELOPMENT
 
@@ -106,10 +117,6 @@ if(NOT APPLE)
   add_executable(testQuat_constexpr testQuat_constexpr.cpp)
   add_test(testQuat_constexpr testQuat_constexpr)
 endif()
-
-# test sm::vec.
-add_executable(testvec testvec.cpp)
-add_test(testvec testvec)
 
 if(NOT APPLE)
   # constexpr functionality in sm::vec
