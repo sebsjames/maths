@@ -16,6 +16,7 @@ set_source_files_properties (
   ${PROJECT_SOURCE_DIR}/sm/hex
   ${PROJECT_SOURCE_DIR}/sm/bezcoord
   ${PROJECT_SOURCE_DIR}/sm/winder
+  ${PROJECT_SOURCE_DIR}/sm/bootstrap
   PROPERTIES LANGUAGE CXX)
 
 # sm::range
@@ -666,6 +667,18 @@ target_sources(winder3 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DI
   ${PROJECT_SOURCE_DIR}/sm/winder)
 add_test(winder3 winder3)
 
+# Test bootstrapping
+add_executable(bootstrap1 bootstrap1.cpp)
+target_sources(bootstrap1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/random
+  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/vvec
+  ${PROJECT_SOURCE_DIR}/sm/bootstrap)
+# Test disabled - statistical fluctuations can make this fail sometimes
+# add_test(bootstrap1 bootstrap1)
+
 if (0) # DEVELOPMENT
 
 # Test Nelder Mead algorithm
@@ -673,10 +686,6 @@ if (0) # DEVELOPMENT
 #target_compile_definitions(testNMSimplex PUBLIC FLT=float)
 #add_test(testNMSimplex testNMSimplex)
 
-# Test bootstrapping
-add_executable(testbootstrap testbootstrap.cpp)
-# Test disabled - statistical fluctuations can make this fail sometimes
-# add_test(testbootstrap testbootstrap)
 
 ##add_executable(testboxfilter testboxfilter.cpp)
 ##add_test(testboxfilter testboxfilter)

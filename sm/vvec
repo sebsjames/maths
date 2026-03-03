@@ -2276,7 +2276,9 @@ export namespace sm
         void concat (const vvec<S>& a)
         {
             std::size_t sz = this->size();
-            this->resize (sz + a.size());
+            std::size_t sz_new = sz + a.size();
+            this->reserve (sz_new); // necessary to avoid stringop-overflow warning on g++-15
+            this->resize (sz_new);
             auto iter = this->begin();
             std::advance (iter, sz);
             std::copy (a.begin(), a.end(), iter);

@@ -1,8 +1,12 @@
 // Test that bootstrapping results match expected results from parameterized statistics.
 
-#include <sm/vvec>
-#include <sm/bootstrap>
-#include <sm/random>
+#include <iostream>
+#include <cmath>
+#include <random>
+
+import sm.random;
+import sm.vvec;
+import sm.bootstrap;
 
 int main()
 {
