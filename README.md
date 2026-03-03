@@ -63,3 +63,9 @@ int main()
     std::cout << v1 << " rotated pi/2 about x-axis is " << v1_rotated << "\n";
 }
 ```
+
+## Build requirements
+
+Minimum compilers: g++-14, clang++-18, Visual Studio Something.
+You will need cmake version 3.28.5 as a minimum.
+Ninja is required as a partner for cmake, as make does not yet support C++-20 modules.
