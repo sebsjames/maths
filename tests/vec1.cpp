@@ -155,11 +155,13 @@ int main()
     std::cout << "compare1 < compare2: " << (compare1 < compare2) << std::endl;
     std::cout << "compare2 < compare1: " << (compare2 < compare1) << std::endl;
 
+#if (__GNUC__ >= 15) // This is ok on gcc 12+ with no modules, but modules trips it up.
     auto _cmp = [](sm::vec<float, 3> a, sm::vec<float, 3> b) { return a.lexical_lessthan(b); };
     std::set<sm::vec<float, 3>, decltype(_cmp)> aset(_cmp);
     aset.insert (compare1);
     aset.insert (compare2);
     std::cout << "aset size " << aset.size() << std::endl;
+#endif
 
     sm::vec<double,2> VV1 = {1.0, 2.0};
     sm::vec<double,2> VV2 = {2.0, 3.0};

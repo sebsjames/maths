@@ -32,6 +32,7 @@ int main()
         --rtn;
     }
 
+#if (__GNUC__ >= 15) // This code is ok on gcc 12+ with no modules, but modules trips it up.
     // Create a set and fill
     std::set<float> sf;
     for (int i = 0; i < 12; ++i) {
@@ -43,7 +44,7 @@ int main()
     if (mvf[0] != 0.0f || mvf[10] != 10.0f) {
         --rtn;
     }
-
+#endif
     // set from a container of different type
     std::array<int, 10> ai = { 2, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
     mvf.set_from (ai);
