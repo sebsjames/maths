@@ -7,8 +7,9 @@
 #include <list>
 #include <array>
 #include <iostream>
-#include <sm/vec>
-#include <sm/scale>
+
+import sm.vec;
+import sm.scale;
 
 int main ()
 {

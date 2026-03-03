@@ -5,8 +5,9 @@
 #include <iostream>
 #include <complex>
 #include <array>
-#include <sm/vvec>
-#include <sm/scale>
+
+import sm.vvec;
+import sm.scale;
 
 int main()
 {

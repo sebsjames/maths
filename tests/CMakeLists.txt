@@ -304,6 +304,27 @@ target_sources(scale1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR
   ${PROJECT_SOURCE_DIR}/sm/scale)
 add_test(scale1 scale1)
 
+# Test the Scaling of vecs
+add_executable(scale_vector1 scale_vector1.cpp)
+target_sources(scale_vector1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/random
+  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/vvec
+  ${PROJECT_SOURCE_DIR}/sm/scale)
+add_test(scale_vector1 scale_vector1)
+
+# Test scaling complex numbers
+add_executable(scale_complex1 scale_complex1.cpp)
+target_sources(scale_complex1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/random
+  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/vvec
+  ${PROJECT_SOURCE_DIR}/sm/scale)
+add_test(scale_complex1 scale_complex1)
 
 if (0) # DEVELOPMENT
 
@@ -375,14 +396,6 @@ add_test(test_trait_tests test_trait_tests)
 
 add_executable(testarange testarange.cpp)
 add_test(testarange testarange)
-
-# Test the Scaling of vecs
-add_executable(testScaleVector testScaleVector.cpp)
-add_test(testScaleVector testScaleVector)
-
-# Test scaling complex numbers
-add_executable(testScale_complex testScale_complex.cpp)
-add_test(testScale_complex testScale_complex)
 
 # Test Hex::get_vertex_coord()
 add_executable(testHexVertexPos testHexVertexPos.cpp)
