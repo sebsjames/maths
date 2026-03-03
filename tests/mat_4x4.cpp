@@ -5,6 +5,7 @@
 
 import sm.vec;
 import sm.mat;
+import sm.quaternion; // for clang
 
 void setMatrixSequence (sm::mat<float, 4>& tm)
 {

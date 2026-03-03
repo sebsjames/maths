@@ -7,6 +7,7 @@
 import sm.quaternion;
 import sm.vec;
 import sm.random;
+import sm.range; // for clang
 
 int main()
 {

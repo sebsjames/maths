@@ -8,6 +8,7 @@
 
 import sm.vvec;
 import sm.vec;
+import sm.range; // for clang
 
 int main()
 {

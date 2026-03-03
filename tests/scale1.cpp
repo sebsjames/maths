@@ -9,6 +9,8 @@
 
 import sm.vec;
 import sm.scale;
+import sm.vvec;  // for clang (scale export imports vvec)
+import sm.range; // for clang (vec, vvec export imports vvec)
 
 int main ()
 {
