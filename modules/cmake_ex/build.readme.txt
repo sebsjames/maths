@@ -1,4 +1,0 @@
-mkdir build
-cd build
-cmake .. -GNinja
-cmake --build . --target test_modules
