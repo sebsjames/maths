@@ -11,6 +11,7 @@ set_source_files_properties (
   ${PROJECT_SOURCE_DIR}/sm/vvec
   ${PROJECT_SOURCE_DIR}/sm/scale
   ${PROJECT_SOURCE_DIR}/sm/hdfdata
+  ${PROJECT_SOURCE_DIR}/sm/quaternion
   PROPERTIES LANGUAGE CXX)
 
 # sm::range
@@ -400,12 +401,28 @@ if(HDF5_FOUND)
   add_test(hdfdata5 hdfdata5)
 endif(HDF5_FOUND)
 
+# Test sm::quaternion
+add_executable(quaternion1 quaternion1.cpp)
+target_sources(quaternion1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/random
+  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/quaternion)
+add_test(quaternion1 quaternion1)
+
+if(NOT APPLE)
+  add_executable(quaternion_constexpr1 quaternion_constexpr1.cpp)
+  target_sources(quaternion_constexpr1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+    FILES
+    ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/random
+    ${PROJECT_SOURCE_DIR}/sm/vec
+    ${PROJECT_SOURCE_DIR}/sm/quaternion)
+  add_test(quaternion_constexpr1 quaternion_constexpr1)
+endif()
 
 if (0) # DEVELOPMENT
-
-# Test sm::quaternion
-add_executable(testQuaternion testQuaternion.cpp)
-add_test(testQuaternion testQuaternion)
 
 # Test quaternion and mat44 rotations in float and double precision
 add_executable(testRotations_float testRotations.cpp)
@@ -427,11 +444,6 @@ add_test(testRotationsQuat_double testRotationsQuat_double)
 # More rotations
 add_executable(rotations rotations.cpp)
 add_test(rotations rotations)
-
-if(NOT APPLE)
-  add_executable(testQuat_constexpr testQuat_constexpr.cpp)
-  add_test(testQuat_constexpr testQuat_constexpr)
-endif()
 
 add_executable(test_trait_tests test_trait_tests.cpp)
 add_test(test_trait_tests test_trait_tests)

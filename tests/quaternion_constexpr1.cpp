@@ -1,6 +1,9 @@
 #include <iostream>
-#include <sm/quaternion>
-#include <sm/vec>
+#include <array>
+#include <sm/mathconst>
+
+import sm.quaternion;
+import sm.vec;
 
 constexpr int test_quat1()
 {

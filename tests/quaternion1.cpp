@@ -2,6 +2,7 @@
 #include <limits>
 
 #include <sm/mathconst>
+#include <sm/constexpr_math>
 
 import sm.quaternion;
 import sm.vec;
