@@ -3,8 +3,11 @@
  * of the vvec divided by a scalar.
  */
 
-#include <sm/vvec>
-#include <sm/vec>
+#include <iostream>
+#include <array>
+
+import sm.vvec;
+import sm.vec;
 
 int main()
 {
