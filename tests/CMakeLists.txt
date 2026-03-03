@@ -147,6 +147,18 @@ target_sources(vec_set_from1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOU
 )
 add_test(vec_set_from1 vec_set_from1)
 
+# Test the "mathematic vector made from an std::vector" code (this vvec is better for neural networks)
+add_executable(vvec1 vvec1.cpp)
+target_sources(vvec1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/random
+  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/vvec)
+add_test(vvec1 vvec1)
+
+
+
 if (0) # DEVELOPMENT
 
 if(HDF5_FOUND)
@@ -211,10 +223,6 @@ if(NOT APPLE)
   add_executable(testQuat_constexpr testQuat_constexpr.cpp)
   add_test(testQuat_constexpr testQuat_constexpr)
 endif()
-
-# Test the "mathematic vector made from an std::vector" code (this vvec is better for neural networks)
-add_executable(testvvec testvvec.cpp)
-add_test(testvvec testvvec)
 
 add_executable(testvvecofvecs testvvecofvecs.cpp)
 add_test(testvvecofvecs testvvecofvecs)

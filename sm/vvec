@@ -1936,6 +1936,24 @@ export namespace sm
             return std::accumulate (this->begin(), this->end(), S{0}, _element_fails) == S{0} ? true : false;
         }
 
+        //! C++ modules change
+        //! With modules we apparently no longer inherit operator!=
+        constexpr bool operator!= (const vvec<S>& rhs) const noexcept
+        {
+            if (this->size() != rhs.size()) { return true; }
+            uint32_t ndiff = 0u;
+            for (uint32_t i = 0u; i < this->size() && ndiff == 0u; ++i) { ndiff += (*this)[i] == rhs[i] ? 0u : 1u; }
+            return ndiff > 0u;
+        }
+
+        constexpr bool operator== (const vvec<S>& rhs) const noexcept
+        {
+            if (this->size() != rhs.size()) { return false; }
+            uint32_t ndiff = 0u;
+            for (uint32_t i = 0u; i < this->size() && ndiff == 0u; ++i) { ndiff += (*this)[i] == rhs[i] ? 0u : 1u; }
+            return ndiff == 0u;
+        }
+
         /*!
          * Unary negate operator
          *

@@ -1,76 +1,77 @@
-#include <sm/vvec>
-#include <sm/vec>
-#include <sm/mathconst>
-#include <array>
+#include <iostream>
 #include <cstdint>
+#include <array>
+#include <vector>
 
-using std::cout;
-using std::endl;
+#include <sm/mathconst>
+
+import sm.vec;
+import sm.vvec;
 
 int main() {
     int rtn = 0;
     sm::vvec<float> v = {{1.0f,2.0f,3.0f}};
     // Test x(), y() etc members
-    cout << "x: " << v.x() << endl;
-    cout << "z: " << v.z() << endl;
+    std::cout << "x: " << v.x() << std::endl;
+    std::cout << "z: " << v.z() << std::endl;
 #ifndef _MSC_VER // may cause debug assertion, so lets avoid that
-    cout << "w: " << v.w() << endl;
+    std::cout << "w: " << v.w() << std::endl;
 #endif
     // Test renormalize
     v.renormalize();
-    cout << "After renormalize: " << v << endl;
+    std::cout << "After renormalize: " << v << std::endl;
     // Test checkunit
-    cout << "is it unit? " << v.checkunit() << endl;
+    std::cout << "is it unit? " << v.checkunit() << std::endl;
     // Test randomize
     v.randomize();
-    cout << "After randomize: " << v << endl;
+    std::cout << "After randomize: " << v << std::endl;
     // Check ints are ok, too
     sm::vvec<int> vi(2);
     vi.randomize(0,100);
-    cout << "After randomize of int vector: " << vi << endl;
-    cout << "Length: " << vi.length() << endl;
+    std::cout << "After randomize of int vector: " << vi << std::endl;
+    std::cout << "Length: " << vi.length() << std::endl;
 
     sm::vec<float, 2> vfl = {113, 124};
-    cout << "Length of a float sm::vec: " << vfl.length() << endl;
+    std::cout << "Length of a float sm::vec: " << vfl.length() << std::endl;
     sm::vvec<float> vvfl = {113, 124};
-    cout << "Length of a float sm::vvec: " << vvfl.length() << endl;
+    std::cout << "Length of a float sm::vvec: " << vvfl.length() << std::endl;
 
     sm::vec<int, 2> vil = {113, 124};
-    cout << "Length of an int sm::vec: " << vil.length() << endl;
+    std::cout << "Length of an int sm::vec: " << vil.length() << std::endl;
     sm::vvec<int> vvil = {113, 124};
-    cout << "Length of an int sm::vvec: " << vvil.length() << endl;
+    std::cout << "Length of an int sm::vvec: " << vvil.length() << std::endl;
 
     // Test assignment
     sm::vvec<int> vi2 = vi;
-    cout << "Copy of int vector: " << vi2 << endl;
+    std::cout << "Copy of int vector: " << vi2 << std::endl;
     // Test comparison
-    cout << "vi == vi2? " << (vi == vi2 ? "yes" : "no") << endl;
+    std::cout << "vi == vi2? " << (vi == vi2 ? "yes" : "no") << std::endl;
     // Test negate
     sm::vvec<int> vi3(2);
     vi3 = -vi;
     sm::vvec<int> vi33 = -vi;
-    cout << "-ve Copy of int vector: " << vi3 << endl;
+    std::cout << "-ve Copy of int vector: " << vi3 << std::endl;
     // Test comparison
-    cout << "vi == vi3? " << (vi == vi3 ? "yes" : "no") << endl;
+    std::cout << "vi == vi3? " << (vi == vi3 ? "yes" : "no") << std::endl;
     // Test cross product (3D only
     sm::vvec<double> a = {1.0, 0.0, 0.0};
     sm::vvec<double> b = {0.0, 1.0, 0.0};
     sm::vvec<double> c = a.cross(b);
-    cout << a << " cross " << b << "=" << c << endl;
+    std::cout << a << " cross " << b << "=" << c << std::endl;
     // Test dot product
     sm::vvec<int> vv1 = {1,1};
     sm::vvec<int> vv2 = {2,2};
     int dp = vv1.dot (vv2);
-    cout << vv1 << "." << vv2 << " = " << dp << endl;
+    std::cout << vv1 << "." << vv2 << " = " << dp << std::endl;
 
     // dot product of two different sized vectors
     sm::vvec<int> vv2_3 = {2,2,2};
     try {
         int dpmm = vv1.dot (vv2_3);
-        cout << vv1 << "." << vv2_3 << " = " << dpmm << endl;
+        std::cout << vv1 << "." << vv2_3 << " = " << dpmm << std::endl;
     } catch (const std::exception& e) {
-        cout << "Expected exception: ";
-        cout << e.what() << endl;
+        std::cout << "Expected exception: ";
+        std::cout << e.what() << std::endl;
     }
 
 #if 0 // No good here either, but may be able to fix by overloading operator=
@@ -78,7 +79,7 @@ int main() {
     std::array<float, 3> arr = { 2,3,4 };
     std::vector<float> veccy(3);
     sm::vvec<float> varr = arr; // Tried overloading operator= to no avail.
-    cout << "vvec from array: " << varr << endl;
+    std::cout << "vvec from array: " << varr << std::endl;
 #endif
 
 #if 0 // Haven't figured out assignment from a vector
@@ -88,40 +89,40 @@ int main() {
 
     // Test scalar multiply
     vv2 *= 2UL;
-    cout << "vv2 after *2:" << vv2 << endl;
+    std::cout << "vv2 after *2:" << vv2 << std::endl;
     sm::vvec<int> vv4 = vv1 * (int)98;
-    cout << vv1 << " * 98:" << vv4 << endl;
+    std::cout << vv1 << " * 98:" << vv4 << std::endl;
     // Scalar division
     sm::vvec<double> d = a/3.0;
-    cout << "a/3.0:" << d << endl;
+    std::cout << "a/3.0:" << d << std::endl;
     // vvec addition
     sm::vvec<double> e = a+b;
-    cout << "a+b:" << e << endl;
+    std::cout << "a+b:" << e << std::endl;
     // vvec subtraction
     sm::vvec<double> f = a-b;
-    cout << "a-b:" << f << endl;
+    std::cout << "a-b:" << f << std::endl;
     // Test default template args
     sm::vvec<double> vd_def;
     vd_def.randomize();
-    cout << vd_def << endl;
+    std::cout << vd_def << std::endl;
     sm::vvec<> v_def;
     v_def.randomize();
-    cout << v_def << endl;
+    std::cout << v_def << std::endl;
 
     // So you want to do the dot product of a 1000000 D vector? Easy
     sm::vvec<float> big1(1000);
     sm::vvec<float> big2(1000);
     big1.randomize(0,10);
     big2.randomize(0,10.0f);
-    cout << "DP..." << endl;
+    std::cout << "DP..." << std::endl;
     float bdp = big1.dot(big2);
-    cout << "big1.big2=" << bdp << endl;
+    std::cout << "big1.big2=" << bdp << std::endl;
 
     // Test setFrom
     sm::vvec<double> d1;
     std::array<double, 3> a1 = { 5,6,7 };
     d1.set_from (a1);
-    cout << "d1 should be 5,6,7: " << d1 << endl;
+    std::cout << "d1 should be 5,6,7: " << d1 << std::endl;
     std::array<double, 4> a2 = { 5,6,8,8 };
     d1.set_from_onelonger(a2);
     std::cout << "d1.set_from_onelonger(a2) gives d1: " << d1 << std::endl;
@@ -147,18 +148,18 @@ int main() {
 
 
 
-    cout << "d1 should be 5,6,8: " << d1 << endl;
+    std::cout << "d1 should be 5,6,8: " << d1 << std::endl;
     d1.set_from (88.3);
-    cout << "d1 should be 88.3 in all elements: " << d1 << endl;
+    std::cout << "d1 should be 88.3 in all elements: " << d1 << std::endl;
 
     // Test hadamard operator* (elementwise multiplication)
     sm::vvec<double> h1 = {1.0, 2.0, 3.0};
     sm::vvec<double> h2 = {7.0, 6.0, 5.0};
     sm::vvec<double> h3 = h1 * h2;
-    cout << h1 << "(o)" << h2 << " = " << h3 << endl;
+    std::cout << h1 << "(o)" << h2 << " = " << h3 << std::endl;
 
     h1 *= h2;
-    cout << "After h1 *= h2, h1: " << h1 << endl;
+    std::cout << "After h1 *= h2, h1: " << h1 << std::endl;
 
     // Test operator *= with different types. Ok if lhs is same type as result.
     sm::vvec<int> h4 = {2, 2, 2};
@@ -166,43 +167,43 @@ int main() {
     sm::vvec<int> h6 = h4 * h2;
     sm::vvec<double> h7 = h2 * h4;
     //sm::vvec<double> h8 = h4 * h2; // Not ok
-    cout << h2 << "(o)" << h4 << " = " << h6 << " or " << h7 << endl;
+    std::cout << h2 << "(o)" << h4 << " = " << h6 << " or " << h7 << std::endl;
 
     // Operator* and operator*= with different length vectors
     sm::vvec<double> dl1 = {2.0, 3.0, 4.0};
     sm::vvec<double> dl2 = {2.0, 3.0};
     try {
         sm::vvec<double> dlresult = dl1 * dl2;
-        cout << dl1 << " * " << dl2 << " = " << dlresult << endl;
+        std::cout << dl1 << " * " << dl2 << " = " << dlresult << std::endl;
     } catch (const std::exception& e) {
-        cout << "Expected exception: ";
-        cout << e.what() << endl;
+        std::cout << "Expected exception: ";
+        std::cout << e.what() << std::endl;
     }
 
     sm::vvec<double> dl1_ = {2.0, 3.0};
     sm::vvec<double> dl2_ = {2.0, 3.0, 4.0};
     try {
         sm::vvec<double> dlresult_ = dl1_ * dl2_;
-        cout << dl1_ << " * " << dl2_ << " = " << dlresult_ << endl;
+        std::cout << dl1_ << " * " << dl2_ << " = " << dlresult_ << std::endl;
     } catch (const std::exception& e) {
-        cout << "Expected exception: ";
-        cout << e.what() << endl;
+        std::cout << "Expected exception: ";
+        std::cout << e.what() << std::endl;
     }
 
     try {
         dl1_ *= dl2_;
-        cout << "{2, 3} *= {2, 3, 4} gives " << dl1_ << endl;
+        std::cout << "{2, 3} *= {2, 3, 4} gives " << dl1_ << std::endl;
     } catch (const std::exception& e) {
-        cout << "Expected exception: ";
-        cout << e.what() << endl;
+        std::cout << "Expected exception: ";
+        std::cout << e.what() << std::endl;
     }
 
     try {
         dl2_ *= dl2;
-        cout << "{2, 3, 4} *= {2, 3} gives " << dl2_ << endl;
+        std::cout << "{2, 3, 4} *= {2, 3} gives " << dl2_ << std::endl;
     } catch (const std::exception& e) {
-        cout << "Expected exception: ";
-        cout << e.what() << endl;
+        std::cout << "Expected exception: ";
+        std::cout << e.what() << std::endl;
     }
 
     // Signum function
@@ -304,49 +305,49 @@ int main() {
     sm::vvec<double> left = h1;
     sm::vvec<int> right = { 2,2,3 };
     double dotprod = left.dot(right);
-    cout << h1 << "." << right << " = " << dotprod << endl;
+    std::cout << h1 << "." << right << " = " << dotprod << std::endl;
 #endif
 
     sm::vvec<float> maxlongest = {-1.1f, -7.0f, 3.0f, 6.0f };
-    cout << "For vector " << maxlongest
+    std::cout << "For vector " << maxlongest
          << ", max: " << maxlongest.max() << " (at index "<< maxlongest.argmax()
          << "), longest component: " << maxlongest.longest() << " (at index "
          << maxlongest.arglongest() << ")\n";
-    cout << "For vector " << maxlongest
+    std::cout << "For vector " << maxlongest
          << ", min: " << maxlongest.min() << " (at index "<< maxlongest.argmin()
          << "), shortest component: " << maxlongest.shortest() << " (at index "
          << maxlongest.argshortest() << ")\n";
 
     sm::vvec<double> forshortest = { 2.9, 0, -1.1, 3.9 };
-    cout << "For vector " << forshortest << std::endl;
-    cout << "  Shortest: " << forshortest.shortest() << std::endl;
-    cout << "  Shortest non-zero: " << forshortest.shortest_nonzero() << std::endl;
+    std::cout << "For vector " << forshortest << std::endl;
+    std::cout << "  Shortest: " << forshortest.shortest() << std::endl;
+    std::cout << "  Shortest non-zero: " << forshortest.shortest_nonzero() << std::endl;
     if (forshortest.shortest_nonzero() != -1.1) { --rtn; }
 
     // Ensure it works if 0 comes first
     forshortest = { 0, 2.9, -1.1, 3.9 };
-    cout << "For vector " << forshortest << std::endl;
-    cout << "  Shortest: " << forshortest.shortest() << std::endl;
-    cout << "  Shortest non-zero: " << forshortest.shortest_nonzero() << std::endl;
+    std::cout << "For vector " << forshortest << std::endl;
+    std::cout << "  Shortest: " << forshortest.shortest() << std::endl;
+    std::cout << "  Shortest non-zero: " << forshortest.shortest_nonzero() << std::endl;
     if (forshortest.shortest_nonzero() != -1.1) { --rtn; }
 
     // Ensure it works if 0 comes last
     forshortest = { 2.9, -1.1, 3.9, 0 };
-    cout << "For vector " << forshortest << std::endl;
-    cout << "  Shortest: " << forshortest.shortest() << std::endl;
-    cout << "  Shortest non-zero: " << forshortest.shortest_nonzero() << std::endl;
+    std::cout << "For vector " << forshortest << std::endl;
+    std::cout << "  Shortest: " << forshortest.shortest() << std::endl;
+    std::cout << "  Shortest non-zero: " << forshortest.shortest_nonzero() << std::endl;
     if (forshortest.shortest_nonzero() != -1.1) { --rtn; }
 
     sm::vvec<sm::vec<float, 2>> forshortestvec = { {0, 0}, {0, 0}, {1, 1}, {1, 2} };
-    cout << "For vector " << forshortestvec  << std::endl;
-    cout << "  Shortest: " << forshortestvec .shortest() << std::endl;
-    cout << "  Shortest non-zero: " << forshortestvec .shortest_nonzero() << std::endl;
+    std::cout << "For vector " << forshortestvec  << std::endl;
+    std::cout << "  Shortest: " << forshortestvec .shortest() << std::endl;
+    std::cout << "  Shortest non-zero: " << forshortestvec .shortest_nonzero() << std::endl;
     if (forshortestvec .shortest_nonzero() != sm::vec<float, 2>{1, 1}) { --rtn; }
 
     forshortestvec = { {1, 1}, {0, 0}, {0, 0}, {1, 1}, {1, 2} };
-    cout << "For vector " << forshortestvec  << std::endl;
-    cout << "  Shortest: " << forshortestvec .shortest() << std::endl;
-    cout << "  Shortest non-zero: " << forshortestvec .shortest_nonzero() << std::endl;
+    std::cout << "For vector " << forshortestvec  << std::endl;
+    std::cout << "  Shortest: " << forshortestvec .shortest() << std::endl;
+    std::cout << "  Shortest non-zero: " << forshortestvec .shortest_nonzero() << std::endl;
     if (forshortestvec .shortest_nonzero() != sm::vec<float, 2>{1, 1}) { --rtn; }
 
     sm::vvec<float> cc = { 1.0f, 2.0f };
