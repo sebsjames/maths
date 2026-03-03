@@ -5,8 +5,9 @@
 #include <span>
 #include <iostream>
 #include <cmath>
-#include <sm/vec>
-#include <sm/scale>
+
+import sm.vec;
+import sm.scale;
 
 int main ()
 {

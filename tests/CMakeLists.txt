@@ -291,6 +291,10 @@ target_sources(vvec_range_extent1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJEC
   ${PROJECT_SOURCE_DIR}/sm/vvec)
 add_test(vvec_range_extent1 vvec_range_extent1)
 
+# Test the scaling code
+add_executable(testScale testScale.cpp)
+add_test(testScale testScale)
+
 
 if (0) # DEVELOPMENT
 
@@ -388,17 +392,6 @@ add_test(profileListHexminErase profileListHexminErase)
 # Visual Studio uses (/MDd or /MTd).
 add_executable(profileListHexminEraseDbg profileListHexminErase.cpp)
 target_compile_definitions(profileListHexminEraseDbg PUBLIC _GLIBCXX_DEBUG)
-
-# Test MathAlgo code
-#add_executable(testMathAlgo testMathAlgo.cpp)
-#add_test(testMathAlgo testMathAlgo)
-
-#add_executable(testMathAlgo2 testMathAlgo2.cpp)
-#add_test(testMathAlgo2 testMathAlgo2)
-
-# Test the scaling code
-add_executable(testScale testScale.cpp)
-add_test(testScale testScale)
 
 # Test Nelder Mead algorithm
 #add_executable(testNMSimplex testNMSimplex.cpp)

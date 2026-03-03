@@ -41,7 +41,7 @@
  * \date April 2020
  */
 
-#pragma once
+module;
 
 #include <stdexcept>
 #include <cmath>
@@ -52,10 +52,13 @@
 #include <span>
 
 #include <sm/trait_tests>
-#include <sm/vvec>
-#include <sm/range>
 
-namespace sm
+export import sm.vvec;
+export import sm.range;
+
+export module sm.scale;
+
+export namespace sm
 {
     //! \brief A label for what kind of scaling transformation to make
     enum class scaling_function
