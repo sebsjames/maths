@@ -1,6 +1,7 @@
 #include <iostream>
 #include <array>
-#include <sm/mat>
+
+import sm.mat;
 
 void setMatrixSequence (sm::mat<float, 3>& tm)
 {

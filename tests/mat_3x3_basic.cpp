@@ -1,6 +1,8 @@
 #include <iostream>
-#include <sm/quaternion>
-#include <sm/mat>
+#include <sm/mathconst>
+
+import sm.quaternion;
+import sm.mat;
 
 int main()
 {

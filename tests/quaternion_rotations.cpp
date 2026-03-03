@@ -1,8 +1,11 @@
 // Testing chained rotations with quaternions (only)
 
-#include <sm/quaternion>
-#include <sm/vec>
+#include <iostream>
+#include <limits>
 #include <sm/mathconst>
+
+import sm.quaternion;
+import sm.vec;
 
 #ifndef FLT
 typedef float F;

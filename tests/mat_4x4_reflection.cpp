@@ -1,5 +1,6 @@
 #include <iostream>
-#include <sm/mat>
+
+import sm.mat;
 
 int main()
 {

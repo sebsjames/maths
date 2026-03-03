@@ -16,7 +16,7 @@
  * \date 2025
  * Improvements to methods that specify rotations and translations
  */
-#pragma once
+module;
 
 #include <cstdint>
 #include <array>
@@ -27,11 +27,14 @@
 #include <initializer_list>
 
 #include <sm/mathconst>
-#include <sm/quaternion>
-#include <sm/vec>
 #include <sm/constexpr_math>
 
-namespace sm
+export import sm.quaternion;
+export import sm.vec;
+
+export module sm.mat;
+
+export namespace sm
 {
     // Forward declare class and stream operator
     template <typename F, uint32_t Nr, uint32_t Nc = Nr> requires std::is_floating_point_v<F> struct mat;

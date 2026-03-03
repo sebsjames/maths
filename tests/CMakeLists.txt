@@ -12,6 +12,7 @@ set_source_files_properties (
   ${PROJECT_SOURCE_DIR}/sm/scale
   ${PROJECT_SOURCE_DIR}/sm/hdfdata
   ${PROJECT_SOURCE_DIR}/sm/quaternion
+  ${PROJECT_SOURCE_DIR}/sm/mat
   PROPERTIES LANGUAGE CXX)
 
 # sm::range
@@ -422,6 +423,108 @@ if(NOT APPLE)
   add_test(quaternion_constexpr1 quaternion_constexpr1)
 endif()
 
+add_executable(quaternion_rotations_float quaternion_rotations.cpp)
+target_compile_definitions(quaternion_rotations_float PUBLIC FLT=float)
+target_sources(quaternion_rotations_float PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/random
+  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/quaternion)
+add_test(quaternion_rotations_float quaternion_rotations_float)
+
+add_executable(quaternion_rotations_double quaternion_rotations.cpp)
+target_compile_definitions(quaternion_rotations_double PUBLIC FLT=double)
+target_sources(quaternion_rotations_double PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/random
+  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/quaternion)
+add_test(quaternion_rotations_double quaternion_rotations_double)
+
+add_executable(mat_2x2_general mat_2x2_general.cpp)
+target_sources(mat_2x2_general PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/random
+  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/quaternion
+  ${PROJECT_SOURCE_DIR}/sm/mat)
+add_test(mat_2x2_general mat_2x2_general)
+
+add_executable(mat_3x3_basic mat_3x3_basic.cpp)
+target_sources(mat_3x3_basic PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/random
+  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/quaternion
+  ${PROJECT_SOURCE_DIR}/sm/mat)
+add_test(mat_3x3_basic mat_3x3_basic)
+
+add_executable(mat_3x3_general mat_3x3_general.cpp)
+target_sources(mat_3x3_general PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/random
+  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/quaternion
+  ${PROJECT_SOURCE_DIR}/sm/mat)
+add_test(mat_3x3_general mat_3x3_general)
+
+# Test sm::mat<T, 4> (4x4 matrix)
+add_executable(mat_4x4 mat_4x4.cpp)
+target_sources(mat_4x4 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/random
+  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/quaternion
+  ${PROJECT_SOURCE_DIR}/sm/mat)
+add_test(mat_4x4 mat_4x4)
+
+add_executable(mat_4x4_translate mat_4x4_translate.cpp)
+target_sources(mat_4x4_translate PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/random
+  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/quaternion
+  ${PROJECT_SOURCE_DIR}/sm/mat)
+add_test(mat_4x4_translate mat_4x4_translate)
+
+add_executable(mat_4x4_basic mat_4x4_basic.cpp)
+target_sources(mat_4x4_basic PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/random
+  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/quaternion
+  ${PROJECT_SOURCE_DIR}/sm/mat)
+add_test(mat_4x4_basic mat_4x4_basic)
+
+add_executable(mat_4x4_basic2 mat_4x4_basic2.cpp)
+target_sources(mat_4x4_basic2 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/random
+  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/quaternion
+  ${PROJECT_SOURCE_DIR}/sm/mat)
+add_test(mat_4x4_basic2 mat_4x4_basic2)
+
+add_executable(mat_4x4_reflection mat_4x4_reflection.cpp)
+target_sources(mat_4x4_reflection PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/random
+  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/quaternion
+  ${PROJECT_SOURCE_DIR}/sm/mat)
+add_test(mat_4x4_reflection mat_4x4_reflection)
+
+
 if (0) # DEVELOPMENT
 
 # Test quaternion and mat44 rotations in float and double precision
@@ -432,14 +535,6 @@ add_test(testRotations_float testRotations_float)
 add_executable(testRotations_double testRotations.cpp)
 target_compile_definitions(testRotations_double PUBLIC FLT=double)
 add_test(testRotations_double testRotations_double)
-
-add_executable(testRotationsQuat_float testRotationsQuat.cpp)
-target_compile_definitions(testRotationsQuat_float PUBLIC FLT=float)
-add_test(testRotationsQuat_float testRotationsQuat_float)
-
-add_executable(testRotationsQuat_double testRotationsQuat.cpp)
-target_compile_definitions(testRotationsQuat_double PUBLIC FLT=double)
-add_test(testRotationsQuat_double testRotationsQuat_double)
 
 # More rotations
 add_executable(rotations rotations.cpp)
@@ -608,27 +703,6 @@ add_test(testConfig testConfig)
 add_executable(test_zernike test_zernike.cpp)
 add_test(test_zernike test_zernike)
 
-add_executable(mat_2x2_general mat_2x2_general.cpp)
-add_test(mat_2x2_general mat_2x2_general)
-
-add_executable(mat_3x3_basic mat_3x3_basic.cpp)
-add_test(mat_3x3_basic mat_3x3_basic)
-
-add_executable(mat_3x3_general mat_3x3_general.cpp)
-add_test(mat_3x3_general mat_3x3_general)
-
-# Test sm::mat<T, 4> (4x4 matrix)
-add_executable(mat_4x4 mat_4x4.cpp)
-add_test(mat_4x4 mat_4x4)
-
-add_executable(mat_4x4_translate mat_4x4_translate.cpp)
-add_test(mat_4x4_translate mat_4x4_translate)
-
-add_executable(mat_4x4_basic2 mat_4x4_basic2.cpp)
-add_test(mat_4x4_basic2 mat_4x4_basic2)
-
-add_executable(mat_4x4_reflection mat_4x4_reflection.cpp)
-add_test(mat_4x4_reflection mat_4x4_reflection)
 
 if(NOT APPLE)
   # constexpr mat44
