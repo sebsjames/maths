@@ -616,10 +616,17 @@ target_sources(hex_vertexpos1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SO
   ${PROJECT_SOURCE_DIR}/sm/hex)
 add_test(hex_vertexpos1 hex_vertexpos1)
 
-if (0) # DEVELOPMENT
-
 # Test Hex user flags code
-add_executable(testHexUserFlags testHexUserFlags.cpp)
+add_executable(hex_userflags1 hex_userflags1.cpp)
+target_sources(hex_userflags1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/random
+  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/bezcoord
+  ${PROJECT_SOURCE_DIR}/sm/hex)
+
+if (0) # DEVELOPMENT
 
 add_test(testHexUserFlags testHexUserFlags)
 

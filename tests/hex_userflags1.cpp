@@ -1,6 +1,8 @@
 #include <iostream>
 #include <utility>
-#include <sm/hex>
+#include <sm/hexflags>
+
+import sm.hex;
 
 void showflags (const sm::hex& h)
 {
@@ -44,7 +46,7 @@ int main()
         rtn -= 1;
     }
 
-    h.setUserFlags (HEX_USER_FLAG_0 | HEX_USER_FLAG_3);
+    h.setUserFlags (sm::HEX_USER_FLAG_0 | sm::HEX_USER_FLAG_3);
     showflags (h);
     if (h.getUserFlag(0) == false || h.getUserFlag(3) == false) {
         rtn -= 1;
@@ -56,7 +58,7 @@ int main()
         rtn -= 1;
     }
 
-    h.setUserFlags (HEX_USER_FLAG_0 | HEX_USER_FLAG_15);
+    h.setUserFlags (sm::HEX_USER_FLAG_0 | sm::HEX_USER_FLAG_15);
     showflags (h);
     if (h.getUserFlag(0) == false || h.getUserFlag(15) == false) {
         rtn -= 1;
