@@ -647,22 +647,31 @@ target_sources(winder1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DI
   ${PROJECT_SOURCE_DIR}/sm/winder)
 add_test(winder1 winder1)
 
+add_executable(winder2 winder2.cpp)
+target_sources(winder2 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/random
+  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/winder)
+add_test(winder2 winder2)
+
+add_executable(winder3 winder3.cpp)
+target_sources(winder3 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/random
+  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/vvec
+  ${PROJECT_SOURCE_DIR}/sm/winder)
+add_test(winder3 winder3)
+
 if (0) # DEVELOPMENT
 
 # Test Nelder Mead algorithm
 #add_executable(testNMSimplex testNMSimplex.cpp)
 #target_compile_definitions(testNMSimplex PUBLIC FLT=float)
 #add_test(testNMSimplex testNMSimplex)
-
-# Test winding number code
-add_executable(winder1 winder1.cpp)
-add_test(winder1 winder1)
-
-add_executable(winder2 winder2.cpp)
-add_test(winder2 winder2)
-
-add_executable(winder3 winder3.cpp)
-add_test(winder3 winder3)
 
 # Test bootstrapping
 add_executable(testbootstrap testbootstrap.cpp)

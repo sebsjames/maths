@@ -1,7 +1,10 @@
 #include <iostream>
 #include <vector>
-#include <sm/winder>
-#include <sm/vec>
+#include <cmath>
+#include <sm/mathconst>
+
+import sm.winder;
+import sm.vec;
 
 /*
  * More tests for winder
