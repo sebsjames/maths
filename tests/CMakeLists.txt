@@ -626,19 +626,17 @@ target_sources(hex_userflags1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SO
   ${PROJECT_SOURCE_DIR}/sm/bezcoord
   ${PROJECT_SOURCE_DIR}/sm/hex)
 
-if (0) # DEVELOPMENT
-
-add_test(testHexUserFlags testHexUserFlags)
-
 # An example program which is slow compiled on Visual Studio with the /MDd "Debug build" flag
-add_executable(profileListHexminErase profileListHexminErase.cpp)
-add_test(profileListHexminErase profileListHexminErase)
+add_executable(hex_profile_list_hex_min_erase hex_profile_list_hex_min_erase.cpp)
+add_test(hex_profile_list_hex_min_erase hex_profile_list_hex_min_erase)
 
 # Compile with stdc++ lib debug mode (but don't run as a test, as it's
 # very slow) This is equivalent to the default debug compilation that
 # Visual Studio uses (/MDd or /MTd).
-add_executable(profileListHexminEraseDbg profileListHexminErase.cpp)
-target_compile_definitions(profileListHexminEraseDbg PUBLIC _GLIBCXX_DEBUG)
+add_executable(hex_profile_list_hex_min_erase_dbg hex_profile_list_hex_min_erase.cpp)
+target_compile_definitions(hex_profile_list_hex_min_erase_dbg PUBLIC _GLIBCXX_DEBUG)
+
+if (0) # DEVELOPMENT
 
 # Test Nelder Mead algorithm
 #add_executable(testNMSimplex testNMSimplex.cpp)
