@@ -15,6 +15,7 @@ set_source_files_properties (
   ${PROJECT_SOURCE_DIR}/sm/mat
   ${PROJECT_SOURCE_DIR}/sm/hex
   ${PROJECT_SOURCE_DIR}/sm/bezcoord
+  ${PROJECT_SOURCE_DIR}/sm/winder
   PROPERTIES LANGUAGE CXX)
 
 # sm::range
@@ -635,6 +636,16 @@ add_test(hex_profile_list_hex_min_erase hex_profile_list_hex_min_erase)
 # Visual Studio uses (/MDd or /MTd).
 add_executable(hex_profile_list_hex_min_erase_dbg hex_profile_list_hex_min_erase.cpp)
 target_compile_definitions(hex_profile_list_hex_min_erase_dbg PUBLIC _GLIBCXX_DEBUG)
+
+add_executable(winder1 winder1.cpp)
+target_sources(winder1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/random
+  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/vvec
+  ${PROJECT_SOURCE_DIR}/sm/winder)
+add_test(winder1 winder1)
 
 if (0) # DEVELOPMENT
 

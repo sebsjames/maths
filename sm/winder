@@ -13,16 +13,21 @@
  * \date May 2020
  */
 
-#pragma once
+module;
 
+#include <iostream>
 #include <memory>
+#include <cmath>
 #include <type_traits>
 
 #include <sm/mathconst>
 #include <sm/trait_tests>
-#include <sm/vec>
 
-namespace sm
+export import sm.vec;
+
+export module sm.winder;
+
+export namespace sm
 {
     /*!
      * A winding number class
