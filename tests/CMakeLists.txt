@@ -9,6 +9,7 @@ set_source_files_properties (
   ${PROJECT_SOURCE_DIR}/sm/vec
   PROPERTIES LANGUAGE CXX)
 
+# sm::range
 add_executable(range_intersects range_intersects.cpp)
 target_sources(range_intersects PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
@@ -17,6 +18,7 @@ target_sources(range_intersects PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_
   ${PROJECT_SOURCE_DIR}/sm/random)
 add_test(range_intersects range_intersects)
 
+# sm::range
 add_executable(range_adding range_adding.cpp)
 target_sources(range_adding PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
@@ -25,19 +27,19 @@ target_sources(range_adding PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOUR
   ${PROJECT_SOURCE_DIR}/sm/random)
 add_test(range_adding range_adding)
 
-# Test Random number generation code
-add_executable(testRandom testRandom.cpp)
-target_sources(testRandom PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+# sm::random
+add_executable(random1 random1.cpp)
+target_sources(random1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
   ${PROJECT_SOURCE_DIR}/sm/random)
-add_test(testRandom testRandom)
+add_test(random1 random1)
 
-# Test RandString generation
-add_executable(testRandString testRandString.cpp)
-target_sources(testRandString PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+# Random string generation
+add_executable(randstring1 randstring1.cpp)
+target_sources(randstring1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
   ${PROJECT_SOURCE_DIR}/sm/random)
-add_test(testRandString testRandString)
+add_test(randstring1 randstring1)
 
 
 if (0) # DEVELOPMENT
