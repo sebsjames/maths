@@ -7,6 +7,8 @@
 import sm.random;
 import sm.vvec;
 import sm.bootstrap;
+import sm.range; // for clang
+import sm.vec; // for clang
 
 int main()
 {
