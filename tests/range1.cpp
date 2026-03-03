@@ -1,7 +1,8 @@
 #include <iostream>
 #include <vector>
 #include <span>
-#include <sm/range>
+
+import sm.range;
 
 int main()
 {

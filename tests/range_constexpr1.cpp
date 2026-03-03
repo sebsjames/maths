@@ -1,5 +1,6 @@
 #include <iostream>
-#include <sm/range>
+
+import sm.range;
 
 constexpr sm::range<float> test_update()
 {

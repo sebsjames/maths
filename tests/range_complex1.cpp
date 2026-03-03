@@ -1,6 +1,7 @@
 #include <iostream>
 #include <complex>
-#include <sm/range>
+
+import sm.range;
 
 int main()
 {

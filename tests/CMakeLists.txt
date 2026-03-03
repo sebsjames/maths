@@ -27,6 +27,36 @@ target_sources(range_adding PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOUR
   ${PROJECT_SOURCE_DIR}/sm/random)
 add_test(range_adding range_adding)
 
+# sm::range
+add_executable(range1 range1.cpp)
+target_sources(range1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range)
+add_test(range1 range1)
+
+# sm::range
+add_executable(range_constexpr1 range_constexpr1.cpp)
+target_sources(range_constexpr1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range)
+add_test(range_constexpr1 range_constexpr1)
+
+# sm::range
+add_executable(range_complex1 range_complex1.cpp)
+target_sources(range_complex1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range)
+add_test(range_complex1 range_complex1)
+
+# sm::range
+add_executable(range_vector1 range_vector1.cpp)
+target_sources(range_vector1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/random)
+add_test(range_vector1 range_vector1)
+
 # sm::random
 add_executable(random1 random1.cpp)
 target_sources(random1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
@@ -276,18 +306,6 @@ target_compile_definitions(profileListHexminEraseDbg PUBLIC _GLIBCXX_DEBUG)
 # Test the scaling code
 add_executable(testScale testScale.cpp)
 add_test(testScale testScale)
-
-add_executable(testrange testrange.cpp)
-add_test(testrange testrange)
-
-add_executable(testrange_constexpr testrange_constexpr.cpp)
-add_test(testrange_constexpr testrange_constexpr)
-
-add_executable(testrange_complex testrange_complex.cpp)
-add_test(testrange_complex testrange_complex)
-
-add_executable(testrange_vector testrange_vector.cpp)
-add_test(testrange_vector testrange_vector)
 
 # Test Nelder Mead algorithm
 #add_executable(testNMSimplex testNMSimplex.cpp)
