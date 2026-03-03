@@ -66,6 +66,24 @@ if(NOT APPLE)
   add_test(vec_constexpr1 vec_constexpr1)
 endif()
 
+add_executable(vec_casting1 vec_casting1.cpp)
+target_sources(vec_casting1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/random
+)
+add_test(vec_casting1 vec_casting1)
+
+add_executable(vec_asmapkey1 vec_asmapkey1.cpp)
+target_sources(vec_asmapkey1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/random
+)
+add_test(vec_asmapkey1 vec_asmapkey1)
+
 if (0) # DEVELOPMENT
 
 if(HDF5_FOUND)
@@ -130,12 +148,6 @@ if(NOT APPLE)
   add_executable(testQuat_constexpr testQuat_constexpr.cpp)
   add_test(testQuat_constexpr testQuat_constexpr)
 endif()
-
-add_executable(testvec_casting testvec_casting.cpp)
-add_test(testvec_casting testvec_casting)
-
-add_executable(testvec_asmapkey testvec_asmapkey.cpp)
-add_test(testvec_asmapkey testvec_asmapkey)
 
 add_executable(testvec_asunordmapkey testvec_asunordmapkey.cpp)
 add_test(testvec_asunordmapkey testvec_asunordmapkey)

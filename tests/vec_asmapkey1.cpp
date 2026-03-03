@@ -6,7 +6,8 @@
 #include <map>
 #include <string>
 #include <iostream>
-#include <sm/vec>
+
+import sm.vec;
 
 int main()
 {
