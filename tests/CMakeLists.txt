@@ -7,6 +7,7 @@ set_source_files_properties (
   ${PROJECT_SOURCE_DIR}/sm/range
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/vvec
   PROPERTIES LANGUAGE CXX)
 
 # sm::range
@@ -127,16 +128,15 @@ add_executable(array_asmapkey1 array_asmapkey1.cpp)
 add_test(array_asmapkey1 array_asmapkey1)
 
 # test sm::vec elemental operations
-if(0) # FIXME add sm/vvec
 add_executable(vec_elementops1 vec_elementops1.cpp)
 target_sources(vec_elementops1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
   ${PROJECT_SOURCE_DIR}/sm/range
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/random
+  ${PROJECT_SOURCE_DIR}/sm/vvec
 )
 add_test(vec_elementops1 vec_elementops1)
-endif()
 
 add_executable(vec_set_from1 vec_set_from1.cpp)
 target_sources(vec_set_from1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}

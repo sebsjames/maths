@@ -10,7 +10,7 @@
  * \author Seb James
  * \date May 2020
  */
-#pragma once
+module;
 
 #include <cstdint>
 #include <cmath>
@@ -26,12 +26,18 @@
 #include <algorithm>
 #include <functional>
 #include <cstddef>
+#include <random>
 
 #include <sm/trait_tests>
-#include <sm/random>
-#include <sm/range>
+#include <sm/mathconst>
 
-namespace sm
+import sm.random;
+
+export import sm.range;
+
+export module sm.vvec;
+
+export namespace sm
 {
     /*!
      * \brief N-D vector class deriving from std::vector
@@ -329,7 +335,7 @@ namespace sm
         std::string str (const uint32_t num_in_line=std::numeric_limits<uint32_t>::max()) const
         {
             std::stringstream ss;
-            ss << std::setprecision (std::numeric_limits<S>::max_digits10);
+            ss.precision (std::numeric_limits<S>::max_digits10);
             ss << "(";
             this->str_comma_separated (ss, num_in_line, ',', 1);
             ss << ")";
@@ -340,7 +346,7 @@ namespace sm
         std::string str_mat (const uint32_t num_in_line=std::numeric_limits<uint32_t>::max()) const
         {
             std::stringstream ss;
-            ss << std::setprecision (std::numeric_limits<S>::max_digits10);
+            ss.precision (std::numeric_limits<S>::max_digits10);
             ss << "[";
             this->str_comma_separated (ss, num_in_line, ',', 1);
             ss << "]";
