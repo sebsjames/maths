@@ -193,6 +193,42 @@ target_sources(vvec_operatoradd1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT
   ${PROJECT_SOURCE_DIR}/sm/vvec)
 add_test(vvec_operatoradd1 vvec_operatoradd1)
 
+add_executable(vvec_convolutions1 vvec_convolutions1.cpp)
+target_sources(vvec_convolutions1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/random
+#  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/vvec)
+add_test(vvec_convolutions1 vvec_convolutions1)
+
+add_executable(vvec_convolutions2 vvec_convolutions2.cpp)
+target_sources(vvec_convolutions2 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/random
+#  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/vvec)
+add_test(vvec_convolutions2 vvec_convolutions2)
+
+add_executable(vvec_differentiation1 vvec_differentiation1.cpp)
+target_sources(vvec_differentiation1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/random
+#  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/vvec)
+add_test(vvec_differentiation1 vvec_differentiation1)
+
+add_executable(vvec_zerocross1 vvec_zerocross1.cpp)
+target_sources(vvec_zerocross1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/random
+#  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/vvec)
+add_test(vvec_zerocross1 vvec_zerocross1)
+
 if (0) # DEVELOPMENT
 
 if(HDF5_FOUND)
@@ -259,17 +295,6 @@ if(NOT APPLE)
 endif()
 
 
-add_executable(testvvec_convolutions testvvec_convolutions.cpp)
-add_test(testvvec_convolutions testvvec_convolutions)
-
-add_executable(testvvec_convolutions2 testvvec_convolutions2.cpp)
-add_test(testvvec_convolutions2 testvvec_convolutions2)
-
-add_executable(testvvec_differentiation testvvec_differentiation.cpp)
-add_test(testvvec_differentiation testvvec_differentiation)
-
-add_executable(testvvec_zerocross testvvec_zerocross.cpp)
-add_test(testvvec_zerocross testvvec_zerocross)
 
 add_executable(testvvec_prune testvvec_prune.cpp)
 add_test(testvvec_prune testvvec_prune)
