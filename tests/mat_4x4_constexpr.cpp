@@ -1,10 +1,12 @@
 #include <iostream>
 #include <array>
 #include <cmath>
+#include <sm/mathconst>
 #include <sm/constexpr_math>
-#include <sm/vec>
-#include <sm/quaternion>
-#include <sm/mat>
+
+import sm.vec;
+import sm.quaternion;
+import sm.mat;
 
 constexpr void setMatrixSequence (sm::mat<float, 4>& tm)
 {

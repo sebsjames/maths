@@ -524,6 +524,31 @@ target_sources(mat_4x4_reflection PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJEC
   ${PROJECT_SOURCE_DIR}/sm/mat)
 add_test(mat_4x4_reflection mat_4x4_reflection)
 
+if(NOT APPLE)
+  # constexpr mat44
+  add_executable(mat_4x4_constexpr mat_4x4_constexpr.cpp)
+  target_sources(mat_4x4_constexpr PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+    FILES
+    ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/random
+    ${PROJECT_SOURCE_DIR}/sm/vec
+    ${PROJECT_SOURCE_DIR}/sm/quaternion
+    ${PROJECT_SOURCE_DIR}/sm/mat)
+  add_test(mat_4x4_constexpr mat_4x4_constexpr)
+
+  if(Eigen3_FOUND)
+    add_executable(mat_4x4_vseigen mat_4x4_vseigen.cpp)
+    target_include_directories (mat_4x4_vseigen BEFORE PRIVATE ${EIGEN3_INCLUDE_DIR})
+    target_sources(mat_4x4_vseigen PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+      FILES
+      ${PROJECT_SOURCE_DIR}/sm/range
+      ${PROJECT_SOURCE_DIR}/sm/random
+      ${PROJECT_SOURCE_DIR}/sm/vec
+      ${PROJECT_SOURCE_DIR}/sm/quaternion
+      ${PROJECT_SOURCE_DIR}/sm/mat)
+    add_test(mat_4x4_vseigen mat_4x4_vseigen)
+  endif(Eigen3_FOUND)
+endif()
 
 if (0) # DEVELOPMENT
 
@@ -702,19 +727,6 @@ add_test(testConfig testConfig)
 
 add_executable(test_zernike test_zernike.cpp)
 add_test(test_zernike test_zernike)
-
-
-if(NOT APPLE)
-  # constexpr mat44
-  add_executable(mat_4x4_constexpr mat_4x4_constexpr.cpp)
-  add_test(mat_4x4_constexpr mat_4x4_constexpr)
-
-  if(Eigen3_FOUND)
-    add_executable(mat_4x4_vseigen mat_4x4_vseigen.cpp)
-    target_include_directories (mat_4x4_vseigen BEFORE PRIVATE ${EIGEN3_INCLUDE_DIR})
-    add_test(mat_4x4_vseigen mat_4x4_vseigen)
-  endif(Eigen3_FOUND)
-endif()
 
 add_executable(algo_1 algo_1.cpp)
 add_test(algo_1 algo_1)
