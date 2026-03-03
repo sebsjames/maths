@@ -17,6 +17,7 @@ set_source_files_properties (
   ${PROJECT_SOURCE_DIR}/sm/bezcoord
   ${PROJECT_SOURCE_DIR}/sm/winder
   ${PROJECT_SOURCE_DIR}/sm/bootstrap
+  ${PROJECT_SOURCE_DIR}/sm/grid
   PROPERTIES LANGUAGE CXX)
 
 # sm::range
@@ -679,6 +680,86 @@ target_sources(bootstrap1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE
 # Test disabled - statistical fluctuations can make this fail sometimes
 # add_test(bootstrap1 bootstrap1)
 
+add_executable(grid1 grid1.cpp)
+target_sources(grid1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/random
+  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/vvec
+  ${PROJECT_SOURCE_DIR}/sm/grid)
+add_test(grid1 grid1)
+
+add_executable(grid_suggest_dims1 grid_suggest_dims1.cpp)
+target_sources(grid_suggest_dims1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/random
+  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/vvec
+  ${PROJECT_SOURCE_DIR}/sm/grid)
+add_test(grid_suggest_dims1 grid_suggest_dims1)
+
+add_executable(grid_rowcol1 grid_rowcol1.cpp)
+target_sources(grid_rowcol1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/random
+  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/vvec
+  ${PROJECT_SOURCE_DIR}/sm/grid)
+add_test(grid_rowcol1 grid_rowcol1)
+
+add_executable(grid_shiftindex1 grid_shiftindex1.cpp)
+target_sources(grid_shiftindex1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/random
+  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/vvec
+  ${PROJECT_SOURCE_DIR}/sm/grid)
+add_test(grid_shiftindex1 grid_shiftindex1)
+
+add_executable(grid_indexlookup1 grid_indexlookup1.cpp)
+target_sources(grid_indexlookup1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/random
+  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/vvec
+  ${PROJECT_SOURCE_DIR}/sm/grid)
+add_test(grid_indexlookup1 grid_indexlookup1)
+
+add_executable(grid_neighbours1 grid_neighbours1.cpp)
+target_sources(grid_neighbours1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/random
+  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/vvec
+  ${PROJECT_SOURCE_DIR}/sm/grid)
+add_test(grid_neighbours1 grid_neighbours1)
+
+add_executable(grid_getabscissae1 grid_getabscissae1.cpp)
+target_sources(grid_getabscissae1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/random
+  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/vvec
+  ${PROJECT_SOURCE_DIR}/sm/grid)
+add_test(grid_getabscissae1 grid_getabscissae1)
+
+add_executable(grid_profile1 grid_profile1.cpp)
+target_sources(grid_profile1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/random
+  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/vvec
+  ${PROJECT_SOURCE_DIR}/sm/grid)
+add_test(grid_profile1 grid_profile1)
+
 if (0) # DEVELOPMENT
 
 # Test Nelder Mead algorithm
@@ -686,33 +767,8 @@ if (0) # DEVELOPMENT
 #target_compile_definitions(testNMSimplex PUBLIC FLT=float)
 #add_test(testNMSimplex testNMSimplex)
 
-
 ##add_executable(testboxfilter testboxfilter.cpp)
 ##add_test(testboxfilter testboxfilter)
-
-add_executable(testGrid testGrid.cpp)
-add_test(testGrid testGrid)
-
-add_executable(testGrid_suggest_dims testGrid_suggest_dims.cpp)
-add_test(testGrid_suggest_dims testGrid_suggest_dims)
-
-add_executable(testGridRowCol testGridRowCol.cpp)
-add_test(testGridRowCol testGridRowCol)
-
-add_executable(testGrid_shiftindex testGrid_shiftindex.cpp)
-add_test(testGrid_shiftindex testGrid_shiftindex)
-
-add_executable(testGridIndexLookup testGridIndexLookup.cpp)
-add_test(testGridIndexLookup testGridIndexLookup)
-
-add_executable(testGridNeighbours testGridNeighbours.cpp)
-add_test(testGridNeighbours testGridNeighbours)
-
-add_executable(testGrid_getabscissae testGrid_getabscissae.cpp)
-add_test(testGrid_getabscissae testGrid_getabscissae)
-
-add_executable(testGrid_profile testGrid_profile.cpp)
-add_test(testGrid_profile testGrid_profile)
 
 add_executable(test_histo test_histo.cpp)
 add_test(test_histo test_histo)

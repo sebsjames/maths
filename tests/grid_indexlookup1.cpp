@@ -1,6 +1,9 @@
 #include <iostream>
 #include <limits>
-#include <sm/grid>
+
+#include <sm/gridfeatures>
+import sm.grid;
+import sm.vec;
 
 // The test checks that locations exactly on the grid work
 int do_test (sm::griddomainwrap wrap, const sm::vec<float, 2>& coord_shift)

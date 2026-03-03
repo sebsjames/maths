@@ -1,7 +1,13 @@
 #include <iostream>
-#include <sm/vvec>
-#include <sm/random>
-#include <sm/grid>
+#include <limits>
+// Profiling with std::chrono:
+#include <chrono>
+
+#include <sm/gridfeatures>
+import sm.grid;
+import sm.random;
+import sm.vec;
+import sm.vvec;
 
 // grid extended with a coord_lookup function that calls get_n_pixels for each lookup.
 template<typename I = unsigned int, typename C = float>
@@ -22,28 +28,27 @@ struct gridplus : public sm::grid<I, C>
     }
 };
 
-// Profiling with std::chrono:
-#include <chrono>
-using namespace std::chrono;
-using sc = std::chrono::steady_clock;
-
 int main()
 {
+    using namespace std::chrono;
+    using sc = std::chrono::steady_clock;
+
     int rtn = 0;
     sm::vec<float, 2> dx = {1.0f, 1.0f};
     sm::vec<float, 2> offset = {0.0f, 0.0f};
     sm::griddomainwrap wrap = sm::griddomainwrap::none;
     sm::gridorder order = sm::gridorder::bottomleft_to_topright;
 
-    int _w = 500;
-    int _h = 400;
+    constexpr int _w = 500;
+    constexpr int _h = 400;
+    constexpr int _sz = _w * _h;
 
-    sm::vvec<sm::vec<float, 2>> coords (_w * _h, {0.0f});
+    sm::vvec<sm::vec<float, 2>> coords (_sz, { 0.0f });
     // Random indices with a seed
-    sm::rand_uniform<int> rng (0, _w * _h, 1020u);
+    sm::rand_uniform<int> rng (0, _sz, 1020u);
     std::vector<std::vector<int>> ridx(1000);
     for (int j = 0; j < 1000; ++j) {
-        ridx[j] = rng.get (_w * _h);
+        ridx[j] = rng.get (_sz);
     }
 
     {

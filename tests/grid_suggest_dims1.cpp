@@ -1,6 +1,8 @@
 #include <iostream>
 #include <limits>
-#include <sm/grid>
+
+import sm.grid;
+import sm.vec;
 
 int main()
 {

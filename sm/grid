@@ -12,21 +12,25 @@
  * \author Seb James
  * \date February 2024
  */
-
-#pragma once
+module;
 
 #include <cstdint>
+#include <cmath>
 #include <stdexcept>
 #include <string>
 #include <sstream>
 #include <limits>
 #include <type_traits>
+#include <vector>
 #include <set>
-#include <sm/vec>
-#include <sm/vvec>
 #include <sm/gridfeatures>
 
-namespace sm
+export import sm.vec;
+export import sm.vvec;
+
+export module sm.grid;
+
+export namespace sm
 {
     /*!
      * \brief A grid class to define a rectangular Cartesian grid of locations
