@@ -50,6 +50,7 @@ module;
 #include <string>
 #include <sstream>
 #include <span>
+#include <complex>
 
 #include <sm/trait_tests>
 

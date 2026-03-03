@@ -3,11 +3,13 @@
 # All #includes in test programs have to be #include <sm/header>
 include_directories(BEFORE ${PROJECT_SOURCE_DIR})
 
+# Each C++ module file has to be listed here (as they don't have a .cppm or .ixx file suffix)
 set_source_files_properties (
   ${PROJECT_SOURCE_DIR}/sm/range
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/vvec
+  ${PROJECT_SOURCE_DIR}/sm/scale
   PROPERTIES LANGUAGE CXX)
 
 # sm::range
@@ -292,8 +294,15 @@ target_sources(vvec_range_extent1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJEC
 add_test(vvec_range_extent1 vvec_range_extent1)
 
 # Test the scaling code
-add_executable(testScale testScale.cpp)
-add_test(testScale testScale)
+add_executable(scale1 scale1.cpp)
+target_sources(scale1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/random
+  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/vvec
+  ${PROJECT_SOURCE_DIR}/sm/scale)
+add_test(scale1 scale1)
 
 
 if (0) # DEVELOPMENT
