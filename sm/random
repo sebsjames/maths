@@ -51,9 +51,9 @@
  * standard as yet, but they're short and could probably be implemented easily here,
  * another day.
  */
-#pragma once
+module;
 
-#include <random>
+#include <random> // would be nice to export symbols here to code that imports sm.random.
 #include <vector>
 #include <limits>
 #include <type_traits>
@@ -64,6 +64,10 @@
 #include <cstddef>
 #include <memory>
 #include <sm/mathconst>
+
+// maybe later: export import std; or export import std.random.
+
+export module sm.random;
 
 namespace sm
 {
@@ -85,11 +89,11 @@ namespace sm
      *  providing both T and E parameters when instantiating your randuniform objects
      *  (similar for rand_normal etc, too).
      */
-    template <typename T = float, typename E = std::mt19937, bool = std::is_integral<std::decay_t<T>>::value>
+    export template <typename T = float, typename E = std::mt19937, bool = std::is_integral<std::decay_t<T>>::value>
     class rand_uniform {};
 
     //! Floating-point number specialization of randUnifom.
-    template <typename T, typename E> requires std::is_floating_point_v<std::decay_t<T>>
+    export template <typename T, typename E> requires std::is_floating_point_v<std::decay_t<T>>
     class rand_uniform<T, E, false>
     {
     private:
@@ -173,7 +177,7 @@ namespace sm
     };
 
     //! Integer specialization: Generate uniform random numbers in a integer format
-    template<typename T, typename E>
+    export template<typename T, typename E>
     class rand_uniform<T, E, true>
     {
 #ifndef __GNUC__
@@ -273,7 +277,7 @@ namespace sm
      *
      * \tparam E The pseudo-random number generator engine.
      */
-    template <typename T = double, typename E = std::mt19937_64> requires std::is_floating_point_v<std::decay_t<T>>
+    export template <typename T = double, typename E = std::mt19937_64> requires std::is_floating_point_v<std::decay_t<T>>
     class rand_normal
     {
     private:
@@ -360,7 +364,7 @@ namespace sm
      *
      * \tparam E The pseudo-random number generator engine.
      */
-    template <typename T = double, typename E = std::mt19937_64> requires std::is_floating_point_v<std::decay_t<T>>
+    export template <typename T = double, typename E = std::mt19937_64> requires std::is_floating_point_v<std::decay_t<T>>
     class rand_lognormal
     {
     private:
@@ -466,7 +470,7 @@ namespace sm
      *
      * \tparam E The pseudo-random number generator engine.
      */
-    template <typename T = int32_t, typename E = std::mt19937> requires std::is_integral_v<std::decay_t<T>>
+    export template <typename T = int32_t, typename E = std::mt19937> requires std::is_integral_v<std::decay_t<T>>
     class rand_poisson
     {
     private:
@@ -559,7 +563,7 @@ namespace sm
      *
      * \tparam E The pseudo-random number generator engine.
      */
-    template <typename T = double, typename E = std::mt19937> requires std::is_floating_point_v<std::decay_t<T>>
+    export template <typename T = double, typename E = std::mt19937> requires std::is_floating_point_v<std::decay_t<T>>
     class rand_exponential
     {
     protected:
@@ -648,7 +652,7 @@ namespace sm
      *
      * \tparam E The pseudo-random number generator engine.
      */
-    template <typename T = double, typename E = std::mt19937> requires std::is_floating_point_v<T>
+    export template <typename T = double, typename E = std::mt19937> requires std::is_floating_point_v<T>
     class rand_pareto : public sm::rand_exponential<T, E>
     {
     public:
@@ -711,7 +715,7 @@ namespace sm
     };
 
     //! Generate samples from the von Mises distribution on the circle.
-    template <typename T = double, typename E = std::mt19937> requires std::is_floating_point_v<T>
+    export template <typename T = double, typename E = std::mt19937> requires std::is_floating_point_v<T>
     class rand_vonmises
     {
     public:
@@ -838,7 +842,7 @@ namespace sm
 
     //! Enumerated class defining groups of characters, such as alphanumericuppercase,
     //! alphanumericlowercase etc.
-    enum class chargroup
+    export enum class chargroup
     {
         alphanumeric,          // 0-9A-Za-z                   62 chars
         alpha,                 // A-Za-z                      52 chars
@@ -854,7 +858,7 @@ namespace sm
     };
 
     //! Generate strings of random characters
-    class rand_string
+    export class rand_string
     {
     public:
         //! Default constructor gives a string generator that generates 8 hexlowercase characters

@@ -1,5 +1,5 @@
 #include <iostream>
-#include <sm/random>
+import sm.random;
 
 int main()
 {

@@ -5,20 +5,39 @@ include_directories(BEFORE ${PROJECT_SOURCE_DIR})
 
 set_source_files_properties (
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vec
   PROPERTIES LANGUAGE CXX)
 
 add_executable(range_intersects range_intersects.cpp)
 target_sources(range_intersects PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
-  FILES ${PROJECT_SOURCE_DIR}/sm/range ${PROJECT_SOURCE_DIR}/sm/vec)
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/random)
 add_test(range_intersects range_intersects)
 
 add_executable(range_adding range_adding.cpp)
 target_sources(range_adding PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
-  FILES ${PROJECT_SOURCE_DIR}/sm/range ${PROJECT_SOURCE_DIR}/sm/vec)
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/random)
 add_test(range_adding range_adding)
 
+# Test Random number generation code
+add_executable(testRandom testRandom.cpp)
+target_sources(testRandom PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/random)
+add_test(testRandom testRandom)
 
+# Test RandString generation
+add_executable(testRandString testRandString.cpp)
+target_sources(testRandString PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/random)
+add_test(testRandString testRandString)
 
 
 if (0) # DEVELOPMENT
@@ -238,10 +257,6 @@ add_test(testrange_vector testrange_vector)
 #target_compile_definitions(testNMSimplex PUBLIC FLT=float)
 #add_test(testNMSimplex testNMSimplex)
 
-# Test Random number generation code
-add_executable(testRandom testRandom.cpp)
-add_test(testRandom testRandom)
-
 # Test winding number code
 add_executable(winder1 winder1.cpp)
 add_test(winder1 winder1)
@@ -251,10 +266,6 @@ add_test(winder2 winder2)
 
 add_executable(winder3 winder3.cpp)
 add_test(winder3 winder3)
-
-# Test RandString generation
-add_executable(testRandString testRandString.cpp)
-add_test(testRandString testRandString)
 
 # Test bootstrapping
 add_executable(testbootstrap testbootstrap.cpp)
