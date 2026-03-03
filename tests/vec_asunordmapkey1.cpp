@@ -4,7 +4,8 @@
 #include <string>
 #include <unordered_map>
 #include <iostream>
-#include <sm/vec>
+
+import sm.vec;
 
 // To make std::hash<sm::vec<int, 2>> work you have to define how to create the hash of
 // sm::vec<int, 2>.

@@ -1,5 +1,7 @@
-#include <sm/vec>
-#include <sm/vvec>
+#include <iostream>
+
+import sm.vec;
+import sm.vvec;
 
 int main()
 {

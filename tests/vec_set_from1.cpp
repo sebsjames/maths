@@ -3,9 +3,11 @@
  */
 
 #include <iostream>
+#include <cstdint>
 #include <array>
 #include <sm/mathconst>
-#include <sm/vec>
+
+import sm.vec;
 
 int main()
 {

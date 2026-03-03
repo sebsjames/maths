@@ -84,6 +84,39 @@ target_sources(vec_asmapkey1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOU
 )
 add_test(vec_asmapkey1 vec_asmapkey1)
 
+add_executable(vec_asunordmapkey1 vec_asunordmapkey1.cpp)
+target_sources(vec_asunordmapkey1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/random
+)
+add_test(vec_asunordmapkey1 vec_asunordmapkey1)
+
+add_executable(array_asmapkey1 array_asmapkey1.cpp)
+add_test(array_asmapkey1 array_asmapkey1)
+
+# test sm::vec elemental operations
+if(0) # FIXME add sm/vvec
+add_executable(vec_elementops1 vec_elementops1.cpp)
+target_sources(vec_elementops1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/random
+)
+add_test(vec_elementops1 vec_elementops1)
+endif()
+
+add_executable(vec_set_from1 vec_set_from1.cpp)
+target_sources(vec_set_from1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/random
+)
+add_test(vec_set_from1 vec_set_from1)
+
 if (0) # DEVELOPMENT
 
 if(HDF5_FOUND)
@@ -149,19 +182,6 @@ if(NOT APPLE)
   add_test(testQuat_constexpr testQuat_constexpr)
 endif()
 
-add_executable(testvec_asunordmapkey testvec_asunordmapkey.cpp)
-add_test(testvec_asunordmapkey testvec_asunordmapkey)
-
-add_executable(testarray_asmapkey testarray_asmapkey.cpp)
-add_test(testarray_asmapkey testarray_asmapkey)
-
-# test sm::vec elemental operations
-add_executable(testvecElementOps testvecElementOps.cpp)
-add_test(testvecElementOps testvecElementOps)
-
-add_executable(vec_set_from vec_set_from.cpp)
-add_test(vec_set_from vec_set_from)
-
 # Test the "mathematic vector made from an std::vector" code (this vvec is better for neural networks)
 add_executable(testvvec testvvec.cpp)
 add_test(testvvec testvvec)
@@ -219,14 +239,6 @@ add_test(test_trait_tests test_trait_tests)
 
 add_executable(testarange testarange.cpp)
 add_test(testarange testarange)
-
-# It's possible to modify testvec.cpp to be c++-11 or c++-14 friendly:
-add_executable(testvec14 testvec14.cpp)
-target_compile_features(testvec14 PUBLIC cxx_std_14)
-add_test(testvec14 testvec14)
-add_executable(testvec11 testvec14.cpp)
-target_compile_features(testvec11 PUBLIC cxx_std_11)
-add_test(testvec11 testvec11)
 
 # Test the Scaling of vecs
 add_executable(testScaleVector testScaleVector.cpp)
