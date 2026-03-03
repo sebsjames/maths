@@ -3,8 +3,8 @@
 #include <set>
 #include <iostream>
 
-#include <sm/vvec>
-#include <sm/vec>
+import sm.vvec;
+import sm.vec;
 
 int main()
 {

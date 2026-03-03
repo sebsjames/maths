@@ -8,8 +8,7 @@
 #include <cstdint>
 #include <iostream>
 
-#include <sm/vvec>
-#include <sm/vec>
+import sm.vvec;
 
 int main()
 {

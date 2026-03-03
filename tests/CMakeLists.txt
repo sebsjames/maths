@@ -198,7 +198,6 @@ target_sources(vvec_convolutions1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJEC
   FILES
   ${PROJECT_SOURCE_DIR}/sm/range
   ${PROJECT_SOURCE_DIR}/sm/random
-#  ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/vvec)
 add_test(vvec_convolutions1 vvec_convolutions1)
 
@@ -207,7 +206,6 @@ target_sources(vvec_convolutions2 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJEC
   FILES
   ${PROJECT_SOURCE_DIR}/sm/range
   ${PROJECT_SOURCE_DIR}/sm/random
-#  ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/vvec)
 add_test(vvec_convolutions2 vvec_convolutions2)
 
@@ -216,7 +214,6 @@ target_sources(vvec_differentiation1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PRO
   FILES
   ${PROJECT_SOURCE_DIR}/sm/range
   ${PROJECT_SOURCE_DIR}/sm/random
-#  ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/vvec)
 add_test(vvec_differentiation1 vvec_differentiation1)
 
@@ -225,9 +222,75 @@ target_sources(vvec_zerocross1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_S
   FILES
   ${PROJECT_SOURCE_DIR}/sm/range
   ${PROJECT_SOURCE_DIR}/sm/random
-#  ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/vvec)
 add_test(vvec_zerocross1 vvec_zerocross1)
+
+add_executable(vvec_prune1 vvec_prune1.cpp)
+target_sources(vvec_prune1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/random
+  ${PROJECT_SOURCE_DIR}/sm/vvec)
+add_test(vvec_prune1 vvec_prune1)
+
+add_executable(vvec_threshold1 vvec_threshold1.cpp)
+target_sources(vvec_threshold1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/random
+  ${PROJECT_SOURCE_DIR}/sm/vvec)
+add_test(vvec_threshold1 vvec_threshold1)
+
+add_executable(vvec_elementcompare1 vvec_elementcompare1.cpp)
+target_sources(vvec_elementcompare1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/random
+  ${PROJECT_SOURCE_DIR}/sm/vvec)
+add_test(vvec_elementcompare1 vvec_elementcompare1)
+
+add_executable(vvec_rescale1 vvec_rescale1.cpp)
+target_sources(vvec_rescale1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/random
+  ${PROJECT_SOURCE_DIR}/sm/vvec)
+add_test(vvec_rescale1 vvec_rescale1)
+
+add_executable(vvec_set_from1 vvec_set_from1.cpp)
+target_sources(vvec_set_from1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/random
+  ${PROJECT_SOURCE_DIR}/sm/vvec
+  ${PROJECT_SOURCE_DIR}/sm/vec)
+add_test(vvec_set_from1 vvec_set_from1)
+
+add_executable(vvec_at_signed1 vvec_at_signed1.cpp)
+target_sources(vvec_at_signed1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/random
+  ${PROJECT_SOURCE_DIR}/sm/vvec)
+add_test(vvec_at_signed1 vvec_at_signed1)
+
+add_executable(vvec_nans1 vvec_nans1.cpp)
+target_sources(vvec_nans1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/random
+  ${PROJECT_SOURCE_DIR}/sm/vvec)
+add_test(vvec_nans1 vvec_nans1)
+
+add_executable(vvec_range_extent1 vvec_range_extent1.cpp)
+target_sources(vvec_range_extent1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/random
+  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/vvec)
+add_test(vvec_range_extent1 vvec_range_extent1)
+
 
 if (0) # DEVELOPMENT
 
@@ -293,32 +356,6 @@ if(NOT APPLE)
   add_executable(testQuat_constexpr testQuat_constexpr.cpp)
   add_test(testQuat_constexpr testQuat_constexpr)
 endif()
-
-
-
-add_executable(testvvec_prune testvvec_prune.cpp)
-add_test(testvvec_prune testvvec_prune)
-
-add_executable(testvvec_threshold testvvec_threshold.cpp)
-add_test(testvvec_threshold testvvec_threshold)
-
-add_executable(testvvec_elementcompare testvvec_elementcompare.cpp)
-add_test(testvvec_elementcompare testvvec_elementcompare)
-
-add_executable(testvvec_rescale testvvec_rescale.cpp)
-add_test(testvvec_rescale testvvec_rescale)
-
-add_executable(testvvec_set_from testvvec_set_from.cpp)
-add_test(testvvec_set_from testvvec_set_from)
-
-add_executable(testvvec_at_signed testvvec_at_signed.cpp)
-add_test(testvvec_at_signed testvvec_at_signed)
-
-add_executable(testvvec_nans testvvec_nans.cpp)
-add_test(testvvec_nans testvvec_nans)
-
-add_executable(vvec_range_extent vvec_range_extent.cpp)
-add_test(vvec_range_extent vvec_range_extent)
 
 add_executable(test_trait_tests test_trait_tests.cpp)
 add_test(test_trait_tests test_trait_tests)
