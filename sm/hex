@@ -11,107 +11,30 @@
  * \author: Seb James
  * \date: 2018/07
  */
-#pragma once
+module;
 
 #include <cstdint>
 #include <string>
 #include <list>
 #include <array>
 #include <cmath>
-#include <sm/bezcoord>
+#include <sm/mathconst>
+#include <sm/hexflags>
+
 // If the hexgrid::save and hexgrid::load methods are required, define
 // HEXGRID_COMPILE_LOAD_AND_SAVE. A link to libhdf5 will be required in your program.
 #ifdef HEXGRID_COMPILE_LOAD_AND_SAVE
-# include <sm/hdfdata>
-#endif
-#include <sm/mathconst>
-#include <sm/vec>
-//#define DEBUG_WITH_COUT 1
-#ifdef DEBUG_WITH_COUT
-#include <iostream>
+import sm.hdfdata;
 #endif
 
-/*
- * Flags
- */
+export import sm.bezcoord;
 
-/*!
- * Set true when ne has been set. Use of iterators (hex::ne etc) rather than pointers for
- * neighbouring hexes means we can't do any kind of check to see if the iterator is valid, so we
- * have to keep separate boolean flags for whether or not each hex has a neighbour. Those flags are
- * kept in hex::flags.
- */
-#define HEX_HAS_NE                0x1
-//! True when this hex has a Neighbour to the North East
-#define HEX_HAS_NNE               0x2
-//! True when this hex has a Neighbour to the North West
-#define HEX_HAS_NNW               0x4
-//! True when this hex has a Neighbour to the West
-#define HEX_HAS_NW                0x8
-//! True when this hex has a Neighbour to the South West
-#define HEX_HAS_NSW              0x10
-//! True when this hex has a Neighbour to the South East
-#define HEX_HAS_NSE              0x20
-//! A short cut for testing all the neighbour flags at once
-#define HEX_HAS_NEIGHB_ALL       0x3f // HEX_HAS_NE | HEX_HAS_NNE | ...etc
+export import sm.vec;
 
-//! All hexes marked as boundary hexes, including some that are additional to requirements:
-#define HEX_IS_BOUNDARY          0x40
-//! All hexes inside boundary plus as much of the boundary as needed to make a contiguous boundary:
-#define HEX_INSIDE_BOUNDARY      0x80
-//! All hexes inside the domain of computation:
-#define HEX_INSIDE_DOMAIN       0x100
-//! hex is a 'region boundary hex'. Regions are intended to be temporary to aid client code.
-#define HEX_IS_REGION_BOUNDARY  0x200
-//! hex is inside the region
-#define HEX_INSIDE_REGION       0x400
+export module sm.hex;
 
-//! Five unused flags pad the 'hexgrid' flags and the user flags
-#define HEX_UNUSED_FLAG_0 0x800
-#define HEX_UNUSED_FLAG_1 0x1000
-#define HEX_UNUSED_FLAG_2 0x2000
-#define HEX_UNUSED_FLAG_3 0x4000
-#define HEX_UNUSED_FLAG_4 0x8000
 
-//! Sixteen flags for client code to use for its own devices.
-#define HEX_USER_FLAG_0     0x00010000
-#define HEX_USER_FLAG_1     0x00020000
-#define HEX_USER_FLAG_2     0x00040000
-#define HEX_USER_FLAG_3     0x00080000
-#define HEX_USER_FLAG_4     0x00100000
-#define HEX_USER_FLAG_5     0x00200000
-#define HEX_USER_FLAG_6     0x00400000
-#define HEX_USER_FLAG_7     0x00800000
-#define HEX_USER_FLAG_8     0x01000000
-#define HEX_USER_FLAG_9     0x02000000
-#define HEX_USER_FLAG_10    0x04000000
-#define HEX_USER_FLAG_11    0x08000000
-#define HEX_USER_FLAG_12    0x10000000
-#define HEX_USER_FLAG_13    0x20000000
-#define HEX_USER_FLAG_14    0x40000000
-#define HEX_USER_FLAG_15    0x80000000
-//! Four bits high: all user flags set
-#define HEX_ALL_USER       0xffff0000
-//! Bitmask for all the flags that aren't the 16 user flags.
-#define HEX_NON_USER       0x0000ffff
-
-//! Neighbour (or edge, or side) positions
-#define HEX_NEIGHBOUR_POS_E       0x0
-#define HEX_NEIGHBOUR_POS_NE      0x1
-#define HEX_NEIGHBOUR_POS_NW      0x2
-#define HEX_NEIGHBOUR_POS_W       0x3
-#define HEX_NEIGHBOUR_POS_SW      0x4
-#define HEX_NEIGHBOUR_POS_SE      0x5
-
-//! Vertex positions
-#define HEX_VERTEX_POS_NE     0x0
-#define HEX_VERTEX_POS_N      0x1
-#define HEX_VERTEX_POS_NW     0x2
-#define HEX_VERTEX_POS_SW     0x3
-#define HEX_VERTEX_POS_S      0x4
-#define HEX_VERTEX_POS_SE     0x5
-
-namespace sm
+export namespace sm
 {
     /*!
      * Describes a regular hexagon arranged with vertices pointing vertically and two flat sides
@@ -318,7 +241,7 @@ namespace sm
          * Convert the neighbour position number into a short string representing the
          * direction/position of the neighbour.
          */
-        static std::string neighbour_pos (unsigned short dir)
+        static std::string neighbour_pos (uint32_t dir)
         {
             std::string s("");
             switch (dir) {
@@ -667,7 +590,7 @@ namespace sm
          * Test if have neighbour at position \a ni.
          * East: 0, North-East: 1, North-West: 2, West: 3, South-West: 4, South-East: 5
          */
-        bool has_neighbour (unsigned short ni) const
+        bool has_neighbour (uint32_t ni) const
         {
             switch (ni) {
             case HEX_NEIGHBOUR_POS_E:
@@ -712,7 +635,7 @@ namespace sm
          * Get a list<hex>::iterator to the neighbour at position \a ni.
          * East: 0, North-East: 1, North-West: 2, West: 3, South-West: 4, South-East: 5
          */
-        std::list<hex>::iterator get_neighbour (unsigned short ni) const
+        std::list<hex>::iterator get_neighbour (uint32_t ni) const
         {
             std::list<hex>::iterator hi;
             switch (ni) {
@@ -755,7 +678,7 @@ namespace sm
         }
 
         //! Turn the vertex index \a ni into a string name and return it.
-        static std::string vertex_name (unsigned short ni)
+        static std::string vertex_name (uint32_t ni)
         {
             std::string s("");
             switch (ni) {
@@ -803,7 +726,7 @@ namespace sm
          * which vertex to return the coordinate for. Use the definitions HEX_VERTEX_POS_N, etc to
          * pass in a human-readable label for the vertex.
          */
-        sm::vec<float, 2> get_vertex_coord (unsigned short ni) const
+        sm::vec<float, 2> get_vertex_coord (uint32_t ni) const
         {
             sm::vec<float, 2> rtn = { 0.0f, 0.0f };
             switch (ni) {
@@ -854,22 +777,8 @@ namespace sm
         }
 
         /*!
-         * Get the Cartesian coordinates of the given vertex of the hex. This sub-calls
-         * the overload of get_vertex_coord which accepts a single, unsigned short
-         * argument.
-         */
-        sm::vec<float, 2> get_vertex_coord (uint32_t ni) const
-        {
-            sm::vec<float, 2> rtn = { -2.0f, -2.0f };
-            if (ni > 5) { return rtn; }
-            rtn = this->get_vertex_coord (static_cast<unsigned short> (ni));
-            return rtn;
-        }
-
-        /*!
-         * Get the Cartesian coordinates of the given vertex of the hex. This sub-calls
-         * the overload of get_vertex_coord which accepts a single, unsigned short
-         * argument.
+         * Get the Cartesian coordinates of the given vertex of the hex. This sub-calls the overload
+         * of get_vertex_coord which accepts a single, unsigned argument.
          */
         sm::vec<float, 2> get_vertex_coord (int32_t ni) const
         {
@@ -882,7 +791,7 @@ namespace sm
                 rtn[1] = -4.0f;
                 return rtn;
             }
-            rtn = this->get_vertex_coord (static_cast<unsigned short> (ni));
+            rtn = this->get_vertex_coord (ni);
             return rtn;
         }
 

@@ -13,6 +13,8 @@ set_source_files_properties (
   ${PROJECT_SOURCE_DIR}/sm/hdfdata
   ${PROJECT_SOURCE_DIR}/sm/quaternion
   ${PROJECT_SOURCE_DIR}/sm/mat
+  ${PROJECT_SOURCE_DIR}/sm/hex
+  ${PROJECT_SOURCE_DIR}/sm/bezcoord
   PROPERTIES LANGUAGE CXX)
 
 # sm::range
@@ -296,6 +298,15 @@ target_sources(vvec_range_extent1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJEC
   ${PROJECT_SOURCE_DIR}/sm/vvec)
 add_test(vvec_range_extent1 vvec_range_extent1)
 
+add_executable(vvec_arange vvec_arange.cpp)
+target_sources(vvec_arange PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/random
+  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/vvec)
+add_test(vvec_arange vvec_arange)
+
 # Test the scaling code
 add_executable(scale1 scale1.cpp)
 target_sources(scale1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
@@ -550,33 +561,66 @@ if(NOT APPLE)
   endif(Eigen3_FOUND)
 endif()
 
-if (0) # DEVELOPMENT
-
 # Test quaternion and mat44 rotations in float and double precision
-add_executable(testRotations_float testRotations.cpp)
-target_compile_definitions(testRotations_float PUBLIC FLT=float)
-add_test(testRotations_float testRotations_float)
+add_executable(rotations1_float rotations1.cpp)
+target_compile_definitions(rotations1_float PUBLIC FLT=float)
+target_sources(rotations1_float PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/random
+  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/quaternion
+  ${PROJECT_SOURCE_DIR}/sm/mat)
+add_test(rotations1_float rotations1_float)
 
-add_executable(testRotations_double testRotations.cpp)
-target_compile_definitions(testRotations_double PUBLIC FLT=double)
-add_test(testRotations_double testRotations_double)
+add_executable(rotations1_double rotations1.cpp)
+target_compile_definitions(rotations1_double PUBLIC FLT=double)
+target_sources(rotations1_double PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/random
+  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/quaternion
+  ${PROJECT_SOURCE_DIR}/sm/mat)
+add_test(rotations1_double rotations1_double)
 
 # More rotations
-add_executable(rotations rotations.cpp)
-add_test(rotations rotations)
+add_executable(rotations2 rotations2.cpp)
+target_sources(rotations2 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/random
+  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/quaternion
+  ${PROJECT_SOURCE_DIR}/sm/mat)
+add_test(rotations2 rotations2)
 
 add_executable(test_trait_tests test_trait_tests.cpp)
+target_sources(test_trait_tests PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/random
+  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/vvec)
 add_test(test_trait_tests test_trait_tests)
 
-add_executable(testarange testarange.cpp)
-add_test(testarange testarange)
-
 # Test Hex::get_vertex_coord()
-add_executable(testHexVertexPos testHexVertexPos.cpp)
-add_test(testHexVertexPos testHexVertexPos)
+add_executable(hex_vertexpos1 hex_vertexpos1.cpp)
+target_sources(hex_vertexpos1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/random
+  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/vvec
+  ${PROJECT_SOURCE_DIR}/sm/bezcoord
+  ${PROJECT_SOURCE_DIR}/sm/hex)
+add_test(hex_vertexpos1 hex_vertexpos1)
+
+if (0) # DEVELOPMENT
 
 # Test Hex user flags code
 add_executable(testHexUserFlags testHexUserFlags.cpp)
+
 add_test(testHexUserFlags testHexUserFlags)
 
 # An example program which is slow compiled on Visual Studio with the /MDd "Debug build" flag

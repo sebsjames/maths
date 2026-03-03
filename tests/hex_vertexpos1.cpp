@@ -1,5 +1,9 @@
 #include <iostream>
-#include <sm/hex>
+#include <sm/mathconst>
+#include <sm/hexflags>
+
+import sm.hex;
+import sm.vec;
 
 int main()
 {
@@ -9,12 +13,12 @@ int main()
     unsigned int idx = 0;
     sm::hex h(idx, d, r, g);
 
-    sm::vec<float, 2> vN = h.get_vertex_coord (HEX_VERTEX_POS_N);
-    sm::vec<float, 2> vNE = h.get_vertex_coord (HEX_VERTEX_POS_NE);
-    sm::vec<float, 2> vSE = h.get_vertex_coord (HEX_VERTEX_POS_SE);
-    sm::vec<float, 2> vS = h.get_vertex_coord (HEX_VERTEX_POS_S);
-    sm::vec<float, 2> vSW = h.get_vertex_coord (HEX_VERTEX_POS_SW);
-    sm::vec<float, 2> vNW = h.get_vertex_coord (HEX_VERTEX_POS_NW);
+    sm::vec<float, 2> vN = h.get_vertex_coord (sm::HEX_VERTEX_POS_N);
+    sm::vec<float, 2> vNE = h.get_vertex_coord (sm::HEX_VERTEX_POS_NE);
+    sm::vec<float, 2> vSE = h.get_vertex_coord (sm::HEX_VERTEX_POS_SE);
+    sm::vec<float, 2> vS = h.get_vertex_coord (sm::HEX_VERTEX_POS_S);
+    sm::vec<float, 2> vSW = h.get_vertex_coord (sm::HEX_VERTEX_POS_SW);
+    sm::vec<float, 2> vNW = h.get_vertex_coord (sm::HEX_VERTEX_POS_NW);
 
     // Output for user
     std::cout << "hex centre: (" << h.x << "," << h.y << ")" << std::endl;

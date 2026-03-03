@@ -26,6 +26,7 @@ install(
   grid
   hdfdata
   hex
+  hexflags
   hexgrid
   hexyhisto
   histo
