@@ -1,5 +1,7 @@
-#include <sm/hdfdata>
-#include <sm/vvec>
+#include <ios>
+
+import sm.hdfdata;
+import sm.vvec;
 
 // Showing use of HdfData with std::ios flags to specify file access
 

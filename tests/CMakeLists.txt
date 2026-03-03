@@ -10,6 +10,7 @@ set_source_files_properties (
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/vvec
   ${PROJECT_SOURCE_DIR}/sm/scale
+  ${PROJECT_SOURCE_DIR}/sm/hdfdata
   PROPERTIES LANGUAGE CXX)
 
 # sm::range
@@ -326,40 +327,81 @@ target_sources(scale_complex1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SO
   ${PROJECT_SOURCE_DIR}/sm/scale)
 add_test(scale_complex1 scale_complex1)
 
-if (0) # DEVELOPMENT
-
 if(HDF5_FOUND)
   # Test HDF file access
-  add_executable(testhdfdata1 testhdfdata1.cpp)
+  add_executable(hdfdata1 hdfdata1.cpp)
+  target_sources(hdfdata1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+    FILES
+    ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/random
+    ${PROJECT_SOURCE_DIR}/sm/vec
+    ${PROJECT_SOURCE_DIR}/sm/vvec
+    ${PROJECT_SOURCE_DIR}/sm/hdfdata)
   # Note how if you only use HDF, you only have to link to libhdf
-  target_link_libraries(testhdfdata1 ${HDF5_C_LIBRARIES})
-  add_test(testhdfdata1 testhdfdata1)
+  target_link_libraries(hdfdata1 ${HDF5_C_LIBRARIES})
+  add_test(hdfdata1 hdfdata1)
 
-  # More HDF data tests
-  add_executable(testhdfdata2 testhdfdata2.cpp)
-  target_link_libraries(testhdfdata2 ${HDF5_C_LIBRARIES})
-  add_test(testhdfdata2 testhdfdata2)
+  add_executable(hdfdata2 hdfdata2.cpp)
+  target_sources(hdfdata2 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+    FILES
+    ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/random
+    ${PROJECT_SOURCE_DIR}/sm/vec
+    ${PROJECT_SOURCE_DIR}/sm/vvec
+    ${PROJECT_SOURCE_DIR}/sm/hdfdata)
+  target_link_libraries(hdfdata2 ${HDF5_C_LIBRARIES})
+  add_test(hdfdata2 hdfdata2)
 
-  add_executable(testhdfdata3f testhdfdata3.cpp)
-  target_compile_definitions(testhdfdata3f PUBLIC FLT=float)
-  target_link_libraries(testhdfdata3f ${HDF5_C_LIBRARIES})
-  add_test(testhdfdata3f testhdfdata3f)
+  add_executable(hdfdata3 hdfdata3.cpp)
+  target_compile_definitions(hdfdata3 PUBLIC FLT=float)
+  target_sources(hdfdata3 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+    FILES
+    ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/random
+    ${PROJECT_SOURCE_DIR}/sm/vec
+    ${PROJECT_SOURCE_DIR}/sm/vvec
+    ${PROJECT_SOURCE_DIR}/sm/hdfdata)
+  target_link_libraries(hdfdata3 ${HDF5_C_LIBRARIES})
+  add_test(hdfdata3 hdfdata3)
 
-  add_executable(testhdfdata3d testhdfdata3.cpp)
-  target_compile_definitions(testhdfdata3d PUBLIC FLT=float)
-  target_link_libraries(testhdfdata3d ${HDF5_C_LIBRARIES})
-  add_test(testhdfdata3d testhdfdata3d)
+  add_executable(hdfdata3d hdfdata3.cpp)
+  target_compile_definitions(hdfdata3d PUBLIC FLT=double)
+  target_sources(hdfdata3d PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+    FILES
+    ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/random
+    ${PROJECT_SOURCE_DIR}/sm/vec
+    ${PROJECT_SOURCE_DIR}/sm/vvec
+    ${PROJECT_SOURCE_DIR}/sm/hdfdata)
+  target_link_libraries(hdfdata3d ${HDF5_C_LIBRARIES})
+  add_test(hdfdata3d hdfdata3d)
 
-  add_executable(testhdfdata4f testhdfdata4.cpp)
-  target_compile_definitions(testhdfdata4f PUBLIC FLT=float)
-  target_link_libraries(testhdfdata4f ${HDF5_C_LIBRARIES})
-  add_test(testhdfdata4f testhdfdata4f)
+  add_executable(hdfdata4 hdfdata4.cpp)
+  target_compile_definitions(hdfdata4 PUBLIC FLT=float)
+  target_sources(hdfdata4 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+    FILES
+    ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/random
+    ${PROJECT_SOURCE_DIR}/sm/vec
+    ${PROJECT_SOURCE_DIR}/sm/vvec
+    ${PROJECT_SOURCE_DIR}/sm/hdfdata)
+  target_link_libraries(hdfdata4 ${HDF5_C_LIBRARIES})
+  add_test(hdfdata4 hdfdata4)
 
-  add_executable(testhdfdata5 testhdfdata5.cpp)
-  target_link_libraries(testhdfdata5 ${HDF5_C_LIBRARIES})
-  add_test(testhdfdata5 testhdfdata5)
-
+  add_executable(hdfdata5 hdfdata5.cpp)
+  target_sources(hdfdata5 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+    FILES
+    ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/random
+    ${PROJECT_SOURCE_DIR}/sm/vec
+    ${PROJECT_SOURCE_DIR}/sm/vvec
+    ${PROJECT_SOURCE_DIR}/sm/hdfdata)
+  target_link_libraries(hdfdata5 ${HDF5_C_LIBRARIES})
+  add_test(hdfdata5 hdfdata5)
 endif(HDF5_FOUND)
+
+
+if (0) # DEVELOPMENT
 
 # Test sm::quaternion
 add_executable(testQuaternion testQuaternion.cpp)

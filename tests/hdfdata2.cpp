@@ -3,8 +3,9 @@
 #include <fstream>
 #include <list>
 #include <vector>
+#include <bitset>
 
-#include <sm/hdfdata>
+import sm.hdfdata;
 
 int main()
 {

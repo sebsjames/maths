@@ -1,7 +1,11 @@
-#include <sm/quaternion>
-#include <sm/vec>
+#include <iostream>
+#include <limits>
+
 #include <sm/mathconst>
-#include <sm/random>
+
+import sm.quaternion;
+import sm.vec;
+import sm.random;
 
 int main()
 {

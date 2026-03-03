@@ -5,7 +5,7 @@
 #include <vector>
 #include <deque>
 
-#include <sm/hdfdata>
+import sm.hdfdata;
 
 int main()
 {

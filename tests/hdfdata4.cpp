@@ -1,8 +1,8 @@
 #include <iostream>
 
-#include <sm/vvec>
-#include <sm/vec>
-#include <sm/hdfdata>
+import sm.vec;
+import sm.vvec;
+import sm.hdfdata;
 
 // Test containers of vvecs
 
