@@ -51,7 +51,20 @@ target_sources(vec1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
 )
 add_test(vec1 vec1)
 
-
+if(NOT APPLE)
+  # constexpr functionality in sm::vec
+  # Need C++20 for the way I use constexpr here so that it is legal to
+  # have "a definition of a variable for which no initialization is
+  # performed".
+  add_executable(vec_constexpr1 vec_constexpr1.cpp)
+  target_sources(vec_constexpr1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+    FILES
+    ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/vec
+    ${PROJECT_SOURCE_DIR}/sm/random
+  )
+  add_test(vec_constexpr1 vec_constexpr1)
+endif()
 
 if (0) # DEVELOPMENT
 
@@ -116,15 +129,6 @@ add_test(rotations rotations)
 if(NOT APPLE)
   add_executable(testQuat_constexpr testQuat_constexpr.cpp)
   add_test(testQuat_constexpr testQuat_constexpr)
-endif()
-
-if(NOT APPLE)
-  # constexpr functionality in sm::vec
-  # Need C++20 for the way I use constexpr here so that it is legal to
-  # have "a definition of a variable for which no initialization is
-  # performed".
-  add_executable(testvec_constexpr testvec_constexpr.cpp)
-  add_test(testvec_constexpr testvec_constexpr)
 endif()
 
 add_executable(testvec_casting testvec_casting.cpp)

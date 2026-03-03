@@ -7,8 +7,13 @@
  * Each constexpr function in sm::vec is tested within a global constexpr function.
  */
 
+#include <cmath>
+#include <iostream>
+#include <limits>
+#include <array>
 #include <sm/mathconst>
-#include <sm/vec>
+
+import sm.vec;
 
 constexpr sm::vec<double, 3> vec_add()
 {
