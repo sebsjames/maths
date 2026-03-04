@@ -24,6 +24,7 @@ set_source_files_properties (
   ${PROJECT_SOURCE_DIR}/sm/boxfilter
   ${PROJECT_SOURCE_DIR}/sm/config
   ${PROJECT_SOURCE_DIR}/sm/geometry
+  ${PROJECT_SOURCE_DIR}/sm/flags
   PROPERTIES LANGUAGE CXX)
 
 # sm::range
@@ -942,11 +943,13 @@ target_sources(trait_tests_number_type PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${P
   ${PROJECT_SOURCE_DIR}/sm/vec)
 add_test(trait_tests_number_type trait_tests_number_type)
 
+add_executable(flags1 flags1.cpp)
+target_sources(flags1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/flags)
+add_test(flags1 flags1)
+
 if (0) # DEVELOPMENT
-
-
-add_executable(test_flags test_flags.cpp)
-add_test(test_flags test_flags)
 
 add_executable(testcartgrid testcartgrid.cpp)
 add_test(testcartgrid testcartgrid)

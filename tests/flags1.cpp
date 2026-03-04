@@ -1,6 +1,7 @@
 #include <cstdint>
 #include <iostream>
-#include <sm/flags>
+
+import sm.flags;
 
 // You need an enumerated class to use sm::flags.
 enum class myflags : uint32_t
