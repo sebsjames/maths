@@ -15,6 +15,7 @@ set_source_files_properties (
   ${PROJECT_SOURCE_DIR}/sm/mat
   ${PROJECT_SOURCE_DIR}/sm/hex
   ${PROJECT_SOURCE_DIR}/sm/bezcoord
+  ${PROJECT_SOURCE_DIR}/sm/bezcurve
   ${PROJECT_SOURCE_DIR}/sm/winder
   ${PROJECT_SOURCE_DIR}/sm/bootstrap
   ${PROJECT_SOURCE_DIR}/sm/grid
@@ -972,65 +973,78 @@ add_executable(constexpr_math1 constexpr_math1.cpp)
 add_test(constexpr_math1 constexpr_math1)
 endif()
 
+if(ARMADILLO_FOUND)
+  # BezCurve class
+  set(TARGETTEST1 bez1)
+  set(SOURCETEST1 bez1.cpp)
+  add_executable(${TARGETTEST1} ${SOURCETEST1})
+  target_sources(bez1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+    FILES
+    ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/random
+    ${PROJECT_SOURCE_DIR}/sm/vec
+    ${PROJECT_SOURCE_DIR}/sm/bezcoord
+    ${PROJECT_SOURCE_DIR}/sm/vvec
+    ${PROJECT_SOURCE_DIR}/sm/algo
+    ${PROJECT_SOURCE_DIR}/sm/nm_simplex
+  )
+  target_link_libraries(${TARGETTEST1} ${ARMADILLO_LIBRARY} ${ARMADILLO_LIBRARIES})
+  add_test(bez1 ${TARGETTEST1})
+endif()
+
 if (0) # DEVELOPMENT
 
 add_executable(cartgrid1 cartgrid1.cpp)
 add_test(cartgrid1 cartgrid1)
 
-add_executable(testCartGridShiftCoords testCartGridShiftCoords.cpp)
-add_test(testCartGridShiftCoords testCartGridShiftCoords)
+add_executable(cartgrid_gridshiftcoords cartgrid_gridshiftcoords.cpp)
+add_test(cartgrid_gridshiftcoords cartgrid_gridshiftcoords)
 
-add_executable(testCartGridShiftIndiciesByMetric testCartGridShiftIndiciesByMetric.cpp)
-add_test(testCartGridShiftIndiciesByMetric testCartGridShiftIndiciesByMetric)
+add_executable(cartgrid_shiftindicesbymetric cartgrid_shiftindicesbymetric.cpp)
+add_test(cartgrid_shiftindicesbymetric cartgrid_shiftindicesbymetric)
 
 
 if(ARMADILLO_FOUND)
-  # BezCurve class
-  set(TARGETTEST1 testbez)
-  set(SOURCETEST1 testbez.cpp)
-  add_executable(${TARGETTEST1} ${SOURCETEST1})
-  target_link_libraries(${TARGETTEST1} ${ARMADILLO_LIBRARY} ${ARMADILLO_LIBRARIES})
-  add_test(testbez ${TARGETTEST1})
 
   # BezCurve class
-  set(TARGETTEST1_1 testbez2)
-  set(SOURCETEST1_1 testbez2.cpp)
+  set(TARGETTEST1_1 bez2)
+  set(SOURCETEST1_1 bez2.cpp)
   add_executable(${TARGETTEST1_1} ${SOURCETEST1_1})
   target_link_libraries(${TARGETTEST1_1} ${ARMADILLO_LIBRARY} ${ARMADILLO_LIBRARIES})
-  add_test(testbez2 ${TARGETTEST1_1})
+  add_test(bez2 ${TARGETTEST1_1})
 
   # BezCurvePath class
-  set(TARGETTEST1_2 testbezcurves)
-  set(SOURCETEST1_2 testbezcurves.cpp)
+  set(TARGETTEST1_2 bezcurves)
+  set(SOURCETEST1_2 bezcurves.cpp)
   add_executable(${TARGETTEST1_2} ${SOURCETEST1_2})
   target_link_libraries(${TARGETTEST1_2} ${ARMADILLO_LIBRARY} ${ARMADILLO_LIBRARIES})
-  add_test(testbezcurves ${TARGETTEST1_2})
+  add_test(bezcurves ${TARGETTEST1_2})
 
   # Testing matrix representation of Bezier curves
-  set(TARGETTEST1_3 testbezmatrix)
-  set(SOURCETEST1_3 testbezmatrix.cpp)
+  set(TARGETTEST1_3 bezmatrix)
+  set(SOURCETEST1_3 bezmatrix.cpp)
   add_executable(${TARGETTEST1_3} ${SOURCETEST1_3})
   # Disable warning -Wunused-but-set-variable:
   #target_compile_options(${TARGETTEST1_3} PRIVATE -Wno-unused-but-set-variable)
   target_compile_definitions(${TARGETTEST1_3} PUBLIC FLT=float)
   target_link_libraries(${TARGETTEST1_3} ${ARMADILLO_LIBRARY} ${ARMADILLO_LIBRARIES})
-  add_test(testbezmatrix ${TARGETTEST1_3})
+  add_test(bezmatrix ${TARGETTEST1_3})
 
   # Testing auto-fitting a Bezier curve
-  set(TARGETTEST1_4 testbezfit)
-  set(SOURCETEST1_4 testbezfit.cpp)
+  set(TARGETTEST1_4 bezfit)
+  set(SOURCETEST1_4 bezfit.cpp)
   add_executable(${TARGETTEST1_4} ${SOURCETEST1_4})
   target_compile_definitions(${TARGETTEST1_4} PUBLIC FLT=float)
   target_link_libraries(${TARGETTEST1_4} ${ARMADILLO_LIBRARY} ${ARMADILLO_LIBRARIES})
-  add_test(testbezfit ${TARGETTEST1_4})
+  add_test(bezfit ${TARGETTEST1_4})
 
   # Testing splitting of Bezier curves
-  set(TARGETTEST1_5 testbezsplit)
-  set(SOURCETEST1_5 testbezsplit.cpp)
+  set(TARGETTEST1_5 bezsplit)
+  set(SOURCETEST1_5 bezsplit.cpp)
   add_executable(${TARGETTEST1_5} ${SOURCETEST1_5})
   target_compile_definitions(${TARGETTEST1_5} PUBLIC FLT=float)
   target_link_libraries(${TARGETTEST1_5} ${ARMADILLO_LIBRARY} ${ARMADILLO_LIBRARIES})
-  add_test(testbezsplit ${TARGETTEST1_5})
+  add_test(bezsplit ${TARGETTEST1_5})
 
   # Test two curves connected together
   set(TARGETTEST2 twocurves)

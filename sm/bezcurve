@@ -9,7 +9,6 @@
  * \author Seb James
  * \date 2019-2020
  */
-
 #pragma once
 
 #include <utility>
@@ -23,6 +22,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <concepts>
+#include <random>
 
 // Armadillo has a bug (up to versions after 14.6.0) in which if ARMA_USE_ARPACK is
 // *not* defined, there is an unused parameter (Xst) in the function
@@ -38,9 +38,9 @@
 # pragma GCC diagnostic push
 # pragma GCC diagnostic ignored "-Wunused-parameter"
 #endif
-
+// Current, packaged armadillo is also not usable in modules (get exposes TU-local entity error like
+// in nlohmann json, related to use of a static keyword, most likely.
 #include <armadillo>
-
 // pop the ignored "-Wunused-parameter"
 #if defined(__clang__)
 # pragma clang diagnostic pop
@@ -49,11 +49,11 @@
 #endif
 
 #include <sm/mathconst>
-#include <sm/nm_simplex>
-#include <random>
 
-#include <sm/bezcoord>
-#include <sm/vvec>
+import sm.vvec;
+import sm.nm_simplex;
+import sm.bezcoord;
+import sm.vec;
 
 namespace sm
 {

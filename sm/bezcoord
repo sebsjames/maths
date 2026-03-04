@@ -6,7 +6,6 @@
  *
  * sm::bezcoord - a Bezier curve coordinate class.
  */
-
 module;
 
 #include <cmath>

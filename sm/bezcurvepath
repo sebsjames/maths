@@ -23,8 +23,10 @@
 #include <cmath>
 #include <concepts>
 
-#include <sm/vec>
 #include <sm/bezcurve>
+
+import sm.vec;
+import sm.bezcoord;
 
 namespace sm
 {
