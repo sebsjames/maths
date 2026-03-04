@@ -1085,16 +1085,44 @@ if(ARMADILLO_FOUND)
 
 endif()
 
-if (0) # DEVELOPMENT
-
 add_executable(cartgrid1 cartgrid1.cpp)
+target_sources(cartgrid1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/random
+  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/bezcoord
+  ${PROJECT_SOURCE_DIR}/sm/vvec
+  ${PROJECT_SOURCE_DIR}/sm/scale
+  ${PROJECT_SOURCE_DIR}/sm/boxfilter)
 add_test(cartgrid1 cartgrid1)
 
 add_executable(cartgrid_gridshiftcoords cartgrid_gridshiftcoords.cpp)
+target_sources(cartgrid_gridshiftcoords PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/random
+  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/bezcoord
+  ${PROJECT_SOURCE_DIR}/sm/vvec
+  ${PROJECT_SOURCE_DIR}/sm/scale
+  ${PROJECT_SOURCE_DIR}/sm/boxfilter)
 add_test(cartgrid_gridshiftcoords cartgrid_gridshiftcoords)
 
 add_executable(cartgrid_shiftindicesbymetric cartgrid_shiftindicesbymetric.cpp)
+target_sources(cartgrid_shiftindicesbymetric PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/random
+  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/bezcoord
+  ${PROJECT_SOURCE_DIR}/sm/vvec
+  ${PROJECT_SOURCE_DIR}/sm/scale
+  ${PROJECT_SOURCE_DIR}/sm/boxfilter)
 add_test(cartgrid_shiftindicesbymetric cartgrid_shiftindicesbymetric)
+
+if (0) # DEVELOPMENT
+
 
 #
 # mat compile/not compile tests on operators

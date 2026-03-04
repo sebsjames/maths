@@ -17,10 +17,11 @@
 #include <string>
 #include <list>
 #include <cmath>
-#include <sm/vec>
-#include <sm/bezcoord>
+
+import sm.vec;
+import sm.bezcoord;
 #ifdef CARTGRID_COMPILE_LOAD_AND_SAVE
-# include <sm/hdfdata>
+import sm.hdfdata;
 #endif
 
 /*

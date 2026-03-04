@@ -1,7 +1,8 @@
 #include <iostream>
 
-import sm.vvec;
 #include <sm/cartgrid>
+
+import sm.vvec;
 
 int main()
 {
