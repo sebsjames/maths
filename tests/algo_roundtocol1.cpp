@@ -1,5 +1,6 @@
 #include <iostream>
-#include <sm/algo>
+
+import sm.algo;
 
 template <typename F>
 bool different (F f1, F f2) { return std::abs(f1 - f2) > std::numeric_limits<F>::epsilon(); }

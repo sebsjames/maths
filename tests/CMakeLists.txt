@@ -837,6 +837,26 @@ target_sources(algo_1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR
   ${PROJECT_SOURCE_DIR}/sm/algo)
 add_test(algo_1 algo_1)
 
+add_executable(algo_sigfigs1 algo_sigfigs1.cpp)
+target_sources(algo_sigfigs1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/random
+  ${PROJECT_SOURCE_DIR}/sm/vvec
+  ${PROJECT_SOURCE_DIR}/sm/algo)
+add_test(algo_sigfigs1 algo_sigfigs1)
+
+add_executable(algo_roundtocol1 algo_roundtocol1.cpp)
+target_sources(algo_roundtocol1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/random
+  ${PROJECT_SOURCE_DIR}/sm/vvec
+  ${PROJECT_SOURCE_DIR}/sm/algo)
+add_test(algo_roundtocol1 algo_roundtocol1)
+
 add_executable(geometry_2 geometry_2.cpp)
 target_sources(geometry_2 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
@@ -944,10 +964,13 @@ target_sources(trait_tests_number_type PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${P
 add_test(trait_tests_number_type trait_tests_number_type)
 
 add_executable(flags1 flags1.cpp)
-target_sources(flags1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
-  FILES
-  ${PROJECT_SOURCE_DIR}/sm/flags)
+target_sources(flags1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR} FILES ${PROJECT_SOURCE_DIR}/sm/flags)
 add_test(flags1 flags1)
+
+if(NOT APPLE)
+add_executable(constexpr_math1 constexpr_math1.cpp)
+add_test(constexpr_math1 constexpr_math1)
+endif()
 
 if (0) # DEVELOPMENT
 
@@ -960,16 +983,6 @@ add_test(testCartGridShiftCoords testCartGridShiftCoords)
 add_executable(testCartGridShiftIndiciesByMetric testCartGridShiftIndiciesByMetric.cpp)
 add_test(testCartGridShiftIndiciesByMetric testCartGridShiftIndiciesByMetric)
 
-if(NOT APPLE)
-add_executable(testcmath testcmath.cpp)
-add_test(testcmath testcmath)
-endif()
-
-add_executable(testsigfigs testsigfigs.cpp)
-add_test(testsigfigs testsigfigs)
-
-add_executable(testroundtocol testroundtocol.cpp)
-add_test(testroundtocol testroundtocol)
 
 if(ARMADILLO_FOUND)
   # BezCurve class
