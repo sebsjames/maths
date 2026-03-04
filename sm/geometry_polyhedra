@@ -6,8 +6,7 @@
  *
  * Geometry algorithms to generate icosahedrons and geodesic polyhedrons.
  */
-
-#pragma once
+module;
 
 #include <map>
 #include <set>
@@ -21,12 +20,16 @@
 #include <cstdint>
 
 #include <sm/mathconst>
-#include <sm/vec>
-#include <sm/vvec>
-#include <sm/quaternion>
+#include <sm/constexpr_math>
+
+import sm.vec;
+import sm.quaternion;
+export import sm.vvec;
+
+export module sm.geometry_polyhedra;
 
 //! constexpr-capable geometry
-namespace sm::geometry_ce
+export namespace sm::geometry_ce
 {
     //! a container class for the vertices and faces of a polyhedron. Note this contains vec not
     //! vvec as it must be a literal type
@@ -236,7 +239,7 @@ namespace sm::geometry_ce
 }
 
 // Runtime-only geometry
-namespace sm::geometry
+export namespace sm::geometry
 {
     /*!
      * a container class for the vertices and faces of a polyhedron
