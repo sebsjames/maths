@@ -1,5 +1,9 @@
 #include <iostream>
-#include <sm/mat>
+#include <limits>
+#include <cstdint>
+
+import sm.vec;
+import sm.mat;
 
 int main()
 {

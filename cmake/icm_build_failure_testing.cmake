@@ -50,6 +50,10 @@ set(ICM_BUILD_FAILURE_TEST_SCRIPT_DIR "${CMAKE_CURRENT_LIST_DIR}")
 #       * PARSE src   - Optional. One of the sources can be marked as PARSE. If
 #                       such is present, it will be parsed for expected errors
 #
+#   * MODULE_BASE dir - Optional. The base directory for finding the CXX module
+#                       code files.
+#   * MODULE_FILES files - Optional. A list of module code files to build with the
+#                          executable
 #   * LIBRARIES libs - Optional. Link libraries for the executable
 #   * LABELS labels  - Optional. CTest labels for the test
 #                      If none are provided, "build-failure" will be added
@@ -84,7 +88,7 @@ set(ICM_BUILD_FAILURE_TEST_SCRIPT_DIR "${CMAKE_CURRENT_LIST_DIR}")
 #   LABELS bf mylib
 # )
 function(icm_add_build_failure_test)
-    cmake_parse_arguments(ARG "" "NAME;TARGET;FOLDER" "SOURCES;LIBRARIES;ERROR_MATCHES;LABELS" ${ARGN})
+    cmake_parse_arguments(ARG "" "NAME;TARGET;FOLDER" "SOURCES;LIBRARIES;ERROR_MATCHES;LABELS;MODULE_BASE;MODULE_FILES" ${ARGN})
     if(DEFINED ARG_UNPARSED_ARGUMENTS)
         message(NOTICE "icm_add_build_failure_test called with unknown arguments")
     endif()
@@ -137,7 +141,15 @@ function(icm_add_build_failure_test)
             COMMAND ${CMAKE_COMMAND} -DCFG=$<CONFIG> -P ${ARG_TARGET}.cmake
             WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
         )
-    else()
+      else()
+        # Seb: I use non-arg-parse mode, but add modules arguments
+        if(DEFINED ARG_MODULE_FILES AND DEFINED ARG_MODULE_BASE)
+          target_sources(${ARG_TARGET} PUBLIC
+            FILE_SET CXX_MODULES
+            BASE_DIRS ${ARG_MODULE_BASE}
+            FILES ${ARG_MODULE_FILES}
+          )
+        endif()
         # we look for error matches in arguments
         add_test(
             NAME ${ARG_NAME}

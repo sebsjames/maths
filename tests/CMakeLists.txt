@@ -1131,8 +1131,6 @@ if(CMAKE_COMPILER_IS_GNUCXX AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 14.99
   add_test(cartgrid_shiftindicesbymetric cartgrid_shiftindicesbymetric)
 endif()
 
-if (0) # DEVELOPMENT
-
 #
 # mat compile/not compile tests on operators
 #
@@ -1145,27 +1143,55 @@ if(NOT WIN32) # exclude Windows CI from doing the compile failure tests for now
 
   # Only 4x4 matrices can be multiplied with an (N-1) D vector
   add_executable(mat_succeed_4x4timesv3 mat_succeed_4x4timesv3.cpp)
+  target_sources(mat_succeed_4x4timesv3 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+    FILES
+    ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/random
+    ${PROJECT_SOURCE_DIR}/sm/vec
+    ${PROJECT_SOURCE_DIR}/sm/quaternion
+    ${PROJECT_SOURCE_DIR}/sm/mat)
   add_test (mat_succeed_4x4timesv3 mat_succeed_4x4timesv3)
 
   # Matrix times vector is generally ok, as long as vector is right size
   add_executable(mat_succeed_4x4timesv4 mat_succeed_4x4timesv4.cpp)
+  target_sources(mat_succeed_4x4timesv4 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+    FILES
+    ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/random
+    ${PROJECT_SOURCE_DIR}/sm/vec
+    ${PROJECT_SOURCE_DIR}/sm/quaternion
+    ${PROJECT_SOURCE_DIR}/sm/mat)
   add_test (mat_succeed_4x4timesv4 mat_succeed_4x4timesv4)
-
-  # To build add "-test" to the NAME
-  icm_add_build_failure_test(
-    NAME mat_fail_4x4timesv16
-    SOURCES mat_fail_4x4timesv16.cpp
-    LABELS build-failure
-    ERROR_MATCHES "Should not compile"
-  )
 
   #
   # mat *= vec
   #
 
+  # To build add "-test" to the NAME
+  icm_add_build_failure_test(
+    NAME mat_fail_4x4timesv16
+    SOURCES mat_fail_4x4timesv16.cpp
+    MODULE_BASE ${PROJECT_SOURCE_DIR}
+    MODULE_FILES
+    ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/random
+    ${PROJECT_SOURCE_DIR}/sm/vec
+    ${PROJECT_SOURCE_DIR}/sm/quaternion
+    ${PROJECT_SOURCE_DIR}/sm/mat
+    LABELS build-failure
+    ERROR_MATCHES "Should not compile"
+  )
+
   icm_add_build_failure_test(
     NAME mat_fail_4x4timeseqlsv3
     SOURCES mat_fail_4x4timeseqlsv3.cpp
+    MODULE_BASE ${PROJECT_SOURCE_DIR}
+    MODULE_FILES
+    ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/random
+    ${PROJECT_SOURCE_DIR}/sm/vec
+    ${PROJECT_SOURCE_DIR}/sm/quaternion
+    ${PROJECT_SOURCE_DIR}/sm/mat
     LABELS build-failure
     ERROR_MATCHES "Should not compile"
   )
@@ -1173,6 +1199,13 @@ if(NOT WIN32) # exclude Windows CI from doing the compile failure tests for now
   icm_add_build_failure_test(
     NAME mat_fail_4x4timeseqlsv4
     SOURCES mat_fail_4x4timeseqlsv4.cpp
+    MODULE_BASE ${PROJECT_SOURCE_DIR}
+    MODULE_FILES
+    ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/random
+    ${PROJECT_SOURCE_DIR}/sm/vec
+    ${PROJECT_SOURCE_DIR}/sm/quaternion
+    ${PROJECT_SOURCE_DIR}/sm/mat
     LABELS build-failure
     ERROR_MATCHES "Should not compile"
   )
@@ -1180,6 +1213,13 @@ if(NOT WIN32) # exclude Windows CI from doing the compile failure tests for now
   icm_add_build_failure_test(
     NAME mat_fail_4x4timeseqlsv16
     SOURCES mat_fail_4x4timeseqlsv16.cpp
+    MODULE_BASE ${PROJECT_SOURCE_DIR}
+    MODULE_FILES
+    ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/random
+    ${PROJECT_SOURCE_DIR}/sm/vec
+    ${PROJECT_SOURCE_DIR}/sm/quaternion
+    ${PROJECT_SOURCE_DIR}/sm/mat
     LABELS build-failure
     ERROR_MATCHES "Should not compile"
   )
@@ -1191,6 +1231,13 @@ if(NOT WIN32) # exclude Windows CI from doing the compile failure tests for now
   icm_add_build_failure_test(
     NAME mat_fail_4x4plusvec3
     SOURCES mat_fail_4x4plusvec3.cpp
+    MODULE_BASE ${PROJECT_SOURCE_DIR}
+    MODULE_FILES
+    ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/random
+    ${PROJECT_SOURCE_DIR}/sm/vec
+    ${PROJECT_SOURCE_DIR}/sm/quaternion
+    ${PROJECT_SOURCE_DIR}/sm/mat
     LABELS build-failure
     ERROR_MATCHES "Should not compile"
   )
@@ -1198,6 +1245,13 @@ if(NOT WIN32) # exclude Windows CI from doing the compile failure tests for now
   icm_add_build_failure_test(
     NAME mat_fail_4x4plusvec4
     SOURCES mat_fail_4x4plusvec4.cpp
+    MODULE_BASE ${PROJECT_SOURCE_DIR}
+    MODULE_FILES
+    ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/random
+    ${PROJECT_SOURCE_DIR}/sm/vec
+    ${PROJECT_SOURCE_DIR}/sm/quaternion
+    ${PROJECT_SOURCE_DIR}/sm/mat
     LABELS build-failure
     ERROR_MATCHES "Should not compile"
   )
@@ -1205,6 +1259,13 @@ if(NOT WIN32) # exclude Windows CI from doing the compile failure tests for now
   icm_add_build_failure_test(
     NAME mat_fail_4x4plusvec16
     SOURCES mat_fail_4x4plusvec16.cpp
+    MODULE_BASE ${PROJECT_SOURCE_DIR}
+    MODULE_FILES
+    ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/random
+    ${PROJECT_SOURCE_DIR}/sm/vec
+    ${PROJECT_SOURCE_DIR}/sm/quaternion
+    ${PROJECT_SOURCE_DIR}/sm/mat
     LABELS build-failure
     ERROR_MATCHES "Should not compile"
   )
@@ -1216,6 +1277,13 @@ if(NOT WIN32) # exclude Windows CI from doing the compile failure tests for now
   icm_add_build_failure_test(
     NAME mat_fail_4x4pluseqlsvec3
     SOURCES mat_fail_4x4pluseqlsvec3.cpp
+    MODULE_BASE ${PROJECT_SOURCE_DIR}
+    MODULE_FILES
+    ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/random
+    ${PROJECT_SOURCE_DIR}/sm/vec
+    ${PROJECT_SOURCE_DIR}/sm/quaternion
+    ${PROJECT_SOURCE_DIR}/sm/mat
     LABELS build-failure
     ERROR_MATCHES "Should not compile"
   )
@@ -1223,6 +1291,13 @@ if(NOT WIN32) # exclude Windows CI from doing the compile failure tests for now
   icm_add_build_failure_test(
     NAME mat_fail_4x4pluseqlsvec4
     SOURCES mat_fail_4x4pluseqlsvec4.cpp
+    MODULE_BASE ${PROJECT_SOURCE_DIR}
+    MODULE_FILES
+    ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/random
+    ${PROJECT_SOURCE_DIR}/sm/vec
+    ${PROJECT_SOURCE_DIR}/sm/quaternion
+    ${PROJECT_SOURCE_DIR}/sm/mat
     LABELS build-failure
     ERROR_MATCHES "Should not compile"
   )
@@ -1230,6 +1305,13 @@ if(NOT WIN32) # exclude Windows CI from doing the compile failure tests for now
   icm_add_build_failure_test(
     NAME mat_fail_4x4pluseqlsvec16
     SOURCES mat_fail_4x4pluseqlsvec16.cpp
+    MODULE_BASE ${PROJECT_SOURCE_DIR}
+    MODULE_FILES
+    ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/random
+    ${PROJECT_SOURCE_DIR}/sm/vec
+    ${PROJECT_SOURCE_DIR}/sm/quaternion
+    ${PROJECT_SOURCE_DIR}/sm/mat
     LABELS build-failure
     ERROR_MATCHES "Should not compile"
   )
@@ -1241,6 +1323,13 @@ if(NOT WIN32) # exclude Windows CI from doing the compile failure tests for now
   icm_add_build_failure_test(
     NAME mat_fail_4x4minusvec3
     SOURCES mat_fail_4x4minusvec3.cpp
+    MODULE_BASE ${PROJECT_SOURCE_DIR}
+    MODULE_FILES
+    ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/random
+    ${PROJECT_SOURCE_DIR}/sm/vec
+    ${PROJECT_SOURCE_DIR}/sm/quaternion
+    ${PROJECT_SOURCE_DIR}/sm/mat
     LABELS build-failure
     ERROR_MATCHES "Should not compile"
   )
@@ -1248,6 +1337,13 @@ if(NOT WIN32) # exclude Windows CI from doing the compile failure tests for now
   icm_add_build_failure_test(
     NAME mat_fail_4x4minusvec4
     SOURCES mat_fail_4x4minusvec4.cpp
+    MODULE_BASE ${PROJECT_SOURCE_DIR}
+    MODULE_FILES
+    ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/random
+    ${PROJECT_SOURCE_DIR}/sm/vec
+    ${PROJECT_SOURCE_DIR}/sm/quaternion
+    ${PROJECT_SOURCE_DIR}/sm/mat
     LABELS build-failure
     ERROR_MATCHES "Should not compile"
   )
@@ -1255,6 +1351,13 @@ if(NOT WIN32) # exclude Windows CI from doing the compile failure tests for now
   icm_add_build_failure_test(
     NAME mat_fail_4x4minusvec16
     SOURCES mat_fail_4x4minusvec16.cpp
+    MODULE_BASE ${PROJECT_SOURCE_DIR}
+    MODULE_FILES
+    ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/random
+    ${PROJECT_SOURCE_DIR}/sm/vec
+    ${PROJECT_SOURCE_DIR}/sm/quaternion
+    ${PROJECT_SOURCE_DIR}/sm/mat
     LABELS build-failure
     ERROR_MATCHES "Should not compile"
   )
@@ -1266,6 +1369,13 @@ if(NOT WIN32) # exclude Windows CI from doing the compile failure tests for now
   icm_add_build_failure_test(
     NAME mat_fail_4x4minuseqlsvec3
     SOURCES mat_fail_4x4minuseqlsvec3.cpp
+    MODULE_BASE ${PROJECT_SOURCE_DIR}
+    MODULE_FILES
+    ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/random
+    ${PROJECT_SOURCE_DIR}/sm/vec
+    ${PROJECT_SOURCE_DIR}/sm/quaternion
+    ${PROJECT_SOURCE_DIR}/sm/mat
     LABELS build-failure
     ERROR_MATCHES "Should not compile"
   )
@@ -1273,6 +1383,13 @@ if(NOT WIN32) # exclude Windows CI from doing the compile failure tests for now
   icm_add_build_failure_test(
     NAME mat_fail_4x4minuseqlsvec4
     SOURCES mat_fail_4x4minuseqlsvec4.cpp
+    MODULE_BASE ${PROJECT_SOURCE_DIR}
+    MODULE_FILES
+    ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/random
+    ${PROJECT_SOURCE_DIR}/sm/vec
+    ${PROJECT_SOURCE_DIR}/sm/quaternion
+    ${PROJECT_SOURCE_DIR}/sm/mat
     LABELS build-failure
     ERROR_MATCHES "Should not compile"
   )
@@ -1280,6 +1397,13 @@ if(NOT WIN32) # exclude Windows CI from doing the compile failure tests for now
   icm_add_build_failure_test(
     NAME mat_fail_4x4minuseqlsvec16
     SOURCES mat_fail_4x4minuseqlsvec16.cpp
+    MODULE_BASE ${PROJECT_SOURCE_DIR}
+    MODULE_FILES
+    ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/random
+    ${PROJECT_SOURCE_DIR}/sm/vec
+    ${PROJECT_SOURCE_DIR}/sm/quaternion
+    ${PROJECT_SOURCE_DIR}/sm/mat
     LABELS build-failure
     ERROR_MATCHES "Should not compile"
   )
@@ -1291,6 +1415,13 @@ if(NOT WIN32) # exclude Windows CI from doing the compile failure tests for now
   icm_add_build_failure_test(
     NAME mat_fail_4x4initwithv3
     SOURCES mat_fail_4x4initwithv3.cpp
+    MODULE_BASE ${PROJECT_SOURCE_DIR}
+    MODULE_FILES
+    ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/random
+    ${PROJECT_SOURCE_DIR}/sm/vec
+    ${PROJECT_SOURCE_DIR}/sm/quaternion
+    ${PROJECT_SOURCE_DIR}/sm/mat
     LABELS build-failure
     ERROR_MATCHES "Should not compile"
   )
@@ -1298,22 +1429,50 @@ if(NOT WIN32) # exclude Windows CI from doing the compile failure tests for now
   icm_add_build_failure_test(
     NAME mat_fail_4x4initwithv4
     SOURCES mat_fail_4x4initwithv4.cpp
+    MODULE_BASE ${PROJECT_SOURCE_DIR}
+    MODULE_FILES
+    ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/random
+    ${PROJECT_SOURCE_DIR}/sm/vec
+    ${PROJECT_SOURCE_DIR}/sm/quaternion
+    ${PROJECT_SOURCE_DIR}/sm/mat
     LABELS build-failure
     ERROR_MATCHES "Should not compile"
   )
 
   add_executable(mat_succeed_4x4initwithv16 mat_succeed_4x4initwithv16.cpp)
+  target_sources(mat_succeed_4x4initwithv16 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+    FILES
+    ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/random
+    ${PROJECT_SOURCE_DIR}/sm/vec
+    ${PROJECT_SOURCE_DIR}/sm/quaternion
+    ${PROJECT_SOURCE_DIR}/sm/mat)
   add_test (mat_succeed_4x4initwithv16 mat_succeed_4x4initwithv16)
 
   #
   # mat = vec (allow for same-size vec)
   #
   add_executable(mat_succeed_assignvec mat_succeed_assignvec.cpp)
+  target_sources(mat_succeed_assignvec PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+    FILES
+    ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/random
+    ${PROJECT_SOURCE_DIR}/sm/vec
+    ${PROJECT_SOURCE_DIR}/sm/quaternion
+    ${PROJECT_SOURCE_DIR}/sm/mat)
   add_test (mat_succeed_assignvec mat_succeed_assignvec)
 
   icm_add_build_failure_test(
     NAME mat_fail_assignvec_diffsize
     SOURCES mat_fail_assignvec_diffsize.cpp
+    MODULE_BASE ${PROJECT_SOURCE_DIR}
+    MODULE_FILES
+    ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/random
+    ${PROJECT_SOURCE_DIR}/sm/vec
+    ${PROJECT_SOURCE_DIR}/sm/quaternion
+    ${PROJECT_SOURCE_DIR}/sm/mat
     LABELS build-failure
     ERROR_MATCHES "Should not compile"
   )
@@ -1325,6 +1484,13 @@ if(NOT WIN32) # exclude Windows CI from doing the compile failure tests for now
   icm_add_build_failure_test(
     NAME mat_fail_equalityvec
     SOURCES mat_fail_equalityvec.cpp
+    MODULE_BASE ${PROJECT_SOURCE_DIR}
+    MODULE_FILES
+    ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/random
+    ${PROJECT_SOURCE_DIR}/sm/vec
+    ${PROJECT_SOURCE_DIR}/sm/quaternion
+    ${PROJECT_SOURCE_DIR}/sm/mat
     LABELS build-failure
     ERROR_MATCHES "Should not compile"
   )
@@ -1332,6 +1498,13 @@ if(NOT WIN32) # exclude Windows CI from doing the compile failure tests for now
   icm_add_build_failure_test(
     NAME mat_fail_equalityvec4
     SOURCES mat_fail_equalityvec4.cpp
+    MODULE_BASE ${PROJECT_SOURCE_DIR}
+    MODULE_FILES
+    ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/random
+    ${PROJECT_SOURCE_DIR}/sm/vec
+    ${PROJECT_SOURCE_DIR}/sm/quaternion
+    ${PROJECT_SOURCE_DIR}/sm/mat
     LABELS build-failure
     ERROR_MATCHES "Should not compile"
   )
@@ -1343,10 +1516,15 @@ if(NOT WIN32) # exclude Windows CI from doing the compile failure tests for now
   icm_add_build_failure_test(
     NAME mat_fail_nonequalityvec
     SOURCES mat_fail_nonequalityvec.cpp
+    MODULE_BASE ${PROJECT_SOURCE_DIR}
+    MODULE_FILES
+    ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/random
+    ${PROJECT_SOURCE_DIR}/sm/vec
+    ${PROJECT_SOURCE_DIR}/sm/quaternion
+    ${PROJECT_SOURCE_DIR}/sm/mat
     LABELS build-failure
     ERROR_MATCHES "Should not compile"
   )
 
 endif(NOT WIN32)
-
-endif(0) # DEVELOPMENT
