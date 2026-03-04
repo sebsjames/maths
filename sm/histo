@@ -6,15 +6,20 @@
  *
  * A histogram class
  */
-#pragma once
+module;
 
 #include <type_traits>
 #include <memory>
-#include <sm/vec>
-#include <sm/vvec>
-#include <sm/range>
+#include <limits>
+#include <cmath>
 
-namespace sm
+import sm.vec;
+import sm.vvec;
+import sm.range;
+
+export module sm.histo;
+
+export namespace sm
 {
     /*!
      * A histogram class. Construct with data of type H and access bin locations

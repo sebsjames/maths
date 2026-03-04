@@ -1,4 +1,8 @@
-#include <sm/histo>
+#include <iostream>
+
+import sm.range;
+import sm.vvec;
+import sm.histo;
 
 int main()
 {

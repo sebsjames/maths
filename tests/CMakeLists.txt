@@ -20,6 +20,7 @@ set_source_files_properties (
   ${PROJECT_SOURCE_DIR}/sm/grid
   ${PROJECT_SOURCE_DIR}/sm/algo
   ${PROJECT_SOURCE_DIR}/sm/nm_simplex
+  ${PROJECT_SOURCE_DIR}/sm/histo
   PROPERTIES LANGUAGE CXX)
 
 # sm::range
@@ -778,14 +779,21 @@ target_sources(nmsimplex1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE
   ${PROJECT_SOURCE_DIR}/sm/nm_simplex)
 add_test(nmsimplex1 nmsimplex1)
 
+add_executable(histo1 histo1.cpp)
+target_sources(histo1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/random
+  ${PROJECT_SOURCE_DIR}/sm/vvec
+  ${PROJECT_SOURCE_DIR}/sm/histo)
+add_test(histo1 histo1)
 
 if (0) # DEVELOPMENT
 
 ##add_executable(testboxfilter testboxfilter.cpp)
 ##add_test(testboxfilter testboxfilter)
 
-add_executable(test_histo test_histo.cpp)
-add_test(test_histo test_histo)
 
 add_executable(test_number_type test_number_type.cpp)
 add_test(test_number_type test_number_type)
