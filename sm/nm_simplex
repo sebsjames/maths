@@ -22,6 +22,7 @@ module;
 
 import sm.algo;
 
+import sm.vec;
 export import sm.vvec;
 
 export module sm.nm_simplex;
