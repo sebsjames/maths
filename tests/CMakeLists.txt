@@ -21,6 +21,8 @@ set_source_files_properties (
   ${PROJECT_SOURCE_DIR}/sm/algo
   ${PROJECT_SOURCE_DIR}/sm/nm_simplex
   ${PROJECT_SOURCE_DIR}/sm/histo
+  ${PROJECT_SOURCE_DIR}/sm/boxfilter
+  ${PROJECT_SOURCE_DIR}/sm/config
   PROPERTIES LANGUAGE CXX)
 
 # sm::range
@@ -789,11 +791,74 @@ target_sources(histo1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR
   ${PROJECT_SOURCE_DIR}/sm/histo)
 add_test(histo1 histo1)
 
+if(CMAKE_COMPILER_IS_GNUCXX AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 14.99)
+  add_executable(boxfilter1 boxfilter1.cpp)
+  target_sources(boxfilter1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+    FILES
+    ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/vec
+    ${PROJECT_SOURCE_DIR}/sm/random
+    ${PROJECT_SOURCE_DIR}/sm/vvec
+    ${PROJECT_SOURCE_DIR}/sm/boxfilter)
+  add_test(boxfilter1 boxfilter1)
+endif()
+
+if(CMAKE_COMPILER_IS_GNUCXX AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 14.99)
+  # Test sm::config
+  add_executable(config1 config1.cpp)
+  target_sources(config1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+    FILES
+    ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/vec
+    ${PROJECT_SOURCE_DIR}/sm/random
+    ${PROJECT_SOURCE_DIR}/sm/vvec)
+  add_test(config1 config1)
+endif()
+
 if (0) # DEVELOPMENT
 
-##add_executable(testboxfilter testboxfilter.cpp)
-##add_test(testboxfilter testboxfilter)
+add_executable(testcartgrid testcartgrid.cpp)
+add_test(testcartgrid testcartgrid)
 
+add_executable(testCartGridShiftCoords testCartGridShiftCoords.cpp)
+add_test(testCartGridShiftCoords testCartGridShiftCoords)
+
+add_executable(testCartGridShiftIndiciesByMetric testCartGridShiftIndiciesByMetric.cpp)
+add_test(testCartGridShiftIndiciesByMetric testCartGridShiftIndiciesByMetric)
+
+
+add_executable(test_zernike test_zernike.cpp)
+add_test(test_zernike test_zernike)
+
+add_executable(algo_1 algo_1.cpp)
+add_test(algo_1 algo_1)
+
+add_executable(geometry_2 geometry_2.cpp)
+add_test(geometry_2 geometry_2)
+
+add_executable(geometry_3 geometry_3.cpp)
+add_test(geometry_3 geometry_3)
+
+add_executable(geometry_4 geometry_4.cpp)
+add_test(geometry_4 geometry_4)
+
+add_executable(geometry_5 geometry_5.cpp)
+add_test(geometry_5 geometry_5)
+
+add_executable(geometry_6 geometry_6.cpp)
+add_test(geometry_6 geometry_6)
+
+add_executable(xyz_to_latlong xyz_to_latlong.cpp)
+add_test(xyz_to_latlong xyz_to_latlong)
+
+add_executable(sph_projections sph_projections.cpp)
+add_test(sph_projections sph_projections)
+
+add_executable(graham_scan_1 graham_scan_1.cpp)
+add_test(graham_scan_1 graham_scan_1)
+
+add_executable(util1 util1.cpp)
+add_test(util1 util1)
 
 add_executable(test_number_type test_number_type.cpp)
 add_test(test_number_type test_number_type)
@@ -868,57 +933,6 @@ if(ARMADILLO_FOUND)
   add_test(twocurves ${TARGETTEST2})
 endif()
 
-add_executable(testcartgrid testcartgrid.cpp)
-add_test(testcartgrid testcartgrid)
-
-add_executable(testCartGridShiftCoords testCartGridShiftCoords.cpp)
-add_test(testCartGridShiftCoords testCartGridShiftCoords)
-
-add_executable(testCartGridShiftIndiciesByMetric testCartGridShiftIndiciesByMetric.cpp)
-add_test(testCartGridShiftIndiciesByMetric testCartGridShiftIndiciesByMetric)
-
-# Test sm::config
-add_executable(testConfig testConfig.cpp)
-add_test(testConfig testConfig)
-
-add_executable(test_zernike test_zernike.cpp)
-add_test(test_zernike test_zernike)
-
-add_executable(algo_1 algo_1.cpp)
-add_test(algo_1 algo_1)
-
-add_executable(geometry_2 geometry_2.cpp)
-add_test(geometry_2 geometry_2)
-
-add_executable(geometry_3 geometry_3.cpp)
-add_test(geometry_3 geometry_3)
-
-add_executable(geometry_4 geometry_4.cpp)
-add_test(geometry_4 geometry_4)
-
-add_executable(geometry_5 geometry_5.cpp)
-add_test(geometry_5 geometry_5)
-
-add_executable(geometry_6 geometry_6.cpp)
-add_test(geometry_6 geometry_6)
-
-add_executable(range_intersects range_intersects.cpp)
-add_test(range_intersects range_intersects)
-
-add_executable(range_adding range_adding.cpp)
-add_test(range_adding range_adding)
-
-add_executable(xyz_to_latlong xyz_to_latlong.cpp)
-add_test(xyz_to_latlong xyz_to_latlong)
-
-add_executable(sph_projections sph_projections.cpp)
-add_test(sph_projections sph_projections)
-
-add_executable(graham_scan_1 graham_scan_1.cpp)
-add_test(graham_scan_1 graham_scan_1)
-
-add_executable(util1 util1.cpp)
-add_test(util1 util1)
 
 #
 # mat compile/not compile tests on operators

@@ -4,6 +4,9 @@
 
 #include <sm/config>
 
+import sm.vec;
+import sm.vvec;
+
 int main()
 {
     std::string jsonfile ("./testConfig.json");

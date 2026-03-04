@@ -8,16 +8,18 @@
  *
  * Author: Seb James
  */
-
-#pragma once
+module;
 
 #include <cstdint>
 #include <stdexcept>
 #include <array>
-#include <sm/vvec>
-#include <sm/vec>
 
-namespace sm::algo
+import sm.vvec;
+import sm.vec;
+
+export module sm.boxfilter;
+
+export namespace sm::algo
 {
     /*!
      * Boxfilter implementation 1

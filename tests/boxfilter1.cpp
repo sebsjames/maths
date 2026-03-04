@@ -1,8 +1,10 @@
 // Test (and profile) the box filter
-#include <sm/MathAlgo.h>
-#include <sm/vvec.h>
+#include <iostream>
 #include <chrono>
 #include <cstdint>
+
+import sm.vvec;
+import sm.boxfilter;
 
 int main()
 {
@@ -20,7 +22,7 @@ int main()
     input_f.randomize();
 
     sc::time_point t0_f = sc::now();
-    sm::MathAlgo::boxfilter_2d<float, 17, img_w> (input_f, output_f);
+    sm::algo::boxfilter_2d<float, 17, img_w> (input_f, output_f);
     sc::time_point t1_f = sc::now();
 
     sc::duration t_d_f = t1_f - t0_f;
@@ -32,7 +34,7 @@ int main()
     input_d.randomize();
 
     sc::time_point t0_d = sc::now();
-    sm::MathAlgo::boxfilter_2d<double, 17, img_w> (input_d, output_d);
+    sm::algo::boxfilter_2d<double, 17, img_w> (input_d, output_d);
     sc::time_point t1_d = sc::now();
 
     sc::duration t_d_d = t1_d - t0_d;
@@ -40,7 +42,7 @@ int main()
 
     // Multi precision
     sc::time_point t0_m = sc::now();
-    sm::MathAlgo::boxfilter_2d<double, 17, img_w, onlysum_false, float> (input_d, output_f);
+    sm::algo::boxfilter_2d<double, 17, img_w, onlysum_false, float> (input_d, output_f);
     sc::time_point t1_m = sc::now();
 
     sc::duration t_d_m = t1_m - t0_m;
@@ -64,7 +66,7 @@ int main()
     std::cout << "input_u8: " << uisum << " or " << uisum2  << std::endl;
 
     sc::time_point t0_u = sc::now();
-    sm::MathAlgo::boxfilter_2d<uint8_t, 17, img_w, onlysum_false, float> (input_u8, output_f);
+    sm::algo::boxfilter_2d<uint8_t, 17, img_w, onlysum_false, float> (input_u8, output_f);
     sc::time_point t1_u = sc::now();
 
     std::cout << "output_flt: " << output_f.sum() << std::endl;

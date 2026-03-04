@@ -121,7 +121,7 @@ if(ARMADILLO_FOUND)
 endif()
 
 # Use packaged nlohmann json
-#find_package(nlohmann_json REQUIRED)
+find_package(nlohmann_json REQUIRED)
 
 # For a test program
 find_package (Eigen3 NO_MODULE)
