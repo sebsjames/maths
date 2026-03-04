@@ -6,8 +6,9 @@
 #include <vector>
 #include <cmath>
 
-#include <sm/vec>
 #include <sm/hexgrid>
+
+import sm.vec;
 
 int main()
 {

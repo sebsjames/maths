@@ -2,7 +2,8 @@
  * Some examples of sm::mat used for non-square matrix arithmetic
  */
 #include <iostream>
-#include <sm/mat>
+
+import sm.mat;
 
 int main()
 {

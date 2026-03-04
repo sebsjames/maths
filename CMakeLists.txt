@@ -137,7 +137,7 @@ if(BUILD_TESTS)
 endif(BUILD_TESTS)
 
 # Example code (you can also see tests/ for examples)
-option(BUILD_EXAMPLES "Build examples" OFF)
+option(BUILD_EXAMPLES "Build examples" ON)
 if(BUILD_EXAMPLES)
   add_subdirectory(examples)
 endif(BUILD_EXAMPLES)

@@ -360,7 +360,7 @@ export namespace sm
         std::string str_numpy (const uint32_t num_in_line=std::numeric_limits<uint32_t>::max()) const
         {
             std::stringstream ss;
-            ss << std::setprecision (std::numeric_limits<S>::max_digits10);
+            ss.precision (std::numeric_limits<S>::max_digits10);
             ss << "np.array((";
             this->str_comma_separated (ss, num_in_line, ',', 10);
             ss << "))";
@@ -374,7 +374,7 @@ export namespace sm
         {
             std::stringstream ss;
             ss << "[";
-            ss << std::setprecision (8);
+            ss.precision (8);
             this->str_comma_separated (ss, num_in_line, ' ', 1);
             ss << "]";
             return ss.str();
@@ -384,7 +384,7 @@ export namespace sm
         std::string str_initializer (const uint32_t num_in_line=std::numeric_limits<uint32_t>::max()) const
         {
             std::stringstream ss;
-            ss << std::setprecision (std::numeric_limits<S>::max_digits10);
+            ss.precision (std::numeric_limits<S>::max_digits10);
             ss << "{";
             this->str_comma_separated (ss, num_in_line);
             ss << "}";

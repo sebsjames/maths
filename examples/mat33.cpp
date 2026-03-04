@@ -2,7 +2,8 @@
  * mat33 and mat22 examples
  */
 #include <iostream>
-#include <sm/mat>
+
+import sm.mat;
 
 int main()
 {

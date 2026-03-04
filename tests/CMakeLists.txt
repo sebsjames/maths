@@ -1123,7 +1123,6 @@ add_test(cartgrid_shiftindicesbymetric cartgrid_shiftindicesbymetric)
 
 if (0) # DEVELOPMENT
 
-
 #
 # mat compile/not compile tests on operators
 #

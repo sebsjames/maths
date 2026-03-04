@@ -3,8 +3,9 @@
  */
 #include <iostream>
 #include <sm/mathconst>
-#include <sm/vec>
-#include <sm/mat>
+
+import sm.vec;
+import sm.mat;
 
 int main()
 {
