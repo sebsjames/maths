@@ -934,14 +934,16 @@ target_sources(util1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   ${PROJECT_SOURCE_DIR}/sm/vec)
 add_test(util1 util1)
 
+add_executable(trait_tests_number_type trait_tests_number_type.cpp)
+target_sources(trait_tests_number_type PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/random
+  ${PROJECT_SOURCE_DIR}/sm/vec)
+add_test(trait_tests_number_type trait_tests_number_type)
+
 if (0) # DEVELOPMENT
 
-
-
-
-
-add_executable(test_number_type test_number_type.cpp)
-add_test(test_number_type test_number_type)
 
 add_executable(test_flags test_flags.cpp)
 add_test(test_flags test_flags)
