@@ -1,7 +1,9 @@
 #include <iostream>
 
-#include <sm/vec>
-#include <sm/geometry>
+#include <sm/mathconst>
+
+import sm.vec;
+import sm.geometry;
 
 int main()
 {

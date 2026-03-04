@@ -5,8 +5,12 @@
 // A good unit test would test that the forward transform generated expected numbers, too.
 
 #include <iostream>
-#include <sm/vec>
-#include <sm/geometry>
+#include <limits>
+
+#include <sm/mathconst>
+
+import sm.vec;
+import sm.geometry;
 
 int main()
 {

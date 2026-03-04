@@ -893,15 +893,32 @@ target_sources(geometry_6 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE
   ${PROJECT_SOURCE_DIR}/sm/geometry)
 add_test(geometry_6 geometry_6)
 
+add_executable(geometry_xyz_to_latlong geometry_xyz_to_latlong.cpp)
+target_sources(geometry_xyz_to_latlong PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/random
+  ${PROJECT_SOURCE_DIR}/sm/vvec
+  ${PROJECT_SOURCE_DIR}/sm/algo
+  ${PROJECT_SOURCE_DIR}/sm/geometry)
+add_test(geometry_xyz_to_latlong geometry_xyz_to_latlong)
+
+add_executable(geometry_sph_projections geometry_sph_projections.cpp)
+target_sources(geometry_sph_projections PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/random
+  ${PROJECT_SOURCE_DIR}/sm/vvec
+  ${PROJECT_SOURCE_DIR}/sm/algo
+  ${PROJECT_SOURCE_DIR}/sm/geometry)
+add_test(geometry_sph_projections geometry_sph_projections)
+
 if (0) # DEVELOPMENT
 
 
 
-add_executable(xyz_to_latlong xyz_to_latlong.cpp)
-add_test(xyz_to_latlong xyz_to_latlong)
-
-add_executable(sph_projections sph_projections.cpp)
-add_test(sph_projections sph_projections)
 
 add_executable(graham_scan_1 graham_scan_1.cpp)
 add_test(graham_scan_1 graham_scan_1)
