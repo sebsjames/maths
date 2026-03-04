@@ -974,8 +974,8 @@ endif()
 
 if (0) # DEVELOPMENT
 
-add_executable(testcartgrid testcartgrid.cpp)
-add_test(testcartgrid testcartgrid)
+add_executable(cartgrid1 cartgrid1.cpp)
+add_test(cartgrid1 cartgrid1)
 
 add_executable(testCartGridShiftCoords testCartGridShiftCoords.cpp)
 add_test(testCartGridShiftCoords testCartGridShiftCoords)
