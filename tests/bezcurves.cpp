@@ -5,8 +5,9 @@
 
 #include <sm/bezcurve>
 #include <sm/bezcurvepath>
-#include <sm/vec>
-#include <sm/vvec>
+
+import sm.vec;
+import sm.vvec;
 
 int main()
 {

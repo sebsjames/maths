@@ -986,10 +986,103 @@ if(ARMADILLO_FOUND)
     ${PROJECT_SOURCE_DIR}/sm/bezcoord
     ${PROJECT_SOURCE_DIR}/sm/vvec
     ${PROJECT_SOURCE_DIR}/sm/algo
-    ${PROJECT_SOURCE_DIR}/sm/nm_simplex
-  )
+    ${PROJECT_SOURCE_DIR}/sm/nm_simplex)
   target_link_libraries(${TARGETTEST1} ${ARMADILLO_LIBRARY} ${ARMADILLO_LIBRARIES})
   add_test(bez1 ${TARGETTEST1})
+
+  # BezCurve class (uses hexgrid)
+  add_executable(bez2 bez2.cpp)
+  target_sources(bez2 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+    FILES
+    ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/random
+    ${PROJECT_SOURCE_DIR}/sm/vec
+    ${PROJECT_SOURCE_DIR}/sm/bezcoord
+    ${PROJECT_SOURCE_DIR}/sm/hex
+    ${PROJECT_SOURCE_DIR}/sm/quaternion
+    ${PROJECT_SOURCE_DIR}/sm/mat
+    ${PROJECT_SOURCE_DIR}/sm/vvec
+    ${PROJECT_SOURCE_DIR}/sm/algo
+    ${PROJECT_SOURCE_DIR}/sm/nm_simplex)
+  target_link_libraries(bez2 ${ARMADILLO_LIBRARY} ${ARMADILLO_LIBRARIES})
+  add_test(bez2 bez2)
+
+  # BezCurvePath class
+  add_executable(bezcurves bezcurves.cpp)
+  target_sources(bezcurves PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+    FILES
+    ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/random
+    ${PROJECT_SOURCE_DIR}/sm/vec
+    ${PROJECT_SOURCE_DIR}/sm/bezcoord
+    ${PROJECT_SOURCE_DIR}/sm/vvec
+    ${PROJECT_SOURCE_DIR}/sm/algo
+    ${PROJECT_SOURCE_DIR}/sm/nm_simplex)
+  target_link_libraries(bezcurves ${ARMADILLO_LIBRARY} ${ARMADILLO_LIBRARIES})
+  add_test(bezcurves bezcurves)
+
+  # Testing matrix representation of Bezier curves
+  add_executable(bezmatrix bezmatrix.cpp)
+  target_sources(bezmatrix PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+    FILES
+    ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/random
+    ${PROJECT_SOURCE_DIR}/sm/vec
+    ${PROJECT_SOURCE_DIR}/sm/bezcoord
+    ${PROJECT_SOURCE_DIR}/sm/vvec
+    ${PROJECT_SOURCE_DIR}/sm/algo
+    ${PROJECT_SOURCE_DIR}/sm/nm_simplex
+    ${PROJECT_SOURCE_DIR}/sm/quaternion
+    ${PROJECT_SOURCE_DIR}/sm/mat
+    ${PROJECT_SOURCE_DIR}/sm/hex)
+  target_compile_definitions(bezmatrix PUBLIC FLT=float)
+  target_link_libraries(bezmatrix ${ARMADILLO_LIBRARY} ${ARMADILLO_LIBRARIES})
+  add_test(bezmatrix bezmatrix)
+
+  # Testing auto-fitting a Bezier curve
+  add_executable(bezfit bezfit.cpp)
+  target_sources(bezfit PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+    FILES
+    ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/random
+    ${PROJECT_SOURCE_DIR}/sm/vec
+    ${PROJECT_SOURCE_DIR}/sm/bezcoord
+    ${PROJECT_SOURCE_DIR}/sm/vvec
+    ${PROJECT_SOURCE_DIR}/sm/algo
+    ${PROJECT_SOURCE_DIR}/sm/nm_simplex)
+  target_compile_definitions(bezfit PUBLIC FLT=float)
+  target_link_libraries(bezfit ${ARMADILLO_LIBRARY} ${ARMADILLO_LIBRARIES})
+  add_test(bezfit bezfit)
+
+  # Testing splitting of Bezier curves
+  add_executable(bezsplit bezsplit.cpp)
+  target_sources(bezsplit PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+    FILES
+    ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/random
+    ${PROJECT_SOURCE_DIR}/sm/vec
+    ${PROJECT_SOURCE_DIR}/sm/bezcoord
+    ${PROJECT_SOURCE_DIR}/sm/vvec
+    ${PROJECT_SOURCE_DIR}/sm/algo
+    ${PROJECT_SOURCE_DIR}/sm/nm_simplex)
+  target_compile_definitions(bezsplit PUBLIC FLT=float)
+  target_link_libraries(bezsplit ${ARMADILLO_LIBRARY} ${ARMADILLO_LIBRARIES})
+  add_test(bezsplit bezsplit)
+
+  # Test two curves connected together
+  add_executable(twocurves twocurves.cpp)
+  target_sources(twocurves PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+    FILES
+    ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/random
+    ${PROJECT_SOURCE_DIR}/sm/vec
+    ${PROJECT_SOURCE_DIR}/sm/bezcoord
+    ${PROJECT_SOURCE_DIR}/sm/vvec
+    ${PROJECT_SOURCE_DIR}/sm/algo
+    ${PROJECT_SOURCE_DIR}/sm/nm_simplex)
+  target_link_libraries(twocurves ${ARMADILLO_LIBRARY} ${ARMADILLO_LIBRARIES})
+  add_test(twocurves twocurves)
+
 endif()
 
 if (0) # DEVELOPMENT
@@ -1002,58 +1095,6 @@ add_test(cartgrid_gridshiftcoords cartgrid_gridshiftcoords)
 
 add_executable(cartgrid_shiftindicesbymetric cartgrid_shiftindicesbymetric.cpp)
 add_test(cartgrid_shiftindicesbymetric cartgrid_shiftindicesbymetric)
-
-
-if(ARMADILLO_FOUND)
-
-  # BezCurve class
-  set(TARGETTEST1_1 bez2)
-  set(SOURCETEST1_1 bez2.cpp)
-  add_executable(${TARGETTEST1_1} ${SOURCETEST1_1})
-  target_link_libraries(${TARGETTEST1_1} ${ARMADILLO_LIBRARY} ${ARMADILLO_LIBRARIES})
-  add_test(bez2 ${TARGETTEST1_1})
-
-  # BezCurvePath class
-  set(TARGETTEST1_2 bezcurves)
-  set(SOURCETEST1_2 bezcurves.cpp)
-  add_executable(${TARGETTEST1_2} ${SOURCETEST1_2})
-  target_link_libraries(${TARGETTEST1_2} ${ARMADILLO_LIBRARY} ${ARMADILLO_LIBRARIES})
-  add_test(bezcurves ${TARGETTEST1_2})
-
-  # Testing matrix representation of Bezier curves
-  set(TARGETTEST1_3 bezmatrix)
-  set(SOURCETEST1_3 bezmatrix.cpp)
-  add_executable(${TARGETTEST1_3} ${SOURCETEST1_3})
-  # Disable warning -Wunused-but-set-variable:
-  #target_compile_options(${TARGETTEST1_3} PRIVATE -Wno-unused-but-set-variable)
-  target_compile_definitions(${TARGETTEST1_3} PUBLIC FLT=float)
-  target_link_libraries(${TARGETTEST1_3} ${ARMADILLO_LIBRARY} ${ARMADILLO_LIBRARIES})
-  add_test(bezmatrix ${TARGETTEST1_3})
-
-  # Testing auto-fitting a Bezier curve
-  set(TARGETTEST1_4 bezfit)
-  set(SOURCETEST1_4 bezfit.cpp)
-  add_executable(${TARGETTEST1_4} ${SOURCETEST1_4})
-  target_compile_definitions(${TARGETTEST1_4} PUBLIC FLT=float)
-  target_link_libraries(${TARGETTEST1_4} ${ARMADILLO_LIBRARY} ${ARMADILLO_LIBRARIES})
-  add_test(bezfit ${TARGETTEST1_4})
-
-  # Testing splitting of Bezier curves
-  set(TARGETTEST1_5 bezsplit)
-  set(SOURCETEST1_5 bezsplit.cpp)
-  add_executable(${TARGETTEST1_5} ${SOURCETEST1_5})
-  target_compile_definitions(${TARGETTEST1_5} PUBLIC FLT=float)
-  target_link_libraries(${TARGETTEST1_5} ${ARMADILLO_LIBRARY} ${ARMADILLO_LIBRARIES})
-  add_test(bezsplit ${TARGETTEST1_5})
-
-  # Test two curves connected together
-  set(TARGETTEST2 twocurves)
-  set(SOURCETEST2 twocurves.cpp)
-  add_executable(${TARGETTEST2} ${SOURCETEST2})
-  target_link_libraries(${TARGETTEST2} ${ARMADILLO_LIBRARY} ${ARMADILLO_LIBRARIES})
-  add_test(twocurves ${TARGETTEST2})
-endif()
-
 
 #
 # mat compile/not compile tests on operators

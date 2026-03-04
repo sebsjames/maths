@@ -5,6 +5,9 @@
 
 #include <sm/bezcurve>
 
+import sm.vec;
+import sm.vvec;
+
 int main()
 {
     int rtn = 0;

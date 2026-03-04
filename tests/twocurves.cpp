@@ -1,8 +1,12 @@
 #include <utility>
 #include <iostream>
 #include <fstream>
+#include <vector>
 
 #include <sm/bezcurve>
+
+import sm.vec;
+import sm.bezcoord;
 
 /*
  * This test joins two curves together and selects points along each

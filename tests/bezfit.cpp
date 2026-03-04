@@ -1,6 +1,8 @@
 #include <iostream>
 #include <sm/bezcurve>
 
+import sm.vvec;
+
 int main()
 {
     int rtn = -1;

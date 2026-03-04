@@ -5,7 +5,8 @@
 #include <sm/hexgrid>
 #include <sm/bezcurve>
 #include <sm/bezcurvepath>
-#include <sm/vec>
+
+import sm.vec;
 
 int main()
 {
