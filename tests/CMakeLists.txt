@@ -974,21 +974,25 @@ add_test(constexpr_math1 constexpr_math1)
 endif()
 
 if(ARMADILLO_FOUND)
-  # BezCurve class
-  set(TARGETTEST1 bez1)
-  set(SOURCETEST1 bez1.cpp)
-  add_executable(${TARGETTEST1} ${SOURCETEST1})
-  target_sources(bez1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
-    FILES
-    ${PROJECT_SOURCE_DIR}/sm/range
-    ${PROJECT_SOURCE_DIR}/sm/random
-    ${PROJECT_SOURCE_DIR}/sm/vec
-    ${PROJECT_SOURCE_DIR}/sm/bezcoord
-    ${PROJECT_SOURCE_DIR}/sm/vvec
-    ${PROJECT_SOURCE_DIR}/sm/algo
-    ${PROJECT_SOURCE_DIR}/sm/nm_simplex)
-  target_link_libraries(${TARGETTEST1} ${ARMADILLO_LIBRARY} ${ARMADILLO_LIBRARIES})
-  add_test(bez1 ${TARGETTEST1})
+
+  # vvec<vec> warning about attributes in gcc14
+  if(CMAKE_COMPILER_IS_GNUCXX AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 14.99)
+    # BezCurve class
+    set(TARGETTEST1 bez1)
+    set(SOURCETEST1 bez1.cpp)
+    add_executable(${TARGETTEST1} ${SOURCETEST1})
+    target_sources(bez1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+      FILES
+      ${PROJECT_SOURCE_DIR}/sm/range
+      ${PROJECT_SOURCE_DIR}/sm/random
+      ${PROJECT_SOURCE_DIR}/sm/vec
+      ${PROJECT_SOURCE_DIR}/sm/bezcoord
+      ${PROJECT_SOURCE_DIR}/sm/vvec
+      ${PROJECT_SOURCE_DIR}/sm/algo
+      ${PROJECT_SOURCE_DIR}/sm/nm_simplex)
+    target_link_libraries(${TARGETTEST1} ${ARMADILLO_LIBRARY} ${ARMADILLO_LIBRARIES})
+    add_test(bez1 ${TARGETTEST1})
+  endif()
 
   # BezCurve class (uses hexgrid)
   add_executable(bez2 bez2.cpp)
@@ -1007,119 +1011,125 @@ if(ARMADILLO_FOUND)
   target_link_libraries(bez2 ${ARMADILLO_LIBRARY} ${ARMADILLO_LIBRARIES})
   add_test(bez2 bez2)
 
-  # BezCurvePath class
-  add_executable(bezcurves bezcurves.cpp)
-  target_sources(bezcurves PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
-    FILES
-    ${PROJECT_SOURCE_DIR}/sm/range
-    ${PROJECT_SOURCE_DIR}/sm/random
-    ${PROJECT_SOURCE_DIR}/sm/vec
-    ${PROJECT_SOURCE_DIR}/sm/bezcoord
-    ${PROJECT_SOURCE_DIR}/sm/vvec
-    ${PROJECT_SOURCE_DIR}/sm/algo
-    ${PROJECT_SOURCE_DIR}/sm/nm_simplex)
-  target_link_libraries(bezcurves ${ARMADILLO_LIBRARY} ${ARMADILLO_LIBRARIES})
-  add_test(bezcurves bezcurves)
+  # vvec<vec> warning about attributes in gcc14
+  if(CMAKE_COMPILER_IS_GNUCXX AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 14.99)
+    # BezCurvePath class
+    add_executable(bezcurves bezcurves.cpp)
+    target_sources(bezcurves PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+      FILES
+      ${PROJECT_SOURCE_DIR}/sm/range
+      ${PROJECT_SOURCE_DIR}/sm/random
+      ${PROJECT_SOURCE_DIR}/sm/vec
+      ${PROJECT_SOURCE_DIR}/sm/bezcoord
+      ${PROJECT_SOURCE_DIR}/sm/vvec
+      ${PROJECT_SOURCE_DIR}/sm/algo
+      ${PROJECT_SOURCE_DIR}/sm/nm_simplex)
+    target_link_libraries(bezcurves ${ARMADILLO_LIBRARY} ${ARMADILLO_LIBRARIES})
+    add_test(bezcurves bezcurves)
 
-  # Testing matrix representation of Bezier curves
-  add_executable(bezmatrix bezmatrix.cpp)
-  target_sources(bezmatrix PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
-    FILES
-    ${PROJECT_SOURCE_DIR}/sm/range
-    ${PROJECT_SOURCE_DIR}/sm/random
-    ${PROJECT_SOURCE_DIR}/sm/vec
-    ${PROJECT_SOURCE_DIR}/sm/bezcoord
-    ${PROJECT_SOURCE_DIR}/sm/vvec
-    ${PROJECT_SOURCE_DIR}/sm/algo
-    ${PROJECT_SOURCE_DIR}/sm/nm_simplex
-    ${PROJECT_SOURCE_DIR}/sm/quaternion
-    ${PROJECT_SOURCE_DIR}/sm/mat
-    ${PROJECT_SOURCE_DIR}/sm/hex)
-  target_compile_definitions(bezmatrix PUBLIC FLT=float)
-  target_link_libraries(bezmatrix ${ARMADILLO_LIBRARY} ${ARMADILLO_LIBRARIES})
-  add_test(bezmatrix bezmatrix)
+    # Testing matrix representation of Bezier curves
+    add_executable(bezmatrix bezmatrix.cpp)
+    target_sources(bezmatrix PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+      FILES
+      ${PROJECT_SOURCE_DIR}/sm/range
+      ${PROJECT_SOURCE_DIR}/sm/random
+      ${PROJECT_SOURCE_DIR}/sm/vec
+      ${PROJECT_SOURCE_DIR}/sm/bezcoord
+      ${PROJECT_SOURCE_DIR}/sm/vvec
+      ${PROJECT_SOURCE_DIR}/sm/algo
+      ${PROJECT_SOURCE_DIR}/sm/nm_simplex
+      ${PROJECT_SOURCE_DIR}/sm/quaternion
+      ${PROJECT_SOURCE_DIR}/sm/mat
+      ${PROJECT_SOURCE_DIR}/sm/hex)
+    target_compile_definitions(bezmatrix PUBLIC FLT=float)
+    target_link_libraries(bezmatrix ${ARMADILLO_LIBRARY} ${ARMADILLO_LIBRARIES})
+    add_test(bezmatrix bezmatrix)
 
-  # Testing auto-fitting a Bezier curve
-  add_executable(bezfit bezfit.cpp)
-  target_sources(bezfit PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
-    FILES
-    ${PROJECT_SOURCE_DIR}/sm/range
-    ${PROJECT_SOURCE_DIR}/sm/random
-    ${PROJECT_SOURCE_DIR}/sm/vec
-    ${PROJECT_SOURCE_DIR}/sm/bezcoord
-    ${PROJECT_SOURCE_DIR}/sm/vvec
-    ${PROJECT_SOURCE_DIR}/sm/algo
-    ${PROJECT_SOURCE_DIR}/sm/nm_simplex)
-  target_compile_definitions(bezfit PUBLIC FLT=float)
-  target_link_libraries(bezfit ${ARMADILLO_LIBRARY} ${ARMADILLO_LIBRARIES})
-  add_test(bezfit bezfit)
+    # Testing auto-fitting a Bezier curve
+    add_executable(bezfit bezfit.cpp)
+    target_sources(bezfit PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+      FILES
+      ${PROJECT_SOURCE_DIR}/sm/range
+      ${PROJECT_SOURCE_DIR}/sm/random
+      ${PROJECT_SOURCE_DIR}/sm/vec
+      ${PROJECT_SOURCE_DIR}/sm/bezcoord
+      ${PROJECT_SOURCE_DIR}/sm/vvec
+      ${PROJECT_SOURCE_DIR}/sm/algo
+      ${PROJECT_SOURCE_DIR}/sm/nm_simplex)
+    target_compile_definitions(bezfit PUBLIC FLT=float)
+    target_link_libraries(bezfit ${ARMADILLO_LIBRARY} ${ARMADILLO_LIBRARIES})
+    add_test(bezfit bezfit)
 
-  # Testing splitting of Bezier curves
-  add_executable(bezsplit bezsplit.cpp)
-  target_sources(bezsplit PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
-    FILES
-    ${PROJECT_SOURCE_DIR}/sm/range
-    ${PROJECT_SOURCE_DIR}/sm/random
-    ${PROJECT_SOURCE_DIR}/sm/vec
-    ${PROJECT_SOURCE_DIR}/sm/bezcoord
-    ${PROJECT_SOURCE_DIR}/sm/vvec
-    ${PROJECT_SOURCE_DIR}/sm/algo
-    ${PROJECT_SOURCE_DIR}/sm/nm_simplex)
-  target_compile_definitions(bezsplit PUBLIC FLT=float)
-  target_link_libraries(bezsplit ${ARMADILLO_LIBRARY} ${ARMADILLO_LIBRARIES})
-  add_test(bezsplit bezsplit)
+    # Testing splitting of Bezier curves
+    add_executable(bezsplit bezsplit.cpp)
+    target_sources(bezsplit PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+      FILES
+      ${PROJECT_SOURCE_DIR}/sm/range
+      ${PROJECT_SOURCE_DIR}/sm/random
+      ${PROJECT_SOURCE_DIR}/sm/vec
+      ${PROJECT_SOURCE_DIR}/sm/bezcoord
+      ${PROJECT_SOURCE_DIR}/sm/vvec
+      ${PROJECT_SOURCE_DIR}/sm/algo
+      ${PROJECT_SOURCE_DIR}/sm/nm_simplex)
+    target_compile_definitions(bezsplit PUBLIC FLT=float)
+    target_link_libraries(bezsplit ${ARMADILLO_LIBRARY} ${ARMADILLO_LIBRARIES})
+    add_test(bezsplit bezsplit)
 
-  # Test two curves connected together
-  add_executable(twocurves twocurves.cpp)
-  target_sources(twocurves PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
-    FILES
-    ${PROJECT_SOURCE_DIR}/sm/range
-    ${PROJECT_SOURCE_DIR}/sm/random
-    ${PROJECT_SOURCE_DIR}/sm/vec
-    ${PROJECT_SOURCE_DIR}/sm/bezcoord
-    ${PROJECT_SOURCE_DIR}/sm/vvec
-    ${PROJECT_SOURCE_DIR}/sm/algo
-    ${PROJECT_SOURCE_DIR}/sm/nm_simplex)
-  target_link_libraries(twocurves ${ARMADILLO_LIBRARY} ${ARMADILLO_LIBRARIES})
-  add_test(twocurves twocurves)
+    # Test two curves connected together
+    add_executable(twocurves twocurves.cpp)
+    target_sources(twocurves PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+      FILES
+      ${PROJECT_SOURCE_DIR}/sm/range
+      ${PROJECT_SOURCE_DIR}/sm/random
+      ${PROJECT_SOURCE_DIR}/sm/vec
+      ${PROJECT_SOURCE_DIR}/sm/bezcoord
+      ${PROJECT_SOURCE_DIR}/sm/vvec
+      ${PROJECT_SOURCE_DIR}/sm/algo
+      ${PROJECT_SOURCE_DIR}/sm/nm_simplex)
+    target_link_libraries(twocurves ${ARMADILLO_LIBRARY} ${ARMADILLO_LIBRARIES})
+    add_test(twocurves twocurves)
+  endif()
 
 endif()
 
-add_executable(cartgrid1 cartgrid1.cpp)
-target_sources(cartgrid1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
-  FILES
-  ${PROJECT_SOURCE_DIR}/sm/range
-  ${PROJECT_SOURCE_DIR}/sm/random
-  ${PROJECT_SOURCE_DIR}/sm/vec
-  ${PROJECT_SOURCE_DIR}/sm/bezcoord
-  ${PROJECT_SOURCE_DIR}/sm/vvec
-  ${PROJECT_SOURCE_DIR}/sm/scale
-  ${PROJECT_SOURCE_DIR}/sm/boxfilter)
-add_test(cartgrid1 cartgrid1)
+# Inserting into a list. error: conflicting declaration of template. on g++-14
+if(CMAKE_COMPILER_IS_GNUCXX AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 14.99)
+  add_executable(cartgrid1 cartgrid1.cpp)
+  target_sources(cartgrid1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+    FILES
+    ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/random
+    ${PROJECT_SOURCE_DIR}/sm/vec
+    ${PROJECT_SOURCE_DIR}/sm/bezcoord
+    ${PROJECT_SOURCE_DIR}/sm/vvec
+    ${PROJECT_SOURCE_DIR}/sm/scale
+    ${PROJECT_SOURCE_DIR}/sm/boxfilter)
+  add_test(cartgrid1 cartgrid1)
 
-add_executable(cartgrid_gridshiftcoords cartgrid_gridshiftcoords.cpp)
-target_sources(cartgrid_gridshiftcoords PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
-  FILES
-  ${PROJECT_SOURCE_DIR}/sm/range
-  ${PROJECT_SOURCE_DIR}/sm/random
-  ${PROJECT_SOURCE_DIR}/sm/vec
-  ${PROJECT_SOURCE_DIR}/sm/bezcoord
-  ${PROJECT_SOURCE_DIR}/sm/vvec
-  ${PROJECT_SOURCE_DIR}/sm/scale
-  ${PROJECT_SOURCE_DIR}/sm/boxfilter)
-add_test(cartgrid_gridshiftcoords cartgrid_gridshiftcoords)
+  add_executable(cartgrid_gridshiftcoords cartgrid_gridshiftcoords.cpp)
+  target_sources(cartgrid_gridshiftcoords PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+    FILES
+    ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/random
+    ${PROJECT_SOURCE_DIR}/sm/vec
+    ${PROJECT_SOURCE_DIR}/sm/bezcoord
+    ${PROJECT_SOURCE_DIR}/sm/vvec
+    ${PROJECT_SOURCE_DIR}/sm/scale
+    ${PROJECT_SOURCE_DIR}/sm/boxfilter)
+  add_test(cartgrid_gridshiftcoords cartgrid_gridshiftcoords)
 
-add_executable(cartgrid_shiftindicesbymetric cartgrid_shiftindicesbymetric.cpp)
-target_sources(cartgrid_shiftindicesbymetric PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
-  FILES
-  ${PROJECT_SOURCE_DIR}/sm/range
-  ${PROJECT_SOURCE_DIR}/sm/random
-  ${PROJECT_SOURCE_DIR}/sm/vec
-  ${PROJECT_SOURCE_DIR}/sm/bezcoord
-  ${PROJECT_SOURCE_DIR}/sm/vvec
-  ${PROJECT_SOURCE_DIR}/sm/scale
-  ${PROJECT_SOURCE_DIR}/sm/boxfilter)
-add_test(cartgrid_shiftindicesbymetric cartgrid_shiftindicesbymetric)
+  add_executable(cartgrid_shiftindicesbymetric cartgrid_shiftindicesbymetric.cpp)
+  target_sources(cartgrid_shiftindicesbymetric PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+    FILES
+    ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/random
+    ${PROJECT_SOURCE_DIR}/sm/vec
+    ${PROJECT_SOURCE_DIR}/sm/bezcoord
+    ${PROJECT_SOURCE_DIR}/sm/vvec
+    ${PROJECT_SOURCE_DIR}/sm/scale
+    ${PROJECT_SOURCE_DIR}/sm/boxfilter)
+  add_test(cartgrid_shiftindicesbymetric cartgrid_shiftindicesbymetric)
+endif()
 
 if (0) # DEVELOPMENT
 
