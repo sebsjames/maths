@@ -23,6 +23,7 @@ set_source_files_properties (
   ${PROJECT_SOURCE_DIR}/sm/histo
   ${PROJECT_SOURCE_DIR}/sm/boxfilter
   ${PROJECT_SOURCE_DIR}/sm/config
+  ${PROJECT_SOURCE_DIR}/sm/geometry
   PROPERTIES LANGUAGE CXX)
 
 # sm::range
@@ -815,38 +816,86 @@ if(CMAKE_COMPILER_IS_GNUCXX AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 14.99
   add_test(config1 config1)
 endif()
 
-if (0) # DEVELOPMENT
-
-add_executable(testcartgrid testcartgrid.cpp)
-add_test(testcartgrid testcartgrid)
-
-add_executable(testCartGridShiftCoords testCartGridShiftCoords.cpp)
-add_test(testCartGridShiftCoords testCartGridShiftCoords)
-
-add_executable(testCartGridShiftIndiciesByMetric testCartGridShiftIndiciesByMetric.cpp)
-add_test(testCartGridShiftIndiciesByMetric testCartGridShiftIndiciesByMetric)
-
-
-add_executable(test_zernike test_zernike.cpp)
-add_test(test_zernike test_zernike)
+add_executable(zernike1 zernike1.cpp)
+target_sources(zernike1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/random
+  ${PROJECT_SOURCE_DIR}/sm/vvec
+  ${PROJECT_SOURCE_DIR}/sm/algo)
+add_test(zernike1 zernike1)
 
 add_executable(algo_1 algo_1.cpp)
+target_sources(algo_1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/random
+  ${PROJECT_SOURCE_DIR}/sm/vvec
+  ${PROJECT_SOURCE_DIR}/sm/algo)
 add_test(algo_1 algo_1)
 
 add_executable(geometry_2 geometry_2.cpp)
+target_sources(geometry_2 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/random
+  ${PROJECT_SOURCE_DIR}/sm/vvec
+  ${PROJECT_SOURCE_DIR}/sm/algo
+  ${PROJECT_SOURCE_DIR}/sm/geometry)
 add_test(geometry_2 geometry_2)
 
 add_executable(geometry_3 geometry_3.cpp)
+target_sources(geometry_3 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/random
+  ${PROJECT_SOURCE_DIR}/sm/vvec
+  ${PROJECT_SOURCE_DIR}/sm/algo
+  ${PROJECT_SOURCE_DIR}/sm/geometry)
 add_test(geometry_3 geometry_3)
 
 add_executable(geometry_4 geometry_4.cpp)
+target_sources(geometry_4 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/random
+  ${PROJECT_SOURCE_DIR}/sm/vvec
+  ${PROJECT_SOURCE_DIR}/sm/algo
+  ${PROJECT_SOURCE_DIR}/sm/geometry)
 add_test(geometry_4 geometry_4)
 
 add_executable(geometry_5 geometry_5.cpp)
+target_sources(geometry_5 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/random
+  ${PROJECT_SOURCE_DIR}/sm/vvec
+  ${PROJECT_SOURCE_DIR}/sm/algo
+  ${PROJECT_SOURCE_DIR}/sm/geometry)
 add_test(geometry_5 geometry_5)
 
 add_executable(geometry_6 geometry_6.cpp)
+target_sources(geometry_6 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/random
+  ${PROJECT_SOURCE_DIR}/sm/vvec
+  ${PROJECT_SOURCE_DIR}/sm/algo
+  ${PROJECT_SOURCE_DIR}/sm/quaternion
+  ${PROJECT_SOURCE_DIR}/sm/mat
+  ${PROJECT_SOURCE_DIR}/sm/geometry)
 add_test(geometry_6 geometry_6)
+
+if (0) # DEVELOPMENT
+
+
 
 add_executable(xyz_to_latlong xyz_to_latlong.cpp)
 add_test(xyz_to_latlong xyz_to_latlong)
@@ -865,6 +914,15 @@ add_test(test_number_type test_number_type)
 
 add_executable(test_flags test_flags.cpp)
 add_test(test_flags test_flags)
+
+add_executable(testcartgrid testcartgrid.cpp)
+add_test(testcartgrid testcartgrid)
+
+add_executable(testCartGridShiftCoords testCartGridShiftCoords.cpp)
+add_test(testCartGridShiftCoords testCartGridShiftCoords)
+
+add_executable(testCartGridShiftIndiciesByMetric testCartGridShiftIndiciesByMetric.cpp)
+add_test(testCartGridShiftIndiciesByMetric testCartGridShiftIndiciesByMetric)
 
 if(NOT APPLE)
 add_executable(testcmath testcmath.cpp)
