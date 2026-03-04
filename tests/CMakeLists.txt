@@ -915,16 +915,30 @@ target_sources(geometry_sph_projections PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${
   ${PROJECT_SOURCE_DIR}/sm/geometry)
 add_test(geometry_sph_projections geometry_sph_projections)
 
+add_executable(graham_scan_1 graham_scan_1.cpp)
+target_sources(graham_scan_1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/random
+  ${PROJECT_SOURCE_DIR}/sm/vvec
+  ${PROJECT_SOURCE_DIR}/sm/algo
+  ${PROJECT_SOURCE_DIR}/sm/geometry)
+add_test(graham_scan_1 graham_scan_1)
+
+add_executable(util1 util1.cpp)
+target_sources(util1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/random
+  ${PROJECT_SOURCE_DIR}/sm/vec)
+add_test(util1 util1)
+
 if (0) # DEVELOPMENT
 
 
 
 
-add_executable(graham_scan_1 graham_scan_1.cpp)
-add_test(graham_scan_1 graham_scan_1)
-
-add_executable(util1 util1.cpp)
-add_test(util1 util1)
 
 add_executable(test_number_type test_number_type.cpp)
 add_test(test_number_type test_number_type)
