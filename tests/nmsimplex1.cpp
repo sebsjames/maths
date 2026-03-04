@@ -2,10 +2,11 @@
  * Test Nelder Mead Simplex algorithm on the Rosenbrock banana function
  */
 
-#include "sm/NM_Simplex.h"
-#include "sm/vvec.h"
 #include <iostream>
 #include <cmath>
+
+import sm.vvec;
+import sm.nm_simplex;
 
 int main()
 {
@@ -16,7 +17,7 @@ int main()
         { -0.6, -1.0 }
     };
     // Create an optimiser object
-    sm::NM_Simplex<FLT> simp(i_vertices);
+    sm::nm_simplex<FLT> simp(i_vertices);
     // Define your Rosenbrock Banana objective function
     auto banana = [](const sm::vvec<FLT>& point) {
         FLT x = point[0];
@@ -32,8 +33,8 @@ int main()
     // Run the optimization
     if (!simp.run()) { std::cerr << "Objective was not set\n"; return -1; }
     // Check the final state which we expect to be 'TerminationThreshold':
-    if (simp.stopreason != sm::NM_Simplex_Stop_Reason::TerminationThreshold) {
-        if (simp.stopreason == sm::NM_Simplex_Stop_Reason::TooManyOperations) {
+    if (simp.stopreason != sm::nm_simplex_stop_reason::TerminationThreshold) {
+        if (simp.stopreason == sm::nm_simplex_stop_reason::TooManyOperations) {
             std::cerr << "The optimization stopped after TooManyOperations (" << simp.too_many_operations << ")\n";
         } else {
             std::cerr << "The optimization stopped for an unknown reason\n";

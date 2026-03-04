@@ -13,17 +13,20 @@
  * Author: Seb James
  * Date: September 2019
  */
-#pragma once
+module;
 
 #include <cstdint>
 #include <vector>
 #include <functional>
 #include <algorithm>
 
-#include <sm/algo>
-#include <sm/vvec>
+import sm.algo;
 
-namespace sm
+export import sm.vvec;
+
+export module sm.nm_simplex;
+
+export namespace sm
 {
     //! What state is an instance of the nm_simplex class in?
     enum class nm_simplex_state : uint32_t

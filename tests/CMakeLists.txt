@@ -18,6 +18,8 @@ set_source_files_properties (
   ${PROJECT_SOURCE_DIR}/sm/winder
   ${PROJECT_SOURCE_DIR}/sm/bootstrap
   ${PROJECT_SOURCE_DIR}/sm/grid
+  ${PROJECT_SOURCE_DIR}/sm/algo
+  ${PROJECT_SOURCE_DIR}/sm/nm_simplex
   PROPERTIES LANGUAGE CXX)
 
 # sm::range
@@ -88,8 +90,7 @@ target_sources(vec1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
   ${PROJECT_SOURCE_DIR}/sm/range
   ${PROJECT_SOURCE_DIR}/sm/vec
-  ${PROJECT_SOURCE_DIR}/sm/random
-)
+  ${PROJECT_SOURCE_DIR}/sm/random)
 add_test(vec1 vec1)
 
 if(NOT APPLE) # Could review for up to date Mac OS 26+
@@ -107,8 +108,7 @@ if(NOT APPLE) # Could review for up to date Mac OS 26+
       FILES
       ${PROJECT_SOURCE_DIR}/sm/range
       ${PROJECT_SOURCE_DIR}/sm/vec
-      ${PROJECT_SOURCE_DIR}/sm/random
-    )
+      ${PROJECT_SOURCE_DIR}/sm/random    )
     add_test(vec_constexpr1 vec_constexpr1)
   endif()
 endif()
@@ -118,8 +118,7 @@ target_sources(vec_casting1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOUR
   FILES
   ${PROJECT_SOURCE_DIR}/sm/range
   ${PROJECT_SOURCE_DIR}/sm/vec
-  ${PROJECT_SOURCE_DIR}/sm/random
-)
+  ${PROJECT_SOURCE_DIR}/sm/random)
 add_test(vec_casting1 vec_casting1)
 
 add_executable(vec_asmapkey1 vec_asmapkey1.cpp)
@@ -136,8 +135,7 @@ target_sources(vec_asunordmapkey1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJEC
   FILES
   ${PROJECT_SOURCE_DIR}/sm/range
   ${PROJECT_SOURCE_DIR}/sm/vec
-  ${PROJECT_SOURCE_DIR}/sm/random
-)
+  ${PROJECT_SOURCE_DIR}/sm/random)
 add_test(vec_asunordmapkey1 vec_asunordmapkey1)
 
 add_executable(array_asmapkey1 array_asmapkey1.cpp)
@@ -150,8 +148,7 @@ target_sources(vec_elementops1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_S
   ${PROJECT_SOURCE_DIR}/sm/range
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/random
-  ${PROJECT_SOURCE_DIR}/sm/vvec
-)
+  ${PROJECT_SOURCE_DIR}/sm/vvec)
 add_test(vec_elementops1 vec_elementops1)
 
 add_executable(vec_set_from1 vec_set_from1.cpp)
@@ -159,8 +156,7 @@ target_sources(vec_set_from1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOU
   FILES
   ${PROJECT_SOURCE_DIR}/sm/range
   ${PROJECT_SOURCE_DIR}/sm/vec
-  ${PROJECT_SOURCE_DIR}/sm/random
-)
+  ${PROJECT_SOURCE_DIR}/sm/random)
 add_test(vec_set_from1 vec_set_from1)
 
 # Test the "mathematic vector made from an std::vector" code (this vvec is better for neural networks)
@@ -769,12 +765,21 @@ if(CMAKE_COMPILER_IS_GNUCXX AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 14.99
   add_test(grid_profile1 grid_profile1)
 endif()
 
-if (0) # DEVELOPMENT
-
 # Test Nelder Mead algorithm
-#add_executable(testNMSimplex testNMSimplex.cpp)
-#target_compile_definitions(testNMSimplex PUBLIC FLT=float)
-#add_test(testNMSimplex testNMSimplex)
+add_executable(nmsimplex1 nmsimplex1.cpp)
+target_compile_definitions(nmsimplex1 PUBLIC FLT=float)
+target_sources(nmsimplex1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/random
+  ${PROJECT_SOURCE_DIR}/sm/vvec
+  ${PROJECT_SOURCE_DIR}/sm/algo
+  ${PROJECT_SOURCE_DIR}/sm/nm_simplex)
+add_test(nmsimplex1 nmsimplex1)
+
+
+if (0) # DEVELOPMENT
 
 ##add_executable(testboxfilter testboxfilter.cpp)
 ##add_test(testboxfilter testboxfilter)

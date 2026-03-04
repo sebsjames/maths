@@ -8,8 +8,7 @@
  *
  * \author Seb James
  */
-
-#pragma once
+module;
 
 #include <type_traits>
 #include <cmath>
@@ -21,10 +20,13 @@
 
 #include <sm/mathconst>
 #include <sm/constexpr_math> // constexpr math functions from Keith O'Hara
-#include <sm/range>
-#include <sm/vec>
 
-namespace sm::algo
+export import sm.range;
+export import sm.vec;
+
+export module sm.algo;
+
+export namespace sm::algo
 {
     // Find roots of a x * x + b * x + c = 0 and return them in a two element vector. The value
     // numeric_limits<F>::max() means that there was no root. If both are max, then there were no
