@@ -4,6 +4,7 @@
 #include <iostream>
 
 import sm.mat;
+import sm.vec;
 
 int main()
 {
