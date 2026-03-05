@@ -43,5 +43,16 @@ int main()
 
     std::cout << "m3.T\n" << m3 << std::endl;
 
+    // Multiply by scalar:
+    std::cout << m3 << " * 2 = " << m3 * 2 << std::endl;
+    sm::mat<float, 3> m3x2 = {
+        2, 4, 2,
+        6, 8, 10,
+        12, 14, 16
+    };
+    m3x2.transpose_inplace();
+
+    if (m3x2 != m3 * 2) { --rtn; }
+
     return rtn;
 }

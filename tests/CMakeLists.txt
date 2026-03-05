@@ -432,3 +432,219 @@ add_test(util1 util1)
 
 add_executable(polysolve_1 polysolve_1.cpp)
 add_test(polysolve_1 polysolve_1)
+
+#
+# mat compile/not compile tests on operators
+#
+
+if(NOT WIN32) # exclude Windows CI from doing the compile failure tests for now
+
+  #
+  # mat times vec
+  #
+
+  # Only 4x4 matrices can be multiplied with an (N-1) D vector
+  add_executable(mat_succeed_4x4timesv3 mat_succeed_4x4timesv3.cpp)
+  add_test (mat_succeed_4x4timesv3 mat_succeed_4x4timesv3)
+
+  # Matrix times vector is generally ok, as long as vector is right size
+  add_executable(mat_succeed_4x4timesv4 mat_succeed_4x4timesv4.cpp)
+  add_test (mat_succeed_4x4timesv4 mat_succeed_4x4timesv4)
+
+  # To build add "-test" to the NAME
+  icm_add_build_failure_test(
+    NAME mat_fail_4x4timesv16
+    SOURCES mat_fail_4x4timesv16.cpp
+    LABELS build-failure
+    ERROR_MATCHES "Should not compile"
+  )
+
+  #
+  # mat *= vec
+  #
+
+  icm_add_build_failure_test(
+    NAME mat_fail_4x4timeseqlsv3
+    SOURCES mat_fail_4x4timeseqlsv3.cpp
+    LABELS build-failure
+    ERROR_MATCHES "Should not compile"
+  )
+
+  icm_add_build_failure_test(
+    NAME mat_fail_4x4timeseqlsv4
+    SOURCES mat_fail_4x4timeseqlsv4.cpp
+    LABELS build-failure
+    ERROR_MATCHES "Should not compile"
+  )
+
+  icm_add_build_failure_test(
+    NAME mat_fail_4x4timeseqlsv16
+    SOURCES mat_fail_4x4timeseqlsv16.cpp
+    LABELS build-failure
+    ERROR_MATCHES "Should not compile"
+  )
+
+  #
+  # mat plus vec
+  #
+
+  icm_add_build_failure_test(
+    NAME mat_fail_4x4plusvec3
+    SOURCES mat_fail_4x4plusvec3.cpp
+    LABELS build-failure
+    ERROR_MATCHES "Should not compile"
+  )
+
+  icm_add_build_failure_test(
+    NAME mat_fail_4x4plusvec4
+    SOURCES mat_fail_4x4plusvec4.cpp
+    LABELS build-failure
+    ERROR_MATCHES "Should not compile"
+  )
+
+  icm_add_build_failure_test(
+    NAME mat_fail_4x4plusvec16
+    SOURCES mat_fail_4x4plusvec16.cpp
+    LABELS build-failure
+    ERROR_MATCHES "Should not compile"
+  )
+
+  #
+  # mat += vec
+  #
+
+  icm_add_build_failure_test(
+    NAME mat_fail_4x4pluseqlsvec3
+    SOURCES mat_fail_4x4pluseqlsvec3.cpp
+    LABELS build-failure
+    ERROR_MATCHES "Should not compile"
+  )
+
+  icm_add_build_failure_test(
+    NAME mat_fail_4x4pluseqlsvec4
+    SOURCES mat_fail_4x4pluseqlsvec4.cpp
+    LABELS build-failure
+    ERROR_MATCHES "Should not compile"
+  )
+
+  icm_add_build_failure_test(
+    NAME mat_fail_4x4pluseqlsvec16
+    SOURCES mat_fail_4x4pluseqlsvec16.cpp
+    LABELS build-failure
+    ERROR_MATCHES "Should not compile"
+  )
+
+  #
+  # mat minus vec
+  #
+
+  icm_add_build_failure_test(
+    NAME mat_fail_4x4minusvec3
+    SOURCES mat_fail_4x4minusvec3.cpp
+    LABELS build-failure
+    ERROR_MATCHES "Should not compile"
+  )
+
+  icm_add_build_failure_test(
+    NAME mat_fail_4x4minusvec4
+    SOURCES mat_fail_4x4minusvec4.cpp
+    LABELS build-failure
+    ERROR_MATCHES "Should not compile"
+  )
+
+  icm_add_build_failure_test(
+    NAME mat_fail_4x4minusvec16
+    SOURCES mat_fail_4x4minusvec16.cpp
+    LABELS build-failure
+    ERROR_MATCHES "Should not compile"
+  )
+
+  #
+  # mat -= vec
+  #
+
+  icm_add_build_failure_test(
+    NAME mat_fail_4x4minuseqlsvec3
+    SOURCES mat_fail_4x4minuseqlsvec3.cpp
+    LABELS build-failure
+    ERROR_MATCHES "Should not compile"
+  )
+
+  icm_add_build_failure_test(
+    NAME mat_fail_4x4minuseqlsvec4
+    SOURCES mat_fail_4x4minuseqlsvec4.cpp
+    LABELS build-failure
+    ERROR_MATCHES "Should not compile"
+  )
+
+  icm_add_build_failure_test(
+    NAME mat_fail_4x4minuseqlsvec16
+    SOURCES mat_fail_4x4minuseqlsvec16.cpp
+    LABELS build-failure
+    ERROR_MATCHES "Should not compile"
+  )
+
+  #
+  # Init with vec
+  #
+
+  icm_add_build_failure_test(
+    NAME mat_fail_4x4initwithv3
+    SOURCES mat_fail_4x4initwithv3.cpp
+    LABELS build-failure
+    ERROR_MATCHES "Should not compile"
+  )
+
+  icm_add_build_failure_test(
+    NAME mat_fail_4x4initwithv4
+    SOURCES mat_fail_4x4initwithv4.cpp
+    LABELS build-failure
+    ERROR_MATCHES "Should not compile"
+  )
+
+  add_executable(mat_succeed_4x4initwithv16 mat_succeed_4x4initwithv16.cpp)
+  add_test (mat_succeed_4x4initwithv16 mat_succeed_4x4initwithv16)
+
+  #
+  # mat = vec (allow for same-size vec)
+  #
+  add_executable(mat_succeed_assignvec mat_succeed_assignvec.cpp)
+  add_test (mat_succeed_assignvec mat_succeed_assignvec)
+
+  icm_add_build_failure_test(
+    NAME mat_fail_assignvec_diffsize
+    SOURCES mat_fail_assignvec_diffsize.cpp
+    LABELS build-failure
+    ERROR_MATCHES "Should not compile"
+  )
+
+  #
+  # mat == vec (disallow)
+  #
+
+  icm_add_build_failure_test(
+    NAME mat_fail_equalityvec
+    SOURCES mat_fail_equalityvec.cpp
+    LABELS build-failure
+    ERROR_MATCHES "Should not compile"
+  )
+
+  icm_add_build_failure_test(
+    NAME mat_fail_equalityvec4
+    SOURCES mat_fail_equalityvec4.cpp
+    LABELS build-failure
+    ERROR_MATCHES "Should not compile"
+  )
+
+  #
+  # mat != vec (disallow)
+  #
+
+  icm_add_build_failure_test(
+    NAME mat_fail_nonequalityvec
+    SOURCES mat_fail_nonequalityvec.cpp
+    LABELS build-failure
+    ERROR_MATCHES "Should not compile"
+  )
+
+endif(NOT WIN32)

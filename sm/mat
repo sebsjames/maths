@@ -53,7 +53,7 @@ namespace sm
         }
         //! Construct 4x4 matrix from a 3x3 rotation matrix
         template<typename Fy = F> requires (Nr == 4) && (Nc == 4)
-        constexpr mat (const sm::mat<Fy, 3>& other) noexcept
+        constexpr mat (const mat<Fy, 3>& other) noexcept
         {
             this->arr[0] = other[0];
             this->arr[1] = other[1];
@@ -86,20 +86,14 @@ namespace sm
                 if (i == Nr * Nc) { break; } // only first Nr * Nc elements can be copied
             }
         }
-        //! Construct with an array
+        //! Construct with an array containing the matrix values in column-major order
         constexpr mat (const std::array<F, Nr * Nc>& other) noexcept
         {
             std::copy (other.begin(), other.end(), this->arr.begin());
         }
-        //! Construct with a vec containing the matrix values
+        //! Construct with a vec containing the matrix values in column-major order
         constexpr mat (const sm::vec<F, Nr * Nc>& other) noexcept { this->arr = other; }
-        //! Construct with a 3D or 4D vec specifying a translation (4x4 matrix only)
-        template<typename T, std::size_t N = 3> requires std::is_arithmetic_v<T> && (N == 3 || N == 4) && (Nr == 4) && (Nc == 4)
-        constexpr mat (const sm::vec<T, N>& trns) noexcept
-        {
-            this->set_identity();
-            this->pretranslate (trns);
-        }
+
         //! User-declared copy constructor
         constexpr mat (const mat<F, Nr, Nc>& other) noexcept : arr(other.arr) {}
         //! User-declared copy assignment constructor
@@ -964,15 +958,41 @@ namespace sm
             return { this->arr[12], this->arr[13], this->arr[14] };
         }
 
+        //! Returns a ready-to-use translation matrix
+        static constexpr mat<F, 4> translation (const sm::vec<F, 3>& t)
+        {
+            if constexpr (Nr != 4 || Nr != Nc) { []<bool flag = false>() { static_assert(flag, "valid only for 4x4 matrices"); }(); }
+            sm::mat<F, 4> m;
+            m.pretranslate (t);
+            return m;
+        }
+
+        static constexpr mat<F, 4> translation (const sm::vec<F, 4>& t)
+        {
+            if constexpr (Nr != 4 || Nc != 4) { []<bool flag = false>() { static_assert(flag, "valid only for 4x4 matrices"); }(); }
+            sm::mat<F, 4> m;
+            m.pretranslate (t);
+            return m;
+        }
+
+        //! Returns a ready-to-use rotation matrix
+        template<typename Fy> requires std::is_floating_point_v<Fy>
+        static constexpr mat<F, 4> rotation (const sm::vec<Fy, 3>& axis, const Fy& theta)
+        {
+            if constexpr ((Nr != 4 && Nr != 3) || Nr != Nc) { []<bool flag = false>() { static_assert(flag, "valid only for a 3x3 or 4x4 matrix"); }(); }
+            sm::mat<F, 4> m;
+            m.rotate (axis, theta);
+            return m;
+        }
+
         /*!
-         * Returns the rotation part of the 4x4 matrix (the top left 3x3 matrix, as returned by
-         * mat::linear) as a quaternion.
+         * Returns either the rotation part of the 4x4 matrix (the top left 3x3 matrix, as returned
+         * by mat::linear) as a quaternion or the entire 3x3 matrix as a quaternion.
          *
-         * This does the equivalent of this->linear().rotation() (that is, you can find
-         * mat33::rotation which is the same as this function).
+         * In a 4x4 matrix, this does the equivalent of this->linear().rotation()
          *
          * It assumes that your 4x4 matrix encodes rotations without scaling. You could use
-         * rotationmat44().rotation() to first exclude a uniform or pre-applied scaling.
+         * mat<F, 4>::rotation() to first exclude a uniform or pre-applied scaling.
          *
          * It does *not* check that the matrix determinant is 1 (you could do that first if you need
          * to).
@@ -986,7 +1006,7 @@ namespace sm
         constexpr sm::quaternion<F> rotation() const noexcept
         {
             if constexpr ((Nr != 4 && Nr != 3) || Nr != Nc) {
-                []<bool flag = false>() { static_assert(flag, "valid only for 4x4 matrices"); }();
+                []<bool flag = false>() { static_assert(flag, "valid only for 3x3 and 4x4 matrices"); }();
             }
 
             sm::quaternion<F> q;
@@ -1123,13 +1143,15 @@ namespace sm
         }
 
         //! Add m2 to this matrix
-        constexpr void operator+= (const mat<F, Nr, Nc>& m2) noexcept
+        template<typename Fy=F> requires std::is_arithmetic_v<Fy>
+        constexpr void operator+= (const mat<Fy, Nr, Nc>& m2) noexcept
         {
             for (uint32_t i = 0; i < Nr * Nc; ++i) { this->arr[i] += m2.arr[i]; }
         }
 
         //! Return this + m2
-        constexpr mat<F, Nr, Nc> operator+ (const mat<F, Nr, Nc>& m2) const noexcept
+        template<typename Fy=F> requires std::is_arithmetic_v<Fy>
+        constexpr mat<F, Nr, Nc> operator+ (const mat<Fy, Nr, Nc>& m2) const noexcept
         {
             mat<F, Nr, Nc> m = {};
             for (uint32_t i = 0; i < Nr * Nc; ++i) { m[i] = this->arr[i] + m2.arr[i]; }
@@ -1137,13 +1159,15 @@ namespace sm
         }
 
         //! Add scalar to this matrix
-        constexpr void operator+= (const F& f) noexcept
+        template<typename Fy=F> requires std::is_arithmetic_v<Fy>
+        constexpr void operator+= (const Fy& f) noexcept
         {
             for (uint32_t i = 0; i < Nr * Nc; ++i) { this->arr[i] += f; }
         }
 
         //! Return this + scalar
-        constexpr mat<F, Nr, Nc> operator+ (const F& f) const noexcept
+        template<typename Fy=F> requires std::is_arithmetic_v<Fy>
+        constexpr mat<F, Nr, Nc> operator+ (const Fy& f) const noexcept
         {
             mat<F, Nr, Nc> m = {};
             for (uint32_t i = 0; i < Nr * Nc; ++i) { m[i] = this->arr[i] + f; }
@@ -1151,13 +1175,15 @@ namespace sm
         }
 
         //! Subtract m2 from this matrix
-        constexpr void operator-= (const mat<F, Nr, Nc>& m2) noexcept
+        template<typename Fy=F> requires std::is_arithmetic_v<Fy>
+        constexpr void operator-= (const mat<Fy, Nr, Nc>& m2) noexcept
         {
             for (uint32_t i = 0; i < Nr * Nc; ++i) { this->arr[i] -= m2.arr[i]; }
         }
 
         //! Return this - m2
-        constexpr mat<F, Nr, Nc> operator- (const mat<F, Nr, Nc>& m2) const noexcept
+        template<typename Fy=F> requires std::is_arithmetic_v<Fy>
+        constexpr mat<F, Nr, Nc> operator- (const mat<Fy, Nr, Nc>& m2) const noexcept
         {
             mat<F, Nr, Nc> m = {};
             for (uint32_t i = 0; i < Nr * Nc; ++i) { m[i] = this->arr[i] - m2.arr[i]; }
@@ -1165,13 +1191,15 @@ namespace sm
         }
 
         //! Subtract scalar from this matrix
-        constexpr void operator-= (const F& f) noexcept
+        template<typename Fy=F> requires std::is_arithmetic_v<Fy>
+        constexpr void operator-= (const Fy& f) noexcept
         {
             for (uint32_t i = 0; i < Nr * Nc; ++i) { this->arr[i] -= f; }
         }
 
         //! Return this - scalar
-        constexpr mat<F, Nr, Nc> operator- (const F& f) const noexcept
+        template<typename Fy=F> requires std::is_arithmetic_v<Fy>
+        constexpr mat<F, Nr, Nc> operator- (const Fy& f) const noexcept
         {
             mat<F, Nr, Nc> m = {};
             for (uint32_t i = 0; i < Nr * Nc; ++i) { m[i] = this->arr[i] - f; }
@@ -1179,7 +1207,7 @@ namespace sm
         }
 
         //! Right-multiply this->arr with m2
-        template<typename Fy=F, uint32_t Nry = Nr, uint32_t Ncy = Nc> requires (Nc == Nry)
+        template<typename Fy=F, uint32_t Nry = Nr, uint32_t Ncy = Nc> requires (Nc == Nry) && std::is_arithmetic_v<Fy>
         constexpr void operator*= (const mat<Fy, Nry, Ncy>& m2) noexcept
         {
             sm::vec<F, Nr * Ncy> m;
@@ -1240,8 +1268,8 @@ namespace sm
             this->arr.swap (m);
         }
 
-        //! Right multiply this->arr with m2.arr. Make general NOW
-        template<typename Fy=F, uint32_t Nry = Nr, uint32_t Ncy = Nc> requires (Nc == Nry)
+        //! Right multiply this->arr with m2.arr
+        template<typename Fy=F, uint32_t Nry = Nr, uint32_t Ncy = Nc> requires (Nc == Nry) && std::is_arithmetic_v<Fy>
         constexpr mat<F, Nr, Ncy> operator* (const mat<Fy, Nry, Ncy>& m2) const noexcept
         {
             mat<F, Nr, Ncy> m;
@@ -1345,8 +1373,23 @@ namespace sm
             for (uint32_t i = 0; i < Nr * Nc; ++i) { this->arr[i] *= f; }
         }
 
-        //! Equality operator. True if all elements match
-        constexpr bool operator== (const mat<F, Nr, Nc>& rhs) const noexcept
+        //! * operator for a scalar value.
+        template <typename T=F> requires std::is_arithmetic_v<T>
+        constexpr mat<F, Nr, Nc> operator* (const T& f) noexcept
+        {
+            mat<F, Nr, Nc> m = {};
+            for (uint32_t i = 0; i < Nr * Nc; ++i) { m[i] = this->arr[i] * f; }
+            return m;
+        }
+
+        /*!
+         * Equality operator. True if all elements match. The template looks like a no-op, but it
+         * prevents mat<F,4,4> == vec<F,16> from working. *Without* the template, the compiler will
+         * use the vec<F,16> constructor to make a mat<F,4,4> and then execute this operator
+         * function.
+         */
+        template<typename Fy=F> requires std::is_same_v<Fy, F>
+        constexpr bool operator== (const mat<Fy, Nr, Nc>& rhs) const noexcept
         {
             uint32_t ndiff = 0;
             for (uint32_t i = 0; i < Nr * Nc && ndiff == 0; ++i) {
@@ -1356,7 +1399,8 @@ namespace sm
         }
 
         //! Not equals
-        constexpr bool operator!= (const mat<F, Nr, Nc>& rhs) const noexcept
+        template<typename Fy=F> requires std::is_same_v<Fy, F>
+        constexpr bool operator!= (const mat<Fy, Nr, Nc>& rhs) const noexcept
         {
             uint32_t ndiff = 0;
             for (uint32_t i = 0; i < Nr * Nc && ndiff == 0; ++i) {

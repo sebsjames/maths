@@ -32,6 +32,7 @@ jobs:
     - name: Install dependencies
       run: |
         sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+        sudo apt-get update -y
         sudo apt-get install g++-13 gcc-13 libgbm-dev libarmadillo-dev libhdf5-dev nlohmann-json3-dev librapidxml-dev
 
     - name: Configure CMake

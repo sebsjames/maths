@@ -79,8 +79,8 @@ int main()
     std::cout << "\n\n-=\n " << m2 << " gives\n" << m7 << std::endl;
 
     std::array<double, 16> arr = { 1, 2, 3, 4, 1, 2, 3, 4, 5, 6, 7, 8, 5, 6, 7, 8 };
-    // mat44<T> + std::array<T, 16>std::array<T, 16>
-    std::cout << "mat44 + arr: " << (m1 + arr) << std::endl;
+    // I've disallowed adding a mat and a vec, so you have to explicity create a second mat to do the add:
+    std::cout << "mat44 + arr: " << (m1 + sm::mat<double, 4>(arr)) << std::endl;
 
     // mat<double, 4> + vec<double, N> should fail and does, because vec<> is not double
     // and operator+ is defined for mat44<T> and const T&, so the argument must be
