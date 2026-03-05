@@ -1130,6 +1130,8 @@ if(CMAKE_COMPILER_IS_GNUCXX AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 14.99
     ${PROJECT_SOURCE_DIR}/sm/boxfilter)
   add_test(cartgrid_shiftindicesbymetric cartgrid_shiftindicesbymetric)
 endif()
+add_executable(polysolve_1 polysolve_1.cpp)
+add_test(polysolve_1 polysolve_1)
 
 #
 # mat compile/not compile tests on operators
