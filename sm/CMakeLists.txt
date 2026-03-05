@@ -33,6 +33,7 @@ install(
   mathconst
   nm_simplex
   onoff
+  polysolve
   quaternion
   random
   range
