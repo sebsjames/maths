@@ -34,10 +34,10 @@ module;
 #define __PRETTY_FUNCTION__ __FUNCSIG__
 #endif
 
+export module sm.hdfdata;
+
 export import sm.vec;
 export import sm.vvec;
-
-export module sm.hdfdata;
 
 export namespace sm
 {

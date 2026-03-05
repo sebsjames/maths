@@ -21,10 +21,10 @@ module;
 #include <sm/mathconst>
 #include <sm/constexpr_math> // constexpr math functions from Keith O'Hara
 
+export module sm.algo;
+
 export import sm.range;
 export import sm.vec;
-
-export module sm.algo;
 
 export namespace sm::algo
 {

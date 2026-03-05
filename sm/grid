@@ -25,10 +25,10 @@ module;
 #include <set>
 #include <sm/gridfeatures>
 
+export module sm.grid;
+
 export import sm.vec;
 export import sm.vvec;
-
-export module sm.grid;
 
 export namespace sm
 {

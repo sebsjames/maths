@@ -21,6 +21,8 @@ module;
 #include <sm/mathconst>
 #include <sm/hexflags>
 
+export module sm.hex;
+
 // If the hexgrid::save and hexgrid::load methods are required, define
 // HEXGRID_COMPILE_LOAD_AND_SAVE. A link to libhdf5 will be required in your program.
 #ifdef HEXGRID_COMPILE_LOAD_AND_SAVE
@@ -30,9 +32,6 @@ import sm.hdfdata;
 export import sm.bezcoord;
 
 export import sm.vec;
-
-export module sm.hex;
-
 
 export namespace sm
 {

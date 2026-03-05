@@ -18,12 +18,12 @@ module;
 
 #include <sm/constexpr_math>
 
+export module sm.geometry;
+
 import sm.range;
 import sm.algo;
 export import sm.vec;
 export import sm.vvec;
-
-export module sm.geometry;
 
 export namespace sm
 {

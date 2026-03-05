@@ -65,9 +65,9 @@ module;
 #include <memory>
 #include <sm/mathconst>
 
-// maybe later: export import std; or export import std.random.
-
 export module sm.random;
+
+// maybe later: export import std; or export import std.random.
 
 namespace sm
 {

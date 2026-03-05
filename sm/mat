@@ -29,10 +29,10 @@ module;
 #include <sm/mathconst>
 #include <sm/constexpr_math>
 
+export module sm.mat;
+
 export import sm.quaternion;
 export import sm.vec;
-
-export module sm.mat;
 
 export namespace sm
 {

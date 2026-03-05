@@ -18,10 +18,10 @@ module;
 
 #include <sm/trait_tests>
 
+export module sm.centroid;
+
 export import sm.vec;
 import sm.vvec;
-
-export module sm.centroid;
 
 export namespace sm::algo
 {

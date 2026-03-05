@@ -23,9 +23,9 @@ module;
 #include <sm/mathconst>
 #include <sm/trait_tests>
 
-export import sm.vec;
-
 export module sm.winder;
+
+export import sm.vec;
 
 export namespace sm
 {

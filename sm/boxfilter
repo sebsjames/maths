@@ -14,10 +14,10 @@ module;
 #include <stdexcept>
 #include <array>
 
+export module sm.boxfilter;
+
 import sm.vvec;
 import sm.vec;
-
-export module sm.boxfilter;
 
 export namespace sm::algo
 {

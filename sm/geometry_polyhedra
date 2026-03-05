@@ -22,11 +22,11 @@ module;
 #include <sm/mathconst>
 #include <sm/constexpr_math>
 
+export module sm.geometry_polyhedra;
+
 import sm.vec;
 import sm.quaternion;
 export import sm.vvec;
-
-export module sm.geometry_polyhedra;
 
 //! constexpr-capable geometry
 export namespace sm::geometry_ce

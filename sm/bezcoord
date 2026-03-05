@@ -13,9 +13,9 @@ module;
 #include <cmath>
 #include <concepts>
 
-export import sm.vec;
-
 export module sm.bezcoord;
+
+export import sm.vec;
 
 export namespace sm
 {

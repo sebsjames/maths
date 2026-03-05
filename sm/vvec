@@ -31,11 +31,11 @@ module;
 #include <sm/trait_tests>
 #include <sm/mathconst>
 
+export module sm.vvec;
+
 import sm.random;
 
 export import sm.range;
-
-export module sm.vvec;
 
 export namespace sm
 {

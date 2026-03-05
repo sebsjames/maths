@@ -13,11 +13,11 @@ module;
 #include <limits>
 #include <cmath>
 
+export module sm.histo;
+
 import sm.vec;
 import sm.vvec;
 import sm.range;
-
-export module sm.histo;
 
 export namespace sm
 {

@@ -54,10 +54,10 @@ module;
 
 #include <sm/trait_tests>
 
+export module sm.scale;
+
 export import sm.vvec;
 export import sm.range;
-
-export module sm.scale;
 
 export namespace sm
 {

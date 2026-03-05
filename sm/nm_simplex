@@ -20,12 +20,12 @@ module;
 #include <functional>
 #include <algorithm>
 
+export module sm.nm_simplex;
+
 import sm.algo;
 
 import sm.vec;
 export import sm.vvec;
-
-export module sm.nm_simplex;
 
 export namespace sm
 {

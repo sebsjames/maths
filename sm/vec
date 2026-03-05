@@ -27,13 +27,14 @@ module;
 #include <cstddef>
 #include <sm/constexpr_math>
 
+export module sm.vec;
+
 // random is only imported because it is used internally within vec
 import sm.random;
 
 // We export sm.range as well as importing it because sm::vec may return a range (sm::vec::range())
 export import sm.range;
 
-export module sm.vec;
 
 namespace sm
 {
