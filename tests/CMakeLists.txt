@@ -26,6 +26,7 @@ set_source_files_properties (
   ${PROJECT_SOURCE_DIR}/sm/config
   ${PROJECT_SOURCE_DIR}/sm/geometry
   ${PROJECT_SOURCE_DIR}/sm/flags
+  ${PROJECT_SOURCE_DIR}/sm/polysolve
   PROPERTIES LANGUAGE CXX)
 
 # sm::range
@@ -1130,7 +1131,15 @@ if(CMAKE_COMPILER_IS_GNUCXX AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 14.99
     ${PROJECT_SOURCE_DIR}/sm/boxfilter)
   add_test(cartgrid_shiftindicesbymetric cartgrid_shiftindicesbymetric)
 endif()
+
 add_executable(polysolve_1 polysolve_1.cpp)
+target_sources(polysolve_1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/random
+  ${PROJECT_SOURCE_DIR}/sm/vvec
+  ${PROJECT_SOURCE_DIR}/sm/polysolve)
 add_test(polysolve_1 polysolve_1)
 
 #

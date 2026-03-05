@@ -1,7 +1,12 @@
-#include <sm/vvec>
-#include <sm/polysolve>
 #include <iostream>
 #include <iomanip>
+#include <complex>
+#include <cstdint>
+#include <cmath>
+#include <sm/mathconst>
+
+import sm.vvec;
+import sm.polysolve;
 
 template<typename T>
 void print_roots (const sm::vvec<std::complex<T>>& roots, const T thresh = 1e-10)
