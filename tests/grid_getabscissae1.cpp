@@ -1,6 +1,5 @@
 #include <iostream>
 
-#include <sm/gridfeatures>
 import sm.grid;
 import sm.vec;
 import sm.vvec; // for clang

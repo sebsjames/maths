@@ -2,8 +2,6 @@
 #include <limits>
 
 import sm.vec;
-
-#include <sm/gridfeatures>
 import sm.grid;
 
 int main()

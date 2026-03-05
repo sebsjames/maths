@@ -1,7 +1,6 @@
 #include <iostream>
 #include <limits>
 
-#include <sm/gridfeatures>
 import sm.grid;
 import sm.vec;
 

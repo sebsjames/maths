@@ -22,7 +22,6 @@ install(
   flags
   geometry
   geometry_polyhedra
-  gridfeatures
   grid
   hdfdata
   hex

@@ -3,7 +3,6 @@
 // Profiling with std::chrono:
 #include <chrono>
 
-#include <sm/gridfeatures>
 import sm.grid;
 import sm.random;
 import sm.vec;
