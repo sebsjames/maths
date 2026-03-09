@@ -2,9 +2,9 @@
 #include <iostream>
 #include <fstream>
 #include <cstdint>
-#include <sm/util>
 
 import sm.vec;
+import sm.util;
 
 int main()
 {

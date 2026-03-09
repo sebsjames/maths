@@ -1785,8 +1785,9 @@ namespace sm
          *
          * See https://stackoverflow.com/questions/563198/how-do-you-detect-where-two-line-segments-intersect
          */
+        // FIXME could be replaced with sm::geometry::segments_intersect()
         vec<float, 2> intersection (const vec<float, 2> _p1, const vec<float, 2> _q1,
-                                       const vec<float, 2> _p2, const vec<float, 2> _q2)
+                                    const vec<float, 2> _p2, const vec<float, 2> _q2)
         {
             vec<float, 2> isect;
             isect.set_from (std::numeric_limits<float>::quiet_NaN());
@@ -1806,9 +1807,10 @@ namespace sm
             }
             if (rxs == 0.0f && q_m_pxr == 0.0f) {
                 // Colinear, figure out if overlapping
-                float t_0 = (_p2 - _p1).dot (_q1-_p1) / (_q1-_p1).dot(_q1-_p1);
-                float t_1 = (_q2 - _p1).dot (_q1-_p1) / (_q1-_p1).dot(_q1-_p1);
-                if (t_0 > 0.0f || t_0 < 1.0f || t_1 > 0.0f || t_1 < 1.0f) {
+                float t_0 = (_p2 - _p1).dot (_q1 - _p1) / (_q1 - _p1).dot (_q1 - _p1);
+                float t_1 = (_q2 - _p1).dot (_q1 - _p1) / (_q1 - _p1).dot (_q1 - _p1);
+
+                if ((t_0 > 0.0f && t_0 < 1.0f) || (t_1 > 0.0f && t_1 < 1.0f)) {
                     isect = _p1 + t_0 * (_q1-_p1);
                 } else {
                     isect[1] = 0.0f; // isect[0] remains nan

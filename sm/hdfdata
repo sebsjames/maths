@@ -28,7 +28,6 @@ module;
 #include <cstddef>
 #include <sstream>
 #include <stdexcept>
-#include <sm/util>
 
 #ifdef _MSC_VER
 #define __PRETTY_FUNCTION__ __FUNCSIG__
@@ -38,6 +37,7 @@ export module sm.hdfdata;
 
 export import sm.vec;
 export import sm.vvec;
+import sm.util;
 
 export namespace sm
 {

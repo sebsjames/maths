@@ -27,6 +27,7 @@ set_source_files_properties (
   ${PROJECT_SOURCE_DIR}/sm/geometry
   ${PROJECT_SOURCE_DIR}/sm/flags
   ${PROJECT_SOURCE_DIR}/sm/polysolve
+  ${PROJECT_SOURCE_DIR}/sm/util
   PROPERTIES LANGUAGE CXX)
 
 # sm::range
@@ -361,6 +362,7 @@ if(HDF5_FOUND)
     ${PROJECT_SOURCE_DIR}/sm/random
     ${PROJECT_SOURCE_DIR}/sm/vec
     ${PROJECT_SOURCE_DIR}/sm/vvec
+    ${PROJECT_SOURCE_DIR}/sm/util
     ${PROJECT_SOURCE_DIR}/sm/hdfdata)
   # Note how if you only use HDF, you only have to link to libhdf
   target_link_libraries(hdfdata1 ${HDF5_C_LIBRARIES})
@@ -373,6 +375,7 @@ if(HDF5_FOUND)
     ${PROJECT_SOURCE_DIR}/sm/random
     ${PROJECT_SOURCE_DIR}/sm/vec
     ${PROJECT_SOURCE_DIR}/sm/vvec
+    ${PROJECT_SOURCE_DIR}/sm/util
     ${PROJECT_SOURCE_DIR}/sm/hdfdata)
   target_link_libraries(hdfdata2 ${HDF5_C_LIBRARIES})
   add_test(hdfdata2 hdfdata2)
@@ -385,6 +388,7 @@ if(HDF5_FOUND)
     ${PROJECT_SOURCE_DIR}/sm/random
     ${PROJECT_SOURCE_DIR}/sm/vec
     ${PROJECT_SOURCE_DIR}/sm/vvec
+    ${PROJECT_SOURCE_DIR}/sm/util
     ${PROJECT_SOURCE_DIR}/sm/hdfdata)
   target_link_libraries(hdfdata3 ${HDF5_C_LIBRARIES})
   add_test(hdfdata3 hdfdata3)
@@ -397,6 +401,7 @@ if(HDF5_FOUND)
     ${PROJECT_SOURCE_DIR}/sm/random
     ${PROJECT_SOURCE_DIR}/sm/vec
     ${PROJECT_SOURCE_DIR}/sm/vvec
+    ${PROJECT_SOURCE_DIR}/sm/util
     ${PROJECT_SOURCE_DIR}/sm/hdfdata)
   target_link_libraries(hdfdata3d ${HDF5_C_LIBRARIES})
   add_test(hdfdata3d hdfdata3d)
@@ -409,6 +414,7 @@ if(HDF5_FOUND)
     ${PROJECT_SOURCE_DIR}/sm/random
     ${PROJECT_SOURCE_DIR}/sm/vec
     ${PROJECT_SOURCE_DIR}/sm/vvec
+    ${PROJECT_SOURCE_DIR}/sm/util
     ${PROJECT_SOURCE_DIR}/sm/hdfdata)
   target_link_libraries(hdfdata4 ${HDF5_C_LIBRARIES})
   add_test(hdfdata4 hdfdata4)
@@ -420,6 +426,7 @@ if(HDF5_FOUND)
     ${PROJECT_SOURCE_DIR}/sm/random
     ${PROJECT_SOURCE_DIR}/sm/vec
     ${PROJECT_SOURCE_DIR}/sm/vvec
+    ${PROJECT_SOURCE_DIR}/sm/util
     ${PROJECT_SOURCE_DIR}/sm/hdfdata)
   target_link_libraries(hdfdata5 ${HDF5_C_LIBRARIES})
   add_test(hdfdata5 hdfdata5)
@@ -954,6 +961,7 @@ target_sources(util1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
   ${PROJECT_SOURCE_DIR}/sm/range
   ${PROJECT_SOURCE_DIR}/sm/random
+  ${PROJECT_SOURCE_DIR}/sm/util
   ${PROJECT_SOURCE_DIR}/sm/vec)
 add_test(util1 util1)
 
