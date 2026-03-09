@@ -878,13 +878,7 @@ export namespace sm
 
         //! Rotation by post-multiplication of a pure rotation matrix: this = this * R
         template <typename T> requires std::is_arithmetic_v<T> && (Nr == 4) && (Nc == 4)
-        constexpr void rotate (const sm::quaternion<T>& q) noexcept
-        {
-            // this is effectively set_identity():
-            for (uint32_t i = 0; i < Nr * Nc; i++) { this->arr[i] = F{0}; }         // necessary for g++ only in constexpr evaluation
-            for (uint32_t i = 0; i < Nr * Nc; i += Nr + 1) { this->arr[i] = F{1}; } // necessary for g++ only in constexpr evaluation
-            *this *= this->pure_rotation (q);
-        }
+        constexpr void rotate (const sm::quaternion<T>& q) noexcept { *this *= this->pure_rotation (q); }
 
         /*!
          * Rotate an angle theta radians about axis (specified as std::array). By default, the axis
