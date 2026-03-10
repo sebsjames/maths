@@ -822,7 +822,8 @@ if(CMAKE_COMPILER_IS_GNUCXX AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 14.99
     ${PROJECT_SOURCE_DIR}/sm/range
     ${PROJECT_SOURCE_DIR}/sm/vec
     ${PROJECT_SOURCE_DIR}/sm/random
-    ${PROJECT_SOURCE_DIR}/sm/vvec)
+    ${PROJECT_SOURCE_DIR}/sm/vvec
+    ${PROJECT_SOURCE_DIR}/sm/util)
   add_test(config1 config1)
 endif()
 
