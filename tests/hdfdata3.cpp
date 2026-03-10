@@ -14,11 +14,11 @@ int main()
     // Test vector of array<FLT,2>
 
     std::cout << "vector<array<FLT, 2>>" << std::endl;
-    std::vector<std::array<FLT, 2>> va = { { 1.0, 1.0 },
-                                           { 3.0, 2.0 },
-                                           { 5.0, 9.7 },
-                                           { 7.0, 8.1 },
-                                           { 9.0, 0.3 } };
+    std::vector<std::array<FLT, 2>> va = { { FLT{1.0}, FLT{1.0} },
+                                           { FLT{3.0}, FLT{2.0} },
+                                           { FLT{5.0}, FLT{9.7} },
+                                           { FLT{7.0}, FLT{8.1} },
+                                           { FLT{9.0}, FLT{0.3} } };
     {
         sm::hdfdata data("test3.h5", std::ios::out | std::ios::trunc);
         data.add_contained_vals ("/testvecarrayf2", va);
@@ -45,11 +45,11 @@ int main()
     }
 
     std::cout << "vector<array<FLT, 3>>" << std::endl;
-    std::vector<std::array<FLT, 3>> va3 = { { 1.0, 1.0, 1.0 },
-                                            { 3.0, 2.0, 2.0 },
-                                            { 5.0, 9.7, 2.0 },
-                                            { 7.0, 8.1, 2.0 },
-                                            { 9.0, 0.3, 0.3 } };
+    std::vector<std::array<FLT, 3>> va3 = { { FLT{1.0}, FLT{1.0}, FLT{1.0} },
+                                            { FLT{3.0}, FLT{2.0}, FLT{2.0} },
+                                            { FLT{5.0}, FLT{9.7}, FLT{2.0} },
+                                            { FLT{7.0}, FLT{8.1}, FLT{2.0} },
+                                            { FLT{9.0}, FLT{0.3}, FLT{0.3} } };
     {
         sm::hdfdata data("test3.h5", std::ios::out | std::ios::trunc);
         data.add_contained_vals ("/testvecarrayf3", va3);
