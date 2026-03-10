@@ -1462,7 +1462,7 @@ namespace sm
         }
 
         //! Addition += operator for any type same as the enclosed type that implements + op
-        constexpr void operator+= (const S& s) const noexcept
+        constexpr void operator+= (const S& s) noexcept
         {
             auto add_s = [s](S elmnt) { return elmnt + s; };
             std::transform (this->begin(), this->end(), this->begin(), add_s);
@@ -1527,7 +1527,7 @@ namespace sm
         }
 
         //! Subtraction -= operator for any time same as the enclosed type that implements - op
-        constexpr void operator-= (const S& s) const noexcept
+        constexpr void operator-= (const S& s) noexcept
         {
             auto subtract_s = [s](S elmnt) { return elmnt - s; };
             std::transform (this->begin(), this->end(), this->begin(), subtract_s);
