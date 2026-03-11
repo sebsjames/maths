@@ -100,7 +100,7 @@ export namespace sm
         static constexpr bool debug_bezcurve = false;
 
         //! Do-nothing constructor
-        bezcurve() { this->M = matrixSetup_M(); }
+        bezcurve() { this->M = this->matrixSetup_M(); }
 
         /*!
          * Construct a Bezier curve of order cp.size()-1 **with the initial and final
@@ -108,23 +108,26 @@ export namespace sm
          */
         bezcurve (sm::vvec<sm::vec<F, 2>> cp)
         {
-            this->M = matrixSetup_M();
-            if (this->C.rows() != cp.size() || this->C.cols() != 2u) {
+            //std::cout << "Construct\n";
+            this->M = this->matrixSetup_M();
+            if ((this->C.rows() != cp.size()) || (this->C.cols() != 2u)) {
                 throw std::runtime_error ("bezcurve: size of control points does not match order");
             }
             int32_t i = 0;
+            //std::cout << "Construct\n";
             for (auto c : cp) {
                 this->C(i, 0) = c[0];
                 this->C(i, 1) = c[1];
                 ++i;
             }
+            //std::cout << "Construct\n";
             this->init();
         }
 
         //! Construct a Bezier curve using the control points provided in the matrix @cmat.
         bezcurve (const sm::mat<F, order + 1u, 2u>& cmat)
         {
-            this->M = matrixSetup_M();
+            this->M = this->matrixSetup_M();
             this->C = cmat;
             this->init();
         }
@@ -137,7 +140,7 @@ export namespace sm
         bezcurve (const sm::vec<Fy, 2>& ip, const sm::vec<Fy, 2>& fp,
                   const sm::vec<Fy, 2>& c1, const sm::vec<Fy, 2>& c2)
         {
-            this->M = matrixSetup_M();
+            this->M = this->matrixSetup_M();
             this->C(0, 0) = ip[0];
             this->C(0, 1) = ip[1];
             this->C(1, 0) = c1[0];
@@ -156,7 +159,7 @@ export namespace sm
         template <typename Fy = F> requires (order == 2)
         bezcurve (const sm::vec<Fy, 2>& ip, const sm::vec<Fy, 2>& fp, const sm::vec<Fy, 2>& c1)
         {
-            this->M = matrixSetup_M();
+            this->M = this->matrixSetup_M();
             this->C(0, 0) = ip[0];
             this->C(0, 1) = ip[1];
             this->C(1, 0) = c1[0];
@@ -170,7 +173,7 @@ export namespace sm
         template <typename Fy = F> requires (order == 1)
         bezcurve (const sm::vec<Fy, 2>& ip, const sm::vec<Fy, 2>& fp)
         {
-            this->M = matrixSetup_M();
+            this->M = this->matrixSetup_M();
             this->C(0, 0) = ip[0];
             this->C(0, 1) = ip[1];
             this->C(1, 0) = fp[0];
@@ -182,7 +185,7 @@ export namespace sm
         bezcurve (const sm::vec<F, 2>& ip, const sm::vec<F, 2>& fp,
                   const sm::vvec<sm::vec<F, 2>>& only_cp)
         {
-            this->M = matrixSetup_M();
+            this->M = this->matrixSetup_M();
             uint32_t n_ctrls = only_cp.size()+2;
             if (this->C.rows() != n_ctrls || this->C.cols() != 2) {
                 throw std::runtime_error ("bezcurve: size of control points does not match order");
@@ -727,8 +730,7 @@ export namespace sm
             for (int32_t i = 1; i < mp; ++i) {
                 T(0, i) = std::pow (t, static_cast<double>(i));
             }
-            /*sm::mat<F, 1, mp>*/ auto bp = T * this->MC;
-            std::cout << "bp has " << bp.rows() << " rows and " << bp.cols() << " cols\n";
+            auto bp = T * this->MC;
             return bezcoord<F> (t, bp.row (0));
         }
 
@@ -1205,12 +1207,11 @@ export namespace sm
          * Representations.
          */
         // Set up M.
-        static sm::mat<F, order + 1u> matrixSetup_M()
+        sm::mat<F, order + 1u> matrixSetup_M()
         {
             // Check order here
             //static_assert (order + 1u - 1 < sm::PascalRows, "This code is limited to Bezier Curves of order PascalRows - 1 "
             //               "by the current size of the sm::Pascal lookup table (fix with a constexpr function to generate Pascal's triangle");
-
             sm::mat<F, order + 1u> _M;
             _M.set_zero();
 
