@@ -97,8 +97,6 @@ export namespace sm
     template <typename F, uint32_t order> requires std::is_floating_point_v<F> && (order > 0u)
     struct bezcurve
     {
-        static constexpr bool debug_bezcurve = false;
-
         //! Do-nothing constructor
         bezcurve() { this->M = this->matrixSetup_M(); }
 
@@ -108,19 +106,22 @@ export namespace sm
          */
         bezcurve (sm::vvec<sm::vec<F, 2>> cp)
         {
-            //std::cout << "Construct\n";
             this->M = this->matrixSetup_M();
+
             if ((this->C.rows() != cp.size()) || (this->C.cols() != 2u)) {
                 throw std::runtime_error ("bezcurve: size of control points does not match order");
             }
-            int32_t i = 0;
-            //std::cout << "Construct\n";
-            for (auto c : cp) {
-                this->C(i, 0) = c[0];
-                this->C(i, 1) = c[1];
-                ++i;
+
+            if (order != cp.size() - 1u) {
+                throw std::runtime_error ("bezcurve: size of control points does not match order");
             }
-            //std::cout << "Construct\n";
+
+            for (uint32_t i = 0u; i < C.rows(); ++i) {
+                std::cout << "C.row(i) = " << C.row (i); // A cout here seems to be critical to avoid segfault
+                this->C.set_row (i, cp[i]);
+                std::cout << "; set to " << C.row (i) << std::endl;
+            }
+
             this->init();
         }
 
@@ -224,6 +225,8 @@ export namespace sm
          */
         void fit (const sm::vvec<sm::vec<F, 2>>& points, bezcurve<F, order>& preceding, bool optimize=false)
         {
+            constexpr bool debug_bezcurve = false;
+
             // First, find the best fit for @points, without reference to the @preceding curve.
             this->fit (points);
 
@@ -914,7 +917,6 @@ export namespace sm
         //! Perform common initialization tasks.
         void init()
         {
-            // order = this->C.n_rows - 1; // should be fixed
             this->linlength = std::sqrt ((C(order, 0) - C(0, 0)) * (C(order, 0) - C(0, 0))
                                          + (C(order, 1) - C(0, 1)) * (C(order, 1) - C(0, 1)));
             this->linlengthscaled = this->scale * this->linlength;
@@ -961,6 +963,7 @@ export namespace sm
             return bezcoord<F>(t, b);
         }
 
+    public:
         /*!
          * Compute one point on the linear curve, starting at the curve point which is
          * found for parameter value t and extending a distance l along the curve from
@@ -1159,6 +1162,8 @@ export namespace sm
             return b2;
         }
 
+    private:
+
         //! Test that t is in range [0,1]. Throw exception otherwise.
         void checkt (const F t) const
         {
@@ -1166,8 +1171,6 @@ export namespace sm
                 throw std::runtime_error ("t out of range [0,1]");
             }
         }
-
-    private:
 
         /*!
          * A scaling factor to convert from the SVG drawing units into mm (or
@@ -1210,8 +1213,8 @@ export namespace sm
         sm::mat<F, order + 1u> matrixSetup_M()
         {
             // Check order here
-            //static_assert (order + 1u - 1 < sm::PascalRows, "This code is limited to Bezier Curves of order PascalRows - 1 "
-            //               "by the current size of the sm::Pascal lookup table (fix with a constexpr function to generate Pascal's triangle");
+            static_assert (order + 1u - 1 < sm::PascalRows, "This code is limited to Bezier Curves of order PascalRows - 1 "
+                           "by the current size of the sm::Pascal lookup table (fix with a constexpr function to generate Pascal's triangle");
             sm::mat<F, order + 1u> _M;
             _M.set_zero();
 
@@ -1230,13 +1233,13 @@ export namespace sm
 
         //! The coefficients. order + 1 square. It's order + 1, because although there are order -1
         //! actual control points, when you add start and end locations, that's order + 1.
-        sm::mat<F, order + 1u> M;
+        sm::mat<F, order + 1u> M = { {} };
 
         //! The control points. Number of rows in C is order - 1, number of cols is 2
-        sm::mat<F, order + 1u, 2u> C; // hmm, have to deal with order - 1 = 0
+        sm::mat<F, order + 1u, 2u> C = { {} }; // hmm, have to deal with order - 1 = 0
 
         //! M*C
-        sm::mat<F, order + 1u, 2u> MC;
+        sm::mat<F, order + 1u, 2u> MC = { {} };
     };
 
 } // namespace sm
