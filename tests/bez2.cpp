@@ -3,9 +3,8 @@
 #include <fstream>
 
 #include <sm/hexgrid>
-#include <sm/bezcurve>
-#include <sm/bezcurvepath>
 
+import sm.bezcurvepath;
 import sm.vec;
 
 int main()

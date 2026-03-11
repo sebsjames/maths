@@ -29,9 +29,7 @@
 #include <sm/mathconst>
 #include <sm/hexflags>
 
-#include <sm/bezcurvepath>
-
-import sm.bezcoord;
+import sm.bezcurvepath;
 import sm.vec;
 import sm.vvec;
 import sm.hex;

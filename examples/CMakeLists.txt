@@ -14,6 +14,7 @@ set_source_files_properties (
   ${PROJECT_SOURCE_DIR}/sm/hex
   ${PROJECT_SOURCE_DIR}/sm/bezcoord
   ${PROJECT_SOURCE_DIR}/sm/bezcurve
+  ${PROJECT_SOURCE_DIR}/sm/bezcurvepath
   ${PROJECT_SOURCE_DIR}/sm/winder
   ${PROJECT_SOURCE_DIR}/sm/bootstrap
   ${PROJECT_SOURCE_DIR}/sm/grid
@@ -94,6 +95,8 @@ target_sources(hexgrid PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DI
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/bezcoord
+  ${PROJECT_SOURCE_DIR}/sm/bezcurve
+  ${PROJECT_SOURCE_DIR}/sm/bezcurvepath
   ${PROJECT_SOURCE_DIR}/sm/hex
   ${PROJECT_SOURCE_DIR}/sm/quaternion
   ${PROJECT_SOURCE_DIR}/sm/mat
@@ -108,6 +111,7 @@ target_sources(bezcurve PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_D
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/bezcoord
+  ${PROJECT_SOURCE_DIR}/sm/bezcurve
   ${PROJECT_SOURCE_DIR}/sm/quaternion
   ${PROJECT_SOURCE_DIR}/sm/mat
   ${PROJECT_SOURCE_DIR}/sm/vvec

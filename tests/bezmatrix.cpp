@@ -5,7 +5,8 @@
 #include <chrono>
 
 #include <sm/hexgrid>
-#include <sm/bezcurve>
+
+import sm.bezcurve;
 
 int main()
 {
@@ -23,7 +24,7 @@ int main()
         {110.0f,68.0f}
     };
 
-    sm::bezcurve<FLT> cv (c);
+    sm::bezcurve<FLT, 6> cv (c);
 
     std::cout << "Defined a " << cv.getOrder() << " nd/rd/th order curve" << std::endl;
 

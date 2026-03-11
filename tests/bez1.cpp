@@ -3,10 +3,9 @@
 #include <fstream>
 #include <vector>
 
-#include <sm/bezcurve>
-
 import sm.vec;
-import sm.bezcoord;
+//import sm.bezcoord;
+import sm.bezcurve;
 
 int main()
 {

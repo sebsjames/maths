@@ -9,7 +9,7 @@
  * \author Seb James
  * \date 2019-2020
  */
-#pragma once
+module;
 
 #include <utility>
 #include <vector>
@@ -27,13 +27,15 @@
 #include <sm/mathconst>
 #include <sm/constexpr_math>
 
-import sm.vvec;
-import sm.nm_simplex;
-import sm.bezcoord;
-import sm.vec;
-import sm.mat;
+export module sm.bezcurve;
 
-namespace sm
+export import sm.bezcoord;
+export import sm.mat;
+export import sm.vvec;
+export import sm.vec;
+import sm.nm_simplex;
+
+export namespace sm
 {
     /*!
      * Store the first N=21 rows of Pascal's triangle in a linear array. To get the
@@ -607,9 +609,9 @@ namespace sm
             F sign = sign0;
             sm::mat<F, n, n> Q;
             Q.set_zero();
-            for (int32_t i = 0; i < n; ++i) {
+            for (uint32_t i = 0; i < n; ++i) {
                 sign = sign0;
-                for (int32_t j = 0; j <= i; ++j) {
+                for (uint32_t j = 0; j <= i; ++j) {
                     F binom = static_cast<F>(sm::binomial_lookup(i, j));
                     Q(i,j) = sign * binom * std::pow(z, j) * std::pow (zp, i - j);
                     sign = sign > F{0} ? F{-1} : F{1};
@@ -618,10 +620,10 @@ namespace sm
             }
             sm::mat<F, n, 2u> C1 = Q * this->C;
             // Shift (or rotate) rows then flip
-            for (int32_t i = 0; i < n; ++i) {
+            for (uint32_t i = 0; i < n; ++i) {
                 // 'rotate row'
                 sm::vec<F, n> rw = Q.row (i);
-                rw.rotate (static_cast<int32_t>(n) - 1 - i); // FIXME MAY BE IN WRONG DIRECTION NOW
+                rw.rotate (n - 1 - i); // FIXME MAY BE IN WRONG DIRECTION NOW
                 Q.set_row (i, rw);
             }
             sm::mat<F, n, 2u> C2 = Q.flipud() * this->C;

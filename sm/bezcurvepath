@@ -9,8 +9,7 @@
  * \author Seb James
  * \date 2019-2020
  */
-
-#pragma once
+module;
 
 #include <cstdint>
 #include <limits>
@@ -23,12 +22,13 @@
 #include <cmath>
 #include <concepts>
 
-#include <sm/bezcurve>
+export module sm.bezcurvepath;
 
+export import sm.bezcurve;
+export import sm.bezcoord;
 import sm.vec;
-import sm.bezcoord;
 
-namespace sm
+export namespace sm
 {
     /*!
      * A class defining a path made up of Bezier curves. This has an initial position,

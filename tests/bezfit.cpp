@@ -1,6 +1,6 @@
 #include <iostream>
-#include <sm/bezcurve>
 
+import sm.bezcurve;
 import sm.vvec;
 
 int main()
@@ -14,7 +14,7 @@ int main()
         {-0.28f, 0.45f}
     };
 
-    sm::bezcurve<FLT> cv;
+    sm::bezcurve<FLT, 3> cv;
     cv.fit (c);
     std::cout << "Defined a " << cv.getOrder() << " nd/rd/th order curve" << std::endl;
 

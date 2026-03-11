@@ -3,8 +3,8 @@
  */
 
 #include <iostream>
-#include <sm/bezcurve>
 
+import sm.bezcurve;
 import sm.vec;
 import sm.vvec;
 
