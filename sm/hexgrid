@@ -29,7 +29,7 @@
 #include <sm/mathconst>
 #include <sm/hexflags>
 
-#include <sm/bezcurvepath> // requires arma
+#include <sm/bezcurvepath>
 
 import sm.bezcoord;
 import sm.vec;

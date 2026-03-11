@@ -87,35 +87,32 @@ target_sources(mat_nonsquare PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOU
   ${PROJECT_SOURCE_DIR}/sm/quaternion
   ${PROJECT_SOURCE_DIR}/sm/mat)
 
-if(ARMADILLO_FOUND)
-  add_executable(hexgrid hexgrid.cpp)
-  target_sources(hexgrid PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
-    FILES
-    ${PROJECT_SOURCE_DIR}/sm/range
-    ${PROJECT_SOURCE_DIR}/sm/random
-    ${PROJECT_SOURCE_DIR}/sm/vec
-    ${PROJECT_SOURCE_DIR}/sm/bezcoord
-    ${PROJECT_SOURCE_DIR}/sm/hex
-    ${PROJECT_SOURCE_DIR}/sm/quaternion
-    ${PROJECT_SOURCE_DIR}/sm/mat
-    ${PROJECT_SOURCE_DIR}/sm/vvec
-    ${PROJECT_SOURCE_DIR}/sm/algo
-    ${PROJECT_SOURCE_DIR}/sm/nm_simplex)
+add_executable(hexgrid hexgrid.cpp)
+target_sources(hexgrid PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/random
+  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/bezcoord
+  ${PROJECT_SOURCE_DIR}/sm/hex
+  ${PROJECT_SOURCE_DIR}/sm/quaternion
+  ${PROJECT_SOURCE_DIR}/sm/mat
+  ${PROJECT_SOURCE_DIR}/sm/vvec
+  ${PROJECT_SOURCE_DIR}/sm/algo
+  ${PROJECT_SOURCE_DIR}/sm/nm_simplex)
 
-  add_executable(bezcurve bezcurve.cpp)
-  target_sources(bezcurve PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
-    FILES
-    ${PROJECT_SOURCE_DIR}/sm/range
-    ${PROJECT_SOURCE_DIR}/sm/random
-    ${PROJECT_SOURCE_DIR}/sm/vec
-    ${PROJECT_SOURCE_DIR}/sm/bezcoord
-    ${PROJECT_SOURCE_DIR}/sm/quaternion
-    ${PROJECT_SOURCE_DIR}/sm/mat
-    ${PROJECT_SOURCE_DIR}/sm/vvec
-    ${PROJECT_SOURCE_DIR}/sm/algo
-    ${PROJECT_SOURCE_DIR}/sm/nm_simplex)
-  target_link_libraries(bezcurve ${ARMADILLO_LIBRARY} ${ARMADILLO_LIBRARIES})
-endif()
+add_executable(bezcurve bezcurve.cpp)
+target_sources(bezcurve PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/random
+  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/bezcoord
+  ${PROJECT_SOURCE_DIR}/sm/quaternion
+  ${PROJECT_SOURCE_DIR}/sm/mat
+  ${PROJECT_SOURCE_DIR}/sm/vvec
+  ${PROJECT_SOURCE_DIR}/sm/algo
+  ${PROJECT_SOURCE_DIR}/sm/nm_simplex)
 
 add_executable(vonmises vonmises.cpp)
 target_sources(vonmises PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR} FILES ${PROJECT_SOURCE_DIR}/sm/random)

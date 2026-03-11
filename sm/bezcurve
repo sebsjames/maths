@@ -312,8 +312,6 @@ namespace sm
             }
 
             // Translate the points back by p0 to place them in the correct final position
-            //arma::Mat<F> pm1_r_final = pm1_r_after + p0;
-            //arma::Mat<F> pm2_r_final = pm2_r_after + p0;
             sm::vec<F, 2> pm1_r_final = pm1_r_after + p0;
             sm::vec<F, 2> pm2_r_final = pm2_r_after + p0;
 
@@ -531,7 +529,6 @@ namespace sm
             // Note that you really need double precision in the matrices whilst
             // computing a Bezier best fit. If we use single precision, the fits are
             // only good up to Bezier order 4 or 5, rather than 8-10.
-            //arma::Mat<double> P (n, 2, arma::fill::zeros);
             sm::mat<double, n, 2> P;
             for (auto p : points) {
                 P(i, 0) = p[0];
@@ -617,10 +614,9 @@ namespace sm
                 sign0 = sign0 > F{0} ? F{-1} : F{1};
             }
             sm::mat<F, n, 2u> C1 = Q * this->C;
-            // Shift rows then flip
+            // Shift (or rotate) rows then flip
             for (int32_t i = 0; i < n; ++i) {
-                // old: Q.row(i) = arma::shift (Q.row(i), (n - 1 - i));
-                // That's 'rotate row'
+                // 'rotate row'
                 sm::vec<F, n> rw = Q.row (i);
                 rw.rotate (static_cast<int32_t>(n) - 1 - i); // FIXME MAY BE IN WRONG DIRECTION NOW
                 Q.set_row (i, rw);
