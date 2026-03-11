@@ -37,39 +37,45 @@ import sm.nm_simplex;
 
 export namespace sm
 {
+    //! How many rows of Pascal's triangle to compute
+    constexpr uint32_t pascal_rows = 21;
+    constexpr uint32_t pascal_size = pascal_rows * (pascal_rows + 1) / 2;
+
     /*!
-     * Store the first N=21 rows of Pascal's triangle in a linear array. To get the
+     * Return the first N rows of Pascal's triangle in a linear array. To get the
      * values from row n, where n starts at 0 (and ends at N-1), you step along a number
      * given by the triangle sequence (n(n+1)/2) and then read n+1 values. The triangle
      * has a total number of elements given by N(N+1)/2, which for 21 rows is 21(22)/2 =
      * 210.
+     *
+     * \tparam N number of rows in Pascal's triangle
      */
-    //! How many rows in the table below.
-    constexpr uint32_t PascalRows = 21;
-    constexpr uint32_t PascalElem = PascalRows * PascalRows + 1 / 2;
-    // Fixme: Compute by constexpr function
-    constexpr std::array<uint32_t, PascalElem> Pascal =
-    {1,
-     1,1,
-     1,2,1,
-     1,3,3,1,
-     1,4,6,4,1,
-     1,5,10,10,5,1,
-     1,6,15,20,15,6,1,
-     1,7,21,35,35,21,7,1,
-     1,8,28,56,70,56,28,8,1,
-     1,9,36,84,126,126,84,36,9,1,
-     1,10,45,120,210,252,210,120,45,10,1,
-     1,11,55,165,330,462,462,330,165,55,11,1,
-     1,12,66,220,495,792,924,792,495,220,66,12,1,
-     1,13,78,286,715,1287,1716,1716,1287,715,286,78,13,1,
-     1,14,91,364,1001,2002,3003,3432,3003,2002,1001,364,91,14,1,
-     1,15,105,455,1365,3003,5005,6435,6435,5005,3003,1365,455,105,15,1,
-     1,16,120,560,1820,4368,8008,11440,12870,11440,8008,4368,1820,560,120,16,1,
-     1,17,136,680,2380,6188,12376,19448,24310,24310,19448,12376,6188,2380,680,136,17,1,
-     1,18,153,816,3060,8568,18564,31824,43758,48620,43758,31824,18564,8568,3060,816,153,18,1,
-     1,19,171,969,3876,11628,27132,50388,75582,92378,92378,75582,50388,27132,11628,3876,969,171,19,1,
-     1,20,190,1140,4845,15504,38760,77520,125970,167960,184756,167960,125970,77520,38760,15504,4845,1140,190,20,1};
+    template <uint64_t N>
+    constexpr std::array<uint64_t, (N * (N + 1u) / 2u)> make_pascals_triangle()
+    {
+        auto binomialNK = [](uint64_t n, uint64_t k)
+        {
+            uint64_t res = 1u;
+            k = (k > n - k) ? n - k : k;
+            for (uint64_t i = 0u; i < k; ++i) {
+                res *= (n - i);
+                res /= (i + 1u);
+            }
+            return res;
+        };
+
+        std::array<uint64_t, (N * (N + 1u) / 2u)> rtn;
+        uint64_t idx = 0u;
+        for (uint64_t row = 0u; row < N; row++) {
+            for (uint64_t i = 0u; i <= row; i++) {
+                rtn[idx++] = binomialNK (row, i);
+            }
+        }
+
+        return rtn;
+    }
+
+    constexpr std::array<uint64_t, pascal_size> Pascal = make_pascals_triangle<pascal_rows>();
 
     /*!
      * Look up the binomial coefficient (n,k) from sm::Pascal.
@@ -79,10 +85,10 @@ export namespace sm
      * values. OR to get n,k, step along a number given by the triangle sequence
      * (n(n+1)/2) and then step another k space to the result.
      */
-    constexpr uint32_t binomial_lookup (const uint32_t n, const uint32_t k)
+    constexpr uint64_t binomial_lookup (const uint64_t n, const uint64_t k)
     {
-        uint32_t idx = (n * (n + 1u) / 2u) + k;
-        if (idx >= sm::PascalElem) { return std::numeric_limits<uint32_t>::max(); }
+        uint64_t idx = (n * (n + 1u) / 2u) + k;
+        if (idx >= sm::pascal_size) { return std::numeric_limits<uint64_t>::max(); }
         return sm::Pascal[idx];
     }
 
@@ -1213,7 +1219,7 @@ export namespace sm
         sm::mat<F, order + 1u> matrixSetup_M()
         {
             // Check order here
-            static_assert (order + 1u - 1 < sm::PascalRows, "This code is limited to Bezier Curves of order PascalRows - 1 "
+            static_assert (order + 1u - 1 < sm::pascal_rows, "This code is limited to Bezier Curves of order pascal_rows - 1 "
                            "by the current size of the sm::Pascal lookup table (fix with a constexpr function to generate Pascal's triangle");
             sm::mat<F, order + 1u> _M;
             _M.set_zero();
