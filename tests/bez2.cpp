@@ -17,10 +17,10 @@ int main()
     sm::vec<float, 2> v3 = {0.28f, 0.45f};
     sm::vec<float, 2> v4 = {-0.28f, 0.45f};
 
-    sm::bezcurve<float> c1(v1,v2);
-    sm::bezcurve<float> c2(v2,v3);
-    sm::bezcurve<float> c3(v3,v4);
-    sm::bezcurve<float> c4(v4,v1);
+    sm::bezcurve<float, 1> c1(v1,v2);
+    sm::bezcurve<float, 1> c2(v2,v3);
+    sm::bezcurve<float, 1> c3(v3,v4);
+    sm::bezcurve<float, 1> c4(v4,v1);
     std::cout << "instanciated curves" << std::endl;
     sm::bezcurvepath<float> bound;
     std::cout << "instanciated curvepath" << std::endl;

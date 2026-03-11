@@ -96,16 +96,13 @@ namespace sm
         }
 
         //! Add a curve to this->curves.
-        void addCurve (bezcurve<F, 3>& c)
+        template<uint32_t order>
+        void addCurve (bezcurve<F, order>& c)
         {
-            if (c.getOrder() == 0) {
-                std::cout << "Not adding 0th order curve." << std::endl;
-            } else {
-                if (this->curves.empty()) {
-                    this->initialCoordinate = c.getInitialPointScaled();
-                }
-                this->curves.push_back (c);
+            if (this->curves.empty()) {
+                this->initialCoordinate = c.getInitialPointScaled();
             }
+            this->curves.push_back (c);
         }
 
         //! Remove a curve from this->curves.

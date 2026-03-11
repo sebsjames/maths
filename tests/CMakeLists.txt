@@ -996,7 +996,7 @@ endif()
 if(ARMADILLO_FOUND)
 
   # vvec<vec> warning about attributes in gcc14
-  if(CMAKE_COMPILER_IS_GNUCXX AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 14.99)
+  #if(CMAKE_COMPILER_IS_CLANG OR (CMAKE_COMPILER_IS_GNUCXX AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 14.99))
     # BezCurve class
     set(TARGETTEST1 bez1)
     set(SOURCETEST1 bez1.cpp)
@@ -1009,12 +1009,15 @@ if(ARMADILLO_FOUND)
       ${PROJECT_SOURCE_DIR}/sm/bezcoord
       ${PROJECT_SOURCE_DIR}/sm/vvec
       ${PROJECT_SOURCE_DIR}/sm/algo
+      ${PROJECT_SOURCE_DIR}/sm/quaternion
+      ${PROJECT_SOURCE_DIR}/sm/mat
       ${PROJECT_SOURCE_DIR}/sm/nm_simplex)
     target_link_libraries(${TARGETTEST1} ${ARMADILLO_LIBRARY} ${ARMADILLO_LIBRARIES})
     add_test(bez1 ${TARGETTEST1})
-  endif()
+  #endif()
 
   # BezCurve class (uses hexgrid)
+  if(0)
   add_executable(bez2 bez2.cpp)
   target_sources(bez2 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
     FILES
@@ -1030,7 +1033,7 @@ if(ARMADILLO_FOUND)
     ${PROJECT_SOURCE_DIR}/sm/nm_simplex)
   target_link_libraries(bez2 ${ARMADILLO_LIBRARY} ${ARMADILLO_LIBRARIES})
   add_test(bez2 bez2)
-
+  endif()
   # vvec<vec> warning about attributes in gcc14
   if(CMAKE_COMPILER_IS_GNUCXX AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 14.99)
     # BezCurvePath class

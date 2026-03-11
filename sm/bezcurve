@@ -107,7 +107,9 @@ namespace sm
         bezcurve (sm::vvec<sm::vec<F, 2>> cp)
         {
             this->M = matrixSetup_M();
-            this->C.set_size (cp.size(), 2);
+            if (this->C.rows() != cp.size() || this->C.cols() != 2u) {
+                throw std::runtime_error ("bezcurve: size of control points does not match order");
+            }
             int32_t i = 0;
             for (auto c : cp) {
                 this->C(i, 0) = c[0];
@@ -129,11 +131,12 @@ namespace sm
          * Construct a cubic Bezier curve with a specification of the curve as inital
          * and final position with two control points.
          */
-        bezcurve (const sm::vec<F, 2>& ip, const sm::vec<F, 2>& fp,
-                  const sm::vec<F, 2>& c1, const sm::vec<F, 2>& c2)
+        template <typename Fy = F> requires (order == 3)
+        bezcurve (const sm::vec<Fy, 2>& ip, const sm::vec<Fy, 2>& fp,
+                  const sm::vec<Fy, 2>& c1, const sm::vec<Fy, 2>& c2)
         {
             this->M = matrixSetup_M();
-            this->C.set_size (4, 2);
+            //this->C.set_size (4, 2);
             this->C(0, 0) = ip[0];
             this->C(0, 1) = ip[1];
             this->C(1, 0) = c1[0];

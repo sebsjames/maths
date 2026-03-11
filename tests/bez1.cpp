@@ -20,7 +20,7 @@ int main()
     f = {10,1};
 
     // Make a cubic curve
-    sm::bezcurve<float> cc(i, f, c1, c2);
+    sm::bezcurve<float, 3> cc(i, f, c1, c2);
 
     // Length of step along curve
     std::ofstream f1;
