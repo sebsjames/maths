@@ -19,6 +19,7 @@
 module;
 
 #include <cstdint>
+#include <limits>
 #include <array>
 #include <string>
 #include <sstream>
@@ -110,11 +111,6 @@ export namespace sm
         //! Explicitly defaulted move assignment constructor
         mat<F, Nr, Nc>& operator= (mat<F, Nr, Nc>&& other) noexcept = default;
 
-        F operator() (uint32_t r, uint32_t c) noexcept
-        {
-            F value = ...;
-        }
-
         /*!
          * The transformation matrix data, arranged in column major format to be OpenGL
          * friendly.
@@ -160,6 +156,8 @@ export namespace sm
 
         constexpr void set_zero() noexcept { this->arr.fill (F{0}); }
 
+        constexpr void set_from (const F val) noexcept { this->arr.fill (val); }
+
         //! Return the identity matrix
         static constexpr mat<F, Nr, Nc> identity() noexcept
         {
@@ -170,6 +168,14 @@ export namespace sm
         }
 
         static constexpr mat<F, Nr, Nc> zero() noexcept { return sm::mat<F, Nr, Nc>{{0}}; }
+
+        template<typename T>
+        constexpr mat<T, Nr, Nc> as() const noexcept
+        {
+            mat<T, Nr, Nc> m;
+            for (uint32_t i = 0; i < Nr * Nc; ++i) { m[i] = static_cast<T>(this->arr[i]); }
+            return m;
+        }
 
         //! Set *this from a transform matrix to transform a coordinate into the given coordinate basis set
         constexpr void frombasis_inplace (const sm::vec<F> bx, const sm::vec<F> by, const sm::vec<F> bz)
@@ -207,29 +213,67 @@ export namespace sm
             return m;
         }
 
+        //! Get value at row, col given in arg. If row/col are outside matrix, return NaN
+        constexpr F operator() (uint32_t r, uint32_t c) const noexcept
+        {
+            uint32_t i = (c * Nr) + r;
+            constexpr F badrtn = std::numeric_limits<F>::has_quiet_NaN ? std::numeric_limits<F>::quiet_NaN() : std::numeric_limits<F>::max();
+            return i < this->arr.size() ? this->arr[i] : badrtn;
+        }
+
+        //! Access (read or write) value at row, col given in arg. If row/col are outside matrix, access last element of matrix.
+        constexpr F& operator() (uint32_t r, uint32_t c)
+        {
+            uint32_t i = (c * Nr) + r;
+            return i < this->arr.size() ? this->arr[i] : this->arr[Nr * Nc - 1];
+        }
+
         //! Access elements of the matrix (returns ref, so not const)
         constexpr F& operator[] (const uint32_t idx) noexcept { return this->arr[idx]; }
 
         //! Access elements of the matrix with const promise
         constexpr F operator[] (const uint32_t idx) const noexcept { return this->arr[idx]; }
+        /* With C++-23 will be able to do:
+        constexpr F operator[] (uint32_t r, uint32_t c) const noexcept
+        {
+            uint32_t i = (c * Nr) + r;
+            constexpr F badrtn = std::numeric_limits<F>::has_quiet_NaN ? std::numeric_limits<F>::quiet_NaN() : std::numeric_limits<F>::max();
+            return i < this->arr.size() ? this->arr[i] : badrtn;
+        }
+        */
 
         //! Access a given row of the matrix
-        constexpr sm::vec<F, Nc> row (uint32_t idx) const noexcept
+        constexpr sm::vec<F, Nc> row (const uint32_t idx) const noexcept
         {
             sm::vec<F, Nc> r = {};
-            if (idx >= Nc) { return r; }
-            for (uint32_t i = 0; i < Nc; ++i) { r[i] = this->arr[idx * Nr * i]; }
+            if (idx >= Nr) { return r; }
+            for (uint32_t i = 0; i < Nc; ++i) { r[i] = this->arr[idx + Nr * i]; }
             return r;
+        }
+        constexpr uint32_t rows() const noexcept { return Nr; }
+
+        //! Set a row with the passed-in vec
+        constexpr void set_row (const uint32_t idx, const sm::vec<F, Nc>& rowdata) noexcept
+        {
+            for (uint32_t i = 0; i < Nc; ++i) { this->arr[idx + Nr * i] = rowdata[i]; }
         }
 
         //! Access a given column of the matrix
-        constexpr sm::vec<F, Nr> col (uint32_t idx) const noexcept
+        constexpr sm::vec<F, Nr> col (const uint32_t idx) const noexcept
         {
             sm::vec<F, Nr> c = {};
-            if (idx >= Nr) { return c; }
-            idx *= Nr;
-            for (uint32_t i = 0; i < Nr; ++i) { c[i] = this->arr[idx++]; }
+            if (idx >= Nc) { return c; }
+            uint32_t arridx_start = idx * Nr;
+            for (uint32_t i = 0; i < Nr; ++i) { c[i] = this->arr[arridx_start++]; }
             return c;
+        }
+        constexpr uint32_t cols() const noexcept { return Nc; }
+
+        //! Set a col with the passed-in vec
+        constexpr void set_col (const uint32_t idx, const sm::vec<F, Nr>& coldata) noexcept
+        {
+            uint32_t arridx_start = idx * Nr;
+            for (uint32_t i = 0; i < Nr; ++i) { this->arr[arridx_start + i] = coldata[i]; }
         }
 
         //! Apply pre-translation specified by vector @dv as this = m * this (pre-multiply)
@@ -699,6 +743,34 @@ export namespace sm
                 tr += this->arr[i];
             }
             return tr;
+        }
+
+        // Return mat with the order of the rows reversed
+        constexpr mat<F, Nr, Nc> flipud() const noexcept
+        {
+            mat<F, Nr, Nc> m;
+            for (uint32_t i = 0; i < Nr; ++i) { m.set_row (Nr - 1 - i, this->row (i)); }
+            return m;
+        }
+
+        constexpr void flipud_inplace() const noexcept
+        {
+            mat<F, Nr, Nc> m = this->flipud();
+            (*this) = m;
+        }
+
+        // Return mat with the order of the cols reversed
+        constexpr mat<F, Nr, Nc> fliplr() const noexcept
+        {
+            mat<F, Nr, Nc> m;
+            for (uint32_t i = 0; i < Nc; ++i) { m.set_col (Nc - 1 - i, this->col (i)); }
+            return m;
+        }
+
+        constexpr void fliplr_inplace() const noexcept
+        {
+            mat<F, Nr, Nc> m = this->fliplr();
+            (*this) = m;
         }
 
         /*!

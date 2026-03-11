@@ -25,6 +25,7 @@
 #include <random>
 
 #include <sm/mathconst>
+#include <sm/constexpr_math>
 
 import sm.vvec;
 import sm.nm_simplex;
@@ -76,7 +77,7 @@ namespace sm
      * values. OR to get n,k, step along a number given by the triangle sequence
      * (n(n+1)/2) and then step another k space to the result.
      */
-    uint32_t binomial_lookup (uint32_t n, uint32_t k)
+    constexpr uint32_t binomial_lookup (const uint32_t n, const uint32_t k)
     {
         uint32_t idx = (n * (n + 1u) / 2u) + k;
         if (idx >= sm::PascalElem) { return std::numeric_limits<uint32_t>::max(); }
@@ -97,14 +98,15 @@ namespace sm
         static constexpr bool debug_bezcurve = false;
 
         //! Do-nothing constructor
-        bezcurve() { order = 0; }
+        bezcurve() { this->M = matrixSetup_M(); }
 
         /*!
-         * Construct a Bezier curve of order cp.size()-1 with the initial and final
-         * points making up part of cp.
+         * Construct a Bezier curve of order cp.size()-1 **with the initial and final
+         * points making up part of cp**.
          */
         bezcurve (sm::vvec<sm::vec<F, 2>> cp)
         {
+            this->M = matrixSetup_M();
             this->C.set_size (cp.size(), 2);
             int32_t i = 0;
             for (auto c : cp) {
@@ -116,8 +118,9 @@ namespace sm
         }
 
         //! Construct a Bezier curve using the control points provided in the matrix @cmat.
-        bezcurve (const arma::Mat<F>& cmat)
+        bezcurve (const sm::mat<F, order + 1u, 2u>& cmat)
         {
+            this->M = matrixSetup_M();
             this->C = cmat;
             this->init();
         }
@@ -129,6 +132,7 @@ namespace sm
         bezcurve (const sm::vec<F, 2>& ip, const sm::vec<F, 2>& fp,
                   const sm::vec<F, 2>& c1, const sm::vec<F, 2>& c2)
         {
+            this->M = matrixSetup_M();
             this->C.set_size (4, 2);
             this->C(0, 0) = ip[0];
             this->C(0, 1) = ip[1];
@@ -145,8 +149,10 @@ namespace sm
          * Construct a quadratic Bezier curve with a specification of the curve as
          * inital and final position with a single control point
          */
-        bezcurve (const sm::vec<F, 2>& ip, const sm::vec<F, 2>& fp, const sm::vec<F, 2>& c1)
+        template <typename Fy = F> requires (order == 2)
+        bezcurve (const sm::vec<Fy, 2>& ip, const sm::vec<Fy, 2>& fp, const sm::vec<Fy, 2>& c1)
         {
+            this->M = matrixSetup_M();
             this->C.set_size (3, 2);
             this->C(0, 0) = ip[0];
             this->C(0, 1) = ip[1];
@@ -158,8 +164,10 @@ namespace sm
         }
 
         //! Construct a linear Bezier curve for production of straight lines.
-        bezcurve (const sm::vec<F, 2>& ip, const sm::vec<F, 2>& fp)
+        template <typename Fy = F> requires (order == 1)
+        bezcurve (const sm::vec<Fy, 2>& ip, const sm::vec<Fy, 2>& fp)
         {
+            this->M = matrixSetup_M();
             this->C.set_size (2, 2);
             this->C(0, 0) = ip[0];
             this->C(0, 1) = ip[1];
@@ -172,6 +180,7 @@ namespace sm
         bezcurve (const sm::vec<F, 2>& ip, const sm::vec<F, 2>& fp,
                   const sm::vvec<sm::vec<F, 2>>& cp)
         {
+            this->M = matrixSetup_M();
             uint32_t n_ctrls = cp.size()+2;
             this->C.set_size (n_ctrls, 2);
             this->C(0, 0) = ip[0];
@@ -204,7 +213,7 @@ namespace sm
          * appends to the end of @c. *May also modify @c*. Set @optimize to true to try
          * out experimental fit improvements.
          */
-        void fit (const sm::vvec<sm::vec<F, 2>>& points, bezcurve<F>& preceding, bool optimize=false)
+        void fit (const sm::vvec<sm::vec<F, 2>>& points, bezcurve<F, order>& preceding, bool optimize=false)
         {
             // First, find the best fit for @points, without reference to the @preceding curve.
             this->fit (points);
@@ -240,52 +249,46 @@ namespace sm
                           << (phi * 180 / sm::mathconst<F>::pi) << " deg" << std::endl;
             }
 
-            // Construct rotn matrix (one for positive rotation, one for negative)
-            arma::Mat<F> rotmat_pos (2,2);
-            rotmat_pos(0,0) = std::cos (phi);
-            rotmat_pos(0,1) = std::sin (phi);
-            rotmat_pos(1,0) = -rotmat_pos(0,1);
-            rotmat_pos(1,1) = rotmat_pos(0,0);
-
-            arma::Mat<F> rotmat_neg (2,2);
-            rotmat_neg(0,0) = std::cos (-phi);
-            rotmat_neg(0,1) = std::sin (-phi);
-            rotmat_neg(1,0) = -rotmat_neg(0,1);
-            rotmat_neg(1,1) = rotmat_neg(0,0);
+            // Construct rotn matrices (one for positive rotation, one for negative)
+            sm::mat<F, 2> rotmat_pos;
+            rotmat_pos.rotate (phi); // switched vs arma as I'll rotate vec as rmat * vec, not vmat * rmat
+            sm::mat<F, 2> rotmat_neg;
+            rotmat_neg.rotate (-phi);
 
             // Now we rotate each point by +/-phi
             // p0 is the point which joins the two curves:
-            arma::Mat<F> p0 = C.row(0);
+            sm::vec<F, 2> p0 = C.row (0);
 
             // Rotate the vector 'va' in the rotmat_neg direction
-            arma::Mat<F> pm1 (1,2);
-            pm1(0,0) = prec_ctrl[len-2][0];
-            pm1(0,1) = prec_ctrl[len-2][1];
+            sm::vec<F, 2> pm1 = prec_ctrl[len-2];
+
             // Offset so we rotate va about p0
-            arma::Mat<F> pm1_r = pm1 - p0;
+            sm::vec<F, 2> pm1_r = pm1 - p0;
 
             // Rotate the vector vb in the opposing direction (rotmat_pos)
-            arma::Mat<F> pm2 = C.row(1);
-            arma::Mat<F> pm2_r = pm2 - p0;
+            sm::vec<F, 2> pm2 = C.row (1);
+
+            sm::vec<F, 2> pm2_r = pm2 - p0;
 
             // Apply rotations depending on the quadrant in which ang_a and ang_b (and thus theta) lay in.
-            arma::Mat<F> pm1_r_after;
-            arma::Mat<F> pm2_r_after;
+            sm::vec<F, 2> pm1_r_after;
+            sm::vec<F, 2> pm2_r_after;
+
             if (ang_b < F{0}) {
                 if (ang_a > F{0}) {
                     if constexpr (debug_bezcurve == true) {
                         std::cout << "bezcurve::fit(): Type I join" << std::endl;
                         std::cout << "                 Rotate va +phi, vb -phi." << std::endl;
                     }
-                    pm1_r_after = pm1_r * rotmat_pos;
-                    pm2_r_after = pm2_r * rotmat_neg;
+                    pm1_r_after = rotmat_pos * pm1_r;
+                    pm2_r_after = rotmat_neg * pm2_r;
                 } else {
                     if constexpr (debug_bezcurve == true) {
                         std::cout << "bezcurve::fit(): Type II join" << std::endl;
                         std::cout << "                 Rotate va +phi, vb +phi." << std::endl;
                     }
-                    pm1_r_after = pm1_r * rotmat_pos;
-                    pm2_r_after = pm2_r * rotmat_pos;
+                    pm1_r_after = rotmat_pos * pm1_r;
+                    pm2_r_after = rotmat_pos * pm2_r;
                 }
             } else {
                 if (ang_a > F{0}) {
@@ -293,29 +296,30 @@ namespace sm
                         std::cout << "bezcurve::fit(): Type III join" << std::endl;
                         std::cout << "                 Rotate va -phi, vb -phi." << std::endl;
                     }
-                    pm1_r_after = pm1_r * rotmat_neg;
-                    pm2_r_after = pm2_r * rotmat_neg;
+                    pm1_r_after = rotmat_neg * pm1_r;
+                    pm2_r_after = rotmat_neg * pm2_r;
                 } else {
                     if constexpr (debug_bezcurve == true) {
                         std::cout << "bezcurve::fit(): Type IV join" << std::endl;
                         std::cout << "                 Rotate va -phi, vb +phi." << std::endl;
                     }
-                    pm1_r_after = pm1_r * rotmat_neg;
-                    pm2_r_after = pm2_r * rotmat_pos;
+                    pm1_r_after = rotmat_neg * pm1_r;
+                    pm2_r_after = rotmat_pos * pm2_r;
                 }
             }
 
             // Translate the points back by p0 to place them in the correct final position
-            arma::Mat<F> pm1_r_final = pm1_r_after + p0;
-            arma::Mat<F> pm2_r_final = pm2_r_after + p0;
+            //arma::Mat<F> pm1_r_final = pm1_r_after + p0;
+            //arma::Mat<F> pm2_r_final = pm2_r_after + p0;
+            sm::vec<F, 2> pm1_r_final = pm1_r_after + p0;
+            sm::vec<F, 2> pm2_r_final = pm2_r_after + p0;
 
-            C.row(1) = pm2_r_final;
+            C.set_row (1, pm2_r_final);
 
             this->init();
 
             // Update the other curve's control points, also.
-            prec_ctrl[len-2][0] = pm1_r_final(0,0);
-            prec_ctrl[len-2][1] = pm1_r_final(0,1);
+            prec_ctrl[len-2] = pm1_r_final;
             preceding.updateControls (prec_ctrl);
 
             if constexpr (debug_bezcurve == true) {
@@ -342,13 +346,13 @@ namespace sm
             if constexpr (debug_bezcurve == true) {
                 std::cout << "Objective with no optimization: " << startsos << std::endl;
             }
-            arma::Mat<F> Copy = this->C;
+            sm::mat<F, order - 1u, 2u> Copy = this->C;
 
             // Convert the middle rows of C to vector<F> to be the first NM vertex
             sm::vvec<F> v0;
             int32_t startrow = 2;
             int32_t endrow = 2; // 2 means don't change the angle of the end of the curve
-            for (int32_t r = startrow; r < static_cast<int32_t>(C.n_rows) - endrow; ++r) {
+            for (int32_t r = startrow; r < static_cast<int32_t>(order - 1u) - endrow; ++r) {
                 v0.push_back (this->C(r,0));
                 v0.push_back (this->C(r,1));
             }
@@ -508,36 +512,37 @@ namespace sm
          */
         void fit (const sm::vvec<sm::vec<F, 2>>& points)
         {
+            // points must be right size, which is == order
+            if (points.size() != order + 1) {
+                std::stringstream ee;
+                ee << "Need " << (order + 1) << " coordinates to fit a " << order << " order Bezier curve";
+                throw std::runtime_error (ee.str());
+            }
+
             // Set the order for the curve
-            int32_t n = points.size();
-            order = n - 1;
+            constexpr uint32_t n = order + 1u; // points.size();
+            // order = points.size() - 1; // checked
 
-            // Empty C here, in advance of this->matrixSetup(), and make sure it has the
-            // right size, though it can just be zeros.
-            this->C = arma::Mat<F> (n, 2, arma::fill::zeros);
-
-            // This call to matrixSetup will set up this->M (required for the fit)
-            this->matrixSetup();
-
-            int32_t i = 0;
+            uint32_t i = 0u;
 
             // Note that you really need double precision in the matrices whilst
             // computing a Bezier best fit. If we use single precision, the fits are
             // only good up to Bezier order 4 or 5, rather than 8-10.
-            arma::Mat<double> P (n, 2, arma::fill::zeros);
+            //arma::Mat<double> P (n, 2, arma::fill::zeros);
+            sm::mat<double, n, 2> P;
             for (auto p : points) {
-                P(i,0) = p[0];
-                P(i++,1) = p[1];
+                P(i, 0) = p[0];
+                P(i++, 1) = p[1];
             }
 
             // Compute candidate t values for the points.
-            i = 0;
-            arma::Mat<double> D (n, 1, arma::fill::zeros);
-            arma::Mat<double> S (n, 1, arma::fill::zeros);
-            double total_len = F{0};
+            i = 0u;
+            auto D = sm::mat<double, n, 1u>::zero();
+            auto S = sm::mat<double, n, 1u>::zero();
+            double total_len = double{0};
             for (i = 1; i < n; ++i) {
-                double xdiff = P(i,0) - P(i - 1, 0);
-                double ydiff = P(i,1) - P(i - 1, 1);
+                double xdiff = P(i,0) - P(i - 1, 0u);
+                double ydiff = P(i,1) - P(i - 1, 1u);
                 double len = std::sqrt (xdiff * xdiff + ydiff * ydiff);
                 total_len += len;
                 D(i,0) = total_len;
@@ -551,35 +556,37 @@ namespace sm
             // https://pomax.github.io/bezierinfo/#curvefitting) This takes each t and
             // makes one column containing all the powers of t relevant to the order
             // that we're looking for.
-            arma::Mat<double> TT (n, n, arma::fill::ones);
+            sm::mat<double, n, n> TT;
+            TT.set_from (1.0);
             for (i = 0; i < n; ++i) {
-                for (int32_t j = 0; j < n; ++j) {
+                for (uint32_t j = 0; j < n; ++j) {
                     double s = S(i, 0);
                     TT(i, j) = std::pow (s, j);
                 }
             }
 
             // Convert to double precision
-            arma::Mat<double> Md = arma::conv_to<arma::Mat<double>>::from (this->M);
-
+            sm::mat<double, n> Md = this->M.template as<double>();
             // Magic matrix incantation to find the best set of coordinates:
-            arma::Mat<double> Cd = Md.i() * (TT.t() * TT).i() * TT.t() * P;
-
+            Md.inverse_inplace();
+            sm::mat<double, n, 2> Cd = Md * (TT.transpose() * TT).inverse() * TT.transpose() * P;
             // Cast back to Fs
-            this->C = arma::conv_to<arma::Mat<F>>::from (Cd);
+            this->C = Cd.template as<F>();
 
             // Re-init
             this->init();
         }
 
         //! Obtain and return the derivative of this Bezier curve
-        bezcurve<F> derivative() const
+        bezcurve<F, order - 1u> derivative() const
         {
-            arma::Mat<F> deriv_cp(order, 2);
+            sm::mat<F, order, 2u> deriv_cp;
             for (uint32_t i = 0; i < order; ++i) {
-                deriv_cp.row(i) = order * (this->C.row(i + 1) - this->C.row(i));
+                sm::vec<F, 2> drow = (this->C.row(i + 1) - this->C.row(i)) * order;
+                deriv_cp.set_row (i, drow);
             }
-            return sm::bezcurve<F> (deriv_cp);
+            sm::bezcurve<F, order - 1u> bcrtn (deriv_cp);
+            return bcrtn;
         }
 
         /*!
@@ -588,16 +595,15 @@ namespace sm
          * Using the matrix representation find, from this->C, a C1 and C2 that trace
          * the same trajectory.
          */
-        std::pair<arma::Mat<F>, arma::Mat<F>> split (F z) const
+        std::pair<sm::mat<F, order + 1u, 2u>, sm::mat<F, order + 1u, 2u>> split (F z) const
         {
-            int32_t n = order + 1;
+            constexpr uint32_t n = order + 1u;
             // 'z prime':
             F zp = z - F{1};
-            arma::Mat<F> C1 (n, 2, arma::fill::zeros);
-            arma::Mat<F> C2 (n, 2, arma::fill::zeros);
             F sign0 = F{1};
             F sign = sign0;
-            arma::Mat<F> Q (n, n, arma::fill::zeros);
+            sm::mat<F, n, n> Q;
+            Q.set_zero();
             for (int32_t i = 0; i < n; ++i) {
                 sign = sign0;
                 for (int32_t j = 0; j <= i; ++j) {
@@ -607,12 +613,16 @@ namespace sm
                 }
                 sign0 = sign0 > F{0} ? F{-1} : F{1};
             }
-            C1 = Q * this->C;
+            sm::mat<F, n, 2u> C1 = Q * this->C;
             // Shift rows then flip
             for (int32_t i = 0; i < n; ++i) {
-                Q.row(i) = arma::shift (Q.row(i), (n - i - 1));
+                // old: Q.row(i) = arma::shift (Q.row(i), (n - 1 - i));
+                // That's 'rotate row'
+                sm::vec<F, n> rw = Q.row (i);
+                rw.rotate (static_cast<int32_t>(n) - 1 - i); // FIXME MAY BE IN WRONG DIRECTION NOW
+                Q.set_row (i, rw);
             }
-            C2 = arma::flipud (Q) * this->C;
+            sm::mat<F, n, 2u> C2 = Q.flipud() * this->C;
 
             return std::make_pair(C1, C2);
         }
@@ -707,14 +717,15 @@ namespace sm
         bezcoord<F> computePointMatrix (F t) const
         {
             this->checkt(t);
-            int32_t mp = order + 1;
-            arma::Mat<F> T(1, mp, arma::fill::ones);// First element is one anyway
+            constexpr int32_t mp = order + 1;
+            sm::mat<F, 1, mp> T;
+            T.set_from (F{1});
             for (int32_t i = 1; i < mp; ++i) {
-                T(i) = std::pow (t, static_cast<double>(i));
+                T(0, i) = std::pow (t, static_cast<double>(i));
             }
-            arma::Mat<F> bp = T * this->MC;
-            sm::vec<F, 2> _bp = {static_cast<F>(bp(0)), static_cast<F>(bp(1))};
-            return bezcoord<F> (t, _bp);
+            /*sm::mat<F, 1, mp>*/ auto bp = T * this->MC;
+            std::cout << "bp has " << bp.rows() << " rows and " << bp.cols() << " cols\n";
+            return bezcoord<F> (t, bp.row (0));
         }
 
         //! Compute a Bezier curve of general order using the conventional method.
@@ -766,13 +777,13 @@ namespace sm
         std::pair<bezcoord<F>, bezcoord<F>> computeTangentNormal (const F t) const
         {
             bezcoord<F> tang;
-            if (this->C.n_rows == 2) {
+            if (this->C.rows() == 2) {
                 // Can't compute tangent using the derivative as derivative would be a
                 // curve with a single control point. The tangent to a line is
                 // simply the line:
                 tang = this->computePoint (t);
             } else {
-                bezcurve<F> deriv = this->derivative();
+                bezcurve<F, order - 1u> deriv = this->derivative();
                 tang = deriv.computePoint (t);
             }
             tang.normalize();
@@ -893,7 +904,7 @@ namespace sm
             this->linlength = std::sqrt ((C(order, 0) - C(0, 0)) * (C(order, 0) - C(0, 0))
                                          + (C(order, 1) - C(0, 1)) * (C(order, 1) - C(0, 1)));
             this->linlengthscaled = this->scale * this->linlength;
-            this->matrixSetup();
+            this->MC = this->M * this->C;
         }
 
         /*!
@@ -1135,7 +1146,7 @@ namespace sm
         }
 
         //! Test that t is in range [0,1]. Throw exception otherwise.
-        void checkt (F t) const
+        void checkt (const F t) const
         {
             if (t < F{0} || t > F{1}) {
                 throw std::runtime_error ("t out of range [0,1]");
@@ -1181,39 +1192,38 @@ namespace sm
          * out the matrix comes from Cohen & Riesenfeld (1982) General Matrix
          * Representations.
          */
-        void matrixSetup() // probably a constexpr function, this
+        // Set up M.
+        static sm::mat<F, order + 1u> matrixSetup_M()
         {
             // Check order here
-            static_assert (order < sm::PascalRows, "This code is limited to Bezier Curves of order PascalRows - 1 by the current size of the sm::Pascal lookup table (fix with a constexpr function to generate Pascal's triangle");
+            //static_assert (order + 1u - 1 < sm::PascalRows, "This code is limited to Bezier Curves of order PascalRows - 1 "
+            //               "by the current size of the sm::Pascal lookup table (fix with a constexpr function to generate Pascal's triangle");
 
-            // Set up M.
-            int32_t m = static_cast<int32_t>(order);
-            int32_t mp = m + 1; // order + 1
-            int32_t r = 0;
-            this->M.set_size (mp, mp);
-            this->M.zeros();
-            for (int32_t i = 0; i < mp; ++i) { // i is column
-                for (r = 0; r < mp - i; ++r) { // r is row
-                    F element = static_cast<F>(sm::binomial_lookup (m, i))
-                        * static_cast<F>(sm::binomial_lookup (m - i, m - i - r))
-                        * std::pow (F{-1}, static_cast<F>(m - i - r));
+            sm::mat<F, order + 1u> _M;
+            _M.set_zero();
+
+            uint32_t r = 0;
+            for (uint32_t i = 0; i < order + 1u; ++i) { // i is column
+                for (r = 0; r < order + 1u - i; ++r) { // r is row
+                    F element = static_cast<F>(sm::binomial_lookup (order, i))
+                    * static_cast<F>(sm::binomial_lookup (order - i, order - i - r))
+                    * std::pow (F{-1}, static_cast<F>(order - i - r));
                     // Ensure the matrix is inverted 'm - i', not just 'i'
-                    this->M(m - i, r) = element;
+                    _M(order - i, r) = element;
                 }
             }
-
-            // Compute M * C
-            this->MC = this->M * this->C;
+            return _M;
         }
 
-        //! The coefficients. order + 1 square.
+        //! The coefficients. order + 1 square. It's order + 1, because although there are order -1
+        //! actual control points, when you add start and end locations, that's order + 1.
         sm::mat<F, order + 1u> M;
 
         //! The control points. Number of rows in C is order - 1, number of cols is 2
-        sm::mat<F, order - 1u, 2> C; // hmm, have to deal with order - 1 = 0
+        sm::mat<F, order + 1u, 2u> C; // hmm, have to deal with order - 1 = 0
 
         //! M*C
-        sm::mat<F, order - 1u, 2> MC;
+        sm::mat<F, order + 1u, 2u> MC;
     };
 
 } // namespace sm

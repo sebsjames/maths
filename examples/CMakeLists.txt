@@ -114,7 +114,7 @@ if(ARMADILLO_FOUND)
     ${PROJECT_SOURCE_DIR}/sm/vvec
     ${PROJECT_SOURCE_DIR}/sm/algo
     ${PROJECT_SOURCE_DIR}/sm/nm_simplex)
-    target_link_libraries(bezcurve ${ARMADILLO_LIBRARY} ${ARMADILLO_LIBRARIES})
+  target_link_libraries(bezcurve ${ARMADILLO_LIBRARY} ${ARMADILLO_LIBRARIES})
 endif()
 
 add_executable(vonmises vonmises.cpp)

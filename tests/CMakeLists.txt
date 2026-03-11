@@ -473,6 +473,16 @@ target_sources(quaternion_rotations_double PUBLIC FILE_SET CXX_MODULES BASE_DIRS
   ${PROJECT_SOURCE_DIR}/sm/quaternion)
 add_test(quaternion_rotations_double quaternion_rotations_double)
 
+add_executable(mat_non_square mat_non_square.cpp)
+target_sources(mat_non_square PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/random
+  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/quaternion
+  ${PROJECT_SOURCE_DIR}/sm/mat)
+add_test(mat_non_square mat_non_square)
+
 add_executable(mat_2x2_general mat_2x2_general.cpp)
 target_sources(mat_2x2_general PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
