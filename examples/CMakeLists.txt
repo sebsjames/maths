@@ -12,6 +12,7 @@ set_source_files_properties (
   ${PROJECT_SOURCE_DIR}/sm/quaternion
   ${PROJECT_SOURCE_DIR}/sm/mat
   ${PROJECT_SOURCE_DIR}/sm/hex
+  ${PROJECT_SOURCE_DIR}/sm/hexgrid
   ${PROJECT_SOURCE_DIR}/sm/bezcoord
   ${PROJECT_SOURCE_DIR}/sm/bezcurve
   ${PROJECT_SOURCE_DIR}/sm/bezcurvepath
@@ -98,6 +99,7 @@ target_sources(hexgrid PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DI
   ${PROJECT_SOURCE_DIR}/sm/bezcurve
   ${PROJECT_SOURCE_DIR}/sm/bezcurvepath
   ${PROJECT_SOURCE_DIR}/sm/hex
+  ${PROJECT_SOURCE_DIR}/sm/hexgrid
   ${PROJECT_SOURCE_DIR}/sm/quaternion
   ${PROJECT_SOURCE_DIR}/sm/mat
   ${PROJECT_SOURCE_DIR}/sm/vvec

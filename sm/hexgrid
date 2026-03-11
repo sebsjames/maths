@@ -10,7 +10,7 @@
  *
  * Date: 2018/07
  */
-#pragma once
+module;
 
 #include <cstdint>
 #include <set>
@@ -27,12 +27,13 @@
 #include <limits>
 
 #include <sm/mathconst>
-#include <sm/hexflags>
 
-import sm.bezcurvepath;
-import sm.vec;
+export module sm.hexgrid;
+
+export import sm.bezcurvepath;
+export import sm.vec;
+export import sm.hex;
 import sm.vvec;
-import sm.hex;
 import sm.mat;
 
 // If the hexgrid::save and hexgrid::load methods are required, define
@@ -41,7 +42,7 @@ import sm.mat;
 import sm.hdfdata;
 #endif
 
-namespace sm
+export namespace sm
 {
     /*!
      * This class is used to build an hexagonal grid of hexagons. The member hexagons

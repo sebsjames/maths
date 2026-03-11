@@ -4,9 +4,8 @@
 #include <limits>
 #include <chrono>
 
-#include <sm/hexgrid>
-
 import sm.bezcurve;
+import sm.hexgrid;
 
 int main()
 {
