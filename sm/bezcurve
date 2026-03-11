@@ -176,17 +176,17 @@ namespace sm
             this->init();
         }
 
-        //! Construct a Bezier curve of order cp.size()+1
+        //! Construct a Bezier curve of order only_cp.size()+1 (sz+1, because separate initial and final points)
         bezcurve (const sm::vec<F, 2>& ip, const sm::vec<F, 2>& fp,
-                  const sm::vvec<sm::vec<F, 2>>& cp)
+                  const sm::vvec<sm::vec<F, 2>>& only_cp)
         {
             this->M = matrixSetup_M();
-            uint32_t n_ctrls = cp.size()+2;
+            uint32_t n_ctrls = only_cp.size()+2;
             this->C.set_size (n_ctrls, 2);
             this->C(0, 0) = ip[0];
             this->C(0, 1) = ip[1];
             uint32_t i = 1;
-            for (auto cpi : cp) {
+            for (auto cpi : only_cp) {
                 this->C(i, 0) = cpi[0];
                 this->C(i, 1) = cpi[1];
                 ++i;
