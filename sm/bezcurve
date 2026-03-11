@@ -136,7 +136,6 @@ namespace sm
                   const sm::vec<Fy, 2>& c1, const sm::vec<Fy, 2>& c2)
         {
             this->M = matrixSetup_M();
-            //this->C.set_size (4, 2);
             this->C(0, 0) = ip[0];
             this->C(0, 1) = ip[1];
             this->C(1, 0) = c1[0];
@@ -156,7 +155,6 @@ namespace sm
         bezcurve (const sm::vec<Fy, 2>& ip, const sm::vec<Fy, 2>& fp, const sm::vec<Fy, 2>& c1)
         {
             this->M = matrixSetup_M();
-            this->C.set_size (3, 2);
             this->C(0, 0) = ip[0];
             this->C(0, 1) = ip[1];
             this->C(1, 0) = c1[0];
@@ -171,7 +169,6 @@ namespace sm
         bezcurve (const sm::vec<Fy, 2>& ip, const sm::vec<Fy, 2>& fp)
         {
             this->M = matrixSetup_M();
-            this->C.set_size (2, 2);
             this->C(0, 0) = ip[0];
             this->C(0, 1) = ip[1];
             this->C(1, 0) = fp[0];
@@ -185,7 +182,9 @@ namespace sm
         {
             this->M = matrixSetup_M();
             uint32_t n_ctrls = only_cp.size()+2;
-            this->C.set_size (n_ctrls, 2);
+            if (this->C.rows() != n_ctrls || this->C.cols() != 2) {
+                throw std::runtime_error ("bezcurve: size of control points does not match order");
+            }
             this->C(0, 0) = ip[0];
             this->C(0, 1) = ip[1];
             uint32_t i = 1;
@@ -201,7 +200,9 @@ namespace sm
 
         void updateControls (const sm::vvec<sm::vec<F, 2>>& cp)
         {
-            this->C.set_size (cp.size(), 2);
+            if (this->C.rows() != cp.size() || this->C.cols() != 2) {
+                throw std::runtime_error ("bezcurve: size of control points does not match order");
+            }
             int32_t i = 0;
             for (auto c : cp) {
                 this->C(i, 0) = c[0];
@@ -578,15 +579,17 @@ namespace sm
         }
 
         //! Obtain and return the derivative of this Bezier curve
-        bezcurve<F, order - 1u> derivative() const
+        template<typename Fy> requires (order > 1)
+        sm::mat<F, order, 2u> derivative() const
         {
             sm::mat<F, order, 2u> deriv_cp;
             for (uint32_t i = 0; i < order; ++i) {
                 sm::vec<F, 2> drow = (this->C.row(i + 1) - this->C.row(i)) * order;
                 deriv_cp.set_row (i, drow);
             }
-            sm::bezcurve<F, order - 1u> bcrtn (deriv_cp);
-            return bcrtn;
+            return deriv_cp;
+            //sm::bezcurve<F, order - 1u> bcrtn (deriv_cp);
+            //return bcrtn;
         }
 
         /*!
@@ -773,18 +776,26 @@ namespace sm
         }
 
         //! Compute the unit tangent and unit normal at t.
-        std::pair<bezcoord<F>, bezcoord<F>> computeTangentNormal (const F t) const
+        template<typename Fy> requires (order > 1)
+        std::pair<bezcoord<F>, bezcoord<F>> computeTangentNormal (const Fy t) const
         {
-            bezcoord<F> tang;
-            if (this->C.rows() == 2) {
-                // Can't compute tangent using the derivative as derivative would be a
-                // curve with a single control point. The tangent to a line is
-                // simply the line:
-                tang = this->computePoint (t);
-            } else {
-                bezcurve<F, order - 1u> deriv = this->derivative();
-                tang = deriv.computePoint (t);
-            }
+            auto deriv_cp = this->derivative<F>();
+            sm::bezcurve<F, order - 1u> deriv (deriv_cp);
+            bezcoord<F> tang = deriv.computePoint (static_cast<F>(t));
+            tang.normalize();
+            bezcoord<F> norm = tang; // copies the parameter
+            // rotate norm:
+            norm.coord = {-tang.y(), tang.x()};
+            return std::make_pair (tang, norm);
+        }
+
+        template<typename Fy> requires (order == 1)
+        std::pair<bezcoord<F>, bezcoord<F>> computeTangentNormal (const Fy t) const
+        {
+            // Can't compute tangent using the derivative as derivative would be a
+            // curve with a single control point. The tangent to a line is
+            // simply the line:
+            bezcoord<F> tang = this->computePoint (static_cast<F>(t));
             tang.normalize();
             bezcoord<F> norm = tang; // copies the parameter
             // rotate norm:

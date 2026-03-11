@@ -1014,22 +1014,21 @@ add_test(bez1 ${TARGETTEST1})
 #endif()
 
 # BezCurve class (uses hexgrid)
-if(0)
-  add_executable(bez2 bez2.cpp)
-  target_sources(bez2 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
-    FILES
-    ${PROJECT_SOURCE_DIR}/sm/range
-    ${PROJECT_SOURCE_DIR}/sm/random
-    ${PROJECT_SOURCE_DIR}/sm/vec
-    ${PROJECT_SOURCE_DIR}/sm/bezcoord
-    ${PROJECT_SOURCE_DIR}/sm/hex
-    ${PROJECT_SOURCE_DIR}/sm/quaternion
-    ${PROJECT_SOURCE_DIR}/sm/mat
-    ${PROJECT_SOURCE_DIR}/sm/vvec
-    ${PROJECT_SOURCE_DIR}/sm/algo
-    ${PROJECT_SOURCE_DIR}/sm/nm_simplex)
-  add_test(bez2 bez2)
-endif()
+add_executable(bez2 bez2.cpp)
+target_sources(bez2 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/random
+  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/bezcoord
+  ${PROJECT_SOURCE_DIR}/sm/hex
+  ${PROJECT_SOURCE_DIR}/sm/quaternion
+  ${PROJECT_SOURCE_DIR}/sm/mat
+  ${PROJECT_SOURCE_DIR}/sm/vvec
+  ${PROJECT_SOURCE_DIR}/sm/algo
+  ${PROJECT_SOURCE_DIR}/sm/nm_simplex)
+add_test(bez2 bez2)
+
 # vvec<vec> warning about attributes in gcc14
 if(CMAKE_COMPILER_IS_GNUCXX AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 14.99)
   # BezCurvePath class

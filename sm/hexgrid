@@ -598,7 +598,7 @@ namespace sm
          * the hexgrid, the centroid IS (0,0). If \a loffset is false, then \a p is not
          * translated in this way.
          */
-        void setBoundary (const bezcurvepath<float>& p, bool loffset = true)
+        void setBoundary (const bezcurvepath<float, 3>& p, bool loffset = true)
         {
             this->boundary = p;
             if (!this->boundary.isNull()) {
@@ -3265,7 +3265,7 @@ namespace sm
          * \return An iterator into hexgrid::hexen which refers to the closest hex to \a point.
          */
         std::list<sm::hex>::iterator setBoundary (const sm::bezcoord<float>& point,
-                                                     std::list<sm::hex>::iterator startFrom)
+                                                  std::list<sm::hex>::iterator startFrom)
         {
             std::list<sm::hex>::iterator h = this->findHexNearPoint (point, startFrom);
             h->setFlag (sm::HEX_IS_BOUNDARY | sm::HEX_INSIDE_BOUNDARY);
