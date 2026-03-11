@@ -19,6 +19,17 @@ int main()
 
     std::cout << "twobyfour * fourbysix =\n" << twobyfour * fourbysix << std::endl;
 
+    sm::mat<float, 4, 2> fourbytwo;
+    fourbytwo = { 1, 2, 3, 4, 5, 6, 7, 8 };
+    std::cout << "fourbytwo:\n" << fourbytwo << std::endl;
+
+    sm::mat<float, 4, 4> fourbyfour;
+    fourbyfour = { 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8  };
+    std::cout << "fourbyfour:\n" << fourbyfour << std::endl;
+
+    std::cout << "fourbyfour * fourbytwo:\n" << (fourbyfour * fourbytwo) << std::endl;
+
+
     // Won't compile:
     //std::cout << "twobyfour + fourbysix =\n" << twobyfour + fourbysix << std::endl;
     //std::cout << "fourbysix * twobyfour =\n" << fourbysix * twobyfour << std::endl;

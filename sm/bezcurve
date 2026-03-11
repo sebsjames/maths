@@ -24,36 +24,13 @@
 #include <concepts>
 #include <random>
 
-// Armadillo has a bug (up to versions after 14.6.0) in which if ARMA_USE_ARPACK is
-// *not* defined, there is an unused parameter (Xst) in the function
-// sp_auxlib::run_aupd_plain. This does not show up in Ubuntu-packaged Armadillo because
-// it does define ARMA_USE_ARPACK. However, if a vcpkg-built Armadillo is used, then
-// ARMA_USE_ARPACK is not defined and this warning is emitted. Because in
-// sebsjames/maths (and sebsjames/mathplot) we set -Werror, the warning becomes an error
-// and the build will fail.
-#if defined(__clang__)
-# pragma clang diagnostic push
-# pragma clang diagnostic ignored "-Wunused-parameter"
-#elif defined(__GNUC__) || defined(__GNUG__)
-# pragma GCC diagnostic push
-# pragma GCC diagnostic ignored "-Wunused-parameter"
-#endif
-// Current, packaged armadillo is also not usable in modules (get exposes TU-local entity error like
-// in nlohmann json, related to use of a static keyword, most likely.
-#include <armadillo>
-// pop the ignored "-Wunused-parameter"
-#if defined(__clang__)
-# pragma clang diagnostic pop
-#elif defined(__GNUC__) || defined(__GNUG__)
-# pragma GCC diagnostic pop
-#endif
-
 #include <sm/mathconst>
 
 import sm.vvec;
 import sm.nm_simplex;
 import sm.bezcoord;
 import sm.vec;
+import sm.mat;
 
 namespace sm
 {
@@ -64,7 +41,11 @@ namespace sm
      * has a total number of elements given by N(N+1)/2, which for 21 rows is 21(22)/2 =
      * 210.
      */
-    const std::array<uint32_t, 231> Pascal =
+    //! How many rows in the table below.
+    constexpr uint32_t PascalRows = 21;
+    constexpr uint32_t PascalElem = PascalRows * PascalRows + 1 / 2;
+    // Fixme: Compute by constexpr function
+    constexpr std::array<uint32_t, PascalElem> Pascal =
     {1,
      1,1,
      1,2,1,
@@ -86,22 +67,37 @@ namespace sm
      1,18,153,816,3060,8568,18564,31824,43758,48620,43758,31824,18564,8568,3060,816,153,18,1,
      1,19,171,969,3876,11628,27132,50388,75582,92378,92378,75582,50388,27132,11628,3876,969,171,19,1,
      1,20,190,1140,4845,15504,38760,77520,125970,167960,184756,167960,125970,77520,38760,15504,4845,1140,190,20,1};
-    //! How many rows in the table above.
-    const uint32_t PascalRows = 21;
 
     /*!
-     * A Bezier curve class which allows the computation of Cartesian coordinates
-     * (though with x right, y down, and hence a left-hand coordinate system) of points
-     * on a Bezier curve which is specified using a parameter (often called t) which is
-     * in the range [0, 1]
+     * Look up the binomial coefficient (n,k) from sm::Pascal.
+     *
+     * To get the values from row n, where n starts at 0 (and ends at N-1), you step
+     * along a number given by the triangle sequence (n(n+1)/2) and then read n+1
+     * values. OR to get n,k, step along a number given by the triangle sequence
+     * (n(n+1)/2) and then step another k space to the result.
      */
-    template <typename F> requires std::is_floating_point_v<F>
+    uint32_t binomial_lookup (uint32_t n, uint32_t k)
+    {
+        uint32_t idx = (n * (n + 1u) / 2u) + k;
+        if (idx >= sm::PascalElem) { return std::numeric_limits<uint32_t>::max(); }
+        return sm::Pascal[idx];
+    }
+
+    /*!
+     * A Bezier curve class which allows the computation of Cartesian coordinates (though with x
+     * right, y down, and hence a left-hand coordinate system) of points on a Bezier curve which is
+     * specified using a parameter (often called t) which is in the range [0, 1]
+     *
+     * \tparam order The order of the Bezier curve. The value of the highest power of t. Thus 3 is a
+     * cubic Bezier, 2 is a quadratic Bezier, etc. Note that 0th order Bezier curve does not exist
+     */
+    template <typename F, uint32_t order> requires std::is_floating_point_v<F> && (order > 0u)
     struct bezcurve
     {
         static constexpr bool debug_bezcurve = false;
 
         //! Do-nothing constructor
-        bezcurve() { this->order = 0; }
+        bezcurve() { order = 0; }
 
         /*!
          * Construct a Bezier curve of order cp.size()-1 with the initial and final
@@ -514,7 +510,7 @@ namespace sm
         {
             // Set the order for the curve
             int32_t n = points.size();
-            this->order = n - 1;
+            order = n - 1;
 
             // Empty C here, in advance of this->matrixSetup(), and make sure it has the
             // right size, though it can just be zeros.
@@ -579,9 +575,9 @@ namespace sm
         //! Obtain and return the derivative of this Bezier curve
         bezcurve<F> derivative() const
         {
-            arma::Mat<F> deriv_cp(this->order, 2);
-            for (uint32_t i = 0; i < this->order; ++i) {
-                deriv_cp.row(i) = this->order * (this->C.row(i + 1) - this->C.row(i));
+            arma::Mat<F> deriv_cp(order, 2);
+            for (uint32_t i = 0; i < order; ++i) {
+                deriv_cp.row(i) = order * (this->C.row(i + 1) - this->C.row(i));
             }
             return sm::bezcurve<F> (deriv_cp);
         }
@@ -594,7 +590,7 @@ namespace sm
          */
         std::pair<arma::Mat<F>, arma::Mat<F>> split (F z) const
         {
-            int32_t n = this->order + 1;
+            int32_t n = order + 1;
             // 'z prime':
             F zp = z - F{1};
             arma::Mat<F> C1 (n, 2, arma::fill::zeros);
@@ -605,7 +601,7 @@ namespace sm
             for (int32_t i = 0; i < n; ++i) {
                 sign = sign0;
                 for (int32_t j = 0; j <= i; ++j) {
-                    F binom = static_cast<F>(bezcurve::binomial_lookup(i, j));
+                    F binom = static_cast<F>(sm::binomial_lookup(i, j));
                     Q(i,j) = sign * binom * std::pow(z, j) * std::pow (zp, i - j);
                     sign = sign > F{0} ? F{-1} : F{1};
                 }
@@ -694,7 +690,7 @@ namespace sm
          */
         bezcoord<F> computePoint (F t) const
         {
-            switch (this->order) {
+            switch (order) {
             case 1:
                 return this->computePointLinear (t);
             case 2:
@@ -711,7 +707,7 @@ namespace sm
         bezcoord<F> computePointMatrix (F t) const
         {
             this->checkt(t);
-            int32_t mp = this->order + 1;
+            int32_t mp = order + 1;
             arma::Mat<F> T(1, mp, arma::fill::ones);// First element is one anyway
             for (int32_t i = 1; i < mp; ++i) {
                 T(i) = std::pow (t, static_cast<double>(i));
@@ -728,20 +724,20 @@ namespace sm
             F t_ = 1 - t;
             sm::vec<F, 2> b;
             // x
-            b[0] = std::pow(t_, this->order) * this->C(0,0);
-            for(uint32_t k=1; k<this->order; k++) {
-                b[0] += static_cast<F> (bezcurve::binomial_lookup(this->order, k))
-                    * std::pow (t_, this->order-k) * std::pow (t, k) * this->C(k,0);
+            b[0] = std::pow(t_, order) * this->C(0,0);
+            for(uint32_t k=1; k<order; k++) {
+                b[0] += static_cast<F> (sm::binomial_lookup(order, k))
+                    * std::pow (t_, order-k) * std::pow (t, k) * this->C(k,0);
             }
-            b[0] += std::pow (t, this->order) * this->C(this->order,0);
+            b[0] += std::pow (t, order) * this->C(order,0);
 
             // y
-            b[1] = std::pow(t_, this->order) * this->C(0,1);
-            for (uint32_t k=1; k<this->order; k++) {
-                b[1] += static_cast<F> (bezcurve::binomial_lookup(this->order, k))
-                    * std::pow (t_, this->order-k) * std::pow (t, k) * this->C(k,1);
+            b[1] = std::pow(t_, order) * this->C(0,1);
+            for (uint32_t k=1; k<order; k++) {
+                b[1] += static_cast<F> (sm::binomial_lookup(order, k))
+                    * std::pow (t_, order-k) * std::pow (t, k) * this->C(k,1);
             }
-            b[1] += std::pow(t, this->order) * this->C(this->order,1);
+            b[1] += std::pow(t, order) * this->C(order,1);
 
             b *= this->scale;
 
@@ -758,7 +754,7 @@ namespace sm
          */
         bezcoord<F> computePoint (F t, F l) const
         {
-            switch (this->order) {
+            switch (order) {
             case 1:
                 return this->computePointLinear (t, l);
             default: // (including order 2 or 3)
@@ -853,8 +849,8 @@ namespace sm
         sm::vec<F, 2> getFinalPointUnscaled() const
         {
             sm::vec<F, 2> fp_unscaled;
-            fp_unscaled[0] = this->C(this->order,0);
-            fp_unscaled[1] = this->C(this->order,1);
+            fp_unscaled[0] = this->C(order,0);
+            fp_unscaled[1] = this->C(order,1);
             return fp_unscaled;
         }
 
@@ -871,8 +867,8 @@ namespace sm
         sm::vec<F, 2> getFinalPointScaled() const
         {
             sm::vec<F, 2> fp_scaled;
-            fp_scaled[0] = this->scale * this->C(this->order, 0);
-            fp_scaled[1] = this->scale * this->C(this->order, 1);
+            fp_scaled[0] = this->scale * this->C(order, 0);
+            fp_scaled[1] = this->scale * this->C(order, 1);
             return fp_scaled;
         }
 
@@ -886,14 +882,14 @@ namespace sm
         }
 
         //! Get the order of the curve
-        uint32_t getOrder() const { return this->order; }
+        uint32_t getOrder() const { return order; }
 
     private:
 
         //! Perform common initialization tasks.
         void init()
         {
-            this->order = this->C.n_rows - 1;
+            // order = this->C.n_rows - 1; // should be fixed
             this->linlength = std::sqrt ((C(order, 0) - C(0, 0)) * (C(order, 0) - C(0, 0))
                                          + (C(order, 1) - C(0, 1)) * (C(order, 1) - C(0, 1)));
             this->linlengthscaled = this->scale * this->linlength;
@@ -1004,20 +1000,6 @@ namespace sm
                     + F{3} * t_ * t * t * this->C(2, 1)
                     + t * t * t * this->C(3, 1)) * this->scale;
             return bezcoord<F>(t, b);
-        }
-
-        /*!
-         * Look up the binomial coefficient (n,k) from sm::Pascal.
-         *
-         * To get the values from row n, where n starts at 0 (and ends at N-1), you step
-         * along a number given by the triangle sequence (n(n+1)/2) and then read n+1
-         * values. OR to get n,k, step along a number given by the triangle sequence
-         * (n(n+1)/2) and then step another k space to the result.
-         */
-        static uint32_t binomial_lookup (uint32_t n, uint32_t k)
-        {
-            uint32_t idx = (n * (n + 1u) / 2u) + k;
-            return sm::Pascal[idx];
         }
 
         /*!
@@ -1190,13 +1172,6 @@ namespace sm
          */
         F linlengthscaled = F{0};
 
-        /*!
-         * The order of the Bezier curve. The value of the highest power of t. Thus 3 is
-         * a cubic Bezier, 2 is a quadratic Bezier, etc. Note that 0th order Bezier
-         * curve does not exist; so the constructor must update this number.
-         */
-        uint32_t order = 0;
-
         /*
          * Matrix representation
          */
@@ -1206,29 +1181,21 @@ namespace sm
          * out the matrix comes from Cohen & Riesenfeld (1982) General Matrix
          * Representations.
          */
-        void matrixSetup()
+        void matrixSetup() // probably a constexpr function, this
         {
             // Check order here
-            if (this->order >= PascalRows) {
-                std::stringstream ee;
-                ee << "This code is limited to Bezier Curves of order " << (PascalRows - 1)
-                   << " by the current size of the sm::Pascal lookup table";
-                throw std::runtime_error (ee.str());
-            }
-            if (this->order == 0) {
-                throw std::runtime_error ("No curves if order=0");
-            }
+            static_assert (order < sm::PascalRows, "This code is limited to Bezier Curves of order PascalRows - 1 by the current size of the sm::Pascal lookup table (fix with a constexpr function to generate Pascal's triangle");
 
             // Set up M.
-            int32_t m = static_cast<int32_t>(this->order);
+            int32_t m = static_cast<int32_t>(order);
             int32_t mp = m + 1; // order + 1
             int32_t r = 0;
             this->M.set_size (mp, mp);
             this->M.zeros();
             for (int32_t i = 0; i < mp; ++i) { // i is column
                 for (r = 0; r < mp - i; ++r) { // r is row
-                    F element = static_cast<F>(bezcurve::binomial_lookup (m, i))
-                        * static_cast<F>(bezcurve::binomial_lookup (m - i, m - i - r))
+                    F element = static_cast<F>(sm::binomial_lookup (m, i))
+                        * static_cast<F>(sm::binomial_lookup (m - i, m - i - r))
                         * std::pow (F{-1}, static_cast<F>(m - i - r));
                     // Ensure the matrix is inverted 'm - i', not just 'i'
                     this->M(m - i, r) = element;
@@ -1239,14 +1206,14 @@ namespace sm
             this->MC = this->M * this->C;
         }
 
-        //! The coefficients.
-        arma::Mat<F> M;
+        //! The coefficients. order + 1 square.
+        sm::mat<F, order + 1u> M;
 
-        //! The control points.
-        arma::Mat<F> C;
+        //! The control points. Number of rows in C is order - 1, number of cols is 2
+        sm::mat<F, order - 1u, 2> C; // hmm, have to deal with order - 1 = 0
 
         //! M*C
-        arma::Mat<F> MC;
+        sm::mat<F, order - 1u, 2> MC;
     };
 
 } // namespace sm

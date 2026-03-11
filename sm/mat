@@ -110,6 +110,11 @@ export namespace sm
         //! Explicitly defaulted move assignment constructor
         mat<F, Nr, Nc>& operator= (mat<F, Nr, Nc>&& other) noexcept = default;
 
+        F operator() (uint32_t r, uint32_t c) noexcept
+        {
+            F value = ...;
+        }
+
         /*!
          * The transformation matrix data, arranged in column major format to be OpenGL
          * friendly.
