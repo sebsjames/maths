@@ -18,12 +18,12 @@ int main()
     sm::mat<float, 2, 6> res1 =  twobyfour * fourbysix;
     std::cout << "res1\n"  << res1 << "\n";
     if (res1(0, 0) != 50.0f) { --rtn; std::cout << res1(0,0) << " 0a\n"; }
-    if (res1(0, 1) != 82.0f) { --rtn; std::cout << res1(0,1) << " 0b\n"; }
+    if (res1(0, 1) != 114.0f) { --rtn; std::cout << res1(0,1) << " 0b\n"; }
     if (res1(1, 0) != 60.0f) { --rtn; std::cout << res1(1,0) << " 0c\n"; }
-    if (res1(1, 1) != 100.0f) { --rtn; std::cout << res1(1,1) << " 0d\n"; }
-    if (res1(1, 2) != 140.0f) { --rtn; std::cout << res1(1,2) << " 1\n"; }
-    if (res1(0, 3) != 146.0f) { --rtn; std::cout << res1(0,3) << " 2\n"; }
-    if (res1(0, 5) != 210.0f) { --rtn; std::cout << res1(0,5) << " 3\n"; }
+    if (res1(1, 1) != 140.0f) { --rtn; std::cout << res1(1,1) << " 0d\n"; }
+    if (res1(1, 2) != 220.0f) { --rtn; std::cout << res1(1,2) << " 1\n"; }
+    if (res1(0, 3) != 242.0f) { --rtn; std::cout << res1(0,3) << " 2\n"; }
+    if (res1(0, 5) != 370.0f) { --rtn; std::cout << res1(0,5) << " 3\n"; }
 
     sm::mat<float, 4, 2> fourbytwo;
     fourbytwo = { 1, 2, 3, 4, 5, 6, 7, 8 };

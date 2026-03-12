@@ -1336,9 +1336,9 @@ export namespace sm
                 // General case left matrix is this->arr, right matrix is m2
                 for (uint32_t r = 0; r < Nr; ++r) { // row in result matrix
                     for (uint32_t cy = 0; cy < Ncy; ++cy) { // col in result matrix
-                        m.arr[(cy * Nr) + r] = F{0};
+                        m(r, cy) = F{0};
                         for (uint32_t i = 0; i < Nc; ++i) { // i iterates along row in left matrix and down col in right matrix
-                            m[(cy * Nr) + r] += this->arr[(i * Nr) + r] * m2.arr[(cy * Nr) + i];
+                            m(r, cy) += (*this)(r, i) * m2(i, cy);
                         }
                     }
                 }
@@ -1402,9 +1402,9 @@ export namespace sm
                 // General case left matrix is this->arr, right matrix is m2.arr
                 for (uint32_t r = 0; r < Nr; ++r) { // row in result matrix
                     for (uint32_t cy = 0; cy < Ncy; ++cy) { // col in result matrix
+                        m(r, cy) = F{0};
                         for (uint32_t i = 0; i < Nc; ++i) { // i iterates along row in left matrix and down col in right matrix
-                            m.arr[(cy * Nr) + r] += this->arr[(i * Nr) + r] * m2.arr[(cy * Nr) + i];
-                            //m(r, cy)             += (*this)(r, i) * m2(i, cy); // alternative
+                            m(r, cy) += (*this)(r, i) * m2(i, cy);
                         }
                     }
                 }
