@@ -19,14 +19,13 @@ module;
 #include <cmath>
 #include <cstdint>
 
-#include <sm/constexpr_math>
-
 export module sm.geometry_polyhedra;
 
 export import sm.mathconst;
 import sm.vec;
 import sm.quaternion;
 export import sm.vvec;
+import sm.constexpr_math;
 
 //! constexpr-capable geometry
 export namespace sm::geometry_ce
