@@ -218,6 +218,35 @@ export namespace sm
             this->d_flags.clear();
         }
 
+        /*
+         * Convenience accessors for testing neighbours. The step along for neighbours on the
+         * rows above/below is given by:
+         *
+         * Dest  | step
+         * ----------------------
+         * NNE   | +rowlen
+         * NNW   | +rowlen - 1
+         * NSW   | -rowlen
+         * NSE   | -rowlen + 1
+         */
+        int32_t ne (const uint32_t hi) const { return this->d_ne[hi]; }
+        int32_t has_ne (const uint32_t hi) const { return this->d_ne[hi] == -1 ? false : true; }
+
+        int32_t nw (const uint32_t hi) const { return this->d_nw[hi]; }
+        int32_t has_nw (const uint32_t hi) const { return this->d_nw[hi] == -1 ? false : true; }
+
+        int32_t nne (const uint32_t hi) const { return this->d_nne[hi]; }
+        int32_t has_nne (const uint32_t hi) const { return this->d_nne[hi] == -1 ? false : true; }
+
+        int32_t nnw (const uint32_t hi) const { return this->d_nnw[hi]; }
+        int32_t has_nnw (const uint32_t hi) const { return this->d_nnw[hi] == -1 ? false : true; }
+
+        int32_t nse (const uint32_t hi) const { return this->d_nse[hi]; }
+        int32_t has_nse (const uint32_t hi) const { return this->d_nse[hi] == -1 ? false : true; }
+
+        int32_t nsw (const uint32_t hi) const { return this->d_nsw[hi]; }
+        int32_t has_nsw (const uint32_t hi) const { return this->d_nsw[hi] == -1 ? false : true; }
+
 #ifdef HEXGRID_COMPILE_LOAD_AND_SAVE
         /*!
          * Save this hexgrid (and all the hexes in it) into the HDF5 file at the
