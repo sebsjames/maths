@@ -1285,7 +1285,7 @@ export namespace sm
             return m;
         }
 
-        //! Right-multiply this->arr with m2
+        //! Right-multiply this->arr with m2 (only meaningful for square matrices)
         template<typename Fy=F, uint32_t Nry = Nr, uint32_t Ncy = Nc> requires (Nc == Nry) && std::is_arithmetic_v<Fy>
         constexpr void operator*= (const mat<Fy, Nry, Ncy>& m2) noexcept
         {
@@ -1333,12 +1333,12 @@ export namespace sm
                 m[11] = this->arr[3] * m2.arr[8] + this->arr[7] * m2.arr[9] + this->arr[11] * m2.arr[10] + this->arr[15] * m2.arr[11];
                 m[15] = this->arr[3] * m2.arr[12] + this->arr[7] * m2.arr[13] + this->arr[11] * m2.arr[14] + this->arr[15] * m2.arr[15];
             } else {
-                // General case left matrix is this->arr, right matrix is m2
+                // General case left matrix is this->arr, right matrix is m2 (both same size and square)
                 for (uint32_t r = 0; r < Nr; ++r) { // row in result matrix
                     for (uint32_t cy = 0; cy < Ncy; ++cy) { // col in result matrix
-                        m(r, cy) = F{0};
+                        m.arr[(cy * Nr) + r] = F{0};
                         for (uint32_t i = 0; i < Nc; ++i) { // i iterates along row in left matrix and down col in right matrix
-                            m(r, cy) += (*this)(r, i) * m2(i, cy);
+                            m.arr[(cy * Nr) + r] += this->arr[(i * Nr) + r] * m2.arr[(cy * Nry) + i];
                         }
                     }
                 }
@@ -1400,11 +1400,11 @@ export namespace sm
 
             } else {
                 // General case left matrix is this->arr, right matrix is m2.arr
-                for (uint32_t r = 0; r < Nr; ++r) { // row in result matrix
+                for (uint32_t r = 0; r < Nr; ++r) {         // row in result matrix
                     for (uint32_t cy = 0; cy < Ncy; ++cy) { // col in result matrix
-                        m(r, cy) = F{0};
+                        m.arr[(cy * Nr) + r] = F{0};
                         for (uint32_t i = 0; i < Nc; ++i) { // i iterates along row in left matrix and down col in right matrix
-                            m(r, cy) += (*this)(r, i) * m2(i, cy);
+                            m.arr[(cy * Nr) + r] += this->arr[(i * Nr) + r] * m2.arr[(cy * Nry) + i];
                         }
                     }
                 }

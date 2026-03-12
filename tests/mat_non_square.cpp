@@ -69,8 +69,13 @@ int main()
     A = {1, 2, 3, 4};
     sm::mat<float, 2, 1> B;
     B = {5, 6};
+    sm::mat<float, 2, 1> C = A * B;
 
-    std::cout << "\n" << A << "\n *\n" << B << " =\n" << (A * B) << std::endl;
+    std::cout << "\n" << A << "\n *\n" << B << " =\n" << C << std::endl;
+
+    if (C[0] != 23.0f || C[1] != 34.0f) { --rtn; }
+
+
 
     std::cout << (rtn == 0 ? "SUCCESS\n" : "FAILURE\n");
     return rtn;
