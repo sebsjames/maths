@@ -681,12 +681,12 @@ export namespace sm
         {
             this->checkt(t);
             constexpr int32_t mp = order + 1;
-            sm::mat<F, 1, mp> T;
+            sm::mat<F, 1u, mp> T;
             T.set_from (F{1});
             for (int32_t i = 1; i < mp; ++i) {
                 T(0, i) = std::pow (t, static_cast<double>(i));
             }
-            auto bp = T * this->MC;
+            sm::mat<F, 1u, 2u> bp = T * this->MC;
             return bezcoord<F> (t, bp.row (0));
         }
 
