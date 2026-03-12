@@ -20,11 +20,11 @@ module;
 #include <cmath>
 #include <type_traits>
 
-#include <sm/mathconst>
 #include <sm/trait_tests>
 
 export module sm.winder;
 
+export import sm.mathconst;
 export import sm.vec;
 
 export namespace sm

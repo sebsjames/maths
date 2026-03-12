@@ -1,7 +1,6 @@
 // Testing rotations of unit vectors about unit axes with mat44 multiplication
 // and quaternion multiplication
 #include <iostream>
-#include <sm/mathconst>
 
 import sm.quaternion;
 import sm.mat;

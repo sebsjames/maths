@@ -1,7 +1,5 @@
 #include <iostream>
 
-#include <sm/mathconst>
-
 import sm.vec;
 import sm.geometry;
 

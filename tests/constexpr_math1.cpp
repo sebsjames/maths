@@ -1,5 +1,7 @@
 #include <iostream>
-#include <sm/constexpr_math>
+
+import sm.mathconst;
+import sm.constexpr_math;
 
 int main()
 {

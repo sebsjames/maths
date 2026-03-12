@@ -25,7 +25,6 @@
 #include <limits>
 
 #include <sm/rect>
-#include <sm/mathconst>
 
 // cartgrid contains carried over code (from HexGrid) which allows for the imposition of
 // arbitrary boundaries, specified as Bezier curves. To use a cartgrid with an arbitrary boundary, define
@@ -35,6 +34,7 @@
 import sm.bezcoord;
 #endif
 
+import sm.mathconst;
 import sm.grid; // for gridfeatures
 import sm.vec;
 import sm.vvec;

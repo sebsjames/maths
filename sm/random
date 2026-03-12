@@ -63,11 +63,11 @@ module;
 #include <cstdint>
 #include <cstddef>
 #include <memory>
-#include <sm/mathconst>
 
 export module sm.random;
 
 // maybe later: export import std; or export import std.random.
+import sm.mathconst;
 
 namespace sm
 {

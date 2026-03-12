@@ -1,5 +1,4 @@
 #include <iostream>
-#include <sm/mathconst>
 
 import sm.quaternion;
 import sm.random;

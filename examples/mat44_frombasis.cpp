@@ -2,7 +2,6 @@
  * Example: frombasis
  */
 #include <iostream>
-#include <sm/mathconst>
 
 import sm.vec;
 import sm.mat;

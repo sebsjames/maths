@@ -11,28 +11,23 @@
  *
  * Extra bonus: You can use this as an implementation of an axis-aligned bounding box!
  *
- * Use with modules:
- * import sm.range;
- * Use with #include:
- *
- * #define sm_trad_include 1
- * #include <sm/range>
- *
  * Author: Seb James
  * Date: Sept. 2023. Modules support 2026.
  */
 
 module;
 
+#include <cstdint>
 #include <ostream>
 #include <sstream>
 #include <limits>
 #include <complex>
 #include <span>
 #include <sm/trait_tests>
-#include <sm/constexpr_math>
 
 export module sm.range;
+
+export import sm.constexpr_math;
 
 namespace sm
 {

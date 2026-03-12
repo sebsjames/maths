@@ -45,12 +45,11 @@ module;
 #include <limits>
 #include <type_traits>
 
-#include <sm/constexpr_math>
-
 export module sm.polysolve;
 
 import sm.vec;
 export import sm.vvec;
+import sm.constexpr_math;
 
 export namespace sm::polysolve
 {

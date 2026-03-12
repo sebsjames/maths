@@ -4,7 +4,6 @@
 #include <vector>
 
 import sm.vec;
-//import sm.bezcoord;
 import sm.bezcurve;
 
 int main()

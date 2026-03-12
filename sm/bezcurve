@@ -24,17 +24,16 @@ module;
 #include <concepts>
 #include <random>
 
-#include <sm/mathconst>
-#include <sm/constexpr_math>
-
 export module sm.bezcurve;
 
+export import sm.mathconst;
 export import sm.bezcoord;
 export import sm.mat;
 export import sm.vvec;
 export import sm.vec;
 import sm.nm_simplex;
 import sm.binomial;
+import sm.constexpr_math;
 
 export namespace sm
 {

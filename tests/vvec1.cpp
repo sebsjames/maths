@@ -3,8 +3,7 @@
 #include <array>
 #include <vector>
 
-#include <sm/mathconst>
-
+import sm.mathconst;
 import sm.vec;
 import sm.vvec;
 

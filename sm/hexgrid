@@ -26,10 +26,9 @@ module;
 #include <stdexcept>
 #include <limits>
 
-#include <sm/mathconst>
-
 export module sm.hexgrid;
 
+export import sm.mathconst;
 export import sm.bezcurvepath;
 export import sm.vec;
 export import sm.hex;

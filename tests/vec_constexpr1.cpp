@@ -11,10 +11,10 @@
 #include <iostream>
 #include <limits>
 #include <array>
-#include <sm/mathconst>
 
 import sm.vec;
 import sm.range; // for clang. sm.vec export-imports this which works for g++-15.
+import sm.mathconst;
 
 constexpr sm::vec<double, 3> vec_add()
 {

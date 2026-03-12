@@ -1,7 +1,7 @@
 #include <iostream>
 #include <array>
-#include <sm/mathconst>
 
+import sm.mathconst;
 import sm.vec;
 import sm.mat;
 

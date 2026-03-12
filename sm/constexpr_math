@@ -39,18 +39,20 @@
   ##   limitations under the License.
   ##
   ################################################################################*/
-
-#pragma once
+module;
 
 #include <cstddef>
 #include <cstdint>
 #include <limits>
 #include <type_traits>
-#include <sm/mathconst>
 #include <cmath>
 
+export module sm.constexpr_math;
+
+import sm.mathconst;
+
 // C++23: 202302L C++20: 202002L
-namespace sm::cem // ConstExpr Math
+export namespace sm::cem // ConstExpr Math
 {
     template<typename T>
     using return_t = typename std::conditional<std::is_integral<T>::value, double, T>::type;

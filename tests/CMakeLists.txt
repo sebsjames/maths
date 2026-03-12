@@ -5,6 +5,8 @@ include_directories(BEFORE ${PROJECT_SOURCE_DIR})
 
 # Each C++ module file has to be listed here (as they don't have a .cppm or .ixx file suffix)
 set_source_files_properties (
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vec
@@ -38,6 +40,8 @@ add_executable(range_intersects range_intersects.cpp)
 target_sources(range_intersects PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/random)
 add_test(range_intersects range_intersects)
@@ -46,7 +50,9 @@ add_test(range_intersects range_intersects)
 add_executable(range_adding range_adding.cpp)
 target_sources(range_adding PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/random)
 add_test(range_adding range_adding)
@@ -55,6 +61,8 @@ add_test(range_adding range_adding)
 add_executable(range1 range1.cpp)
 target_sources(range1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range)
 add_test(range1 range1)
 
@@ -62,6 +70,8 @@ add_test(range1 range1)
 add_executable(range_constexpr1 range_constexpr1.cpp)
 target_sources(range_constexpr1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range)
 add_test(range_constexpr1 range_constexpr1)
 
@@ -69,6 +79,8 @@ add_test(range_constexpr1 range_constexpr1)
 add_executable(range_complex1 range_complex1.cpp)
 target_sources(range_complex1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range)
 add_test(range_complex1 range_complex1)
 
@@ -76,7 +88,9 @@ add_test(range_complex1 range_complex1)
 add_executable(range_vector1 range_vector1.cpp)
 target_sources(range_vector1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/random)
 add_test(range_vector1 range_vector1)
@@ -85,6 +99,7 @@ add_test(range_vector1 range_vector1)
 add_executable(random1 random1.cpp)
 target_sources(random1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/random)
 add_test(random1 random1)
 
@@ -92,6 +107,7 @@ add_test(random1 random1)
 add_executable(randstring1 randstring1.cpp)
 target_sources(randstring1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/random)
 add_test(randstring1 randstring1)
 
@@ -99,7 +115,9 @@ add_test(randstring1 randstring1)
 add_executable(vec1 vec1.cpp)
 target_sources(vec1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/random)
 add_test(vec1 vec1)
@@ -117,7 +135,9 @@ if(NOT APPLE) # Could review for up to date Mac OS 26+
     add_executable(vec_constexpr1 vec_constexpr1.cpp)
     target_sources(vec_constexpr1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
       FILES
+      ${PROJECT_SOURCE_DIR}/sm/constexpr_math
       ${PROJECT_SOURCE_DIR}/sm/range
+      ${PROJECT_SOURCE_DIR}/sm/mathconst
       ${PROJECT_SOURCE_DIR}/sm/vec
       ${PROJECT_SOURCE_DIR}/sm/random    )
     add_test(vec_constexpr1 vec_constexpr1)
@@ -127,7 +147,9 @@ endif()
 add_executable(vec_casting1 vec_casting1.cpp)
 target_sources(vec_casting1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/random)
 add_test(vec_casting1 vec_casting1)
@@ -135,7 +157,9 @@ add_test(vec_casting1 vec_casting1)
 add_executable(vec_asmapkey1 vec_asmapkey1.cpp)
 target_sources(vec_asmapkey1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/random
 )
@@ -144,7 +168,9 @@ add_test(vec_asmapkey1 vec_asmapkey1)
 add_executable(vec_asunordmapkey1 vec_asunordmapkey1.cpp)
 target_sources(vec_asunordmapkey1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/random)
 add_test(vec_asunordmapkey1 vec_asunordmapkey1)
@@ -156,7 +182,9 @@ add_test(array_asmapkey1 array_asmapkey1)
 add_executable(vec_elementops1 vec_elementops1.cpp)
 target_sources(vec_elementops1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vvec)
@@ -165,7 +193,9 @@ add_test(vec_elementops1 vec_elementops1)
 add_executable(vec_set_from1 vec_set_from1.cpp)
 target_sources(vec_set_from1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/random)
 add_test(vec_set_from1 vec_set_from1)
@@ -174,7 +204,9 @@ add_test(vec_set_from1 vec_set_from1)
 add_executable(vvec1 vvec1.cpp)
 target_sources(vvec1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/vvec)
@@ -183,7 +215,9 @@ add_test(vvec1 vvec1)
 add_executable(vvec_ofvecs1 vvec_ofvecs1.cpp)
 target_sources(vvec_ofvecs1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/vvec)
@@ -192,7 +226,9 @@ add_test(vvec_ofvecs1 vvec_ofvecs1)
 add_executable(vvec_operatormult1 vvec_operatormult1.cpp)
 target_sources(vvec_operatormult1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/vvec)
@@ -201,7 +237,9 @@ add_test(vvec_operatormult1 vvec_operatormult1)
 add_executable(vvec_operatordiv1 vvec_operatordiv1.cpp)
 target_sources(vvec_operatordiv1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/vvec)
@@ -210,7 +248,9 @@ add_test(vvec_operatordiv1 vvec_operatordiv1)
 add_executable(vvec_operatoradd1 vvec_operatoradd1.cpp)
 target_sources(vvec_operatoradd1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/vvec)
@@ -219,7 +259,9 @@ add_test(vvec_operatoradd1 vvec_operatoradd1)
 add_executable(vvec_convolutions1 vvec_convolutions1.cpp)
 target_sources(vvec_convolutions1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vvec)
 add_test(vvec_convolutions1 vvec_convolutions1)
@@ -227,7 +269,9 @@ add_test(vvec_convolutions1 vvec_convolutions1)
 add_executable(vvec_convolutions2 vvec_convolutions2.cpp)
 target_sources(vvec_convolutions2 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vvec)
 add_test(vvec_convolutions2 vvec_convolutions2)
@@ -235,7 +279,9 @@ add_test(vvec_convolutions2 vvec_convolutions2)
 add_executable(vvec_differentiation1 vvec_differentiation1.cpp)
 target_sources(vvec_differentiation1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vvec)
 add_test(vvec_differentiation1 vvec_differentiation1)
@@ -243,7 +289,9 @@ add_test(vvec_differentiation1 vvec_differentiation1)
 add_executable(vvec_zerocross1 vvec_zerocross1.cpp)
 target_sources(vvec_zerocross1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vvec)
 add_test(vvec_zerocross1 vvec_zerocross1)
@@ -251,7 +299,9 @@ add_test(vvec_zerocross1 vvec_zerocross1)
 add_executable(vvec_prune1 vvec_prune1.cpp)
 target_sources(vvec_prune1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vvec)
 add_test(vvec_prune1 vvec_prune1)
@@ -259,7 +309,9 @@ add_test(vvec_prune1 vvec_prune1)
 add_executable(vvec_threshold1 vvec_threshold1.cpp)
 target_sources(vvec_threshold1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vvec)
 add_test(vvec_threshold1 vvec_threshold1)
@@ -267,7 +319,9 @@ add_test(vvec_threshold1 vvec_threshold1)
 add_executable(vvec_elementcompare1 vvec_elementcompare1.cpp)
 target_sources(vvec_elementcompare1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vvec)
 add_test(vvec_elementcompare1 vvec_elementcompare1)
@@ -275,7 +329,9 @@ add_test(vvec_elementcompare1 vvec_elementcompare1)
 add_executable(vvec_rescale1 vvec_rescale1.cpp)
 target_sources(vvec_rescale1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vvec)
 add_test(vvec_rescale1 vvec_rescale1)
@@ -283,7 +339,9 @@ add_test(vvec_rescale1 vvec_rescale1)
 add_executable(vvec_set_from1 vvec_set_from1.cpp)
 target_sources(vvec_set_from1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vvec
   ${PROJECT_SOURCE_DIR}/sm/vec)
@@ -292,7 +350,9 @@ add_test(vvec_set_from1 vvec_set_from1)
 add_executable(vvec_at_signed1 vvec_at_signed1.cpp)
 target_sources(vvec_at_signed1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vvec)
 add_test(vvec_at_signed1 vvec_at_signed1)
@@ -300,7 +360,9 @@ add_test(vvec_at_signed1 vvec_at_signed1)
 add_executable(vvec_nans1 vvec_nans1.cpp)
 target_sources(vvec_nans1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vvec)
 add_test(vvec_nans1 vvec_nans1)
@@ -308,7 +370,9 @@ add_test(vvec_nans1 vvec_nans1)
 add_executable(vvec_range_extent1 vvec_range_extent1.cpp)
 target_sources(vvec_range_extent1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/vvec)
@@ -317,7 +381,9 @@ add_test(vvec_range_extent1 vvec_range_extent1)
 add_executable(vvec_arange vvec_arange.cpp)
 target_sources(vvec_arange PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/vvec)
@@ -327,7 +393,9 @@ add_test(vvec_arange vvec_arange)
 add_executable(scale1 scale1.cpp)
 target_sources(scale1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/vvec
@@ -338,7 +406,9 @@ add_test(scale1 scale1)
 add_executable(scale_vector1 scale_vector1.cpp)
 target_sources(scale_vector1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/vvec
@@ -349,7 +419,9 @@ add_test(scale_vector1 scale_vector1)
 add_executable(scale_complex1 scale_complex1.cpp)
 target_sources(scale_complex1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/vvec
@@ -361,7 +433,9 @@ if(HDF5_FOUND)
   add_executable(hdfdata1 hdfdata1.cpp)
   target_sources(hdfdata1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
     FILES
+    ${PROJECT_SOURCE_DIR}/sm/constexpr_math
     ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/mathconst
     ${PROJECT_SOURCE_DIR}/sm/random
     ${PROJECT_SOURCE_DIR}/sm/vec
     ${PROJECT_SOURCE_DIR}/sm/vvec
@@ -374,7 +448,9 @@ if(HDF5_FOUND)
   add_executable(hdfdata2 hdfdata2.cpp)
   target_sources(hdfdata2 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
     FILES
+    ${PROJECT_SOURCE_DIR}/sm/constexpr_math
     ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/mathconst
     ${PROJECT_SOURCE_DIR}/sm/random
     ${PROJECT_SOURCE_DIR}/sm/vec
     ${PROJECT_SOURCE_DIR}/sm/vvec
@@ -387,7 +463,9 @@ if(HDF5_FOUND)
   target_compile_definitions(hdfdata3 PUBLIC FLT=float)
   target_sources(hdfdata3 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
     FILES
+    ${PROJECT_SOURCE_DIR}/sm/constexpr_math
     ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/mathconst
     ${PROJECT_SOURCE_DIR}/sm/random
     ${PROJECT_SOURCE_DIR}/sm/vec
     ${PROJECT_SOURCE_DIR}/sm/vvec
@@ -400,7 +478,9 @@ if(HDF5_FOUND)
   target_compile_definitions(hdfdata3d PUBLIC FLT=double)
   target_sources(hdfdata3d PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
     FILES
+    ${PROJECT_SOURCE_DIR}/sm/constexpr_math
     ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/mathconst
     ${PROJECT_SOURCE_DIR}/sm/random
     ${PROJECT_SOURCE_DIR}/sm/vec
     ${PROJECT_SOURCE_DIR}/sm/vvec
@@ -413,7 +493,9 @@ if(HDF5_FOUND)
   target_compile_definitions(hdfdata4 PUBLIC FLT=float)
   target_sources(hdfdata4 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
     FILES
+    ${PROJECT_SOURCE_DIR}/sm/constexpr_math
     ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/mathconst
     ${PROJECT_SOURCE_DIR}/sm/random
     ${PROJECT_SOURCE_DIR}/sm/vec
     ${PROJECT_SOURCE_DIR}/sm/vvec
@@ -425,7 +507,9 @@ if(HDF5_FOUND)
   add_executable(hdfdata5 hdfdata5.cpp)
   target_sources(hdfdata5 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
     FILES
+    ${PROJECT_SOURCE_DIR}/sm/constexpr_math
     ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/mathconst
     ${PROJECT_SOURCE_DIR}/sm/random
     ${PROJECT_SOURCE_DIR}/sm/vec
     ${PROJECT_SOURCE_DIR}/sm/vvec
@@ -439,7 +523,9 @@ endif(HDF5_FOUND)
 add_executable(quaternion1 quaternion1.cpp)
 target_sources(quaternion1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/quaternion)
@@ -449,7 +535,9 @@ if(NOT APPLE)
   add_executable(quaternion_constexpr1 quaternion_constexpr1.cpp)
   target_sources(quaternion_constexpr1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
     FILES
+    ${PROJECT_SOURCE_DIR}/sm/constexpr_math
     ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/mathconst
     ${PROJECT_SOURCE_DIR}/sm/random
     ${PROJECT_SOURCE_DIR}/sm/vec
     ${PROJECT_SOURCE_DIR}/sm/quaternion)
@@ -460,7 +548,9 @@ add_executable(quaternion_rotations_float quaternion_rotations.cpp)
 target_compile_definitions(quaternion_rotations_float PUBLIC FLT=float)
 target_sources(quaternion_rotations_float PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/quaternion)
@@ -470,7 +560,9 @@ add_executable(quaternion_rotations_double quaternion_rotations.cpp)
 target_compile_definitions(quaternion_rotations_double PUBLIC FLT=double)
 target_sources(quaternion_rotations_double PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/quaternion)
@@ -479,7 +571,9 @@ add_test(quaternion_rotations_double quaternion_rotations_double)
 add_executable(mat_non_square mat_non_square.cpp)
 target_sources(mat_non_square PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/quaternion
@@ -489,7 +583,9 @@ add_test(mat_non_square mat_non_square)
 add_executable(mat_2x2_general mat_2x2_general.cpp)
 target_sources(mat_2x2_general PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/quaternion
@@ -499,7 +595,9 @@ add_test(mat_2x2_general mat_2x2_general)
 add_executable(mat_3x3_basic mat_3x3_basic.cpp)
 target_sources(mat_3x3_basic PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/quaternion
@@ -509,7 +607,9 @@ add_test(mat_3x3_basic mat_3x3_basic)
 add_executable(mat_3x3_general mat_3x3_general.cpp)
 target_sources(mat_3x3_general PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/quaternion
@@ -520,7 +620,9 @@ add_test(mat_3x3_general mat_3x3_general)
 add_executable(mat_4x4 mat_4x4.cpp)
 target_sources(mat_4x4 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/quaternion
@@ -530,7 +632,9 @@ add_test(mat_4x4 mat_4x4)
 add_executable(mat_4x4_translate mat_4x4_translate.cpp)
 target_sources(mat_4x4_translate PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/quaternion
@@ -540,7 +644,9 @@ add_test(mat_4x4_translate mat_4x4_translate)
 add_executable(mat_4x4_basic mat_4x4_basic.cpp)
 target_sources(mat_4x4_basic PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/quaternion
@@ -550,7 +656,9 @@ add_test(mat_4x4_basic mat_4x4_basic)
 add_executable(mat_4x4_basic2 mat_4x4_basic2.cpp)
 target_sources(mat_4x4_basic2 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/quaternion
@@ -560,7 +668,9 @@ add_test(mat_4x4_basic2 mat_4x4_basic2)
 add_executable(mat_4x4_reflection mat_4x4_reflection.cpp)
 target_sources(mat_4x4_reflection PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/quaternion
@@ -572,7 +682,9 @@ if(NOT APPLE)
   add_executable(mat_4x4_constexpr mat_4x4_constexpr.cpp)
   target_sources(mat_4x4_constexpr PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
     FILES
+    ${PROJECT_SOURCE_DIR}/sm/constexpr_math
     ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/mathconst
     ${PROJECT_SOURCE_DIR}/sm/random
     ${PROJECT_SOURCE_DIR}/sm/vec
     ${PROJECT_SOURCE_DIR}/sm/quaternion
@@ -584,6 +696,8 @@ if(NOT APPLE)
     target_include_directories (mat_4x4_vseigen BEFORE PRIVATE ${EIGEN3_INCLUDE_DIR})
     target_sources(mat_4x4_vseigen PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
       FILES
+      ${PROJECT_SOURCE_DIR}/sm/mathconst
+      ${PROJECT_SOURCE_DIR}/sm/constexpr_math
       ${PROJECT_SOURCE_DIR}/sm/range
       ${PROJECT_SOURCE_DIR}/sm/random
       ${PROJECT_SOURCE_DIR}/sm/vec
@@ -598,7 +712,9 @@ add_executable(rotations1_float rotations1.cpp)
 target_compile_definitions(rotations1_float PUBLIC FLT=float)
 target_sources(rotations1_float PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/quaternion
@@ -609,7 +725,9 @@ add_executable(rotations1_double rotations1.cpp)
 target_compile_definitions(rotations1_double PUBLIC FLT=double)
 target_sources(rotations1_double PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/quaternion
@@ -620,7 +738,9 @@ add_test(rotations1_double rotations1_double)
 add_executable(rotations2 rotations2.cpp)
 target_sources(rotations2 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/quaternion
@@ -630,7 +750,9 @@ add_test(rotations2 rotations2)
 add_executable(test_trait_tests test_trait_tests.cpp)
 target_sources(test_trait_tests PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/vvec)
@@ -640,7 +762,9 @@ add_test(test_trait_tests test_trait_tests)
 add_executable(hex_vertexpos1 hex_vertexpos1.cpp)
 target_sources(hex_vertexpos1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/vvec
@@ -652,7 +776,9 @@ add_test(hex_vertexpos1 hex_vertexpos1)
 add_executable(hex_userflags1 hex_userflags1.cpp)
 target_sources(hex_userflags1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/bezcoord
@@ -671,7 +797,9 @@ target_compile_definitions(hex_profile_list_hex_min_erase_dbg PUBLIC _GLIBCXX_DE
 add_executable(winder1 winder1.cpp)
 target_sources(winder1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/vvec
@@ -681,7 +809,9 @@ add_test(winder1 winder1)
 add_executable(winder2 winder2.cpp)
 target_sources(winder2 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/winder)
@@ -690,7 +820,9 @@ add_test(winder2 winder2)
 add_executable(winder3 winder3.cpp)
 target_sources(winder3 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/vvec
@@ -701,7 +833,9 @@ add_test(winder3 winder3)
 add_executable(bootstrap1 bootstrap1.cpp)
 target_sources(bootstrap1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/vvec
@@ -712,7 +846,9 @@ target_sources(bootstrap1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE
 add_executable(grid1 grid1.cpp)
 target_sources(grid1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/vvec
@@ -722,7 +858,9 @@ add_test(grid1 grid1)
 add_executable(grid_suggest_dims1 grid_suggest_dims1.cpp)
 target_sources(grid_suggest_dims1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/vvec
@@ -732,7 +870,9 @@ add_test(grid_suggest_dims1 grid_suggest_dims1)
 add_executable(grid_rowcol1 grid_rowcol1.cpp)
 target_sources(grid_rowcol1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/vvec
@@ -742,7 +882,9 @@ add_test(grid_rowcol1 grid_rowcol1)
 add_executable(grid_shiftindex1 grid_shiftindex1.cpp)
 target_sources(grid_shiftindex1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/vvec
@@ -752,7 +894,9 @@ add_test(grid_shiftindex1 grid_shiftindex1)
 add_executable(grid_indexlookup1 grid_indexlookup1.cpp)
 target_sources(grid_indexlookup1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/vvec
@@ -762,7 +906,9 @@ add_test(grid_indexlookup1 grid_indexlookup1)
 add_executable(grid_neighbours1 grid_neighbours1.cpp)
 target_sources(grid_neighbours1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/vvec
@@ -772,7 +918,9 @@ add_test(grid_neighbours1 grid_neighbours1)
 add_executable(grid_getabscissae1 grid_getabscissae1.cpp)
 target_sources(grid_getabscissae1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/vvec
@@ -784,7 +932,9 @@ if((CMAKE_CXX_COMPILER_ID MATCHES "Clang") OR (CMAKE_COMPILER_IS_GNUCXX AND CMAK
   add_executable(grid_profile1 grid_profile1.cpp)
   target_sources(grid_profile1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
     FILES
+    ${PROJECT_SOURCE_DIR}/sm/constexpr_math
     ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/mathconst
     ${PROJECT_SOURCE_DIR}/sm/random
     ${PROJECT_SOURCE_DIR}/sm/vec
     ${PROJECT_SOURCE_DIR}/sm/vvec
@@ -797,7 +947,9 @@ add_executable(nmsimplex1 nmsimplex1.cpp)
 target_compile_definitions(nmsimplex1 PUBLIC FLT=float)
 target_sources(nmsimplex1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vvec
@@ -808,7 +960,9 @@ add_test(nmsimplex1 nmsimplex1)
 add_executable(histo1 histo1.cpp)
 target_sources(histo1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vvec
@@ -819,7 +973,9 @@ if((CMAKE_CXX_COMPILER_ID MATCHES "Clang") OR (CMAKE_COMPILER_IS_GNUCXX AND CMAK
   add_executable(boxfilter1 boxfilter1.cpp)
   target_sources(boxfilter1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
     FILES
+    ${PROJECT_SOURCE_DIR}/sm/constexpr_math
     ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/mathconst
     ${PROJECT_SOURCE_DIR}/sm/vec
     ${PROJECT_SOURCE_DIR}/sm/random
     ${PROJECT_SOURCE_DIR}/sm/vvec
@@ -832,7 +988,9 @@ if((CMAKE_CXX_COMPILER_ID MATCHES "Clang") OR (CMAKE_COMPILER_IS_GNUCXX AND CMAK
   add_executable(config1 config1.cpp)
   target_sources(config1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
     FILES
+    ${PROJECT_SOURCE_DIR}/sm/constexpr_math
     ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/mathconst
     ${PROJECT_SOURCE_DIR}/sm/vec
     ${PROJECT_SOURCE_DIR}/sm/random
     ${PROJECT_SOURCE_DIR}/sm/vvec
@@ -843,7 +1001,9 @@ endif()
 add_executable(zernike1 zernike1.cpp)
 target_sources(zernike1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vvec
@@ -853,7 +1013,9 @@ add_test(zernike1 zernike1)
 add_executable(algo_1 algo_1.cpp)
 target_sources(algo_1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vvec
@@ -863,7 +1025,9 @@ add_test(algo_1 algo_1)
 add_executable(algo_sigfigs1 algo_sigfigs1.cpp)
 target_sources(algo_sigfigs1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vvec
@@ -873,7 +1037,9 @@ add_test(algo_sigfigs1 algo_sigfigs1)
 add_executable(algo_roundtocol1 algo_roundtocol1.cpp)
 target_sources(algo_roundtocol1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vvec
@@ -883,7 +1049,9 @@ add_test(algo_roundtocol1 algo_roundtocol1)
 add_executable(geometry_2 geometry_2.cpp)
 target_sources(geometry_2 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vvec
@@ -894,7 +1062,9 @@ add_test(geometry_2 geometry_2)
 add_executable(geometry_3 geometry_3.cpp)
 target_sources(geometry_3 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vvec
@@ -905,7 +1075,9 @@ add_test(geometry_3 geometry_3)
 add_executable(geometry_4 geometry_4.cpp)
 target_sources(geometry_4 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vvec
@@ -916,7 +1088,9 @@ add_test(geometry_4 geometry_4)
 add_executable(geometry_5 geometry_5.cpp)
 target_sources(geometry_5 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vvec
@@ -927,7 +1101,9 @@ add_test(geometry_5 geometry_5)
 add_executable(geometry_6 geometry_6.cpp)
 target_sources(geometry_6 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vvec
@@ -940,7 +1116,9 @@ add_test(geometry_6 geometry_6)
 add_executable(geometry_xyz_to_latlong geometry_xyz_to_latlong.cpp)
 target_sources(geometry_xyz_to_latlong PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vvec
@@ -951,7 +1129,9 @@ add_test(geometry_xyz_to_latlong geometry_xyz_to_latlong)
 add_executable(geometry_sph_projections geometry_sph_projections.cpp)
 target_sources(geometry_sph_projections PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vvec
@@ -962,7 +1142,9 @@ add_test(geometry_sph_projections geometry_sph_projections)
 add_executable(graham_scan_1 graham_scan_1.cpp)
 target_sources(graham_scan_1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vvec
@@ -973,7 +1155,9 @@ add_test(graham_scan_1 graham_scan_1)
 add_executable(util1 util1.cpp)
 target_sources(util1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/util
   ${PROJECT_SOURCE_DIR}/sm/vec)
@@ -982,7 +1166,9 @@ add_test(util1 util1)
 add_executable(trait_tests_number_type trait_tests_number_type.cpp)
 target_sources(trait_tests_number_type PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vec)
 add_test(trait_tests_number_type trait_tests_number_type)
@@ -992,8 +1178,13 @@ target_sources(flags1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR
 add_test(flags1 flags1)
 
 if(NOT APPLE)
-add_executable(constexpr_math1 constexpr_math1.cpp)
-add_test(constexpr_math1 constexpr_math1)
+  add_executable(constexpr_math1 constexpr_math1.cpp)
+  target_sources(constexpr_math1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+    FILES
+    ${PROJECT_SOURCE_DIR}/sm/mathconst
+    ${PROJECT_SOURCE_DIR}/sm/constexpr_math
+  )
+  add_test(constexpr_math1 constexpr_math1)
 endif()
 
 # vvec<vec> warning about attributes in gcc14
@@ -1004,7 +1195,9 @@ if((CMAKE_CXX_COMPILER_ID MATCHES "Clang") OR (CMAKE_COMPILER_IS_GNUCXX AND CMAK
   add_executable(${TARGETTEST1} ${SOURCETEST1})
   target_sources(bez1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
     FILES
+    ${PROJECT_SOURCE_DIR}/sm/constexpr_math
     ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/mathconst
     ${PROJECT_SOURCE_DIR}/sm/random
     ${PROJECT_SOURCE_DIR}/sm/vec
     ${PROJECT_SOURCE_DIR}/sm/bezcoord
@@ -1022,7 +1215,9 @@ endif()
 add_executable(bez2 bez2.cpp)
 target_sources(bez2 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/quaternion
@@ -1044,7 +1239,9 @@ if((CMAKE_CXX_COMPILER_ID MATCHES "Clang") OR (CMAKE_COMPILER_IS_GNUCXX AND CMAK
   add_executable(bezcurves bezcurves.cpp)
   target_sources(bezcurves PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
     FILES
+    ${PROJECT_SOURCE_DIR}/sm/constexpr_math
     ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/mathconst
     ${PROJECT_SOURCE_DIR}/sm/random
     ${PROJECT_SOURCE_DIR}/sm/vec
     ${PROJECT_SOURCE_DIR}/sm/quaternion
@@ -1062,7 +1259,9 @@ if((CMAKE_CXX_COMPILER_ID MATCHES "Clang") OR (CMAKE_COMPILER_IS_GNUCXX AND CMAK
   add_executable(bezmatrix bezmatrix.cpp)
   target_sources(bezmatrix PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
     FILES
+    ${PROJECT_SOURCE_DIR}/sm/constexpr_math
     ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/mathconst
     ${PROJECT_SOURCE_DIR}/sm/random
     ${PROJECT_SOURCE_DIR}/sm/vec
     ${PROJECT_SOURCE_DIR}/sm/bezcoord
@@ -1083,7 +1282,9 @@ if((CMAKE_CXX_COMPILER_ID MATCHES "Clang") OR (CMAKE_COMPILER_IS_GNUCXX AND CMAK
   add_executable(bezfit bezfit.cpp)
   target_sources(bezfit PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
     FILES
+    ${PROJECT_SOURCE_DIR}/sm/constexpr_math
     ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/mathconst
     ${PROJECT_SOURCE_DIR}/sm/random
     ${PROJECT_SOURCE_DIR}/sm/vec
     ${PROJECT_SOURCE_DIR}/sm/quaternion
@@ -1101,7 +1302,9 @@ if((CMAKE_CXX_COMPILER_ID MATCHES "Clang") OR (CMAKE_COMPILER_IS_GNUCXX AND CMAK
   add_executable(bezsplit bezsplit.cpp)
   target_sources(bezsplit PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
     FILES
+    ${PROJECT_SOURCE_DIR}/sm/constexpr_math
     ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/mathconst
     ${PROJECT_SOURCE_DIR}/sm/random
     ${PROJECT_SOURCE_DIR}/sm/vec
     ${PROJECT_SOURCE_DIR}/sm/quaternion
@@ -1119,7 +1322,9 @@ if((CMAKE_CXX_COMPILER_ID MATCHES "Clang") OR (CMAKE_COMPILER_IS_GNUCXX AND CMAK
   add_executable(twocurves twocurves.cpp)
   target_sources(twocurves PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
     FILES
+    ${PROJECT_SOURCE_DIR}/sm/constexpr_math
     ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/mathconst
     ${PROJECT_SOURCE_DIR}/sm/random
     ${PROJECT_SOURCE_DIR}/sm/vec
     ${PROJECT_SOURCE_DIR}/sm/quaternion
@@ -1138,7 +1343,9 @@ if((CMAKE_CXX_COMPILER_ID MATCHES "Clang") OR (CMAKE_COMPILER_IS_GNUCXX AND CMAK
   add_executable(cartgrid1 cartgrid1.cpp)
   target_sources(cartgrid1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
     FILES
+    ${PROJECT_SOURCE_DIR}/sm/constexpr_math
     ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/mathconst
     ${PROJECT_SOURCE_DIR}/sm/random
     ${PROJECT_SOURCE_DIR}/sm/vec
     ${PROJECT_SOURCE_DIR}/sm/bezcoord
@@ -1151,7 +1358,9 @@ if((CMAKE_CXX_COMPILER_ID MATCHES "Clang") OR (CMAKE_COMPILER_IS_GNUCXX AND CMAK
   add_executable(cartgrid_gridshiftcoords cartgrid_gridshiftcoords.cpp)
   target_sources(cartgrid_gridshiftcoords PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
     FILES
+    ${PROJECT_SOURCE_DIR}/sm/constexpr_math
     ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/mathconst
     ${PROJECT_SOURCE_DIR}/sm/random
     ${PROJECT_SOURCE_DIR}/sm/vec
     ${PROJECT_SOURCE_DIR}/sm/bezcoord
@@ -1164,7 +1373,9 @@ if((CMAKE_CXX_COMPILER_ID MATCHES "Clang") OR (CMAKE_COMPILER_IS_GNUCXX AND CMAK
   add_executable(cartgrid_shiftindicesbymetric cartgrid_shiftindicesbymetric.cpp)
   target_sources(cartgrid_shiftindicesbymetric PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
     FILES
+    ${PROJECT_SOURCE_DIR}/sm/constexpr_math
     ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/mathconst
     ${PROJECT_SOURCE_DIR}/sm/random
     ${PROJECT_SOURCE_DIR}/sm/vec
     ${PROJECT_SOURCE_DIR}/sm/bezcoord
@@ -1178,7 +1389,9 @@ endif()
 add_executable(polysolve_1 polysolve_1.cpp)
 target_sources(polysolve_1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vvec
@@ -1199,7 +1412,9 @@ if(NOT WIN32) # exclude Windows CI from doing the compile failure tests for now
   add_executable(mat_succeed_4x4timesv3 mat_succeed_4x4timesv3.cpp)
   target_sources(mat_succeed_4x4timesv3 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
     FILES
+    ${PROJECT_SOURCE_DIR}/sm/constexpr_math
     ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/mathconst
     ${PROJECT_SOURCE_DIR}/sm/random
     ${PROJECT_SOURCE_DIR}/sm/vec
     ${PROJECT_SOURCE_DIR}/sm/quaternion
@@ -1210,7 +1425,9 @@ if(NOT WIN32) # exclude Windows CI from doing the compile failure tests for now
   add_executable(mat_succeed_4x4timesv4 mat_succeed_4x4timesv4.cpp)
   target_sources(mat_succeed_4x4timesv4 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
     FILES
+    ${PROJECT_SOURCE_DIR}/sm/constexpr_math
     ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/mathconst
     ${PROJECT_SOURCE_DIR}/sm/random
     ${PROJECT_SOURCE_DIR}/sm/vec
     ${PROJECT_SOURCE_DIR}/sm/quaternion
@@ -1227,7 +1444,9 @@ if(NOT WIN32) # exclude Windows CI from doing the compile failure tests for now
     SOURCES mat_fail_4x4timesv16.cpp
     MODULE_BASE ${PROJECT_SOURCE_DIR}
     MODULE_FILES
+    ${PROJECT_SOURCE_DIR}/sm/constexpr_math
     ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/mathconst
     ${PROJECT_SOURCE_DIR}/sm/random
     ${PROJECT_SOURCE_DIR}/sm/vec
     ${PROJECT_SOURCE_DIR}/sm/quaternion
@@ -1241,7 +1460,9 @@ if(NOT WIN32) # exclude Windows CI from doing the compile failure tests for now
     SOURCES mat_fail_4x4timeseqlsv3.cpp
     MODULE_BASE ${PROJECT_SOURCE_DIR}
     MODULE_FILES
+    ${PROJECT_SOURCE_DIR}/sm/constexpr_math
     ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/mathconst
     ${PROJECT_SOURCE_DIR}/sm/random
     ${PROJECT_SOURCE_DIR}/sm/vec
     ${PROJECT_SOURCE_DIR}/sm/quaternion
@@ -1255,7 +1476,9 @@ if(NOT WIN32) # exclude Windows CI from doing the compile failure tests for now
     SOURCES mat_fail_4x4timeseqlsv4.cpp
     MODULE_BASE ${PROJECT_SOURCE_DIR}
     MODULE_FILES
+    ${PROJECT_SOURCE_DIR}/sm/constexpr_math
     ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/mathconst
     ${PROJECT_SOURCE_DIR}/sm/random
     ${PROJECT_SOURCE_DIR}/sm/vec
     ${PROJECT_SOURCE_DIR}/sm/quaternion
@@ -1269,7 +1492,9 @@ if(NOT WIN32) # exclude Windows CI from doing the compile failure tests for now
     SOURCES mat_fail_4x4timeseqlsv16.cpp
     MODULE_BASE ${PROJECT_SOURCE_DIR}
     MODULE_FILES
+    ${PROJECT_SOURCE_DIR}/sm/constexpr_math
     ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/mathconst
     ${PROJECT_SOURCE_DIR}/sm/random
     ${PROJECT_SOURCE_DIR}/sm/vec
     ${PROJECT_SOURCE_DIR}/sm/quaternion
@@ -1287,7 +1512,9 @@ if(NOT WIN32) # exclude Windows CI from doing the compile failure tests for now
     SOURCES mat_fail_4x4plusvec3.cpp
     MODULE_BASE ${PROJECT_SOURCE_DIR}
     MODULE_FILES
+    ${PROJECT_SOURCE_DIR}/sm/constexpr_math
     ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/mathconst
     ${PROJECT_SOURCE_DIR}/sm/random
     ${PROJECT_SOURCE_DIR}/sm/vec
     ${PROJECT_SOURCE_DIR}/sm/quaternion
@@ -1301,7 +1528,9 @@ if(NOT WIN32) # exclude Windows CI from doing the compile failure tests for now
     SOURCES mat_fail_4x4plusvec4.cpp
     MODULE_BASE ${PROJECT_SOURCE_DIR}
     MODULE_FILES
+    ${PROJECT_SOURCE_DIR}/sm/constexpr_math
     ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/mathconst
     ${PROJECT_SOURCE_DIR}/sm/random
     ${PROJECT_SOURCE_DIR}/sm/vec
     ${PROJECT_SOURCE_DIR}/sm/quaternion
@@ -1315,7 +1544,9 @@ if(NOT WIN32) # exclude Windows CI from doing the compile failure tests for now
     SOURCES mat_fail_4x4plusvec16.cpp
     MODULE_BASE ${PROJECT_SOURCE_DIR}
     MODULE_FILES
+    ${PROJECT_SOURCE_DIR}/sm/constexpr_math
     ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/mathconst
     ${PROJECT_SOURCE_DIR}/sm/random
     ${PROJECT_SOURCE_DIR}/sm/vec
     ${PROJECT_SOURCE_DIR}/sm/quaternion
@@ -1333,7 +1564,9 @@ if(NOT WIN32) # exclude Windows CI from doing the compile failure tests for now
     SOURCES mat_fail_4x4pluseqlsvec3.cpp
     MODULE_BASE ${PROJECT_SOURCE_DIR}
     MODULE_FILES
+    ${PROJECT_SOURCE_DIR}/sm/constexpr_math
     ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/mathconst
     ${PROJECT_SOURCE_DIR}/sm/random
     ${PROJECT_SOURCE_DIR}/sm/vec
     ${PROJECT_SOURCE_DIR}/sm/quaternion
@@ -1347,7 +1580,9 @@ if(NOT WIN32) # exclude Windows CI from doing the compile failure tests for now
     SOURCES mat_fail_4x4pluseqlsvec4.cpp
     MODULE_BASE ${PROJECT_SOURCE_DIR}
     MODULE_FILES
+    ${PROJECT_SOURCE_DIR}/sm/constexpr_math
     ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/mathconst
     ${PROJECT_SOURCE_DIR}/sm/random
     ${PROJECT_SOURCE_DIR}/sm/vec
     ${PROJECT_SOURCE_DIR}/sm/quaternion
@@ -1361,7 +1596,9 @@ if(NOT WIN32) # exclude Windows CI from doing the compile failure tests for now
     SOURCES mat_fail_4x4pluseqlsvec16.cpp
     MODULE_BASE ${PROJECT_SOURCE_DIR}
     MODULE_FILES
+    ${PROJECT_SOURCE_DIR}/sm/constexpr_math
     ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/mathconst
     ${PROJECT_SOURCE_DIR}/sm/random
     ${PROJECT_SOURCE_DIR}/sm/vec
     ${PROJECT_SOURCE_DIR}/sm/quaternion
@@ -1379,7 +1616,9 @@ if(NOT WIN32) # exclude Windows CI from doing the compile failure tests for now
     SOURCES mat_fail_4x4minusvec3.cpp
     MODULE_BASE ${PROJECT_SOURCE_DIR}
     MODULE_FILES
+    ${PROJECT_SOURCE_DIR}/sm/constexpr_math
     ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/mathconst
     ${PROJECT_SOURCE_DIR}/sm/random
     ${PROJECT_SOURCE_DIR}/sm/vec
     ${PROJECT_SOURCE_DIR}/sm/quaternion
@@ -1393,7 +1632,9 @@ if(NOT WIN32) # exclude Windows CI from doing the compile failure tests for now
     SOURCES mat_fail_4x4minusvec4.cpp
     MODULE_BASE ${PROJECT_SOURCE_DIR}
     MODULE_FILES
+    ${PROJECT_SOURCE_DIR}/sm/constexpr_math
     ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/mathconst
     ${PROJECT_SOURCE_DIR}/sm/random
     ${PROJECT_SOURCE_DIR}/sm/vec
     ${PROJECT_SOURCE_DIR}/sm/quaternion
@@ -1407,7 +1648,9 @@ if(NOT WIN32) # exclude Windows CI from doing the compile failure tests for now
     SOURCES mat_fail_4x4minusvec16.cpp
     MODULE_BASE ${PROJECT_SOURCE_DIR}
     MODULE_FILES
+    ${PROJECT_SOURCE_DIR}/sm/constexpr_math
     ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/mathconst
     ${PROJECT_SOURCE_DIR}/sm/random
     ${PROJECT_SOURCE_DIR}/sm/vec
     ${PROJECT_SOURCE_DIR}/sm/quaternion
@@ -1425,7 +1668,9 @@ if(NOT WIN32) # exclude Windows CI from doing the compile failure tests for now
     SOURCES mat_fail_4x4minuseqlsvec3.cpp
     MODULE_BASE ${PROJECT_SOURCE_DIR}
     MODULE_FILES
+    ${PROJECT_SOURCE_DIR}/sm/constexpr_math
     ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/mathconst
     ${PROJECT_SOURCE_DIR}/sm/random
     ${PROJECT_SOURCE_DIR}/sm/vec
     ${PROJECT_SOURCE_DIR}/sm/quaternion
@@ -1439,7 +1684,9 @@ if(NOT WIN32) # exclude Windows CI from doing the compile failure tests for now
     SOURCES mat_fail_4x4minuseqlsvec4.cpp
     MODULE_BASE ${PROJECT_SOURCE_DIR}
     MODULE_FILES
+    ${PROJECT_SOURCE_DIR}/sm/constexpr_math
     ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/mathconst
     ${PROJECT_SOURCE_DIR}/sm/random
     ${PROJECT_SOURCE_DIR}/sm/vec
     ${PROJECT_SOURCE_DIR}/sm/quaternion
@@ -1453,7 +1700,9 @@ if(NOT WIN32) # exclude Windows CI from doing the compile failure tests for now
     SOURCES mat_fail_4x4minuseqlsvec16.cpp
     MODULE_BASE ${PROJECT_SOURCE_DIR}
     MODULE_FILES
+    ${PROJECT_SOURCE_DIR}/sm/constexpr_math
     ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/mathconst
     ${PROJECT_SOURCE_DIR}/sm/random
     ${PROJECT_SOURCE_DIR}/sm/vec
     ${PROJECT_SOURCE_DIR}/sm/quaternion
@@ -1471,7 +1720,9 @@ if(NOT WIN32) # exclude Windows CI from doing the compile failure tests for now
     SOURCES mat_fail_4x4initwithv3.cpp
     MODULE_BASE ${PROJECT_SOURCE_DIR}
     MODULE_FILES
+    ${PROJECT_SOURCE_DIR}/sm/constexpr_math
     ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/mathconst
     ${PROJECT_SOURCE_DIR}/sm/random
     ${PROJECT_SOURCE_DIR}/sm/vec
     ${PROJECT_SOURCE_DIR}/sm/quaternion
@@ -1485,7 +1736,9 @@ if(NOT WIN32) # exclude Windows CI from doing the compile failure tests for now
     SOURCES mat_fail_4x4initwithv4.cpp
     MODULE_BASE ${PROJECT_SOURCE_DIR}
     MODULE_FILES
+    ${PROJECT_SOURCE_DIR}/sm/constexpr_math
     ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/mathconst
     ${PROJECT_SOURCE_DIR}/sm/random
     ${PROJECT_SOURCE_DIR}/sm/vec
     ${PROJECT_SOURCE_DIR}/sm/quaternion
@@ -1497,7 +1750,9 @@ if(NOT WIN32) # exclude Windows CI from doing the compile failure tests for now
   add_executable(mat_succeed_4x4initwithv16 mat_succeed_4x4initwithv16.cpp)
   target_sources(mat_succeed_4x4initwithv16 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
     FILES
+    ${PROJECT_SOURCE_DIR}/sm/constexpr_math
     ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/mathconst
     ${PROJECT_SOURCE_DIR}/sm/random
     ${PROJECT_SOURCE_DIR}/sm/vec
     ${PROJECT_SOURCE_DIR}/sm/quaternion
@@ -1510,7 +1765,9 @@ if(NOT WIN32) # exclude Windows CI from doing the compile failure tests for now
   add_executable(mat_succeed_assignvec mat_succeed_assignvec.cpp)
   target_sources(mat_succeed_assignvec PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
     FILES
+    ${PROJECT_SOURCE_DIR}/sm/constexpr_math
     ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/mathconst
     ${PROJECT_SOURCE_DIR}/sm/random
     ${PROJECT_SOURCE_DIR}/sm/vec
     ${PROJECT_SOURCE_DIR}/sm/quaternion
@@ -1522,7 +1779,9 @@ if(NOT WIN32) # exclude Windows CI from doing the compile failure tests for now
     SOURCES mat_fail_assignvec_diffsize.cpp
     MODULE_BASE ${PROJECT_SOURCE_DIR}
     MODULE_FILES
+    ${PROJECT_SOURCE_DIR}/sm/constexpr_math
     ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/mathconst
     ${PROJECT_SOURCE_DIR}/sm/random
     ${PROJECT_SOURCE_DIR}/sm/vec
     ${PROJECT_SOURCE_DIR}/sm/quaternion
@@ -1540,7 +1799,9 @@ if(NOT WIN32) # exclude Windows CI from doing the compile failure tests for now
     SOURCES mat_fail_equalityvec.cpp
     MODULE_BASE ${PROJECT_SOURCE_DIR}
     MODULE_FILES
+    ${PROJECT_SOURCE_DIR}/sm/constexpr_math
     ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/mathconst
     ${PROJECT_SOURCE_DIR}/sm/random
     ${PROJECT_SOURCE_DIR}/sm/vec
     ${PROJECT_SOURCE_DIR}/sm/quaternion
@@ -1554,7 +1815,9 @@ if(NOT WIN32) # exclude Windows CI from doing the compile failure tests for now
     SOURCES mat_fail_equalityvec4.cpp
     MODULE_BASE ${PROJECT_SOURCE_DIR}
     MODULE_FILES
+    ${PROJECT_SOURCE_DIR}/sm/constexpr_math
     ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/mathconst
     ${PROJECT_SOURCE_DIR}/sm/random
     ${PROJECT_SOURCE_DIR}/sm/vec
     ${PROJECT_SOURCE_DIR}/sm/quaternion
@@ -1572,7 +1835,9 @@ if(NOT WIN32) # exclude Windows CI from doing the compile failure tests for now
     SOURCES mat_fail_nonequalityvec.cpp
     MODULE_BASE ${PROJECT_SOURCE_DIR}
     MODULE_FILES
+    ${PROJECT_SOURCE_DIR}/sm/constexpr_math
     ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/mathconst
     ${PROJECT_SOURCE_DIR}/sm/random
     ${PROJECT_SOURCE_DIR}/sm/vec
     ${PROJECT_SOURCE_DIR}/sm/quaternion

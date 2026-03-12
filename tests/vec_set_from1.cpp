@@ -5,9 +5,9 @@
 #include <iostream>
 #include <cstdint>
 #include <array>
-#include <sm/mathconst>
 
 import sm.vec;
+import sm.mathconst;
 
 int main()
 {

@@ -18,10 +18,10 @@ module;
 #include <list>
 #include <array>
 #include <cmath>
-#include <sm/mathconst>
 
 export module sm.hex;
 
+export import sm.mathconst;
 export import sm.bezcoord;
 export import sm.vec;
 

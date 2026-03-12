@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <complex>
 
-#include <sm/mathconst>
+import sm.mathconst;
 import sm.vec;
 
 int main()

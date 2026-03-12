@@ -1,9 +1,8 @@
 #include <iostream>
 #include <array>
 #include <cmath>
-#include <sm/mathconst>
-#include <sm/constexpr_math>
 
+import sm.constexpr_math;
 import sm.vec;
 import sm.quaternion;
 import sm.mat;

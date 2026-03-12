@@ -27,13 +27,12 @@ module;
 #include <type_traits>
 #include <initializer_list>
 
-#include <sm/mathconst>
-#include <sm/constexpr_math>
-
 export module sm.mat;
 
+export import sm.mathconst;
 export import sm.quaternion;
 export import sm.vec;
+import sm.constexpr_math;
 
 export namespace sm
 {

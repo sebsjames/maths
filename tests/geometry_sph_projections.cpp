@@ -7,8 +7,6 @@
 #include <iostream>
 #include <limits>
 
-#include <sm/mathconst>
-
 import sm.vec;
 import sm.geometry;
 

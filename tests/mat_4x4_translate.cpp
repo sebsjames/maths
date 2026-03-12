@@ -2,7 +2,6 @@
 // and quaternion multiplication
 
 #include <iostream>
-#include <sm/mathconst>
 
 import sm.vec;
 import sm.quaternion;

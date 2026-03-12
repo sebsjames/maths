@@ -3,8 +3,8 @@
  * and scaling.
  */
 #include <iostream>
-#include <sm/mathconst>
 
+import sm.mathconst;
 import sm.vec;
 import sm.quaternion;
 import sm.mat;

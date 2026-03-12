@@ -1,6 +1,5 @@
 #include <iostream>
 #include <limits>
-#include <sm/mathconst>
 
 import sm.algo;
 

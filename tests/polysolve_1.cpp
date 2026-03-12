@@ -3,8 +3,8 @@
 #include <complex>
 #include <cstdint>
 #include <cmath>
-#include <sm/mathconst>
 
+import sm.mathconst;
 import sm.vvec;
 import sm.polysolve;
 

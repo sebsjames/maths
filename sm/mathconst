@@ -6,9 +6,9 @@
  *
  * Mathematical constants in the sm namespace.
  */
-#pragma once
+export module sm.mathconst;
 
-namespace sm
+export namespace sm
 {
     //! Templated mathematical constants.
     //! Usage example: sm::mathconst<float>::pi_over_2

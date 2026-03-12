@@ -1,6 +1,4 @@
 #include <iostream>
-#include <sm/mathconst>
-#include <sm/hexflags>
 
 import sm.hex;
 import sm.vec;

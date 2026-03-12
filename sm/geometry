@@ -8,6 +8,7 @@
  */
 module;
 
+#include <cstdint>
 #include <tuple>
 #include <algorithm>
 #include <iostream>
@@ -16,10 +17,10 @@ module;
 #include <bitset>
 #include <type_traits>
 
-#include <sm/constexpr_math>
-
 export module sm.geometry;
 
+export import sm.mathconst;
+import sm.constexpr_math;
 import sm.range;
 import sm.algo;
 export import sm.vec;

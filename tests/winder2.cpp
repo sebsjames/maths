@@ -1,9 +1,8 @@
 #include <iostream>
 #include <vector>
 #include <cmath>
-#include <sm/mathconst>
 
-import sm.winder;
+import sm.winder; // should export mathconst
 import sm.vec;
 
 /*

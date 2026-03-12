@@ -18,11 +18,11 @@ module;
 #include <sstream>
 #include <type_traits>
 
-#include <sm/mathconst>
-#include <sm/constexpr_math>
 
 export module sm.quaternion;
 
+export import sm.mathconst;
+import sm.constexpr_math;
 export import sm.vec;
 
 export namespace sm

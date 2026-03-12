@@ -4,8 +4,8 @@
 
 #include <iostream>
 #include <array>
-#include <sm/mathconst>
 
+import sm.mathconst;
 import sm.vec;
 
 void f_const_ptr_a (const std::array<float, 3>* a1)
