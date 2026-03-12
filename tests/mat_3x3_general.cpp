@@ -1,6 +1,8 @@
 #include <iostream>
 #include <array>
-#include <sm/mat>
+
+import sm.mat;
+import sm.vec; // for clang
 
 void setMatrixSequence (sm::mat<float, 3>& tm)
 {

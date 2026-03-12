@@ -8,8 +8,7 @@
  *
  * Author: Seb James
  */
-
-#pragma once
+module;
 
 #include <memory>
 #include <type_traits>
@@ -18,10 +17,13 @@
 #include <array>
 
 #include <sm/trait_tests>
-#include <sm/vec>
-#include <sm/vvec>
 
-namespace sm::algo
+export module sm.centroid;
+
+export import sm.vec;
+import sm.vvec;
+
+export namespace sm::algo
 {
     /*!
      * N-D centroid

@@ -9,7 +9,7 @@
  *
  * This quaternion class adopts the Hamiltonian convention - w,x,y,z.
  */
-#pragma once
+module;
 
 #include <limits>
 #include <cmath>
@@ -18,11 +18,14 @@
 #include <sstream>
 #include <type_traits>
 
-#include <sm/mathconst>
-#include <sm/constexpr_math>
-#include <sm/vec>
 
-namespace sm
+export module sm.quaternion;
+
+export import sm.mathconst;
+import sm.constexpr_math;
+export import sm.vec;
+
+export namespace sm
 {
     // Forward declare class and stream operator
     template <typename F>  requires std::is_floating_point_v<F> struct quaternion;

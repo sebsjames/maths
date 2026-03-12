@@ -1,5 +1,7 @@
 #include <iostream>
-#include <sm/mat>
+
+import sm.mat;
+import sm.vec; // for clang
 
 int main()
 {

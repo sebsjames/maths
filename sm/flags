@@ -75,15 +75,16 @@
  * Author: Seb James
  * Date: Jan 2025
  */
-
-#pragma once
+module;
 
 #include <compare>
 #include <type_traits>
 #include <initializer_list>
 #include <ostream>
 
-namespace sm
+export module sm.flags;
+
+export namespace sm
 {
     template <typename E> requires std::is_enum_v<E> struct flags;
     template <typename E> std::ostream& operator<< (std::ostream&, const flags<E>&);

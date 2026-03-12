@@ -1,6 +1,8 @@
-#include <sm/mathconst>
-#include <sm/vec>
-#include <sm/quaternion>
+#include <iostream>
+
+import sm.mathconst;
+import sm.vec;
+import sm.quaternion;
 
 int main()
 {

@@ -1,10 +1,11 @@
 // Testing rotations of unit vectors about unit axes with mat44 multiplication
 // and quaternion multiplication
 
-#include <sm/mathconst>
-#include <sm/vec>
-#include <sm/quaternion>
-#include <sm/mat>
+#include <iostream>
+
+import sm.vec;
+import sm.quaternion;
+import sm.mat;
 
 #ifndef FLT
 typedef float F;

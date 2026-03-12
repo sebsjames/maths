@@ -10,7 +10,7 @@
  * \author Seb James (with thanks to Konrad Rudolph and Miguel Avila for code review)
  * \date April 2020
  */
-#pragma once
+module;
 
 #include <cstdint>
 #include <cmath>
@@ -25,9 +25,17 @@
 #include <algorithm>
 #include <functional>
 #include <cstddef>
-#include <sm/constexpr_math>
-#include <sm/random>
-#include <sm/range>
+
+
+export module sm.vec;
+
+// random is only imported because it is used internally within vec
+import sm.random;
+import sm.constexpr_math;
+
+// We export sm.range as well as importing it because sm::vec may return a range (sm::vec::range())
+export import sm.range;
+
 
 namespace sm
 {
@@ -61,7 +69,7 @@ namespace sm
      * vec<float, 3> v;
      * v[0] = 1.0f; v[1] = 1.0f; v[2] = 1.0f;
      */
-    template <typename S, std::size_t N> struct vec;
+    export template <typename S, std::size_t N> struct vec;
 
     /*!
      * Template friendly mechanism to overload the stream operator.
@@ -70,9 +78,9 @@ namespace sm
      * stream operator overloading. Example adapted from
      * https://stackoverflow.com/questions/4660123
      */
-    template <typename S, std::size_t N> std::ostream& operator<< (std::ostream&, const vec<S, N>&);
+    export template <typename S, std::size_t N> std::ostream& operator<< (std::ostream&, const vec<S, N>&);
 
-    template <typename S=float, std::size_t N=3>
+    export template <typename S=float, std::size_t N=3>
     struct vec : public std::array<S, N>
     {
         //! \return the first component of the vector
@@ -344,7 +352,7 @@ namespace sm
         //! Stream the elements of the vector into \a ss as a comma separated list.
         void str_comma_separated (std::stringstream& ss, const char sep = ',') const
         {
-            ss << std::setprecision (std::numeric_limits<S>::max_digits10);
+            ss.precision (std::numeric_limits<S>::max_digits10);
             bool first = true;
             for (auto i : *this) {
                 if (first) {
@@ -1170,6 +1178,22 @@ namespace sm
             return std::accumulate (this->begin(), this->end(), S{0}, _element_fails) == S{0} ? true : false;
         }
 
+        //! C++ modules change
+        //! With modules (or g++-14?) we apparently no longer inherit operator!=
+        constexpr bool operator!= (const vec<S, N>& rhs) const noexcept
+        {
+            uint32_t ndiff = 0u;
+            for (uint32_t i = 0u; i < N && ndiff == 0u; ++i) { ndiff += (*this)[i] == rhs[i] ? 0u : 1u; }
+            return ndiff > 0u;
+        }
+
+        constexpr bool operator== (const vec<S, N>& rhs) const noexcept
+        {
+            uint32_t ndiff = 0u;
+            for (uint32_t i = 0u; i < N && ndiff == 0u; ++i) { ndiff += (*this)[i] == rhs[i] ? 0u : 1u; }
+            return ndiff == 0u;
+        }
+
         /*!
          * Unary negate operator
          *
@@ -1562,7 +1586,7 @@ namespace sm
         };
     };
 
-    template <typename S=float, std::size_t N=3>
+    export template <typename S=float, std::size_t N=3>
     std::ostream& operator<< (std::ostream& os, const vec<S, N>& v)
     {
         os << v.str();
@@ -1573,13 +1597,12 @@ namespace sm
     // e.g. vec<float> denom = {1,2,3}; vec<float> result = float(1) / denom;
 
     //! Scalar * vec<> (commutative; lhs * rhs == rhs * lhs, so return rhs * lhs)
-    template <typename T, typename S, std::size_t N> requires std::is_arithmetic_v<T>
+    export template <typename T, typename S, std::size_t N> requires std::is_arithmetic_v<T>
     constexpr vec<S, N> operator* (T lhs, const vec<S, N>& rhs) noexcept { return rhs * lhs; }
 
     //! Scalar / vec<>
-    template <typename T, typename S, std::size_t N> requires std::is_arithmetic_v<T>
+    export template <typename T, typename S, std::size_t N> requires std::is_arithmetic_v<T>
     constexpr vec<S, N> operator/ (T lhs, const vec<S, N>& rhs) noexcept
-
     {
         vec<S, N> division;
         auto lhs_div_by_vec = [lhs](S elmnt) { return static_cast<S>(lhs / elmnt); };
@@ -1588,11 +1611,11 @@ namespace sm
     }
 
     //! Scalar + vec<> (commutative)
-    template <typename T, typename S, std::size_t N> requires std::is_arithmetic_v<T>
+    export template <typename T, typename S, std::size_t N> requires std::is_arithmetic_v<T>
     constexpr vec<S, N> operator+ (T lhs, const vec<S, N>& rhs) noexcept { return rhs + lhs; }
 
     //! Scalar - vec<>
-    template <typename T, typename S, std::size_t N> requires std::is_arithmetic_v<T>
+    export template <typename T, typename S, std::size_t N> requires std::is_arithmetic_v<T>
     constexpr vec<S, N> operator- (T lhs, const vec<S, N>& rhs) noexcept
     {
         vec<S, N> subtraction;

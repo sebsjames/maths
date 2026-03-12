@@ -35,8 +35,7 @@
  *
  * Date Jan - Feb 2026
  */
-
-#pragma once
+module;
 
 #include <cstdint>
 #include <complex>
@@ -46,10 +45,13 @@
 #include <limits>
 #include <type_traits>
 
-#include <sm/vvec>
-#include <sm/vec>
+export module sm.polysolve;
 
-namespace sm::polysolve
+import sm.vec;
+export import sm.vvec;
+import sm.constexpr_math;
+
+export namespace sm::polysolve
 {
     /*
      * A helper to remove trailing zero and near-zero entries from a vvec of coefficients

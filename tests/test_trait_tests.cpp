@@ -46,8 +46,6 @@ complex_from (const _S& v)
     return true;
 }
 
-#include <sm/vec>
-#include <sm/vvec>
 #include <set>
 #include <array>
 #include <vector>
@@ -55,6 +53,9 @@ complex_from (const _S& v)
 #include <deque>
 #include <map>
 #include <complex>
+
+import sm.vec;
+import sm.vvec;
 
 int main()
 {

@@ -12,29 +12,36 @@
  * Extra bonus: You can use this as an implementation of an axis-aligned bounding box!
  *
  * Author: Seb James
- * Date: Sept. 2023.
+ * Date: Sept. 2023. Modules support 2026.
  */
-#pragma once
 
+module;
+
+#include <cstdint>
 #include <ostream>
 #include <sstream>
 #include <limits>
 #include <complex>
 #include <span>
 #include <sm/trait_tests>
-#include <sm/constexpr_math>
+
+export module sm.range;
+
+export import sm.constexpr_math;
 
 namespace sm
 {
     // Different values to use to initialize a range object with
-    enum class range_init { zeros, for_search };
+    export enum class range_init { zeros, for_search };
 
+    // Might have to use module partitions given I have forward declaration here?
+    //
     // Forward declare the class and stream operator
-    template <typename T> struct range;
-    template <typename T> std::ostream& operator<< (std::ostream&, const range<T>&);
+    export template <typename T> struct range;
+    export template <typename T> std::ostream& operator<< (std::ostream&, const range<T>&);
 
     // range is a constexpr-friendly literal type defining a closed interval [min, max]
-    template <typename T>
+    export template <typename T>
     struct range
     {
         // The minimum value in the closed interval
@@ -461,3 +468,12 @@ namespace sm
     }
 
 } // namespace sm
+
+#if 0 // These lines are ok if they're needed
+template class sm::range<float>;
+template class sm::range<double>;
+template class sm::range<int32_t>;
+template class sm::range<uint32_t>;
+template class sm::range<int64_t>;
+template class sm::range<uint64_t>;
+#endif

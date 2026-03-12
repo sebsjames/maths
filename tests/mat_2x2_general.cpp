@@ -1,8 +1,9 @@
 #include <iostream>
 #include <array>
-#include <sm/mathconst>
-#include <sm/vec>
-#include <sm/mat>
+
+import sm.mathconst;
+import sm.vec;
+import sm.mat;
 
 void setMatrixSequence (sm::mat<float, 2>& tm)
 {

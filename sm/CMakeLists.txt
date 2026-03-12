@@ -11,6 +11,7 @@ install(
   bezcurvepath
   bezcoord
   bezcurve
+  binomial
   bootstrap
   boxfilter
   cartgrid
@@ -22,11 +23,12 @@ install(
   flags
   geometry
   geometry_polyhedra
-  gridfeatures
   grid
   hdfdata
   hex
+  hexflags
   hexgrid
+  hexgrid_hdf
   hexyhisto
   histo
   mat

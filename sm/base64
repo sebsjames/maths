@@ -8,18 +8,19 @@
  * https://github.com/mvorbrodt/blog/blob/master/src/base64.hpp
  * Used with thanks to @mvorbrodt
  */
-
-#pragma once
+module;
 
 #include <string>
 #include <vector>
 #include <stdexcept>
 #include <cstdint>
 
-namespace base64
+export module sm.base64;
+
+export namespace base64
 {
-    static const char kEncodeLookup[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-    static const char kPadCharacter = '=';
+    const char kEncodeLookup[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    const char kPadCharacter = '=';
 
     std::string encode (const std::vector<std::uint8_t>& input)
     {

@@ -1,9 +1,13 @@
 #include <iostream>
-#include <sm/quaternion>
-#include <sm/mat>
+#include <limits>
 
 #include <Eigen/Dense>
 #include <Eigen/Geometry>
+
+import sm.mathconst;
+import sm.quaternion;
+import sm.mat;
+//import sm.vec; // for clang
 
 bool check_equal (const sm::mat<float, 4, 4>& m44,
                   const Eigen::Transform<float, 3, Eigen::TransformTraits::Affine>& em)

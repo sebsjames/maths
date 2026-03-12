@@ -6,7 +6,7 @@
  *
  * Utility functions
  */
-#pragma once
+module;
 
 #include <string>
 #include <vector>
@@ -14,7 +14,9 @@
 #include <fstream>
 #include <sm/trait_tests>
 
-namespace sm::util
+export module sm.util;
+
+export namespace sm::util
 {
     /*!
      * Split a string of values into a vector using the separator string (not char)

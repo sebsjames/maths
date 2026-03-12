@@ -10,7 +10,7 @@
  * \author Seb James
  * \date May 2020
  */
-#pragma once
+module;
 
 #include <cstdint>
 #include <cmath>
@@ -26,12 +26,17 @@
 #include <algorithm>
 #include <functional>
 #include <cstddef>
+#include <random>
 
 #include <sm/trait_tests>
-#include <sm/random>
-#include <sm/range>
 
-namespace sm
+export module sm.vvec;
+
+export import sm.mathconst;
+export import sm.range;
+import sm.random;
+
+export namespace sm
 {
     /*!
      * \brief N-D vector class deriving from std::vector
@@ -329,7 +334,7 @@ namespace sm
         std::string str (const uint32_t num_in_line=std::numeric_limits<uint32_t>::max()) const
         {
             std::stringstream ss;
-            ss << std::setprecision (std::numeric_limits<S>::max_digits10);
+            ss.precision (std::numeric_limits<S>::max_digits10);
             ss << "(";
             this->str_comma_separated (ss, num_in_line, ',', 1);
             ss << ")";
@@ -340,7 +345,7 @@ namespace sm
         std::string str_mat (const uint32_t num_in_line=std::numeric_limits<uint32_t>::max()) const
         {
             std::stringstream ss;
-            ss << std::setprecision (std::numeric_limits<S>::max_digits10);
+            ss.precision (std::numeric_limits<S>::max_digits10);
             ss << "[";
             this->str_comma_separated (ss, num_in_line, ',', 1);
             ss << "]";
@@ -354,7 +359,7 @@ namespace sm
         std::string str_numpy (const uint32_t num_in_line=std::numeric_limits<uint32_t>::max()) const
         {
             std::stringstream ss;
-            ss << std::setprecision (std::numeric_limits<S>::max_digits10);
+            ss.precision (std::numeric_limits<S>::max_digits10);
             ss << "np.array((";
             this->str_comma_separated (ss, num_in_line, ',', 10);
             ss << "))";
@@ -368,7 +373,7 @@ namespace sm
         {
             std::stringstream ss;
             ss << "[";
-            ss << std::setprecision (8);
+            ss.precision (8);
             this->str_comma_separated (ss, num_in_line, ' ', 1);
             ss << "]";
             return ss.str();
@@ -378,7 +383,7 @@ namespace sm
         std::string str_initializer (const uint32_t num_in_line=std::numeric_limits<uint32_t>::max()) const
         {
             std::stringstream ss;
-            ss << std::setprecision (std::numeric_limits<S>::max_digits10);
+            ss.precision (std::numeric_limits<S>::max_digits10);
             ss << "{";
             this->str_comma_separated (ss, num_in_line);
             ss << "}";
@@ -1930,6 +1935,24 @@ namespace sm
             return std::accumulate (this->begin(), this->end(), S{0}, _element_fails) == S{0} ? true : false;
         }
 
+        //! C++ modules change
+        //! With modules we apparently no longer inherit operator!=
+        constexpr bool operator!= (const vvec<S>& rhs) const noexcept
+        {
+            if (this->size() != rhs.size()) { return true; }
+            uint32_t ndiff = 0u;
+            for (uint32_t i = 0u; i < this->size() && ndiff == 0u; ++i) { ndiff += (*this)[i] == rhs[i] ? 0u : 1u; }
+            return ndiff > 0u;
+        }
+
+        constexpr bool operator== (const vvec<S>& rhs) const noexcept
+        {
+            if (this->size() != rhs.size()) { return false; }
+            uint32_t ndiff = 0u;
+            for (uint32_t i = 0u; i < this->size() && ndiff == 0u; ++i) { ndiff += (*this)[i] == rhs[i] ? 0u : 1u; }
+            return ndiff == 0u;
+        }
+
         /*!
          * Unary negate operator
          *
@@ -2252,7 +2275,9 @@ namespace sm
         void concat (const vvec<S>& a)
         {
             std::size_t sz = this->size();
-            this->resize (sz + a.size());
+            std::size_t sz_new = sz + a.size();
+            this->reserve (sz_new); // necessary to avoid stringop-overflow warning on g++-15
+            this->resize (sz_new);
             auto iter = this->begin();
             std::advance (iter, sz);
             std::copy (a.begin(), a.end(), iter);

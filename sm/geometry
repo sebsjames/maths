@@ -6,9 +6,9 @@
  *
  * Geometry algorithms.
  */
+module;
 
-#pragma once
-
+#include <cstdint>
 #include <tuple>
 #include <algorithm>
 #include <iostream>
@@ -17,13 +17,16 @@
 #include <bitset>
 #include <type_traits>
 
-#include <sm/constexpr_math>
-#include <sm/range>
-#include <sm/vec>
-#include <sm/vvec>
-#include <sm/algo>
+export module sm.geometry;
 
-namespace sm
+export import sm.mathconst;
+import sm.constexpr_math;
+import sm.range;
+import sm.algo;
+export import sm.vec;
+export import sm.vvec;
+
+export namespace sm
 {
     enum class rotation_sense : uint32_t
     {
@@ -33,7 +36,7 @@ namespace sm
     };
 }
 
-namespace sm::geometry
+export namespace sm::geometry
 {
     /*!
      * Compute orientation of three points which form a triangle pqr.

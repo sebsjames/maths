@@ -16,9 +16,10 @@
  * \date 2025
  * Improvements to methods that specify rotations and translations
  */
-#pragma once
+module;
 
 #include <cstdint>
+#include <limits>
 #include <array>
 #include <string>
 #include <sstream>
@@ -26,12 +27,14 @@
 #include <type_traits>
 #include <initializer_list>
 
-#include <sm/mathconst>
-#include <sm/quaternion>
-#include <sm/vec>
-#include <sm/constexpr_math>
+export module sm.mat;
 
-namespace sm
+export import sm.mathconst;
+export import sm.quaternion;
+export import sm.vec;
+import sm.constexpr_math;
+
+export namespace sm
 {
     // Forward declare class and stream operator
     template <typename F, uint32_t Nr, uint32_t Nc = Nr> requires std::is_floating_point_v<F> struct mat;
@@ -152,6 +155,8 @@ namespace sm
 
         constexpr void set_zero() noexcept { this->arr.fill (F{0}); }
 
+        constexpr void set_from (const F val) noexcept { this->arr.fill (val); }
+
         //! Return the identity matrix
         static constexpr mat<F, Nr, Nc> identity() noexcept
         {
@@ -162,6 +167,14 @@ namespace sm
         }
 
         static constexpr mat<F, Nr, Nc> zero() noexcept { return sm::mat<F, Nr, Nc>{{0}}; }
+
+        template<typename T>
+        constexpr mat<T, Nr, Nc> as() const noexcept
+        {
+            mat<T, Nr, Nc> m;
+            for (uint32_t i = 0; i < Nr * Nc; ++i) { m[i] = static_cast<T>(this->arr[i]); }
+            return m;
+        }
 
         //! Set *this from a transform matrix to transform a coordinate into the given coordinate basis set
         constexpr void frombasis_inplace (const sm::vec<F> bx, const sm::vec<F> by, const sm::vec<F> bz)
@@ -199,29 +212,67 @@ namespace sm
             return m;
         }
 
+        //! Get value at row, col given in arg. If row/col are outside matrix, return NaN
+        constexpr F operator() (uint32_t r, uint32_t c) const noexcept
+        {
+            uint32_t i = (c * Nr) + r;
+            constexpr F badrtn = std::numeric_limits<F>::has_quiet_NaN ? std::numeric_limits<F>::quiet_NaN() : std::numeric_limits<F>::max();
+            return i < this->arr.size() ? this->arr[i] : badrtn;
+        }
+
+        //! Access (read or write) value at row, col given in arg. If row/col are outside matrix, access last element of matrix.
+        constexpr F& operator() (uint32_t r, uint32_t c)
+        {
+            uint32_t i = (c * Nr) + r;
+            return i < this->arr.size() ? this->arr[i] : this->arr[Nr * Nc - 1];
+        }
+
         //! Access elements of the matrix (returns ref, so not const)
         constexpr F& operator[] (const uint32_t idx) noexcept { return this->arr[idx]; }
 
         //! Access elements of the matrix with const promise
         constexpr F operator[] (const uint32_t idx) const noexcept { return this->arr[idx]; }
+        /* With C++-23 will be able to do:
+        constexpr F operator[] (uint32_t r, uint32_t c) const noexcept
+        {
+            uint32_t i = (c * Nr) + r;
+            constexpr F badrtn = std::numeric_limits<F>::has_quiet_NaN ? std::numeric_limits<F>::quiet_NaN() : std::numeric_limits<F>::max();
+            return i < this->arr.size() ? this->arr[i] : badrtn;
+        }
+        */
 
         //! Access a given row of the matrix
-        constexpr sm::vec<F, Nc> row (uint32_t idx) const noexcept
+        constexpr sm::vec<F, Nc> row (const uint32_t idx) const noexcept
         {
             sm::vec<F, Nc> r = {};
-            if (idx >= Nc) { return r; }
-            for (uint32_t i = 0; i < Nc; ++i) { r[i] = this->arr[idx * Nr * i]; }
+            if (idx >= Nr) { return r; }
+            for (uint32_t i = 0; i < Nc; ++i) { r[i] = this->arr[idx + Nr * i]; }
             return r;
+        }
+        constexpr uint32_t rows() const noexcept { return Nr; }
+
+        //! Set a row with the passed-in vec
+        constexpr void set_row (const uint32_t idx, const sm::vec<F, Nc>& rowdata) noexcept
+        {
+            for (uint32_t i = 0; i < Nc; ++i) { this->arr[idx + Nr * i] = rowdata[i]; }
         }
 
         //! Access a given column of the matrix
-        constexpr sm::vec<F, Nr> col (uint32_t idx) const noexcept
+        constexpr sm::vec<F, Nr> col (const uint32_t idx) const noexcept
         {
             sm::vec<F, Nr> c = {};
-            if (idx >= Nr) { return c; }
-            idx *= Nr;
-            for (uint32_t i = 0; i < Nr; ++i) { c[i] = this->arr[idx++]; }
+            if (idx >= Nc) { return c; }
+            uint32_t arridx_start = idx * Nr;
+            for (uint32_t i = 0; i < Nr; ++i) { c[i] = this->arr[arridx_start++]; }
             return c;
+        }
+        constexpr uint32_t cols() const noexcept { return Nc; }
+
+        //! Set a col with the passed-in vec
+        constexpr void set_col (const uint32_t idx, const sm::vec<F, Nr>& coldata) noexcept
+        {
+            uint32_t arridx_start = idx * Nr;
+            for (uint32_t i = 0; i < Nr; ++i) { this->arr[arridx_start + i] = coldata[i]; }
         }
 
         //! Apply pre-translation specified by vector @dv as this = m * this (pre-multiply)
@@ -691,6 +742,34 @@ namespace sm
                 tr += this->arr[i];
             }
             return tr;
+        }
+
+        // Return mat with the order of the rows reversed
+        constexpr mat<F, Nr, Nc> flipud() const noexcept
+        {
+            mat<F, Nr, Nc> m;
+            for (uint32_t i = 0; i < Nr; ++i) { m.set_row (Nr - 1 - i, this->row (i)); }
+            return m;
+        }
+
+        constexpr void flipud_inplace() const noexcept
+        {
+            mat<F, Nr, Nc> m = this->flipud();
+            (*this) = m;
+        }
+
+        // Return mat with the order of the cols reversed
+        constexpr mat<F, Nr, Nc> fliplr() const noexcept
+        {
+            mat<F, Nr, Nc> m;
+            for (uint32_t i = 0; i < Nc; ++i) { m.set_col (Nc - 1 - i, this->col (i)); }
+            return m;
+        }
+
+        constexpr void fliplr_inplace() const noexcept
+        {
+            mat<F, Nr, Nc> m = this->fliplr();
+            (*this) = m;
         }
 
         /*!
@@ -1212,14 +1291,14 @@ namespace sm
         {
             sm::vec<F, Nr * Ncy> m;
 
-            if constexpr (Nr == 2 && Nc == 2) {
+            if constexpr (Nr == 2 && Nc == 2 && Nry == 2 && Ncy == 2) {
                 // Top row
                 m[0] = this->arr[0] * m2.arr[0] + this->arr[2] * m2.arr[1];
                 m[2] = this->arr[0] * m2.arr[2] + this->arr[2] * m2.arr[3];
                 // Second row
                 m[1] = this->arr[1] * m2.arr[0] + this->arr[3] * m2.arr[1];
                 m[3] = this->arr[1] * m2.arr[2] + this->arr[3] * m2.arr[3];
-            } else if constexpr (Nr == 3 && Nc == 3) {
+            } else if constexpr (Nr == 3 && Nc == 3 && Nry == 3 && Ncy == 3) {
                 // Top row
                 m[0] = this->arr[0] * m2.arr[0] + this->arr[3] * m2.arr[1] + this->arr[6] * m2.arr[2];
                 m[3] = this->arr[0] * m2.arr[3] + this->arr[3] * m2.arr[4] + this->arr[6] * m2.arr[5];
@@ -1232,7 +1311,7 @@ namespace sm
                 m[2] = this->arr[2] * m2.arr[0] + this->arr[5] * m2.arr[1] + this->arr[8] * m2.arr[2];
                 m[5] = this->arr[2] * m2.arr[3] + this->arr[5] * m2.arr[4] + this->arr[8] * m2.arr[5];
                 m[8] = this->arr[2] * m2.arr[6] + this->arr[5] * m2.arr[7] + this->arr[8] * m2.arr[8];
-            } else if constexpr (Nr == 4 && Nc == 4) {
+            } else if constexpr (Nr == 4 && Nc == 4 && Nry == 4 && Ncy == 4) {
                 // Top row
                 m[0] = this->arr[0] * m2.arr[0] + this->arr[4] * m2.arr[1] + this->arr[8] * m2.arr[2] + this->arr[12] * m2.arr[3];
                 m[4] = this->arr[0] * m2.arr[4] + this->arr[4] * m2.arr[5] + this->arr[8] * m2.arr[6] + this->arr[12] * m2.arr[7];
@@ -1255,11 +1334,11 @@ namespace sm
                 m[15] = this->arr[3] * m2.arr[12] + this->arr[7] * m2.arr[13] + this->arr[11] * m2.arr[14] + this->arr[15] * m2.arr[15];
             } else {
                 // General case left matrix is this->arr, right matrix is m2
-                for (uint32_t r = 0; r < Nr; ++r) {
-                    for (uint32_t cy = 0; cy < Ncy; ++cy) {
-                        m.arr[r * Ncy + cy] = F{0};
-                        for (uint32_t c = 0; c < Nc; ++c) {
-                            m[r * Ncy + cy] += this->arr[r * Nc + c] * m2.arr[cy * Nry + c];
+                for (uint32_t r = 0; r < Nr; ++r) { // row in result matrix
+                    for (uint32_t cy = 0; cy < Ncy; ++cy) { // col in result matrix
+                        m(r, cy) = F{0};
+                        for (uint32_t i = 0; i < Nc; ++i) { // i iterates along row in left matrix and down col in right matrix
+                            m(r, cy) += (*this)(r, i) * m2(i, cy);
                         }
                     }
                 }
@@ -1274,7 +1353,7 @@ namespace sm
         {
             mat<F, Nr, Ncy> m;
 
-            if constexpr (Nr == 2 && Nc == 2) {
+            if constexpr (Nr == 2 && Nc == 2 && Nry == 2 && Ncy == 2) {
                 // Top row
                 m.arr[0] = this->arr[0] * m2.arr[0] + this->arr[2] * m2.arr[1];
                 m.arr[2] = this->arr[0] * m2.arr[2] + this->arr[2] * m2.arr[3];
@@ -1282,7 +1361,7 @@ namespace sm
                 m.arr[1] = this->arr[1] * m2.arr[0] + this->arr[3] * m2.arr[1];
                 m.arr[3] = this->arr[1] * m2.arr[2] + this->arr[3] * m2.arr[3];
 
-            } else if constexpr (Nr == 3 && Nc == 3) {
+            } else if constexpr (Nr == 3 && Nc == 3 && Nry == 3 && Ncy == 3) {
                 // Top row
                 m.arr[0] = this->arr[0] * m2.arr[0] + this->arr[3] * m2.arr[1] + this->arr[6] * m2.arr[2];
                 m.arr[3] = this->arr[0] * m2.arr[3] + this->arr[3] * m2.arr[4] + this->arr[6] * m2.arr[5];
@@ -1296,7 +1375,7 @@ namespace sm
                 m.arr[5] = this->arr[2] * m2.arr[3] + this->arr[5] * m2.arr[4] + this->arr[8] * m2.arr[5];
                 m.arr[8] = this->arr[2] * m2.arr[6] + this->arr[5] * m2.arr[7] + this->arr[8] * m2.arr[8];
 
-            } else if constexpr (Nr == 4 && Nc == 4) {
+            } else if constexpr (Nr == 4 && Nc == 4 && Nry == 4 && Ncy == 4) {
 
                 // Top row
                 m.arr[0] = this->arr[0] * m2.arr[0] + this->arr[4] * m2.arr[1] + this->arr[8] * m2.arr[2] + this->arr[12] * m2.arr[3];
@@ -1321,11 +1400,11 @@ namespace sm
 
             } else {
                 // General case left matrix is this->arr, right matrix is m2.arr
-                for (uint32_t r = 0; r < Nr; ++r) {
-                    for (uint32_t cy = 0; cy < Ncy; ++cy) {
-                        m.arr[r * Ncy + cy] = F{0};
-                        for (uint32_t c = 0; c < Nc; ++c) {
-                            m.arr[r * Ncy + cy] += this->arr[r * Nc + c] * m2.arr[cy * Nry + c];
+                for (uint32_t r = 0; r < Nr; ++r) { // row in result matrix
+                    for (uint32_t cy = 0; cy < Ncy; ++cy) { // col in result matrix
+                        m(r, cy) = F{0};
+                        for (uint32_t i = 0; i < Nc; ++i) { // i iterates along row in left matrix and down col in right matrix
+                            m(r, cy) += (*this)(r, i) * m2(i, cy);
                         }
                     }
                 }

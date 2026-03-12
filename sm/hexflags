@@ -1,0 +1,17 @@
+// -*- C++ -*-
+/*
+ * This file is part of sebsjames/maths, a library of maths code for modern C++
+ *
+ * See https://github.com/sebsjames/maths
+ *
+ * \file
+ *
+ * flag definitions for the sm::hex class
+ *
+ * \author: Seb James
+ * \date: 2018/07
+ */
+
+#pragma once
+
+#include <cstdint>

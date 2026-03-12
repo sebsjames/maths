@@ -1,8 +1,8 @@
 #include <iostream>
 
-#include <sm/vec>
-#include <sm/vvec>
-#include <sm/geometry>
+import sm.vec;
+import sm.vvec;
+import sm.geometry;
 
 int main()
 {

@@ -1,5 +1,5 @@
-cmake_minimum_required(VERSION 3.14)
-project(maths)
+cmake_minimum_required(VERSION 3.28.5)
+project(maths LANGUAGES CXX)
 
 message(STATUS "Install prefix: ${CMAKE_INSTALL_PREFIX}")
 message(STATUS "  (This can be changed with `cmake -DCMAKE_INSTALL_PREFIX=/some/place`")
@@ -115,13 +115,8 @@ if(HDF5_FOUND)
   include_directories(${HDF5_INCLUDE_DIR})
 endif()
 
-find_package(Armadillo)
-if(ARMADILLO_FOUND)
-  include_directories(${ARMADILLO_INCLUDE_DIR} ${ARMADILLO_INCLUDE_DIRS})
-endif()
-
-# Use packaged nlohmann json
-#find_package(nlohmann_json REQUIRED)
+# Use packaged nlohmann json. Required only for config1 test and use of sm::config
+# find_package(nlohmann_json REQUIRED)
 
 # For a test program
 find_package (Eigen3 NO_MODULE)

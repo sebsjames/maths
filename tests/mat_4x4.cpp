@@ -1,8 +1,10 @@
 #include <iostream>
 #include <array>
 #include <cmath>
-#include <sm/vec>
-#include <sm/mat>
+
+import sm.vec;
+import sm.mat;
+import sm.quaternion; // for clang
 
 void setMatrixSequence (sm::mat<float, 4>& tm)
 {

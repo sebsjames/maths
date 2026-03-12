@@ -9,18 +9,20 @@
  * Author: Seb James
  * Date: July 2023
  */
+module;
 
-#pragma once
-
+#include <iostream>
 #include <cstdint>
+#include <cmath>
 #include <vector>
-#include <sm/vec>
-#include <sm/vvec>
 
-namespace sm::bootstrap
+export import sm.vec;
+import sm.vvec;
+
+export module sm.bootstrap;
+
+export namespace sm::bootstrap
 {
-    static constexpr bool debug_bstrap = false;
-
     // Resample B sets from data and place them in resamples
     template <typename T>
     void resample_with_replacement (const sm::vvec<T>& data,
@@ -109,6 +111,8 @@ namespace sm::bootstrap
     sm::vec<T, 2> ttest_equalityofmeans (const sm::vvec<T>& _zdata,
                                          const sm::vvec<T>& _ydata, const uint32_t B)
     {
+        constexpr bool debug_bstrap = false;
+
         // Ensure that the group which we name zdata is the larger one.
         sm::vvec<T> zdata = _zdata;
         sm::vvec<T> ydata = _ydata;

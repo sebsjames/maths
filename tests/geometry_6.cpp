@@ -3,8 +3,10 @@
  */
 
 #include <iostream>
-#include <sm/geometry>
-#include <sm/mat>
+
+import sm.vec;
+import sm.mat;
+import sm.geometry;
 
 int main()
 {

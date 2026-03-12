@@ -6,9 +6,11 @@
  */
 
 #include <iostream>
-#include <sm/vvec>
-#include <sm/random>
-#include <sm/nm_simplex>
+#include <vector>
+
+import sm.vvec;
+import sm.random;
+import sm.nm_simplex;
 
 // Here's the Rosenbrock banana function
 template<typename F>

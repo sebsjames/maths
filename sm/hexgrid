@@ -10,21 +10,7 @@
  *
  * Date: 2018/07
  */
-#pragma once
-
-#include <sm/vec>
-#include <sm/vvec>
-#include <sm/hex>
-#include <sm/bezcurvepath> // requires arma
-#include <sm/bezcoord>
-#include <sm/mathconst>
-#include <sm/mat>
-
-// If the hexgrid::save and hexgrid::load methods are required, define
-// HEXGRID_COMPILE_LOAD_AND_SAVE. A link to libhdf5 will be required in your program.
-#ifdef HEXGRID_COMPILE_LOAD_AND_SAVE
-# include <sm/hdfdata>
-#endif
+module;
 
 #include <cstdint>
 #include <set>
@@ -40,7 +26,16 @@
 #include <stdexcept>
 #include <limits>
 
-namespace sm
+export module sm.hexgrid;
+
+export import sm.mathconst;
+export import sm.bezcurvepath;
+export import sm.vec;
+export import sm.hex;
+import sm.vvec;
+import sm.mat;
+
+export namespace sm
 {
     /*!
      * This class is used to build an hexagonal grid of hexagons. The member hexagons
@@ -216,236 +211,40 @@ namespace sm
             this->d_flags.clear();
         }
 
-#ifdef HEXGRID_COMPILE_LOAD_AND_SAVE
-        /*!
-         * Save this hexgrid (and all the hexes in it) into the HDF5 file at the
-         * location @path.
+        /*
+         * Convenience accessors for testing neighbours. The step along for neighbours on the
+         * rows above/below is given by:
+         *
+         * Dest  | step
+         * ----------------------
+         * NNE   | +rowlen
+         * NNW   | +rowlen - 1
+         * NSW   | -rowlen
+         * NSE   | -rowlen + 1
          */
-        void save (const std::string& path)
-        {
-            sm::hdfdata hgdata (path, std::ios::out | std::ios::trunc);
-            hgdata.add_val ("/d", d);
-            hgdata.add_val ("/v", v);
-            hgdata.add_val ("/x_span", x_span);
-            hgdata.add_val ("/z", z);
-            hgdata.add_val ("/d_rowlen", d_rowlen);
-            hgdata.add_val ("/d_numrows", d_numrows);
-            hgdata.add_val ("/d_size", d_size);
-            hgdata.add_val ("/d_growthbuffer_horz", d_growthbuffer_horz);
-            hgdata.add_val ("/d_growthbuffer_vert", d_growthbuffer_vert);
+        int32_t ne (const uint32_t hi) const { return this->d_ne[hi]; }
+        int32_t has_ne (const uint32_t hi) const { return this->d_ne[hi] == -1 ? false : true; }
 
-            // sm::vec<float, 2>
-            hgdata.add_contained_vals ("/boundaryCentroid", boundaryCentroid);
+        int32_t nw (const uint32_t hi) const { return this->d_nw[hi]; }
+        int32_t has_nw (const uint32_t hi) const { return this->d_nw[hi] == -1 ? false : true; }
 
-            // Don't save bezcurvepath boundary - limit this to the ability to
-            // save which hexes are boundary hexes and which aren't
+        int32_t nne (const uint32_t hi) const { return this->d_nne[hi]; }
+        int32_t has_nne (const uint32_t hi) const { return this->d_nne[hi] == -1 ? false : true; }
 
-            // Don't save vertexE, vertexNE etc. Make sure to set gridReduced
-            // = true when calling load()
+        int32_t nnw (const uint32_t hi) const { return this->d_nnw[hi]; }
+        int32_t has_nnw (const uint32_t hi) const { return this->d_nnw[hi] == -1 ? false : true; }
 
-            // vector<float>
-            hgdata.add_contained_vals ("/d_x", d_x);
-            hgdata.add_contained_vals ("/d_y", d_y);
-            hgdata.add_contained_vals ("/d_distToBoundary", d_distToBoundary);
-            // vector<int32_t>
-            hgdata.add_contained_vals ("/d_ri", d_ri);
-            hgdata.add_contained_vals ("/d_gi", d_gi);
-            hgdata.add_contained_vals ("/d_bi", d_bi);
+        int32_t nse (const uint32_t hi) const { return this->d_nse[hi]; }
+        int32_t has_nse (const uint32_t hi) const { return this->d_nse[hi] == -1 ? false : true; }
 
-            hgdata.add_contained_vals ("/d_ne", d_ne);
-            hgdata.add_contained_vals ("/d_nne", d_nne);
-            hgdata.add_contained_vals ("/d_nnw", d_nnw);
-            hgdata.add_contained_vals ("/d_nw", d_nw);
-            hgdata.add_contained_vals ("/d_nsw", d_nsw);
-            hgdata.add_contained_vals ("/d_nse", d_nse);
-
-            // vector<uint32_t>
-            hgdata.add_contained_vals ("/d_flags", d_flags);
-
-            // list<hex> hexen
-            // for i in list, save hex
-            std::list<sm::hex>::const_iterator h = this->hexen.begin();
-            uint32_t hcount = 0;
-            while (h != this->hexen.end()) {
-                // Make up a path
-                std::string h5path = "/hexen/" + std::to_string(hcount);
-                h->save (hgdata, h5path);
-                ++h;
-                ++hcount;
-            }
-            hgdata.add_val ("/hcount", hcount);
-
-            // What about vhexen? Probably don't save and re-call method to populate.
-            this->renumberVectorIndices();
-
-            // What about bhexen? Probably re-run/test this->boundaryContiguous() on load.
-            this->boundaryContiguous();
-        }
-
-        /*!
-         * Populate this hexgrid from the HDF5 file at the location @path.
-         */
-        void load (const std::string& path)
-        {
-            sm::hdfdata hgdata (path, std::ios::in);
-            hgdata.read_val ("/d", this->d);
-            hgdata.read_val ("/v", this->v);
-            hgdata.read_val ("/x_span", this->x_span);
-            hgdata.read_val ("/z", this->z);
-            hgdata.read_val ("/d_rowlen", this->d_rowlen);
-            hgdata.read_val ("/d_numrows", this->d_numrows);
-            hgdata.read_val ("/d_size", this->d_size);
-            hgdata.read_val ("/d_growthbuffer_horz", this->d_growthbuffer_horz);
-            hgdata.read_val ("/d_growthbuffer_vert", this->d_growthbuffer_vert);
-
-            hgdata.read_contained_vals ("/boundaryCentroid", this->boundaryCentroid);
-            hgdata.read_contained_vals ("/d_x", this->d_x);
-            hgdata.read_contained_vals ("/d_y", this->d_y);
-            hgdata.read_contained_vals ("/d_distToBoundary", this->d_distToBoundary);
-            hgdata.read_contained_vals ("/d_ri", this->d_ri);
-            hgdata.read_contained_vals ("/d_gi", this->d_gi);
-            hgdata.read_contained_vals ("/d_bi", this->d_bi);
-            hgdata.read_contained_vals ("/d_ne", this->d_ne);
-            hgdata.read_contained_vals ("/d_nne", this->d_nne);
-            hgdata.read_contained_vals ("/d_nnw", this->d_nnw);
-            hgdata.read_contained_vals ("/d_nw", this->d_nw);
-            hgdata.read_contained_vals ("/d_nsw", this->d_nsw);
-            hgdata.read_contained_vals ("/d_nse", this->d_nse);
-            hgdata.read_contained_vals ("/d_flags", this->d_flags);
-
-            // Assume a boundary has been applied so set this true. Also, the hexgrid::save method doesn't
-            // save hexgrid::vertexE, etc
-            this->gridReduced = true;
-
-            uint32_t hcount = 0;
-            hgdata.read_val ("/hcount", hcount);
-            for (uint32_t i = 0; i < hcount; ++i) {
-                std::string h5path = "/hexen/" + std::to_string(i);
-                sm::hex h (hgdata, h5path);
-                this->hexen.push_back (h);
-            }
-
-            // After creating hexen list, need to set neighbour relations in each hex, as loaded in d_ne,
-            // etc.
-            for (sm::hex& _h : this->hexen) {
-                // Set neighbours for hex " << _h.outputRG()
-                // For each hex, six loops through hexen:
-                if (_h.has_ne() == true) {
-                    bool matched = false;
-                    uint32_t neighb_it = (uint32_t) this->d_ne[_h.vi];
-                    std::list<sm::hex>::iterator hi = this->hexen.begin();
-                    while (hi != this->hexen.end()) {
-                        if (hi->vi == neighb_it) {
-                            matched = true;
-                            _h.ne = hi;
-                            break;
-                        }
-                        ++hi;
-                    }
-                    if (!matched) {
-                        throw std::runtime_error ("Failed to match hexen neighbour E relation...");
-                    }
-                }
-
-                if (_h.has_nne() == true) {
-                    bool matched = false;
-                    uint32_t neighb_it = (uint32_t) this->d_nne[_h.vi];
-                    std::list<sm::hex>::iterator hi = this->hexen.begin();
-                    while (hi != this->hexen.end()) {
-                        if (hi->vi == neighb_it) {
-                            matched = true;
-                            _h.nne = hi;
-                            break;
-                        }
-                        ++hi;
-                    }
-                    if (!matched) {
-                        throw std::runtime_error ("Failed to match hexen neighbour NE relation...");
-                    }
-                }
-
-                if (_h.has_nnw() == true) {
-                    bool matched = false;
-                    uint32_t neighb_it = (uint32_t) this->d_nnw[_h.vi];
-                    std::list<sm::hex>::iterator hi = this->hexen.begin();
-                    while (hi != this->hexen.end()) {
-                        if (hi->vi == neighb_it) {
-                            matched = true;
-                            _h.nnw = hi;
-                            break;
-                        }
-                        ++hi;
-                    }
-                    if (!matched) {
-                        throw std::runtime_error ("Failed to match hexen neighbour NW relation...");
-                    }
-                }
-
-                if (_h.has_nw() == true) {
-                    bool matched = false;
-                    uint32_t neighb_it = (uint32_t) this->d_nw[_h.vi];
-                    std::list<sm::hex>::iterator hi = this->hexen.begin();
-                    while (hi != this->hexen.end()) {
-                        if (hi->vi == neighb_it) {
-                            matched = true;
-                            _h.nw = hi;
-                            break;
-                        }
-                        ++hi;
-                    }
-                    if (!matched) {
-                        throw std::runtime_error ("Failed to match hexen neighbour W relation...");
-                    }
-                }
-
-                if (_h.has_nsw() == true) {
-                    bool matched = false;
-                    uint32_t neighb_it = (uint32_t) this->d_nsw[_h.vi];
-                    std::list<sm::hex>::iterator hi = this->hexen.begin();
-                    while (hi != this->hexen.end()) {
-                        if (hi->vi == neighb_it) {
-                            matched = true;
-                            _h.nsw = hi;
-                            break;
-                        }
-                        ++hi;
-                    }
-                    if (!matched) {
-                        throw std::runtime_error ("Failed to match hexen neighbour SW relation...");
-                    }
-                }
-
-                if (_h.has_nse() == true) {
-                    bool matched = false;
-                    uint32_t neighb_it = (uint32_t) this->d_nse[_h.vi];
-                    std::list<sm::hex>::iterator hi = this->hexen.begin();
-                    while (hi != this->hexen.end()) {
-                        if (hi->vi == neighb_it) {
-                            matched = true;
-                            _h.nse = hi;
-                            break;
-                        }
-                        ++hi;
-                    }
-                    if (!matched) {
-                        throw std::runtime_error ("Failed to match hexen neighbour SE relation...");
-                    }
-                }
-            }
-        }
-#endif // HEXGRID_COMPILE_LOAD_AND_SAVE
+        int32_t nsw (const uint32_t hi) const { return this->d_nsw[hi]; }
+        int32_t has_nsw (const uint32_t hi) const { return this->d_nsw[hi] == -1 ? false : true; }
 
         /*!
          * Default constructor
          */
         hexgrid(): d(1.0f), x_span(1.0f), z(0.0f) {}
 
-#ifdef HEXGRID_COMPILE_LOAD_AND_SAVE
-        /*!
-         * Construct then load from file.
-         */
-        hexgrid (const std::string& path) : d(1.0f), x_span(1.0f), z(0.0f) { this->load (path); }
-#endif
         /*!
          * Construct the hexagonal hex grid with a hex to hex distance of @a d_
          * (centre to centre) and approximate diameter of @a x_span_. Set z to @a z_
@@ -565,7 +364,7 @@ namespace sm
                     // as this->hexen.
                     if (bpi->ri == ppi->ri && bpi->gi == ppi->gi) {
                         // Set h as boundary hex.
-                        bpi->setFlag (HEX_IS_BOUNDARY | HEX_INSIDE_BOUNDARY);
+                        bpi->setFlag (sm::HEX_IS_BOUNDARY | sm::HEX_INSIDE_BOUNDARY);
                         bpoint = bpi;
                         break;
                     }
@@ -595,7 +394,7 @@ namespace sm
          * the hexgrid, the centroid IS (0,0). If \a loffset is false, then \a p is not
          * translated in this way.
          */
-        void setBoundary (const bezcurvepath<float>& p, bool loffset = true)
+        void setBoundary (const bezcurvepath<float, 3>& p, bool loffset = true)
         {
             this->boundary = p;
             if (!this->boundary.isNull()) {
@@ -701,7 +500,7 @@ namespace sm
             }
 
             // now proceed with centroid changed or unchanged. First: clear all boundary flags
-            for (auto h : this->hexen) { h.unsetUserFlag (HEX_IS_BOUNDARY); }
+            for (auto h : this->hexen) { h.unsetUserFlag (sm::HEX_IS_BOUNDARY); }
 
             std::list<sm::hex>::iterator nearbyBoundaryPoint = this->hexen.begin(); // i.e the hex at 0,0
             bpi = bpoints.begin();
@@ -734,34 +533,34 @@ namespace sm
             // around the edge.
             std::list<sm::hex>::iterator bpi = this->hexen.begin();
             while (bpi->has_nne()) { bpi = bpi->nne; }
-            bpi->setFlag (HEX_IS_BOUNDARY | HEX_INSIDE_BOUNDARY);
+            bpi->setFlag (sm::HEX_IS_BOUNDARY | sm::HEX_INSIDE_BOUNDARY);
             while (bpi->has_ne()) {
                 bpi = bpi->ne;
-                bpi->setFlag (HEX_IS_BOUNDARY | HEX_INSIDE_BOUNDARY);
+                bpi->setFlag (sm::HEX_IS_BOUNDARY | sm::HEX_INSIDE_BOUNDARY);
             }
             while (bpi->has_nse()) {
                 bpi = bpi->nse;
-                bpi->setFlag (HEX_IS_BOUNDARY | HEX_INSIDE_BOUNDARY);
+                bpi->setFlag (sm::HEX_IS_BOUNDARY | sm::HEX_INSIDE_BOUNDARY);
             }
             while (bpi->has_nsw()) {
                 bpi = bpi->nsw;
-                bpi->setFlag (HEX_IS_BOUNDARY | HEX_INSIDE_BOUNDARY);
+                bpi->setFlag (sm::HEX_IS_BOUNDARY | sm::HEX_INSIDE_BOUNDARY);
             }
             while (bpi->has_nw()) {
                 bpi = bpi->nw;
-                bpi->setFlag (HEX_IS_BOUNDARY | HEX_INSIDE_BOUNDARY);
+                bpi->setFlag (sm::HEX_IS_BOUNDARY | sm::HEX_INSIDE_BOUNDARY);
             }
             while (bpi->has_nnw()) {
                 bpi = bpi->nnw;
-                bpi->setFlag (HEX_IS_BOUNDARY | HEX_INSIDE_BOUNDARY);
+                bpi->setFlag (sm::HEX_IS_BOUNDARY | sm::HEX_INSIDE_BOUNDARY);
             }
             while (bpi->has_nne()) {
                 bpi = bpi->nne;
-                bpi->setFlag (HEX_IS_BOUNDARY | HEX_INSIDE_BOUNDARY);
+                bpi->setFlag (sm::HEX_IS_BOUNDARY | sm::HEX_INSIDE_BOUNDARY);
             }
-            while (bpi->has_ne() && bpi->ne->testFlags(HEX_IS_BOUNDARY) == false) {
+            while (bpi->has_ne() && bpi->ne->testFlags(sm::HEX_IS_BOUNDARY) == false) {
                 bpi = bpi->ne;
-                bpi->setFlag (HEX_IS_BOUNDARY | HEX_INSIDE_BOUNDARY);
+                bpi->setFlag (sm::HEX_IS_BOUNDARY | sm::HEX_INSIDE_BOUNDARY);
             }
             // Check that the boundary is contiguous.
             std::set<uint32_t> seen;
@@ -1159,17 +958,17 @@ namespace sm
         {
             std::list<sm::hex>::iterator h = this->hexen.begin();
             while (h != this->hexen.end()) {
-                if (h->testFlags(HEX_IS_BOUNDARY) == true) {
+                if (h->testFlags(sm::HEX_IS_BOUNDARY) == true) {
                     h->distToBoundary = 0.0f;
                 } else {
-                    if (h->testFlags(HEX_INSIDE_BOUNDARY) == false) {
+                    if (h->testFlags(sm::HEX_INSIDE_BOUNDARY) == false) {
                         // Set to a dummy, negative value
                         h->distToBoundary = -100.0;
                     } else {
                         // Not a boundary hex, but inside boundary
                         std::list<sm::hex>::iterator bh = this->hexen.begin();
                         while (bh != this->hexen.end()) {
-                            if (bh->testFlags(HEX_IS_BOUNDARY) == true) {
+                            if (bh->testFlags(sm::HEX_IS_BOUNDARY) == true) {
                                 float delta = h->distanceFrom (*bh);
                                 if (delta < h->distToBoundary || h->distToBoundary < 0.0f) {
                                     h->distToBoundary = delta;
@@ -1273,12 +1072,12 @@ namespace sm
 
             // Mark hexes inside region. Use centroid of the region.
             std::list<sm::hex>::iterator insideRegionhex = this->findHexNearest (regionCentroid);
-            this->markhexesInside (insideRegionhex, HEX_IS_REGION_BOUNDARY, HEX_INSIDE_REGION);
+            this->markhexesInside (insideRegionhex, sm::HEX_IS_REGION_BOUNDARY, sm::HEX_INSIDE_REGION);
 
             // Populate theRegion, then return it
             std::list<sm::hex>::iterator hi = this->hexen.begin();
             while (hi != this->hexen.end()) {
-                if (hi->testFlags (HEX_INSIDE_REGION) == true) {
+                if (hi->testFlags (sm::HEX_INSIDE_REGION) == true) {
                     theRegion.push_back (hi);
                 }
                 ++hi;
@@ -1339,13 +1138,13 @@ namespace sm
         }
 
         /*!
-         * For every hex in hexen, unset the flags HEX_IS_REGION_BOUNDARY and
-         * HEX_INSIDE_REGION
+         * For every hex in hexen, unset the flags sm::HEX_IS_REGION_BOUNDARY and
+         * sm::HEX_INSIDE_REGION
          */
         void clearRegionBoundaryFlags()
         {
             for (auto& hh : this->hexen) {
-                hh.unsetFlag (HEX_IS_REGION_BOUNDARY | HEX_INSIDE_REGION);
+                hh.unsetFlag (sm::HEX_IS_REGION_BOUNDARY | sm::HEX_INSIDE_REGION);
             }
         }
 
@@ -1782,8 +1581,9 @@ namespace sm
          *
          * See https://stackoverflow.com/questions/563198/how-do-you-detect-where-two-line-segments-intersect
          */
+        // FIXME could be replaced with sm::geometry::segments_intersect()
         vec<float, 2> intersection (const vec<float, 2> _p1, const vec<float, 2> _q1,
-                                       const vec<float, 2> _p2, const vec<float, 2> _q2)
+                                    const vec<float, 2> _p2, const vec<float, 2> _q2)
         {
             vec<float, 2> isect;
             isect.set_from (std::numeric_limits<float>::quiet_NaN());
@@ -1803,9 +1603,10 @@ namespace sm
             }
             if (rxs == 0.0f && q_m_pxr == 0.0f) {
                 // Colinear, figure out if overlapping
-                float t_0 = (_p2 - _p1).dot (_q1-_p1) / (_q1-_p1).dot(_q1-_p1);
-                float t_1 = (_q2 - _p1).dot (_q1-_p1) / (_q1-_p1).dot(_q1-_p1);
-                if (t_0 > 0.0f || t_0 < 1.0f || t_1 > 0.0f || t_1 < 1.0f) {
+                float t_0 = (_p2 - _p1).dot (_q1 - _p1) / (_q1 - _p1).dot (_q1 - _p1);
+                float t_1 = (_q2 - _p1).dot (_q1 - _p1) / (_q1 - _p1).dot (_q1 - _p1);
+
+                if ((t_0 > 0.0f && t_0 < 1.0f) || (t_1 > 0.0f && t_1 < 1.0f)) {
                     isect = _p1 + t_0 * (_q1-_p1);
                 } else {
                     isect[1] = 0.0f; // isect[0] remains nan
@@ -2073,43 +1874,43 @@ namespace sm
 
                     rtn[0] = (a1 + t1) / hexarea;
 
-                    // From hex.h. HEX_NEIGHBOUR_POS_E = 0; HEX_NEIGHBOUR_POS_NE = 1
+                    // From hex.h. sm::HEX_NEIGHBOUR_POS_E = 0; sm::HEX_NEIGHBOUR_POS_NE = 1
                     // etc. Shift by one to go into our return object.
                     switch (hidx) {
                     case 0: // slide to s
                     {
-                        rtn[1+HEX_NEIGHBOUR_POS_SW] = pw * lr / hexarea;
-                        rtn[1+HEX_NEIGHBOUR_POS_SE] = pw * lr / hexarea;
+                        rtn[1+sm::HEX_NEIGHBOUR_POS_SW] = pw * lr / hexarea;
+                        rtn[1+sm::HEX_NEIGHBOUR_POS_SE] = pw * lr / hexarea;
                         break;
                     }
                     case 1: // slide to n
                     {
-                        rtn[1+HEX_NEIGHBOUR_POS_NE] = pw * lr / hexarea;
-                        rtn[1+HEX_NEIGHBOUR_POS_NW] = pw * lr / hexarea;
+                        rtn[1+sm::HEX_NEIGHBOUR_POS_NE] = pw * lr / hexarea;
+                        rtn[1+sm::HEX_NEIGHBOUR_POS_NW] = pw * lr / hexarea;
                         break;
                     }
                     case 2: // slide to se
                     {
-                        rtn[1+HEX_NEIGHBOUR_POS_W] = pw * lr / hexarea;
-                        rtn[1+HEX_NEIGHBOUR_POS_SW] = pw * lr / hexarea;
+                        rtn[1+sm::HEX_NEIGHBOUR_POS_W] = pw * lr / hexarea;
+                        rtn[1+sm::HEX_NEIGHBOUR_POS_SW] = pw * lr / hexarea;
                         break;
                     }
                     case 3: // slide to ne
                     {
-                        rtn[1+HEX_NEIGHBOUR_POS_E] = pw * lr / hexarea;
-                        rtn[1+HEX_NEIGHBOUR_POS_NE] = pw * lr / hexarea;
+                        rtn[1+sm::HEX_NEIGHBOUR_POS_E] = pw * lr / hexarea;
+                        rtn[1+sm::HEX_NEIGHBOUR_POS_NE] = pw * lr / hexarea;
                         break;
                     }
                     case 4: // slide to nw
                     {
-                        rtn[1+HEX_NEIGHBOUR_POS_W] = pw * lr / hexarea;
-                        rtn[1+HEX_NEIGHBOUR_POS_NW] = pw * lr / hexarea;
+                        rtn[1+sm::HEX_NEIGHBOUR_POS_W] = pw * lr / hexarea;
+                        rtn[1+sm::HEX_NEIGHBOUR_POS_NW] = pw * lr / hexarea;
                         break;
                     }
                     case 5: // slide to se
                     {
-                        rtn[1+HEX_NEIGHBOUR_POS_SE] = pw * lr / hexarea;
-                        rtn[1+HEX_NEIGHBOUR_POS_E] = pw * lr / hexarea;
+                        rtn[1+sm::HEX_NEIGHBOUR_POS_SE] = pw * lr / hexarea;
+                        rtn[1+sm::HEX_NEIGHBOUR_POS_E] = pw * lr / hexarea;
                         break;
                     }
                     default: {
@@ -2752,7 +2553,7 @@ namespace sm
             auto h = this->hexen.begin();
             std::list<hex>::iterator bl_hex = this->hexen.begin();
             while (h != this->hexen.end()) {
-                if (h->testFlags(HEX_IS_BOUNDARY) == true) {
+                if (h->testFlags(sm::HEX_IS_BOUNDARY) == true) {
                     if (first) {
                         limits = {{h->x, h->x, h->y, h->y}};
                         first = false;
@@ -3260,10 +3061,10 @@ namespace sm
          * \return An iterator into hexgrid::hexen which refers to the closest hex to \a point.
          */
         std::list<sm::hex>::iterator setBoundary (const sm::bezcoord<float>& point,
-                                                     std::list<sm::hex>::iterator startFrom)
+                                                  std::list<sm::hex>::iterator startFrom)
         {
             std::list<sm::hex>::iterator h = this->findHexNearPoint (point, startFrom);
-            h->setFlag (HEX_IS_BOUNDARY | HEX_INSIDE_BOUNDARY);
+            h->setFlag (sm::HEX_IS_BOUNDARY | sm::HEX_INSIDE_BOUNDARY);
             return h;
         }
 
@@ -3300,27 +3101,27 @@ namespace sm
             // Insert into the std::list of hex pointers, too
             this->bhexen.push_back (&(*hi));
 
-            if (rtn == false && hi->has_ne() && hi->ne->testFlags(HEX_IS_BOUNDARY) == true && seen.find(hi->ne->vi) == seen.end()) {
+            if (rtn == false && hi->has_ne() && hi->ne->testFlags(sm::HEX_IS_BOUNDARY) == true && seen.find(hi->ne->vi) == seen.end()) {
                 hi_next = hi->ne;
                 rtn = (this->boundaryContiguous (bhi, hi_next, seen));
             }
-            if (rtn == false && hi->has_nne() && hi->nne->testFlags(HEX_IS_BOUNDARY) == true && seen.find(hi->nne->vi) == seen.end()) {
+            if (rtn == false && hi->has_nne() && hi->nne->testFlags(sm::HEX_IS_BOUNDARY) == true && seen.find(hi->nne->vi) == seen.end()) {
                 hi_next = hi->nne;
                 rtn = (this->boundaryContiguous (bhi, hi_next, seen));
             }
-            if (rtn == false && hi->has_nnw() && hi->nnw->testFlags(HEX_IS_BOUNDARY) == true && seen.find(hi->nnw->vi) == seen.end()) {
+            if (rtn == false && hi->has_nnw() && hi->nnw->testFlags(sm::HEX_IS_BOUNDARY) == true && seen.find(hi->nnw->vi) == seen.end()) {
                 hi_next = hi->nnw;
                 rtn =  (this->boundaryContiguous (bhi, hi_next, seen));
             }
-            if (rtn == false && hi->has_nw() && hi->nw->testFlags(HEX_IS_BOUNDARY) == true && seen.find(hi->nw->vi) == seen.end()) {
+            if (rtn == false && hi->has_nw() && hi->nw->testFlags(sm::HEX_IS_BOUNDARY) == true && seen.find(hi->nw->vi) == seen.end()) {
                 hi_next = hi->nw;
                 rtn =  (this->boundaryContiguous (bhi, hi_next, seen));
             }
-            if (rtn == false && hi->has_nsw() && hi->nsw->testFlags(HEX_IS_BOUNDARY) == true && seen.find(hi->nsw->vi) == seen.end()) {
+            if (rtn == false && hi->has_nsw() && hi->nsw->testFlags(sm::HEX_IS_BOUNDARY) == true && seen.find(hi->nsw->vi) == seen.end()) {
                 hi_next = hi->nsw;
                 rtn =  (this->boundaryContiguous (bhi, hi_next, seen));
             }
-            if (rtn == false && hi->has_nse() && hi->nse->testFlags(HEX_IS_BOUNDARY) == true && seen.find(hi->nse->vi) == seen.end()) {
+            if (rtn == false && hi->has_nse() && hi->nse->testFlags(sm::HEX_IS_BOUNDARY) == true && seen.find(hi->nse->vi) == seen.end()) {
                 hi_next = hi->nse;
                 rtn =  (this->boundaryContiguous (bhi, hi_next, seen));
             }
@@ -3345,7 +3146,7 @@ namespace sm
         std::list<hex>::iterator setRegionBoundary (const bezcoord<float>& point, std::list<hex>::iterator startFrom)
         {
             std::list<sm::hex>::iterator h = this->findHexNearPoint (point, startFrom);
-            h->setFlag (HEX_IS_REGION_BOUNDARY | HEX_INSIDE_REGION);
+            h->setFlag (sm::HEX_IS_REGION_BOUNDARY | sm::HEX_INSIDE_REGION);
             return h;
         }
 
@@ -3362,27 +3163,27 @@ namespace sm
             // Insert into the list of hex pointers, too
             this->bhexen.push_back (&(*hi));
 
-            if (rtn == false && hi->has_ne() && hi->ne->testFlags(HEX_IS_REGION_BOUNDARY) == true && seen.find(hi->ne->vi) == seen.end()) {
+            if (rtn == false && hi->has_ne() && hi->ne->testFlags(sm::HEX_IS_REGION_BOUNDARY) == true && seen.find(hi->ne->vi) == seen.end()) {
                 hi_next = hi->ne;
                 rtn = (this->regionBoundaryContiguous (bhi, hi_next, seen));
             }
-            if (rtn == false && hi->has_nne() && hi->nne->testFlags(HEX_IS_REGION_BOUNDARY) == true && seen.find(hi->nne->vi) == seen.end()) {
+            if (rtn == false && hi->has_nne() && hi->nne->testFlags(sm::HEX_IS_REGION_BOUNDARY) == true && seen.find(hi->nne->vi) == seen.end()) {
                 hi_next = hi->nne;
                 rtn = this->regionBoundaryContiguous (bhi, hi_next, seen);
             }
-            if (rtn == false && hi->has_nnw() && hi->nnw->testFlags(HEX_IS_REGION_BOUNDARY) == true && seen.find(hi->nnw->vi) == seen.end()) {
+            if (rtn == false && hi->has_nnw() && hi->nnw->testFlags(sm::HEX_IS_REGION_BOUNDARY) == true && seen.find(hi->nnw->vi) == seen.end()) {
                 hi_next = hi->nnw;
                 rtn =  (this->regionBoundaryContiguous (bhi, hi_next, seen));
             }
-            if (rtn == false && hi->has_nw() && hi->nw->testFlags(HEX_IS_REGION_BOUNDARY) == true && seen.find(hi->nw->vi) == seen.end()) {
+            if (rtn == false && hi->has_nw() && hi->nw->testFlags(sm::HEX_IS_REGION_BOUNDARY) == true && seen.find(hi->nw->vi) == seen.end()) {
                 hi_next = hi->nw;
                 rtn =  (this->regionBoundaryContiguous (bhi, hi_next, seen));
             }
-            if (rtn == false && hi->has_nsw() && hi->nsw->testFlags(HEX_IS_REGION_BOUNDARY) == true && seen.find(hi->nsw->vi) == seen.end()) {
+            if (rtn == false && hi->has_nsw() && hi->nsw->testFlags(sm::HEX_IS_REGION_BOUNDARY) == true && seen.find(hi->nsw->vi) == seen.end()) {
                 hi_next = hi->nsw;
                 rtn =  (this->regionBoundaryContiguous (bhi, hi_next, seen));
             }
-            if (rtn == false && hi->has_nse() && hi->nse->testFlags(HEX_IS_REGION_BOUNDARY) == true && seen.find(hi->nse->vi) == seen.end()) {
+            if (rtn == false && hi->has_nse() && hi->nse->testFlags(sm::HEX_IS_REGION_BOUNDARY) == true && seen.find(hi->nse->vi) == seen.end()) {
                 hi_next = hi->nse;
                 rtn =  (this->regionBoundaryContiguous (bhi, hi_next, seen));
             }
@@ -3402,7 +3203,7 @@ namespace sm
          */
         bool findBoundaryhex (std::list<hex>::const_iterator& hi) const
         {
-            if (hi->testFlags(HEX_IS_BOUNDARY) == true) {
+            if (hi->testFlags(sm::HEX_IS_BOUNDARY) == true) {
                 // No need to change the hex iterator
                 return true;
             }
@@ -3515,8 +3316,8 @@ namespace sm
          * with region boundaries.
          */
         void markFromBoundary (std::list<hex>::iterator hi,
-                               uint32_t bdryFlag = HEX_IS_BOUNDARY,
-                               uint32_t insideFlag = HEX_INSIDE_BOUNDARY)
+                               uint32_t bdryFlag = sm::HEX_IS_BOUNDARY,
+                               uint32_t insideFlag = sm::HEX_INSIDE_BOUNDARY)
         {
             this->markFromBoundary (&(*hi), bdryFlag, insideFlag);
         }
@@ -3533,8 +3334,8 @@ namespace sm
          * with region boundaries.
          */
         void markFromBoundary (std::list<hex*>::iterator hi,
-                               uint32_t bdryFlag = HEX_IS_BOUNDARY,
-                               uint32_t insideFlag = HEX_INSIDE_BOUNDARY)
+                               uint32_t bdryFlag = sm::HEX_IS_BOUNDARY,
+                               uint32_t insideFlag = sm::HEX_INSIDE_BOUNDARY)
         {
             this->markFromBoundary ((*hi), bdryFlag, insideFlag);
         }
@@ -3551,8 +3352,8 @@ namespace sm
          * with region boundaries.
          */
         void markFromBoundary (sm::hex* hi,
-                               uint32_t bdryFlag = HEX_IS_BOUNDARY,
-                               uint32_t insideFlag = HEX_INSIDE_BOUNDARY)
+                               uint32_t bdryFlag = sm::HEX_IS_BOUNDARY,
+                               uint32_t insideFlag = sm::HEX_INSIDE_BOUNDARY)
         {
             // Find a marked-inside hex next to this boundary hex. This will be the first direction to mark
             // a line of inside hexes in.
@@ -3596,16 +3397,13 @@ namespace sm
          * Common code used by markFromBoundary()
          */
         void markFromBoundaryCommon (std::list<hex>::iterator first_inside, uint16_t firsti,
-                                     uint32_t bdryFlag = HEX_IS_BOUNDARY,
-                                     uint32_t insideFlag = HEX_INSIDE_BOUNDARY)
+                                     uint32_t bdryFlag = sm::HEX_IS_BOUNDARY,
+                                     uint32_t insideFlag = sm::HEX_INSIDE_BOUNDARY)
         {
             // From the "first inside the boundary hex" head in the direction specified by firsti until a
             // boundary hex is reached.
             std::list<sm::hex>::iterator straight = first_inside;
 
-#ifdef DO_WARNINGS
-            bool warning_given = false;
-#endif
             while (straight->testFlags(bdryFlag) == false) {
                 // Set insideBoundary true
                 straight->setFlag (insideFlag);
@@ -3613,16 +3411,7 @@ namespace sm
                     straight = straight->get_neighbour (firsti);
                 } else {
                     // no further neighbour in this direction
-                    if (straight->testFlags(bdryFlag) == false) {
-#ifdef DO_WARNINGS
-                        if (!warning_given) {
-                            std::cerr << "WARNING: Got to edge of region (dirn " << firsti
-                                      << ") without encountering a boundary hex.\n";
-                            warning_given = true;
-                        }
-#endif
-                        break;
-                    }
+                    if (straight->testFlags(bdryFlag) == false) { break; }
                 }
             }
         }
@@ -3668,8 +3457,8 @@ namespace sm
         bool findNextBoundaryNeighbour (std::list<hex>::iterator& bhi,
                                         std::deque<std::list<hex>::iterator>& recently_seen,
                                         uint32_t n_recents = 2U,
-                                        uint32_t bdryFlag = HEX_IS_BOUNDARY,
-                                        uint32_t insideFlag = HEX_INSIDE_BOUNDARY) const
+                                        uint32_t bdryFlag = sm::HEX_IS_BOUNDARY,
+                                        uint32_t insideFlag = sm::HEX_INSIDE_BOUNDARY) const
         {
             bool gotnextneighbour = false;
 
@@ -3728,8 +3517,8 @@ namespace sm
          * boundary.
          */
         void markhexesInside (std::list<hex>::iterator hi,
-                              uint32_t bdryFlag = HEX_IS_BOUNDARY,
-                              uint32_t insideFlag = HEX_INSIDE_BOUNDARY)
+                              uint32_t bdryFlag = sm::HEX_IS_BOUNDARY,
+                              uint32_t insideFlag = sm::HEX_INSIDE_BOUNDARY)
         {
             // Run to boundary, marking as we go
             std::list<sm::hex>::iterator bhi(hi);
@@ -3864,7 +3653,7 @@ namespace sm
             // Run through and discard those hexes outside the boundary:
             auto hi = this->hexen.begin();
             while (hi != this->hexen.end()) {
-                if (hi->testFlags(HEX_INSIDE_BOUNDARY) == false) {
+                if (hi->testFlags(sm::HEX_INSIDE_BOUNDARY) == false) {
                     // When erasing a hex, I need to update the neighbours of its neighbours.
                     hi->disconnectNeighbours();
                     // Having disconnected the neighbours, erase the hex.
@@ -3921,14 +3710,14 @@ namespace sm
 
             // Check to see if there are any boundary hexes at all.
             uint32_t bhcount = 0;
-            for (auto h : this->hexen) { bhcount += h.testFlags(HEX_IS_BOUNDARY) == true ? 1 : 0; }
+            for (auto h : this->hexen) { bhcount += h.testFlags(sm::HEX_IS_BOUNDARY) == true ? 1 : 0; }
             if (bhcount == 0) { return rtn; }
 
             // Find the furthest left and right hexes and the further up and down hexes.
             std::array<float, 4> limits = {{0,0,0,0}};
             bool first = true;
             for (auto h : this->hexen) {
-                if (h.testFlags(HEX_IS_BOUNDARY) == true) {
+                if (h.testFlags(sm::HEX_IS_BOUNDARY) == true) {
                     if (first) {
                         limits = {{h.x, h.x, h.y, h.y}};
                         first = false;
@@ -3959,14 +3748,6 @@ namespace sm
             rtn[1] = (int)(limits[1] / d_ri);
             rtn[2] = (int)(limits[2] / d_gi);
             rtn[3] = (int)(limits[3] / d_gi);
-
-#if 0
-            // Add any 'growth buffer', in case boundary expected to change? I think this is old thinking and maybe not relevant?
-            rtn[0] -= this->d_growthbuffer_horz;
-            rtn[1] += this->d_growthbuffer_horz;
-            rtn[2] -= this->d_growthbuffer_vert;
-            rtn[3] += this->d_growthbuffer_vert;
-#endif
             return rtn;
         }
 
@@ -3986,6 +3767,7 @@ namespace sm
             }
         }
 
+    public:
         /*!
          * The centre to centre hex distance between adjacent members of the hex grid.
          */
