@@ -17,13 +17,13 @@ int main()
 
     sm::mat<float, 2, 6> res1 =  twobyfour * fourbysix;
     std::cout << "res1\n"  << res1 << "\n";
-    if (res1(0, 0) != 30.0f) { --rtn; std::cout << res1(0,0) << " 0a\n"; }
-    if (res1(0, 1) != 110.0f) { --rtn; std::cout << res1(0,1) << " 0b\n"; }
-    if (res1(1, 0) != 70.0f) { --rtn; std::cout << res1(1,0) << " 0c\n"; }
-    if (res1(1, 1) != 150.0f) { --rtn; std::cout << res1(1,1) << " 0d\n"; }
-    if (res1(1, 2) != 230.0f) { --rtn; std::cout << res1(1,2) << " 1\n"; }
-    if (res1(0, 3) != 70.0f) { --rtn; std::cout << res1(0,3) << " 2\n"; }
-    if (res1(0, 5) != 486.0f) { --rtn; std::cout << res1(0,5) << " 3\n"; }
+    if (res1(0, 0) != 50.0f) { --rtn; std::cout << res1(0,0) << " 0a\n"; }
+    if (res1(0, 1) != 82.0f) { --rtn; std::cout << res1(0,1) << " 0b\n"; }
+    if (res1(1, 0) != 60.0f) { --rtn; std::cout << res1(1,0) << " 0c\n"; }
+    if (res1(1, 1) != 100.0f) { --rtn; std::cout << res1(1,1) << " 0d\n"; }
+    if (res1(1, 2) != 140.0f) { --rtn; std::cout << res1(1,2) << " 1\n"; }
+    if (res1(0, 3) != 146.0f) { --rtn; std::cout << res1(0,3) << " 2\n"; }
+    if (res1(0, 5) != 210.0f) { --rtn; std::cout << res1(0,5) << " 3\n"; }
 
     sm::mat<float, 4, 2> fourbytwo;
     fourbytwo = { 1, 2, 3, 4, 5, 6, 7, 8 };
@@ -59,10 +59,18 @@ int main()
 
     sm::mat<float, 4, 4> fourbyfour;
     fourbyfour = { 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8  };
-
+    std::cout << "\n" << fourbyfour << "\n *\n" << fourbytwo << std::endl;
     sm::mat<float, 4, 2> res2 = (fourbyfour * fourbytwo);
+    std::cout << " =\n" << res2 << std::endl;
     if (res2(1,3) != 160.0f) { --rtn; std::cout << "14\n"; }
     if (res2(0,0) != 106.0f) { --rtn; std::cout << "15\n"; }
+
+    sm::mat<float, 2, 2> A;
+    A = {1, 2, 3, 4};
+    sm::mat<float, 2, 1> B;
+    B = {5, 6};
+
+    std::cout << "\n" << A << "\n *\n" << B << " =\n" << (A * B) << std::endl;
 
     std::cout << (rtn == 0 ? "SUCCESS\n" : "FAILURE\n");
     return rtn;

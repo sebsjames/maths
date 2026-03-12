@@ -1291,14 +1291,14 @@ export namespace sm
         {
             sm::vec<F, Nr * Ncy> m;
 
-            if constexpr (Nr == 2 && Nc == 2) {
+            if constexpr (Nr == 2 && Nc == 2 && Nry == 2 && Ncy == 2) {
                 // Top row
                 m[0] = this->arr[0] * m2.arr[0] + this->arr[2] * m2.arr[1];
                 m[2] = this->arr[0] * m2.arr[2] + this->arr[2] * m2.arr[3];
                 // Second row
                 m[1] = this->arr[1] * m2.arr[0] + this->arr[3] * m2.arr[1];
                 m[3] = this->arr[1] * m2.arr[2] + this->arr[3] * m2.arr[3];
-            } else if constexpr (Nr == 3 && Nc == 3) {
+            } else if constexpr (Nr == 3 && Nc == 3 && Nry == 3 && Ncy == 3) {
                 // Top row
                 m[0] = this->arr[0] * m2.arr[0] + this->arr[3] * m2.arr[1] + this->arr[6] * m2.arr[2];
                 m[3] = this->arr[0] * m2.arr[3] + this->arr[3] * m2.arr[4] + this->arr[6] * m2.arr[5];
@@ -1311,7 +1311,7 @@ export namespace sm
                 m[2] = this->arr[2] * m2.arr[0] + this->arr[5] * m2.arr[1] + this->arr[8] * m2.arr[2];
                 m[5] = this->arr[2] * m2.arr[3] + this->arr[5] * m2.arr[4] + this->arr[8] * m2.arr[5];
                 m[8] = this->arr[2] * m2.arr[6] + this->arr[5] * m2.arr[7] + this->arr[8] * m2.arr[8];
-            } else if constexpr (Nr == 4 && Nc == 4) {
+            } else if constexpr (Nr == 4 && Nc == 4 && Nry == 4 && Ncy == 4) {
                 // Top row
                 m[0] = this->arr[0] * m2.arr[0] + this->arr[4] * m2.arr[1] + this->arr[8] * m2.arr[2] + this->arr[12] * m2.arr[3];
                 m[4] = this->arr[0] * m2.arr[4] + this->arr[4] * m2.arr[5] + this->arr[8] * m2.arr[6] + this->arr[12] * m2.arr[7];
@@ -1334,11 +1334,11 @@ export namespace sm
                 m[15] = this->arr[3] * m2.arr[12] + this->arr[7] * m2.arr[13] + this->arr[11] * m2.arr[14] + this->arr[15] * m2.arr[15];
             } else {
                 // General case left matrix is this->arr, right matrix is m2
-                for (uint32_t r = 0; r < Nr; ++r) {
-                    for (uint32_t cy = 0; cy < Ncy; ++cy) {
-                        m.arr[r * Ncy + cy] = F{0};
-                        for (uint32_t c = 0; c < Nc; ++c) {
-                            m[r * Ncy + cy] += this->arr[r * Nc + c] * m2.arr[cy * Nry + c];
+                for (uint32_t r = 0; r < Nr; ++r) { // row in result matrix
+                    for (uint32_t cy = 0; cy < Ncy; ++cy) { // col in result matrix
+                        m.arr[(cy * Nr) + r] = F{0};
+                        for (uint32_t i = 0; i < Nc; ++i) { // i iterates along row in left matrix and down col in right matrix
+                            m[(cy * Nr) + r] += this->arr[(i * Nr) + r] * m2.arr[(cy * Nr) + i];
                         }
                     }
                 }
@@ -1353,7 +1353,7 @@ export namespace sm
         {
             mat<F, Nr, Ncy> m;
 
-            if constexpr (Nr == 2 && Nc == 2) {
+            if constexpr (Nr == 2 && Nc == 2 && Nry == 2 && Ncy == 2) {
                 // Top row
                 m.arr[0] = this->arr[0] * m2.arr[0] + this->arr[2] * m2.arr[1];
                 m.arr[2] = this->arr[0] * m2.arr[2] + this->arr[2] * m2.arr[3];
@@ -1361,7 +1361,7 @@ export namespace sm
                 m.arr[1] = this->arr[1] * m2.arr[0] + this->arr[3] * m2.arr[1];
                 m.arr[3] = this->arr[1] * m2.arr[2] + this->arr[3] * m2.arr[3];
 
-            } else if constexpr (Nr == 3 && Nc == 3) {
+            } else if constexpr (Nr == 3 && Nc == 3 && Nry == 3 && Ncy == 3) {
                 // Top row
                 m.arr[0] = this->arr[0] * m2.arr[0] + this->arr[3] * m2.arr[1] + this->arr[6] * m2.arr[2];
                 m.arr[3] = this->arr[0] * m2.arr[3] + this->arr[3] * m2.arr[4] + this->arr[6] * m2.arr[5];
@@ -1375,7 +1375,7 @@ export namespace sm
                 m.arr[5] = this->arr[2] * m2.arr[3] + this->arr[5] * m2.arr[4] + this->arr[8] * m2.arr[5];
                 m.arr[8] = this->arr[2] * m2.arr[6] + this->arr[5] * m2.arr[7] + this->arr[8] * m2.arr[8];
 
-            } else if constexpr (Nr == 4 && Nc == 4) {
+            } else if constexpr (Nr == 4 && Nc == 4 && Nry == 4 && Ncy == 4) {
 
                 // Top row
                 m.arr[0] = this->arr[0] * m2.arr[0] + this->arr[4] * m2.arr[1] + this->arr[8] * m2.arr[2] + this->arr[12] * m2.arr[3];
@@ -1400,11 +1400,11 @@ export namespace sm
 
             } else {
                 // General case left matrix is this->arr, right matrix is m2.arr
-                for (uint32_t r = 0; r < Nr; ++r) {
-                    for (uint32_t cy = 0; cy < Ncy; ++cy) {
-                        m.arr[r * Ncy + cy] = F{0};
-                        for (uint32_t c = 0; c < Nc; ++c) {
-                            m.arr[r * Ncy + cy] += this->arr[r * Nc + c] * m2.arr[cy * Nry + c];
+                for (uint32_t r = 0; r < Nr; ++r) { // row in result matrix
+                    for (uint32_t cy = 0; cy < Ncy; ++cy) { // col in result matrix
+                        for (uint32_t i = 0; i < Nc; ++i) { // i iterates along row in left matrix and down col in right matrix
+                            m.arr[(cy * Nr) + r] += this->arr[(i * Nr) + r] * m2.arr[(cy * Nr) + i];
+                            //m(r, cy)             += (*this)(r, i) * m2(i, cy); // alternative
                         }
                     }
                 }
