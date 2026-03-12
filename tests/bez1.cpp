@@ -3,10 +3,9 @@
 #include <fstream>
 #include <vector>
 
-#include <sm/bezcurve>
-
 import sm.vec;
-import sm.bezcoord;
+//import sm.bezcoord;
+import sm.bezcurve;
 
 int main()
 {
@@ -20,7 +19,7 @@ int main()
     f = {10,1};
 
     // Make a cubic curve
-    sm::bezcurve<float> cc(i, f, c1, c2);
+    sm::bezcurve<float, 3> cc(i, f, c1, c2);
 
     // Length of step along curve
     std::ofstream f1;

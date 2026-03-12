@@ -2,10 +2,8 @@
 #include <iostream>
 #include <fstream>
 
-#include <sm/hexgrid>
-#include <sm/bezcurve>
-#include <sm/bezcurvepath>
-
+import sm.bezcurvepath;
+import sm.hexgrid;
 import sm.vec;
 
 int main()
@@ -17,12 +15,14 @@ int main()
     sm::vec<float, 2> v3 = {0.28f, 0.45f};
     sm::vec<float, 2> v4 = {-0.28f, 0.45f};
 
-    sm::bezcurve<float> c1(v1,v2);
-    sm::bezcurve<float> c2(v2,v3);
-    sm::bezcurve<float> c3(v3,v4);
-    sm::bezcurve<float> c4(v4,v1);
+    // hexgrid requires order 3 curves
+    //                       (ip, fp, c1,               c2)
+    sm::bezcurve<float, 3> c1(v1, v2, (v1 + v2) / 2.0f, (v1 + v2) / 2.0f);
+    sm::bezcurve<float, 3> c2(v2, v3, (v2 + v3) / 2.0f, (v2 + v3) / 2.0f);
+    sm::bezcurve<float, 3> c3(v3, v4, (v3 + v4) / 2.0f, (v3 + v4) / 2.0f);
+    sm::bezcurve<float, 3> c4(v4, v1, (v4 + v1) / 2.0f, (v4 + v1) / 2.0f);
     std::cout << "instanciated curves" << std::endl;
-    sm::bezcurvepath<float> bound;
+    sm::bezcurvepath<float, 3> bound;
     std::cout << "instanciated curvepath" << std::endl;
 
     bound.addCurve(c1);
@@ -35,7 +35,7 @@ int main()
     Hgrid->setBoundary (bound);
     std::cout << "Number of hexes is: " << Hgrid->num() << std::endl;
 
-    if (Hgrid->num() == 783) {
+    if (Hgrid->num() == 782) {
         // Success
         rtn = 0;
     }

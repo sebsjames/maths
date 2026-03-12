@@ -14,8 +14,11 @@ set_source_files_properties (
   ${PROJECT_SOURCE_DIR}/sm/quaternion
   ${PROJECT_SOURCE_DIR}/sm/mat
   ${PROJECT_SOURCE_DIR}/sm/hex
+  ${PROJECT_SOURCE_DIR}/sm/hexgrid
   ${PROJECT_SOURCE_DIR}/sm/bezcoord
+  ${PROJECT_SOURCE_DIR}/sm/binomial
   ${PROJECT_SOURCE_DIR}/sm/bezcurve
+  ${PROJECT_SOURCE_DIR}/sm/bezcurvepath
   ${PROJECT_SOURCE_DIR}/sm/winder
   ${PROJECT_SOURCE_DIR}/sm/bootstrap
   ${PROJECT_SOURCE_DIR}/sm/grid
@@ -102,7 +105,7 @@ target_sources(vec1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
 add_test(vec1 vec1)
 
 if(NOT APPLE) # Could review for up to date Mac OS 26+
-  if(CMAKE_COMPILER_IS_GNUCXX AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 14.99)
+  if((CMAKE_CXX_COMPILER_ID MATCHES "Clang") OR (CMAKE_COMPILER_IS_GNUCXX AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 14.99))
     # gcc 14 compiles vec_constexpr1, but appears to generate faulty
     # code (the result of vec::pow(vec) in a constexpr function is
     # wrong). gcc 15 is ok, so perhaps this is a gcc14 bug.
@@ -473,6 +476,16 @@ target_sources(quaternion_rotations_double PUBLIC FILE_SET CXX_MODULES BASE_DIRS
   ${PROJECT_SOURCE_DIR}/sm/quaternion)
 add_test(quaternion_rotations_double quaternion_rotations_double)
 
+add_executable(mat_non_square mat_non_square.cpp)
+target_sources(mat_non_square PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/random
+  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/quaternion
+  ${PROJECT_SOURCE_DIR}/sm/mat)
+add_test(mat_non_square mat_non_square)
+
 add_executable(mat_2x2_general mat_2x2_general.cpp)
 target_sources(mat_2x2_general PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
@@ -766,7 +779,7 @@ target_sources(grid_getabscissae1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJEC
   ${PROJECT_SOURCE_DIR}/sm/grid)
 add_test(grid_getabscissae1 grid_getabscissae1)
 
-if(CMAKE_COMPILER_IS_GNUCXX AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 14.99)
+if((CMAKE_CXX_COMPILER_ID MATCHES "Clang") OR (CMAKE_COMPILER_IS_GNUCXX AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 14.99))
   # This program exposes a problem in gcc 14 that is fine in gcc 15. It may be a gcc bug, so just disable.
   add_executable(grid_profile1 grid_profile1.cpp)
   target_sources(grid_profile1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
@@ -802,7 +815,7 @@ target_sources(histo1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR
   ${PROJECT_SOURCE_DIR}/sm/histo)
 add_test(histo1 histo1)
 
-if(CMAKE_COMPILER_IS_GNUCXX AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 14.99)
+if((CMAKE_CXX_COMPILER_ID MATCHES "Clang") OR (CMAKE_COMPILER_IS_GNUCXX AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 14.99))
   add_executable(boxfilter1 boxfilter1.cpp)
   target_sources(boxfilter1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
     FILES
@@ -814,7 +827,7 @@ if(CMAKE_COMPILER_IS_GNUCXX AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 14.99
   add_test(boxfilter1 boxfilter1)
 endif()
 
-if(CMAKE_COMPILER_IS_GNUCXX AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 14.99)
+if((CMAKE_CXX_COMPILER_ID MATCHES "Clang") OR (CMAKE_COMPILER_IS_GNUCXX AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 14.99))
   # Test sm::config
   add_executable(config1 config1.cpp)
   target_sources(config1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
@@ -983,127 +996,145 @@ add_executable(constexpr_math1 constexpr_math1.cpp)
 add_test(constexpr_math1 constexpr_math1)
 endif()
 
-if(ARMADILLO_FOUND)
-
-  # vvec<vec> warning about attributes in gcc14
-  if(CMAKE_COMPILER_IS_GNUCXX AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 14.99)
-    # BezCurve class
-    set(TARGETTEST1 bez1)
-    set(SOURCETEST1 bez1.cpp)
-    add_executable(${TARGETTEST1} ${SOURCETEST1})
-    target_sources(bez1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
-      FILES
-      ${PROJECT_SOURCE_DIR}/sm/range
-      ${PROJECT_SOURCE_DIR}/sm/random
-      ${PROJECT_SOURCE_DIR}/sm/vec
-      ${PROJECT_SOURCE_DIR}/sm/bezcoord
-      ${PROJECT_SOURCE_DIR}/sm/vvec
-      ${PROJECT_SOURCE_DIR}/sm/algo
-      ${PROJECT_SOURCE_DIR}/sm/nm_simplex)
-    target_link_libraries(${TARGETTEST1} ${ARMADILLO_LIBRARY} ${ARMADILLO_LIBRARIES})
-    add_test(bez1 ${TARGETTEST1})
-  endif()
-
-  # BezCurve class (uses hexgrid)
-  add_executable(bez2 bez2.cpp)
-  target_sources(bez2 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+# vvec<vec> warning about attributes in gcc14
+if((CMAKE_CXX_COMPILER_ID MATCHES "Clang") OR (CMAKE_COMPILER_IS_GNUCXX AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 14.99))
+  # BezCurve class
+  set(TARGETTEST1 bez1)
+  set(SOURCETEST1 bez1.cpp)
+  add_executable(${TARGETTEST1} ${SOURCETEST1})
+  target_sources(bez1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
     FILES
     ${PROJECT_SOURCE_DIR}/sm/range
     ${PROJECT_SOURCE_DIR}/sm/random
     ${PROJECT_SOURCE_DIR}/sm/vec
     ${PROJECT_SOURCE_DIR}/sm/bezcoord
-    ${PROJECT_SOURCE_DIR}/sm/hex
+    ${PROJECT_SOURCE_DIR}/sm/binomial
+    ${PROJECT_SOURCE_DIR}/sm/bezcurve
+    ${PROJECT_SOURCE_DIR}/sm/vvec
+    ${PROJECT_SOURCE_DIR}/sm/algo
     ${PROJECT_SOURCE_DIR}/sm/quaternion
     ${PROJECT_SOURCE_DIR}/sm/mat
+    ${PROJECT_SOURCE_DIR}/sm/nm_simplex)
+  add_test(bez1 ${TARGETTEST1})
+endif()
+
+# BezCurve class (uses hexgrid)
+add_executable(bez2 bez2.cpp)
+target_sources(bez2 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/random
+  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/quaternion
+  ${PROJECT_SOURCE_DIR}/sm/mat
+  ${PROJECT_SOURCE_DIR}/sm/bezcoord
+  ${PROJECT_SOURCE_DIR}/sm/binomial
+  ${PROJECT_SOURCE_DIR}/sm/bezcurve
+  ${PROJECT_SOURCE_DIR}/sm/bezcurvepath
+  ${PROJECT_SOURCE_DIR}/sm/hex
+  ${PROJECT_SOURCE_DIR}/sm/hexgrid
+  ${PROJECT_SOURCE_DIR}/sm/vvec
+  ${PROJECT_SOURCE_DIR}/sm/algo
+  ${PROJECT_SOURCE_DIR}/sm/nm_simplex)
+add_test(bez2 bez2)
+
+# vvec<vec> warning about attributes in gcc14
+if((CMAKE_CXX_COMPILER_ID MATCHES "Clang") OR (CMAKE_COMPILER_IS_GNUCXX AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 14.99))
+  # BezCurvePath class
+  add_executable(bezcurves bezcurves.cpp)
+  target_sources(bezcurves PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+    FILES
+    ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/random
+    ${PROJECT_SOURCE_DIR}/sm/vec
+    ${PROJECT_SOURCE_DIR}/sm/quaternion
+    ${PROJECT_SOURCE_DIR}/sm/mat
+    ${PROJECT_SOURCE_DIR}/sm/bezcoord
+    ${PROJECT_SOURCE_DIR}/sm/binomial
+    ${PROJECT_SOURCE_DIR}/sm/bezcurve
+    ${PROJECT_SOURCE_DIR}/sm/bezcurvepath
     ${PROJECT_SOURCE_DIR}/sm/vvec
     ${PROJECT_SOURCE_DIR}/sm/algo
     ${PROJECT_SOURCE_DIR}/sm/nm_simplex)
-  target_link_libraries(bez2 ${ARMADILLO_LIBRARY} ${ARMADILLO_LIBRARIES})
-  add_test(bez2 bez2)
+  add_test(bezcurves bezcurves)
 
-  # vvec<vec> warning about attributes in gcc14
-  if(CMAKE_COMPILER_IS_GNUCXX AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 14.99)
-    # BezCurvePath class
-    add_executable(bezcurves bezcurves.cpp)
-    target_sources(bezcurves PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
-      FILES
-      ${PROJECT_SOURCE_DIR}/sm/range
-      ${PROJECT_SOURCE_DIR}/sm/random
-      ${PROJECT_SOURCE_DIR}/sm/vec
-      ${PROJECT_SOURCE_DIR}/sm/bezcoord
-      ${PROJECT_SOURCE_DIR}/sm/vvec
-      ${PROJECT_SOURCE_DIR}/sm/algo
-      ${PROJECT_SOURCE_DIR}/sm/nm_simplex)
-    target_link_libraries(bezcurves ${ARMADILLO_LIBRARY} ${ARMADILLO_LIBRARIES})
-    add_test(bezcurves bezcurves)
+  # Testing matrix representation of Bezier curves
+  add_executable(bezmatrix bezmatrix.cpp)
+  target_sources(bezmatrix PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+    FILES
+    ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/random
+    ${PROJECT_SOURCE_DIR}/sm/vec
+    ${PROJECT_SOURCE_DIR}/sm/bezcoord
+    ${PROJECT_SOURCE_DIR}/sm/binomial
+    ${PROJECT_SOURCE_DIR}/sm/bezcurve
+    ${PROJECT_SOURCE_DIR}/sm/bezcurvepath
+    ${PROJECT_SOURCE_DIR}/sm/vvec
+    ${PROJECT_SOURCE_DIR}/sm/algo
+    ${PROJECT_SOURCE_DIR}/sm/nm_simplex
+    ${PROJECT_SOURCE_DIR}/sm/quaternion
+    ${PROJECT_SOURCE_DIR}/sm/mat
+    ${PROJECT_SOURCE_DIR}/sm/hex
+    ${PROJECT_SOURCE_DIR}/sm/hexgrid)
+  target_compile_definitions(bezmatrix PUBLIC FLT=float)
+  add_test(bezmatrix bezmatrix)
 
-    # Testing matrix representation of Bezier curves
-    add_executable(bezmatrix bezmatrix.cpp)
-    target_sources(bezmatrix PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
-      FILES
-      ${PROJECT_SOURCE_DIR}/sm/range
-      ${PROJECT_SOURCE_DIR}/sm/random
-      ${PROJECT_SOURCE_DIR}/sm/vec
-      ${PROJECT_SOURCE_DIR}/sm/bezcoord
-      ${PROJECT_SOURCE_DIR}/sm/vvec
-      ${PROJECT_SOURCE_DIR}/sm/algo
-      ${PROJECT_SOURCE_DIR}/sm/nm_simplex
-      ${PROJECT_SOURCE_DIR}/sm/quaternion
-      ${PROJECT_SOURCE_DIR}/sm/mat
-      ${PROJECT_SOURCE_DIR}/sm/hex)
-    target_compile_definitions(bezmatrix PUBLIC FLT=float)
-    target_link_libraries(bezmatrix ${ARMADILLO_LIBRARY} ${ARMADILLO_LIBRARIES})
-    add_test(bezmatrix bezmatrix)
+  # Testing auto-fitting a Bezier curve
+  add_executable(bezfit bezfit.cpp)
+  target_sources(bezfit PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+    FILES
+    ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/random
+    ${PROJECT_SOURCE_DIR}/sm/vec
+    ${PROJECT_SOURCE_DIR}/sm/quaternion
+    ${PROJECT_SOURCE_DIR}/sm/mat
+    ${PROJECT_SOURCE_DIR}/sm/bezcoord
+    ${PROJECT_SOURCE_DIR}/sm/binomial
+    ${PROJECT_SOURCE_DIR}/sm/bezcurve
+    ${PROJECT_SOURCE_DIR}/sm/vvec
+    ${PROJECT_SOURCE_DIR}/sm/algo
+    ${PROJECT_SOURCE_DIR}/sm/nm_simplex)
+  target_compile_definitions(bezfit PUBLIC FLT=float)
+  add_test(bezfit bezfit)
 
-    # Testing auto-fitting a Bezier curve
-    add_executable(bezfit bezfit.cpp)
-    target_sources(bezfit PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
-      FILES
-      ${PROJECT_SOURCE_DIR}/sm/range
-      ${PROJECT_SOURCE_DIR}/sm/random
-      ${PROJECT_SOURCE_DIR}/sm/vec
-      ${PROJECT_SOURCE_DIR}/sm/bezcoord
-      ${PROJECT_SOURCE_DIR}/sm/vvec
-      ${PROJECT_SOURCE_DIR}/sm/algo
-      ${PROJECT_SOURCE_DIR}/sm/nm_simplex)
-    target_compile_definitions(bezfit PUBLIC FLT=float)
-    target_link_libraries(bezfit ${ARMADILLO_LIBRARY} ${ARMADILLO_LIBRARIES})
-    add_test(bezfit bezfit)
+  # Testing splitting of Bezier curves
+  add_executable(bezsplit bezsplit.cpp)
+  target_sources(bezsplit PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+    FILES
+    ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/random
+    ${PROJECT_SOURCE_DIR}/sm/vec
+    ${PROJECT_SOURCE_DIR}/sm/quaternion
+    ${PROJECT_SOURCE_DIR}/sm/mat
+    ${PROJECT_SOURCE_DIR}/sm/bezcoord
+    ${PROJECT_SOURCE_DIR}/sm/binomial
+    ${PROJECT_SOURCE_DIR}/sm/bezcurve
+    ${PROJECT_SOURCE_DIR}/sm/vvec
+    ${PROJECT_SOURCE_DIR}/sm/algo
+    ${PROJECT_SOURCE_DIR}/sm/nm_simplex)
+  target_compile_definitions(bezsplit PUBLIC FLT=float)
+  add_test(bezsplit bezsplit)
 
-    # Testing splitting of Bezier curves
-    add_executable(bezsplit bezsplit.cpp)
-    target_sources(bezsplit PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
-      FILES
-      ${PROJECT_SOURCE_DIR}/sm/range
-      ${PROJECT_SOURCE_DIR}/sm/random
-      ${PROJECT_SOURCE_DIR}/sm/vec
-      ${PROJECT_SOURCE_DIR}/sm/bezcoord
-      ${PROJECT_SOURCE_DIR}/sm/vvec
-      ${PROJECT_SOURCE_DIR}/sm/algo
-      ${PROJECT_SOURCE_DIR}/sm/nm_simplex)
-    target_compile_definitions(bezsplit PUBLIC FLT=float)
-    target_link_libraries(bezsplit ${ARMADILLO_LIBRARY} ${ARMADILLO_LIBRARIES})
-    add_test(bezsplit bezsplit)
-
-    # Test two curves connected together
-    add_executable(twocurves twocurves.cpp)
-    target_sources(twocurves PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
-      FILES
-      ${PROJECT_SOURCE_DIR}/sm/range
-      ${PROJECT_SOURCE_DIR}/sm/random
-      ${PROJECT_SOURCE_DIR}/sm/vec
-      ${PROJECT_SOURCE_DIR}/sm/bezcoord
-      ${PROJECT_SOURCE_DIR}/sm/vvec
-      ${PROJECT_SOURCE_DIR}/sm/algo
-      ${PROJECT_SOURCE_DIR}/sm/nm_simplex)
-    target_link_libraries(twocurves ${ARMADILLO_LIBRARY} ${ARMADILLO_LIBRARIES})
-    add_test(twocurves twocurves)
-  endif()
-
+  # Test two curves connected together
+  add_executable(twocurves twocurves.cpp)
+  target_sources(twocurves PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+    FILES
+    ${PROJECT_SOURCE_DIR}/sm/range
+    ${PROJECT_SOURCE_DIR}/sm/random
+    ${PROJECT_SOURCE_DIR}/sm/vec
+    ${PROJECT_SOURCE_DIR}/sm/quaternion
+    ${PROJECT_SOURCE_DIR}/sm/mat
+    ${PROJECT_SOURCE_DIR}/sm/bezcoord
+    ${PROJECT_SOURCE_DIR}/sm/binomial
+    ${PROJECT_SOURCE_DIR}/sm/bezcurve
+    ${PROJECT_SOURCE_DIR}/sm/vvec
+    ${PROJECT_SOURCE_DIR}/sm/algo
+    ${PROJECT_SOURCE_DIR}/sm/nm_simplex)
+  add_test(twocurves twocurves)
 endif()
 
 # Inserting into a list. error: conflicting declaration of template. on g++-14
-if(CMAKE_COMPILER_IS_GNUCXX AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 14.99)
+if((CMAKE_CXX_COMPILER_ID MATCHES "Clang") OR (CMAKE_COMPILER_IS_GNUCXX AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 14.99))
   add_executable(cartgrid1 cartgrid1.cpp)
   target_sources(cartgrid1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
     FILES

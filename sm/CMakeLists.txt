@@ -11,6 +11,7 @@ install(
   bezcurvepath
   bezcoord
   bezcurve
+  binomial
   bootstrap
   boxfilter
   cartgrid

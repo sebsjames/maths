@@ -9,8 +9,7 @@
  * \author Seb James
  * \date 2019-2020
  */
-
-#pragma once
+module;
 
 #include <cstdint>
 #include <limits>
@@ -23,18 +22,19 @@
 #include <cmath>
 #include <concepts>
 
-#include <sm/bezcurve>
+export module sm.bezcurvepath;
 
+export import sm.bezcurve;
+export import sm.bezcoord;
 import sm.vec;
-import sm.bezcoord;
 
-namespace sm
+export namespace sm
 {
     /*!
      * A class defining a path made up of Bezier curves. This has an initial position,
      * and then a list of curves that make up the path.
      */
-    template <typename F> requires std::is_floating_point_v<F>
+    template <typename F, uint32_t order = 3> requires std::is_floating_point_v<F>
     struct bezcurvepath
     {
         /*!
@@ -48,7 +48,7 @@ namespace sm
         sm::vec<F, 2> initialCoordinate = { F{0}, F{0} };
 
         //! A list of the bezcurves that make up the full bezcurvepath.
-        std::list<bezcurve<F>> curves;
+        std::list<bezcurve<F, order>> curves;
 
         //! A scaling factor that's used to convert the path into mm.
         F scale = F{1};
@@ -88,7 +88,7 @@ namespace sm
         {
             this->scale = s;
             this->initialCoordinate *= this->scale;
-            typename std::list<bezcurve<F>>::iterator i = this->curves.begin();
+            typename std::list<bezcurve<F, order>>::iterator i = this->curves.begin();
             while (i != this->curves.end()) {
                 i->setScale (this->scale);
                 ++i;
@@ -96,16 +96,12 @@ namespace sm
         }
 
         //! Add a curve to this->curves.
-        void addCurve (bezcurve<F>& c)
+        void addCurve (bezcurve<F, order>& c)
         {
-            if (c.getOrder() == 0) {
-                std::cout << "Not adding 0th order curve." << std::endl;
-            } else {
-                if (this->curves.empty()) {
-                    this->initialCoordinate = c.getInitialPointScaled();
-                }
-                this->curves.push_back (c);
+            if (this->curves.empty()) {
+                this->initialCoordinate = c.getInitialPointScaled();
             }
+            this->curves.push_back (c);
         }
 
         //! Remove a curve from this->curves.
@@ -122,7 +118,7 @@ namespace sm
             std::cout << "Initial coord: (" << this->initialCoordinate.first
                       << "," << this->initialCoordinate.second << ")" << std::endl;
             std::cout << "Number of curves: " << this->curves.size() << std::endl;
-            typename std::list<bezcurve<F>>::const_iterator i = this->curves.begin();
+            typename std::list<bezcurve<F, order>>::const_iterator i = this->curves.begin();
             while (i != this->curves.end()) {
                 std::cout << i->output(static_cast<uint32_t>(20));
                 ++i;
@@ -141,7 +137,7 @@ namespace sm
             std::string fname = this->name + ".csv";
             f.open (fname.c_str(), std::ios::out|std::ios::trunc);
             if (f.is_open()) {
-                typename std::list<bezcurve<F>>::const_iterator i = this->curves.begin();
+                typename std::list<bezcurve<F, order>>::const_iterator i = this->curves.begin();
                 // Don't forget to set the scaling factor in each
                 // bezcurve before generating points:
                 while (i != this->curves.end()) {
@@ -203,7 +199,7 @@ namespace sm
             this->tangents.push_back (tn0.first);
             this->normals.push_back (tn0.second);
 
-            typename std::list<bezcurve<F>>::const_iterator i = this->curves.begin();
+            typename std::list<bezcurve<F, order>>::const_iterator i = this->curves.begin();
             // Don't forget to set the scaling factor in each
             // bezcurve before generating points:
             F firstl = F{0};

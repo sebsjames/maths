@@ -19,7 +19,6 @@ module;
 #include <array>
 #include <cmath>
 #include <sm/mathconst>
-#include <sm/hexflags>
 
 export module sm.hex;
 
@@ -35,6 +34,82 @@ export import sm.vec;
 
 export namespace sm
 {
+    /*!
+     * Set true when ne has been set. Use of iterators (hex::ne etc) rather than pointers for
+     * neighbouring hexes means we can't do any kind of check to see if the iterator is valid, so we
+     * have to keep separate boolean flags for whether or not each hex has a neighbour. Those flags
+     * are kept in hex::flags.
+     */
+    constexpr uint32_t HEX_HAS_NE              = 0x1;
+    //! True when this hex has a Neighbour to the North East
+    constexpr uint32_t HEX_HAS_NNE             = 0x2;
+    //! True when this hex has a Neighbour to the North West
+    constexpr uint32_t HEX_HAS_NNW             = 0x4;
+    //! True when this hex has a Neighbour to the West
+    constexpr uint32_t HEX_HAS_NW              = 0x8;
+    //! True when this hex has a Neighbour to the South West
+    constexpr uint32_t HEX_HAS_NSW             = 0x10;
+    //! True when this hex has a Neighbour to the South East
+    constexpr uint32_t HEX_HAS_NSE             = 0x20;
+    //! A short cut for testing all the neighbour flags at once
+    constexpr uint32_t HEX_HAS_NEIGHB_ALL      = 0x3f; // HEX_HAS_NE | HEX_HAS_NNE | ...etc
+
+    //! All hexes marked as boundary hexes, including some that are additional to requirements:
+    constexpr uint32_t HEX_IS_BOUNDARY         = 0x40;
+    //! All hexes inside boundary plus as much of the boundary as needed to make a contiguous boundary:
+    constexpr uint32_t HEX_INSIDE_BOUNDARY     = 0x80;
+    //! All hexes inside the domain of computation:
+    constexpr uint32_t HEX_INSIDE_DOMAIN       = 0x100;
+    //! hex is a 'region boundary hex'. Regions are intended to be temporary to aid client code.
+    constexpr uint32_t HEX_IS_REGION_BOUNDARY  = 0x200;
+    //! hex is inside the region
+    constexpr uint32_t HEX_INSIDE_REGION       = 0x400;
+
+    //! Five unused flags pad the 'hexgrid' flags and the user flags
+    constexpr uint32_t HEX_UNUSED_FLAG_0 = 0x800;
+    constexpr uint32_t HEX_UNUSED_FLAG_1 = 0x1000;
+    constexpr uint32_t HEX_UNUSED_FLAG_2 = 0x2000;
+    constexpr uint32_t HEX_UNUSED_FLAG_3 = 0x4000;
+    constexpr uint32_t HEX_UNUSED_FLAG_4 = 0x8000;
+
+    //! Sixteen flags for client code to use for its own devices.
+    constexpr uint32_t HEX_USER_FLAG_0   = 0x00010000;
+    constexpr uint32_t HEX_USER_FLAG_1   = 0x00020000;
+    constexpr uint32_t HEX_USER_FLAG_2   = 0x00040000;
+    constexpr uint32_t HEX_USER_FLAG_3   = 0x00080000;
+    constexpr uint32_t HEX_USER_FLAG_4   = 0x00100000;
+    constexpr uint32_t HEX_USER_FLAG_5   = 0x00200000;
+    constexpr uint32_t HEX_USER_FLAG_6   = 0x00400000;
+    constexpr uint32_t HEX_USER_FLAG_7   = 0x00800000;
+    constexpr uint32_t HEX_USER_FLAG_8   = 0x01000000;
+    constexpr uint32_t HEX_USER_FLAG_9   = 0x02000000;
+    constexpr uint32_t HEX_USER_FLAG_10  = 0x04000000;
+    constexpr uint32_t HEX_USER_FLAG_11  = 0x08000000;
+    constexpr uint32_t HEX_USER_FLAG_12  = 0x10000000;
+    constexpr uint32_t HEX_USER_FLAG_13  = 0x20000000;
+    constexpr uint32_t HEX_USER_FLAG_14  = 0x40000000;
+    constexpr uint32_t HEX_USER_FLAG_15  = 0x80000000;
+    //! Four bits high: all user flags set
+    constexpr uint32_t HEX_ALL_USER      = 0xffff0000;
+    //! Bitmask for all the flags that aren't the 16 user flags.
+    constexpr uint32_t HEX_NON_USER      = 0x0000ffff;
+
+    //! Neighbour (or edge, or side) positions
+    constexpr uint32_t HEX_NEIGHBOUR_POS_E  = 0x0;
+    constexpr uint32_t HEX_NEIGHBOUR_POS_NE = 0x1;
+    constexpr uint32_t HEX_NEIGHBOUR_POS_NW = 0x2;
+    constexpr uint32_t HEX_NEIGHBOUR_POS_W  = 0x3;
+    constexpr uint32_t HEX_NEIGHBOUR_POS_SW = 0x4;
+    constexpr uint32_t HEX_NEIGHBOUR_POS_SE = 0x5;
+
+    //! Vertex positions
+    constexpr uint32_t HEX_VERTEX_POS_NE = 0x0;
+    constexpr uint32_t HEX_VERTEX_POS_N  = 0x1;
+    constexpr uint32_t HEX_VERTEX_POS_NW = 0x2;
+    constexpr uint32_t HEX_VERTEX_POS_SW = 0x3;
+    constexpr uint32_t HEX_VERTEX_POS_S  = 0x4;
+    constexpr uint32_t HEX_VERTEX_POS_SE = 0x5;
+
     /*!
      * Describes a regular hexagon arranged with vertices pointing vertically and two flat sides
      * perpendicular to the horizontal axis:

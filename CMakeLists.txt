@@ -115,11 +115,6 @@ if(HDF5_FOUND)
   include_directories(${HDF5_INCLUDE_DIR})
 endif()
 
-find_package(Armadillo)
-if(ARMADILLO_FOUND)
-  include_directories(${ARMADILLO_INCLUDE_DIR} ${ARMADILLO_INCLUDE_DIRS})
-endif()
-
 # Use packaged nlohmann json. Required only for config1 test and use of sm::config
 # find_package(nlohmann_json REQUIRED)
 
