@@ -34,63 +34,13 @@ export import sm.mat;
 export import sm.vvec;
 export import sm.vec;
 import sm.nm_simplex;
+import sm.binomial;
 
 export namespace sm
 {
     //! How many rows of Pascal's triangle to compute
-    constexpr uint32_t pascal_rows = 21;
-    constexpr uint32_t pascal_size = pascal_rows * (pascal_rows + 1) / 2;
-
-    /*!
-     * Return the first N rows of Pascal's triangle in a linear array. To get the
-     * values from row n, where n starts at 0 (and ends at N-1), you step along a number
-     * given by the triangle sequence (n(n+1)/2) and then read n+1 values. The triangle
-     * has a total number of elements given by N(N+1)/2, which for 21 rows is 21(22)/2 =
-     * 210.
-     *
-     * \tparam N number of rows in Pascal's triangle
-     */
-    template <uint64_t N>
-    constexpr std::array<uint64_t, (N * (N + 1u) / 2u)> make_pascals_triangle()
-    {
-        auto binomialNK = [](uint64_t n, uint64_t k)
-        {
-            uint64_t res = 1u;
-            k = (k > n - k) ? n - k : k;
-            for (uint64_t i = 0u; i < k; ++i) {
-                res *= (n - i);
-                res /= (i + 1u);
-            }
-            return res;
-        };
-
-        std::array<uint64_t, (N * (N + 1u) / 2u)> rtn;
-        uint64_t idx = 0u;
-        for (uint64_t row = 0u; row < N; row++) {
-            for (uint64_t i = 0u; i <= row; i++) {
-                rtn[idx++] = binomialNK (row, i);
-            }
-        }
-
-        return rtn;
-    }
-
-    constexpr std::array<uint64_t, pascal_size> Pascal = make_pascals_triangle<pascal_rows>();
-
-    /*!
-     * Look up the binomial coefficient (n,k) from sm::Pascal.
-     *
-     * To get the values from row n, where n starts at 0 (and ends at N-1), you step
-     * along a number given by the triangle sequence (n(n+1)/2) and then read n+1
-     * values. OR to get n,k, step along a number given by the triangle sequence
-     * (n(n+1)/2) and then step another k space to the result.
-     */
-    constexpr uint64_t binomial_lookup (const uint64_t n, const uint64_t k)
-    {
-        uint64_t idx = (n * (n + 1u) / 2u) + k;
-        if (idx >= sm::pascal_size) { return std::numeric_limits<uint64_t>::max(); }
-        return sm::Pascal[idx];
-    }
+    constexpr uint64_t pt_rows = 21;
+    constexpr std::array<uint64_t, sm::binomial::pascal_size<pt_rows>()> pt = sm::binomial::make_pascals_triangle<pt_rows>();
 
     /*!
      * A Bezier curve class which allows the computation of Cartesian coordinates (though with x
@@ -602,8 +552,6 @@ export namespace sm
                 deriv_cp.set_row (i, drow);
             }
             return deriv_cp;
-            //sm::bezcurve<F, order - 1u> bcrtn (deriv_cp);
-            //return bcrtn;
         }
 
         /*!
@@ -624,7 +572,7 @@ export namespace sm
             for (uint32_t i = 0; i < n; ++i) {
                 sign = sign0;
                 for (uint32_t j = 0; j <= i; ++j) {
-                    F binom = static_cast<F>(sm::binomial_lookup(i, j));
+                    F binom = sm::binomial::lookup<pt_rows, F>(i, j, sm::pt);
                     Q(i,j) = sign * binom * std::pow(z, j) * std::pow (zp, i - j);
                     sign = sign > F{0} ? F{-1} : F{1};
                 }
@@ -752,7 +700,7 @@ export namespace sm
             // x
             b[0] = std::pow(t_, order) * this->C(0,0);
             for(uint32_t k=1; k<order; k++) {
-                b[0] += static_cast<F> (sm::binomial_lookup(order, k))
+                b[0] += sm::binomial::lookup<pt_rows, F>(order, k, sm::pt)
                     * std::pow (t_, order-k) * std::pow (t, k) * this->C(k,0);
             }
             b[0] += std::pow (t, order) * this->C(order,0);
@@ -760,7 +708,7 @@ export namespace sm
             // y
             b[1] = std::pow(t_, order) * this->C(0,1);
             for (uint32_t k=1; k<order; k++) {
-                b[1] += static_cast<F> (sm::binomial_lookup(order, k))
+                b[1] += sm::binomial::lookup<pt_rows, F>(order, k, sm::pt)
                     * std::pow (t_, order-k) * std::pow (t, k) * this->C(k,1);
             }
             b[1] += std::pow(t, order) * this->C(order,1);
@@ -1219,16 +1167,16 @@ export namespace sm
         sm::mat<F, order + 1u> matrixSetup_M()
         {
             // Check order here
-            static_assert (order + 1u - 1 < sm::pascal_rows, "This code is limited to Bezier Curves of order pascal_rows - 1 "
-                           "by the current size of the sm::Pascal lookup table (fix with a constexpr function to generate Pascal's triangle");
+            static_assert (order + 1u - 1 < sm::pt_rows, "This code is limited to Bezier Curves of order pt_rows - 1 "
+                           "by the current size of the sm::pt lookup table (hint: change pt_rows to allow this order)");
             sm::mat<F, order + 1u> _M;
             _M.set_zero();
 
             uint32_t r = 0;
             for (uint32_t i = 0; i < order + 1u; ++i) { // i is column
                 for (r = 0; r < order + 1u - i; ++r) { // r is row
-                    F element = static_cast<F>(sm::binomial_lookup (order, i))
-                    * static_cast<F>(sm::binomial_lookup (order - i, order - i - r))
+                    F element = sm::binomial::lookup<pt_rows, F>(order, i, sm::pt)
+                    * sm::binomial::lookup<pt_rows, F>(order - i, order - i - r, sm::pt)
                     * std::pow (F{-1}, static_cast<F>(order - i - r));
                     // Ensure the matrix is inverted 'm - i', not just 'i'
                     _M(order - i, r) = element;

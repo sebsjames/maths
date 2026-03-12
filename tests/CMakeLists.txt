@@ -16,6 +16,7 @@ set_source_files_properties (
   ${PROJECT_SOURCE_DIR}/sm/hex
   ${PROJECT_SOURCE_DIR}/sm/hexgrid
   ${PROJECT_SOURCE_DIR}/sm/bezcoord
+  ${PROJECT_SOURCE_DIR}/sm/binomial
   ${PROJECT_SOURCE_DIR}/sm/bezcurve
   ${PROJECT_SOURCE_DIR}/sm/bezcurvepath
   ${PROJECT_SOURCE_DIR}/sm/winder
@@ -1007,6 +1008,7 @@ if((CMAKE_CXX_COMPILER_ID MATCHES "Clang") OR (CMAKE_COMPILER_IS_GNUCXX AND CMAK
     ${PROJECT_SOURCE_DIR}/sm/random
     ${PROJECT_SOURCE_DIR}/sm/vec
     ${PROJECT_SOURCE_DIR}/sm/bezcoord
+    ${PROJECT_SOURCE_DIR}/sm/binomial
     ${PROJECT_SOURCE_DIR}/sm/bezcurve
     ${PROJECT_SOURCE_DIR}/sm/vvec
     ${PROJECT_SOURCE_DIR}/sm/algo
@@ -1026,6 +1028,7 @@ target_sources(bez2 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   ${PROJECT_SOURCE_DIR}/sm/quaternion
   ${PROJECT_SOURCE_DIR}/sm/mat
   ${PROJECT_SOURCE_DIR}/sm/bezcoord
+  ${PROJECT_SOURCE_DIR}/sm/binomial
   ${PROJECT_SOURCE_DIR}/sm/bezcurve
   ${PROJECT_SOURCE_DIR}/sm/bezcurvepath
   ${PROJECT_SOURCE_DIR}/sm/hex
@@ -1047,6 +1050,7 @@ if((CMAKE_CXX_COMPILER_ID MATCHES "Clang") OR (CMAKE_COMPILER_IS_GNUCXX AND CMAK
     ${PROJECT_SOURCE_DIR}/sm/quaternion
     ${PROJECT_SOURCE_DIR}/sm/mat
     ${PROJECT_SOURCE_DIR}/sm/bezcoord
+    ${PROJECT_SOURCE_DIR}/sm/binomial
     ${PROJECT_SOURCE_DIR}/sm/bezcurve
     ${PROJECT_SOURCE_DIR}/sm/bezcurvepath
     ${PROJECT_SOURCE_DIR}/sm/vvec
@@ -1062,6 +1066,7 @@ if((CMAKE_CXX_COMPILER_ID MATCHES "Clang") OR (CMAKE_COMPILER_IS_GNUCXX AND CMAK
     ${PROJECT_SOURCE_DIR}/sm/random
     ${PROJECT_SOURCE_DIR}/sm/vec
     ${PROJECT_SOURCE_DIR}/sm/bezcoord
+    ${PROJECT_SOURCE_DIR}/sm/binomial
     ${PROJECT_SOURCE_DIR}/sm/bezcurve
     ${PROJECT_SOURCE_DIR}/sm/bezcurvepath
     ${PROJECT_SOURCE_DIR}/sm/vvec
@@ -1084,6 +1089,7 @@ if((CMAKE_CXX_COMPILER_ID MATCHES "Clang") OR (CMAKE_COMPILER_IS_GNUCXX AND CMAK
     ${PROJECT_SOURCE_DIR}/sm/quaternion
     ${PROJECT_SOURCE_DIR}/sm/mat
     ${PROJECT_SOURCE_DIR}/sm/bezcoord
+    ${PROJECT_SOURCE_DIR}/sm/binomial
     ${PROJECT_SOURCE_DIR}/sm/bezcurve
     ${PROJECT_SOURCE_DIR}/sm/vvec
     ${PROJECT_SOURCE_DIR}/sm/algo
@@ -1101,6 +1107,7 @@ if((CMAKE_CXX_COMPILER_ID MATCHES "Clang") OR (CMAKE_COMPILER_IS_GNUCXX AND CMAK
     ${PROJECT_SOURCE_DIR}/sm/quaternion
     ${PROJECT_SOURCE_DIR}/sm/mat
     ${PROJECT_SOURCE_DIR}/sm/bezcoord
+    ${PROJECT_SOURCE_DIR}/sm/binomial
     ${PROJECT_SOURCE_DIR}/sm/bezcurve
     ${PROJECT_SOURCE_DIR}/sm/vvec
     ${PROJECT_SOURCE_DIR}/sm/algo
@@ -1118,6 +1125,7 @@ if((CMAKE_CXX_COMPILER_ID MATCHES "Clang") OR (CMAKE_COMPILER_IS_GNUCXX AND CMAK
     ${PROJECT_SOURCE_DIR}/sm/quaternion
     ${PROJECT_SOURCE_DIR}/sm/mat
     ${PROJECT_SOURCE_DIR}/sm/bezcoord
+    ${PROJECT_SOURCE_DIR}/sm/binomial
     ${PROJECT_SOURCE_DIR}/sm/bezcurve
     ${PROJECT_SOURCE_DIR}/sm/vvec
     ${PROJECT_SOURCE_DIR}/sm/algo
