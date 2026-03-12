@@ -36,12 +36,6 @@ export import sm.hex;
 import sm.vvec;
 import sm.mat;
 
-// If the hexgrid::save and hexgrid::load methods are required, define
-// HEXGRID_COMPILE_LOAD_AND_SAVE. A link to libhdf5 will be required in your program.
-#ifdef HEXGRID_COMPILE_LOAD_AND_SAVE
-import sm.hdfdata;
-#endif
-
 export namespace sm
 {
     /*!
@@ -247,236 +241,11 @@ export namespace sm
         int32_t nsw (const uint32_t hi) const { return this->d_nsw[hi]; }
         int32_t has_nsw (const uint32_t hi) const { return this->d_nsw[hi] == -1 ? false : true; }
 
-#ifdef HEXGRID_COMPILE_LOAD_AND_SAVE
-        /*!
-         * Save this hexgrid (and all the hexes in it) into the HDF5 file at the
-         * location @path.
-         */
-        void save (const std::string& path)
-        {
-            sm::hdfdata hgdata (path, std::ios::out | std::ios::trunc);
-            hgdata.add_val ("/d", d);
-            hgdata.add_val ("/v", v);
-            hgdata.add_val ("/x_span", x_span);
-            hgdata.add_val ("/z", z);
-            hgdata.add_val ("/d_rowlen", d_rowlen);
-            hgdata.add_val ("/d_numrows", d_numrows);
-            hgdata.add_val ("/d_size", d_size);
-            hgdata.add_val ("/d_growthbuffer_horz", d_growthbuffer_horz);
-            hgdata.add_val ("/d_growthbuffer_vert", d_growthbuffer_vert);
-
-            // sm::vec<float, 2>
-            hgdata.add_contained_vals ("/boundaryCentroid", boundaryCentroid);
-
-            // Don't save bezcurvepath boundary - limit this to the ability to
-            // save which hexes are boundary hexes and which aren't
-
-            // Don't save vertexE, vertexNE etc. Make sure to set gridReduced
-            // = true when calling load()
-
-            // vector<float>
-            hgdata.add_contained_vals ("/d_x", d_x);
-            hgdata.add_contained_vals ("/d_y", d_y);
-            hgdata.add_contained_vals ("/d_distToBoundary", d_distToBoundary);
-            // vector<int32_t>
-            hgdata.add_contained_vals ("/d_ri", d_ri);
-            hgdata.add_contained_vals ("/d_gi", d_gi);
-            hgdata.add_contained_vals ("/d_bi", d_bi);
-
-            hgdata.add_contained_vals ("/d_ne", d_ne);
-            hgdata.add_contained_vals ("/d_nne", d_nne);
-            hgdata.add_contained_vals ("/d_nnw", d_nnw);
-            hgdata.add_contained_vals ("/d_nw", d_nw);
-            hgdata.add_contained_vals ("/d_nsw", d_nsw);
-            hgdata.add_contained_vals ("/d_nse", d_nse);
-
-            // vector<uint32_t>
-            hgdata.add_contained_vals ("/d_flags", d_flags);
-
-            // list<hex> hexen
-            // for i in list, save hex
-            std::list<sm::hex>::const_iterator h = this->hexen.begin();
-            uint32_t hcount = 0;
-            while (h != this->hexen.end()) {
-                // Make up a path
-                std::string h5path = "/hexen/" + std::to_string(hcount);
-                h->save (hgdata, h5path);
-                ++h;
-                ++hcount;
-            }
-            hgdata.add_val ("/hcount", hcount);
-
-            // What about vhexen? Probably don't save and re-call method to populate.
-            this->renumberVectorIndices();
-
-            // What about bhexen? Probably re-run/test this->boundaryContiguous() on load.
-            this->boundaryContiguous();
-        }
-
-        /*!
-         * Populate this hexgrid from the HDF5 file at the location @path.
-         */
-        void load (const std::string& path)
-        {
-            sm::hdfdata hgdata (path, std::ios::in);
-            hgdata.read_val ("/d", this->d);
-            hgdata.read_val ("/v", this->v);
-            hgdata.read_val ("/x_span", this->x_span);
-            hgdata.read_val ("/z", this->z);
-            hgdata.read_val ("/d_rowlen", this->d_rowlen);
-            hgdata.read_val ("/d_numrows", this->d_numrows);
-            hgdata.read_val ("/d_size", this->d_size);
-            hgdata.read_val ("/d_growthbuffer_horz", this->d_growthbuffer_horz);
-            hgdata.read_val ("/d_growthbuffer_vert", this->d_growthbuffer_vert);
-
-            hgdata.read_contained_vals ("/boundaryCentroid", this->boundaryCentroid);
-            hgdata.read_contained_vals ("/d_x", this->d_x);
-            hgdata.read_contained_vals ("/d_y", this->d_y);
-            hgdata.read_contained_vals ("/d_distToBoundary", this->d_distToBoundary);
-            hgdata.read_contained_vals ("/d_ri", this->d_ri);
-            hgdata.read_contained_vals ("/d_gi", this->d_gi);
-            hgdata.read_contained_vals ("/d_bi", this->d_bi);
-            hgdata.read_contained_vals ("/d_ne", this->d_ne);
-            hgdata.read_contained_vals ("/d_nne", this->d_nne);
-            hgdata.read_contained_vals ("/d_nnw", this->d_nnw);
-            hgdata.read_contained_vals ("/d_nw", this->d_nw);
-            hgdata.read_contained_vals ("/d_nsw", this->d_nsw);
-            hgdata.read_contained_vals ("/d_nse", this->d_nse);
-            hgdata.read_contained_vals ("/d_flags", this->d_flags);
-
-            // Assume a boundary has been applied so set this true. Also, the hexgrid::save method doesn't
-            // save hexgrid::vertexE, etc
-            this->gridReduced = true;
-
-            uint32_t hcount = 0;
-            hgdata.read_val ("/hcount", hcount);
-            for (uint32_t i = 0; i < hcount; ++i) {
-                std::string h5path = "/hexen/" + std::to_string(i);
-                sm::hex h (hgdata, h5path);
-                this->hexen.push_back (h);
-            }
-
-            // After creating hexen list, need to set neighbour relations in each hex, as loaded in d_ne,
-            // etc.
-            for (sm::hex& _h : this->hexen) {
-                // Set neighbours for hex " << _h.outputRG()
-                // For each hex, six loops through hexen:
-                if (_h.has_ne() == true) {
-                    bool matched = false;
-                    uint32_t neighb_it = (uint32_t) this->d_ne[_h.vi];
-                    std::list<sm::hex>::iterator hi = this->hexen.begin();
-                    while (hi != this->hexen.end()) {
-                        if (hi->vi == neighb_it) {
-                            matched = true;
-                            _h.ne = hi;
-                            break;
-                        }
-                        ++hi;
-                    }
-                    if (!matched) {
-                        throw std::runtime_error ("Failed to match hexen neighbour E relation...");
-                    }
-                }
-
-                if (_h.has_nne() == true) {
-                    bool matched = false;
-                    uint32_t neighb_it = (uint32_t) this->d_nne[_h.vi];
-                    std::list<sm::hex>::iterator hi = this->hexen.begin();
-                    while (hi != this->hexen.end()) {
-                        if (hi->vi == neighb_it) {
-                            matched = true;
-                            _h.nne = hi;
-                            break;
-                        }
-                        ++hi;
-                    }
-                    if (!matched) {
-                        throw std::runtime_error ("Failed to match hexen neighbour NE relation...");
-                    }
-                }
-
-                if (_h.has_nnw() == true) {
-                    bool matched = false;
-                    uint32_t neighb_it = (uint32_t) this->d_nnw[_h.vi];
-                    std::list<sm::hex>::iterator hi = this->hexen.begin();
-                    while (hi != this->hexen.end()) {
-                        if (hi->vi == neighb_it) {
-                            matched = true;
-                            _h.nnw = hi;
-                            break;
-                        }
-                        ++hi;
-                    }
-                    if (!matched) {
-                        throw std::runtime_error ("Failed to match hexen neighbour NW relation...");
-                    }
-                }
-
-                if (_h.has_nw() == true) {
-                    bool matched = false;
-                    uint32_t neighb_it = (uint32_t) this->d_nw[_h.vi];
-                    std::list<sm::hex>::iterator hi = this->hexen.begin();
-                    while (hi != this->hexen.end()) {
-                        if (hi->vi == neighb_it) {
-                            matched = true;
-                            _h.nw = hi;
-                            break;
-                        }
-                        ++hi;
-                    }
-                    if (!matched) {
-                        throw std::runtime_error ("Failed to match hexen neighbour W relation...");
-                    }
-                }
-
-                if (_h.has_nsw() == true) {
-                    bool matched = false;
-                    uint32_t neighb_it = (uint32_t) this->d_nsw[_h.vi];
-                    std::list<sm::hex>::iterator hi = this->hexen.begin();
-                    while (hi != this->hexen.end()) {
-                        if (hi->vi == neighb_it) {
-                            matched = true;
-                            _h.nsw = hi;
-                            break;
-                        }
-                        ++hi;
-                    }
-                    if (!matched) {
-                        throw std::runtime_error ("Failed to match hexen neighbour SW relation...");
-                    }
-                }
-
-                if (_h.has_nse() == true) {
-                    bool matched = false;
-                    uint32_t neighb_it = (uint32_t) this->d_nse[_h.vi];
-                    std::list<sm::hex>::iterator hi = this->hexen.begin();
-                    while (hi != this->hexen.end()) {
-                        if (hi->vi == neighb_it) {
-                            matched = true;
-                            _h.nse = hi;
-                            break;
-                        }
-                        ++hi;
-                    }
-                    if (!matched) {
-                        throw std::runtime_error ("Failed to match hexen neighbour SE relation...");
-                    }
-                }
-            }
-        }
-#endif // HEXGRID_COMPILE_LOAD_AND_SAVE
-
         /*!
          * Default constructor
          */
         hexgrid(): d(1.0f), x_span(1.0f), z(0.0f) {}
 
-#ifdef HEXGRID_COMPILE_LOAD_AND_SAVE
-        /*!
-         * Construct then load from file.
-         */
-        hexgrid (const std::string& path) : d(1.0f), x_span(1.0f), z(0.0f) { this->load (path); }
-#endif
         /*!
          * Construct the hexagonal hex grid with a hex to hex distance of @a d_
          * (centre to centre) and approximate diameter of @a x_span_. Set z to @a z_
@@ -3636,9 +3405,6 @@ export namespace sm
             // boundary hex is reached.
             std::list<sm::hex>::iterator straight = first_inside;
 
-#ifdef DO_WARNINGS
-            bool warning_given = false;
-#endif
             while (straight->testFlags(bdryFlag) == false) {
                 // Set insideBoundary true
                 straight->setFlag (insideFlag);
@@ -3646,16 +3412,7 @@ export namespace sm
                     straight = straight->get_neighbour (firsti);
                 } else {
                     // no further neighbour in this direction
-                    if (straight->testFlags(bdryFlag) == false) {
-#ifdef DO_WARNINGS
-                        if (!warning_given) {
-                            std::cerr << "WARNING: Got to edge of region (dirn " << firsti
-                                      << ") without encountering a boundary hex.\n";
-                            warning_given = true;
-                        }
-#endif
-                        break;
-                    }
+                    if (straight->testFlags(bdryFlag) == false) { break; }
                 }
             }
         }
@@ -3992,14 +3749,6 @@ export namespace sm
             rtn[1] = (int)(limits[1] / d_ri);
             rtn[2] = (int)(limits[2] / d_gi);
             rtn[3] = (int)(limits[3] / d_gi);
-
-#if 0
-            // Add any 'growth buffer', in case boundary expected to change? I think this is old thinking and maybe not relevant?
-            rtn[0] -= this->d_growthbuffer_horz;
-            rtn[1] += this->d_growthbuffer_horz;
-            rtn[2] -= this->d_growthbuffer_vert;
-            rtn[3] += this->d_growthbuffer_vert;
-#endif
             return rtn;
         }
 
@@ -4019,6 +3768,7 @@ export namespace sm
             }
         }
 
+    public:
         /*!
          * The centre to centre hex distance between adjacent members of the hex grid.
          */

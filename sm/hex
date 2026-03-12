@@ -22,14 +22,7 @@ module;
 
 export module sm.hex;
 
-// If the hexgrid::save and hexgrid::load methods are required, define
-// HEXGRID_COMPILE_LOAD_AND_SAVE. A link to libhdf5 will be required in your program.
-#ifdef HEXGRID_COMPILE_LOAD_AND_SAVE
-import sm.hdfdata;
-#endif
-
 export import sm.bezcoord;
-
 export import sm.vec;
 
 export namespace sm
@@ -145,6 +138,7 @@ export namespace sm
     class hex
     {
     public:
+        hex() {}
         /*!
          * Constructor taking index, dimension and integer position indices. Computes Cartesian
          * location from these.
@@ -158,10 +152,6 @@ export namespace sm
             this->computeLocation();
         }
 
-#ifdef HEXGRID_COMPILE_LOAD_AND_SAVE
-        //! Construct using the passed in HDF5 file and path.
-        hex (hdfdata& h5data, const std::string& h5path) { this->load (h5data, h5path); }
-#endif
         //! Comparison operation to enable use of set<hex>
         bool operator< (const hex& rhs) const
         {
@@ -175,74 +165,6 @@ export namespace sm
             return false; // no need for vi > rhs.vi test
         }
 
-#ifdef HEXGRID_COMPILE_LOAD_AND_SAVE
-        /*!
-         * Save the data for this hex into the already open hdfdata object @h5data in the path
-         * @h5path.
-         */
-        void save (hdfdata& h5data, const std::string& h5path) const
-        {
-            std::string dpath = h5path + "/vi";
-            h5data.add_val (dpath.c_str(), this->vi);
-            dpath = h5path + "/di";
-            h5data.add_val (dpath.c_str(), this->di);
-            dpath = h5path + "/x";
-            h5data.add_val (dpath.c_str(), this->x);
-            dpath = h5path + "/y";
-            h5data.add_val (dpath.c_str(), this->y);
-            dpath = h5path + "/z";
-            h5data.add_val (dpath.c_str(), this->z);
-            dpath = h5path + "/r";
-            h5data.add_val (dpath.c_str(), this->r);
-            dpath = h5path + "/phi";
-            h5data.add_val (dpath.c_str(), this->phi);
-            dpath = h5path + "/d";
-            h5data.add_val (dpath.c_str(), this->d);
-            dpath = h5path + "/ri";
-            h5data.add_val (dpath.c_str(), this->ri);
-            dpath = h5path + "/gi";
-            h5data.add_val (dpath.c_str(), this->gi);
-            dpath = h5path + "/bi";
-            h5data.add_val (dpath.c_str(), this->bi);
-            dpath = h5path + "/distToBoundary";
-            h5data.add_val (dpath.c_str(), this->distToBoundary);
-            dpath = h5path + "/flags";
-            h5data.add_val (dpath.c_str(), this->flags);
-        }
-
-        //! Load the data for this hex from a sm::hdfdata file
-        void load (hdfdata& h5data, const std::string& h5path)
-        {
-            std::string dpath = h5path + "/vi";
-            h5data.read_val (dpath.c_str(), this->vi);
-            dpath = h5path + "/di";
-            h5data.read_val (dpath.c_str(), this->di);
-            dpath = h5path + "/x";
-            h5data.read_val (dpath.c_str(), this->x);
-            dpath = h5path + "/y";
-            h5data.read_val (dpath.c_str(), this->y);
-            dpath = h5path + "/z";
-            h5data.read_val (dpath.c_str(), this->z);
-            dpath = h5path + "/r";
-            h5data.read_val (dpath.c_str(), this->r);
-            dpath = h5path + "/phi";
-            h5data.read_val (dpath.c_str(), this->phi);
-            dpath = h5path + "/d";
-            h5data.read_val (dpath.c_str(), this->d);
-            dpath = h5path + "/ri";
-            h5data.read_val (dpath.c_str(), this->ri);
-            dpath = h5path + "/gi";
-            h5data.read_val (dpath.c_str(), this->gi);
-            dpath = h5path + "/bi";
-            h5data.read_val (dpath.c_str(), this->bi);
-            dpath = h5path + "/distToBoundary";
-            h5data.read_val (dpath.c_str(), this->distToBoundary);
-            uint32_t flgs = 0;
-            dpath = h5path + "/flags";
-            h5data.read_val (dpath.c_str(), flgs);
-            this->flags = flgs;
-        }
-#endif
         /*!
          * Produce a string containing information about this hex, showing grid location in
          * dimensionless r,g (but not b) units. Also show nearest neighbours.
@@ -406,7 +328,7 @@ export namespace sm
          * some hex elements?  Simple - I can re-set the vi indices after creating a grid of hex
          * elements and then pruning down.
          */
-        uint32_t vi;
+        uint32_t vi = 0;
 
         /*!
          * This is the index into the d_ vectors in hexgrid which can be used to find
@@ -918,42 +840,12 @@ export namespace sm
         //! Un-set the pointers on all my neighbours so that THEY no longer point to ME.
         void disconnectNeighbours()
         {
-#if 0
-            // FIXME Could be 6 stanzas like this to avoid the nested ifs
-            if ((this->flags & (HEX_HAS_NE | HEX_HAS_NW)) == (HEX_HAS_NE | HEX_HAS_NW)) {
-                this->ne->unset_nw();
-            }
-#endif
-            if (this->has_ne()) {
-                if (this->ne->has_nw()) {
-                    this->ne->unset_nw();
-                }
-            }
-            if (this->has_nne()) {
-                if (this->nne->has_nsw()) {
-                    this->nne->unset_nsw();
-                }
-            }
-            if (this->has_nnw()) {
-                if (this->nnw->has_nse()) {
-                    this->nnw->unset_nse();
-                }
-            }
-            if (this->has_nw()) {
-                if (this->nw->has_ne()) {
-                    this->nw->unset_ne();
-                }
-            }
-            if (this->has_nsw()) {
-                if (this->nsw->has_nne()) {
-                    this->nsw->unset_nne();
-                }
-            }
-            if (this->has_nse()) {
-                if (this->nse->has_nnw()) {
-                    this->nse->unset_nnw();
-                }
-            }
+            if (this->has_ne())  { if (this->ne->has_nw())   { this->ne->unset_nw(); } }
+            if (this->has_nne()) { if (this->nne->has_nsw()) { this->nne->unset_nsw(); } }
+            if (this->has_nnw()) { if (this->nnw->has_nse()) { this->nnw->unset_nse(); } }
+            if (this->has_nw())  { if (this->nw->has_ne())   { this->nw->unset_ne(); } }
+            if (this->has_nsw()) { if (this->nsw->has_nne()) { this->nsw->unset_nne(); } }
+            if (this->has_nse()) { if (this->nse->has_nnw()) { this->nse->unset_nnw(); } }
         }
 
         /*
@@ -973,7 +865,6 @@ export namespace sm
         //! Nearest neighbour to the SouthEast; in the minus b direction.
         std::list<hex>::iterator nse;
 
-    private:
         //! The flags for this hex.
         uint32_t flags = 0x0;
     };

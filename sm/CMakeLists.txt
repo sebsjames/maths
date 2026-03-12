@@ -28,6 +28,7 @@ install(
   hex
   hexflags
   hexgrid
+  hexgrid_hdf
   hexyhisto
   histo
   mat
