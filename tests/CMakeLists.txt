@@ -59,6 +59,7 @@ add_test(range_adding range_adding)
 
 # sm::range
 add_executable(range1 range1.cpp)
+target_compile_features(range1 PUBLIC   cxx_std_23)
 target_sources(range1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
   ${PROJECT_SOURCE_DIR}/sm/mathconst

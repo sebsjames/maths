@@ -1,12 +1,23 @@
-cmake_minimum_required(VERSION 3.28.5)
+# 3.28.5 for basic C++20 modules; 3.30 to give access to import std;
+cmake_minimum_required(VERSION 3.30)
+
+# This specific value changes as experimental support evolves. See
+# `Help/dev/experimental.rst` in the CMake source corresponding to
+# your CMake build for the exact value to use.
+# This value is ok for cmake versions from 3.31.11 up to 4.2.3 (Seb)
+set(CMAKE_EXPERIMENTAL_CXX_IMPORT_STD "d0edc3af-4c50-42ea-a356-e2862fe7a444")
+
 project(maths LANGUAGES CXX)
 
 message(STATUS "Install prefix: ${CMAKE_INSTALL_PREFIX}")
 message(STATUS "  (This can be changed with `cmake -DCMAKE_INSTALL_PREFIX=/some/place`")
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+# Tell CMake that we explicitly want `import std`. This will initialize the
+# property on all targets declared after this to 1
+set(CMAKE_CXX_MODULE_STD 1)
 
 # Add cmake directory to cmake modules path
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
