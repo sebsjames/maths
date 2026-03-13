@@ -42,9 +42,10 @@ The namespace is just `sm` (I like short namespaces for frequently used types).
 Here's an example
 
 ```c++
-#include <sm/mathconst>
-#include <sm/vec>
-#include <sm/quaternion>
+import sm.mathconst;
+import sm.vec;
+import sm.quaternion;
+import sm.mat;
 
 int main()
 {
@@ -61,6 +62,11 @@ int main()
     sm::vec<float, 3> v1_rotated = q1 * v1;
 
     std::cout << v1 << " rotated pi/2 about x-axis is " << v1_rotated << "\n";
+
+    // Make a rotation matrix that encodes the rotation from the quaternion
+    sm::mat<float, 4, 4> rmat (q1);
+
+    std::cout << "Rotation matrix:\n" << rmat << "\n";
 }
 ```
 

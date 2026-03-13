@@ -78,6 +78,13 @@ export namespace sm
             this->arr[14] = F{0};
             this->arr[15] = F{1};
         }
+        //! Construct a 4x4 transform matrix from a quaternion rotation
+        template<typename Fy = F> requires (Nr == 4) && (Nc == 4)
+        constexpr mat (const sm::quaternion<Fy>& q) noexcept
+        {
+            this->set_identity();
+            this->rotate (q);
+        }
         //! Initializer list construction
         constexpr mat (std::initializer_list<F> other) noexcept
         {

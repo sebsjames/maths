@@ -641,6 +641,18 @@ target_sources(mat_4x4_translate PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT
   ${PROJECT_SOURCE_DIR}/sm/mat)
 add_test(mat_4x4_translate mat_4x4_translate)
 
+add_executable(mat_4x4_rotation mat_4x4_rotation.cpp)
+target_sources(mat_4x4_rotation PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
+  ${PROJECT_SOURCE_DIR}/sm/random
+  ${PROJECT_SOURCE_DIR}/sm/vec
+  ${PROJECT_SOURCE_DIR}/sm/quaternion
+  ${PROJECT_SOURCE_DIR}/sm/mat)
+add_test(mat_4x4_rotation mat_4x4_rotation)
+
 add_executable(mat_4x4_basic mat_4x4_basic.cpp)
 target_sources(mat_4x4_basic PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
