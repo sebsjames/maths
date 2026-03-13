@@ -11,9 +11,9 @@
 ![cmake mac 15 build test](https://github.com/sebsjames/maths/actions/workflows/cmake-mac-15.yml/badge.svg)
 ![cmake windows 22 build test](https://github.com/sebsjames/maths/actions/workflows/cmake-windows-2022.yml/badge.svg)
 
-## A mathematics library for modern C++
+## A modules-native mathematics library for modern C++
 
-This header-only library is intended to help you to write maths into
+This C++ modules-native library is intended to help you to write maths into
 your C++ in simple, readable and comprehensible code.
 
 It provides:
@@ -72,7 +72,7 @@ int main()
 
 ## Build requirements
 
-Minimum compilers: g++-14, clang++-18, Visual Studio Something.
+Minimum compilers: g++-14*, clang++-18, Visual Studio Something.
 You will need cmake version 3.28.5 as a minimum.
 Ninja is required as a partner for cmake, as make does not yet support C++-20 modules.
 
@@ -80,3 +80,5 @@ Installing clang on Ubuntu:
 ```bash
 sudo apt install clang-18 clang-tools-18 # need both.
 ```
+
+* * gcc 14 can only compile a subset of the test programs. gcc 15 compiles all the tests. gcc 16 may be required to compile the modules version of mathplot.*
