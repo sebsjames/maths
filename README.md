@@ -11,9 +11,9 @@
 ![cmake mac 15 build test](https://github.com/sebsjames/maths/actions/workflows/cmake-mac-15.yml/badge.svg)
 ![cmake windows 22 build test](https://github.com/sebsjames/maths/actions/workflows/cmake-windows-2022.yml/badge.svg)
 
-## A mathematics library for modern C++
+## A modules-native mathematics library for modern C++
 
-This header-only library is intended to help you to write maths into
+This C++ modules-native library is intended to help you to write maths into
 your C++ in simple, readable and comprehensible code.
 
 It provides:
@@ -42,9 +42,10 @@ The namespace is just `sm` (I like short namespaces for frequently used types).
 Here's an example
 
 ```c++
-#include <sm/mathconst>
-#include <sm/vec>
-#include <sm/quaternion>
+import sm.mathconst;
+import sm.vec;
+import sm.quaternion;
+import sm.mat;
 
 int main()
 {
@@ -61,12 +62,17 @@ int main()
     sm::vec<float, 3> v1_rotated = q1 * v1;
 
     std::cout << v1 << " rotated pi/2 about x-axis is " << v1_rotated << "\n";
+
+    // Make a rotation matrix that encodes the rotation from the quaternion
+    sm::mat<float, 4, 4> rmat (q1);
+
+    std::cout << "Rotation matrix:\n" << rmat << "\n";
 }
 ```
 
 ## Build requirements
 
-Minimum compilers: g++-14, clang++-18, Visual Studio Something.
+Minimum compilers: g++-14*, clang++-18, Visual Studio Something.
 You will need cmake version 3.28.5 as a minimum.
 Ninja is required as a partner for cmake, as make does not yet support C++-20 modules.
 
@@ -74,3 +80,5 @@ Installing clang on Ubuntu:
 ```bash
 sudo apt install clang-18 clang-tools-18 # need both.
 ```
+
+* * gcc 14 can only compile a subset of the test programs. gcc 15 compiles all the tests. gcc 16 may be required to compile the modules version of mathplot.*
