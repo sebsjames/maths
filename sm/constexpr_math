@@ -41,14 +41,15 @@
   ################################################################################*/
 module;
 
-#include <cstddef>
-#include <cstdint>
-#include <limits>
-#include <type_traits>
-#include <cmath>
+#include <cstdint> // import std; does not bring in cstdint, apparently
+//#include <cstddef>
+//#include <limits>
+//#include <type_traits>
+//#include <cmath>
 
 export module sm.constexpr_math;
 
+import std;
 import sm.mathconst;
 
 // C++23: 202302L C++20: 202002L

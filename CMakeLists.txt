@@ -9,6 +9,17 @@ set(CMAKE_EXPERIMENTAL_CXX_IMPORT_STD "d0edc3af-4c50-42ea-a356-e2862fe7a444")
 
 project(maths LANGUAGES CXX)
 
+# Link to libc++ - It's not enough to set -stdlib=libc++ here, you have to have a cmake cmd line with:
+# -DCMAKE_CXX_FLAGS="-stdlib=libc++"
+# WITHOUT, I get this error:
+#CMake Error in tests/CMakeLists.txt:
+#  The "CXX_MODULE_STD" property on the target "range_intersects" requires
+#  that the "__CMAKE::CXX23" target exist, but it was not provided by the
+#  toolchain.  Reason:
+#
+#    `libstdc++.modules.json` resource does not exist
+#set(CMAKE_CXX_FLAGS "-stdlib=libc++")
+
 message(STATUS "Install prefix: ${CMAKE_INSTALL_PREFIX}")
 message(STATUS "  (This can be changed with `cmake -DCMAKE_INSTALL_PREFIX=/some/place`")
 
@@ -40,7 +51,7 @@ endif()
 
 # Add the host definition to CXXFLAGS along with other switches
 if (APPLE)
-  set(CMAKE_CXX_FLAGS "-Wall -g -O3")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -g -O3")
 else()
   if(CMAKE_CXX_COMPILER_ID MATCHES MSVC OR CMAKE_CXX_COMPILER_FRONTEND_VARIANT MATCHES MSVC)
     # Set flags for Windows.
@@ -49,14 +60,14 @@ else()
     # /Zc:__cplusplus ensures __cplusplus define does not lie
     # /constexpr:steps is equivalent to -fconstexpr-steps or -fconstexpr-ops-limit
     if(CMAKE_CXX_COMPILER_ID MATCHES MSVC)
-      set(CMAKE_CXX_FLAGS "-DNOMINMAX /EHsc /Zc:__cplusplus /constexpr:steps500000000")
+      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DNOMINMAX /EHsc /Zc:__cplusplus /constexpr:steps500000000")
     else()
-      set(CMAKE_CXX_FLAGS "-DNOMINMAX /EHsc /Zc:__cplusplus")
+      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DNOMINMAX /EHsc /Zc:__cplusplus")
     endif()
   elseif(CMAKE_CXX_COMPILER_ID MATCHES Intel)
     # To use Intel compiler, you can call cmake as: `cmake -DCMAKE_CXX_COMPILER=icpc ..` or `CXX=icpc cmake ..`
     message(WARNING "Intel compiler has not been tested for some time")
-    set(CMAKE_CXX_FLAGS "-Wall -g -std=c++20 -xHOST -O3")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -g -std=c++20 -xHOST -O3")
   else() # GCC or Clang
     if(CMAKE_CXX_COMPILER_ID MATCHES GNU)
       # Add compiler version check, to ensure gcc is version 11 or later.
@@ -66,8 +77,9 @@ else()
         message(STATUS "GCC version ${CMAKE_CXX_COMPILER_VERSION} OK!")
       endif()
     endif()
+
     set(COMPREHENSIVE_WARNING_FLAGS "-Wall -Wextra -Wpedantic -pedantic-errors -Werror -Wfatal-errors -Wno-psabi")
-    set(CMAKE_CXX_FLAGS "-g ${COMPREHENSIVE_WARNING_FLAGS} -O3")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g ${COMPREHENSIVE_WARNING_FLAGS} -O3")
     if(CMAKE_CXX_COMPILER_ID MATCHES GNU)
       # Make it possible to compile complex constexpr functions (gcc only)
       set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fconstexpr-ops-limit=5000000000")
@@ -103,8 +115,7 @@ endif()
 # Visual Studio 2019 offers OpenMP 2 by default and 3 with the special
 # switch -openmp:llvm. I don't know how to get cmake to use the
 # special version, so OpenMP will not work at present on
-# Windows/VS2019. But then, you wouldn't use Windows for serious
-# numerical work anyway.
+# Windows/VS2019.
 find_package(OpenMP 3)
 if(OpenMP_CXX_FOUND)
   message(STATUS "Found OpenMP version ${OpenMP_C_VERSION}")
