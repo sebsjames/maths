@@ -14,7 +14,8 @@ message(STATUS "  (This can be changed with `cmake -DCMAKE_INSTALL_PREFIX=/some/
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
+# For clang
+set(CMAKE_CXX_EXTENSIONS ON)
 # Tell CMake that we explicitly want `import std`. This will initialize the
 # property on all targets declared after this to 1
 set(CMAKE_CXX_MODULE_STD 1)
