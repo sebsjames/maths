@@ -1,10 +1,6 @@
 // Can you use a sm::vec as a key to an std::unordered_map?
 //
-#include <functional> // std::equal_to
-#include <string>
-#include <unordered_map>
-#include <iostream>
-
+import std;
 import sm.vec;
 
 // To make std::hash<sm::vec<int, 2>> work you have to define how to create the hash of

@@ -1,8 +1,6 @@
-#include <iostream>
 #include <cstdint>
-#include <array>
-#include <vector>
-
+#include <cstddef>
+import std;
 import sm.mathconst;
 import sm.vec;
 import sm.vvec;

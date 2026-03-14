@@ -1,6 +1,4 @@
-#include <iostream>
-#include <vector>
-
+import std;
 import sm.vec;
 import sm.range;
 

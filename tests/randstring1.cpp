@@ -1,4 +1,4 @@
-#include <iostream>
+import std;
 import sm.random;
 
 int main()

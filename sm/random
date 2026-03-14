@@ -53,6 +53,8 @@
  */
 module;
 
+#include <cstdint>
+/*
 #include <random> // would be nice to export symbols here to code that imports sm.random.
 #include <vector>
 #include <limits>
@@ -60,13 +62,13 @@ module;
 #include <string>
 #include <ostream>
 #include <array>
-#include <cstdint>
 #include <cstddef>
 #include <memory>
+*/
 
 export module sm.random;
 
-// maybe later: export import std; or export import std.random.
+import std;
 import sm.mathconst;
 
 namespace sm

@@ -7,11 +7,7 @@
  * Each constexpr function in sm::vec is tested within a global constexpr function.
  */
 
-#include <cmath>
-#include <iostream>
-#include <limits>
-#include <array>
-
+import std;
 import sm.vec;
 import sm.range; // for clang. sm.vec export-imports this which works for g++-15.
 import sm.mathconst;

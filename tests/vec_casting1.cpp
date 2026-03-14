@@ -2,9 +2,7 @@
  * Test casting vec to array and back
  */
 
-#include <iostream>
-#include <array>
-
+import std;
 import sm.mathconst;
 import sm.vec;
 

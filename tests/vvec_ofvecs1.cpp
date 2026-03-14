@@ -3,9 +3,7 @@
  * of the vvec divided by a scalar.
  */
 
-#include <iostream>
-#include <array>
-
+import std;
 import sm.vvec;
 import sm.vec;
 import sm.range; // for clang

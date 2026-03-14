@@ -13,6 +13,7 @@
 module;
 
 #include <cstdint>
+/*
 #include <cmath>
 #include <array>
 #include <iostream>
@@ -25,10 +26,11 @@ module;
 #include <algorithm>
 #include <functional>
 #include <cstddef>
-
+*/
 
 export module sm.vec;
 
+import std;
 // random is only imported because it is used internally within vec
 import sm.random;
 import sm.constexpr_math;

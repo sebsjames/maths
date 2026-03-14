@@ -1,5 +1,4 @@
-#include <iostream>
-#include <random> // to refer to std::mt19937 here
+import std;
 import sm.random;
 
 int main()
