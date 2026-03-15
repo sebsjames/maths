@@ -4,8 +4,11 @@ include_directories(BEFORE ${PROJECT_SOURCE_DIR})
 # Each C++ module file has to be listed here (as they don't have a .cppm or .ixx file suffix)
 set_source_files_properties (
   ${PROJECT_SOURCE_DIR}/sm/mathconst
+  ${PROJECT_SOURCE_DIR}/sm/trait_tests
   ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/polysolve
+  ${PROJECT_SOURCE_DIR}/sm/bessel_i0
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/vvec
@@ -37,6 +40,7 @@ target_sources(readme PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR
   ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/bessel_i0
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/quaternion)
@@ -47,6 +51,7 @@ target_sources(vvec PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/bessel_i0
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/vvec)
@@ -57,6 +62,7 @@ target_sources(scale PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/bessel_i0
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/vvec
@@ -68,6 +74,7 @@ target_sources(mat33 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/bessel_i0
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/quaternion
@@ -79,6 +86,7 @@ target_sources(mat44 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/bessel_i0
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/quaternion
@@ -90,6 +98,7 @@ target_sources(mat44_frombasis PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_S
   ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/bessel_i0
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/quaternion
@@ -101,6 +110,7 @@ target_sources(mat_nonsquare PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOU
   ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/bessel_i0
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/quaternion
@@ -112,6 +122,7 @@ target_sources(hexgrid PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DI
   ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/bessel_i0
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/bezcoord
@@ -132,6 +143,7 @@ target_sources(bezcurve PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_D
   ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/bessel_i0
   ${PROJECT_SOURCE_DIR}/sm/random
   ${PROJECT_SOURCE_DIR}/sm/vec
   ${PROJECT_SOURCE_DIR}/sm/bezcoord
@@ -145,8 +157,15 @@ target_sources(bezcurve PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_D
 
 add_executable(vonmises vonmises.cpp)
 target_sources(vonmises PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
-  FILES ${PROJECT_SOURCE_DIR}/sm/mathconst
-  FILES ${PROJECT_SOURCE_DIR}/sm/random
+  FILES
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
+  ${PROJECT_SOURCE_DIR}/sm/polysolve
+  ${PROJECT_SOURCE_DIR}/sm/bessel_i0
+  ${PROJECT_SOURCE_DIR}/sm/random
+  ${PROJECT_SOURCE_DIR}/sm/trait_tests
+  ${PROJECT_SOURCE_DIR}/sm/range
+  ${PROJECT_SOURCE_DIR}/sm/vvec
 )
 
 add_executable(nelder_mead nelder_mead.cpp)

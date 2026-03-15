@@ -57,6 +57,7 @@ export module sm.random;
 
 import std;
 import sm.mathconst;
+import sm.bessel_i0;
 
 namespace sm
 {
@@ -806,19 +807,12 @@ namespace sm
             }
         }
 
-        // There is no std::cyl_bessel_i on Mac and libc++. _LIBCPP_VERSION not defined in import
-        // std;, so can't use this to avoid a compiler error
-/*
-        // https://releases.llvm.org/19.1.0/projects/libcxx/docs/Status/SpecialMath.html
-#if !defined(__APPLE__) && !defined(_LIBCPP_VERSION)
         //! Return probability density function value, P(x)
         T prob_density (const T x) const noexcept
         {
-            T bessel = std::cyl_bessel_i (T{0}, this->kappa);
-            return std::exp (this->kappa * std::cos (x - this->mu)) / (sm::mathconst<T>::two_pi * bessel);
+            return std::exp (this->kappa * std::cos (x - this->mu)) / (sm::mathconst<T>::two_pi * sm::bessel_i0 (this->kappa));
         }
-#endif
-*/
+
     private:
         /*!
          * Set up the uniform random number generator (range [0, 1]) used to sample from the von
