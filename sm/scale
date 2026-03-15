@@ -43,19 +43,13 @@
 
 module;
 
-#include <stdexcept>
-#include <cmath>
 #include <cstdint>
 #include <cstddef>
-#include <string>
-#include <sstream>
-#include <span>
-#include <complex>
-
 #include <sm/trait_tests>
 
 export module sm.scale;
 
+import std;
 export import sm.vvec;
 export import sm.range;
 

@@ -1,7 +1,6 @@
 // More rotation tests (some are in mat_4x4_translate.cpp
 
-#include <iostream>
-
+import std;
 import sm.vec;
 import sm.quaternion;
 import sm.mat;

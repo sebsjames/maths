@@ -54,17 +54,6 @@
 module;
 
 #include <cstdint>
-/*
-#include <random> // would be nice to export symbols here to code that imports sm.random.
-#include <vector>
-#include <limits>
-#include <type_traits>
-#include <string>
-#include <ostream>
-#include <array>
-#include <cstddef>
-#include <memory>
-*/
 
 export module sm.random;
 
