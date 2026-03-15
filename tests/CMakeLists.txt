@@ -6,6 +6,7 @@ include_directories(BEFORE ${PROJECT_SOURCE_DIR})
 # Each C++ module file has to be listed here (as they don't have a .cppm or .ixx file suffix)
 set_source_files_properties (
   ${PROJECT_SOURCE_DIR}/sm/mathconst
+  ${PROJECT_SOURCE_DIR}/sm/trait_tests
   ${PROJECT_SOURCE_DIR}/sm/constexpr_math
   ${PROJECT_SOURCE_DIR}/sm/range
   ${PROJECT_SOURCE_DIR}/sm/random
@@ -206,6 +207,7 @@ add_executable(vvec1 vvec1.cpp)
 target_sources(vvec1 PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR}
   FILES
   ${PROJECT_SOURCE_DIR}/sm/constexpr_math
+  ${PROJECT_SOURCE_DIR}/sm/trait_tests
   ${PROJECT_SOURCE_DIR}/sm/range
   ${PROJECT_SOURCE_DIR}/sm/mathconst
   ${PROJECT_SOURCE_DIR}/sm/random

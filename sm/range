@@ -17,19 +17,10 @@
 
 module;
 
-/*
-#include <cstdint>
-#include <ostream>
-#include <sstream>
-#include <limits>
-#include <complex>
-#include <span>
-*/
-#include <sm/trait_tests>
-
 export module sm.range;
 
 import std;
+import sm.trait_tests;
 export import sm.constexpr_math;
 
 namespace sm
@@ -114,11 +105,11 @@ namespace sm
             if (rhs.min.size() != this->min.size()) { return false; }
             using T_el=std::remove_reference_t<decltype(*std::begin(std::declval<T&>()))>;
             bool test1e = true;
-            for (uint32_t i = 0; i < this->min.size(); ++i) {
+            for (std::uint32_t i = 0; i < this->min.size(); ++i) {
                 if (this->min[i] != static_cast<T_el>(rhs.min[i])) { test1e = false; }
             }
             bool test2e = true;
-            for (uint32_t i = 0; i < this->min.size(); ++i) {
+            for (std::uint32_t i = 0; i < this->min.size(); ++i) {
                 if (this->max[i] != static_cast<T_el>(rhs.max[i])) { test2e = false; }
             }
             return (test1e && test2e);
@@ -131,11 +122,11 @@ namespace sm
             if (rhs.min.size() != this->min.size()) { return true; }
             using T_el=std::remove_reference_t<decltype(*std::begin(std::declval<T&>()))>;
             bool test1ne = false;
-            for (uint32_t i = 0; i < this->min.size(); ++i) {
+            for (std::uint32_t i = 0; i < this->min.size(); ++i) {
                 if (this->min[i] != static_cast<T_el>(rhs.min[i])) { test1ne = true; }
             }
             bool test2ne = false;
-            for (uint32_t i = 0; i < this->min.size(); ++i) {
+            for (std::uint32_t i = 0; i < this->min.size(); ++i) {
                 if (this->max[i] != static_cast<T_el>(rhs.max[i])) { test2ne = true; }
             }
             return (test1ne || test2ne);
@@ -471,12 +462,3 @@ namespace sm
     }
 
 } // namespace sm
-
-#if 0 // These lines are ok if they're needed
-template class sm::range<float>;
-template class sm::range<double>;
-template class sm::range<int32_t>;
-template class sm::range<uint32_t>;
-template class sm::range<int64_t>;
-template class sm::range<uint64_t>;
-#endif

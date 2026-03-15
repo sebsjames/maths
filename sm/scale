@@ -43,13 +43,10 @@
 
 module;
 
-#include <cstdint>
-#include <cstddef>
-#include <sm/trait_tests>
-
 export module sm.scale;
 
 import std;
+import sm.trait_tests;
 export import sm.vvec;
 export import sm.range;
 
@@ -400,7 +397,7 @@ export namespace sm
      *
      * \sa scale_impl_base
      */
-    template <int32_t ntype = 0, typename T=float, typename S=float>
+    template <std::int32_t ntype = 0, typename T=float, typename S=float>
     struct scale_impl : public scale_impl_base<T, S>
     {
         //! In a vector implementation we have to get the type of the components of the vector type
@@ -517,7 +514,7 @@ export namespace sm
         //! Getter for params
         //! \param idx The index into #params
         //! \return The specified element of #params
-        S_el get_params (uint32_t idx) { return this->params[idx]; }
+        S_el get_params (std::uint32_t idx) { return this->params[idx]; }
 
         //! Get all the params
         sm::vvec<S_el> get_params() { return this->params; }
@@ -680,7 +677,7 @@ export namespace sm
         //! Getter for params
         //! \param idx The index into #params
         //! \return The specified element of #params
-        S get_params (uint32_t idx) { return this->params[idx]; }
+        S get_params (std::uint32_t idx) { return this->params[idx]; }
 
         //! Get all the params
         sm::vvec<S> get_params() { return this->params; }
