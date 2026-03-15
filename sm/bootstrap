@@ -9,17 +9,11 @@
  * Author: Seb James
  * Date: July 2023
  */
-module;
+export module sm.bootstrap;
 
-#include <iostream>
-#include <cstdint>
-#include <cmath>
-#include <vector>
-
+import std;
 export import sm.vec;
 import sm.vvec;
-
-export module sm.bootstrap;
 
 export namespace sm::bootstrap
 {

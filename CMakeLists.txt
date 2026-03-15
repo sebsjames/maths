@@ -144,6 +144,134 @@ endif()
 # For a test program
 find_package (Eigen3 NO_MODULE)
 
+# A macro to make a list of modules into a unique list then add then to target_name
+function(target_sources_modules target_name)
+  # Parse function args for MODULES
+  set(multiValueArgs MODULES)
+  cmake_parse_arguments(PARSE_ARGV 0 arg "" "" "${multiValueArgs}")
+  # Uniqueify arg_MODULES:
+  list(REMOVE_DUPLICATES arg_MODULES)
+  target_sources(${target_name} PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR} FILES ${arg_MODULES})
+endfunction()
+
+#
+# Module groups
+#
+set(SM_CONSTEXPR_MATH_MODULES
+  ${PROJECT_SOURCE_DIR}/sm/mathconst
+  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
+)
+set(SM_POLYSOLVE_MODULES
+  ${SM_CONSTEXPR_MATH_MODULES}
+  ${PROJECT_SOURCE_DIR}/sm/polysolve
+)
+set(SM_BESSEL_I0_MODULES
+  ${SM_POLYSOLVE_MODULES}
+  ${PROJECT_SOURCE_DIR}/sm/bessel_i0
+)
+set(SM_RANDOM_MODULES
+  ${SM_BESSEL_I0_MODULES}
+  ${PROJECT_SOURCE_DIR}/sm/random
+)
+set(SM_RANGE_MODULES
+  ${SM_CONSTEXPR_MATH_MODULES}
+  ${PROJECT_SOURCE_DIR}/sm/trait_tests
+  ${PROJECT_SOURCE_DIR}/sm/range
+)
+set(SM_VEC_MODULES
+  ${SM_RANGE_MODULES}
+  ${SM_RANDOM_MODULES}
+  ${PROJECT_SOURCE_DIR}/sm/vec
+)
+set(SM_VVEC_MODULES
+  ${SM_RANGE_MODULES}
+  ${SM_RANDOM_MODULES}
+  ${PROJECT_SOURCE_DIR}/sm/vvec
+)
+set(SM_SCALE_MODULES
+  ${SM_VVEC_MODULES}
+  ${PROJECT_SOURCE_DIR}/sm/scale
+)
+set(SM_UTIL_MODULES
+  ${PROJECT_SOURCE_DIR}/sm/trait_tests
+  ${PROJECT_SOURCE_DIR}/sm/util
+)
+set(SM_HDFDATA_MODULES
+  ${SM_VEC_MODULES}
+  ${SM_VVEC_MODULES}
+  ${SM_UTIL_MODULES}
+  ${PROJECT_SOURCE_DIR}/sm/hdfdata
+)
+set(SM_QUATERNION_MODULES
+  ${SM_VEC_MODULES}
+  ${PROJECT_SOURCE_DIR}/sm/quaternion
+)
+set(SM_MAT_MODULES
+  ${SM_QUATERNION_MODULES}
+  ${PROJECT_SOURCE_DIR}/sm/mat
+)
+set(SM_BEZCOORD_MODULES
+  ${SM_VEC_MODULES}
+  ${PROJECT_SOURCE_DIR}/sm/bezcoord
+)
+set(SM_HEX_MODULES
+  ${SM_BEZCOORD_MODULES}
+  ${PROJECT_SOURCE_DIR}/sm/hex
+)
+set(SM_WINDER_MODULES
+  ${SM_VEC_MODULES}
+  ${PROJECT_SOURCE_DIR}/sm/winder
+)
+set(SM_BOOTSTRAP_MODULES
+  ${SM_VEC_MODULES}
+  ${SM_VVEC_MODULES}
+  ${PROJECT_SOURCE_DIR}/sm/bootstrap
+)
+set(SM_GRID_MODULES
+  ${SM_VEC_MODULES}
+  ${SM_VVEC_MODULES}
+  ${PROJECT_SOURCE_DIR}/sm/grid
+)
+set(SM_ALGO_MODULES
+  ${SM_VEC_MODULES}
+  ${PROJECT_SOURCE_DIR}/sm/algo
+)
+set(SM_NM_SIMPLEX_MODULES
+  ${SM_ALGO_MODULES}
+  ${SM_VVEC_MODULES}
+  ${PROJECT_SOURCE_DIR}/sm/nm_simplex
+)
+set(SM_HISTO_MODULES
+  ${SM_VEC_MODULES}
+  ${SM_VVEC_MODULES}
+  ${PROJECT_SOURCE_DIR}/sm/histo
+)
+set(SM_BOXFILTER_MODULES
+  ${SM_VEC_MODULES}
+  ${SM_VVEC_MODULES}
+  ${PROJECT_SOURCE_DIR}/sm/boxfilter
+)
+set(SM_GEOMETRY_MODULES
+  ${SM_ALGO_MODULES}
+  ${SM_VVEC_MODULES}
+  ${PROJECT_SOURCE_DIR}/sm/geometry
+)
+set(SM_BEZCURVE_MODULES
+  ${SM_BEZCOORD_MODULES}
+  ${SM_MAT_MODULES}
+  ${SM_NM_SIMPLEX_MODULES}
+  ${PROJECT_SOURCE_DIR}/sm/binomial
+  ${PROJECT_SOURCE_DIR}/sm/bezcurve
+)
+set(SM_BEZCURVEPATH_MODULES
+  ${SM_BEZCURVE_MODULES}
+  ${PROJECT_SOURCE_DIR}/sm/bezcurvepath
+)
+set(SM_HEXGRID_MODULES
+  ${SM_BEZCURVEPATH_MODULES}
+  ${SM_HEX_MODULES}
+)
+
 # All the headers are here
 add_subdirectory(sm)
 

@@ -6,15 +6,9 @@
  *
  * A histogram class
  */
-module;
-
-#include <type_traits>
-#include <memory>
-#include <limits>
-#include <cmath>
-
 export module sm.histo;
 
+import std;
 import sm.vec;
 import sm.vvec;
 import sm.range;

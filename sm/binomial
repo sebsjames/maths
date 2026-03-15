@@ -9,14 +9,9 @@
  * \author Seb James
  * \date 2026 (based on older code from sm::bezcurve and before that morphologica)
  */
-module;
-
-#include <cstdint>
-#include <array>
-#include <limits>
-#include <type_traits>
-
 export module sm.binomial;
+
+import std;
 
 export namespace sm::binomial
 {

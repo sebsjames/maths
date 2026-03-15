@@ -9,23 +9,9 @@
  * \author Seb James
  * \date 2019-2020
  */
-module;
-
-#include <utility>
-#include <vector>
-#include <array>
-#include <iostream>
-#include <string>
-#include <sstream>
-#include <stdexcept>
-#include <cmath>
-#include <cstddef>
-#include <cstdint>
-#include <concepts>
-#include <random>
-
 export module sm.bezcurve;
 
+import std;
 export import sm.mathconst;
 export import sm.bezcoord;
 export import sm.mat;

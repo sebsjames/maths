@@ -1,5 +1,5 @@
-#include <iostream>
-#include <sm/trait_tests>
+import std;
+import sm.trait_tests;
 
 template <typename _S=float>
 std::enable_if_t < sm::is_copyable_container<_S>::value, bool >

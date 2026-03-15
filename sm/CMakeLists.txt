@@ -8,6 +8,7 @@ install(
   algo
   anneal
   base64
+  bessel_i0
   bezcurvepath
   bezcoord
   bezcurve

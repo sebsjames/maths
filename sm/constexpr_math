@@ -39,7 +39,6 @@
   ##   limitations under the License.
   ##
   ################################################################################*/
-module;
 
 //#include <cstdint>
 //#include <cstddef>
