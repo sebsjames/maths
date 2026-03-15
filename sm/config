@@ -15,16 +15,9 @@
  */
 #pragma once
 
-#include <list>
-#include <fstream>
-#include <sstream>
-#include <string>
-#include <iostream>
-#include <stdexcept>
-#include <vector>
-
 #include <nlohmann/json.hpp>
 
+import std;
 import sm.util;
 import sm.vvec;
 import sm.vec;

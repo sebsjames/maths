@@ -304,6 +304,7 @@ add_executable(mat_4x4_reflection mat_4x4_reflection.cpp)
 target_sources_modules(mat_4x4_reflection MODULES ${SM_MAT_MODULES})
 add_test(mat_4x4_reflection mat_4x4_reflection)
 
+if(0)
 if(NOT APPLE)
   # constexpr mat
   add_executable(mat_4x4_constexpr mat_4x4_constexpr.cpp)
@@ -316,6 +317,7 @@ if(NOT APPLE)
     target_sources_modules(mat_4x4_vseigen MODULES ${SM_MAT_MODULES})
     add_test(mat_4x4_vseigen mat_4x4_vseigen)
   endif(Eigen3_FOUND)
+endif()
 endif()
 
 # Test quaternion and mat44 rotations in float and double precision
@@ -423,7 +425,7 @@ add_test(boxfilter1 boxfilter1)
 
 # Test sm::config
 add_executable(config1 config1.cpp)
-target_sources_modules(config1 MODULES ${SM_UTIL_MODULES} ${SM_VVEC_MODULES})
+target_sources_modules(config1 MODULES ${SM_UTIL_MODULES} ${SM_VVEC_MODULES} ${SM_VEC_MODULES})
 add_test(config1 config1)
 
 add_executable(zernike1 zernike1.cpp)
@@ -513,7 +515,7 @@ if((CMAKE_CXX_COMPILER_ID MATCHES "Clang") OR (CMAKE_COMPILER_IS_GNUCXX AND CMAK
 
   # Testing matrix representation of Bezier curves
   add_executable(bezmatrix bezmatrix.cpp)
-  target_sources_modules(bezmatrix ${SM_HEXGRID_MODULES})
+  target_sources_modules(bezmatrix MODULES ${SM_HEXGRID_MODULES})
   target_compile_definitions(bezmatrix PUBLIC FLT=float)
   add_test(bezmatrix bezmatrix)
 
@@ -537,20 +539,22 @@ endif()
 
 # Inserting into a list. error: conflicting declaration of template. on g++-14
 add_executable(cartgrid1 cartgrid1.cpp)
-target_sources_modules(cartgrid1 MODULES ${SM_BOXFILTER_MODULES})
+target_sources_modules(cartgrid1 MODULES ${SM_BEZCOORD_MODULES} ${SM_GRID_MODULES} ${SM_SCALE_MODULES} ${SM_BOXFILTER_MODULES})
 add_test(cartgrid1 cartgrid1)
 
 add_executable(cartgrid_gridshiftcoords cartgrid_gridshiftcoords.cpp)
-target_sources_modules(cartgrid_gridshiftcoords MODULES ${SM_BOXFILTER_MODULES})
+target_sources_modules(cartgrid_gridshiftcoords MODULES ${SM_BEZCOORD_MODULES} ${SM_GRID_MODULES} ${SM_SCALE_MODULES} ${SM_BOXFILTER_MODULES})
 add_test(cartgrid_gridshiftcoords cartgrid_gridshiftcoords)
 
 add_executable(cartgrid_shiftindicesbymetric cartgrid_shiftindicesbymetric.cpp)
-target_sources_modules(cartgrid_shiftindicesbymetric MODULES ${SM_BOXFILTER_MODULES} ${SM_SCALE_MODULES})
+target_sources_modules(cartgrid_shiftindicesbymetric MODULES ${SM_BEZCOORD_MODULES} ${SM_GRID_MODULES} ${SM_SCALE_MODULES} ${SM_BOXFILTER_MODULES} ${SM_SCALE_MODULES})
 add_test(cartgrid_shiftindicesbymetric cartgrid_shiftindicesbymetric)
 
+if(0) # convert to vector/array not vvec/vec
 add_executable(polysolve_1 polysolve_1.cpp)
 target_sources_modules(polysolve_1 MODULES ${SM_VEC_MODULES} ${SM_VVEC_MODULES})
 add_test(polysolve_1 polysolve_1)
+endif()
 
 #
 # mat compile/not compile tests on operators

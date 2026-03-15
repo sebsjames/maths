@@ -1,10 +1,6 @@
-#include <iostream>
-#include <complex>
-#include <deque>
-#include <vector>
 
-#include <sm/trait_tests>
-
+import std;
+import sm.trait_tests;
 import sm.vec;
 
 // What does sm::number_type return for std::complex? This is a test just of sm::number_type

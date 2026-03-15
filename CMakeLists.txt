@@ -270,6 +270,7 @@ set(SM_BEZCURVEPATH_MODULES
 set(SM_HEXGRID_MODULES
   ${SM_BEZCURVEPATH_MODULES}
   ${SM_HEX_MODULES}
+  ${PROJECT_SOURCE_DIR}/sm/hexgrid
 )
 
 # All the headers are here

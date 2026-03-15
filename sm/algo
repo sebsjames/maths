@@ -43,22 +43,22 @@ export namespace sm::algo
     // range whose max is the order of magnitude of the largest base10 column and whose
     // min is the order of magnitude of the smallest significant base10 column.
     template <typename F> requires std::is_floating_point_v<F>
-    constexpr sm::range<int32_t> significant_cols (const F& f)
+    constexpr sm::range<std::int32_t> significant_cols (const F& f)
     {
-        sm::range<int32_t> sigcols = { 0, 0 };
+        sm::range<std::int32_t> sigcols = { 0, 0 };
 
         // If NaN or infinity, return 0, 0. Or something else?
         if (sm::cem::isnan(f) || sm::cem::isinf(f)) { return sigcols; }
 
         // How many sig figures does the type (float, double...) support?
         constexpr F epsilon = std::numeric_limits<F>::epsilon();
-        constexpr int32_t type_sf = static_cast<int32_t>(sm::cem::floor (sm::cem::log10 (F{1} / epsilon)));
+        constexpr std::int32_t type_sf = static_cast<std::int32_t>(sm::cem::floor (sm::cem::log10 (F{1} / epsilon)));
 
         // copy absolute value of f
         F fcpy = f > F{0} ? f : -f;
 
         // Find the biggest column
-        sigcols.max = static_cast<int32_t>(sm::cem::floor (sm::cem::log10 (fcpy)));
+        sigcols.max = static_cast<std::int32_t>(sm::cem::floor (sm::cem::log10 (fcpy)));
 
         // Initialize smallest column
         sigcols.min = sigcols.max;
@@ -81,7 +81,7 @@ export namespace sm::algo
             // Is col val very close to 10? Break if so. This should relate to epsilon and current position
             if (colval > F{8}) {
                 // additional cols depends on max precision of type and current col.
-                int32_t cols_remaining = type_sf - (sigcols.max - sigcols.min); // How many significant column have we already used?
+                std::int32_t cols_remaining = type_sf - (sigcols.max - sigcols.min); // How many significant column have we already used?
                 if (cols_remaining > 0) {
                     F additional_cols = sm::cem::pow (F{10}, cols_remaining);
                     if (sm::cem::abs((fcpy - colval * tentothe) - tentothe) < (tentothe / additional_cols)) {
@@ -104,9 +104,9 @@ export namespace sm::algo
     // Return the amount of precision (significant figures in base 10) required for the
     // floating point number f
     template <typename F> requires std::is_floating_point_v<F>
-    constexpr int32_t significant_figs (const F& f)
+    constexpr std::int32_t significant_figs (const F& f)
     {
-        sm::range<int32_t> sc = sm::algo::significant_cols<F> (f);
+        sm::range<std::int32_t> sc = sm::algo::significant_cols<F> (f);
         return sc.span();
     }
 
@@ -114,25 +114,25 @@ export namespace sm::algo
     // 1 is 10s, 0 is 1s, -1 is tenths, -2 hundreds, etc. So round_to_col (1.2345f, -2)
     // should return 1.23f.
     template <typename F> requires std::is_floating_point_v<F>
-    constexpr F round_to_col (const F& f, const int32_t mincol)
+    constexpr F round_to_col (const F& f, const std::int32_t mincol)
     {
         if (sm::cem::isnan(f) || sm::cem::isinf(f)) { return f; }
         // How many sig figures does the type (float, double...) support?
         constexpr F epsilon = std::numeric_limits<F>::epsilon();
-        constexpr int32_t type_sf = static_cast<int32_t>(sm::cem::floor (sm::cem::log10 (F{1} / epsilon)));
+        constexpr std::int32_t type_sf = static_cast<std::int32_t>(sm::cem::floor (sm::cem::log10 (F{1} / epsilon)));
 
         // Save sign and a positive version of the input
-        int32_t sign = f > F{0} ? 1 : -1;
+        std::int32_t sign = f > F{0} ? 1 : -1;
         F fcpy = f > F{0} ? f : -f;
         // Find the biggest column
-        int32_t maxcol = static_cast<int32_t>(sm::cem::floor (sm::cem::log10 (fcpy)));
+        std::int32_t maxcol = static_cast<std::int32_t>(sm::cem::floor (sm::cem::log10 (fcpy)));
         // We will need to use 10^maxcol
         F tentothe = sm::cem::pow (F{10}, maxcol);
         // If user passed a mincol that's too big, return number rounded to maxcol
         if (mincol > maxcol) { return (sign > 0 ? tentothe : -tentothe); }
         F rounded = F{0};
         // Loop down curcol until we hit the limit for type F or mincol
-        for (int32_t curcol = maxcol; curcol >= mincol && curcol > (maxcol - type_sf); --curcol) {
+        for (std::int32_t curcol = maxcol; curcol >= mincol && curcol > (maxcol - type_sf); --curcol) {
             // What's the value in this column?
             F colval = sm::cem::floor(fcpy / tentothe);
             // Add to rounded
@@ -195,6 +195,7 @@ export namespace sm::algo
         return std::sqrt ( mc::one_over_four_pi * (T{2} * static_cast<T>(l) + T{1}) * (sm::algo::factorial<T, I>(l - absm) / sm::algo::factorial<T, I>(l + absm)));
     }
 
+#ifdef __HAVE_SPECIAL_MATHS__
     // There is no std::assoc_legendre on Mac and libc++
     // https://releases.llvm.org/19.1.0/projects/libcxx/docs/Status/SpecialMath.html
 #if !defined(__APPLE__) && !defined(_LIBCPP_VERSION)
@@ -203,8 +204,8 @@ export namespace sm::algo
     requires (std::is_integral_v<UI> && !std::is_signed_v<UI> && std::is_integral_v<I> && std::is_signed_v<I>)
     T Plm (const UI l, const I m, const T x)
     {
-        uint32_t absm = m >= 0 ? static_cast<uint32_t>(m) : static_cast<uint32_t>(-m);
-        return std::assoc_legendre (static_cast<uint32_t>(l), absm, x);
+        std::uint32_t absm = m >= 0 ? static_cast<std::uint32_t>(m) : static_cast<std::uint32_t>(-m);
+        return std::assoc_legendre (static_cast<std::uint32_t>(l), absm, x);
     }
 
     //! Compute the real spherical harmonic function with pre-computed normalization term Nlm.
@@ -231,6 +232,7 @@ export namespace sm::algo
         return sm::algo::real_spherical_harmonic<T, UI, I>(l, m, sm::algo::Nlm<T, UI, I>(l, m), phi, theta);
     }
 #endif // __APPLE__
+#endif // __HAVE_SPECIAL_MATHS__
 
     //! Zernike moment Radial Polynomial, R_nm(rho), where rho is a radius between 0 and 1
     template <typename T, typename UI, typename I>
@@ -260,18 +262,18 @@ export namespace sm::algo
 
     //! Bubble sort, high to low, order is returned in indices, values are left unchanged
     template<typename T>
-    void bubble_sort_hi_to_lo (const std::vector<T>& values, std::vector<uint32_t>& indices)
+    void bubble_sort_hi_to_lo (const std::vector<T>& values, std::vector<std::uint32_t>& indices)
     {
         std::vector<T> vcopy = values;
 
         // Init indices to be a sequence
-        for (uint32_t i = 0; i < indices.size(); ++i) { indices[i] = i; }
+        for (std::uint32_t i = 0; i < indices.size(); ++i) { indices[i] = i; }
 
         T value = T{0};
-        uint32_t index = 0u;
-        uint32_t jplus = 0u;
-        for (uint32_t i = 0u; i < vcopy.size(); ++i) {
-            for (uint32_t j = 0u; j < vcopy.size()-1u; ++j) {
+        std::uint32_t index = 0u;
+        std::uint32_t jplus = 0u;
+        for (std::uint32_t i = 0u; i < vcopy.size(); ++i) {
+            for (std::uint32_t j = 0u; j < vcopy.size()-1u; ++j) {
                 jplus = j+1;
                 if (vcopy[j] < vcopy[jplus]) {
                     // Swap value in the copy
@@ -289,18 +291,18 @@ export namespace sm::algo
 
     //! Bubble sort, low to high, order is returned in indices, values are left unchanged
     template<typename T>
-    void bubble_sort_lo_to_hi (const std::vector<T>& values, std::vector<uint32_t>& indices)
+    void bubble_sort_lo_to_hi (const std::vector<T>& values, std::vector<std::uint32_t>& indices)
     {
         std::vector<T> vcopy = values;
 
         // Init indices to be a sequence
-        for (uint32_t i = 0; i < indices.size(); ++i) { indices[i] = i; }
+        for (std::uint32_t i = 0; i < indices.size(); ++i) { indices[i] = i; }
 
         T value = T{0};
-        uint32_t index = 0u;
-        uint32_t jplus = 0u;
-        for (uint32_t i = 0u; i < vcopy.size(); ++i) {
-            for (uint32_t j = 0u; j < vcopy.size()-1u; ++j) {
+        std::uint32_t index = 0u;
+        std::uint32_t jplus = 0u;
+        for (std::uint32_t i = 0u; i < vcopy.size(); ++i) {
+            for (std::uint32_t j = 0u; j < vcopy.size()-1u; ++j) {
                 jplus = j+1;
                 if (vcopy[j] > vcopy[jplus]) {
                     // Swap value in the copy
