@@ -40,9 +40,6 @@
  * \author Seb James
  * \date April 2020
  */
-
-module;
-
 export module sm.scale;
 
 import std;

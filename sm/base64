@@ -8,14 +8,9 @@
  * https://github.com/mvorbrodt/blog/blob/master/src/base64.hpp
  * Used with thanks to @mvorbrodt
  */
-module;
-
-#include <string>
-#include <vector>
-#include <stdexcept>
-#include <cstdint>
-
 export module sm.base64;
+
+import std;
 
 export namespace base64
 {

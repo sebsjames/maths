@@ -10,34 +10,12 @@
  * \author Seb James (with thanks to Konrad Rudolph and Miguel Avila for code review)
  * \date April 2020
  */
-module;
-
-/*
-#include <cstdint>
-#include <cmath>
-#include <array>
-#include <iostream>
-#include <string>
-#include <sstream>
-#include <type_traits>
-#include <numeric>
-#include <limits>
-#include <iomanip>
-#include <algorithm>
-#include <functional>
-#include <cstddef>
-*/
-
 export module sm.vec;
 
 import std;
-// random is only imported because it is used internally within vec
 import sm.random;
 import sm.constexpr_math;
-
-// We export sm.range as well as importing it because sm::vec may return a range (sm::vec::range())
 export import sm.range;
-
 
 namespace sm
 {

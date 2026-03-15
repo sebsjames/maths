@@ -10,8 +10,6 @@
  * \author Seb James
  * \date May 2020
  */
-module;
-
 export module sm.vvec;
 
 import std;

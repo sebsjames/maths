@@ -16,8 +16,6 @@
  * \date 2025
  * Improvements to methods that specify rotations and translations
  */
-module;
-
 export module sm.mat;
 
 import std;

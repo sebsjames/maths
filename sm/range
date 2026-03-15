@@ -14,9 +14,6 @@
  * Author: Seb James
  * Date: Sept. 2023. Modules support 2026.
  */
-
-module;
-
 export module sm.range;
 
 import std;
