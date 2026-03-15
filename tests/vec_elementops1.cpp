@@ -1,5 +1,4 @@
-#include <iostream>
-
+import std;
 import sm.vec;
 import sm.vvec;
 

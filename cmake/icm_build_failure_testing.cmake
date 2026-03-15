@@ -144,6 +144,8 @@ function(icm_add_build_failure_test)
       else()
         # Seb: I use non-arg-parse mode, but add modules arguments
         if(DEFINED ARG_MODULE_FILES AND DEFINED ARG_MODULE_BASE)
+          # Uniqueify arg_MODULES:
+          list(REMOVE_DUPLICATES ARG_MODULE_FILES)
           target_sources(${ARG_TARGET} PUBLIC
             FILE_SET CXX_MODULES
             BASE_DIRS ${ARG_MODULE_BASE}

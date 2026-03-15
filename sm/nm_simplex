@@ -13,24 +13,17 @@
  * Author: Seb James
  * Date: September 2019
  */
-module;
-
-#include <cstdint>
-#include <vector>
-#include <functional>
-#include <algorithm>
-
 export module sm.nm_simplex;
 
+import std;
 import sm.algo;
-
 import sm.vec;
 export import sm.vvec;
 
 export namespace sm
 {
     //! What state is an instance of the nm_simplex class in?
-    enum class nm_simplex_state : uint32_t
+    enum class nm_simplex_state : std::uint32_t
     {
         // The state is unknown
         Unknown,
@@ -49,7 +42,7 @@ export namespace sm
     };
 
     //! For what reason did we enter nm_simplex_state?
-    enum class nm_simplex_stop_reason : uint32_t
+    enum class nm_simplex_stop_reason : std::uint32_t
     {
         None,                 // There is currently no reason to stop
         TerminationThreshold, // Normal reason for stopping, we got to the termination_threashd
@@ -60,7 +53,7 @@ export namespace sm
      * A class implementing a Nelder Mead simplex of points, and the associated methods for
      * manipulating those points on the way to discovering a minimum of a function.
      *
-     * This could be re-written with template <typename T, uint32_t N> where N is the
+     * This could be re-written with template <typename T, std::uint32_t N> where N is the
      * dimensionality of the search, and using sm::vec<T, N+1> as the type for
      * vertices.
      */
@@ -80,7 +73,7 @@ export namespace sm
         T sigma = T{0.5};
 
         //! The number of dimensions in the search. There are n+1 vertices in the simplex.
-        uint32_t n = 2U;
+        std::uint32_t n = 2U;
 
         //! Do we *descend* to the *minimum* metric value/fitness/objective function value? By
         //! default we DO. Set this to false to instead ascend to the maximum metric value.
@@ -88,12 +81,12 @@ export namespace sm
 
         //! Increment every time the algorithm performs an operation of some sort. For
         //! this NM algorithm, I increment every time the simplex changes shape.
-        uint64_t operation_count = 0ULL;
+        std::uint64_t operation_count = 0ULL;
 
         //! If set >0, then if operation_count exceeds too_many_operations, then
         //! ReadyToStop is set (and a warning emitted). Arriving at
         //! too_many_operations probably means termination_threshold was set too low.
-        uint64_t too_many_operations = 0ULL;
+        std::uint64_t too_many_operations = 0ULL;
 
         //! Client code should set the termination threshold to be suitable for the problem. When
         //! the standard deviation of the values of the objective function at the vertices of the
@@ -128,7 +121,7 @@ export namespace sm
         //! vertices and values in the order of the metric. The first index in this vector indexes
         //! the "best" value in values/vertices. If downhill==true, then the first index indexes the
         //! lowest value in values, otherwise it indexes the highest value in values.
-        sm::vvec<uint32_t> vertex_order;
+        sm::vvec<std::uint32_t> vertex_order;
 
         //! This tells client code what it needs to do next. It either needs to order the points or
         //! compute a new objective function value for the reflected point xr;
@@ -152,7 +145,7 @@ export namespace sm
             // if (initial_vertices.size() < 2) { /* Error! */ }
             this->n = initial_vertices.size() - 1;
             this->allocate();
-            uint32_t i = 0U;
+            std::uint32_t i = 0U;
             for (sm::vvec<T>& v : this->vertices) {
                 v = initial_vertices[i++];
             }
@@ -182,7 +175,7 @@ export namespace sm
             this->state = nm_simplex_state::NeedToComputeThenOrder;
         }
         //! General constructor for n dimensional simplex
-        nm_simplex (const uint32_t _n): n(_n) { this->allocate(); }
+        nm_simplex (const std::uint32_t _n): n(_n) { this->allocate(); }
 
         //! Reset the algorithm ready to go again
         void reset (const sm::vvec<sm::vvec<T>>& initial_vertices)
@@ -191,7 +184,7 @@ export namespace sm
             this->operation_count = 0ULL;
             this->n = initial_vertices.size() - 1;
             this->allocate();
-            uint32_t i = 0U;
+            std::uint32_t i = 0U;
             for (sm::vvec<T>& v : this->vertices) { v = initial_vertices[i++]; }
             this->state = nm_simplex_state::NeedToComputeThenOrder;
         }
@@ -212,7 +205,7 @@ export namespace sm
         void step()
         {
             if (this->state == nm_simplex_state::NeedToComputeThenOrder) {
-                for (uint32_t i = 0; i <= this->n; ++i) {
+                for (std::uint32_t i = 0; i <= this->n; ++i) {
                     this->values[i] = this->objective (this->vertices[i]);
                 }
                 this->order();
@@ -282,7 +275,7 @@ export namespace sm
         void reflect()
         {
             this->operation_count++;
-            uint32_t worst = this->vertex_order[this->n];
+            std::uint32_t worst = this->vertex_order[this->n];
             this->xr = this->x0 + (this->x0 - this->vertices[worst]) * this->alpha;
             this->state = nm_simplex_state::NeedToComputeReflection;
         }
@@ -363,7 +356,7 @@ export namespace sm
         void contract()
         {
             this->operation_count++;
-            uint32_t worst = this->vertex_order[this->n];
+            std::uint32_t worst = this->vertex_order[this->n];
             this->xc = this->x0 + (this->vertices[worst] - this->x0) * this->rho;
             this->state = nm_simplex_state::NeedToComputeContraction;
         }
@@ -372,7 +365,7 @@ export namespace sm
         void apply_contraction (const T _xc_value)
         {
             this->xc_value = _xc_value;
-            uint32_t worst = this->vertex_order[this->n];
+            std::uint32_t worst = this->vertex_order[this->n];
             if ((this->downhill && this->xc_value < this->values[worst])
                 || (this->downhill == false && this->xc_value > this->values[worst])) {
                 // contracted is better than worst
@@ -388,7 +381,7 @@ export namespace sm
         void shrink()
         {
             this->operation_count++;
-            for (uint32_t i = 1; i <= this->n; ++i) {
+            for (std::uint32_t i = 1; i <= this->n; ++i) {
                 this->vertices[i] = this->vertices[0] + (this->vertices[i] - this->vertices[0]) * this->sigma;
             }
             this->state = nm_simplex_state::NeedToComputeThenOrder;
@@ -400,7 +393,7 @@ export namespace sm
         {
             this->x0.zero();
             // For each simplex vertex except the worst vertex
-            for (uint32_t i = 0; i<this->n; ++i) { // *excluding* i==n
+            for (std::uint32_t i = 0; i<this->n; ++i) { // *excluding* i==n
                 this->x0 += this->vertices[this->vertex_order[i]];
             }
             this->x0 /= static_cast<T>(this->n);
@@ -417,8 +410,8 @@ export namespace sm
             this->xc.resize (this->n, T{0});
             this->values.resize (this->n+1, T{0});
             this->vertex_order.resize (this->n+1, 0U);
-            uint32_t i = 0;
-            for (uint32_t& vo : this->vertex_order) { vo = i++; }
+            std::uint32_t i = 0;
+            for (std::uint32_t& vo : this->vertex_order) { vo = i++; }
         }
     };
 

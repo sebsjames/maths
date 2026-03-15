@@ -4,10 +4,7 @@
  * testvec_asmapkey.cpp.
  */
 
-#include <array>
-#include <map>
-#include <string>
-#include <iostream>
+import std;
 
 int main()
 {

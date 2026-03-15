@@ -2,8 +2,7 @@
  * Test the different possibilities for multiplying a vvec of scalars/vecs by scalar/vec/vvec etc
  */
 
-#include <iostream>
-
+import std;
 import sm.vvec;
 import sm.vec;
 

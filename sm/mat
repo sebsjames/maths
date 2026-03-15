@@ -16,19 +16,9 @@
  * \date 2025
  * Improvements to methods that specify rotations and translations
  */
-module;
-
-#include <cstdint>
-#include <limits>
-#include <array>
-#include <string>
-#include <sstream>
-#include <iostream>
-#include <type_traits>
-#include <initializer_list>
-
 export module sm.mat;
 
+import std;
 export import sm.mathconst;
 export import sm.quaternion;
 export import sm.vec;
@@ -37,15 +27,15 @@ import sm.constexpr_math;
 export namespace sm
 {
     // Forward declare class and stream operator
-    template <typename F, uint32_t Nr, uint32_t Nc = Nr> requires std::is_floating_point_v<F> struct mat;
-    template <typename F, uint32_t Nr, uint32_t Nc = Nr> std::ostream& operator<< (std::ostream&, const mat<F, Nr, Nc>&);
+    template <typename F, std::uint32_t Nr, std::uint32_t Nc = Nr> requires std::is_floating_point_v<F> struct mat;
+    template <typename F, std::uint32_t Nr, std::uint32_t Nc = Nr> std::ostream& operator<< (std::ostream&, const mat<F, Nr, Nc>&);
 
     /*!
      * A more general purpose mat class.
      *
      * \templateparam F The arithmetic? floating point? type in which to store the mat44's data.
      */
-    template <typename F, uint32_t Nr, uint32_t Nc> requires std::is_floating_point_v<F>
+    template <typename F, std::uint32_t Nr, std::uint32_t Nc> requires std::is_floating_point_v<F>
     struct mat
     {
         //! Default constructor
@@ -88,7 +78,7 @@ export namespace sm
         //! Initializer list construction
         constexpr mat (std::initializer_list<F> other) noexcept
         {
-            uint32_t i = 0u;
+            std::uint32_t i = 0u;
             for (i = 0u; i < Nr * Nc; ++i) { this->arr[i] = F{0}; }
             i = 0u;
             for (F elem : other) {
@@ -128,13 +118,13 @@ export namespace sm
         {
             std::stringstream ss;
             ss <<"[ ";
-            for (uint32_t r = 0; r < Nr; ++r) {
+            for (std::uint32_t r = 0; r < Nr; ++r) {
                 if (r == 0) {
                     ss << " ";
                 } else {
                     ss << "   ";
                 }
-                for (uint32_t c = 0; c < Nc; ++c) {
+                for (std::uint32_t c = 0; c < Nc; ++c) {
                     ss << _arr[r + (c * Nr)];
                     if (c != Nc - 1) {
                         ss << ", ";
@@ -157,7 +147,7 @@ export namespace sm
                 []<bool flag = false>() { static_assert(flag, "this function applies to square matrices"); }();
             }
             this->arr.fill (F{0});
-            for (uint32_t i = 0; i < Nr * Nc; i += Nr + 1) { this->arr[i] = F{1}; }
+            for (std::uint32_t i = 0; i < Nr * Nc; i += Nr + 1) { this->arr[i] = F{1}; }
         }
 
         constexpr void set_zero() noexcept { this->arr.fill (F{0}); }
@@ -179,7 +169,7 @@ export namespace sm
         constexpr mat<T, Nr, Nc> as() const noexcept
         {
             mat<T, Nr, Nc> m;
-            for (uint32_t i = 0; i < Nr * Nc; ++i) { m[i] = static_cast<T>(this->arr[i]); }
+            for (std::uint32_t i = 0; i < Nr * Nc; ++i) { m[i] = static_cast<T>(this->arr[i]); }
             return m;
         }
 
@@ -220,66 +210,66 @@ export namespace sm
         }
 
         //! Get value at row, col given in arg. If row/col are outside matrix, return NaN
-        constexpr F operator() (uint32_t r, uint32_t c) const noexcept
+        constexpr F operator() (std::uint32_t r, std::uint32_t c) const noexcept
         {
-            uint32_t i = (c * Nr) + r;
+            std::uint32_t i = (c * Nr) + r;
             constexpr F badrtn = std::numeric_limits<F>::has_quiet_NaN ? std::numeric_limits<F>::quiet_NaN() : std::numeric_limits<F>::max();
             return i < this->arr.size() ? this->arr[i] : badrtn;
         }
 
         //! Access (read or write) value at row, col given in arg. If row/col are outside matrix, access last element of matrix.
-        constexpr F& operator() (uint32_t r, uint32_t c)
+        constexpr F& operator() (std::uint32_t r, std::uint32_t c)
         {
-            uint32_t i = (c * Nr) + r;
+            std::uint32_t i = (c * Nr) + r;
             return i < this->arr.size() ? this->arr[i] : this->arr[Nr * Nc - 1];
         }
 
         //! Access elements of the matrix (returns ref, so not const)
-        constexpr F& operator[] (const uint32_t idx) noexcept { return this->arr[idx]; }
+        constexpr F& operator[] (const std::uint32_t idx) noexcept { return this->arr[idx]; }
 
         //! Access elements of the matrix with const promise
-        constexpr F operator[] (const uint32_t idx) const noexcept { return this->arr[idx]; }
+        constexpr F operator[] (const std::uint32_t idx) const noexcept { return this->arr[idx]; }
         /* With C++-23 will be able to do:
-        constexpr F operator[] (uint32_t r, uint32_t c) const noexcept
+        constexpr F operator[] (std::uint32_t r, std::uint32_t c) const noexcept
         {
-            uint32_t i = (c * Nr) + r;
+            std::uint32_t i = (c * Nr) + r;
             constexpr F badrtn = std::numeric_limits<F>::has_quiet_NaN ? std::numeric_limits<F>::quiet_NaN() : std::numeric_limits<F>::max();
             return i < this->arr.size() ? this->arr[i] : badrtn;
         }
         */
 
         //! Access a given row of the matrix
-        constexpr sm::vec<F, Nc> row (const uint32_t idx) const noexcept
+        constexpr sm::vec<F, Nc> row (const std::uint32_t idx) const noexcept
         {
             sm::vec<F, Nc> r = {};
             if (idx >= Nr) { return r; }
-            for (uint32_t i = 0; i < Nc; ++i) { r[i] = this->arr[idx + Nr * i]; }
+            for (std::uint32_t i = 0; i < Nc; ++i) { r[i] = this->arr[idx + Nr * i]; }
             return r;
         }
-        constexpr uint32_t rows() const noexcept { return Nr; }
+        constexpr std::uint32_t rows() const noexcept { return Nr; }
 
         //! Set a row with the passed-in vec
-        constexpr void set_row (const uint32_t idx, const sm::vec<F, Nc>& rowdata) noexcept
+        constexpr void set_row (const std::uint32_t idx, const sm::vec<F, Nc>& rowdata) noexcept
         {
-            for (uint32_t i = 0; i < Nc; ++i) { this->arr[idx + Nr * i] = rowdata[i]; }
+            for (std::uint32_t i = 0; i < Nc; ++i) { this->arr[idx + Nr * i] = rowdata[i]; }
         }
 
         //! Access a given column of the matrix
-        constexpr sm::vec<F, Nr> col (const uint32_t idx) const noexcept
+        constexpr sm::vec<F, Nr> col (const std::uint32_t idx) const noexcept
         {
             sm::vec<F, Nr> c = {};
             if (idx >= Nc) { return c; }
-            uint32_t arridx_start = idx * Nr;
-            for (uint32_t i = 0; i < Nr; ++i) { c[i] = this->arr[arridx_start++]; }
+            std::uint32_t arridx_start = idx * Nr;
+            for (std::uint32_t i = 0; i < Nr; ++i) { c[i] = this->arr[arridx_start++]; }
             return c;
         }
-        constexpr uint32_t cols() const noexcept { return Nc; }
+        constexpr std::uint32_t cols() const noexcept { return Nc; }
 
         //! Set a col with the passed-in vec
-        constexpr void set_col (const uint32_t idx, const sm::vec<F, Nr>& coldata) noexcept
+        constexpr void set_col (const std::uint32_t idx, const sm::vec<F, Nr>& coldata) noexcept
         {
-            uint32_t arridx_start = idx * Nr;
-            for (uint32_t i = 0; i < Nr; ++i) { this->arr[arridx_start + i] = coldata[i]; }
+            std::uint32_t arridx_start = idx * Nr;
+            for (std::uint32_t i = 0; i < Nr; ++i) { this->arr[arridx_start + i] = coldata[i]; }
         }
 
         //! Apply pre-translation specified by vector @dv as this = m * this (pre-multiply)
@@ -745,7 +735,7 @@ export namespace sm
             if constexpr (Nr != Nc) { []<bool flag = false>() { static_assert(flag, "valid only for square matrices"); }(); }
 
             F tr = F{0};
-            for (uint32_t i = 0; i < Nr * Nc; i += Nr + 1) {
+            for (std::uint32_t i = 0; i < Nr * Nc; i += Nr + 1) {
                 tr += this->arr[i];
             }
             return tr;
@@ -755,7 +745,7 @@ export namespace sm
         constexpr mat<F, Nr, Nc> flipud() const noexcept
         {
             mat<F, Nr, Nc> m;
-            for (uint32_t i = 0; i < Nr; ++i) { m.set_row (Nr - 1 - i, this->row (i)); }
+            for (std::uint32_t i = 0; i < Nr; ++i) { m.set_row (Nr - 1 - i, this->row (i)); }
             return m;
         }
 
@@ -769,7 +759,7 @@ export namespace sm
         constexpr mat<F, Nr, Nc> fliplr() const noexcept
         {
             mat<F, Nr, Nc> m;
-            for (uint32_t i = 0; i < Nc; ++i) { m.set_col (Nc - 1 - i, this->col (i)); }
+            for (std::uint32_t i = 0; i < Nc; ++i) { m.set_col (Nc - 1 - i, this->col (i)); }
             return m;
         }
 
@@ -1232,7 +1222,7 @@ export namespace sm
         template<typename Fy=F> requires std::is_arithmetic_v<Fy>
         constexpr void operator+= (const mat<Fy, Nr, Nc>& m2) noexcept
         {
-            for (uint32_t i = 0; i < Nr * Nc; ++i) { this->arr[i] += m2.arr[i]; }
+            for (std::uint32_t i = 0; i < Nr * Nc; ++i) { this->arr[i] += m2.arr[i]; }
         }
 
         //! Return this + m2
@@ -1240,7 +1230,7 @@ export namespace sm
         constexpr mat<F, Nr, Nc> operator+ (const mat<Fy, Nr, Nc>& m2) const noexcept
         {
             mat<F, Nr, Nc> m = {};
-            for (uint32_t i = 0; i < Nr * Nc; ++i) { m[i] = this->arr[i] + m2.arr[i]; }
+            for (std::uint32_t i = 0; i < Nr * Nc; ++i) { m[i] = this->arr[i] + m2.arr[i]; }
             return m;
         }
 
@@ -1248,7 +1238,7 @@ export namespace sm
         template<typename Fy=F> requires std::is_arithmetic_v<Fy>
         constexpr void operator+= (const Fy& f) noexcept
         {
-            for (uint32_t i = 0; i < Nr * Nc; ++i) { this->arr[i] += f; }
+            for (std::uint32_t i = 0; i < Nr * Nc; ++i) { this->arr[i] += f; }
         }
 
         //! Return this + scalar
@@ -1256,7 +1246,7 @@ export namespace sm
         constexpr mat<F, Nr, Nc> operator+ (const Fy& f) const noexcept
         {
             mat<F, Nr, Nc> m = {};
-            for (uint32_t i = 0; i < Nr * Nc; ++i) { m[i] = this->arr[i] + f; }
+            for (std::uint32_t i = 0; i < Nr * Nc; ++i) { m[i] = this->arr[i] + f; }
             return m;
         }
 
@@ -1264,7 +1254,7 @@ export namespace sm
         template<typename Fy=F> requires std::is_arithmetic_v<Fy>
         constexpr void operator-= (const mat<Fy, Nr, Nc>& m2) noexcept
         {
-            for (uint32_t i = 0; i < Nr * Nc; ++i) { this->arr[i] -= m2.arr[i]; }
+            for (std::uint32_t i = 0; i < Nr * Nc; ++i) { this->arr[i] -= m2.arr[i]; }
         }
 
         //! Return this - m2
@@ -1272,7 +1262,7 @@ export namespace sm
         constexpr mat<F, Nr, Nc> operator- (const mat<Fy, Nr, Nc>& m2) const noexcept
         {
             mat<F, Nr, Nc> m = {};
-            for (uint32_t i = 0; i < Nr * Nc; ++i) { m[i] = this->arr[i] - m2.arr[i]; }
+            for (std::uint32_t i = 0; i < Nr * Nc; ++i) { m[i] = this->arr[i] - m2.arr[i]; }
             return m;
         }
 
@@ -1280,7 +1270,7 @@ export namespace sm
         template<typename Fy=F> requires std::is_arithmetic_v<Fy>
         constexpr void operator-= (const Fy& f) noexcept
         {
-            for (uint32_t i = 0; i < Nr * Nc; ++i) { this->arr[i] -= f; }
+            for (std::uint32_t i = 0; i < Nr * Nc; ++i) { this->arr[i] -= f; }
         }
 
         //! Return this - scalar
@@ -1288,12 +1278,12 @@ export namespace sm
         constexpr mat<F, Nr, Nc> operator- (const Fy& f) const noexcept
         {
             mat<F, Nr, Nc> m = {};
-            for (uint32_t i = 0; i < Nr * Nc; ++i) { m[i] = this->arr[i] - f; }
+            for (std::uint32_t i = 0; i < Nr * Nc; ++i) { m[i] = this->arr[i] - f; }
             return m;
         }
 
         //! Right-multiply this->arr with m2 (only meaningful for square matrices)
-        template<typename Fy=F, uint32_t Nry = Nr, uint32_t Ncy = Nc> requires (Nc == Nry) && std::is_arithmetic_v<Fy>
+        template<typename Fy=F, std::uint32_t Nry = Nr, std::uint32_t Ncy = Nc> requires (Nc == Nry) && std::is_arithmetic_v<Fy>
         constexpr void operator*= (const mat<Fy, Nry, Ncy>& m2) noexcept
         {
             sm::vec<F, Nr * Ncy> m;
@@ -1341,10 +1331,10 @@ export namespace sm
                 m[15] = this->arr[3] * m2.arr[12] + this->arr[7] * m2.arr[13] + this->arr[11] * m2.arr[14] + this->arr[15] * m2.arr[15];
             } else {
                 // General case left matrix is this->arr, right matrix is m2 (both same size and square)
-                for (uint32_t r = 0; r < Nr; ++r) { // row in result matrix
-                    for (uint32_t cy = 0; cy < Ncy; ++cy) { // col in result matrix
+                for (std::uint32_t r = 0; r < Nr; ++r) { // row in result matrix
+                    for (std::uint32_t cy = 0; cy < Ncy; ++cy) { // col in result matrix
                         m.arr[(cy * Nr) + r] = F{0};
-                        for (uint32_t i = 0; i < Nc; ++i) { // i iterates along row in left matrix and down col in right matrix
+                        for (std::uint32_t i = 0; i < Nc; ++i) { // i iterates along row in left matrix and down col in right matrix
                             m.arr[(cy * Nr) + r] += this->arr[(i * Nr) + r] * m2.arr[(cy * Nry) + i];
                         }
                     }
@@ -1355,7 +1345,7 @@ export namespace sm
         }
 
         //! Right multiply this->arr with m2.arr
-        template<typename Fy=F, uint32_t Nry = Nr, uint32_t Ncy = Nc> requires (Nc == Nry) && std::is_arithmetic_v<Fy>
+        template<typename Fy=F, std::uint32_t Nry = Nr, std::uint32_t Ncy = Nc> requires (Nc == Nry) && std::is_arithmetic_v<Fy>
         constexpr mat<F, Nr, Ncy> operator* (const mat<Fy, Nry, Ncy>& m2) const noexcept
         {
             mat<F, Nr, Ncy> m;
@@ -1407,10 +1397,10 @@ export namespace sm
 
             } else {
                 // General case left matrix is this->arr, right matrix is m2.arr
-                for (uint32_t r = 0; r < Nr; ++r) {         // row in result matrix
-                    for (uint32_t cy = 0; cy < Ncy; ++cy) { // col in result matrix
+                for (std::uint32_t r = 0; r < Nr; ++r) {         // row in result matrix
+                    for (std::uint32_t cy = 0; cy < Ncy; ++cy) { // col in result matrix
                         m.arr[(cy * Nr) + r] = F{0};
-                        for (uint32_t i = 0; i < Nc; ++i) { // i iterates along row in left matrix and down col in right matrix
+                        for (std::uint32_t i = 0; i < Nc; ++i) { // i iterates along row in left matrix and down col in right matrix
                             m.arr[(cy * Nr) + r] += this->arr[(i * Nr) + r] * m2.arr[(cy * Nry) + i];
                         }
                     }
@@ -1424,8 +1414,8 @@ export namespace sm
         constexpr std::array<F, Nr> operator* (const std::array<F, Nr>& v1) const noexcept
         {
             std::array<F, Nr> v = {};
-            for (uint32_t r = 0; r < Nr; ++r) {
-                for (uint32_t c = 0; c < Nc; ++c) { v[r] += this->arr[r + c * Nr] * v1[c]; }
+            for (std::uint32_t r = 0; r < Nr; ++r) {
+                for (std::uint32_t c = 0; c < Nc; ++c) { v[r] += this->arr[r + c * Nr] * v1[c]; }
             }
             return v;
         }
@@ -1434,8 +1424,8 @@ export namespace sm
         constexpr sm::vec<F, Nr> operator* (const sm::vec<F, Nr>& v1) const noexcept
         {
             sm::vec<F, Nr> v = {};
-            for (uint32_t r = 0; r < Nr; ++r) {
-                for (uint32_t c = 0; c < Nc; ++c) { v[r] += this->arr[r + c * Nr] * v1[c]; }
+            for (std::uint32_t r = 0; r < Nr; ++r) {
+                for (std::uint32_t c = 0; c < Nc; ++c) { v[r] += this->arr[r + c * Nr] * v1[c]; }
             }
             return v;
         }
@@ -1456,7 +1446,7 @@ export namespace sm
         template <typename T=F> requires std::is_arithmetic_v<T>
         constexpr void operator*= (const T& f) noexcept
         {
-            for (uint32_t i = 0; i < Nr * Nc; ++i) { this->arr[i] *= f; }
+            for (std::uint32_t i = 0; i < Nr * Nc; ++i) { this->arr[i] *= f; }
         }
 
         //! * operator for a scalar value.
@@ -1464,7 +1454,7 @@ export namespace sm
         constexpr mat<F, Nr, Nc> operator* (const T& f) noexcept
         {
             mat<F, Nr, Nc> m = {};
-            for (uint32_t i = 0; i < Nr * Nc; ++i) { m[i] = this->arr[i] * f; }
+            for (std::uint32_t i = 0; i < Nr * Nc; ++i) { m[i] = this->arr[i] * f; }
             return m;
         }
 
@@ -1477,8 +1467,8 @@ export namespace sm
         template<typename Fy=F> requires std::is_same_v<Fy, F>
         constexpr bool operator== (const mat<Fy, Nr, Nc>& rhs) const noexcept
         {
-            uint32_t ndiff = 0;
-            for (uint32_t i = 0; i < Nr * Nc && ndiff == 0; ++i) {
+            std::uint32_t ndiff = 0;
+            for (std::uint32_t i = 0; i < Nr * Nc && ndiff == 0; ++i) {
                 ndiff += this->arr[i] == rhs.arr[i] ? 0 : 1;
             }
             return ndiff == 0;
@@ -1488,8 +1478,8 @@ export namespace sm
         template<typename Fy=F> requires std::is_same_v<Fy, F>
         constexpr bool operator!= (const mat<Fy, Nr, Nc>& rhs) const noexcept
         {
-            uint32_t ndiff = 0;
-            for (uint32_t i = 0; i < Nr * Nc && ndiff == 0; ++i) {
+            std::uint32_t ndiff = 0;
+            for (std::uint32_t i = 0; i < Nr * Nc && ndiff == 0; ++i) {
                 ndiff += this->arr[i] == rhs.arr[i] ? 0 : 1;
             }
             return ndiff > 0;
@@ -1500,20 +1490,20 @@ export namespace sm
         {
             if constexpr (Nr != Nc) { []<bool flag = false>() { static_assert(flag, "valid only for square matrices"); }(); }
 
-            constexpr uint32_t N_diamond = ((Nr * Nc) - Nr ) / 2;
+            constexpr std::uint32_t N_diamond = ((Nr * Nc) - Nr ) / 2;
 
             sm::vec<F, N_diamond> a;
 
-            uint32_t i = 0;
-            for (uint32_t c = 0; c < (Nc / 2) + 1; ++c) {
-                for (uint32_t r = c + 1; r < Nr; ++r) {
+            std::uint32_t i = 0;
+            for (std::uint32_t c = 0; c < (Nc / 2) + 1; ++c) {
+                for (std::uint32_t r = c + 1; r < Nr; ++r) {
                     a[i++] = this->arr[c * Nr + r];
                     this->arr[c * Nr + r] = this->arr[r * Nr + c];
                 }
             }
             i = 0;
-            for (uint32_t c = 0; c < (Nc / 2) + 1; ++c) {
-                for (uint32_t r = c + 1; r < Nr; ++r) {
+            for (std::uint32_t c = 0; c < (Nc / 2) + 1; ++c) {
+                for (std::uint32_t r = c + 1; r < Nr; ++r) {
                     this->arr[r * Nr + c] = a[i++];
                 }
             }
@@ -1524,22 +1514,22 @@ export namespace sm
         {
             if constexpr (Nr != Nc) { []<bool flag = false>() { static_assert(flag, "valid only for square matrices"); }(); }
 
-            constexpr uint32_t N_diamond = ((Nr * Nc) - Nr ) / 2;
+            constexpr std::uint32_t N_diamond = ((Nr * Nc) - Nr ) / 2;
 
             sm::vec<F, N_diamond> a;
 
             mat<F, Nc, Nr> m = *this;
 
-            uint32_t i = 0;
-            for (uint32_t c = 0; c < (Nc / 2) + 1; ++c) {
-                for (uint32_t r = c + 1; r < Nr; ++r) {
+            std::uint32_t i = 0;
+            for (std::uint32_t c = 0; c < (Nc / 2) + 1; ++c) {
+                for (std::uint32_t r = c + 1; r < Nr; ++r) {
                     a[i++] = this->arr[c * Nr + r];
                     m[c * Nr + r] = this->arr[r * Nr + c];
                 }
             }
             i = 0;
-            for (uint32_t c = 0; c < (Nc / 2) + 1; ++c) {
-                for (uint32_t r = c + 1; r < Nr; ++r) {
+            for (std::uint32_t c = 0; c < (Nc / 2) + 1; ++c) {
+                for (std::uint32_t r = c + 1; r < Nr; ++r) {
                     m[r * Nr + c] = a[i++];
                 }
             }
@@ -1552,25 +1542,25 @@ export namespace sm
         {
             if constexpr (Nr != Nc) { []<bool flag = false>() { static_assert(flag, "valid only for square matrices"); }(); }
 
-            constexpr uint32_t N_diamond = ((Nr * Nc) - Nr ) / 2;
+            constexpr std::uint32_t N_diamond = ((Nr * Nc) - Nr ) / 2;
 
             sm::vec<F, N_diamond> a;
 
             sm::vec<F, Nr * Nc> m;
 
             // Copy diagonal to m
-            for (uint32_t c = 0; c < Nc; ++c) { m[c * Nr + c] = cm[c * Nr + c]; }
+            for (std::uint32_t c = 0; c < Nc; ++c) { m[c * Nr + c] = cm[c * Nr + c]; }
 
-            uint32_t i = 0;
-            for (uint32_t c = 0; c < (Nc / 2) + 1; ++c) {
-                for (uint32_t r = c + 1; r < Nr; ++r) {
+            std::uint32_t i = 0;
+            for (std::uint32_t c = 0; c < (Nc / 2) + 1; ++c) {
+                for (std::uint32_t r = c + 1; r < Nr; ++r) {
                     a[i++] = cm[c * Nr + r];
                     m[c * Nr + r] = cm[r * Nr + c];
                 }
             }
             i = 0;
-            for (uint32_t c = 0; c < (Nc / 2) + 1; ++c) {
-                for (uint32_t r = c + 1; r < Nr; ++r) {
+            for (std::uint32_t c = 0; c < (Nc / 2) + 1; ++c) {
+                for (std::uint32_t r = c + 1; r < Nr; ++r) {
                     m[r * Nr + c] = a[i++];
                 }
             }
@@ -1698,7 +1688,7 @@ export namespace sm
         friend std::ostream& operator<< <F> (std::ostream& os, const mat<F, Nr, Nc>& tm);
     };
 
-    template <typename F, uint32_t Nr, uint32_t Nc>
+    template <typename F, std::uint32_t Nr, std::uint32_t Nc>
     std::ostream& operator<< (std::ostream& os, const mat<F, Nr, Nc>& tm)
     {
         os << tm.str();

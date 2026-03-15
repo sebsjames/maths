@@ -6,19 +6,9 @@
  *
  * Geometry algorithms.
  */
-module;
-
-#include <cstdint>
-#include <tuple>
-#include <algorithm>
-#include <iostream>
-#include <limits>
-#include <cmath>
-#include <bitset>
-#include <type_traits>
-
 export module sm.geometry;
 
+import std;
 export import sm.mathconst;
 import sm.constexpr_math;
 import sm.range;
@@ -28,7 +18,7 @@ export import sm.vvec;
 
 export namespace sm
 {
-    enum class rotation_sense : uint32_t
+    enum class rotation_sense : std::uint32_t
     {
         colinear,
         clockwise,
@@ -177,7 +167,7 @@ export namespace sm::geometry
     bool aabb_line_intersect (const sm::range<sm::vec<T, 3>>& box,
                               const sm::vec<T, 3>& p0, const sm::vec<T, 3>& p1)
     {
-        auto line_intersect = [box, p0, p1](uint32_t dim)
+        auto line_intersect = [box, p0, p1](std::uint32_t dim)
         {
             sm::vec<T> p = p0;
             sm::vec<T> v = p1 - p0;
@@ -194,7 +184,7 @@ export namespace sm::geometry
 
             // Logic test...
             bool isect1 = true;
-            for (uint8_t j = 0; j < 3; ++j) {
+            for (std::uint8_t j = 0; j < 3; ++j) {
                 if (j != dim && (ip[j] < box.min[j] || ip[j] > box.max[j])) {
                     isect1 = false;
                 }
@@ -206,7 +196,7 @@ export namespace sm::geometry
 
             // Logic test...
             bool isect2 = true;
-            for (uint8_t j = 0; j < 3; ++j) {
+            for (std::uint8_t j = 0; j < 3; ++j) {
                 if (j != dim && (ip[j] < box.min[j] || ip[j] > box.max[j])) {
                     isect2 = false;
                 }
@@ -444,7 +434,7 @@ export namespace sm::geometry
 
     namespace spherical_projection
     {
-        enum class type : uint32_t
+        enum class type : std::uint32_t
         {
             mercator,
             equirectangular,

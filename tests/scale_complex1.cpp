@@ -2,10 +2,7 @@
  * Test use of std::complex<> objects in a sm::scale class.
  */
 
-#include <iostream>
-#include <complex>
-#include <array>
-
+import std;
 import sm.vvec;
 import sm.scale;
 

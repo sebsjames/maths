@@ -1,9 +1,6 @@
-#include <fstream>
-#include <iostream>
-#include <string>
-
 #include <sm/config>
 
+import std;
 import sm.vec;
 import sm.vvec;
 

@@ -6,15 +6,9 @@
  *
  * sm::bezcoord - a Bezier curve coordinate class.
  */
-module;
-
-#include <cmath>
-#include <ostream>
-#include <cmath>
-#include <concepts>
-
 export module sm.bezcoord;
 
+import std;
 export import sm.vec;
 
 export namespace sm
