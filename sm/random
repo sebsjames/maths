@@ -51,8 +51,6 @@
  * standard as yet, but they're short and could probably be implemented easily here,
  * another day.
  */
-module;
-
 export module sm.random;
 
 import std;
