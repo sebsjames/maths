@@ -204,7 +204,6 @@ export namespace sm::algo
         return std::sqrt ( mc::one_over_four_pi * (T{2} * static_cast<T>(l) + T{1}) * (sm::algo::factorial<T, I>(l - absm) / sm::algo::factorial<T, I>(l + absm)));
     }
 
-#ifdef __HAVE_SPECIAL_MATHS__
     // There is no std::assoc_legendre on Mac and libc++
     // https://releases.llvm.org/19.1.0/projects/libcxx/docs/Status/SpecialMath.html
 #if !defined(__APPLE__) && !defined(_LIBCPP_VERSION)
@@ -241,7 +240,6 @@ export namespace sm::algo
         return sm::algo::real_spherical_harmonic<T, UI, I>(l, m, sm::algo::Nlm<T, UI, I>(l, m), phi, theta);
     }
 #endif // __APPLE__
-#endif // __HAVE_SPECIAL_MATHS__
 
     //! Zernike moment Radial Polynomial, R_nm(rho), where rho is a radius between 0 and 1
     template <typename T, typename UI, typename I>
