@@ -1,5 +1,8 @@
-#include <cstddef> // for size_t. Why not provided by import std;?
-import std;
+#include <iostream>
+#include <set>
+#include <algorithm>
+#include <complex>
+
 import sm.mathconst;
 import sm.vec;
 
@@ -167,7 +170,7 @@ int main()
     std::cout<< "VdV.mean() = " << VdV.mean() << std::endl;
 
     sm::vec<float, 2> v_continuous = { 0.5f, 0.6f };
-    sm::vec<size_t , 2> v_discrete = { 1, 2 };
+    sm::vec<std::size_t , 2> v_discrete = { 1, 2 };
     sm::vec<float, 2> v_cd = v_continuous * v_discrete;
     std::cout << "You can do sm::vec<floattype,N> = sm::vec<floattype,N> * sm::vec<inttype,N>: " << v_cd << std::endl;
     // Can't do this though:
@@ -177,7 +180,7 @@ int main()
     sm::vec<int, 4> vr2 = vr;
 
     sm::vec<int, 7> rot_size_t_correct = { 0, 1, 2, 3, 0, 1, 2 };
-    for (size_t i = 0; i < 7; ++i) {
+    for (std::size_t i = 0; i < 7; ++i) {
         vr2 = vr;
         vr2.rotate (i);
         std::cout << vr << " rotate("<<i<<") is " << vr2 << std::endl;

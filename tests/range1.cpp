@@ -1,7 +1,6 @@
-//#include <iostream>
-//#include <vector>
-//#include <span>
-import std;
+#include <iostream>
+#include <vector>
+#include <span>
 
 import sm.range;
 

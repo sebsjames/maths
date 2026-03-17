@@ -2,8 +2,10 @@
  * Test set_from(string)
  */
 
+#include <iostream>
 #include <cstdint>
-import std;
+#include <array>
+
 import sm.vec;
 import sm.mathconst;
 

@@ -1,5 +1,8 @@
+#include <iostream>
+#include <complex>
+#include <deque>
+#include <vector>
 
-import std;
 import sm.trait_tests;
 import sm.vec;
 

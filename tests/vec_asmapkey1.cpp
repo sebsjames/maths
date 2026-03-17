@@ -3,7 +3,10 @@
 // Answer is yes, but you have to tell the map which comparison operator you're going to
 // use. Similar to the issue of storing sm::vecs in an std::set.
 
-import std;
+#include <map>
+#include <string>
+#include <iostream>
+
 import sm.vec;
 
 int main()

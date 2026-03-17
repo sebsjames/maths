@@ -1,4 +1,6 @@
-import std;
+#include <iostream>
+#include <limits>
+
 import sm.mathconst;
 import sm.constexpr_math;
 import sm.quaternion;

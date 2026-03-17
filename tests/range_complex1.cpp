@@ -1,4 +1,6 @@
-import std;
+#include <iostream>
+#include <complex>
+
 import sm.range;
 
 int main()

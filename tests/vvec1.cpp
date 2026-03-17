@@ -1,4 +1,8 @@
-import std;
+#include <iostream>
+#include <cstdint>
+#include <array>
+#include <vector>
+
 import sm.mathconst;
 import sm.vec;
 import sm.vvec;

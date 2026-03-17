@@ -1,4 +1,12 @@
-import std;
+#include <iostream>
+#include <set>
+#include <array>
+#include <vector>
+#include <list>
+#include <deque>
+#include <map>
+#include <complex>
+
 import sm.trait_tests;
 import sm.vec;
 import sm.vvec;
