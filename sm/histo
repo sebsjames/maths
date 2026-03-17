@@ -12,6 +12,7 @@ module;
 #include <memory>
 #include <limits>
 #include <cmath>
+#include <stdexcept>
 
 export module sm.histo;
 

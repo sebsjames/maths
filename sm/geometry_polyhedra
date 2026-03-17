@@ -145,8 +145,8 @@ export namespace sm::geometry_ce
         // geo must be fully initialized in a constexpr function (this could be constructor in icosahedral_geodesic<>
         constexpr sm::vec<int, 3> fz = { 0, 0, 0 };
         constexpr sm::vec<F, 3> vz = { F{0}, F{0}, F{0} };
-        for (uint32_t i = 0; i < geo.poly.faces.size(); ++i) { geo.poly.faces[i] = fz; }
-        for (uint32_t i = 0; i < geo.poly.vertices.size(); ++i) { geo.poly.vertices[i] = vz; }
+        for (std::uint32_t i = 0; i < geo.poly.faces.size(); ++i) { geo.poly.faces[i] = fz; }
+        for (std::uint32_t i = 0; i < geo.poly.vertices.size(); ++i) { geo.poly.vertices[i] = vz; }
 
         // Start out with an icosahedron
         constexpr sm::geometry_ce::polyhedron<F, 12, 20> initial_ico = sm::geometry_ce::icosahedron<F>();
@@ -284,7 +284,7 @@ export namespace sm::geometry
         sm::vvec<sm::vec<F, 3>> get_face_centres() const
         {
             sm::vvec<sm::vec<F, 3>> fcentres(this->faces.size(), { F{0}, F{0}, F{0} });
-            for (uint32_t i = 0; i < this->faces.size(); ++i) {
+            for (std::uint32_t i = 0; i < this->faces.size(); ++i) {
                 fcentres[i] += (this->vertices[this->faces[i][0]]
                                 + this->vertices[this->faces[i][1]]
                                 + this->vertices[this->faces[i][2]])/F{3};
@@ -296,7 +296,7 @@ export namespace sm::geometry
         sm::vvec<sm::vvec<sm::vec<F, 3>>> get_neighbour_vectors() const
         {
             sm::vvec<sm::vvec<sm::vec<F, 3>>> vneighb_vectors_per_vertex (this->vneighbours.size());
-            for (uint32_t i = 0; i < this->vneighbours.size(); ++i) {
+            for (std::uint32_t i = 0; i < this->vneighbours.size(); ++i) {
                 for (auto n : this->vneighbours[i]) { // vneighbour[i] is a set<int>
                     sm::vec<F, 3> _v = this->vertices[n] - this->vertices[i];
                     vneighb_vectors_per_vertex[i].push_back (_v);
@@ -316,7 +316,7 @@ export namespace sm::geometry
         geometry::polyhedron <F> poly;
 
         //! The 12 vertices with five-fold symmetry
-        std::set<int32_t> fivefold_vertices;
+        std::set<std::int32_t> fivefold_vertices;
 
         /*!
          * Get a vvec of vvecs of vecs. There are as many vvecs of vecs as there are vertices in
@@ -327,14 +327,14 @@ export namespace sm::geometry
          * N> which is N=3. vec<F> is equivalent to vec<F, 3>. I also have some function-wide
          * using statements to keep the code a bit shorter.
          */
-        sm::vvec< sm::vvec<std::tuple<sm::vec<F>,int32_t>> > get_neighbour_hexdir_vectors() const
+        sm::vvec< sm::vvec<std::tuple<sm::vec<F>, std::int32_t>> > get_neighbour_hexdir_vectors() const
         {
             using sm::vec;
             using sm::vvec;
             using std::tuple;
             using mc = sm::mathconst<F>;
 
-            vvec<vvec<tuple<vec<F>,int32_t>>> vneighb_vectors_per_vertex (this->poly.vneighbours.size());
+            vvec<vvec<tuple<vec<F>, std::int32_t>>> vneighb_vectors_per_vertex (this->poly.vneighbours.size());
             for (auto& vn : vneighb_vectors_per_vertex) { vn.reserve (6); } // There can be up to 6 neighbours
 
             /*!
@@ -351,38 +351,38 @@ export namespace sm::geometry
              *
              * \param nrm_vec The vector which is normal to vertex[i]
              */
-            auto _select_hex_basis_vectors = [&vneighb_vectors_per_vertex] (const int32_t i,
+            auto _select_hex_basis_vectors = [&vneighb_vectors_per_vertex] (const std::int32_t i,
                                                                             const vec<F>& ref_vec,
                                                                             const vec<F>& nrm_vec)
             {
                 constexpr F Fmax = std::numeric_limits<F>::max();
-                vvec<tuple<vec<F>, int32_t>> rgb_vectors (3, {vec<F>{ F{0}, F{0}, F{0} }, -1});
+                vvec<tuple<vec<F>, std::int32_t>> rgb_vectors (3, {vec<F>{ F{0}, F{0}, F{0} }, -1});
 
-                int32_t vnsz = static_cast<int32_t>(vneighb_vectors_per_vertex[i].size()); // 5 or 6 neighbours?
+                std::int32_t vnsz = static_cast<std::int32_t>(vneighb_vectors_per_vertex[i].size()); // 5 or 6 neighbours?
 
                 vvec<F> angles(vnsz, F{0});
                 F min_angle = Fmax;                 // Find the minimum angle
-                int32_t min_angle_index = -1;           // index of min_angle *into vneighb_vectors_per_vertex[i]*
-                int32_t min_angle_vertex_index = -1;    // index of the min_angle vertex *into poly.vertices*
+                std::int32_t min_angle_index = -1;           // index of min_angle *into vneighb_vectors_per_vertex[i]*
+                std::int32_t min_angle_vertex_index = -1;    // index of the min_angle vertex *into poly.vertices*
 
                 // First loop simply finds rgb_vector[0], which is the vector most aligned with ref_vec
-                for (int32_t j = 0; j < vnsz; ++j) {
+                for (std::int32_t j = 0; j < vnsz; ++j) {
                     // Compute each angle wrt to ref_vec
                     auto vec_ij = std::get<vec<F>>(vneighb_vectors_per_vertex[i][j]);
                     angles[j] = vec_ij.angle (ref_vec);
                     if (angles[j] < min_angle) {
                         min_angle_index = j;
-                        min_angle_vertex_index = std::get<int32_t>(vneighb_vectors_per_vertex[i][j]);
+                        min_angle_vertex_index = std::get<std::int32_t>(vneighb_vectors_per_vertex[i][j]);
                         min_angle = angles[j];
                     }
                 }
-                //int32_t r_index = min_angle_index; // This is not the original index of the neighbour
+                //std::int32_t r_index = min_angle_index; // This is not the original index of the neighbour
                 rgb_vectors[0] = { std::get<vec<F>>(vneighb_vectors_per_vertex[i][min_angle_index]), min_angle_vertex_index };
 
                 // Now find the next two, in anticlockwise order.
                 angles.zero();
-                std::map<F, tuple<vec<F>, int32_t>> vec_map; // A map with key as angle, to order vectors easily
-                for (int32_t j = 0; j < vnsz; ++j) {
+                std::map<F, tuple<vec<F>, std::int32_t>> vec_map; // A map with key as angle, to order vectors easily
+                for (std::int32_t j = 0; j < vnsz; ++j) {
                     auto vtx_ij = std::get<vec<F>>(vneighb_vectors_per_vertex[i][j]);
                     if (j != min_angle_index) {
                         // Compute each angle wrt to the reference (rgb_vectors[0])
@@ -412,10 +412,10 @@ export namespace sm::geometry
             constexpr bool align_all_R_with_ux = true;
             constexpr bool align_each_R_with_a_neighbour = !align_all_R_with_ux;
 
-            for (int32_t i = 0; i < static_cast<int32_t>(this->poly.vneighbours.size()); ++i) {
+            for (std::int32_t i = 0; i < static_cast<std::int32_t>(this->poly.vneighbours.size()); ++i) {
 
                 // Compute the neighbour vectors
-                for (int32_t n : this->poly.vneighbours[i]) { // vneighbour[i] is a set<int32_t>
+                for (std::int32_t n : this->poly.vneighbours[i]) { // vneighbour[i] is a set<std::int32_t>
                     vec<F> _v = this->poly.vertices[n] - this->poly.vertices[i];
                     vneighb_vectors_per_vertex[i].push_back ({_v,  n}); // n IS index into poly.vertices
                 }
@@ -434,7 +434,7 @@ export namespace sm::geometry
                         _select_hex_basis_vectors (i, ux, nrm);
                     } else {
                         // From i and down, see if it's a neighbour. If so, use it.
-                        for (int32_t id = i-1; id >= 0; --id) {
+                        for (std::int32_t id = i-1; id >= 0; --id) {
                             // Is vertex j a neighbour?
                             if (this->poly.vneighbours[i].count(id)) {
                                 // yes, so use it
@@ -458,17 +458,17 @@ export namespace sm::geometry
      */
     struct icosahedral_geodesic_info
     {
-        icosahedral_geodesic_info (const int32_t iterations)
+        icosahedral_geodesic_info (const std::int32_t iterations)
         {
             double d = std::round (std::pow (4, iterations));
-            if (d <= static_cast<double>(std::numeric_limits<int32_t>::max()) && d >= 0.0) {
-                const int32_t T = static_cast<int32_t>(d);
+            if (d <= static_cast<double>(std::numeric_limits<std::int32_t>::max()) && d >= 0.0) {
+                const std::int32_t T = static_cast<std::int32_t>(d);
                 this->n_vertices = 10 * T + 2;
                 this->n_faces = 20 * T;
             }
         }
-        int32_t n_vertices = 0;
-        int32_t n_faces = 0;
+        std::int32_t n_vertices = 0;
+        std::int32_t n_faces = 0;
     };
 
     /*!
@@ -517,14 +517,14 @@ export namespace sm::geometry
      * indices of the five-fold symmetry vertices.
      */
     template<typename F>
-    sm::geometry::icosahedral_geodesic<F> make_icosahedral_geodesic (const int32_t iterations)
+    sm::geometry::icosahedral_geodesic<F> make_icosahedral_geodesic (const std::int32_t iterations)
     {
         sm::geometry::icosahedral_geodesic<F> geo;
         // Start out with an icosahedron
         geo.poly = sm::geometry::icosahedron<F>();
 
         // As geo is currently an icosahedron, all vertices in geo are five-fold at this point
-        for (int32_t v = 0; v < static_cast<int32_t>(geo.poly.vertices.size()); ++v) { geo.fivefold_vertices.insert(v); }
+        for (std::int32_t v = 0; v < static_cast<std::int32_t>(geo.poly.vertices.size()); ++v) { geo.fivefold_vertices.insert(v); }
 
         // A special comparison function to order vertices in our Geodesic polyhedron. The
         // vertices (or face centroids) are arranged in a spiral, from z_max to z_min,
@@ -551,17 +551,17 @@ export namespace sm::geometry
         // Make a keyed container for the vertices, as we will need to reorder them. note:
         // sm::vec is key to map, as we will have a very custom sorting function. This
         // requires some care with the sorting function used by the std::map
-        std::map<sm::vec<F, 3>, int32_t, decltype(_vtx_cmp)> vertices_map(_vtx_cmp);
-        std::map<int32_t, int32_t> idx_remap;
+        std::map<sm::vec<F, 3>, std::int32_t, decltype(_vtx_cmp)> vertices_map(_vtx_cmp);
+        std::map<std::int32_t, std::int32_t> idx_remap;
 
         constexpr bool debug_vertices = false;
         constexpr bool debug_faces = false;
         constexpr bool debug_general = false;
 
-        for (int32_t i = 0; i < iterations; ++i) {
+        for (std::int32_t i = 0; i < iterations; ++i) {
 
             // (Re)Populate vertices_map from vertices.
-            int32_t ii = 0;
+            std::int32_t ii = 0;
             vertices_map.clear();
             for (auto v : geo.poly.vertices) { // original order of vertices (unordered)
                 vertices_map[v] = ii++; // Orders into a new *good* order (spiral) and records the value of the original order.
@@ -571,9 +571,9 @@ export namespace sm::geometry
                 std::cout << "ITERATION START\nOn iteration " << i << " vertices size is " << geo.poly.vertices.size() << std::endl;
             }
             std::map<sm::vec<F, 3>, // Comparing on the vertex key
-                     sm::vec<int32_t, 3>, decltype(_vtx_cmp)> faces_map(_vtx_cmp);
-            int32_t count = 0;
-            int32_t fcount = 0;
+                     sm::vec<std::int32_t, 3>, decltype(_vtx_cmp)> faces_map(_vtx_cmp);
+            std::int32_t count = 0;
+            std::int32_t fcount = 0;
             if constexpr (debug_faces) {
                 std::cout << "Looping through " << geo.poly.faces.size() << " faces...\n";
             }
@@ -582,8 +582,8 @@ export namespace sm::geometry
             auto add_face = [&faces_map, &count] (const sm::vec<F, 3>& vA,
                                                   const sm::vec<F, 3>& vB,
                                                   const sm::vec<F, 3>& vC,
-                                                  const sm::vec<int32_t, 3>& newface,
-                                                  const int32_t newface_num)
+                                                  const sm::vec<std::int32_t, 3>& newface,
+                                                  const std::int32_t newface_num)
             {
                 sm::vec<F, 3> centroid = (vA + vB + vC) / 3.0f;
                 faces_map[centroid] = newface;
@@ -596,7 +596,7 @@ export namespace sm::geometry
                               << newface[0] << " -- " << newface[1] << " -- " << newface[2] << "]\n";
                     std::cout << "faces_map size should now be " << count << " but is: " << faces_map.size() << std::endl;
                 }
-                if (static_cast<size_t>(count) != faces_map.size()) { throw std::runtime_error ("count != faces_map.size()"); }
+                if (static_cast<std::size_t>(count) != faces_map.size()) { throw std::runtime_error ("count != faces_map.size()"); }
             };
 
             for (const auto f : geo.poly.faces) { // faces contains indexes into vertices.
@@ -614,7 +614,7 @@ export namespace sm::geometry
 
                 // Is va/vb/vc new?
 
-                int32_t a = 0;
+                std::int32_t a = 0;
                 try {
                     a = vertices_map.at (va); // a is the existing index (old money)
                     if constexpr (debug_vertices) {
@@ -630,7 +630,7 @@ export namespace sm::geometry
                     }
                 }
 
-                int32_t b = 0;
+                std::int32_t b = 0;
                 try {
                     b = vertices_map.at (vb);
                     if constexpr (debug_vertices) {
@@ -645,7 +645,7 @@ export namespace sm::geometry
                     }
                 }
 
-                int32_t c = 0;
+                std::int32_t c = 0;
                 try {
                     c = vertices_map.at (vc);
                     if constexpr (debug_vertices) {
@@ -660,7 +660,7 @@ export namespace sm::geometry
                     }
                 }
 
-                sm::vec<int32_t, 3> newface = { f[0], a, c }; // indices in old money here
+                sm::vec<std::int32_t, 3> newface = { f[0], a, c }; // indices in old money here
                 add_face (geo.poly.vertices[f[0]], va, vc, newface, 1);
 
                 newface = { f[1], b, a };
@@ -679,7 +679,7 @@ export namespace sm::geometry
 
             // Copy faces_map back to faces?
             geo.poly.faces.resize (faces_map.size());
-            int32_t j = 0;
+            std::int32_t j = 0;
             for (auto fm : faces_map) {
                 geo.poly.faces[j] = fm.second;
                 j++;
@@ -688,9 +688,9 @@ export namespace sm::geometry
 
             // idx_remap is keyed on the badly ordered indices; value is correct ordering (j
             // follows order of vertices_map)
-            int32_t k = 0;
+            std::int32_t k = 0;
             idx_remap.clear();
-            std::set<int32_t> ffv; // temporary storage for a new fivefold_vertices set
+            std::set<std::int32_t> ffv; // temporary storage for a new fivefold_vertices set
             for (auto v : vertices_map) {
                 // See if we are remapping a fivefold vertex
                 if (geo.fivefold_vertices.count (v.second)) {
@@ -720,7 +720,7 @@ export namespace sm::geometry
 
             // Populate vertices
             geo.poly.vertices.resize (vertices_map.size());
-            int32_t l = 0;
+            std::int32_t l = 0;
             for (auto v : vertices_map) {
                 geo.poly.vertices[l++] = v.first;
             }

@@ -264,7 +264,7 @@ int main() {
     fromstd.set_from (stdvec);
 
     sm::vvec<double> lins;
-    size_t nnn = 11;
+    std::size_t nnn = 11;
     lins.linspace (0, 1, nnn);
     std::cout << nnn << " linearly spaced values from 0 to 1:\n" << lins << std::endl;
     sm::vvec<float> linsi(12);
@@ -375,7 +375,7 @@ int main() {
     std::cout << vvir << " rotate(): " << vvir1 << std::endl;
 
     sm::vvec<int> vvir2(vvir);
-    for (size_t n = 0; n < 6; ++n) {
+    for (std::size_t n = 0; n < 6; ++n) {
         vvir2 = vvir;
         vvir2.rotate (n);
         std::cout << vvir << " rotate("<<n<<"): " << vvir2 << std::endl;
@@ -391,7 +391,7 @@ int main() {
     sm::vvec<int> vr2 = vr;
 
     sm::vvec<int> rot_size_t_correct = { 0, 1, 2, 3, 0, 1, 2 };
-    for (size_t i = 0; i < 7; ++i) {
+    for (std::size_t i = 0; i < 7; ++i) {
         vr2 = vr;
         vr2.rotate (i);
         std::cout << vr << " rotate("<<i<<") is " << vr2 << std::endl;
@@ -517,11 +517,11 @@ int main() {
     std::cout << "After zero: " << vvvec << " with sum " << vvvec.sum().sum() << std::endl;
 
     // Sum of squares
-    sm::vvec<uint8_t> sos1 = {2, 3, 4, 5};
+    sm::vvec<std::uint8_t> sos1 = {2, 3, 4, 5};
     std::cout << sos1.as_uint() << " uint8_t sum of squares: sos1.sos(): " << sos1.sos() << std::endl;
     std::cout << sos1.as_uint() << " uint8_t sum of squares: sos1.sos<unsigned int>(): " << sos1.sos<false, unsigned int>() << std::endl;
 
-    std::cout << sos1.as_uint() << " uint8_t to power 3: sos1.pow<uint8_t>(4) = " << sos1.pow<uint8_t>(4).as_uint() << std::endl;
+    std::cout << sos1.as_uint() << " uint8_t to power 3: sos1.pow<uint8_t>(4) = " << sos1.pow<std::uint8_t>(4).as_uint() << std::endl;
     std::cout << sos1.as_uint() << " uint8_t to power 3: sos1.pow<unsigned int>(4) = " << sos1.pow<unsigned int>(4) << std::endl;
 
     // Correctly fails to compile/errors (will fail to compile when sm moves to C++-20)
@@ -541,11 +541,11 @@ int main() {
     std::cout << sosv1 << " is a vector of vectors, so sosv1.length_sq<int>() returns a sum of squared lengths: " << sosv1.length_sq<int>() << std::endl;
     std::cout << sosv1 << " is a vector of vectors, so sosv1.sos(): " << sosv1.sos() << std::endl;
 
-    sm::vvec<uint8_t> uv = {10, 10, 10};
+    sm::vvec<std::uint8_t> uv = {10, 10, 10};
     std::cout << uv.as_uint() << ".product() = " << static_cast<unsigned int>(uv.product()) << std::endl;
     std::cout << uv.as_uint() << ".product<false, unsigned int>() = " << uv.product<false, unsigned int>() << std::endl;
 
-    sm::vvec<uint8_t> uv2 = {1, 2, 10, 3, 11, 23};
+    sm::vvec<std::uint8_t> uv2 = {1, 2, 10, 3, 11, 23};
     std::cout << uv2.as_uint() << " mean: " << uv2.mean<false, float>() << std::endl;
     std::cout << uv2.as_uint() << " variance: " << uv2.variance<false, float>() << std::endl;
 

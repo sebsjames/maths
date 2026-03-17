@@ -13,7 +13,7 @@ int main()
     if (r.update (5.0f) == false) { --rtn; } // Update with 5 should change the range and return true
     if (r.update (3.0f) == true) { --rtn; } // Update with 3 should not change the range
 
-    sm::range<int> r1 = { 1, 100 };
+    sm::range<std::int32_t> r1 = { 1, 100 };
     sm::range<int> r2 = { 10, 90 };
     sm::range<int> r3 = { -1, 2 };
     sm::range<int> r4 = { 90, 100 };

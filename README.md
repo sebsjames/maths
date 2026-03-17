@@ -42,6 +42,7 @@ The namespace is just `sm` (I like short namespaces for frequently used types).
 Here's an example
 
 ```c++
+#include <iostream> // or maybe import std;
 import sm.mathconst;
 import sm.vec;
 import sm.quaternion;
@@ -81,4 +82,20 @@ Installing clang on Ubuntu:
 sudo apt install clang-18 clang-tools-18 # need both.
 ```
 
-* * gcc 14 can only compile a subset of the test programs. gcc 15 compiles all the tests. gcc 16 may be required to compile the modules version of mathplot.*
+*gcc 14 can only compile a subset of the test programs. gcc 15 compiles all the tests. gcc 16 may be required to compile the modules version of mathplot.*
+
+```bash
+mkdir build
+cd build
+# A cmake call something like (if you want to use gcc and your default c++ runtime library
+CC=gcc-15 CXX=g++-15 cmake .. -GNinja
+ninja
+```
+```bash
+mkdir build
+cd build
+# A cmake call something like (if you want to use clang and  libc++:
+CC=clang-20 CXX=clang++-20 cmake .. -GNinja -DCMAKE_CXX_FLAGS="-stdlib=libc++"
+# possibly also -DCMAKE_EXE_LINKER_FLAGS="-stdlib=libc++ -lc++abi"
+ninja
+```

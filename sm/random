@@ -53,7 +53,7 @@
  */
 module;
 
-#include <random> // would be nice to export symbols here to code that imports sm.random.
+#include <random>
 #include <vector>
 #include <limits>
 #include <type_traits>
@@ -66,8 +66,8 @@ module;
 
 export module sm.random;
 
-// maybe later: export import std; or export import std.random.
 import sm.mathconst;
+import sm.bessel_i0;
 
 namespace sm
 {
@@ -115,7 +115,7 @@ namespace sm
             }
             //! This constructor gives RN generator which works in range [0,1) and sets a
             //! fixed seed
-            rand_uniform (uint32_t _seed) noexcept
+            rand_uniform (std::uint32_t _seed) noexcept
             {
                 this->generator.seed (_seed);
                 typename std::uniform_real_distribution<T>::param_type prms (T{0}, T{1});
@@ -128,7 +128,7 @@ namespace sm
                 this->dist.param (prms);
             }
             //! This constructor gives RN generator which works in range [a,b)
-            rand_uniform (T a, T b, uint32_t _seed) noexcept
+            rand_uniform (T a, T b, std::uint32_t _seed) noexcept
             {
                 this->generator.seed (_seed);
                 typename std::uniform_real_distribution<T>::param_type prms (a, b);
@@ -203,7 +203,7 @@ namespace sm
             }
             //! This constructor gives an integer random number generator which works
             //! in range [(type min),(type max)] with fixed seed \a _seed.
-            rand_uniform (uint32_t _seed) noexcept
+            rand_uniform (std::uint32_t _seed) noexcept
             {
                 this->generator.seed (_seed);
                 typename std::uniform_int_distribution<T>::param_type prms (std::numeric_limits<T>::min(),
@@ -218,7 +218,7 @@ namespace sm
             }
             //! This constructor gives RN generator which works in range [a,b] and sets a
             //! fixed seed.
-            rand_uniform (T a, T b, uint32_t _seed) noexcept
+            rand_uniform (T a, T b, std::uint32_t _seed) noexcept
             {
                 this->generator.seed (_seed);
                 typename std::uniform_int_distribution<T>::param_type prms (a, b);
@@ -299,7 +299,7 @@ namespace sm
         }
         //! This constructor gives RN generator with mean 0 and standard deviation 1
         //! and set a fixed seed.
-        rand_normal (uint32_t _seed) noexcept
+        rand_normal (std::uint32_t _seed) noexcept
         {
             this->generator.seed (_seed);
             typename std::normal_distribution<T>::param_type prms (T{0}, T{1});
@@ -312,7 +312,7 @@ namespace sm
             this->dist.param (prms);
         }
         //! This constructor gives RN generator with mean \a mean and standard deviation \a sigma
-        rand_normal (T mean, T sigma, uint32_t _seed) noexcept
+        rand_normal (T mean, T sigma, std::uint32_t _seed) noexcept
         {
             this->generator.seed (_seed);
             typename std::normal_distribution<T>::param_type prms (mean, sigma);
@@ -387,7 +387,7 @@ namespace sm
         }
         //! This constructor gives RN generator with mean-of-the-log 0 and standard
         //! deviation-of-the-log 1. Sets a fixed seed.
-        rand_lognormal (uint32_t _seed) noexcept
+        rand_lognormal (std::uint32_t _seed) noexcept
         {
             this->generator.seed (_seed);
             typename std::lognormal_distribution<T>::param_type prms (T{0}, T{1});
@@ -402,7 +402,7 @@ namespace sm
         }
         //! This constructor gives RN generator with mean-of-the-log \a mean and
         //! standard deviation \a sigma and sets a seed.
-        rand_lognormal (T mean, T sigma, uint32_t _seed) noexcept
+        rand_lognormal (T mean, T sigma, std::uint32_t _seed) noexcept
         {
             this->generator.seed (_seed);
             typename std::lognormal_distribution<T>::param_type prms (mean, sigma);
@@ -473,7 +473,7 @@ namespace sm
      *
      * \tparam E The pseudo-random number generator engine.
      */
-    export template <typename T = int32_t, typename E = std::mt19937> requires std::is_integral_v<std::decay_t<T>>
+    export template <typename T = std::int32_t, typename E = std::mt19937> requires std::is_integral_v<std::decay_t<T>>
     class rand_poisson
     {
     private:
@@ -492,7 +492,7 @@ namespace sm
         }
         //! Default constructor gives a poisson random number generator with mean
         //! 0. Sets fixed seed \a _seed.
-        rand_poisson (uint32_t _seed) noexcept
+        rand_poisson (std::uint32_t _seed) noexcept
         {
             this->generator.seed (_seed);
             typename std::poisson_distribution<T>::param_type prms (T{0});
@@ -507,7 +507,7 @@ namespace sm
         }
         //! This constructor gives RN generator with mean \a mean.
         template<typename F = T> requires std::is_arithmetic_v<F>
-        rand_poisson (F mean, uint32_t _seed) noexcept
+        rand_poisson (F mean, std::uint32_t _seed) noexcept
         {
             this->generator.seed (_seed);
             typename std::poisson_distribution<T>::param_type prms (mean);
@@ -585,7 +585,7 @@ namespace sm
         }
         //! Default constructor gives a exponential random number generator with rate 1
         //! Sets fixed seed \a _seed.
-        rand_exponential (uint32_t _seed) noexcept
+        rand_exponential (std::uint32_t _seed) noexcept
         {
             this->generator.seed (_seed);
             typename std::exponential_distribution<T>::param_type prms (T{1});
@@ -598,7 +598,7 @@ namespace sm
             this->dist.param (prms);
         }
         //! This constructor gives RN generator with rate \a rate. and a given seed
-        rand_exponential (T rate, uint32_t _seed) noexcept
+        rand_exponential (T rate, std::uint32_t _seed) noexcept
         {
             this->generator.seed (_seed);
             typename std::exponential_distribution<T>::param_type prms (rate);
@@ -670,15 +670,15 @@ namespace sm
         }
         //! Default constructor gives a pareto random number generator with alpha (or shape) 1 and sigma (scale or x_min) 1.
         //! Sets fixed seed \a _seed.
-        rand_pareto (uint32_t _seed) noexcept : sm::rand_exponential<T, E>(T{1}, _seed) {}
+        rand_pareto (std::uint32_t _seed) noexcept : sm::rand_exponential<T, E>(T{1}, _seed) {}
         //! This constructor gives Pareto RN generator with alpha \a alpha and sigma 1
         rand_pareto (T alpha) noexcept : sm::rand_exponential<T, E>(alpha) {}
         //! Construct with given alpha and sigma
         rand_pareto (T alpha, T _sigma) noexcept : sm::rand_exponential<T, E>(alpha) { this->sigma = _sigma; }
         //! This constructor gives RN generator with alpha \a alpha. and a given seed
-        rand_pareto (T alpha, uint32_t _seed) noexcept : sm::rand_exponential<T, E>(alpha, _seed) {}
+        rand_pareto (T alpha, std::uint32_t _seed) noexcept : sm::rand_exponential<T, E>(alpha, _seed) {}
         //! This constructor gives RN generator with alpha \a alpha, sigma \a sigma. and a given seed
-        rand_pareto (T alpha, T _sigma, uint32_t _seed) noexcept : sm::rand_exponential<T, E>(alpha, _seed)
+        rand_pareto (T alpha, T _sigma, std::uint32_t _seed) noexcept : sm::rand_exponential<T, E>(alpha, _seed)
         {
             this->sigma = _sigma;
         }
@@ -767,7 +767,7 @@ namespace sm
             T s = T{0};
             T U = T{0}, V = T{0}, W = T{0}, Y = T{0}, Z = T{0};
             T result = T{0}, mod = T{0};
-            int32_t neg = 0;
+            std::int32_t neg = 0;
             if (std::isnan(kappa)) { return std::numeric_limits<T>::quiet_NaN(); }
             if (kappa < kappa_for_rho_zero) {
                 // Draw from a uniform distribution for very small values of kappa
@@ -817,18 +817,11 @@ namespace sm
             }
         }
 
-        // There is no std::cyl_bessel_i on Mac and libc++
-        // https://releases.llvm.org/19.1.0/projects/libcxx/docs/Status/SpecialMath.html
-#if !defined(__APPLE__) && !defined(_LIBCPP_VERSION)
-        /*!
-         * Return probability density function value, P(x)
-         */
+        //! Return probability density function value, P(x)
         T prob_density (const T x) const noexcept
         {
-            T bessel = std::cyl_bessel_i (T{0}, this->kappa);
-            return std::exp (this->kappa * std::cos (x - this->mu)) / (sm::mathconst<T>::two_pi * bessel);
+            return std::exp (this->kappa * std::cos (x - this->mu)) / (sm::mathconst<T>::two_pi * sm::bessel_i0 (this->kappa));
         }
-#endif
 
     private:
         /*!
@@ -867,9 +860,9 @@ namespace sm
         //! Default constructor gives a string generator that generates 8 hexlowercase characters
         rand_string() noexcept : length(8) { this->setup_rng(); }
         //! Construct to generate a string of a particular length \a l, in default hexlowercase format
-        rand_string (const uint32_t l) noexcept : length(l) { this->setup_rng(); }
+        rand_string (const std::uint32_t l) noexcept : length(l) { this->setup_rng(); }
         //! Construct with given length \a l and character group \a _cg.
-        rand_string (const uint32_t l, const chargroup& _cg) noexcept : length(l), cg(_cg) { this->setup_rng(); }
+        rand_string (const std::uint32_t l, const chargroup& _cg) noexcept : length(l), cg(_cg) { this->setup_rng(); }
 
         //! Get a random string of rand_string::length characters chosen from the given
         //! chargroup rand_string::cg
@@ -878,10 +871,10 @@ namespace sm
             // Initialise a string of the correct length
             std::string s(this->length, ' ');
 
-            for (uint32_t i = 0U; i < this->length; ++i) {
+            for (std::uint32_t i = 0U; i < this->length; ++i) {
 
                 // Get a random number
-                uint16_t rn = this->rng->get();
+                std::uint16_t rn = this->rng->get();
 
                 // Turn the random number into a character, depending on the chargroup
                 switch (this->cg) {
@@ -956,7 +949,7 @@ namespace sm
         }
 
         //! Get a particular length of string - updates rand_string::length first
-        std::string get (const uint32_t l) noexcept
+        std::string get (const std::uint32_t l) noexcept
         {
             this->length = l;
             return this->get();
@@ -975,13 +968,13 @@ namespace sm
         void setup_rng() noexcept
         {
             // Set rng to generate random numbers in correct range
-            this->rng = std::make_unique<rand_uniform<uint16_t>>(0, this->numchars()-1);
+            this->rng = std::make_unique<rand_uniform<std::uint16_t>>(0, this->numchars()-1);
         }
 
         //! Return the number of characters total in each chargroup
-        uint16_t numchars() const noexcept
+        std::uint16_t numchars() const noexcept
         {
-            uint16_t n = 0;
+            std::uint16_t n = 0;
             switch (this->cg) {
             case chargroup::alphanumeric: { n = 62; break; }
             case chargroup::alpha: { n = 52; break; }
@@ -1000,10 +993,10 @@ namespace sm
         }
 
         //! The number generator
-        std::unique_ptr<rand_uniform<uint16_t>> rng;
+        std::unique_ptr<rand_uniform<std::uint16_t>> rng;
 
         //! The number of characters to generate
-        uint32_t length = 0;
+        std::uint32_t length = 0;
 
         //! The group of characters from which to generate a string
         chargroup cg = chargroup::hexlowercase;

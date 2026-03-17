@@ -16,10 +16,9 @@ module;
 #include <vector>
 #include <array>
 
-#include <sm/trait_tests>
-
 export module sm.centroid;
 
+import sm.trait_tests;
 export import sm.vec;
 import sm.vvec;
 

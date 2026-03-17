@@ -16,25 +16,25 @@ module;
 #include <cmath>
 #include <vector>
 
+export module sm.bootstrap;
+
 export import sm.vec;
 import sm.vvec;
-
-export module sm.bootstrap;
 
 export namespace sm::bootstrap
 {
     // Resample B sets from data and place them in resamples
     template <typename T>
     void resample_with_replacement (const sm::vvec<T>& data,
-                                    std::vector<sm::vvec<T>>& resamples, const uint32_t B)
+                                    std::vector<sm::vvec<T>>& resamples, const std::uint32_t B)
     {
-        uint32_t data_n = data.size();
+        std::uint32_t data_n = data.size();
         resamples.resize (B);
-        for (uint32_t i = 0; i < B; ++i) {
+        for (std::uint32_t i = 0; i < B; ++i) {
             sm::vvec<T> resample (data_n);
-            sm::vvec<uint32_t> randindices (data_n);
+            sm::vvec<std::uint32_t> randindices (data_n);
             randindices.randomize (0, data_n - 1);
-            for (uint32_t j = 0; j < data_n; ++j) {
+            for (std::uint32_t j = 0; j < data_n; ++j) {
                 resample[j] = data[randindices[j]];
             }
             resamples[i] = resample;
@@ -43,12 +43,12 @@ export namespace sm::bootstrap
 
     // Compute a bootstapped standard error of the mean of the data with B resamples
     template <typename T>
-    T error_of_mean (const sm::vvec<T>& data, const uint32_t B)
+    T error_of_mean (const sm::vvec<T>& data, const std::uint32_t B)
     {
         std::vector<sm::vvec<T>> resamples;
         sm::bootstrap::resample_with_replacement<T> (data, resamples, B);
         sm::vvec<T> r_mean (B, T{0});
-        for (uint32_t i = 0; i < B; ++i) {
+        for (std::uint32_t i = 0; i < B; ++i) {
             r_mean[i] = resamples[i].mean();
         }
         // Standard error is the standard deviation of the resample means
@@ -56,7 +56,7 @@ export namespace sm::bootstrap
     }
     // std::vector version of error_of_mean
     template <typename T>
-    T error_of_mean (const std::vector<T>& data, const uint32_t B)
+    T error_of_mean (const std::vector<T>& data, const std::uint32_t B)
     {
         sm::vvec<T> vdata;
         vdata.set_from (data);
@@ -65,12 +65,12 @@ export namespace sm::bootstrap
 
     // Compute a bootstapped standard error of the SD of the data with B resamples
     template <typename T>
-    T error_of_std (const sm::vvec<T>& data, const uint32_t B)
+    T error_of_std (const sm::vvec<T>& data, const std::uint32_t B)
     {
         std::vector<sm::vvec<T>> resamples;
         sm::bootstrap::resample_with_replacement<T> (data, resamples, B);
         sm::vvec<T> r_std (B, T{0});
-        for (uint32_t i = 0; i < B; ++i) {
+        for (std::uint32_t i = 0; i < B; ++i) {
             r_std[i] = resamples[i].std();
         }
         // Standard error of the statistic is the standard deviation of the resampled statistic
@@ -78,7 +78,7 @@ export namespace sm::bootstrap
     }
     // std::vector version of error_of_std
     template <typename T>
-    T error_of_std (const std::vector<T>& data, const uint32_t B)
+    T error_of_std (const std::vector<T>& data, const std::uint32_t B)
     {
         sm::vvec<T> vdata;
         vdata.set_from (data);
@@ -109,7 +109,7 @@ export namespace sm::bootstrap
     // 10.1109/TCDS.2018.2797426.
     template <typename T>
     sm::vec<T, 2> ttest_equalityofmeans (const sm::vvec<T>& _zdata,
-                                         const sm::vvec<T>& _ydata, const uint32_t B)
+                                         const sm::vvec<T>& _ydata, const std::uint32_t B)
     {
         constexpr bool debug_bstrap = false;
 
@@ -118,8 +118,8 @@ export namespace sm::bootstrap
         sm::vvec<T> ydata = _ydata;
         if (_zdata.mean() <= _ydata.mean()) { std::swap (ydata, zdata); }
 
-        uint32_t n = zdata.size();
-        uint32_t m = ydata.size();
+        std::uint32_t n = zdata.size();
+        std::uint32_t m = ydata.size();
 
         T zmean = zdata.mean();
         T ymean = ydata.mean();
@@ -164,7 +164,7 @@ export namespace sm::bootstrap
         sm::vvec<T> zstarmeans (B, T{0});
         sm::vvec<T> ystarmeans (B, T{0});
 
-        for (uint32_t i = 0; i < B; ++i) {
+        for (std::uint32_t i = 0; i < B; ++i) {
             zstarmeans[i] = zstar[i].mean();
             ystarmeans[i] = ystar[i].mean();
         }
@@ -176,7 +176,7 @@ export namespace sm::bootstrap
         // Compute the variances.
         sm::vvec<T> zvariances (B, T{0});
         sm::vvec<T> yvariances (B, T{0});
-        for (uint32_t i = 0; i < B; ++i) {
+        for (std::uint32_t i = 0; i < B; ++i) {
             zvariances[i] = (zstar[i]-zstarmeans[i]).pow(2).sum() / (n-1);
             yvariances[i] = (ystar[i]-ystarmeans[i]).pow(2).sum() / (m-1);
         }
@@ -205,7 +205,7 @@ export namespace sm::bootstrap
     // std::vector version of ttest_equalityofmeans()
     template <typename T>
     sm::vec<T, 2> ttest_equalityofmeans (const std::vector<T>& _zdata,
-                                         const std::vector<T>& _ydata, const uint32_t B)
+                                         const std::vector<T>& _ydata, const std::uint32_t B)
     {
         sm::vvec<T> vzdata;
         vzdata.set_from (_zdata);

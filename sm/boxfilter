@@ -38,7 +38,7 @@ export namespace sm::algo
      * default), sum contributions and divide by box area.
      * \tparam T_o The type of the output data
      */
-    template<typename T, int32_t boxside, int32_t w, bool onlysum = false, typename T_o = T>
+    template<typename T, std::int32_t boxside, std::int32_t w, bool onlysum = false, typename T_o = T>
     void boxfilter_2d (const sm::vvec<T>& data, sm::vvec<T_o>& result)
     {
         if constexpr (boxside % 2 == 0) {
@@ -50,28 +50,28 @@ export namespace sm::algo
 
         // Divide by boxarea without accounting for edges (wrapping will sort horz edges)
         static constexpr T_o oneover_boxa = T_o{1} / (static_cast<T_o>(boxside) * static_cast<T_o>(boxside));
-        static constexpr int32_t halfbox = boxside / 2;
-        static constexpr int32_t halfbox_p1 = halfbox + 1;
+        static constexpr std::int32_t halfbox = boxside / 2;
+        static constexpr std::int32_t halfbox_p1 = halfbox + 1;
 
         sm::vec<T_o, w> colsum;
         colsum.zero();
         T_o rowsum = T{0};
 
-        int32_t h = data.size() / w;
+        std::int32_t h = data.size() / w;
 
         // process data row by row
-        for (int32_t y = -halfbox; y < h; ++y) {
+        for (std::int32_t y = -halfbox; y < h; ++y) {
 
             // 1. Accumulate column sums; pull out last row.
             if (y + halfbox < h) {
                 if (y >= halfbox_p1) {
-                    for (int32_t x = 0; x < w; ++x) {
+                    for (std::int32_t x = 0; x < w; ++x) {
                         // Add to the next row from the data array and subtract the last (bottom) row of the colsum
                         colsum[x] += data[(y + halfbox) * w + x]  -  data[(y - halfbox_p1) * w + x];
                         // T_o       T                         T
                     }
                 } else {
-                    for (int32_t x = 0; x < w; ++x) {
+                    for (std::int32_t x = 0; x < w; ++x) {
                         // Just add to the next row from the data array
                         colsum[x] += data[(y + halfbox) * w + x];
                     }
@@ -79,7 +79,7 @@ export namespace sm::algo
             } else {
                 if (y >= halfbox_p1) {
                     // Just subtract
-                    for (int32_t x = 0; x < w; ++x) {
+                    for (std::int32_t x = 0; x < w; ++x) {
                         colsum[x] -= data[(y - halfbox_p1) * w + x];
                     }
                 } // else no op on colsum[x]
@@ -88,13 +88,13 @@ export namespace sm::algo
             rowsum = T{0};
             if (y >= 0) {
                 // 2. Initialise rowsum. This happens after we have accumulated colsums. Init rowsum as the sum of the end col
-                for (int32_t i = -halfbox_p1; i < 0; ++i) { rowsum += colsum[i + w]; }
-                for (int32_t i = 0; i < halfbox; ++i) { rowsum += colsum[i]; }
+                for (std::int32_t i = -halfbox_p1; i < 0; ++i) { rowsum += colsum[i + w]; }
+                for (std::int32_t i = 0; i < halfbox; ++i) { rowsum += colsum[i]; }
 
                 // 3. Compute the sum along the row, and write this into result
-                int32_t l = -halfbox_p1;
-                int32_t r = halfbox;
-                for (int32_t x = 0; x < w; ++x) {
+                std::int32_t l = -halfbox_p1;
+                std::int32_t r = halfbox;
+                for (std::int32_t x = 0; x < w; ++x) {
                     // A modulus where -x modulus w gives always a positive index: (w + (a % w)) % w
                     rowsum += colsum[(w + (r++ % w)) % w] - colsum[(w + (l++ % w)) % w];
 
@@ -128,7 +128,7 @@ export namespace sm::algo
      * \tparam onlysum If true, only sum up the contributions from the box. If false, sum
      * contributions and divide by box area.
      */
-    template<typename T, int32_t boxside, int32_t w, int32_t h, bool onlysum = false, typename T_o = T>
+    template<typename T, std::int32_t boxside, std::int32_t w, std::int32_t h, bool onlysum = false, typename T_o = T>
     void boxfilter_2d (const std::array<T, w * h>& data, std::array<T_o, w * h>& result)
     {
         static_assert ((boxside > 0 && (boxside % 2) > 0),
@@ -136,26 +136,26 @@ export namespace sm::algo
 
         // Divide by boxarea without accounting for edges (wrapping will sort horz edges)
         static constexpr T_o oneover_boxa = T_o{1} / (static_cast<T_o>(boxside) * static_cast<T_o>(boxside));
-        static constexpr int32_t halfbox = boxside / 2;
-        static constexpr int32_t halfbox_p1 = halfbox + 1;
+        static constexpr std::int32_t halfbox = boxside / 2;
+        static constexpr std::int32_t halfbox_p1 = halfbox + 1;
 
         std::array<T_o, w> colsum;
         for (auto& el : colsum) { el = T_o{0}; }
         T_o rowsum = T_o{0};
 
         // process data row by row
-        for (int32_t y = -halfbox; y < h; ++y) {
+        for (std::int32_t y = -halfbox; y < h; ++y) {
 
             // 1. Accumulate column sums; pull out last row.
             if (y+halfbox < h) {
                 if (y >= halfbox_p1) {
-                    for (int32_t x = 0; x < w; ++x) {
+                    for (std::int32_t x = 0; x < w; ++x) {
                         // Add to the next row from the data array and subtract the last (bottom) row of the colsum
                         colsum[x] += data[(y + halfbox) * w + x]  -  data[(y - halfbox_p1) * w + x];
                         // T_o       T                         T
                     }
                 } else {
-                    for (int32_t x = 0; x < w; ++x) {
+                    for (std::int32_t x = 0; x < w; ++x) {
                         // Just add to the next row from the data array
                         colsum[x] += data[(y + halfbox) * w + x];
                     }
@@ -163,7 +163,7 @@ export namespace sm::algo
             } else {
                 if (y >= halfbox_p1) {
                     // Just subtract
-                    for (int32_t x = 0; x < w; ++x) {
+                    for (std::int32_t x = 0; x < w; ++x) {
                         colsum[x] -= data[(y - halfbox_p1) * w + x];
                     }
                 } // else no op on colsum[x]
@@ -172,13 +172,13 @@ export namespace sm::algo
             rowsum = T{0};
             if (y >= 0) {
                 // 2. Initialise rowsum. This happens after we have accumulated colsums. Init rowsum as the sum of the end col
-                for (int32_t i = -halfbox_p1; i < 0; ++i) { rowsum += colsum[i + w]; }
-                for (int32_t i = 0; i < halfbox; ++i) { rowsum += colsum[i]; }
+                for (std::int32_t i = -halfbox_p1; i < 0; ++i) { rowsum += colsum[i + w]; }
+                for (std::int32_t i = 0; i < halfbox; ++i) { rowsum += colsum[i]; }
 
                 // 3. Compute the sum along the row, and write this into result
-                int32_t l = -halfbox_p1;
-                int32_t r = halfbox;
-                for (int32_t x = 0; x < w; ++x) {
+                std::int32_t l = -halfbox_p1;
+                std::int32_t r = halfbox;
+                for (std::int32_t x = 0; x < w; ++x) {
                     // A modulus where -x modulus w gives always a positive index: (w + (a % w)) % w
                     rowsum += colsum[(w + (r++ % w)) % w] - colsum[(w + (l++ % w)) % w];
 
@@ -208,8 +208,8 @@ export namespace sm::algo
      * \tparam onlysum If true, only sum up the contributions from the box. If false, sum
      * contributions and divide by box area.
      */
-    template<typename T, int32_t boxside, bool onlysum = false>
-    void boxfilter_2d (const sm::vvec<T>& data, sm::vvec<T>& result, const int32_t w)
+    template<typename T, std::int32_t boxside, bool onlysum = false>
+    void boxfilter_2d (const sm::vvec<T>& data, sm::vvec<T>& result, const std::int32_t w)
     {
         if constexpr (boxside % 2 == 0) {
             throw std::runtime_error ("boxfilter_2d was not designed for even box filter squares (set boxside template param. to an odd value)");
@@ -223,26 +223,26 @@ export namespace sm::algo
 
         // Divide by boxarea without accounting for edges (wrapping will sort horz edges)
         static constexpr T oneover_boxa = T{1} / (static_cast<T>(boxside) * static_cast<T>(boxside));
-        static constexpr int32_t halfbox = boxside / 2;
-        static constexpr int32_t halfbox_p1 = halfbox + 1;
+        static constexpr std::int32_t halfbox = boxside / 2;
+        static constexpr std::int32_t halfbox_p1 = halfbox + 1;
 
         sm::vvec<T> colsum (w, T{0});
         T rowsum = T{0};
 
-        int32_t h = data.size() / w;
+        std::int32_t h = data.size() / w;
 
         // process data row by row
-        for (int32_t y = -halfbox; y < h; ++y) {
+        for (std::int32_t y = -halfbox; y < h; ++y) {
 
             // 1. Accumulate column sums; pull out last row.
             if (y + halfbox < h) {
                 if (y >= halfbox_p1) {
-                    for (int32_t x = 0; x < w; ++x) {
+                    for (std::int32_t x = 0; x < w; ++x) {
                         // Add to the next row from the data array and subtract the last (bottom) row of the colsum
                         colsum[x] += data[(y + halfbox) * w + x]  -  data[(y - halfbox_p1) * w + x];
                     }
                 } else {
-                    for (int32_t x = 0; x < w; ++x) {
+                    for (std::int32_t x = 0; x < w; ++x) {
                         // Just add to the next row from the data array
                         colsum[x] += data[(y + halfbox) * w + x];
                     }
@@ -250,7 +250,7 @@ export namespace sm::algo
             } else {
                 if (y >= halfbox_p1) {
                     // Just subtract
-                    for (int32_t x = 0; x < w; ++x) {
+                    for (std::int32_t x = 0; x < w; ++x) {
                         colsum[x] -= data[(y - halfbox_p1) * w + x];
                     }
                 } // else no op on colsum[x]
@@ -259,13 +259,13 @@ export namespace sm::algo
             rowsum = T{0};
             if (y >= 0) {
                 // 2. Initialise rowsum. This happens after we have accumulated colsums. Init rowsum as the sum of the end col
-                for (int32_t i = -halfbox_p1; i < 0; ++i) { rowsum += colsum[i + w]; }
-                for (int32_t i = 0; i < halfbox; ++i) { rowsum += colsum[i]; }
+                for (std::int32_t i = -halfbox_p1; i < 0; ++i) { rowsum += colsum[i + w]; }
+                for (std::int32_t i = 0; i < halfbox; ++i) { rowsum += colsum[i]; }
 
                 // 3. Compute the sum along the row, and write this into result
-                int32_t l = -halfbox_p1;
-                int32_t r = halfbox;
-                for (int32_t x = 0; x < w; ++x) {
+                std::int32_t l = -halfbox_p1;
+                std::int32_t r = halfbox;
+                for (std::int32_t x = 0; x < w; ++x) {
                     // A modulus where -x modulus w gives always a positive index: (w + (a % w)) % w
                     rowsum += colsum[(w + (r++ % w)) % w] - colsum[(w + (l++ % w)) % w];
 

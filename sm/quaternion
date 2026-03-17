@@ -18,7 +18,6 @@ module;
 #include <sstream>
 #include <type_traits>
 
-
 export module sm.quaternion;
 
 export import sm.mathconst;

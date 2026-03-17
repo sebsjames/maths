@@ -34,7 +34,7 @@ export namespace sm
      * A class defining a path made up of Bezier curves. This has an initial position,
      * and then a list of curves that make up the path.
      */
-    template <typename F, uint32_t order = 3> requires std::is_floating_point_v<F>
+    template <typename F, std::uint32_t order = 3> requires std::is_floating_point_v<F>
     struct bezcurvepath
     {
         /*!
@@ -120,7 +120,7 @@ export namespace sm
             std::cout << "Number of curves: " << this->curves.size() << std::endl;
             typename std::list<bezcurve<F, order>>::const_iterator i = this->curves.begin();
             while (i != this->curves.end()) {
-                std::cout << i->output(static_cast<uint32_t>(20));
+                std::cout << i->output(static_cast<std::uint32_t>(20));
                 ++i;
             }
             std::cout << "------ End bezcurvepath ------" << std::endl;
@@ -238,7 +238,7 @@ export namespace sm
          * points along the curve. @invertY has the same meaning as in the other
          * overload of this function.
          */
-        void computePoints (uint32_t nPoints, bool invertY = false)
+        void computePoints (std::uint32_t nPoints, bool invertY = false)
         {
             // Get end-to-end distance and compute a candidate step, then call other
             // overload.
@@ -255,7 +255,7 @@ export namespace sm
 
             F etoe = this->getEndToEnd();
             F step = etoe/(nPoints-1);
-            uint32_t actualPoints = 0;
+            std::uint32_t actualPoints = 0;
 
             while (actualPoints != nPoints) {
                 this->points.clear();
