@@ -9,9 +9,17 @@
  *
  * This quaternion class adopts the Hamiltonian convention - w,x,y,z.
  */
+module;
+
+#include <limits>
+#include <cmath>
+#include <array>
+#include <iostream>
+#include <sstream>
+#include <type_traits>
+
 export module sm.quaternion;
 
-import std;
 export import sm.mathconst;
 import sm.constexpr_math;
 export import sm.vec;

@@ -16,9 +16,19 @@
  * \date 2025
  * Improvements to methods that specify rotations and translations
  */
+module;
+
+#include <cstdint>
+#include <limits>
+#include <array>
+#include <string>
+#include <sstream>
+#include <iostream>
+#include <type_traits>
+#include <initializer_list>
+
 export module sm.mat;
 
-import std;
 export import sm.mathconst;
 export import sm.quaternion;
 export import sm.vec;

@@ -51,9 +51,21 @@
  * standard as yet, but they're short and could probably be implemented easily here,
  * another day.
  */
+module;
+
+#include <random>
+#include <vector>
+#include <limits>
+#include <type_traits>
+#include <string>
+#include <ostream>
+#include <array>
+#include <cstdint>
+#include <cstddef>
+#include <memory>
+
 export module sm.random;
 
-import std;
 import sm.mathconst;
 import sm.bessel_i0;
 

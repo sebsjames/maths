@@ -35,9 +35,20 @@
  *
  * Date Jan - Feb 2026
  */
+module;
+
+#include <cstdint>
+#include <complex>
+#include <cmath>
+#include <algorithm>
+#include <stdexcept>
+#include <limits>
+#include <type_traits>
+#include <array>
+#include <vector>
+
 export module sm.polysolve;
 
-import std;
 import sm.mathconst;
 import sm.constexpr_math;
 

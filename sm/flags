@@ -75,9 +75,14 @@
  * Author: Seb James
  * Date: Jan 2025
  */
-export module sm.flags;
+module;
 
-import std;
+#include <compare>
+#include <type_traits>
+#include <initializer_list>
+#include <ostream>
+
+export module sm.flags;
 
 export namespace sm
 {

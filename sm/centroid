@@ -8,9 +8,16 @@
  *
  * Author: Seb James
  */
+module;
+
+#include <memory>
+#include <type_traits>
+#include <utility>
+#include <vector>
+#include <array>
+
 export module sm.centroid;
 
-import std;
 import sm.trait_tests;
 export import sm.vec;
 import sm.vvec;

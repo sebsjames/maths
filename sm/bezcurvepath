@@ -9,9 +9,21 @@
  * \author Seb James
  * \date 2019-2020
  */
+module;
+
+#include <cstdint>
+#include <limits>
+#include <list>
+#include <vector>
+#include <utility>
+#include <string>
+#include <iostream>
+#include <fstream>
+#include <cmath>
+#include <concepts>
+
 export module sm.bezcurvepath;
 
-import std;
 export import sm.bezcurve;
 export import sm.bezcoord;
 import sm.vec;

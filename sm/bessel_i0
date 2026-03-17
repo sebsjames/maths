@@ -11,10 +11,14 @@
  * Use, modification and distribution are subject to the
  * Boost Software License, Version 1.0. (See http://www.boost.org/LICENSE_1_0.txt)
  */
+module;
+
+#include <type_traits>
+#include <vector>
+#include <cmath>
 
 export module sm.bessel_i0;
 
-import std;
 import sm.polysolve;
 
 export namespace sm

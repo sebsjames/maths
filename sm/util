@@ -6,9 +6,15 @@
  *
  * Utility functions
  */
+module;
+
+#include <string>
+#include <vector>
+#include <stdexcept>
+#include <fstream>
+
 export module sm.util;
 
-import std;
 import sm.trait_tests;
 
 export namespace sm::util

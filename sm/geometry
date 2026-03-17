@@ -6,9 +6,19 @@
  *
  * Geometry algorithms.
  */
+module;
+
+#include <cstdint>
+#include <tuple>
+#include <algorithm>
+#include <iostream>
+#include <limits>
+#include <cmath>
+#include <bitset>
+#include <type_traits>
+
 export module sm.geometry;
 
-import std;
 export import sm.mathconst;
 import sm.constexpr_math;
 import sm.range;

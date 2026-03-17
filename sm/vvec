@@ -10,9 +10,27 @@
  * \author Seb James
  * \date May 2020
  */
+
+module;
+
+#include <cstdint>
+#include <cmath>
+#include <vector>
+#include <iostream>
+#include <string>
+#include <sstream>
+#include <stdexcept>
+#include <type_traits>
+#include <numeric>
+#include <limits>
+#include <iomanip>
+#include <algorithm>
+#include <functional>
+#include <cstddef>
+#include <random>
+
 export module sm.vvec;
 
-import std;
 export import sm.mathconst;
 export import sm.range;
 import sm.random;

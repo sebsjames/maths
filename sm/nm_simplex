@@ -13,9 +13,15 @@
  * Author: Seb James
  * Date: September 2019
  */
+module;
+
+#include <cstdint>
+#include <vector>
+#include <functional>
+#include <algorithm>
+
 export module sm.nm_simplex;
 
-import std;
 import sm.algo;
 import sm.vec;
 export import sm.vvec;

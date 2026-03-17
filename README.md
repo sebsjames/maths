@@ -87,6 +87,15 @@ sudo apt install clang-18 clang-tools-18 # need both.
 ```bash
 mkdir build
 cd build
-# A cmake call something like:
-CC=clang-20 CXX=clang++-20 cmake .. -GNinja -DCMAKE_CXX_FLAGS="-stdlib=libc++" -DCMAKE_EXE_LINKER_FLAGS="-stdlib=libc++ -lc++abi"
+# A cmake call something like (if you want to use gcc and your default c++ runtime library
+CC=gcc-15 CXX=g++-15 cmake .. -GNinja
 ninja
+```
+```bash
+mkdir build
+cd build
+# A cmake call something like (if you want to use clang and  libc++:
+CC=clang-20 CXX=clang++-20 cmake .. -GNinja -DCMAKE_CXX_FLAGS="-stdlib=libc++"
+# possibly also -DCMAKE_EXE_LINKER_FLAGS="-stdlib=libc++ -lc++abi"
+ninja
+```

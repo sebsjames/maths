@@ -15,9 +15,11 @@
  * \author Seb James
  * \date May 2020
  */
-export module sm.trait_tests;
+module;
 
-import std;
+#include <type_traits>
+
+export module sm.trait_tests;
 
 export namespace sm
 {

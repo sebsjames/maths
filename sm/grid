@@ -12,9 +12,20 @@
  * \author Seb James
  * \date February 2024
  */
+module;
+
+#include <cstdint>
+#include <cmath>
+#include <stdexcept>
+#include <string>
+#include <sstream>
+#include <limits>
+#include <type_traits>
+#include <vector>
+#include <set>
+
 export module sm.grid;
 
-import std;
 export import sm.vec;
 export import sm.vvec;
 

@@ -12,9 +12,15 @@
  * \author Seb James
  * \date May 2020
  */
+module;
+
+#include <iostream>
+#include <memory>
+#include <cmath>
+#include <type_traits>
+
 export module sm.winder;
 
-import std;
 import sm.trait_tests;
 export import sm.mathconst;
 export import sm.vec;

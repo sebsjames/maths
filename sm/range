@@ -14,9 +14,17 @@
  * Author: Seb James
  * Date: Sept. 2023. Modules support 2026.
  */
+module;
+
+#include <cstdint>
+#include <ostream>
+#include <sstream>
+#include <limits>
+#include <complex>
+#include <span>
+
 export module sm.range;
 
-import std;
 import sm.trait_tests;
 export import sm.constexpr_math;
 

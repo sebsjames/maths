@@ -1,4 +1,4 @@
-import std;
+#include <iostream>
 import sm.random;
 import sm.vvec;
 

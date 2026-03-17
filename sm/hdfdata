@@ -18,7 +18,7 @@ module;
 #endif
 
 #include <hdf5.h>
-/*
+
 #include <iostream>
 #include <vector>
 #include <array>
@@ -29,14 +29,13 @@ module;
 #include <cstddef>
 #include <sstream>
 #include <stdexcept>
-*/
+
 #ifdef _MSC_VER
 #define __PRETTY_FUNCTION__ __FUNCSIG__
 #endif
 
 export module sm.hdfdata;
 
-import std;
 export import sm.vec;
 export import sm.vvec;
 import sm.util;

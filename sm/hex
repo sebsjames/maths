@@ -11,9 +11,16 @@
  * \author: Seb James
  * \date: 2018/07
  */
+module;
+
+#include <cstdint>
+#include <string>
+#include <list>
+#include <array>
+#include <cmath>
+
 export module sm.hex;
 
-import std;
 export import sm.mathconst;
 export import sm.bezcoord;
 export import sm.vec;

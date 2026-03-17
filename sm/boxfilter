@@ -8,9 +8,14 @@
  *
  * Author: Seb James
  */
+module;
+
+#include <cstdint>
+#include <stdexcept>
+#include <array>
+
 export module sm.boxfilter;
 
-import std;
 import sm.vvec;
 import sm.vec;
 

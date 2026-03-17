@@ -6,9 +6,21 @@
  *
  * Geometry algorithms to generate icosahedrons and geodesic polyhedrons.
  */
+module;
+
+#include <map>
+#include <set>
+#include <tuple>
+#include <algorithm>
+#include <stdexcept>
+#include <sstream>
+#include <iostream>
+#include <limits>
+#include <cmath>
+#include <cstdint>
+
 export module sm.geometry_polyhedra;
 
-import std;
 export import sm.mathconst;
 import sm.vec;
 import sm.quaternion;

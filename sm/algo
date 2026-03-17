@@ -8,9 +8,18 @@
  *
  * \author Seb James
  */
+module;
+
+#include <type_traits>
+#include <cmath>
+#include <complex>
+#include <cstdint>
+#include <limits>
+#include <tuple>
+#include <vector>
+
 export module sm.algo;
 
-import std;
 import sm.constexpr_math; // constexpr math functions from Keith O'Hara
 export import sm.mathconst;
 export import sm.range;

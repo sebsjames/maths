@@ -40,9 +40,19 @@
  * \author Seb James
  * \date April 2020
  */
+module;
+
+#include <stdexcept>
+#include <cmath>
+#include <cstdint>
+#include <cstddef>
+#include <string>
+#include <sstream>
+#include <span>
+#include <complex>
+
 export module sm.scale;
 
-import std;
 import sm.trait_tests;
 export import sm.vvec;
 export import sm.range;

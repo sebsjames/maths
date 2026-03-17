@@ -10,9 +10,24 @@
  *
  * Date: 2018/07
  */
+module;
+
+#include <cstdint>
+#include <set>
+#include <list>
+#include <string>
+#include <array>
+#include <stdexcept>
+#include <deque>
+#include <cmath>
+#include <iostream>
+#include <sstream>
+#include <vector>
+#include <stdexcept>
+#include <limits>
+
 export module sm.hexgrid;
 
-import std;
 export import sm.mathconst;
 export import sm.bezcurvepath;
 export import sm.vec;
