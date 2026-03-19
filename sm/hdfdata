@@ -234,6 +234,8 @@ export namespace sm
         }
 
     public:
+        hdfdata () {}
+
         /*!
          * Construct, defining file access with the sm::file_access_mode enum.
          */
@@ -251,6 +253,24 @@ export namespace sm
                  const std::ios_base::openmode _file_access,
                  const bool show_hdf_internal_errors = false)
         {
+            this->init (fname, _file_access, show_hdf_internal_errors);
+        }
+
+        void init (const std::string fname,
+                   const file_access_mode _file_access,
+                   const bool show_hdf_internal_errors = false)
+        {
+            if (file_id >= 0) { throw std::runtime_error ("This hdfdata object was already set up."); }
+
+            this->_init (fname, _file_access, show_hdf_internal_errors);
+        }
+
+        void init (const std::string fname,
+                   const std::ios_base::openmode _file_access,
+                   const bool show_hdf_internal_errors = false)
+        {
+            if (file_id >= 0) { throw std::runtime_error ("This hdfdata object was already set up."); }
+
             file_access_mode fa_native = file_access_mode::read_only;
             if (_file_access == std::ios::in) {
                 fa_native = file_access_mode::read_only;
@@ -264,13 +284,14 @@ export namespace sm
                    << "ios::out|ios::trunc (for truncate_write) or ios::out (for read_write)";
                 throw std::runtime_error (ee.str());
             }
-            this->init (fname, fa_native, show_hdf_internal_errors);
+
+            this->_init (fname, fa_native, show_hdf_internal_errors);
         }
 
     private:
-        void init (const std::string fname,
-                   const file_access_mode _file_access,
-                   const bool show_hdf_internal_errors)
+        void _init (const std::string fname,
+                    const file_access_mode _file_access,
+                    const bool show_hdf_internal_errors)
         {
             this->file_access = _file_access;
             if (this->file_access == file_access_mode::read_only) {
