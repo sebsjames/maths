@@ -4,38 +4,7 @@
 include_directories(BEFORE ${PROJECT_SOURCE_DIR})
 
 # Each C++ module file has to be listed here (as they don't have a .cppm or .ixx file suffix)
-set_source_files_properties (
-  ${PROJECT_SOURCE_DIR}/sm/bessel_i0
-  ${PROJECT_SOURCE_DIR}/sm/mathconst
-  ${PROJECT_SOURCE_DIR}/sm/trait_tests
-  ${PROJECT_SOURCE_DIR}/sm/constexpr_math
-  ${PROJECT_SOURCE_DIR}/sm/range
-  ${PROJECT_SOURCE_DIR}/sm/random
-  ${PROJECT_SOURCE_DIR}/sm/vec
-  ${PROJECT_SOURCE_DIR}/sm/vvec
-  ${PROJECT_SOURCE_DIR}/sm/scale
-  ${PROJECT_SOURCE_DIR}/sm/hdfdata
-  ${PROJECT_SOURCE_DIR}/sm/quaternion
-  ${PROJECT_SOURCE_DIR}/sm/mat
-  ${PROJECT_SOURCE_DIR}/sm/hex
-  ${PROJECT_SOURCE_DIR}/sm/hexgrid
-  ${PROJECT_SOURCE_DIR}/sm/bezcoord
-  ${PROJECT_SOURCE_DIR}/sm/binomial
-  ${PROJECT_SOURCE_DIR}/sm/bezcurve
-  ${PROJECT_SOURCE_DIR}/sm/bezcurvepath
-  ${PROJECT_SOURCE_DIR}/sm/winder
-  ${PROJECT_SOURCE_DIR}/sm/bootstrap
-  ${PROJECT_SOURCE_DIR}/sm/grid
-  ${PROJECT_SOURCE_DIR}/sm/algo
-  ${PROJECT_SOURCE_DIR}/sm/nm_simplex
-  ${PROJECT_SOURCE_DIR}/sm/histo
-  ${PROJECT_SOURCE_DIR}/sm/boxfilter
-  ${PROJECT_SOURCE_DIR}/sm/config
-  ${PROJECT_SOURCE_DIR}/sm/geometry
-  ${PROJECT_SOURCE_DIR}/sm/flags
-  ${PROJECT_SOURCE_DIR}/sm/polysolve
-  ${PROJECT_SOURCE_DIR}/sm/util
-  PROPERTIES LANGUAGE CXX)
+set_source_files_properties (${SM_ALL_MODULES} PROPERTIES LANGUAGE CXX)
 
 # sm::range
 add_executable(range_intersects range_intersects.cpp)
@@ -485,7 +454,7 @@ target_sources_modules(trait_tests_number_type MODULES ${SM_VEC_MODULES})
 add_test(trait_tests_number_type trait_tests_number_type)
 
 add_executable(flags1 flags1.cpp)
-target_sources_modules (flags1 MODULES ${PROJECT_SOURCE_DIR}/sm/flags)
+target_sources_modules (flags1 MODULES ${PROJECT_SOURCE_DIR}/sm/flags.cppm)
 add_test(flags1 flags1)
 
 if(NOT APPLE)
