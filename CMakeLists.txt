@@ -24,13 +24,14 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # set(CMAKE_CXX_MODULE_STD 1)
 
 # Add cmake directory to cmake modules path
-set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
+set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 
 # A build-failure test from https://github.com/iboB/icm
-#include(icm_build_failure_parse_and_run)
 include(icm_build_failure_testing)
 
 include(CheckIncludeFileCXX) # CHECK_INCLUDE_FILE_CXX will be used in later scripts
+
+include(module_definitions)
 
 # If I *require* std::format, I can start using it across this library. That
 # limits us to gcc-13 on Ubuntu (though it's the libc++ that contains
@@ -147,155 +148,9 @@ function(target_sources_modules target_name)
 endfunction()
 
 #
-# Module groups
+# Module groups. see module_definitions.cmake
 #
-set(SM_CONSTEXPR_MATH_MODULES
-  ${PROJECT_SOURCE_DIR}/sm/mathconst.cppm
-  ${PROJECT_SOURCE_DIR}/sm/constexpr_math.cppm
-)
-set(SM_POLYSOLVE_MODULES
-  ${SM_CONSTEXPR_MATH_MODULES}
-  ${PROJECT_SOURCE_DIR}/sm/polysolve.cppm
-)
-set(SM_BESSEL_I0_MODULES
-  ${SM_POLYSOLVE_MODULES}
-  ${PROJECT_SOURCE_DIR}/sm/bessel_i0.cppm
-)
-set(SM_RANDOM_MODULES
-  ${SM_BESSEL_I0_MODULES}
-  ${PROJECT_SOURCE_DIR}/sm/random.cppm
-)
-set(SM_RANGE_MODULES
-  ${SM_CONSTEXPR_MATH_MODULES}
-  ${PROJECT_SOURCE_DIR}/sm/trait_tests.cppm
-  ${PROJECT_SOURCE_DIR}/sm/range.cppm
-)
-set(SM_VEC_MODULES
-  ${SM_RANGE_MODULES}
-  ${SM_RANDOM_MODULES}
-  ${PROJECT_SOURCE_DIR}/sm/vec.cppm
-)
-set(SM_VVEC_MODULES
-  ${SM_RANGE_MODULES}
-  ${SM_RANDOM_MODULES}
-  ${PROJECT_SOURCE_DIR}/sm/vvec.cppm
-)
-set(SM_SCALE_MODULES
-  ${SM_VVEC_MODULES}
-  ${PROJECT_SOURCE_DIR}/sm/scale.cppm
-)
-set(SM_UTIL_MODULES
-  ${PROJECT_SOURCE_DIR}/sm/trait_tests.cppm
-  ${PROJECT_SOURCE_DIR}/sm/util.cppm
-)
-set(SM_HDFDATA_MODULES
-  ${SM_VEC_MODULES}
-  ${SM_VVEC_MODULES}
-  ${SM_UTIL_MODULES}
-  ${PROJECT_SOURCE_DIR}/sm/hdfdata.cppm
-)
-set(SM_QUATERNION_MODULES
-  ${SM_VEC_MODULES}
-  ${PROJECT_SOURCE_DIR}/sm/quaternion.cppm
-)
-set(SM_MAT_MODULES
-  ${SM_QUATERNION_MODULES}
-  ${PROJECT_SOURCE_DIR}/sm/mat.cppm
-)
-set(SM_BEZCOORD_MODULES
-  ${SM_VEC_MODULES}
-  ${PROJECT_SOURCE_DIR}/sm/bezcoord.cppm
-)
-set(SM_HEX_MODULES
-  ${SM_BEZCOORD_MODULES}
-  ${PROJECT_SOURCE_DIR}/sm/hex.cppm
-)
-set(SM_WINDER_MODULES
-  ${SM_VEC_MODULES}
-  ${PROJECT_SOURCE_DIR}/sm/winder.cppm
-)
-set(SM_BOOTSTRAP_MODULES
-  ${SM_VEC_MODULES}
-  ${SM_VVEC_MODULES}
-  ${PROJECT_SOURCE_DIR}/sm/bootstrap.cppm
-)
-set(SM_GRID_MODULES
-  ${SM_VEC_MODULES}
-  ${SM_VVEC_MODULES}
-  ${PROJECT_SOURCE_DIR}/sm/grid.cppm
-)
-set(SM_ALGO_MODULES
-  ${SM_VEC_MODULES}
-  ${PROJECT_SOURCE_DIR}/sm/algo.cppm
-)
-set(SM_NM_SIMPLEX_MODULES
-  ${SM_ALGO_MODULES}
-  ${SM_VVEC_MODULES}
-  ${PROJECT_SOURCE_DIR}/sm/nm_simplex.cppm
-)
-set(SM_HISTO_MODULES
-  ${SM_VEC_MODULES}
-  ${SM_VVEC_MODULES}
-  ${PROJECT_SOURCE_DIR}/sm/histo.cppm
-)
-set(SM_BOXFILTER_MODULES
-  ${SM_VEC_MODULES}
-  ${SM_VVEC_MODULES}
-  ${PROJECT_SOURCE_DIR}/sm/boxfilter.cppm
-)
-set(SM_GEOMETRY_MODULES
-  ${SM_ALGO_MODULES}
-  ${SM_VVEC_MODULES}
-  ${PROJECT_SOURCE_DIR}/sm/geometry.cppm
-)
-set(SM_BEZCURVE_MODULES
-  ${SM_BEZCOORD_MODULES}
-  ${SM_MAT_MODULES}
-  ${SM_NM_SIMPLEX_MODULES}
-  ${PROJECT_SOURCE_DIR}/sm/binomial.cppm
-  ${PROJECT_SOURCE_DIR}/sm/bezcurve.cppm
-)
-set(SM_BEZCURVEPATH_MODULES
-  ${SM_BEZCURVE_MODULES}
-  ${PROJECT_SOURCE_DIR}/sm/bezcurvepath.cppm
-)
-set(SM_HEXGRID_MODULES
-  ${SM_BEZCURVEPATH_MODULES}
-  ${SM_HEX_MODULES}
-  ${PROJECT_SOURCE_DIR}/sm/hexgrid.cppm
-)
-
-set(SM_ALL_MODULES
-  ${PROJECT_SOURCE_DIR}/sm/mathconst.cppm
-  ${PROJECT_SOURCE_DIR}/sm/trait_tests.cppm
-  ${PROJECT_SOURCE_DIR}/sm/constexpr_math.cppm
-  ${PROJECT_SOURCE_DIR}/sm/range.cppm
-  ${PROJECT_SOURCE_DIR}/sm/polysolve.cppm
-  ${PROJECT_SOURCE_DIR}/sm/bessel_i0.cppm
-  ${PROJECT_SOURCE_DIR}/sm/random.cppm
-  ${PROJECT_SOURCE_DIR}/sm/vec.cppm
-  ${PROJECT_SOURCE_DIR}/sm/vvec.cppm
-  ${PROJECT_SOURCE_DIR}/sm/scale.cppm
-  ${PROJECT_SOURCE_DIR}/sm/hdfdata.cppm
-  ${PROJECT_SOURCE_DIR}/sm/quaternion.cppm
-  ${PROJECT_SOURCE_DIR}/sm/mat.cppm
-  ${PROJECT_SOURCE_DIR}/sm/hex.cppm
-  ${PROJECT_SOURCE_DIR}/sm/hexgrid.cppm
-  ${PROJECT_SOURCE_DIR}/sm/bezcoord.cppm
-  ${PROJECT_SOURCE_DIR}/sm/binomial.cppm
-  ${PROJECT_SOURCE_DIR}/sm/bezcurve.cppm
-  ${PROJECT_SOURCE_DIR}/sm/bezcurvepath.cppm
-  ${PROJECT_SOURCE_DIR}/sm/winder.cppm
-  ${PROJECT_SOURCE_DIR}/sm/bootstrap.cppm
-  ${PROJECT_SOURCE_DIR}/sm/grid.cppm
-  ${PROJECT_SOURCE_DIR}/sm/algo.cppm
-  ${PROJECT_SOURCE_DIR}/sm/nm_simplex.cppm
-  ${PROJECT_SOURCE_DIR}/sm/histo.cppm
-  ${PROJECT_SOURCE_DIR}/sm/boxfilter.cppm
-  ${PROJECT_SOURCE_DIR}/sm/config
-  ${PROJECT_SOURCE_DIR}/sm/geometry.cppm
-  ${PROJECT_SOURCE_DIR}/sm/flags.cppm
-)
+setup_module_variables_for_maths (${PROJECT_SOURCE_DIR})
 
 # All the headers are here
 add_subdirectory(sm)
