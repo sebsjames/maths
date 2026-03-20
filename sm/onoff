@@ -8,17 +8,19 @@
  *
  * Author: Seb James
  */
-
-#pragma once
+module;
 
 #include <cstdint>
 #include <stdexcept>
-#include <sm/vvec>
 
-namespace sm::algo
+export module sm.algo.onoff;
+
+import sm.vvec;
+
+export namespace sm::algo
 {
     // Do an on-centre, off-surround filtering for a pixel in data and its 8 neighbours
-    template<typename T, int32_t w, bool horz_wrap=true>
+    template<typename T, std::int32_t w, bool horz_wrap=true>
     void oncentre_offsurround (const sm::vvec<T>& data, sm::vvec<T>& result)
     {
         if (result.size() != data.size()) {
@@ -31,10 +33,10 @@ namespace sm::algo
         // First, copy data into result - this is the 'on-centre'
         std::copy (data.begin(), data.end(), result.begin());
 
-        int32_t lastrow_index = static_cast<int32_t>(data.size()) - w;
+        std::int32_t lastrow_index = static_cast<std::int32_t>(data.size()) - w;
 
         // Now go through and subtract the neighbouring values - this is 'off-surround'.
-        int32_t i = 0;
+        std::int32_t i = 0;
         // BL pixel
         if constexpr (horz_wrap) {
             result[i] -= (data[i+1] + data[i+w-1] + data[w+i+w-1] + data[w+i] + data[w+i+1]) / T{5};
@@ -83,7 +85,7 @@ namespace sm::algo
         ++i;
 
         // Top row
-        for (; i < static_cast<int32_t>(data.size())-1; ++i) { // last row
+        for (; i < static_cast<std::int32_t>(data.size())-1; ++i) { // last row
             result[i] -= (data[i-1] + data[i+1] + data[i-w+1] + data[i-w] + data[i-w-1]) / T{5};
         }
         // TR pixel

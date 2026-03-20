@@ -27,7 +27,6 @@ install(
   grid
   hdfdata
   hex
-  hexflags
   hexgrid
   hexgrid_hdf
   hexyhisto
