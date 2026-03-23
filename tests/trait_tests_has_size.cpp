@@ -31,7 +31,7 @@ int main()
         --rtn;
     }
 
-#if 0 // Fails to compile, rather than setting value false :(
+#if 1 // Fails to compile, rather than setting value false :(
     if constexpr (sm::has_size_method<std::complex<float>>::value == true) {
         std::cout << "std::complex<float> has size()\n";
         --rtn;
