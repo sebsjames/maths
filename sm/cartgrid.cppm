@@ -369,7 +369,7 @@ export namespace sm
             // sm::vec<float, 2>
             cgdata.add_contained_vals ("/boundaryCentroid", boundaryCentroid);
 
-            // Don't save BezCurvePath boundary - limit this to the ability to
+            // Don't save bezcurvepath boundary - limit this to the ability to
             // save which elements are boundary elements and which aren't
 
             // Don't save vertexE, vertexNE etc. Make sure to set gridReduced
@@ -716,7 +716,7 @@ export namespace sm
 
         /*!
          * Sets boundary to match the list of rects passed in as \a pRects. Note, that
-         * unlike void setBoundary (const BezCurvePath& p), this method does not apply
+         * unlike void setBoundary (const bezcurvepath& p), this method does not apply
          * any offset to the positions of the rects in \a pRects.
          */
         void setBoundary (const std::list<rect>& pRects)
@@ -759,41 +759,41 @@ export namespace sm
 
             this->populate_d_vectors();
         }
-#ifdef CARTGRID_COMPILE_WITH_BEZCURVES
+
         /*!
          * Sets boundary to \a p, then runs the code to discard rects lying outside
          * this boundary. Finishes up by calling sm::cartgrid::discardOutside.
-         * The BezCurvePath's centroid may not be 0,0. If loffset has its default value
+         * The bezcurvepath's centroid may not be 0,0. If loffset has its default value
          * of true, then this method offsets the boundary so that when it is applied to
          * the cartgrid, the centroid IS (0,0). If \a loffset is false, then \a p is not
          * translated in this way.
          */
-        void setBoundary (const BezCurvePath<float>& p, bool loffset = true)
+        void setBoundary (const sm::bezcurvepath<float>& p, bool loffset = true)
         {
             this->boundary = p;
             if (!this->boundary.isNull()) {
                 // Compute the points on the boundary using half of the rect to rect
                 // spacing as the step size. The 'true' argument inverts the y axis.
                 this->boundary.computePoints (this->d/2.0f, true);
-                std::vector<sm::BezCoord<float>> bpoints = this->boundary.getPoints();
+                std::vector<sm::bezcoord<float>> bpoints = this->boundary.getPoints();
                 this->setBoundary (bpoints, loffset);
             }
         }
 
         /*!
          * This sets a boundary, just as sm::cartgrid::setBoundary(const
-         * sm::BezCurvePath<float> p, bool offset) does but WITHOUT discarding rects
+         * sm::bezcurvepath<float> p, bool offset) does but WITHOUT discarding rects
          * outside the boundary. Also, it first clears the previous boundary flags so
          * the new ones are the only ones marked on the boundary. It does this because
          * it does not discard rects outside the boundary or repopulate the cartgrid but
          * it draws a new boundary that can be used by client code
          */
-        void setBoundaryOnly (const BezCurvePath<float>& p, bool loffset = true)
+        void setBoundaryOnly (const sm::bezcurvepath<float>& p, bool loffset = true)
         {
             this->boundary = p;
             if (!this->boundary.isNull()) {
                 this->boundary.computePoints (this->d/2.0f, true); // FIXME PROBABLY NEEDS TO BE DIFFERENT
-                std::vector<sm::BezCoord<float>> bpoints = this->boundary.getPoints();
+                std::vector<sm::bezcoord<float>> bpoints = this->boundary.getPoints();
                 this->setBoundaryOnly (bpoints, loffset);
             }
         }
@@ -806,9 +806,9 @@ export namespace sm
          * the default value of \a loffset is changed to false, \a bpoints is NOT
          * translated.
          */
-        void setBoundary (std::vector<BezCoord<float>>& bpoints, bool loffset = true)
+        void setBoundary (std::vector<sm::bezcoord<float>>& bpoints, bool loffset = true)
         {
-            this->boundaryCentroid = sm::BezCurvePath<float>::getCentroid (bpoints);
+            this->boundaryCentroid = sm::bezcurvepath<float>::getCentroid (bpoints);
 
             auto bpi = bpoints.begin();
             // conditionally executed if we reset the centre
@@ -847,7 +847,6 @@ export namespace sm
                 throw std::runtime_error ("Use griddomainshape::boundary when setting a boundary");
             }
         }
-#endif // CARTGRID_COMPILE_WITH_BEZCURVES
 
         // find the cartgrid position which corresponds to the max value in image_data.
         sm::vec<float, 2> findmax (const sm::vvec<float>& image_data)
@@ -933,19 +932,18 @@ export namespace sm
             //polar_data /= polar_data.max(); // renormalise?
         }
 
-#ifdef CARTGRID_COMPILE_WITH_BEZCURVES
         /*!
          * This sets a boundary, just as
-         * sm::cartgrid::setBoundary(vector<sm::BezCoord<float>& bpoints, bool offset)
+         * sm::cartgrid::setBoundary(vector<sm::bezcoord<float>& bpoints, bool offset)
          * does but WITHOUT discarding rects outside the boundary. Also, it first clears
          * the previous boundary flags so the new ones are the only ones marked on the
          * boundary. It does this because it does not discard rects outside the boundary
          * or repopulate the cartgrid but it draws a new boundary that can be used by
          * client code
          */
-        void setBoundaryOnly (std::vector<BezCoord<float>>& bpoints, bool loffset)
+        void setBoundaryOnly (std::vector<sm::bezcoord<float>>& bpoints, bool loffset)
         {
-            this->boundaryCentroid = sm::BezCurvePath<float>::getCentroid (bpoints);
+            this->boundaryCentroid = sm::bezcurvepath<float>::getCentroid (bpoints);
 
             auto bpi = bpoints.begin();
             // conditional executed if we reset the centre
@@ -979,7 +977,6 @@ export namespace sm
                 }
             }
         }
-#endif
 
         /*!
          * Set all the outer rects as being "boundary" rects. This makes it possible to
@@ -1066,7 +1063,6 @@ export namespace sm
             return brects_concrete;
         }
 
-#ifdef CARTGRID_COMPILE_WITH_BEZCURVES
         /*!
          * Compute a set of coordinates arranged on an ellipse
          * \param a first elliptical radius
@@ -1074,12 +1070,12 @@ export namespace sm
          * \param c centre argument so that the ellipse centre is offset from the coordinate origin
          * \return A vector of the coordinates of points on the generated ellipse
          */
-        std::vector<BezCoord<float>> ellipseCompute (const float a, const float b,
-                                                     const sm::vec<float, 2> c = {0.0f, 0.0f}) const
+        std::vector<sm::bezcoord<float>> ellipseCompute (const float a, const float b,
+                                                         const sm::vec<float, 2> c = {0.0f, 0.0f}) const
         {
             // Compute the points on the boundary using the parametric elliptical formula and
             // half of the rect to rect spacing as the angular step size. Return as bpoints.
-            std::vector<sm::BezCoord<float>> bpoints;
+            std::vector<sm::bezcoord<float>> bpoints;
 
             // Estimate a good delta_phi based on the larger of a and b. Compute the delta_phi
             // required to travel a fraction of one rect-to-rect distance.
@@ -1094,7 +1090,7 @@ export namespace sm
             // Loop around phi, computing x and y of the elliptical boundary and filling up bpoints
             for (double phi = 0.0; phi < sm::mathconst<double>::two_pi; phi+=delta_phi) {
                 sm::vec<float, 2> xy_pt = { static_cast<float>(a * std::cos (phi) + c[0]), static_cast<float>(b * std::sin (phi) + c[1]) };
-                sm::BezCoord<float> b(xy_pt);
+                sm::bezcoord<float> b(xy_pt);
                 bpoints.push_back (b);
             }
 
@@ -1130,7 +1126,7 @@ export namespace sm
         void setEllipticalBoundary (const float a, const float b,
                                     const sm::vec<float, 2> c = {0.0f, 0.0f}, const bool offset=true)
         {
-            std::vector<sm::BezCoord<float>> bpoints = ellipseCompute (a, b, c);
+            std::vector<sm::bezcoord<float>> bpoints = ellipseCompute (a, b, c);
             this->setBoundary (bpoints, offset);
         }
 
@@ -1143,10 +1139,9 @@ export namespace sm
         void setCircularBoundary (const float a,
                                   const sm::vec<float, 2> c = {0.0f, 0.0f}, const bool offset=true)
         {
-            std::vector<sm::BezCoord<float>> bpoints = ellipseCompute (a, a, c);
+            std::vector<sm::bezcoord<float>> bpoints = ellipseCompute (a, a, c);
             this->setBoundary (bpoints, offset);
         }
-#endif
 
         /*!
          * \brief Accessor for the size of rects.
@@ -1420,10 +1415,9 @@ export namespace sm
             this->populate_d_neighbours();
         }
 
-#ifdef CARTGRID_COMPILE_WITH_BEZCURVES
         /*!
          * Get a vector of rect pointers for all rects that are inside/on the path
-         * defined by the BezCurvePath \a p, thus this gets a 'region of rects'. The rect
+         * defined by the bezcurvepath \a p, thus this gets a 'region of rects'. The rect
          * flags "region" and "regionBoundary" are used, temporarily to mark out the
          * region. The idea is that client code will then use the vector of sm::rect* to work
          * with the region however it needs to.
@@ -1431,7 +1425,7 @@ export namespace sm
          * The centroid of the region is placed in \a regionCentroid (i.e. \a
          * regionCentroid is a return argument)
          *
-         * It's assumed that the BezCurvePath defines a closed region.
+         * It's assumed that the bezcurvepath defines a closed region.
          *
          * If \a applyOriginalBoundaryCentroid is true, then the region is translated by
          * the same amount that the overall boundary was translated to ensure that the
@@ -1439,19 +1433,19 @@ export namespace sm
          *
          * \return a vector of iterators to the rects that make up the region.
          */
-        std::vector<std::list<rect>::iterator> getRegion (BezCurvePath<float>& p,
+        std::vector<std::list<rect>::iterator> getRegion (sm::bezcurvepath<float>& p,
                                                           sm::vec<float, 2>& regionCentroid,
                                                           bool applyOriginalBoundaryCentroid = true)
         {
             p.computePoints (this->d/2.0f, true);
-            std::vector<sm::BezCoord<float>> bpoints = p.getPoints();
+            std::vector<sm::bezcoord<float>> bpoints = p.getPoints();
             return this->getRegion (bpoints, regionCentroid, applyOriginalBoundaryCentroid);
         }
 
         /*!
          * The overload of getRegion that does all the work on a vector of coordinates
          */
-        std::vector<std::list<rect>::iterator> getRegion (std::vector<BezCoord<float>>& bpoints,
+        std::vector<std::list<rect>::iterator> getRegion (std::vector<sm::bezcoord<float>>& bpoints,
                                                           sm::vec<float, 2>& regionCentroid,
                                                           bool applyOriginalBoundaryCentroid = true)
         {
@@ -1459,7 +1453,7 @@ export namespace sm
             this->clearRegionBoundaryFlags();
 
             // Compute region centroid from bpoints
-            regionCentroid = sm::BezCurvePath<float>::getCentroid (bpoints);
+            regionCentroid = sm::bezcurvepath<float>::getCentroid (bpoints);
 
             // A return object
             std::vector<std::list<sm::rect>::iterator> theRegion;
@@ -1477,7 +1471,7 @@ export namespace sm
 
             // Now find the rects on the boundary of the region
             std::list<sm::rect>::iterator nearbyRegionBoundaryPoint = this->rects.begin(); // i.e the rect at 0,0
-            typename std::vector<sm::BezCoord<float>>::iterator bpi = bpoints.begin();
+            typename std::vector<sm::bezcoord<float>>::iterator bpi = bpoints.begin();
             while (bpi != bpoints.end()) {
                 nearbyRegionBoundaryPoint = this->setRegionBoundary (*bpi++, nearbyRegionBoundaryPoint);
             }
@@ -1508,7 +1502,6 @@ export namespace sm
 
             return theRegion;
         }
-#endif
 
         /*!
          * For every rect in rects, unset the flags RECT_IS_REGION_BOUNDARY and
@@ -1750,7 +1743,7 @@ export namespace sm
 
         /*!
          * What shape domain to set? Set this to the non-default BEFORE calling
-         * cartgrid::setBoundary (const BezCurvePath& p) - that's where the domainShape
+         * cartgrid::setBoundary (const bezcurvepath& p) - that's where the domainShape
          * is applied.
          */
         griddomainshape domainShape = griddomainshape::rectangle;
@@ -1777,7 +1770,7 @@ export namespace sm
 
         /*!
          * Store the centroid of the boundary path. The centroid of a read-in
-         * BezCurvePath [see void setBoundary (const BezCurvePath& p)] is subtracted
+         * bezcurvepath [see void setBoundary (const bezcurvepath& p)] is subtracted
          * from each generated point on the boundary path so that the boundary once it
          * is expressed in the cartgrid will have a (2D) centroid of roughly
          * (0,0). Hence, this is usually roughly (0,0).
@@ -1942,7 +1935,6 @@ export namespace sm
             }
         }
 
-#ifdef CARTGRID_COMPILE_WITH_BEZCURVES
         /*!
          * Starting from \a startFrom, and following nearest-neighbour relations, find
          * the closest rect in rects to the coordinate point \a point, and set its
@@ -1950,14 +1942,13 @@ export namespace sm
          *
          * \return An iterator into cartgrid::rects which refers to the closest rect to \a point.
          */
-        std::list<sm::rect>::iterator setBoundary (const sm::BezCoord<float>& point,
-                                                     std::list<sm::rect>::iterator startFrom)
+        std::list<sm::rect>::iterator setBoundary (const sm::bezcoord<float>& point,
+                                                   std::list<sm::rect>::iterator startFrom)
         {
             std::list<sm::rect>::iterator h = this->findRectNearPoint (point, startFrom);
             h->setFlag (RECT_IS_BOUNDARY | RECT_INSIDE_BOUNDARY);
             return h;
         }
-#endif
 
         // ASSUMING that the boundary is rectangular, is the point inside the rectangle?
         bool isInsideRectangularBoundary (const sm::vec<float, 2>& point)
@@ -2029,20 +2020,19 @@ export namespace sm
             return rtn;
         }
 
-#ifdef CARTGRID_COMPILE_WITH_BEZCURVES
         /*!
          * Set the rect closest to point as being on the region boundary. Region
          * boundaries are supposed to be temporary, so that client code can find a
          * region, extract the pointers to all the rects in that region and store that
          * information for later use.
          */
-        std::list<rect>::iterator setRegionBoundary (const BezCoord<float>& point, std::list<rect>::iterator startFrom)
+        std::list<rect>::iterator setRegionBoundary (const sm::bezcoord<float>& point, std::list<rect>::iterator startFrom)
         {
             std::list<sm::rect>::iterator h = this->findRectNearPoint (point, startFrom);
             h->setFlag (RECT_IS_REGION_BOUNDARY | RECT_INSIDE_REGION);
             return h;
         }
-#endif
+
         /*!
          * Set the rect closest to point as being on the region boundary. Region
          * boundaries are supposed to be temporary, so that client code can find a
@@ -2104,7 +2094,7 @@ export namespace sm
 
         /*!
          * Find a rect, any rect, that's on the boundary specified by #boundary. This
-         * assumes that setBoundary (const BezCurvePath&) has been called to mark the
+         * assumes that setBoundary (const bezcurvepath&) has been called to mark the
          * rects that lie on the boundary.
          */
         bool findBoundaryRect (std::list<rect>::const_iterator& ri) const
@@ -2172,12 +2162,11 @@ export namespace sm
             return h;
         }
 
-#ifdef CARTGRID_COMPILE_WITH_BEZCURVES
         /*!
          * Find the rect near @point, starting from startFrom, which should be as close
          * as possible to point in order to reduce computation time.
          */
-        std::list<rect>::iterator findRectNearPoint (const BezCoord<float>& point, std::list<rect>::iterator startFrom)
+        std::list<rect>::iterator findRectNearPoint (const sm::bezcoord<float>& point, std::list<rect>::iterator startFrom)
         {
             bool neighbourNearer = true;
 
@@ -2222,7 +2211,6 @@ export namespace sm
 
             return h;
         }
-#endif
 
         /*!
          * Mark rects as being inside the boundary given that \a hi refers to a boundary
@@ -2649,10 +2637,8 @@ export namespace sm
         //! The z coordinate of this rect grid layer
         float z;
 
-#ifdef CARTGRID_COMPILE_WITH_BEZCURVES
         //! A boundary to apply to the initial, rectangular grid.
-        BezCurvePath<float> boundary;
-#endif
+        sm::bezcurvepath<float> boundary;
 
         /*!
          * Set true when a new boundary or domain has been applied. This means that
