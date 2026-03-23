@@ -11,95 +11,97 @@
  * \author: Seb James
  * \date: 2021/02
  */
-#pragma once
+module;
 
 #include <cstdint>
 #include <string>
 #include <list>
 #include <cmath>
 
+export module sm.rect;
+
 import sm.vec;
 import sm.bezcoord;
-#ifdef CARTGRID_COMPILE_LOAD_AND_SAVE
-import sm.hdfdata;
-#endif
+//#ifdef CARTGRID_COMPILE_LOAD_AND_SAVE
+//import sm.hdfdata; // to go to cartgrid_hdf (cf hexgrid_hdf)
+//#endif
 
-/*
- * Flags
- */
-
-/*!
- * Set true when ne has been set. Use of iterators (Rect::ne etc) rather than pointers
- * for neighbouring rects means we can't do any kind of check to see if the iterator is
- * valid, so we have to keep separate boolean flags for whether or not each Rect has a
- * neighbour. Those flags are kept in Rect::flags.
- */
-#define RECT_HAS_NE                0x1
-//! True when this rect has a Neighbour to the North East
-#define RECT_HAS_NNE               0x2
-//! True when this rect has a Neighbour to the North West
-#define RECT_HAS_NNW               0x4
-//! True when this rect has a Neighbour to the North
-#define RECT_HAS_NN                0x8
-//! True when this rect has a Neighbour to the West
-#define RECT_HAS_NW               0x10
-//! True when this rect has a Neighbour to the South West
-#define RECT_HAS_NSW              0x20
-//! True when this rect has a Neighbour to the South
-#define RECT_HAS_NS               0x40
-//! True when this rect has a Neighbour to the South East
-#define RECT_HAS_NSE              0x80
-//! A short cut for testing all the neighbour flags at once
-#define RECT_HAS_NEIGHB_ALL       0xff // RECT_HAS_NE | RECT_HAS_NNE | ...etc
-
-//! All rects marked as boundary rects, including some that are additional to requirements:
-#define RECT_IS_BOUNDARY         0x100
-//! All rects inside boundary plus as much of the boundary as needed to make a contiguous boundary:
-#define RECT_INSIDE_BOUNDARY     0x200
-//! All rects inside the domain of computation:
-#define RECT_INSIDE_DOMAIN       0x400
-//! Rect is a 'region boundary rect'. Regions are intended to be temporary to aid client code.
-#define RECT_IS_REGION_BOUNDARY  0x800
-//! Rect is inside the region
-#define RECT_INSIDE_REGION      0x1000
-
-//! Rect wraps horizontally on the East side, so its neighbour east will be the western most Rect on the row
-#define RECT_WRAPS_E 0x2000
-//! Rect wraps horizontally on the West side
-#define RECT_WRAPS_W 0x4000
-//! Rect wraps vertically - that is, if it's on the North side, its neighbour north will be the southern most Rect on the column
-#define RECT_WRAPS_N 0x8000
-#define RECT_WRAPS_S 0x10000
-
-
-//! Four flags for client code to use for its own devices.
-#define RECT_USER_FLAG_0    0x10000000
-#define RECT_USER_FLAG_1    0x20000000
-#define RECT_USER_FLAG_2    0x40000000
-#define RECT_USER_FLAG_3    0x80000000
-//! Four bits high: all user flags set
-#define RECT_ALL_USER       0xf0000000
-//! Bitmask for all the flags that aren't the 4 user flags.
-#define RECT_NON_USER       0x0fffffff
-
-//! Neighbour (or edge, or side) positions
-#define RECT_NEIGHBOUR_POS_E       0x0
-#define RECT_NEIGHBOUR_POS_NE      0x1
-#define RECT_NEIGHBOUR_POS_N       0x2
-#define RECT_NEIGHBOUR_POS_NW      0x3
-#define RECT_NEIGHBOUR_POS_W       0x4
-#define RECT_NEIGHBOUR_POS_SW      0x5
-#define RECT_NEIGHBOUR_POS_S       0x6
-#define RECT_NEIGHBOUR_POS_SE      0x7
-
-//! Vertex positions
-#define RECT_VERTEX_POS_NE     0x0
-#define RECT_VERTEX_POS_NW     0x1
-#define RECT_VERTEX_POS_SW     0x2
-#define RECT_VERTEX_POS_SE     0x3
-
-namespace sm
+export namespace sm
 {
+    /*
+     * Flags
+     */
+
+    /*!
+     * Set true when ne has been set. Use of iterators (Rect::ne etc) rather than pointers for
+     * neighbouring rects means we can't do any kind of check to see if the iterator is valid, so we
+     * have to keep separate boolean flags for whether or not each Rect has a neighbour. Those flags
+     * are kept in Rect::flags.
+     */
+    constexpr std::uint32_t RECT_HAS_NE                = 0x1;
+    //! True when this rect has a Neighbour to the North East
+    constexpr std::uint32_t RECT_HAS_NNE               = 0x2;
+    //! True when this rect has a Neighbour to the North West
+    constexpr std::uint32_t RECT_HAS_NNW               = 0x4;
+    //! True when this rect has a Neighbour to the North
+    constexpr std::uint32_t RECT_HAS_NN                = 0x8;
+    //! True when this rect has a Neighbour to the West
+    constexpr std::uint32_t RECT_HAS_NW               = 0x10;
+    //! True when this rect has a Neighbour to the South West
+    constexpr std::uint32_t RECT_HAS_NSW              = 0x20;
+    //! True when this rect has a Neighbour to the South
+    constexpr std::uint32_t RECT_HAS_NS               = 0x40;
+    //! True when this rect has a Neighbour to the South East
+    constexpr std::uint32_t RECT_HAS_NSE              = 0x80;
+    //! A short cut for testing all the neighbour flags at once
+    constexpr std::uint32_t RECT_HAS_NEIGHB_ALL       = 0xff; // RECT_HAS_NE | RECT_HAS_NNE | ...etc
+
+    //! All rects marked as boundary rects, including some that are additional to requirements:
+    constexpr std::uint32_t RECT_IS_BOUNDARY         = 0x100;
+    //! All rects inside boundary plus as much of the boundary as needed to make a contiguous boundary:
+    constexpr std::uint32_t RECT_INSIDE_BOUNDARY     = 0x200;
+    //! All rects inside the domain of computation:
+    constexpr std::uint32_t RECT_INSIDE_DOMAIN       = 0x400;
+    //! Rect is a 'region boundary rect'. Regions are intended to be temporary to aid client code.
+    constexpr std::uint32_t RECT_IS_REGION_BOUNDARY  = 0x800;
+    //! Rect is inside the region
+    constexpr std::uint32_t RECT_INSIDE_REGION      = 0x1000;
+
+    //! Rect wraps horizontally on the East side, so its neighbour east will be the western most Rect on the row
+    constexpr std::uint32_t RECT_WRAPS_E = 0x2000;
+    //! Rect wraps horizontally on the West side
+    constexpr std::uint32_t RECT_WRAPS_W = 0x4000;
+    //! Rect wraps vertically - that is, if it's on the North side, its neighbour north will be the southern most Rect on the column
+    constexpr std::uint32_t RECT_WRAPS_N = 0x8000;
+    constexpr std::uint32_t RECT_WRAPS_S = 0x10000;
+
+
+    //! Four flags for client code to use for its own devices.
+    constexpr std::uint32_t RECT_USER_FLAG_0    = 0x10000000;
+    constexpr std::uint32_t RECT_USER_FLAG_1    = 0x20000000;
+    constexpr std::uint32_t RECT_USER_FLAG_2    = 0x40000000;
+    constexpr std::uint32_t RECT_USER_FLAG_3    = 0x80000000;
+    //! Four bits high: all user flags set
+    constexpr std::uint32_t RECT_ALL_USER       = 0xf0000000;
+    //! Bitmask for all the flags that aren't the 4 user flags.
+    constexpr std::uint32_t RECT_NON_USER       = 0x0fffffff;
+
+    //! Neighbour (or edge, or side) positions
+    constexpr std::uint32_t RECT_NEIGHBOUR_POS_E       = 0x0;
+    constexpr std::uint32_t RECT_NEIGHBOUR_POS_NE      = 0x1;
+    constexpr std::uint32_t RECT_NEIGHBOUR_POS_N       = 0x2;
+    constexpr std::uint32_t RECT_NEIGHBOUR_POS_NW      = 0x3;
+    constexpr std::uint32_t RECT_NEIGHBOUR_POS_W       = 0x4;
+    constexpr std::uint32_t RECT_NEIGHBOUR_POS_SW      = 0x5;
+    constexpr std::uint32_t RECT_NEIGHBOUR_POS_S       = 0x6;
+    constexpr std::uint32_t RECT_NEIGHBOUR_POS_SE      = 0x7;
+
+    //! Vertex positions
+    constexpr std::uint32_t RECT_VERTEX_POS_NE     = 0x0;
+    constexpr std::uint32_t RECT_VERTEX_POS_NW     = 0x1;
+    constexpr std::uint32_t RECT_VERTEX_POS_SW     = 0x2;
+    constexpr std::uint32_t RECT_VERTEX_POS_SE     = 0x3;
+
     /*!
      * Describes a regular rectangular 'pixel'.
      *
@@ -310,7 +312,7 @@ namespace sm
          * Convert the neighbour position number into a short string representing the
          * direction/position of the neighbour.
          */
-        static std::string neighbour_pos (unsigned short dir)
+        static std::string neighbour_pos (std::uint16_t dir)
         {
             std::string s("");
             switch (dir) {
@@ -365,11 +367,11 @@ namespace sm
         void computeLocation()
         {
             // Compute Cartesian location
-            this->x = this->dx*this->xi;
-            this->y = this->dy*this->yi;
+            this->x = this->dx * this->xi;
+            this->y = this->dy * this->yi;
             // And location in the Polar coordinate system
-            this->r = std::sqrt (x*x + y*y);
-            this->phi = atan2 (y, x);
+            this->r = std::sqrt (x * x + y * y);
+            this->phi = std::atan2 (y, x);
         }
 
         /*!
@@ -381,7 +383,7 @@ namespace sm
         {
             float deltax = cartesianPoint[0] - x;
             float deltay = cartesianPoint[1] - y;
-            return std::sqrt (deltax*deltax + deltay*deltay);
+            return std::sqrt (deltax * deltax + deltay * deltay);
         }
 
         /*!
@@ -418,7 +420,7 @@ namespace sm
          * re-set the vi indices after creating a grid of rect elements and then pruning
          * down.
          */
-        uint32_t vi = 0;
+        std::uint32_t vi = 0;
 
         /*!
          * This is the index into the d_ vectors in CartGrid which can be used to find
@@ -431,7 +433,7 @@ namespace sm
          * index vi, which provides an index into list<rect> or vector<rect> objects
          * which either are, or are arranged like, RectGrid::rects
          */
-        uint32_t di = 0;
+        std::uint32_t di = 0;
 
         //! Cartesian coordinate 'x' of the centre of the rect. Public, for direct access by client code.
         float x = 0.0f;
@@ -489,27 +491,27 @@ namespace sm
          */
 
         //! Index in +x direction - positive East
-        int32_t xi = 0;
+        std::int32_t xi = 0;
         //! Index in +y direction - positive North
-        int32_t yi = 0;
+        std::int32_t yi = 0;
 
         //! Getter for this->flags
-        uint32_t getFlags() const { return this->flags; }
+        std::uint32_t getFlags() const { return this->flags; }
 
         //! Set one or more flags, defined by flg, true
-        void setFlag (uint32_t flg) { this->flags |= flg; }
+        void setFlag (std::uint32_t flg) { this->flags |= flg; }
         //! Alias for rect::setFlag
-        void setFlags (uint32_t flgs) { this->flags |= flgs; }
+        void setFlags (std::uint32_t flgs) { this->flags |= flgs; }
 
         //! Unset one or more flags, defined by flg, i.e. set false
-        void unsetFlag (uint32_t flg) { this->flags &= ~(flg); }
+        void unsetFlag (std::uint32_t flg) { this->flags &= ~(flg); }
         //! Alias for rect::unsetFlag
-        void unsetFlags (uint32_t flgs) { this->flags &= ~(flgs); }
+        void unsetFlags (std::uint32_t flgs) { this->flags &= ~(flgs); }
 
         //! If flags match flg, then return true
-        bool testFlag (uint32_t flg) const { return (this->flags & flg) == flg ? true : false; }
+        bool testFlag (std::uint32_t flg) const { return (this->flags & flg) == flg ? true : false; }
         //! Alias for rect::testFlag
-        bool testFlags (uint32_t flgs) const { return (this->flags & flgs) == flgs ? true : false; }
+        bool testFlags (std::uint32_t flgs) const { return (this->flags & flgs) == flgs ? true : false; }
 
         /*!
          * Set to true if this rect has been marked as being on a boundary. It is
@@ -539,26 +541,26 @@ namespace sm
         void unsetInsideDomain() { this->flags &= ~RECT_INSIDE_DOMAIN; }
 
         /*!
-         * Set the RECT_USER_FLAG_0/1/2/3 from the passed in uint32_t.
+         * Set the RECT_USER_FLAG_0/1/2/3 from the passed in std::uint32_t.
          *
          * E.g. rect->setUserFlags (RECT_USER_FLAG_0 | RECT_USER_FLAG_1);
          *
          * This will set RECT_USER_FLAG_0 and RECT_USER_FLAG_1 AND UNSET RECT_USER_FLAG_2 &
          * RECT_USER_FLAG_3.
          */
-        void setUserFlags (uint32_t uflgs) { this->flags |= (uflgs & RECT_ALL_USER); }
+        void setUserFlags (std::uint32_t uflgs) { this->flags |= (uflgs & RECT_ALL_USER); }
 
-        //! Set the single user flag 0, 1 2 or 3 as given by the passed-in uint32_t uflg_num.
-        void setUserFlag (uint32_t uflg_num)
+        //! Set the single user flag 0, 1 2 or 3 as given by the passed-in std::uint32_t uflg_num.
+        void setUserFlag (std::uint32_t uflg_num)
         {
-            uint32_t flg = 0x1UL << (28+uflg_num);
+            std::uint32_t flg = 0x1UL << (28+uflg_num);
             this->flags |= flg;
         }
 
-        //! Un-setter corresponding to setUserFlag(uint32_t)
-        void unsetUserFlag (uint32_t uflg_num)
+        //! Un-setter corresponding to setUserFlag(std::uint32_t)
+        void unsetUserFlag (std::uint32_t uflg_num)
         {
-            uint32_t flg = 0x1UL << (28+uflg_num);
+            std::uint32_t flg = 0x1UL << (28+uflg_num);
             this->flags &= ~flg;
         }
 
@@ -566,9 +568,9 @@ namespace sm
         void resetUserFlags() { this->flags &= RECT_NON_USER; }
 
         //! Getter for each user flag
-        bool getUserFlag (uint32_t uflg_num) const
+        bool getUserFlag (std::uint32_t uflg_num) const
         {
-            uint32_t flg = 0x1UL << (28+uflg_num);
+            std::uint32_t flg = 0x1UL << (28+uflg_num);
             return ((this->flags & flg) == flg);
         }
 
@@ -698,7 +700,7 @@ namespace sm
          * Test if have neighbour at position \a ni.  East: 0, North-East: 1, North: 2,
          * North-West: 3, West: 4, South-West: 5, South: 6, South-East: 7
          */
-        bool has_neighbour (unsigned short ni) const
+        bool has_neighbour (std::uint16_t ni) const
         {
             switch (ni) {
             case RECT_NEIGHBOUR_POS_E:
@@ -754,7 +756,7 @@ namespace sm
          * North-East: 1, North: 2, North-West: 3, West: 4, South-West: 5, South: 6,
          * South-East: 7
          */
-        std::list<rect>::iterator get_neighbour (unsigned short ni) const
+        std::list<rect>::iterator get_neighbour (std::uint16_t ni) const
         {
             std::list<rect>::iterator hi;
             switch (ni) {
@@ -807,7 +809,7 @@ namespace sm
         }
 
         //! Turn the vertex index \a ni into a string name and return it.
-        static std::string vertex_name (unsigned short ni)
+        static std::string vertex_name (std::uint16_t ni)
         {
             std::string s("");
             switch (ni) {
@@ -845,7 +847,7 @@ namespace sm
          * definitions RECT_VERTEX_POS_N, etc to pass in a human-readable label for the
          * vertex.
          */
-        sm::vec<float, 2> get_vertex_coord (unsigned short ni) const
+        sm::vec<float, 2> get_vertex_coord (std::uint16_t ni) const
         {
             sm::vec<float, 2> rtn = { 0.0f, 0.0f };
             switch (ni) {
@@ -885,23 +887,23 @@ namespace sm
 
         /*!
          * Get the Cartesian coordinates of the given vertex of the rect. This sub-calls
-         * the overload of get_vertex_coord which accepts a single, unsigned short
+         * the overload of get_vertex_coord which accepts a single, std::uint16_t
          * argument.
          */
-        sm::vec<float, 2> get_vertex_coord (uint32_t ni) const
+        sm::vec<float, 2> get_vertex_coord (std::uint32_t ni) const
         {
             sm::vec<float, 2>  rtn = { -2.0f, -2.0f };
             if (ni > 3) { return rtn; }
-            rtn = this->get_vertex_coord (static_cast<unsigned short> (ni));
+            rtn = this->get_vertex_coord (static_cast<std::uint16_t> (ni));
             return rtn;
         }
 
         /*!
          * Get the Cartesian coordinates of the given vertex of the rect. This sub-calls
-         * the overload of get_vertex_coord which accepts a single, unsigned short
+         * the overload of get_vertex_coord which accepts a single, std::uint16_t
          * argument.
          */
-        sm::vec<float, 2> get_vertex_coord (int32_t ni) const
+        sm::vec<float, 2> get_vertex_coord (std::int32_t ni) const
         {
             sm::vec<float, 2> rtn = { -3.0f, -3.0f };
             if (ni > 3) {
@@ -912,7 +914,7 @@ namespace sm
                 rtn[1] = -4.0f;
                 return rtn;
             }
-            rtn = this->get_vertex_coord (static_cast<unsigned short> (ni));
+            rtn = this->get_vertex_coord (static_cast<std::uint16_t> (ni));
             return rtn;
         }
 
@@ -923,7 +925,7 @@ namespace sm
          * rectGrid.
          */
         template <typename F>
-        bool compare_vertex_coord (int32_t ni, sm::vec<F, 2>& coord) const
+        bool compare_vertex_coord (std::int32_t ni, sm::vec<F, 2>& coord) const
         {
             sm::vec<float, 2> vc = this->get_vertex_coord (ni);
             float sr_thresh = this->getSR()/100.0f;
@@ -940,7 +942,7 @@ namespace sm
         {
             // check each of my vertices, if any match coord, then return true.
             bool rtn = false;
-            for (uint32_t ni = 0; ni < 6; ++ni) {
+            for (std::uint32_t ni = 0; ni < 6; ++ni) {
                 if (this->compare_vertex_coord (ni, coord) == true) {
                     rtn = true;
                     break;
@@ -1034,7 +1036,7 @@ namespace sm
 
     private:
         //! The flags for this rect.
-        uint32_t flags = 0x0;
+        std::uint32_t flags = 0x0;
     };
 
 } // namespace sm

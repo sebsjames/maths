@@ -8,7 +8,7 @@
  *
  * Date: 2021/02
  */
-#pragma once
+module;
 
 #include <cstdint>
 #include <set>
@@ -24,18 +24,18 @@
 #include <stdexcept>
 #include <limits>
 
-#include <sm/rect>
+export module sm.cartgrid;
+
+export import sm.rect;
 
 // cartgrid contains carried over code (from HexGrid) which allows for the imposition of
 // arbitrary boundaries, specified as Bezier curves. To use a cartgrid with an arbitrary boundary, define
 // CARTGRID_COMPILE_WITH_BEZCURVES
-#ifdef CARTGRID_COMPILE_WITH_BEZCURVES
-# include <sm/bezcurvepath>
-import sm.bezcoord;
-#endif
+export import sm.bezcurvepath;
+export import sm.bezcoord;
 
 import sm.mathconst;
-import sm.grid; // for gridfeatures
+export import sm.grid; // for gridfeatures
 import sm.vec;
 import sm.vvec;
 import sm.scale;
@@ -44,11 +44,11 @@ import sm.boxfilter;
 
 // If the cartgrid::save and cartgrid::load methods are required, define
 // CARTGRID_COMPILE_LOAD_AND_SAVE. A link to libhdf5 will be required in your program.
-#ifdef CARTGRID_COMPILE_LOAD_AND_SAVE
-import sm.hdfdata;
-#endif
+//#ifdef CARTGRID_COMPILE_LOAD_AND_SAVE
+//import sm.hdfdata; // see hexgrid_hdf for what to do
+//#endif
 
-namespace sm
+export namespace sm
 {
     /*!
      * This class is used to build a Cartesian grid of rectangular elements.

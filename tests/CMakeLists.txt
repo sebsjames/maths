@@ -514,15 +514,15 @@ endif()
 
 # Inserting into a list. error: conflicting declaration of template. on g++-14
 add_executable(cartgrid1 cartgrid1.cpp)
-target_sources_modules(cartgrid1 MODULES ${SM_BEZCOORD_MODULES} ${SM_GRID_MODULES} ${SM_SCALE_MODULES} ${SM_BOXFILTER_MODULES})
+target_sources_modules(cartgrid1 MODULES ${SM_BEZCOORD_MODULES} ${SM_GRID_MODULES} ${SM_SCALE_MODULES} ${SM_BOXFILTER_MODULES} ${SM_CARTGRID_MODULES})
 add_test(cartgrid1 cartgrid1)
 
 add_executable(cartgrid_gridshiftcoords cartgrid_gridshiftcoords.cpp)
-target_sources_modules(cartgrid_gridshiftcoords MODULES ${SM_BEZCOORD_MODULES} ${SM_GRID_MODULES} ${SM_SCALE_MODULES} ${SM_BOXFILTER_MODULES})
+target_sources_modules(cartgrid_gridshiftcoords MODULES ${SM_BEZCOORD_MODULES} ${SM_GRID_MODULES} ${SM_SCALE_MODULES} ${SM_BOXFILTER_MODULES} ${SM_CARTGRID_MODULES})
 add_test(cartgrid_gridshiftcoords cartgrid_gridshiftcoords)
 
 add_executable(cartgrid_shiftindicesbymetric cartgrid_shiftindicesbymetric.cpp)
-target_sources_modules(cartgrid_shiftindicesbymetric MODULES ${SM_BEZCOORD_MODULES} ${SM_GRID_MODULES} ${SM_SCALE_MODULES} ${SM_BOXFILTER_MODULES} ${SM_SCALE_MODULES})
+target_sources_modules(cartgrid_shiftindicesbymetric MODULES ${SM_BEZCOORD_MODULES} ${SM_GRID_MODULES} ${SM_SCALE_MODULES} ${SM_BOXFILTER_MODULES} ${SM_SCALE_MODULES} ${SM_CARTGRID_MODULES})
 add_test(cartgrid_shiftindicesbymetric cartgrid_shiftindicesbymetric)
 
 if(0) # convert to vector/array not vvec/vec

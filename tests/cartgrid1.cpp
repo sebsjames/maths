@@ -1,7 +1,6 @@
 #include <iostream>
 
-#include <sm/cartgrid>
-
+import sm.cartgrid;
 import sm.vvec;
 
 int main()

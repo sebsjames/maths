@@ -65,6 +65,10 @@ macro(setup_module_variables_for_maths base_directory)
     ${SM_BEZCOORD_MODULES}
     ${base_directory}/sm/hex.cppm
   )
+  set(SM_RECT_MODULES
+    ${SM_BEZCOORD_MODULES}
+    ${base_directory}/sm/rect.cppm
+  )
   set(SM_WINDER_MODULES
     ${SM_VEC_MODULES}
     ${base_directory}/sm/winder.cppm
@@ -118,6 +122,12 @@ macro(setup_module_variables_for_maths base_directory)
     ${SM_BEZCURVEPATH_MODULES}
     ${SM_HEX_MODULES}
     ${base_directory}/sm/hexgrid.cppm
+  )
+  set(SM_CARTGRID_MODULES
+    ${SM_BEZCURVEPATH_MODULES}
+    ${SM_RECT_MODULES}
+    ${SM_GRID_MODULES}
+    ${base_directory}/sm/cartgrid.cppm
   )
   set(SM_CONFIG_MODULES
     ${SM_VEC_MODULES}
