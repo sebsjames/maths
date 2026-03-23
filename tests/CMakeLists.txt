@@ -453,6 +453,10 @@ add_executable(trait_tests_number_type trait_tests_number_type.cpp)
 target_sources_modules(trait_tests_number_type MODULES ${SM_VEC_MODULES})
 add_test(trait_tests_number_type trait_tests_number_type)
 
+add_executable(trait_tests_has_size trait_tests_has_size.cpp)
+target_sources_modules(trait_tests_has_size MODULES ${SM_VEC_MODULES})
+add_test(trait_tests_has_size trait_tests_has_size)
+
 add_executable(flags1 flags1.cpp)
 target_sources_modules (flags1 MODULES ${PROJECT_SOURCE_DIR}/sm/flags.cppm)
 add_test(flags1 flags1)
