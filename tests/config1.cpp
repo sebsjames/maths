@@ -2,8 +2,7 @@
 #include <iostream>
 #include <string>
 
-#include <sm/config>
-
+import sm.config;
 import sm.vec;
 import sm.vvec;
 

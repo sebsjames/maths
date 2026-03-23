@@ -126,20 +126,6 @@ export namespace sm
     template <typename T, int = (T{}, 0)> constexpr bool is_constexpr_constructible (int) { return true; }
     template <typename>                   constexpr bool is_constexpr_constructible (long) { return false; }
 
-#if __cplusplus >= 202002L
-    // C++20 is required to incorporate the lambda into test() for has_size_method. This
-    // feeds through into is_copyable_fixedsize, so that's C++20 for now, too. Also,
-    // this approach fails if we try has_size_method<int> or similar built-in type.
-    template<typename T>
-    class has_size_method
-    {
-        template<typename U> static auto test(int _sz) -> decltype([](){ [[maybe_unused]] auto sz = U{}.size(); }, std::true_type());
-        template<typename> static std::false_type test(...);
-    public:
-        static constexpr bool value = std::is_same< decltype(test<T>(1)), std::true_type >::value;
-    };
-#endif
-
     //! sm::has_size_const_method<T> tests whether a type T has a const size() method that returns size_t
     template <typename T> int call_size_const (std::size_t (T::*)() const); // Function signature must exactly match what you're looking for
     template <typename C> std::true_type has_size_const_method_ (decltype(call_size_const<C>(&C::size)));

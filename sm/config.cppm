@@ -13,7 +13,7 @@
  *
  * Author: Seb James
  */
-#pragma once
+module;
 
 #include <list>
 #include <fstream>
@@ -25,11 +25,13 @@
 
 #include <nlohmann/json.hpp>
 
+export module sm.config;
+
 import sm.util;
 import sm.vvec;
 import sm.vec;
 
-namespace sm
+export namespace sm
 {
     /*!
      * A configuration file class to help read simulation parameters from a JSON file.

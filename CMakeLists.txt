@@ -131,11 +131,13 @@ if(HDF5_FOUND)
   include_directories(${HDF5_INCLUDE_DIR})
 endif()
 
-# Use packaged nlohmann json. Required only for config1 test and use of sm::config
-# find_package(nlohmann_json REQUIRED)
+# Use packaged nlohmann json. Required only for config1 test and use
+# of sm::config. It *does* have to be a version of nlohmann::json that
+# is happy to be incorporated into a module.
+find_package(nlohmann_json)
 
 # For a test program
-find_package (Eigen3 NO_MODULE)
+find_package(Eigen3 NO_MODULE)
 
 # A macro to make a list of modules into a unique list then add then to target_name
 function(target_sources_modules target_name)

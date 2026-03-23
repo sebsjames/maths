@@ -393,9 +393,11 @@ target_sources_modules(boxfilter1 MODULES ${SM_BOXFILTER_MODULES})
 add_test(boxfilter1 boxfilter1)
 
 # Test sm::config
-add_executable(config1 config1.cpp)
-target_sources_modules(config1 MODULES ${SM_UTIL_MODULES} ${SM_VVEC_MODULES} ${SM_VEC_MODULES})
-add_test(config1 config1)
+if(nlohmann_json_FOUND)
+  add_executable(config1 config1.cpp)
+  target_sources_modules(config1 MODULES ${SM_CONFIG_MODULES} ${SM_UTIL_MODULES} ${SM_VVEC_MODULES} ${SM_VEC_MODULES})
+  add_test(config1 config1)
+endif(nlohmann_json_FOUND)
 
 add_executable(zernike1 zernike1.cpp)
 target_sources_modules(zernike1 MODULES ${SM_ALGO_MODULES} ${SM_VVEC_MODULES})

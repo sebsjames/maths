@@ -119,6 +119,12 @@ macro(setup_module_variables_for_maths base_directory)
     ${SM_HEX_MODULES}
     ${base_directory}/sm/hexgrid.cppm
   )
+  set(SM_CONFIG_MODULES
+    ${SM_VEC_MODULES}
+    ${SM_VVEC_MODULES}
+    ${SM_UTIL_MODULES}
+    ${base_directory}/sm/config.cppm
+  )
 
   set(SM_ALL_MODULES
     ${base_directory}/sm/mathconst.cppm
