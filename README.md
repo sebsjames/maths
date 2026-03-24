@@ -1,14 +1,7 @@
 # Seb's maths library
 
-![cmake ubuntu 24 gcc 11 build test](https://github.com/sebsjames/maths/actions/workflows/cmake-ubu24-gcc12.yml/badge.svg)
-![cmake ubuntu 24 default (gcc 13) build test](https://github.com/sebsjames/maths/actions/workflows/cmake-ubuntu-2404.yml/badge.svg)
 ![cmake ubuntu 24 gcc 14 build test](https://github.com/sebsjames/maths/actions/workflows/cmake-ubu24-gcc14.yml/badge.svg)
-![cmake ubuntu 24 clang 16 build test](https://github.com/sebsjames/maths/actions/workflows/cmake-ubu24-clang16.yml/badge.svg)
-![cmake ubuntu 24 clang 17 build test](https://github.com/sebsjames/maths/actions/workflows/cmake-ubu24-clang16.yml/badge.svg)
 ![cmake ubuntu 24 clang 18 build test](https://github.com/sebsjames/maths/actions/workflows/cmake-ubu24-clang16.yml/badge.svg)
-![cmake ubuntu 22 default (gcc 11?) build test](https://github.com/sebsjames/maths/actions/workflows/cmake-ubuntu-2204.yml/badge.svg)
-![cmake mac 14 build test](https://github.com/sebsjames/maths/actions/workflows/cmake-mac-14.yml/badge.svg)
-![cmake mac 15 build test](https://github.com/sebsjames/maths/actions/workflows/cmake-mac-15.yml/badge.svg)
 ![cmake windows 22 build test](https://github.com/sebsjames/maths/actions/workflows/cmake-windows-2022.yml/badge.svg)
 
 ## A modules-native mathematics library for modern C++
@@ -42,7 +35,7 @@ The namespace is just `sm` (I like short namespaces for frequently used types).
 Here's an example
 
 ```c++
-#include <iostream> // or maybe import std;
+#include <iostream> // possibly import std; in the future.
 import sm.mathconst;
 import sm.vec;
 import sm.quaternion;
@@ -73,7 +66,7 @@ int main()
 
 ## Build requirements
 
-Minimum compilers: g++-14*, clang++-18, Visual Studio Something.
+Minimum compilers: g++-14*, clang++-18, Visual Studio is currently untested.
 You will need cmake version 3.28.5 as a minimum.
 Ninja is required as a partner for cmake, as make does not yet support C++-20 modules.
 
@@ -94,8 +87,9 @@ ninja
 ```bash
 mkdir build
 cd build
-# A cmake call something like (if you want to use clang and  libc++:
-CC=clang-20 CXX=clang++-20 cmake .. -GNinja -DCMAKE_CXX_FLAGS="-stdlib=libc++"
+# A cmake call something like (if you want to use clang and your default libc++/libstdc++:
+CC=clang-20 CXX=clang++-20 cmake .. -GNinja
+# Optionally add -DCMAKE_CXX_FLAGS="-stdlib=libc++" to compile with libc++ if it not your default
 # possibly also -DCMAKE_EXE_LINKER_FLAGS="-stdlib=libc++ -lc++abi"
 ninja
 ```
