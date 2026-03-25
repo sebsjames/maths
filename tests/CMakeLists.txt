@@ -547,11 +547,9 @@ if((CMAKE_CXX_COMPILER_ID MATCHES "Clang") OR (CMAKE_CXX_COMPILER_ID STREQUAL "G
   add_test(cartgrid_shiftindicesbymetric cartgrid_shiftindicesbymetric)
 endif()
 
-if(0) # convert to vector/array not vvec/vec
 add_executable(polysolve_1 polysolve_1.cpp)
 target_sources_modules(polysolve_1 MODULES ${SM_VEC_MODULES} ${SM_VVEC_MODULES})
 add_test(polysolve_1 polysolve_1)
-endif()
 
 #
 # mat compile/not compile tests on operators
