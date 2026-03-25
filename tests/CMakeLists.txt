@@ -400,10 +400,11 @@ endif()
 
 # Test sm::config
 
-# We have to do a special test on nlohmann_json and the version and
-# which compiler we are on. g++ has a problem with older versions of
-# json, but is ok with the very latest (currently unreleased) version.
-if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+# We have to do a special test on nlohmann_json version and which
+# compiler we are on. g++/visualstudio have a problem with older
+# versions of json, but are ok with the very latest (currently
+# unreleased) version.
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES MSVC)
   if(nlohmann_json_FOUND)
     if(nlohmann_json_VERSION GREATER 3.11.99)
       set(can_do_config 1)
