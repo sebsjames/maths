@@ -404,12 +404,14 @@ endif()
 # compiler we are on. g++/visualstudio have a problem with older
 # versions of json, but are ok with the very latest (currently
 # unreleased) version.
-if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES MSVC)
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   if(nlohmann_json_FOUND)
     if(nlohmann_json_VERSION GREATER 3.11.99)
       set(can_do_config 1)
     endif()
   endif()
+elseif(CMAKE_CXX_COMPILER_ID MATCHES MSVC)
+  # Ignore config1 for VisualStudio for now (get a json error)
 else()
   if(nlohmann_json_FOUND)
     set(can_do_config 1)
