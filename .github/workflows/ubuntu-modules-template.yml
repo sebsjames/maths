@@ -17,6 +17,9 @@ on:
       COMPILER_PACKAGES:
         required: true
         type: string
+      COMPILER_REPO_ADD:
+        required: false
+        type: string
 
 jobs:
   build:
@@ -32,9 +35,10 @@ jobs:
     - name: Install dependencies
       run: |
         sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+        ${{ inputs.COMPILER_REPO_ADD }}
         sudo apt-get update -y
-        # Install deps
-        sudo apt-get install libgbm-dev libhdf5-dev nlohmann-json3-dev
+        # Install deps for sm::hdfdata and sm::config
+        sudo apt-get install libhdf5-dev nlohmann-json3-dev
         # Install compiler
         sudo apt-get install ${{ inputs.COMPILER_PACKAGES }}
 
