@@ -22,8 +22,8 @@ jobs:
       BUILD_TYPE: Release
       COMPILER_PACKAGES: clang-20 clang-tools-20
       COMPILER_INSTALL:
-        wget https://github.com/llvm/llvm-project/releases/download/llvmorg-22.1.2/LLVM-22.1.2-Linux-X64.tar.xz
-        sudo mkdir -p /opt/llvm
+        wget https://github.com/llvm/llvm-project/releases/download/llvmorg-22.1.2/LLVM-22.1.2-Linux-X64.tar.xz ;
+        sudo mkdir -p /opt/llvm ;
         sudo tar xf LLVM-22.1.2-Linux-X64.tar.xz -C /opt/llvm
       CC: /opt/llvm/LLVM-22.1.2-Linux-X64/bin/clang
       CXX: /opt/llvm/LLVM-22.1.2-Linux-X64/bin/clang++
