@@ -1805,7 +1805,7 @@ namespace sm
                 // Colinear, figure out if overlapping
                 float t_0 = (_p2 - _p1).dot (_q1-_p1) / (_q1-_p1).dot(_q1-_p1);
                 float t_1 = (_q2 - _p1).dot (_q1-_p1) / (_q1-_p1).dot(_q1-_p1);
-                if (t_0 > 0.0f || t_0 < 1.0f || t_1 > 0.0f || t_1 < 1.0f) {
+                if ((t_0 > 0.0f && t_0 < 1.0f) || (t_1 > 0.0f && t_1 < 1.0f)) {
                     isect = _p1 + t_0 * (_q1-_p1);
                 } else {
                     isect[1] = 0.0f; // isect[0] remains nan

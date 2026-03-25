@@ -93,14 +93,14 @@ endif()
 # special version, so OpenMP will not work at present on
 # Windows/VS2019. But then, you wouldn't use Windows for serious
 # numerical work anyway.
-find_package(OpenMP 3)
-if(OpenMP_CXX_FOUND)
-  message(STATUS "Found OpenMP version ${OpenMP_C_VERSION}")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-  if(APPLE)
-    # FIXME: Check the OpenMP root environment variable, which is required on some Mac versions
-  endif()
-endif()
+##find_package(OpenMP 3)
+##if(OpenMP_CXX_FOUND)
+##  message(STATUS "Found OpenMP version ${OpenMP_C_VERSION}")
+##  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+##  if(APPLE)
+##    # FIXME: Check the OpenMP root environment variable, which is required on some Mac versions
+##  endif()
+##endif()
 
 # Lib finding
 
