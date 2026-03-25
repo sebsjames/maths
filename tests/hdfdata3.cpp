@@ -3,6 +3,7 @@
 #include <fstream>
 #include <list>
 #include <vector>
+#include <array>
 #include <deque>
 
 import sm.hdfdata;
