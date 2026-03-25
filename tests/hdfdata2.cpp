@@ -3,6 +3,7 @@
 #include <fstream>
 #include <list>
 #include <vector>
+#include <array>
 #include <bitset>
 
 import sm.hdfdata;
