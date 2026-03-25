@@ -555,7 +555,8 @@ add_test(polysolve_1 polysolve_1)
 # mat compile/not compile tests on operators
 #
 
-if(NOT WIN32) # exclude Windows CI from doing the compile failure tests for now
+# exclude some CI (Windows, toolchains that use a lot of data) from doing the compile failure tests for now
+if(BUILD_COMPILE_FAILURE_TESTS)
 
   #
   # mat times vec
@@ -813,4 +814,4 @@ if(NOT WIN32) # exclude Windows CI from doing the compile failure tests for now
     ERROR_MATCHES "Should not compile"
   )
 
-endif(NOT WIN32)
+endif(BUILD_COMPILE_FAILURE_TESTS)

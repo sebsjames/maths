@@ -130,6 +130,9 @@ if(BUILD_TESTS)
   add_subdirectory(tests)
 endif(BUILD_TESTS)
 
+# Programs that should NOT compile. These take a little longer to run
+option(BUILD_COMPILE_FAILURE_TESTS "Build compile failure tests" OFF)
+
 # Example code (you can also see tests/ for examples)
 option(BUILD_EXAMPLES "Build examples" ON)
 if(BUILD_EXAMPLES)
