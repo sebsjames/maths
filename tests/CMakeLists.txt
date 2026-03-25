@@ -174,7 +174,9 @@ add_executable(scale_complex1 scale_complex1.cpp)
 target_sources_modules(scale_complex1 MODULES ${SM_VEC_MODULES} ${SM_SCALE_MODULES})
 add_test(scale_complex1 scale_complex1)
 
-if(HDF5_FOUND AND NOT (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 15.0))
+if(HDF5_FOUND
+    AND NOT CMAKE_CXX_COMPILER_ID MATCHES MSVC
+    AND NOT (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 15.0))
     # Test HDF file access
     add_executable(hdfdata1 hdfdata1.cpp)
     target_sources_modules(hdfdata1 MODULES ${SM_HDFDATA_MODULES})
