@@ -25,11 +25,13 @@ target_sources_modules(mat44_frombasis MODULES ${SM_MAT_MODULES})
 add_executable(mat_nonsquare mat_nonsquare.cpp)
 target_sources_modules(mat_nonsquare MODULES ${SM_MAT_MODULES})
 
-add_executable(hexgrid hexgrid.cpp)
-target_sources_modules(hexgrid MODULES ${SM_HEXGRID_MODULES})
+if(NOT (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 15.0))
+  add_executable(hexgrid hexgrid.cpp)
+  target_sources_modules(hexgrid MODULES ${SM_HEXGRID_MODULES})
 
-add_executable(bezcurve bezcurve.cpp)
-target_sources_modules(bezcurve MODULES ${SM_BEZCURVE_MODULES})
+  add_executable(bezcurve bezcurve.cpp)
+  target_sources_modules(bezcurve MODULES ${SM_BEZCURVE_MODULES})
+endif()
 
 add_executable(vonmises vonmises.cpp)
 target_sources_modules(vonmises MODULES ${SM_VVEC_MODULES})
