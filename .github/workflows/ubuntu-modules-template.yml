@@ -1,4 +1,4 @@
-name: Ubuntu Template
+name: Ubuntu Template for modules build (cmake + ninja)
 on:
   workflow_call:
     inputs:
@@ -14,7 +14,10 @@ on:
       CXX:
         required: true
         type: string
-      WX_PACKAGE:
+      COMPILER_PACKAGES:
+        required: true
+        type: string
+      COMPILER_INSTALL:
         required: false
         type: string
 
@@ -32,8 +35,12 @@ jobs:
     - name: Install dependencies
       run: |
         sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+        ${{ inputs.COMPILER_INSTALL }}
         sudo apt-get update -y
-        sudo apt-get install g++-14 gcc-14 clang++-18 clang-tools-18 libgbm-dev libarmadillo-dev libhdf5-dev nlohmann-json3-dev librapidxml-dev
+        # Install deps for sm::hdfdata and sm::config
+        sudo apt-get install libhdf5-dev nlohmann-json3-dev
+        # Install compiler
+        sudo apt-get install ${{ inputs.COMPILER_PACKAGES }}
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.

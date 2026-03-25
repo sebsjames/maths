@@ -71,7 +71,7 @@ else()
       endif()
     endif()
 
-    set(COMPREHENSIVE_WARNING_FLAGS "-Wall -Wextra -Wpedantic -pedantic-errors -Werror -Wfatal-errors -Wno-psabi")
+    set(COMPREHENSIVE_WARNING_FLAGS "-Wall -Wextra -Wpedantic -pedantic-errors -Werror -Wfatal-errors -Wno-psabi -Wno-unknown-pragmas")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g ${COMPREHENSIVE_WARNING_FLAGS} -O3")
     if(CMAKE_CXX_COMPILER_ID MATCHES GNU)
       # Make it possible to compile complex constexpr functions (gcc only)
@@ -101,21 +101,6 @@ if(CMAKE_CXX_COMPILER_ID MATCHES Clang)
   endif()
 else()
   set(ARRAY_LITERAL_TEMPL_ARGS_ARE_OK 1)
-endif()
-
-# Note that we require OpenMP version 3 or above for ability to use
-# unsigned integral types in parallel for loops. At time of writing,
-# Visual Studio 2019 offers OpenMP 2 by default and 3 with the special
-# switch -openmp:llvm. I don't know how to get cmake to use the
-# special version, so OpenMP will not work at present on
-# Windows/VS2019.
-find_package(OpenMP 3)
-if(OpenMP_CXX_FOUND)
-  message(STATUS "Found OpenMP version ${OpenMP_C_VERSION}")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-  if(APPLE)
-    # FIXME: Check the OpenMP root environment variable, which is required on some Mac versions
-  endif()
 endif()
 
 # Lib finding

@@ -1,4 +1,4 @@
-name: Ubu 24 clang18 ninja
+name: Ubuntu clang18 modules
 on:
   push:
     branches: [ "main" ]
@@ -16,10 +16,10 @@ concurrency:
 
 jobs:
   call-workflow-passing-data:
-    uses: sebsjames/maths/.github/workflows/cmake-ubuntu-modules-template.yml@main
+    uses: sebsjames/maths/.github/workflows/ubuntu-modules-template.yml@main
     with:
       RUNNER_IMAGE: ubuntu-24.04
       BUILD_TYPE: Release
+      COMPILER_PACKAGES: clang-18 clang-tools-18
       CC: clang-18
       CXX: clang++-18
-      WX_PACKAGE: libwxgtk3.2-dev
