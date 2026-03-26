@@ -1,11 +1,11 @@
 # Seb's maths library
 
-![gcc 14 build test](https://github.com/sebsjames/maths/actions/workflows/ubuntu-modules-gcc14.yml/badge.svg)
-![gcc 15 build test](https://github.com/sebsjames/maths/actions/workflows/ubuntu-modules-gcc15.yml/badge.svg)
-![clang 18 build test](https://github.com/sebsjames/maths/actions/workflows/ubuntu-modules-clang18.yml/badge.svg)
-![clang 20 build test](https://github.com/sebsjames/maths/actions/workflows/ubuntu-modules-clang20.yml/badge.svg)
-![clang 22 build test](https://github.com/sebsjames/maths/actions/workflows/ubuntu-modules-clang22.yml/badge.svg)
-![windows 22 build test](https://github.com/sebsjames/maths/actions/workflows/cmake-windows-2022.yml/badge.svg)
+![GCC 14](https://github.com/sebsjames/maths/actions/workflows/ubuntu-cmakeninja-gcc14.yml/badge.svg)
+![GCC 15](https://github.com/sebsjames/maths/actions/workflows/ubuntu-cmakeninja-gcc15.yml/badge.svg)
+![Clang 18](https://github.com/sebsjames/maths/actions/workflows/ubuntu-cmakeninja-clang18.yml/badge.svg)
+![Clang 20](https://github.com/sebsjames/maths/actions/workflows/ubuntu-cmakeninja-clang20.yml/badge.svg)
+![Clang 22](https://github.com/sebsjames/maths/actions/workflows/ubuntu-cmakeninja-clang22.yml/badge.svg)
+![Windows 2022](https://github.com/sebsjames/maths/actions/workflows/cmake-windows-2022.yml/badge.svg)
 
 ## A modules-native mathematics library for modern C++
 
