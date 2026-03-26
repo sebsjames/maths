@@ -11,9 +11,9 @@ nav_order: 1
 {: .no_toc}
 
 ```c++
-#include <sm/vvec>
+import sm.vvec;
 ```
-Header file: [sm/vvec](https://github.com/sebsjames/maths/blob/main/sm/vvec). Test and example code:  [tests/testvvec](https://github.com/sebsjames/maths/blob/main/tests/testvvec.cpp)
+Module file: [sm/vvec.cppm](https://github.com/sebsjames/maths/blob/main/sm/vvec.cppm). Test and example code:  [tests/vvec1.cpp](https://github.com/sebsjames/maths/blob/main/tests/vvec1.cpp)
 
 **Table of contents**
 

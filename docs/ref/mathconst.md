@@ -11,9 +11,9 @@ permalink: /ref/mathconst/
 {: .no_toc }
 
 ```c++
-#include <sm/mathconst>
+import sm.mathconst;
 ```
-Header file: [<sm/mathconst>](https://github.com/sebsjames/maths/blob/main/sm/mathconst).
+Module file: [sm/mathconst.cppm](https://github.com/sebsjames/maths/blob/main/sm/mathconst.cppm).
 
 **Table of Contents**
 

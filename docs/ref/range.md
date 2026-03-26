@@ -11,9 +11,9 @@ nav_order: 5
 {: .no_toc}
 
 ```c++
-#include <sm/range>
+import sm.range;
 ```
-Header file: [<sm/range>](https://github.com/sebsjames/maths/blob/main/sm/range).
+Module file: [sm/range.cppm](https://github.com/sebsjames/maths/blob/main/sm/range.cppm).
 
 **Table of Contents**
 
@@ -32,7 +32,7 @@ The range object can participate in the process of determining the range of valu
 
 `sm::range` takes one template argument, specifying the type of the values.
 ```c++
-namespace sm
+export namespace sm
 {
     template <typename T>
     struct range
