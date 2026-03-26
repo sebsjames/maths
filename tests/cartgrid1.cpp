@@ -9,29 +9,29 @@ int main()
 
     // A symmetric, zero-centered CartGrid
     sm::cartgrid cg(2.0f, 8.0f);
-    cg.setBoundaryOnOuterEdge();
+    cg.set_boundary_on_outer_edge();
     std::cout << "Set up " << cg.num() << " pixels in a Cartesian grid of width/depth: " << cg.width() << "/" << cg.depth() << std::endl;
 
     for (auto a : cg.rects) {
-        std::cout << a.outputCart() << std::endl;
+        std::cout << a.output_cart() << std::endl;
     }
     if (cg.num() != 25) { --rtn; }
 
     // A CartGrid with 400 elements
     sm::cartgrid cg2(0.05f, 0.05f, 0.0f, 0.0f, 0.95f, 0.95f);
-    cg2.setBoundaryOnOuterEdge();
+    cg2.set_boundary_on_outer_edge();
     std::cout << "Set up " << cg2.num() << " pixels in a Cartesian grid of width/depth: " << cg2.width() << "/" << cg2.depth() << std::endl;
     //for (auto a : cg2.rects) {
-    //    std::cout << a.outputCart() << std::endl;
+    //    std::cout << a.output_cart() << std::endl;
     //}
 
     // A CartGrid with a few elements. Note setting of Horizontal wrap. boxfilter_f will throw exception if CartGrid is not wrapped horiontally
     sm::cartgrid cg3(0.05f, 0.05f, 0.0f, 0.0f, 0.2f, 0.2f,
-                        0.0f, sm::griddomainshape::rectangle, sm::griddomainwrap::horizontal);
-    cg3.setBoundaryOnOuterEdge();
+                     0.0f, sm::griddomainshape::rectangle, sm::griddomainwrap::horizontal);
+    cg3.set_boundary_on_outer_edge();
     std::cout << "Set up " << cg3.num() << " pixels in a Cartesian grid of width/depth: " << cg3.width() << "/" << cg3.depth() << std::endl;
     for (auto a : cg3.rects) {
-        std::cout << a.outputCart() << std::endl;
+        std::cout << a.output_cart() << std::endl;
     }
 
     sm::vvec<float> vals = { 1, 2, 3, 2, 1,   4, 5, 6, 7, 4,   7, 4, 2, 1, 4,   8, 8, 6, 8, 3,   9, 8, 3, 2, 1  };
@@ -71,8 +71,8 @@ int main()
     sm::vvec<float> filtered_5x5 (80, 0);
     sm::vvec<float> filtered_5x5_slow (80, 0);
     sm::cartgrid cg4(0.05f, 0.05f, 0.0f, 0.0f, 0.45f, 0.35f,
-                        0.0f, sm::griddomainshape::rectangle, sm::griddomainwrap::horizontal);
-    cg4.setBoundaryOnOuterEdge();
+                     0.0f, sm::griddomainshape::rectangle, sm::griddomainwrap::horizontal);
+    cg4.set_boundary_on_outer_edge();
     std::cout << "Set up " << cg4.num() << " pixels in a Cartesian grid of width/depth: " << cg4.widthnum() << "/" << cg4.depthnum() << std::endl;
 
     std::cout << "\nvals8x10:\n" << vals8x10.str(10);

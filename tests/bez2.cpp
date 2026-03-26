@@ -25,17 +25,17 @@ int main()
     sm::bezcurvepath<float, 3> bound;
     std::cout << "instanciated curvepath" << std::endl;
 
-    bound.addCurve(c1);
-    bound.addCurve(c2);
-    bound.addCurve(c3);
-    bound.addCurve(c4);
+    bound.add_curve(c1);
+    bound.add_curve(c2);
+    bound.add_curve(c3);
+    bound.add_curve(c4);
 
-    auto Hgrid = std::make_unique<sm::hexgrid>(0.02f, 4.0f, 0.0f);
+    auto hgrid = std::make_unique<sm::hexgrid>(0.02f, 4.0f, 0.0f);
     std::cout << "setBoundary..." << std::endl;
-    Hgrid->setBoundary (bound);
-    std::cout << "Number of hexes is: " << Hgrid->num() << std::endl;
+    hgrid->setBoundary (bound);
+    std::cout << "Number of hexes is: " << hgrid->num() << std::endl;
 
-    if (Hgrid->num() == 782) {
+    if (hgrid->num() == 782) {
         // Success
         rtn = 0;
     }

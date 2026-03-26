@@ -59,7 +59,7 @@ export namespace sm
      * which an arbitrary boundary region can be 'cut out' AND it maintains all the
      * neighbour relationships correctly.
      *
-     * Optionally, a boundary may be set by calling setBoundary (const
+     * Optionally, a boundary may be set by calling set_boundary (const
      * bezcurvepath&). If this is done, then the boundary is converted to a set of
      * elements, then those elements in the grid lying outside the boundary are removed.
      */
@@ -84,14 +84,14 @@ export namespace sm
 
         /*!
          * For a given coordinate pair (x, y), the function returns the 1D index of the nearest cartgrid vertex
-         * This is a simplified version of "findRectNearest".  findRectNearest can be used for non-recatngular grids.
+         * This is a simplified version of "find_rect_nearest".  find_rect_nearest can be used for non-recatngular grids.
          * This function is for rectangular grids only.
          */
-        int32_t indexFromCoord (const sm::vec<float, 2>& coord) const
+        std::int32_t index_from_coord (const sm::vec<float, 2>& coord) const
         {
-            int32_t x_ind = std::round((coord.at(0) - x_minmax.min)/this->d);   // Index of nearest column
-            int32_t y_ind = std::round((coord.at(1) - y_minmax.min)/this->v);   // Index of nearest row
-            int32_t nc = int32_t(((x_minmax.max - x_minmax.min)/this->d) + 1.0f);   // Number of columns in rectangular cartgrid
+            std::int32_t x_ind = std::round ((coord.at(0) - x_minmax.min) / this->d);   // Index of nearest column
+            std::int32_t y_ind = std::round ((coord.at(1) - y_minmax.min) / this->v);   // Index of nearest row
+            std::int32_t nc = static_cast<std::int32_t>(((x_minmax.max - x_minmax.min) / this->d) + 1.0f);   // Number of columns in rectangular cartgrid
             return (nc * y_ind) + x_ind;
         }
 
@@ -103,11 +103,11 @@ export namespace sm
          * If any of the original coordinates get shifted off the edge of the cartgrid, then they
          * are simply omitted from the return vvec.
          */
-        sm::vvec<sm::vec<float, 2>> shiftCoords (const sm::vvec<sm::vec<float, 2>>& cds,
-                                                 const float x_shift, const float y_shift) const
+        sm::vvec<sm::vec<float, 2>> shift_coords (const sm::vvec<sm::vec<float, 2>>& cds,
+                                                  const float x_shift, const float y_shift) const
         {
-            float x_step = this->d * std::round(x_shift/this->d); // find nearest x value in this->coords to x_shift
-            float y_step = this->v * std::round(y_shift/this->v); // find nearest y value in this->coords to y_shift
+            float x_step = this->d * std::round (x_shift / this->d); // find nearest x value in this->coords to x_shift
+            float y_step = this->v * std::round (y_shift / this->v); // find nearest y value in this->coords to y_shift
 
             sm::vvec<sm::vec<float, 2>> new_coords;
             sm::vec<float, 2> ctmp;
@@ -123,48 +123,48 @@ export namespace sm
 
         /*!
          * Shift the supplied indices inds by the metric (float) shifts x_shift and y_shift and
-         * return a vector of new indicies. The shifts are rounded to the nearest number of integer
+         * return a vector of new indices. The shifts are rounded to the nearest number of integer
          * pixel(rect) shifts. Only for rectangular cartgrids.
          *
          * If any of the original indices get shifted off the edge of the cartgrid, then they
          * are simply omitted from the return vvec.
          */
-        sm::vvec<int32_t> shiftIndiciesByMetric (const sm::vvec<int32_t>& inds,
-                                                 const float x_shift, const float y_shift) const
+        sm::vvec<std::int32_t> shift_indices_by_metric (const sm::vvec<std::int32_t>& inds,
+                                                        const float x_shift, const float y_shift) const
         {
-            static constexpr bool debug_shift_indicies = false;
-            int32_t w = 1 + this->x_span/this->d;
+            static constexpr bool debug_shift_indices = false;
+            std::int32_t w = 1 + this->x_span/this->d;
 
-            int32_t x_step = static_cast<int32_t>(std::round(x_shift/this->d));    // Find the number of rects in x_shift
+            std::int32_t x_step = static_cast<std::int32_t>(std::round (x_shift / this->d));    // Find the number of rects in x_shift
 
-            if constexpr (debug_shift_indicies) {
+            if constexpr (debug_shift_indices) {
                 std::cout << "delta x  : " << this->d << std::endl;
                 std::cout << "x shift input : " << x_shift << std::endl;
                 std::cout << "x step output: " << x_step << std::endl;
             }
 
-            int32_t y_step = static_cast<int32_t>(std::round(y_shift/this->v));    // Find the number of rects in y_shift
+            std::int32_t y_step = static_cast<std::int32_t>(std::round (y_shift / this->v));    // Find the number of rects in y_shift
 
-            if constexpr (debug_shift_indicies) {
+            if constexpr (debug_shift_indices) {
                 std::cout << "delta y  : " << this->v << std::endl;
                 std::cout << "y shift input : " << y_shift << std::endl;
                 std::cout << "y step output: " << y_step << std::endl;
             }
 
-            sm::vvec<int32_t> new_indicies;
+            sm::vvec<std::int32_t> new_indices;
 
-            for (uint32_t i = 0; i < inds.size(); i++) {
+            for (std::uint32_t i = 0; i < inds.size(); i++) {
 
-                int32_t orig_row = d_yi[inds[i]];
-                int32_t orig_col = d_xi[inds[i]];
+                std::int32_t orig_row = d_yi[inds[i]];
+                std::int32_t orig_col = d_xi[inds[i]];
 
-                int32_t x_moved = orig_col + x_step;
+                std::int32_t x_moved = orig_col + x_step;
                 if (this->xi_minmax.contains (x_moved) == false) { continue; }
-                int32_t y_moved = (orig_row + y_step);
+                std::int32_t y_moved = (orig_row + y_step);
                 if (this->yi_minmax.contains (y_moved) == false) { continue; }
-                new_indicies.push_back ((x_moved - this->xi_minmax.min) + w * (y_moved - yi_minmax.min));
+                new_indices.push_back ((x_moved - this->xi_minmax.min) + w * (y_moved - yi_minmax.min));
 
-                if constexpr (debug_shift_indicies) {
+                if constexpr (debug_shift_indices) {
                     std::cout << "inds[i] : " << inds[i] << std::endl;
                     std::cout << "orig_row: " << orig_row << std::endl;
                     std::cout << "orig_col: " << orig_col << std::endl;
@@ -172,34 +172,34 @@ export namespace sm
                     std::cout << "y moved : " << y_moved << std::endl;
                 }
             }
-            return new_indicies;
+            return new_indices;
         }
 
         //! Get all the (x,y,z) coordinates from the grid and return as vector of Vectors
-        std::vector<sm::vec<float, 3>> getCoordinates3() const
+        std::vector<sm::vec<float, 3>> get_coordinates3() const
         {
             std::vector<sm::vec<float, 3>> coords (this->num());
-            for (uint32_t i = 0; i < this->num(); ++i) {
+            for (std::uint32_t i = 0; i < this->num(); ++i) {
                 coords[i] = { this->d_x[i], this->d_y[i], this->z };
             }
             return coords;
         }
 
         //! Get all the (x,y) coordinates from the grid and return as vector of vecs
-        std::vector<sm::vec<float, 2>> getCoordinates2() const
+        std::vector<sm::vec<float, 2>> get_coordinates2() const
         {
             std::vector<sm::vec<float, 2>> coords (this->num());
-            for (uint32_t i = 0; i < this->num(); ++i) {
+            for (std::uint32_t i = 0; i < this->num(); ++i) {
                 coords[i] = { this->d_x[i], this->d_y[i] };
             }
             return coords;
         }
 
         // A get-the-coordinates function that returns a vvec of vec<float, 3>s
-        sm::vvec<sm::vec<float, 3>> getCoords() const
+        sm::vvec<sm::vec<float, 3>> get_coords() const
         {
             sm::vvec<sm::vec<float, 3>> rtn (d_x.size(), {0,0,0});
-            for (uint32_t i = 0; i < d_x.size(); ++i) {
+            for (std::uint32_t i = 0; i < d_x.size(); ++i) {
                 rtn[i][0] = d_x[i];
                 rtn[i][1] = d_y[i];
             }
@@ -207,10 +207,10 @@ export namespace sm
         }
 
         // A get-the-coordinates function that returns a vvec of vec<float, 2>s
-        sm::vvec<sm::vec<float, 2>> getCoords2D() const
+        sm::vvec<sm::vec<float, 2>> get_coords_2d() const
         {
             sm::vvec<sm::vec<float, 2>> rtn (d_x.size(), {0,0});
-            for (uint32_t i = 0; i < d_x.size(); ++i) {
+            for (std::uint32_t i = 0; i < d_x.size(); ++i) {
                 rtn[i][0] = d_x[i];
                 rtn[i][1] = d_y[i];
             }
@@ -218,45 +218,45 @@ export namespace sm
         }
 
         // Width and height of a cartgrid that happens to be of type griddomainshape::rectangle.
-        int32_t w_px = -1;
-        int32_t h_px = -1;
+        std::int32_t w_px = -1;
+        std::int32_t h_px = -1;
 
         /*
          * Neighbour iterators. For use when the stride to the neighbour ne or nw is not
          * constant. On a Cartesian grid, these are necessary if an arbitrary boundary
          * has been applied.
          */
-        alignas(8) std::vector<int32_t> d_ne;
-        alignas(8) std::vector<int32_t> d_nne;
-        alignas(8) std::vector<int32_t> d_nn;
-        alignas(8) std::vector<int32_t> d_nnw;
-        alignas(8) std::vector<int32_t> d_nw;
-        alignas(8) std::vector<int32_t> d_nsw;
-        alignas(8) std::vector<int32_t> d_ns;
-        alignas(8) std::vector<int32_t> d_nse;
+        alignas(8) std::vector<std::int32_t> d_ne;
+        alignas(8) std::vector<std::int32_t> d_nne;
+        alignas(8) std::vector<std::int32_t> d_nn;
+        alignas(8) std::vector<std::int32_t> d_nnw;
+        alignas(8) std::vector<std::int32_t> d_nw;
+        alignas(8) std::vector<std::int32_t> d_nsw;
+        alignas(8) std::vector<std::int32_t> d_ns;
+        alignas(8) std::vector<std::int32_t> d_nse;
 
-        alignas(8) std::vector<int32_t> d_xi;
-        alignas(8) std::vector<int32_t> d_yi;
+        alignas(8) std::vector<std::int32_t> d_xi;
+        alignas(8) std::vector<std::int32_t> d_yi;
 
-        sm::range<int32_t> xi_minmax;
-        sm::range<int32_t> yi_minmax;
+        sm::range<std::int32_t> xi_minmax;
+        sm::range<std::int32_t> yi_minmax;
 
         /*!
          * Flags, such as "on boundary", "inside boundary", "outside boundary", "has
          * neighbour east", etc.
          */
-        alignas(8) std::vector<uint32_t> d_flags;
+        alignas(8) std::vector<std::uint32_t> d_flags;
 
         //! Distance to boundary for any element.
-        alignas(8) std::vector<float> d_distToBoundary;
+        alignas(8) std::vector<float> d_dist_to_boundary;
 
         /*!
          * How many additional rects to grow out to the left and right; top and
          * bottom? Set this to a larger number if the boundary is expected to grow
          * during a simulation.
          */
-        uint32_t d_growthbuffer_horz = 0;
-        uint32_t d_growthbuffer_vert = 0;
+        std::uint32_t d_growthbuffer_horz = 0;
+        std::uint32_t d_growthbuffer_vert = 0;
 
         //! Add entries to all the d_ vectors for the rect pointed to by ri.
         void d_push_back (std::list<rect>::iterator ri)
@@ -265,8 +265,8 @@ export namespace sm
             d_y.push_back (ri->y);
             d_xi.push_back (ri->xi);
             d_yi.push_back (ri->yi);
-            d_flags.push_back (ri->getFlags());
-            d_distToBoundary.push_back (ri->distToBoundary);
+            d_flags.push_back (ri->get_flags());
+            d_dist_to_boundary.push_back (ri->dist_to_boundary);
 
             // record in the rect the iterator in the d_ vectors so that d_nne and friends can be set up later.
             ri->di = d_x.size()-1;
@@ -367,19 +367,19 @@ export namespace sm
             cgdata.add_val ("/d_growthbuffer_vert", d_growthbuffer_vert);
 
             // sm::vec<float, 2>
-            cgdata.add_contained_vals ("/boundaryCentroid", boundaryCentroid);
+            cgdata.add_contained_vals ("/boundary_entroid", boundary_centroid);
 
             // Don't save bezcurvepath boundary - limit this to the ability to
             // save which elements are boundary elements and which aren't
 
-            // Don't save vertexE, vertexNE etc. Make sure to set gridReduced
+            // Don't save vertexE, vertexNE etc. Make sure to set grid_reduced
             // = true when calling load()
 
             // vector<float>
             cgdata.add_contained_vals ("/d_x", d_x);
             cgdata.add_contained_vals ("/d_y", d_y);
-            cgdata.add_contained_vals ("/d_distToBoundary", d_distToBoundary);
-            // vector<int32_t>
+            cgdata.add_contained_vals ("/d_dist_to_boundary", d_dist_to_boundary);
+            // vector<std::int32_t>
             cgdata.add_contained_vals ("/d_xi", d_xi);
             cgdata.add_contained_vals ("/d_yi", d_yi);
 
@@ -392,13 +392,13 @@ export namespace sm
             cgdata.add_contained_vals ("/d_ns", d_ns);
             cgdata.add_contained_vals ("/d_nse", d_nse);
 
-            // vector<uint32_t>
+            // vector<std::uint32_t>
             cgdata.add_contained_vals ("/d_flags", d_flags);
 
             // list<rect> rects
             // for i in list, save rect
             std::list<sm::rect>::const_iterator r = this->rects.begin();
-            uint32_t rcount = 0;
+            std::uint32_t rcount = 0;
             while (r != this->rects.end()) {
                 // Make up a path
                 std::string h5path = "/rects/" + std::to_string(rcount);
@@ -409,10 +409,10 @@ export namespace sm
             cgdata.add_val ("/rcount", rcount);
 
             // What about vrects? Probably don't save and re-call method to populate.
-            this->renumberVectorIndices();
+            this->renumber_vector_indices();
 
-            // What about brects? Probably re-run/test this->boundaryContiguous() on load.
-            this->boundaryContiguous();
+            // What about brects? Probably re-run/test this->boundary_contiguous() on load.
+            this->boundary_contiguous();
         }
 
         /*!
@@ -429,10 +429,10 @@ export namespace sm
             cgdata.read_val ("/d_growthbuffer_horz", this->d_growthbuffer_horz);
             cgdata.read_val ("/d_growthbuffer_vert", this->d_growthbuffer_vert);
 
-            cgdata.read_contained_vals ("/boundaryCentroid", this->boundaryCentroid);
+            cgdata.read_contained_vals ("/boundary_centroid", this->boundary_centroid);
             cgdata.read_contained_vals ("/d_x", this->d_x);
             cgdata.read_contained_vals ("/d_y", this->d_y);
-            cgdata.read_contained_vals ("/d_distToBoundary", this->d_distToBoundary);
+            cgdata.read_contained_vals ("/d_dist_to_boundary", this->d_dist_to_boundary);
             cgdata.read_contained_vals ("/d_xi", this->d_xi);
             cgdata.read_contained_vals ("/d_yi", this->d_yi);
             cgdata.read_contained_vals ("/d_ne", this->d_ne);
@@ -445,11 +445,11 @@ export namespace sm
 
             // Assume a boundary has been applied so set this true. Also, the cartgrid::save method doesn't
             // save cartgrid::vertexE, etc
-            this->gridReduced = true;
+            this->grid_reduced = true;
 
-            uint32_t rcount = 0;
+            std::uint32_t rcount = 0;
             cgdata.read_val ("/rcount", rcount);
-            for (uint32_t i = 0; i < rcount; ++i) {
+            for (std::uint32_t i = 0; i < rcount; ++i) {
                 std::string h5path = "/rects/" + std::to_string(i);
                 sm::rect r(cgdata, h5path);
                 this->rects.push_back (r);
@@ -462,7 +462,7 @@ export namespace sm
                 // For each rect, six loops through rects:
                 if (_r.has_ne() == true) {
                     bool matched = false;
-                    uint32_t neighb_it = (uint32_t) this->d_ne[_r.vi];
+                    std::uint32_t neighb_it = (std::uint32_t) this->d_ne[_r.vi];
                     std::list<sm::rect>::iterator ri = this->rects.begin();
                     while (ri != this->rects.end()) {
                         if (ri->vi == neighb_it) {
@@ -479,7 +479,7 @@ export namespace sm
 
                 if (_r.has_nne() == true) {
                     bool matched = false;
-                    uint32_t neighb_it = (uint32_t) this->d_nne[_r.vi];
+                    std::uint32_t neighb_it = (std::uint32_t) this->d_nne[_r.vi];
                     std::list<sm::rect>::iterator ri = this->rects.begin();
                     while (ri != this->rects.end()) {
                         if (ri->vi == neighb_it) {
@@ -496,7 +496,7 @@ export namespace sm
 
                 if (_r.has_nn() == true) {
                     bool matched = false;
-                    uint32_t neighb_it = (uint32_t) this->d_nn[_r.vi];
+                    std::uint32_t neighb_it = (std::uint32_t) this->d_nn[_r.vi];
                     std::list<sm::rect>::iterator ri = this->rects.begin();
                     while (ri != this->rects.end()) {
                         if (ri->vi == neighb_it) {
@@ -513,7 +513,7 @@ export namespace sm
 
                 if (_r.has_nnw() == true) {
                     bool matched = false;
-                    uint32_t neighb_it = (uint32_t) this->d_nnw[_r.vi];
+                    std::uint32_t neighb_it = (std::uint32_t) this->d_nnw[_r.vi];
                     std::list<sm::rect>::iterator ri = this->rects.begin();
                     while (ri != this->rects.end()) {
                         if (ri->vi == neighb_it) {
@@ -530,7 +530,7 @@ export namespace sm
 
                 if (_r.has_nw() == true) {
                     bool matched = false;
-                    uint32_t neighb_it = (uint32_t) this->d_nw[_r.vi];
+                    std::uint32_t neighb_it = (std::uint32_t) this->d_nw[_r.vi];
                     std::list<sm::rect>::iterator ri = this->rects.begin();
                     while (ri != this->rects.end()) {
                         if (ri->vi == neighb_it) {
@@ -547,7 +547,7 @@ export namespace sm
 
                 if (_r.has_nsw() == true) {
                     bool matched = false;
-                    uint32_t neighb_it = (uint32_t) this->d_nsw[_r.vi];
+                    std::uint32_t neighb_it = (std::uint32_t) this->d_nsw[_r.vi];
                     std::list<sm::rect>::iterator ri = this->rects.begin();
                     while (ri != this->rects.end()) {
                         if (ri->vi == neighb_it) {
@@ -564,7 +564,7 @@ export namespace sm
 
                 if (_r.has_ns() == true) {
                     bool matched = false;
-                    uint32_t neighb_it = (uint32_t) this->d_ns[_r.vi];
+                    std::uint32_t neighb_it = (std::uint32_t) this->d_ns[_r.vi];
                     std::list<sm::rect>::iterator ri = this->rects.begin();
                     while (ri != this->rects.end()) {
                         if (ri->vi == neighb_it) {
@@ -581,7 +581,7 @@ export namespace sm
 
                 if (_r.has_nse() == true) {
                     bool matched = false;
-                    uint32_t neighb_it = (uint32_t) this->d_nse[_r.vi];
+                    std::uint32_t neighb_it = (std::uint32_t) this->d_nse[_r.vi];
                     std::list<sm::rect>::iterator ri = this->rects.begin();
                     while (ri != this->rects.end()) {
                         if (ri->vi == neighb_it) {
@@ -610,9 +610,8 @@ export namespace sm
         //! Construct the a symmetric, centered grid with a square element distance of \a d_ and
         //! square size length x_span. The number of elements will be computed. If x_ and x_span_ do
         //! not permit a symmetric, zero-centred grid to be created, an error will be thrown.
-        cartgrid (float d_, float x_span_, float z_ = 0.0f,
-                  griddomainshape shape = griddomainshape::rectangle)
-        : cartgrid (d_, d_, x_span_, x_span_, z_, shape) {}
+        cartgrid (float d_, float x_span_, float z_ = 0.0f, griddomainshape shape = griddomainshape::rectangle)
+            : cartgrid (d_, d_, x_span_, x_span_, z_, shape) {}
 
         //! Construct a grid with rectangular element width d_, height v_ but still symmetric and
         //! centred. x_span_ is the distance from the centre of the left-most element to the centre
@@ -627,23 +626,23 @@ export namespace sm
             this->x_span = x_span_;
             this->y_span = y_span_;
             this->z = z_;
-            this->domainShape = shape;
+            this->domain_shape = shape;
 
             // Test we can make a symmetric grid, if not throw an error
-            float halfX = this->x_span/2.0f;
-            int32_t halfCols = std::abs(std::ceil(halfX/this->d));
-            if (static_cast<float>(halfCols)*this->d != halfX) {
+            float half_x = this->x_span / 2.0f;
+            std::int32_t half_cols = std::abs (std::ceil (half_x / this->d));
+            if (static_cast<float>(half_cols) * this->d != half_x) {
                 std::stringstream ee;
                 ee << "cartgrid: Cannot make a symmetric, zero-centred cartgrid with choices for d_ ("
-                   << d_ << ") and x_span_ (" << x_span_ << ") because halfCols=" << halfCols << " and halfX=" << halfX;
+                   << d_ << ") and x_span_ (" << x_span_ << ") because half_cols=" << half_cols << " and half_x=" << half_x;
                 throw std::runtime_error (ee.str());
             }
-            float halfY = this->y_span/2.0f;
-            int32_t halfRows = std::abs(std::ceil(halfY/this->v));
-            if (static_cast<float>(halfRows)*this->v != halfY) {
+            float half_y = this->y_span / 2.0f;
+            std::int32_t half_rows = std::abs (std::ceil (half_y / this->v));
+            if (static_cast<float>(half_rows) * this->v != half_y) {
                 std::stringstream ee;
                 ee << "cartgrid: Cannot make a symmetric, zero-centred cartgrid with choices for v_ ("
-                   << v_ << ") and y_span_ (" << y_span_ << ") because halfRows=" << halfRows << " and halfY=" << halfY;
+                   << v_ << ") and y_span_ (" << y_span_ << ") because half_rows=" << half_rows << " and half_y=" << half_y;
                 throw std::runtime_error (ee.str());
             }
 
@@ -658,15 +657,15 @@ export namespace sm
                   griddomainwrap wrap = griddomainwrap::none)
         {
             if constexpr (debug_cartgrid) {
-                std::cout << "cartgrid constructor (x1,y1 to x2,y2 version) called. 0x" << (unsigned long long int)this << "\n";
+                std::cout << "cartgrid constructor (x1,y1 to x2,y2 version) called. 0x" << (std::uint64_t)this << "\n";
             }
             this->d = d_;
             this->v = v_;
             this->x_span = x2 - x1;
             this->y_span = y2 - y1;
             this->z = z_;
-            this->domainShape = shape;
-            this->domainWrap = wrap;
+            this->domain_shape = shape;
+            this->domain_wrap = wrap;
 
             // init2 is the non-symmetic initialisation for making arbitrary rectangular grids.
             this->init2 (x1, y1, x2, y2);
@@ -693,7 +692,7 @@ export namespace sm
         {
             sm::vec<float, 2> com = {0,0};
             F datasum = F{0};
-            for (uint32_t i = 0; i < this->num(); ++i) {
+            for (std::uint32_t i = 0; i < this->num(); ++i) {
                 com[0] += d_x[i] * data[i];
                 com[1] += d_y[i] * data[i];
                 datasum += data[i];
@@ -703,36 +702,36 @@ export namespace sm
         }
 
         //! Compute the centroid of the passed in list of rects.
-        sm::vec<float, 2> computeCentroid (const std::list<rect>& pRects)
+        sm::vec<float, 2> compute_centroid (const std::list<rect>& p_rects)
         {
             sm::vec<float, 2> centroid = { 0.0f, 0.0f };
-            for (auto r : pRects) {
+            for (auto r : p_rects) {
                 centroid[0] += r.x;
                 centroid[1] += r.y;
             }
-            centroid /= pRects.size();
+            centroid /= p_rects.size();
             return centroid;
         }
 
         /*!
-         * Sets boundary to match the list of rects passed in as \a pRects. Note, that
-         * unlike void setBoundary (const bezcurvepath& p), this method does not apply
-         * any offset to the positions of the rects in \a pRects.
+         * Sets boundary to match the list of rects passed in as \a p_rects. Note, that
+         * unlike void set_boundary (const bezcurvepath& p), this method does not apply
+         * any offset to the positions of the rects in \a p_rects.
          */
-        void setBoundary (const std::list<rect>& pRects)
+        void set_boundary (const std::list<rect>& p_rects)
         {
-            this->boundaryCentroid = this->computeCentroid (pRects);
+            this->boundary_centroid = this->compute_centroid (p_rects);
 
             std::list<sm::rect>::iterator bpoint = this->rects.begin();
             std::list<sm::rect>::iterator bpi = this->rects.begin();
             while (bpi != this->rects.end()) {
-                std::list<sm::rect>::const_iterator ppi = pRects.begin();
-                while (ppi != pRects.end()) {
-                    // NB: The assumption right now is that the pRects are from the same dimension grid
+                std::list<sm::rect>::const_iterator ppi = p_rects.begin();
+                while (ppi != p_rects.end()) {
+                    // NB: The assumption right now is that the p_rects are from the same dimension grid
                     // as this->rects.
                     if (bpi->xi == ppi->xi && bpi->yi == ppi->yi) {
                         // Set h as boundary rect.
-                        bpi->setFlag (RECT_IS_BOUNDARY | RECT_INSIDE_BOUNDARY);
+                        bpi->set_flag (RECT_IS_BOUNDARY | RECT_INSIDE_BOUNDARY);
                         bpoint = bpi;
                         break;
                     }
@@ -742,18 +741,18 @@ export namespace sm
             }
 
             // Check that the boundary is contiguous.
-            std::set<uint32_t> seen;
+            std::set<std::uint32_t> seen;
             std::list<sm::rect>::iterator ri = bpoint;
-            if (this->boundaryContiguous (bpoint, ri, seen, RECT_NEIGHBOUR_POS_E) == false) {
+            if (this->boundary_contiguous (bpoint, ri, seen, RECT_NEIGHBOUR_POS_E) == false) {
                 std::cout << "Uh oh\n";
                 throw std::runtime_error ("The boundary is not a contiguous sequence of rects.");
             }
 
-            if (this->domainShape == sm::griddomainshape::boundary) {
+            if (this->domain_shape == sm::griddomainshape::boundary) {
                 // Boundary IS contiguous, discard rects outside the boundary.
-                this->discardOutsideBoundary();
+                this->discard_outside_boundary();
             } else {
-                throw std::runtime_error ("For now, setBoundary (const list<rect>& pRects) doesn't know what to "
+                throw std::runtime_error ("For now, set_boundary (const list<rect>& p_rects) doesn't know what to "
                                           "do if domain shape is not griddomainshape::boundary.");
             }
 
@@ -762,86 +761,86 @@ export namespace sm
 
         /*!
          * Sets boundary to \a p, then runs the code to discard rects lying outside
-         * this boundary. Finishes up by calling sm::cartgrid::discardOutside.
+         * this boundary. Finishes up by calling sm::cartgrid::discard_outside.
          * The bezcurvepath's centroid may not be 0,0. If loffset has its default value
          * of true, then this method offsets the boundary so that when it is applied to
          * the cartgrid, the centroid IS (0,0). If \a loffset is false, then \a p is not
          * translated in this way.
          */
-        void setBoundary (const sm::bezcurvepath<float>& p, bool loffset = true)
+        void set_boundary (const sm::bezcurvepath<float>& p, bool loffset = true)
         {
             this->boundary = p;
-            if (!this->boundary.isNull()) {
+            if (!this->boundary.is_null()) {
                 // Compute the points on the boundary using half of the rect to rect
                 // spacing as the step size. The 'true' argument inverts the y axis.
-                this->boundary.computePoints (this->d/2.0f, true);
-                std::vector<sm::bezcoord<float>> bpoints = this->boundary.getPoints();
-                this->setBoundary (bpoints, loffset);
+                this->boundary.compute_points (this->d/2.0f, true);
+                std::vector<sm::bezcoord<float>> bpoints = this->boundary.get_points();
+                this->set_boundary (bpoints, loffset);
             }
         }
 
         /*!
-         * This sets a boundary, just as sm::cartgrid::setBoundary(const
+         * This sets a boundary, just as sm::cartgrid::set_boundary(const
          * sm::bezcurvepath<float> p, bool offset) does but WITHOUT discarding rects
          * outside the boundary. Also, it first clears the previous boundary flags so
          * the new ones are the only ones marked on the boundary. It does this because
          * it does not discard rects outside the boundary or repopulate the cartgrid but
          * it draws a new boundary that can be used by client code
          */
-        void setBoundaryOnly (const sm::bezcurvepath<float>& p, bool loffset = true)
+        void set_boundary_only (const sm::bezcurvepath<float>& p, bool loffset = true)
         {
             this->boundary = p;
-            if (!this->boundary.isNull()) {
-                this->boundary.computePoints (this->d/2.0f, true); // FIXME PROBABLY NEEDS TO BE DIFFERENT
-                std::vector<sm::bezcoord<float>> bpoints = this->boundary.getPoints();
-                this->setBoundaryOnly (bpoints, loffset);
+            if (!this->boundary.is_null()) {
+                this->boundary.compute_points (this->d/2.0f, true); // FIXME PROBABLY NEEDS TO BE DIFFERENT
+                std::vector<sm::bezcoord<float>> bpoints = this->boundary.get_points();
+                this->set_boundary_only (bpoints, loffset);
             }
         }
 
         /*!
          * Sets the boundary of the hexgrid to \a bpoints, then runs the code to discard
          * rects lying outside this boundary. Finishes up by calling
-         * cartgrid::discardOutside. By default, this method translates \a bpoints so
+         * cartgrid::discard_outside. By default, this method translates \a bpoints so
          * that when the boundary is applied to the cartgrid, its centroid is (0,0). If
          * the default value of \a loffset is changed to false, \a bpoints is NOT
          * translated.
          */
-        void setBoundary (std::vector<sm::bezcoord<float>>& bpoints, bool loffset = true)
+        void set_boundary (std::vector<sm::bezcoord<float>>& bpoints, bool loffset = true)
         {
-            this->boundaryCentroid = sm::bezcurvepath<float>::getCentroid (bpoints);
+            this->boundary_centroid = sm::bezcurvepath<float>::get_centroid (bpoints);
 
             auto bpi = bpoints.begin();
             // conditionally executed if we reset the centre
             if (loffset) {
                 while (bpi != bpoints.end()) {
-                    bpi->subtract (this->boundaryCentroid);
+                    bpi->subtract (this->boundary_centroid);
                     ++bpi;
                 }
                 // Copy the centroid
-                this->originalBoundaryCentroid = this->boundaryCentroid;
+                this->original_boundary_centroid = this->boundary_centroid;
                 // Zero out the centroid, as the boundary is now centred on 0,0
-                this->boundaryCentroid = { 0.0f, 0.0f };
+                this->boundary_centroid = { 0.0f, 0.0f };
                 bpi = bpoints.begin();
             }
 
             // now proceed with centroid changed or unchanged
-            std::list<sm::rect>::iterator nearbyBoundaryPoint = this->rects.begin(); // i.e the rect at 0,0
+            std::list<sm::rect>::iterator nearby_boundary_point = this->rects.begin(); // i.e the rect at 0,0
             bpi = bpoints.begin();
             while (bpi != bpoints.end()) {
-                nearbyBoundaryPoint = this->setBoundary (*bpi++, nearbyBoundaryPoint);
+                nearby_boundary_point = this->set_boundary (*bpi++, nearby_boundary_point);
             }
 
             // Check that the boundary is contiguous.
             {
-                std::set<uint32_t> seen;
-                std::list<sm::rect>::iterator hi = nearbyBoundaryPoint;
-                if (this->boundaryContiguous (nearbyBoundaryPoint, hi, seen, RECT_NEIGHBOUR_POS_E) == false) {
+                std::set<std::uint32_t> seen;
+                std::list<sm::rect>::iterator hi = nearby_boundary_point;
+                if (this->boundary_contiguous (nearby_boundary_point, hi, seen, RECT_NEIGHBOUR_POS_E) == false) {
                     throw std::runtime_error ("The constructed boundary is not a contiguous sequence of rectangular elements.");
                 }
             }
 
-            if (this->domainShape == sm::griddomainshape::boundary) {
-                this->discardOutsideBoundary();
+            if (this->domain_shape == sm::griddomainshape::boundary) {
+                this->discard_outside_boundary();
                 this->populate_d_vectors();
             } else {
                 throw std::runtime_error ("Use griddomainshape::boundary when setting a boundary");
@@ -851,7 +850,7 @@ export namespace sm
         // find the cartgrid position which corresponds to the max value in image_data.
         sm::vec<float, 2> findmax (const sm::vvec<float>& image_data)
         {
-            uint32_t idx = image_data.argmax();
+            std::uint32_t idx = image_data.argmax();
             return sm::vec<float, 2>({this->d_x[idx], this->d_y[idx]});
         }
 
@@ -871,7 +870,7 @@ export namespace sm
             float assumecirc = params.mean();
             sm::vec<float, 2> polar_span = cg_polar.getSpan();
 
-            sm::vec<uint32_t, 2> polar_span_pix = cg_polar.getSpanPix();
+            sm::vec<std::uint32_t, 2> polar_span_pix = cg_polar.getSpanPix();
             if (polar_span_pix[0]%2 == 0) {
                 throw std::runtime_error ("Fix cg_polar to have an odd width (so that it runs from -x:0:+x)");
             }
@@ -881,7 +880,7 @@ export namespace sm
 
             std::list<sm::rect>::iterator lastrect = this->rects.begin();
 #pragma omp parallel for
-            for (uint32_t xi = 0; xi < cg_polar.num(); ++xi) { // for each output pixel which is an r/phi pair
+            for (std::uint32_t xi = 0; xi < cg_polar.num(); ++xi) { // for each output pixel which is an r/phi pair
 
                 float r = cg_polar.d_y[xi]; // Linear
                 if (radscale == sm::scaling_function::Logarithmic) {
@@ -899,12 +898,12 @@ export namespace sm
                                                                             r * std::sin(phi_imframe)}) + view_pos;
 
                 // If abs_xy_imframe is outside the bounds of the image region, then leave value 0 and move on.
-                if (this->isInsideRectangularBoundary (abs_xy_imframe) == false) { continue; }
+                if (this->is_inside_rectangular_boundary (abs_xy_imframe) == false) { continue; }
 
                 // Find pixel nearest abs_xy_imframe
-                //std::list<sm::rect>::iterator nearest = this->findRectNearest (abs_xy_imframe);
+                //std::list<sm::rect>::iterator nearest = this->find_rect_nearest (abs_xy_imframe);
                 // or (if it's faster?):
-                std::list<sm::rect>::iterator nearest = this->findRectNearPoint (abs_xy_imframe, lastrect);
+                std::list<sm::rect>::iterator nearest = this->find_rect_near_point (abs_xy_imframe, lastrect);
                 lastrect = nearest;
 
                 // Now sum up contribution from nearest and its neighbours to polar_data[xi].
@@ -916,7 +915,7 @@ export namespace sm
 
                 float contributors = 1.0f;
                 // 8 Neighbours
-                for (unsigned short nn = 0; nn < 8; ++nn) {
+                for (std::uint16_t nn = 0; nn < 8; ++nn) {
                     if (nearest->has_neighbour(nn)) {
                         curr = nearest->get_neighbour(nn);
                         float dd = (abs_xy_imframe - sm::vec<float, 2>({curr->x, curr->y})).length();
@@ -934,45 +933,45 @@ export namespace sm
 
         /*!
          * This sets a boundary, just as
-         * sm::cartgrid::setBoundary(vector<sm::bezcoord<float>& bpoints, bool offset)
+         * sm::cartgrid::set_boundary(vector<sm::bezcoord<float>& bpoints, bool offset)
          * does but WITHOUT discarding rects outside the boundary. Also, it first clears
          * the previous boundary flags so the new ones are the only ones marked on the
          * boundary. It does this because it does not discard rects outside the boundary
          * or repopulate the cartgrid but it draws a new boundary that can be used by
          * client code
          */
-        void setBoundaryOnly (std::vector<sm::bezcoord<float>>& bpoints, bool loffset)
+        void set_boundary_only (std::vector<sm::bezcoord<float>>& bpoints, bool loffset)
         {
-            this->boundaryCentroid = sm::bezcurvepath<float>::getCentroid (bpoints);
+            this->boundary_centroid = sm::bezcurvepath<float>::get_centroid (bpoints);
 
             auto bpi = bpoints.begin();
             // conditional executed if we reset the centre
             if (loffset) {
                 while (bpi != bpoints.end()) {
-                    bpi->subtract (this->boundaryCentroid);
+                    bpi->subtract (this->boundary_centroid);
                     ++bpi;
                 }
                 // Copy the centroid
-                this->originalBoundaryCentroid = this->boundaryCentroid;
+                this->original_boundary_centroid = this->boundary_centroid;
                 // Zero out the centroid, as the boundary is now centred on 0,0
-                this->boundaryCentroid = { 0.0f, 0.0f };
+                this->boundary_centroid = { 0.0f, 0.0f };
                 bpi = bpoints.begin();
             }
 
             // now proceed with centroid changed or unchanged. First: clear all boundary flags
-            for (auto r : this->rects) { r.unsetUserFlag (RECT_IS_BOUNDARY); }
+            for (auto r : this->rects) { r.unset_user_flag (RECT_IS_BOUNDARY); }
 
-            std::list<sm::rect>::iterator nearbyBoundaryPoint = this->rects.begin(); // i.e the rect at 0,0
+            std::list<sm::rect>::iterator nearby_boundary_point = this->rects.begin(); // i.e the rect at 0,0
             bpi = bpoints.begin();
             while (bpi != bpoints.end()) {
-                nearbyBoundaryPoint = this->setBoundary (*bpi++, nearbyBoundaryPoint);
+                nearby_boundary_point = this->set_boundary (*bpi++, nearby_boundary_point);
             }
 
             // Check that the boundary is contiguous.
             {
-                std::set<uint32_t> seen;
-                std::list<sm::rect>::iterator ri = nearbyBoundaryPoint;
-                if (this->boundaryContiguous (nearbyBoundaryPoint, ri, seen, RECT_NEIGHBOUR_POS_E) == false) {
+                std::set<std::uint32_t> seen;
+                std::list<sm::rect>::iterator ri = nearby_boundary_point;
+                if (this->boundary_contiguous (nearby_boundary_point, ri, seen, RECT_NEIGHBOUR_POS_E) == false) {
                     throw std::runtime_error ("The constructed boundary is not a contiguous sequence of rects.");
                 }
             }
@@ -985,8 +984,8 @@ export namespace sm
          *
          * Works only on the initial layout of rects.
          */
-        static constexpr bool debugSetBoundary = false;
-        void setBoundaryOnOuterEdge()
+        static constexpr bool debug_set_boundary = false;
+        void set_boundary_on_outer_edge()
         {
             // From centre head to boundary, then mark boundary and walk
             // around the edge.
@@ -994,50 +993,50 @@ export namespace sm
             // Head to the south west corner
             while (bpi->has_nw() && !bpi->wraps_w()) { bpi = bpi->nw; }
             while (bpi->has_ns() && !bpi->wraps_s()) { bpi = bpi->ns; }
-            bpi->setFlag (RECT_IS_BOUNDARY | RECT_INSIDE_BOUNDARY);
-            if constexpr (debugSetBoundary) {
-                std::cout << "set flag at start on rect " << bpi->outputCart() << std::endl;
+            bpi->set_flag (RECT_IS_BOUNDARY | RECT_INSIDE_BOUNDARY);
+            if constexpr (debug_set_boundary) {
+                std::cout << "set flag at start on rect " << bpi->output_cart() << std::endl;
             }
             while (bpi->has_ne() && !bpi->wraps_e()) {
                 bpi = bpi->ne;
-                bpi->setFlag (RECT_IS_BOUNDARY | RECT_INSIDE_BOUNDARY);
-                if constexpr (debugSetBoundary) {
-                    std::cout << "set flag going E on rect " << bpi->outputCart() << std::endl;
+                bpi->set_flag (RECT_IS_BOUNDARY | RECT_INSIDE_BOUNDARY);
+                if constexpr (debug_set_boundary) {
+                    std::cout << "set flag going E on rect " << bpi->output_cart() << std::endl;
                 }
             }
             while (bpi->has_nn() && !bpi->wraps_n()) {
                 bpi = bpi->nn;
-                bpi->setFlag (RECT_IS_BOUNDARY | RECT_INSIDE_BOUNDARY);
-                if constexpr (debugSetBoundary) {
-                    std::cout << "set flag going N on rect " << bpi->outputCart() << std::endl;
+                bpi->set_flag (RECT_IS_BOUNDARY | RECT_INSIDE_BOUNDARY);
+                if constexpr (debug_set_boundary) {
+                    std::cout << "set flag going N on rect " << bpi->output_cart() << std::endl;
                 }
             }
             while (bpi->has_nw() && !bpi->wraps_w()) {
                 bpi = bpi->nw;
-                bpi->setFlag (RECT_IS_BOUNDARY | RECT_INSIDE_BOUNDARY);
-                if constexpr (debugSetBoundary) {
-                    std::cout << "set flag going W on rect " << bpi->outputCart() << std::endl;
+                bpi->set_flag (RECT_IS_BOUNDARY | RECT_INSIDE_BOUNDARY);
+                if constexpr (debug_set_boundary) {
+                    std::cout << "set flag going W on rect " << bpi->output_cart() << std::endl;
                 }
             }
-            while (bpi->has_ns() && !bpi->wraps_s() && bpi->ns->testFlags(RECT_IS_BOUNDARY) == false) {
+            while (bpi->has_ns() && !bpi->wraps_s() && bpi->ns->test_flags(RECT_IS_BOUNDARY) == false) {
                 bpi = bpi->ns;
-                bpi->setFlag (RECT_IS_BOUNDARY | RECT_INSIDE_BOUNDARY);
-                if constexpr (debugSetBoundary) {
-                    std::cout << "set flag going S on rect " << bpi->outputCart() << std::endl;
+                bpi->set_flag (RECT_IS_BOUNDARY | RECT_INSIDE_BOUNDARY);
+                if constexpr (debug_set_boundary) {
+                    std::cout << "set flag going S on rect " << bpi->output_cart() << std::endl;
                 }
             }
 
             // Check that the boundary is contiguous, starting from SW corner and
             // heading E (to go anticlockwise)
-            std::set<uint32_t> seen;
+            std::set<std::uint32_t> seen;
             std::list<sm::rect>::iterator ri = bpi;
-            if (this->boundaryContiguous (bpi, ri, seen, RECT_NEIGHBOUR_POS_E) == false) {
+            if (this->boundary_contiguous (bpi, ri, seen, RECT_NEIGHBOUR_POS_E) == false) {
                 throw std::runtime_error ("The boundary is not a contiguous sequence of rects.");
             }
 
-            if (this->domainShape == sm::griddomainshape::boundary) {
+            if (this->domain_shape == sm::griddomainshape::boundary) {
                 // Boundary IS contiguous, discard rects outside the boundary.
-                this->discardOutsideBoundary();
+                this->discard_outside_boundary();
             }
 
             this->populate_d_vectors();
@@ -1045,14 +1044,14 @@ export namespace sm
 
         /*!
          * Get all the boundary rects in a list. This assumes that a boundary has
-         * already been set with one of the setBoundary() methods and so there is
+         * already been set with one of the set_boundary() methods and so there is
          * therefore a set of rects which are already marked as being on the boundary
          * (with the attribute rect::boundaryRect == true) Do this by going around the
          * boundary neighbour to neighbour?
          *
          * Now a getter for this->brects.
          */
-        std::list<rect> getBoundary() const
+        std::list<rect> get_boundary() const
         {
             std::list<sm::rect> brects_concrete;
             auto rr = this->brects.begin();
@@ -1070,8 +1069,8 @@ export namespace sm
          * \param c centre argument so that the ellipse centre is offset from the coordinate origin
          * \return A vector of the coordinates of points on the generated ellipse
          */
-        std::vector<sm::bezcoord<float>> ellipseCompute (const float a, const float b,
-                                                         const sm::vec<float, 2> c = {0.0f, 0.0f}) const
+        std::vector<sm::bezcoord<float>> ellipse_compute (const float a, const float b,
+                                                          const sm::vec<float, 2> c = {0.0f, 0.0f}) const
         {
             // Compute the points on the boundary using the parametric elliptical formula and
             // half of the rect to rect spacing as the angular step size. Return as bpoints.
@@ -1123,11 +1122,11 @@ export namespace sm
          * \param c allows the centre of the ellipse to be offset from the coordinate origin
          * \param offset determines if boundary is recentred or remains in place
          */
-        void setEllipticalBoundary (const float a, const float b,
-                                    const sm::vec<float, 2> c = {0.0f, 0.0f}, const bool offset=true)
+        void set_elliptical_boundary (const float a, const float b,
+                                      const sm::vec<float, 2> c = {0.0f, 0.0f}, const bool offset=true)
         {
-            std::vector<sm::bezcoord<float>> bpoints = ellipseCompute (a, b, c);
-            this->setBoundary (bpoints, offset);
+            std::vector<sm::bezcoord<float>> bpoints = ellipse_compute (a, b, c);
+            this->set_boundary (bpoints, offset);
         }
 
         /*!
@@ -1136,11 +1135,11 @@ export namespace sm
          * \param c allows the centre of the circle to be offset from the coordinate origin
          * \param offset determines if boundary is recentred or remains in place
          */
-        void setCircularBoundary (const float a,
-                                  const sm::vec<float, 2> c = {0.0f, 0.0f}, const bool offset=true)
+        void set_circular_boundary (const float a,
+                                    const sm::vec<float, 2> c = {0.0f, 0.0f}, const bool offset=true)
         {
-            std::vector<sm::bezcoord<float>> bpoints = ellipseCompute (a, a, c);
-            this->setBoundary (bpoints, offset);
+            std::vector<sm::bezcoord<float>> bpoints = ellipse_compute (a, a, c);
+            this->set_boundary (bpoints, offset);
         }
 
         /*!
@@ -1148,14 +1147,14 @@ export namespace sm
          *
          * return The number of rects in the grid.
          */
-        uint32_t num() const { return this->rects.size(); }
+        std::uint32_t num() const { return this->rects.size(); }
 
         /*!
          * \brief Obtain the vector index of the last rect in rects.
          *
          * return rect::vi from the last rect in the grid.
          */
-        uint32_t lastVectorIndex() const { return this->rects.rbegin()->vi; }
+        std::uint32_t last_vector_index() const { return this->rects.rbegin()->vi; }
 
         /*!
          * Output some text information about the hexgrid.
@@ -1179,9 +1178,9 @@ export namespace sm
         {
             // {ximin, ximax, yimin, yimax}
             if constexpr (debug_cartgrid) {
-                std::cout << "cartgrid::width(): calling findBoundaryExtents()\n";
+                std::cout << "cartgrid::width(): calling find_boundary_extents()\n";
             }
-            std::array<int32_t, 4> extents = this->findBoundaryExtents();
+            std::array<std::int32_t, 4> extents = this->find_boundary_extents();
             float xmin = this->d * float(extents[0]);
             float xmax = this->d * float(extents[1]);
             return (xmax - xmin);
@@ -1195,31 +1194,31 @@ export namespace sm
 
         sm::vec<float, 4> get_extents() const
         {
-            sm::vec<int32_t, 4> extents;
+            sm::vec<std::int32_t, 4> extents;
             if constexpr (debug_cartgrid) {
-                std::cout << "cartgrid::get_extents(): calling findBoundaryExtents()\n";
+                std::cout << "cartgrid::get_extents(): calling find_boundary_extents()\n";
             }
-            extents.set_from (this->findBoundaryExtents());
+            extents.set_from (this->find_boundary_extents());
             sm::vec<float, 4> extents_mult = { this->d, this->d, this->v, this->v };
             return (extents.as_float() * extents_mult);
         }
 
         //! Return the number of elements that the cartgrid is wide
-        int32_t widthnum() const
+        std::int32_t widthnum() const
         {
             // {ximin, ximax, yimin, yimax}
             if constexpr (debug_cartgrid) {
-                std::cout << "cartgrid::widthnum(): calling findBoundaryExtents()\n";
+                std::cout << "cartgrid::widthnum(): calling find_boundary_extents()\n";
             }
-            std::array<int32_t, 4> extents = this->findBoundaryExtents();
-            int32_t wn = std::abs(extents[0]) + std::abs(extents[1]) + 1;
+            std::array<std::int32_t, 4> extents = this->find_boundary_extents();
+            std::int32_t wn = std::abs(extents[0]) + std::abs(extents[1]) + 1;
             return wn;
         }
 
         //! A faster widthnum function which only works if your cartgrid is rectangular
-        int32_t widthnum_rectangular() const
+        std::int32_t widthnum_rectangular() const
         {
-            return 1 + static_cast<int32_t>(std::round(this->x_span / this->d));
+            return 1 + static_cast<std::int32_t>(std::round(this->x_span / this->d));
         }
 
         /*!
@@ -1228,30 +1227,30 @@ export namespace sm
         float depth() const
         {
             if constexpr (debug_cartgrid) {
-                std::cout << "cartgrid::depth(): calling findBoundaryExtents()\n";
+                std::cout << "cartgrid::depth(): calling find_boundary_extents()\n";
             }
-            std::array<int32_t, 4> extents = this->findBoundaryExtents();
+            std::array<std::int32_t, 4> extents = this->find_boundary_extents();
             float ymin = this->v * float(extents[2]);
             float ymax = this->v * float(extents[3]);
             return (ymax - ymin);
         }
 
         //! Return the number of elements that the cartgrid is deep (or high) - y
-        int32_t depthnum() const
+        std::int32_t depthnum() const
         {
             // {ximin, ximax, yimin, yimax}
             if constexpr (debug_cartgrid) {
-                std::cout << "cartgrid::depthnum(): calling findBoundaryExtents()\n";
+                std::cout << "cartgrid::depthnum(): calling find_boundary_extents()\n";
             }
-            std::array<int32_t, 4> extents = this->findBoundaryExtents();
-            int32_t dn = std::abs(extents[2]) + std::abs(extents[3]) + 1;
+            std::array<std::int32_t, 4> extents = this->find_boundary_extents();
+            std::int32_t dn = std::abs(extents[2]) + std::abs(extents[3]) + 1;
             return dn;
         }
 
         //! Faster depthnum function which only works if cartgrid is rectangular
-        int32_t depthnum_rectangular() const
+        std::int32_t depthnum_rectangular() const
         {
-            return 1 + static_cast<int32_t>(std::round(this->y_span / this->v));
+            return 1 + static_cast<std::int32_t>(std::round(this->y_span / this->v));
         }
 
         /*!
@@ -1268,11 +1267,11 @@ export namespace sm
         sm::vec<float, 2> getSpan() const { return sm::vec<float, 2>({this->x_span, this->y_span}); }
 
         //! Get the x/y span in elements/pixels
-        sm::vec<uint32_t, 2> getSpanPix() const
+        sm::vec<std::uint32_t, 2> getSpanPix() const
         {
-            uint32_t _x_pixdist = static_cast<uint32_t>(std::round(this->x_span/this->d));
-            uint32_t _y_pixdist = static_cast<uint32_t>(std::round(this->y_span/this->v));
-            return sm::vec<uint32_t, 2>({ 1+_x_pixdist, 1+_y_pixdist });
+            std::uint32_t _x_pixdist = static_cast<std::uint32_t>(std::round(this->x_span/this->d));
+            std::uint32_t _y_pixdist = static_cast<std::uint32_t>(std::round(this->y_span/this->v));
+            return sm::vec<std::uint32_t, 2>({ 1+_x_pixdist, 1+_y_pixdist });
         }
 
         /*!
@@ -1302,24 +1301,24 @@ export namespace sm
          * Run through all the rects and compute the distance to the nearest boundary
          * rect.
          */
-        void computeDistanceToBoundary()
+        void compute_distance_to_boundary()
         {
             std::list<sm::rect>::iterator r = this->rects.begin();
             while (r != this->rects.end()) {
-                if (r->testFlags(RECT_IS_BOUNDARY) == true) {
-                    r->distToBoundary = 0.0f;
+                if (r->test_flags(RECT_IS_BOUNDARY) == true) {
+                    r->dist_to_boundary = 0.0f;
                 } else {
-                    if (r->testFlags(RECT_INSIDE_BOUNDARY) == false) {
+                    if (r->test_flags(RECT_INSIDE_BOUNDARY) == false) {
                         // Set to a dummy, negative value
-                        r->distToBoundary = -100.0;
+                        r->dist_to_boundary = -100.0;
                     } else {
                         // Not a boundary rect, but inside boundary
                         std::list<sm::rect>::iterator br = this->rects.begin();
                         while (br != this->rects.end()) {
-                            if (br->testFlags(RECT_IS_BOUNDARY) == true) {
-                                float delta = r->distanceFrom (*br);
-                                if (delta < r->distToBoundary || r->distToBoundary < 0.0f) {
-                                    r->distToBoundary = delta;
+                            if (br->test_flags(RECT_IS_BOUNDARY) == true) {
+                                float delta = r->distance_from (*br);
+                                if (delta < r->dist_to_boundary || r->dist_to_boundary < 0.0f) {
+                                    r->dist_to_boundary = delta;
                                 }
                             }
                             ++br;
@@ -1332,28 +1331,28 @@ export namespace sm
 
         /*!
          * Populate d_ vectors. simple version. (Finds extents, then calls
-         * populate_d_vectors(const array<int32_t, 4>&)
+         * populate_d_vectors(const array<std::int32_t, 4>&)
          */
         void populate_d_vectors()
         {
             if constexpr (debug_cartgrid) {
-                std::cout << "cartgrid::populate_d_vectors(): calling findBoundaryExtents()\n";
+                std::cout << "cartgrid::populate_d_vectors(): calling find_boundary_extents()\n";
             }
-            std::array<int32_t, 4> extnts = this->findBoundaryExtents();
+            std::array<std::int32_t, 4> extnts = this->find_boundary_extents();
             this->populate_d_vectors (extnts);
         }
 
         /*!
-         * Populate d_ vectors, paying attention to domainShape.
+         * Populate d_ vectors, paying attention to domain_shape.
          */
-        void populate_d_vectors (const std::array<int32_t, 4>& extnts)
+        void populate_d_vectors (const std::array<std::int32_t, 4>& extnts)
         {
             // A rectangle iterator
             std::list<sm::rect>::iterator ri = this->rects.begin();
             // Bottom left rectangle
             std::list<sm::rect>::iterator blr = this->rects.end();
 
-            if (this->domainShape == sm::griddomainshape::rectangle) {
+            if (this->domain_shape == sm::griddomainshape::rectangle) {
 
                 // Use neighbour relations to go from bottom left to top right.  Find rect on bottom row.
                 while (ri != this->rects.end()) {
@@ -1374,7 +1373,7 @@ export namespace sm
             this->d_clear();
 
             // Now raster through the rects, building the d_ vectors.
-            if (this->domainShape == sm::griddomainshape::rectangle) {
+            if (this->domain_shape == sm::griddomainshape::rectangle) {
 
                 this->d_push_back (ri);
 
@@ -1407,10 +1406,10 @@ export namespace sm
                 }
             }
 
-            // Create vectors containing the min and max x and y indicies. Bottom left element is
+            // Create vectors containing the min and max x and y indices. Bottom left element is
             // d_xi[0] and top right is represented by d_yi[last]
-            this->xi_minmax = sm::range<int32_t>(d_xi[0], d_xi[d_xi.size()-1]);
-            this->yi_minmax = sm::range<int32_t>(d_yi[0], d_yi[d_yi.size()-1]);
+            this->xi_minmax = sm::range<std::int32_t>(d_xi[0], d_xi[d_xi.size()-1]);
+            this->yi_minmax = sm::range<std::int32_t>(d_yi[0], d_yi[d_yi.size()-1]);
 
             this->populate_d_neighbours();
         }
@@ -1418,99 +1417,99 @@ export namespace sm
         /*!
          * Get a vector of rect pointers for all rects that are inside/on the path
          * defined by the bezcurvepath \a p, thus this gets a 'region of rects'. The rect
-         * flags "region" and "regionBoundary" are used, temporarily to mark out the
+         * flags "region" and "region_boundary" are used, temporarily to mark out the
          * region. The idea is that client code will then use the vector of sm::rect* to work
          * with the region however it needs to.
          *
-         * The centroid of the region is placed in \a regionCentroid (i.e. \a
-         * regionCentroid is a return argument)
+         * The centroid of the region is placed in \a region_centroid (i.e. \a
+         * region_centroid is a return argument)
          *
          * It's assumed that the bezcurvepath defines a closed region.
          *
-         * If \a applyOriginalBoundaryCentroid is true, then the region is translated by
+         * If \a apply_original_boundary_centroid is true, then the region is translated by
          * the same amount that the overall boundary was translated to ensure that the
          * boundary's centroid is at 0,0.
          *
          * \return a vector of iterators to the rects that make up the region.
          */
-        std::vector<std::list<rect>::iterator> getRegion (sm::bezcurvepath<float>& p,
-                                                          sm::vec<float, 2>& regionCentroid,
-                                                          bool applyOriginalBoundaryCentroid = true)
+        std::vector<std::list<rect>::iterator> get_region (sm::bezcurvepath<float>& p,
+                                                           sm::vec<float, 2>& region_centroid,
+                                                           bool apply_original_boundary_centroid = true)
         {
-            p.computePoints (this->d/2.0f, true);
-            std::vector<sm::bezcoord<float>> bpoints = p.getPoints();
-            return this->getRegion (bpoints, regionCentroid, applyOriginalBoundaryCentroid);
+            p.compute_points (this->d/2.0f, true);
+            std::vector<sm::bezcoord<float>> bpoints = p.get_points();
+            return this->get_region (bpoints, region_centroid, apply_original_boundary_centroid);
         }
 
         /*!
-         * The overload of getRegion that does all the work on a vector of coordinates
+         * The overload of get_region that does all the work on a vector of coordinates
          */
-        std::vector<std::list<rect>::iterator> getRegion (std::vector<sm::bezcoord<float>>& bpoints,
-                                                          sm::vec<float, 2>& regionCentroid,
-                                                          bool applyOriginalBoundaryCentroid = true)
+        std::vector<std::list<rect>::iterator> get_region (std::vector<sm::bezcoord<float>>& bpoints,
+                                                           sm::vec<float, 2>& region_centroid,
+                                                           bool apply_original_boundary_centroid = true)
         {
             // First clear all region boundary flags, as we'll be defining a new region boundary
-            this->clearRegionBoundaryFlags();
+            this->clear_region_boundary_flags();
 
             // Compute region centroid from bpoints
-            regionCentroid = sm::bezcurvepath<float>::getCentroid (bpoints);
+            region_centroid = sm::bezcurvepath<float>::get_centroid (bpoints);
 
             // A return object
-            std::vector<std::list<sm::rect>::iterator> theRegion;
+            std::vector<std::list<sm::rect>::iterator> the_region;
 
-            if (applyOriginalBoundaryCentroid) {
+            if (apply_original_boundary_centroid) {
                 auto bpi = bpoints.begin();
                 while (bpi != bpoints.end()) {
-                    bpi->subtract (this->originalBoundaryCentroid);
+                    bpi->subtract (this->original_boundary_centroid);
                     ++bpi;
                 }
 
-                // Subtract originalBoundaryCentroid from region centroid so that region centroid is translated
-                regionCentroid -= this->originalBoundaryCentroid;
+                // Subtract original_boundary_centroid from region centroid so that region centroid is translated
+                region_centroid -= this->original_boundary_centroid;
             }
 
             // Now find the rects on the boundary of the region
-            std::list<sm::rect>::iterator nearbyRegionBoundaryPoint = this->rects.begin(); // i.e the rect at 0,0
+            std::list<sm::rect>::iterator nearby_region_boundary_point = this->rects.begin(); // i.e the rect at 0,0
             typename std::vector<sm::bezcoord<float>>::iterator bpi = bpoints.begin();
             while (bpi != bpoints.end()) {
-                nearbyRegionBoundaryPoint = this->setRegionBoundary (*bpi++, nearbyRegionBoundaryPoint);
+                nearby_region_boundary_point = this->set_region_boundary (*bpi++, nearby_region_boundary_point);
             }
 
             // Check that the region boundary is contiguous.
             {
-                std::set<uint32_t> seen;
-                std::list<sm::rect>::iterator hi = nearbyRegionBoundaryPoint;
-                if (this->regionBoundaryContiguous (nearbyRegionBoundaryPoint, hi, seen) == false) {
+                std::set<std::uint32_t> seen;
+                std::list<sm::rect>::iterator hi = nearby_region_boundary_point;
+                if (this->region_boundary_contiguous (nearby_region_boundary_point, hi, seen) == false) {
                     std::stringstream ee;
                     ee << "The constructed region boundary is not a contiguous sequence of rects.";
-                    return theRegion;
+                    return the_region;
                 }
             }
 
             // Mark rects inside region. Use centroid of the region.
-            std::list<sm::rect>::iterator insideRegionRect = this->findRectNearest (regionCentroid);
-            this->markRectsInside (insideRegionRect, RECT_IS_REGION_BOUNDARY, RECT_INSIDE_REGION);
+            std::list<sm::rect>::iterator inside_region_rect = this->find_rect_nearest (region_centroid);
+            this->mark_rects_inside (inside_region_rect, RECT_IS_REGION_BOUNDARY, RECT_INSIDE_REGION);
 
-            // Populate theRegion, then return it
+            // Populate the_region, then return it
             std::list<sm::rect>::iterator hi = this->rects.begin();
             while (hi != this->rects.end()) {
-                if (hi->testFlags (RECT_INSIDE_REGION) == true) {
-                    theRegion.push_back (hi);
+                if (hi->test_flags (RECT_INSIDE_REGION) == true) {
+                    the_region.push_back (hi);
                 }
                 ++hi;
             }
 
-            return theRegion;
+            return the_region;
         }
 
         /*!
          * For every rect in rects, unset the flags RECT_IS_REGION_BOUNDARY and
          * RECT_INSIDE_REGION
          */
-        void clearRegionBoundaryFlags()
+        void clear_region_boundary_flags()
         {
             for (auto& rr : this->rects) {
-                rr.unsetFlag (RECT_IS_REGION_BOUNDARY | RECT_INSIDE_REGION);
+                rr.unset_flag (RECT_IS_REGION_BOUNDARY | RECT_INSIDE_REGION);
             }
         }
 
@@ -1547,13 +1546,13 @@ export namespace sm
                 offpart += ri->has_ns()  ? count+=T{1}, data[ri->ns->vi]  : T{0};
                 offpart += ri->has_nse() ? count+=T{1}, data[ri->nse->vi] : T{0};
                 //std::cout << "subtract " << offpart << "/" << count << std::endl;
-                result[ri->vi] -= offpart/count;
+                result[ri->vi] -= offpart / count;
             }
         }
 
         //! Apply a box filter. SLOOOOOW algorithm.
         template<typename T, bool onlysum=false>
-        void boxfilter (const std::vector<T>& data, std::vector<T>& result, const uint32_t boxside)
+        void boxfilter (const std::vector<T>& data, std::vector<T>& result, const std::uint32_t boxside)
         {
             if (result.size() != this->rects.size()) {
                 throw std::runtime_error ("The result vector is not the same size as the cartgrid.");
@@ -1571,8 +1570,8 @@ export namespace sm
             // On either side, walk [(box side - 1) / 2] steps, if boxside is odd.  If
             // boxside is even, then one walk (right/up) is boxside/2, then other
             // (left/down) is (boxside/2)-1
-            uint32_t neg_steps = boxside%2==0 ? (boxside/2) - 1 : (boxside-1)/2;
-            uint32_t pos_steps = boxside%2==0 ? (boxside/2) : (boxside-1)/2;
+            std::uint32_t neg_steps = boxside%2==0 ? (boxside/2) - 1 : (boxside-1)/2;
+            std::uint32_t pos_steps = boxside%2==0 ? (boxside/2) : (boxside-1)/2;
             T oneover_boxa = T{1} / (static_cast<T>(boxside) * static_cast<T>(boxside)); // 1/ square box area
 
             // Now can go through the rects
@@ -1585,8 +1584,8 @@ export namespace sm
                 std::list<rect>::iterator ri_row = ri;
 
                 // First step down to a starting point, without summing
-                uint32_t act_neg_steps = 0;
-                for (uint32_t i = 0; i < neg_steps; ++i) {
+                std::uint32_t act_neg_steps = 0;
+                for (std::uint32_t i = 0; i < neg_steps; ++i) {
                     if (ri_row->has_ns()) {
                         ri_row = ri_row->ns;
                         ++act_neg_steps;
@@ -1596,14 +1595,14 @@ export namespace sm
                 result[ri->vi] = T{0};
 
                 // Should now be at the bottom of the square.
-                for (uint32_t j = 0; j < (act_neg_steps + 1 + pos_steps); ++j) {
+                for (std::uint32_t j = 0; j < (act_neg_steps + 1 + pos_steps); ++j) {
 
                     ri_col = ri_row; // middle of row
 
                     result[ri->vi] += data[ri_col->vi]; // add value of middle pixel in row
 
                     // Step left neg_steps, first, summing
-                    for (uint32_t i = 0; i < neg_steps; ++i) {
+                    for (std::uint32_t i = 0; i < neg_steps; ++i) {
                         if (ri_col->has_nw()) { // May wrap, that's ok
                             ri_col = ri_col->nw;
                             result[ri->vi] += data[ri_col->vi];
@@ -1611,7 +1610,7 @@ export namespace sm
                     }
                     // Step right pos_steps, summing
                     ri_col = ri_row; // back to middle
-                    for (uint32_t i = 0; i < pos_steps; ++i) {
+                    for (std::uint32_t i = 0; i < pos_steps; ++i) {
                         if (ri_col->has_ne()) {
                             ri_col = ri_col->ne;
                             result[ri->vi] += data[ri_col->vi];
@@ -1632,16 +1631,16 @@ export namespace sm
         }
 
         // Apply a box filter. Be fast. Rectangular cartgrids only. Test to see if boxside is odd and disallow even (not tested)
-        template<typename T, int32_t boxside, bool onlysum = false>
+        template<typename T, std::int32_t boxside, bool onlysum = false>
         void boxfilter_f (const sm::vvec<T>& data, sm::vvec<T>& result) const
         {
             if (result.size() != this->rects.size()) {
                 throw std::runtime_error ("The result vector is not the same size as the cartgrid.");
             }
-            if (this->domainShape != griddomainshape::rectangle) {
+            if (this->domain_shape != griddomainshape::rectangle) {
                 throw std::runtime_error ("This method requires a rectangular cartgrid.");
             }
-            if (this->domainWrap != griddomainwrap::horizontal) {
+            if (this->domain_wrap != griddomainwrap::horizontal) {
                 throw std::runtime_error ("This method ASSUMES the cartgrid is horizontally wrapped.");
             }
             // check w_px >= boxside and h_px >= boxside
@@ -1683,8 +1682,8 @@ export namespace sm
                 // For each kernel rect, sum up.
                 for (auto kr : kernelgrid.rects) {
                     std::list<rect>::iterator dri = ri;
-                    int32_t xx = kr.xi;
-                    int32_t yy = kr.yi;
+                    std::int32_t xx = kr.xi;
+                    std::int32_t yy = kr.yi;
                     bool failed = false;
                     bool finished = false;
 
@@ -1743,13 +1742,13 @@ export namespace sm
 
         /*!
          * What shape domain to set? Set this to the non-default BEFORE calling
-         * cartgrid::setBoundary (const bezcurvepath& p) - that's where the domainShape
+         * cartgrid::set_boundary (const bezcurvepath& p) - that's where the domain_shape
          * is applied.
          */
-        griddomainshape domainShape = griddomainshape::rectangle;
+        griddomainshape domain_shape = griddomainshape::rectangle;
 
         //! Edge wrapping? none, horizontal, vertical or both.
-        griddomainwrap domainWrap = griddomainwrap::none;
+        griddomainwrap domain_wrap = griddomainwrap::none;
 
         /*!
          * The list of rects that make up this cartgrid.
@@ -1770,18 +1769,18 @@ export namespace sm
 
         /*!
          * Store the centroid of the boundary path. The centroid of a read-in
-         * bezcurvepath [see void setBoundary (const bezcurvepath& p)] is subtracted
+         * bezcurvepath [see void set_boundary (const bezcurvepath& p)] is subtracted
          * from each generated point on the boundary path so that the boundary once it
          * is expressed in the cartgrid will have a (2D) centroid of roughly
          * (0,0). Hence, this is usually roughly (0,0).
          */
-        sm::vec<float, 2> boundaryCentroid = { 0.0f, 0.0f };
+        sm::vec<float, 2> boundary_centroid = { 0.0f, 0.0f };
 
         /*!
          * Holds the centroid of the boundary before all points on the boundary were
          * translated so that the centroid of the boundary would be 0,0
          */
-        sm::vec<float, 2> originalBoundaryCentroid = { 0.0f, 0.0f };
+        sm::vec<float, 2> original_boundary_centroid = { 0.0f, 0.0f };
 
     private:
         /*!
@@ -1792,69 +1791,69 @@ export namespace sm
         void init()
         {
             // Use x_span to determine how many cols
-            float halfX = this->x_span/2.0f;
-            int32_t halfCols = std::abs(std::ceil(halfX/this->d));
+            float half_x = this->x_span/2.0f;
+            std::int32_t half_cols = std::abs(std::ceil(half_x/this->d));
             // Use y_span to determine how many rows
-            float halfY = this->y_span/2.0f;
-            int32_t halfRows = std::abs(std::ceil(halfY/this->v));
+            float half_y = this->y_span/2.0f;
+            std::int32_t half_rows = std::abs(std::ceil(half_y/this->v));
 
-            if (this->domainShape == griddomainshape::rectangle) {
-                this->w_px = 2 * halfRows + 1;
-                this->h_px = 2 * halfCols + 1;
+            if (this->domain_shape == griddomainshape::rectangle) {
+                this->w_px = 2 * half_rows + 1;
+                this->h_px = 2 * half_cols + 1;
             }
 
-            this->x_minmax = sm::range<float>(-halfCols * this->d, halfCols * this->d);
-            this->y_minmax = sm::range<float>(-halfRows * this->v, halfRows * this->v);
+            this->x_minmax = sm::range<float>(-half_cols * this->d, half_cols * this->d);
+            this->y_minmax = sm::range<float>(-half_rows * this->v, half_rows * this->v);
 
             // The "vector iterator" - this is an identity iterator that is added to each rect in the grid.
-            uint32_t vi = 0;
+            std::uint32_t vi = 0;
 
-            std::vector<std::list<sm::rect>::iterator> prevRowEven;
-            std::vector<std::list<sm::rect>::iterator> prevRowOdd;
+            std::vector<std::list<sm::rect>::iterator> prev_row_even;
+            std::vector<std::list<sm::rect>::iterator> prev_row_odd;
 
             // Swap pointers between rows.
-            std::vector<std::list<sm::rect>::iterator>* prevRow = &prevRowEven;
-            std::vector<std::list<sm::rect>::iterator>* nextPrevRow = &prevRowOdd;
+            std::vector<std::list<sm::rect>::iterator>* prev_row = &prev_row_even;
+            std::vector<std::list<sm::rect>::iterator>* next_prev_row = &prev_row_odd;
 
             // Build grid, raster style.
-            for (int32_t yi = -halfRows; yi <= halfRows; ++yi) {
-                uint32_t pri = 0U;
-                for (int32_t xi = -halfCols; xi <= halfCols; ++xi) {
+            for (std::int32_t yi = -half_rows; yi <= half_rows; ++yi) {
+                std::uint32_t pri = 0U;
+                for (std::int32_t xi = -half_cols; xi <= half_cols; ++xi) {
                     this->rects.emplace_back (vi++, this->d, this->v, xi, yi);
 
                     auto ri = this->rects.end(); ri--;
                     this->vrects.push_back (&(*ri));
 
-                    //std::cout << "emplaced rect " << ri->outputCart() << std::endl;
-                    if (xi > -halfCols) {
+                    //std::cout << "emplaced rect " << ri->output_cart() << std::endl;
+                    if (xi > -half_cols) {
                         auto ri_w = ri; ri_w--;
                         ri_w->set_ne (ri);
                         ri->set_nw (ri_w);
                     }
-                    if (yi > -halfRows) {
-                        //std::cout << "For (xi,yi) = (" << xi << "," << yi << ") set rect (*prevRow)[" << pri << "]"
-                        //          << (*prevRow)[pri]->outputCart() << " as S of rect ri = " << ri->outputCart() << std::endl;
-                        (*prevRow)[pri]->set_nn (ri);
-                        ri->set_ns ((*prevRow)[pri]);
-                        if (xi > -halfCols) {
-                            //std::cout << "For (xi,yi) = (" << xi << "," << yi << ") set rect (*prevRow)[" << (pri-1) << "]"
-                            //          << (*prevRow)[pri-1]->outputCart() << " as SW of rect ri = " << ri->outputCart() << std::endl;
-                            (*prevRow)[pri-1]->set_nne (ri);
-                            ri->set_nsw ((*prevRow)[pri-1]);
+                    if (yi > -half_rows) {
+                        //std::cout << "For (xi,yi) = (" << xi << "," << yi << ") set rect (*prev_row)[" << pri << "]"
+                        //          << (*prev_row)[pri]->output_cart() << " as S of rect ri = " << ri->output_cart() << std::endl;
+                        (*prev_row)[pri]->set_nn (ri);
+                        ri->set_ns ((*prev_row)[pri]);
+                        if (xi > -half_cols) {
+                            //std::cout << "For (xi,yi) = (" << xi << "," << yi << ") set rect (*prev_row)[" << (pri-1) << "]"
+                            //          << (*prev_row)[pri-1]->output_cart() << " as SW of rect ri = " << ri->output_cart() << std::endl;
+                            (*prev_row)[pri-1]->set_nne (ri);
+                            ri->set_nsw ((*prev_row)[pri-1]);
                         }
-                        if (xi < halfCols) {
-                            (*prevRow)[pri+1]->set_nnw (ri);
-                            ri->set_nse ((*prevRow)[pri+1]);
+                        if (xi < half_cols) {
+                            (*prev_row)[pri+1]->set_nnw (ri);
+                            ri->set_nse ((*prev_row)[pri+1]);
                         }
                     }
                     ++pri;
-                    nextPrevRow->push_back (ri);
+                    next_prev_row->push_back (ri);
                 }
-                // Swap prevRow and nextPrevRow.
-                std::vector<std::list<sm::rect>::iterator>* tmp = prevRow;
-                prevRow = nextPrevRow;
-                nextPrevRow = tmp;
-                nextPrevRow->clear();
+                // Swap prev_row and next_prev_row.
+                std::vector<std::list<sm::rect>::iterator>* tmp = prev_row;
+                prev_row = next_prev_row;
+                next_prev_row = tmp;
+                next_prev_row->clear();
             }
         }
 
@@ -1867,30 +1866,30 @@ export namespace sm
             this->x_minmax = sm::range<float>(x1, x2);
             this->y_minmax = sm::range<float>(y1, y2);
 
-            int32_t _xi = std::round(x1/this->d);
-            int32_t _xf = std::round(x2/this->d);
-            int32_t _yi = std::round(y1/this->v);
-            int32_t _yf = std::round(y2/this->v);
+            std::int32_t _xi = std::round(x1/this->d);
+            std::int32_t _xf = std::round(x2/this->d);
+            std::int32_t _yi = std::round(y1/this->v);
+            std::int32_t _yf = std::round(y2/this->v);
 
-            if (this->domainShape == griddomainshape::rectangle) {
+            if (this->domain_shape == griddomainshape::rectangle) {
                 this->w_px = _xf-_xi+1;
                 this->h_px = _yf-_yi+1;
             }
 
             // The "vector iterator" - this is an identity iterator that is added to each rect in the grid.
-            uint32_t vi = 0;
+            std::uint32_t vi = 0;
 
-            std::vector<std::list<sm::rect>::iterator> prevRowEven;
-            std::vector<std::list<sm::rect>::iterator> prevRowOdd;
+            std::vector<std::list<sm::rect>::iterator> prev_row_even;
+            std::vector<std::list<sm::rect>::iterator> prev_row_odd;
 
             // Swap pointers between rows.
-            std::vector<std::list<sm::rect>::iterator>* prevRow = &prevRowEven;
-            std::vector<std::list<sm::rect>::iterator>* nextPrevRow = &prevRowOdd;
+            std::vector<std::list<sm::rect>::iterator>* prev_row = &prev_row_even;
+            std::vector<std::list<sm::rect>::iterator>* next_prev_row = &prev_row_odd;
 
             // Build grid, raster style.
-            for (int32_t yi = _yi; yi <= _yf; ++yi) { // for each row
-                uint32_t pri = 0U;
-                for (int32_t xi = _xi; xi <= _xf; ++xi) { // for each element in row
+            for (std::int32_t yi = _yi; yi <= _yf; ++yi) { // for each row
+                std::uint32_t pri = 0U;
+                for (std::int32_t xi = _xi; xi <= _xf; ++xi) { // for each element in row
                     this->rects.emplace_back (vi++, this->d, this->v, xi, yi);
 
                     auto ri = this->rects.end(); ri--;
@@ -1902,33 +1901,33 @@ export namespace sm
                         ri->set_nw (ri_w);
                     }
                     if (yi > _yi) {
-                        (*prevRow)[pri]->set_nn (ri);
-                        ri->set_ns ((*prevRow)[pri]);
+                        (*prev_row)[pri]->set_nn (ri);
+                        ri->set_ns ((*prev_row)[pri]);
                         if (xi > _xi) {
-                            (*prevRow)[pri-1]->set_nne (ri);
-                            ri->set_nsw ((*prevRow)[pri-1]);
+                            (*prev_row)[pri-1]->set_nne (ri);
+                            ri->set_nsw ((*prev_row)[pri-1]);
                         }
                         if (xi < _xf) {
-                            (*prevRow)[pri+1]->set_nnw (ri);
-                            ri->set_nse ((*prevRow)[pri+1]);
+                            (*prev_row)[pri+1]->set_nnw (ri);
+                            ri->set_nse ((*prev_row)[pri+1]);
                         }
                     }
                     ++pri;
-                    nextPrevRow->push_back (ri);
+                    next_prev_row->push_back (ri);
                 }
-                // Now row has been created, can complete the wraparound links (if necessary). *nextPrevRow is the current row.
-                if (this->domainWrap == sm::griddomainwrap::horizontal || this->domainWrap == sm::griddomainwrap::both) {
-                    (*nextPrevRow)[0]->set_nw ((*nextPrevRow)[_xf-_xi]);
-                    (*nextPrevRow)[0]->set_wraps_w();
-                    (*nextPrevRow)[_xf-_xi]->set_ne ((*nextPrevRow)[0]);
-                    (*nextPrevRow)[_xf-_xi]->set_wraps_e();
+                // Now row has been created, can complete the wraparound links (if necessary). *next_prev_row is the current row.
+                if (this->domain_wrap == sm::griddomainwrap::horizontal || this->domain_wrap == sm::griddomainwrap::both) {
+                    (*next_prev_row)[0]->set_nw ((*next_prev_row)[_xf-_xi]);
+                    (*next_prev_row)[0]->set_wraps_w();
+                    (*next_prev_row)[_xf-_xi]->set_ne ((*next_prev_row)[0]);
+                    (*next_prev_row)[_xf-_xi]->set_wraps_e();
                 }
 
-                // Swap prevRow and nextPrevRow.
-                std::vector<std::list<sm::rect>::iterator>* tmp = prevRow;
-                prevRow = nextPrevRow;
-                nextPrevRow = tmp;
-                nextPrevRow->clear();
+                // Swap prev_row and next_prev_row.
+                std::vector<std::list<sm::rect>::iterator>* tmp = prev_row;
+                prev_row = next_prev_row;
+                next_prev_row = tmp;
+                next_prev_row->clear();
             }
             if constexpr (debug_cartgrid) {
                 std::cout << "init2() end: emplaced " << vi << " rects\n";
@@ -1938,20 +1937,20 @@ export namespace sm
         /*!
          * Starting from \a startFrom, and following nearest-neighbour relations, find
          * the closest rect in rects to the coordinate point \a point, and set its
-         * rect::onBoundary attribute to true.
+         * rect::on_boundary attribute to true.
          *
          * \return An iterator into cartgrid::rects which refers to the closest rect to \a point.
          */
-        std::list<sm::rect>::iterator setBoundary (const sm::bezcoord<float>& point,
-                                                   std::list<sm::rect>::iterator startFrom)
+        std::list<sm::rect>::iterator set_boundary (const sm::bezcoord<float>& point,
+                                                    std::list<sm::rect>::iterator startFrom)
         {
-            std::list<sm::rect>::iterator h = this->findRectNearPoint (point, startFrom);
-            h->setFlag (RECT_IS_BOUNDARY | RECT_INSIDE_BOUNDARY);
+            std::list<sm::rect>::iterator h = this->find_rect_near_point (point, startFrom);
+            h->set_flag (RECT_IS_BOUNDARY | RECT_INSIDE_BOUNDARY);
             return h;
         }
 
         // ASSUMING that the boundary is rectangular, is the point inside the rectangle?
-        bool isInsideRectangularBoundary (const sm::vec<float, 2>& point)
+        bool is_inside_rectangular_boundary (const sm::vec<float, 2>& point)
         {
             if (point[0] < this->x_minmax.min) { return false; }
             if (point[0] > this->x_minmax.max) { return false; }
@@ -1964,17 +1963,17 @@ export namespace sm
          * Determine whether the boundary is contiguous. Whilst doing so, populate a
          * list<rect> containing just the boundary rects.
          */
-        bool boundaryContiguous()
+        bool boundary_contiguous()
         {
             this->brects.clear();
             std::list<sm::rect>::const_iterator bhi = this->rects.begin();
-            if (this->findBoundaryRect (bhi) == false) {
+            if (this->find_boundary_rect (bhi) == false) {
                 // Found no boundary rect
                 return false;
             }
-            std::set<uint32_t> seen;
+            std::set<std::uint32_t> seen;
             std::list<sm::rect>::const_iterator hi = bhi;
-            return this->boundaryContiguous (bhi, hi, seen, RECT_NEIGHBOUR_POS_E);
+            return this->boundary_contiguous (bhi, hi, seen, RECT_NEIGHBOUR_POS_E);
         }
 
         /*!
@@ -1988,8 +1987,8 @@ export namespace sm
          * The overload with brects takes a list of rect pointers and populates it with
          * pointers to the rects on the boundary.
          */
-        bool boundaryContiguous (std::list<rect>::const_iterator bri,
-                                 std::list<rect>::const_iterator ri, std::set<uint32_t>& seen, int32_t dirn)
+        bool boundary_contiguous (std::list<rect>::const_iterator bri,
+                                  std::list<rect>::const_iterator ri, std::set<std::uint32_t>& seen, std::int32_t dirn)
         {
             bool rtn = false;
             std::list<sm::rect>::const_iterator ri_next;
@@ -1998,14 +1997,14 @@ export namespace sm
             this->brects.push_back (&(*ri));
 
             // increasing direction is an anticlockwise sense
-            for (int32_t i = 0; i < 8; ++i) {
+            for (std::int32_t i = 0; i < 8; ++i) {
                 if (rtn == false
                     && ri->has_neighbour(dirn+i)
-                    && ri->get_neighbour(dirn+i)->testFlags(RECT_IS_BOUNDARY) == true
+                    && ri->get_neighbour(dirn+i)->test_flags(RECT_IS_BOUNDARY) == true
                     && seen.find(ri->get_neighbour(dirn+i)->vi) == seen.end()) {
                     //std::cout << ri->neighbour_pos(dirn+i) << std::endl;
                     ri_next = ri->get_neighbour(dirn+i);
-                    rtn = (this->boundaryContiguous (bri, ri_next, seen, dirn+i));
+                    rtn = (this->boundary_contiguous (bri, ri_next, seen, dirn+i));
                 }
             }
 
@@ -2026,10 +2025,10 @@ export namespace sm
          * region, extract the pointers to all the rects in that region and store that
          * information for later use.
          */
-        std::list<rect>::iterator setRegionBoundary (const sm::bezcoord<float>& point, std::list<rect>::iterator startFrom)
+        std::list<rect>::iterator set_region_boundary (const sm::bezcoord<float>& point, std::list<rect>::iterator startFrom)
         {
-            std::list<sm::rect>::iterator h = this->findRectNearPoint (point, startFrom);
-            h->setFlag (RECT_IS_REGION_BOUNDARY | RECT_INSIDE_REGION);
+            std::list<sm::rect>::iterator h = this->find_rect_near_point (point, startFrom);
+            h->set_flag (RECT_IS_REGION_BOUNDARY | RECT_INSIDE_REGION);
             return h;
         }
 
@@ -2039,10 +2038,10 @@ export namespace sm
          * region, extract the pointers to all the rects in that region and store that
          * information for later use.
          */
-        std::list<rect>::iterator setRegionBoundary (const sm::vec<float, 2>& point, std::list<rect>::iterator startFrom)
+        std::list<rect>::iterator set_region_boundary (const sm::vec<float, 2>& point, std::list<rect>::iterator startFrom)
         {
-            std::list<sm::rect>::iterator h = this->findRectNearPoint (point, startFrom);
-            h->setFlag (RECT_IS_REGION_BOUNDARY | RECT_INSIDE_REGION);
+            std::list<sm::rect>::iterator h = this->find_rect_near_point (point, startFrom);
+            h->set_flag (RECT_IS_REGION_BOUNDARY | RECT_INSIDE_REGION);
             return h;
         }
 
@@ -2050,8 +2049,8 @@ export namespace sm
          * Determine whether the region boundary is contiguous, starting from the
          * boundary rect iterator #bhi.
          */
-        bool regionBoundaryContiguous (std::list<rect>::const_iterator bhi,
-                                       std::list<rect>::const_iterator hi, std::set<uint32_t>& seen)
+        bool region_boundary_contiguous (std::list<rect>::const_iterator bhi,
+                                         std::list<rect>::const_iterator hi, std::set<std::uint32_t>& seen)
         {
             bool rtn = false;
             std::list<sm::rect>::const_iterator hi_next;
@@ -2059,29 +2058,29 @@ export namespace sm
             // Insert into the list of rect pointers, too
             this->brects.push_back (&(*hi));
 
-            if (rtn == false && hi->has_ne() && hi->ne->testFlags(RECT_IS_REGION_BOUNDARY) == true && seen.find(hi->ne->vi) == seen.end()) {
+            if (rtn == false && hi->has_ne() && hi->ne->test_flags(RECT_IS_REGION_BOUNDARY) == true && seen.find(hi->ne->vi) == seen.end()) {
                 hi_next = hi->ne;
-                rtn = (this->regionBoundaryContiguous (bhi, hi_next, seen));
+                rtn = (this->region_boundary_contiguous (bhi, hi_next, seen));
             }
-            if (rtn == false && hi->has_nne() && hi->nne->testFlags(RECT_IS_REGION_BOUNDARY) == true && seen.find(hi->nne->vi) == seen.end()) {
+            if (rtn == false && hi->has_nne() && hi->nne->test_flags(RECT_IS_REGION_BOUNDARY) == true && seen.find(hi->nne->vi) == seen.end()) {
                 hi_next = hi->nne;
-                rtn = this->regionBoundaryContiguous (bhi, hi_next, seen);
+                rtn = this->region_boundary_contiguous (bhi, hi_next, seen);
             }
-            if (rtn == false && hi->has_nnw() && hi->nnw->testFlags(RECT_IS_REGION_BOUNDARY) == true && seen.find(hi->nnw->vi) == seen.end()) {
+            if (rtn == false && hi->has_nnw() && hi->nnw->test_flags(RECT_IS_REGION_BOUNDARY) == true && seen.find(hi->nnw->vi) == seen.end()) {
                 hi_next = hi->nnw;
-                rtn =  (this->regionBoundaryContiguous (bhi, hi_next, seen));
+                rtn =  (this->region_boundary_contiguous (bhi, hi_next, seen));
             }
-            if (rtn == false && hi->has_nw() && hi->nw->testFlags(RECT_IS_REGION_BOUNDARY) == true && seen.find(hi->nw->vi) == seen.end()) {
+            if (rtn == false && hi->has_nw() && hi->nw->test_flags(RECT_IS_REGION_BOUNDARY) == true && seen.find(hi->nw->vi) == seen.end()) {
                 hi_next = hi->nw;
-                rtn =  (this->regionBoundaryContiguous (bhi, hi_next, seen));
+                rtn =  (this->region_boundary_contiguous (bhi, hi_next, seen));
             }
-            if (rtn == false && hi->has_nsw() && hi->nsw->testFlags(RECT_IS_REGION_BOUNDARY) == true && seen.find(hi->nsw->vi) == seen.end()) {
+            if (rtn == false && hi->has_nsw() && hi->nsw->test_flags(RECT_IS_REGION_BOUNDARY) == true && seen.find(hi->nsw->vi) == seen.end()) {
                 hi_next = hi->nsw;
-                rtn =  (this->regionBoundaryContiguous (bhi, hi_next, seen));
+                rtn =  (this->region_boundary_contiguous (bhi, hi_next, seen));
             }
-            if (rtn == false && hi->has_nse() && hi->nse->testFlags(RECT_IS_REGION_BOUNDARY) == true && seen.find(hi->nse->vi) == seen.end()) {
+            if (rtn == false && hi->has_nse() && hi->nse->test_flags(RECT_IS_REGION_BOUNDARY) == true && seen.find(hi->nse->vi) == seen.end()) {
                 hi_next = hi->nse;
-                rtn =  (this->regionBoundaryContiguous (bhi, hi_next, seen));
+                rtn =  (this->region_boundary_contiguous (bhi, hi_next, seen));
             }
 
             if (rtn == false) {
@@ -2094,12 +2093,12 @@ export namespace sm
 
         /*!
          * Find a rect, any rect, that's on the boundary specified by #boundary. This
-         * assumes that setBoundary (const bezcurvepath&) has been called to mark the
+         * assumes that set_boundary (const bezcurvepath&) has been called to mark the
          * rects that lie on the boundary.
          */
-        bool findBoundaryRect (std::list<rect>::const_iterator& ri) const
+        bool find_boundary_rect (std::list<rect>::const_iterator& ri) const
         {
-            if (ri->testFlags(RECT_IS_BOUNDARY) == true) {
+            if (ri->test_flags(RECT_IS_BOUNDARY) == true) {
                 // No need to change the rect iterator
                 return true;
             }
@@ -2107,7 +2106,7 @@ export namespace sm
             // On a Cartesian grid should be able to simply go south until we hit a boundary rect
             if (ri->has_ns()) {
                 std::list<sm::rect>::const_iterator ci(ri->ns);
-                if (this->findBoundaryRect (ci) == true) {
+                if (this->find_boundary_rect (ci) == true) {
                     ri = ci;
                     return true;
                 }
@@ -2116,46 +2115,46 @@ export namespace sm
             return false;
         }
 
-        std::list<rect>::iterator findRectNearPoint (const vec<float, 2>& point, std::list<rect>::iterator startFrom)
+        std::list<rect>::iterator find_rect_near_point (const vec<float, 2>& point, std::list<rect>::iterator startFrom)
         {
-            bool neighbourNearer = true;
+            bool neighbour_nearer = true;
 
             std::list<sm::rect>::iterator h = startFrom;
-            float d = h->distanceFrom (point);
+            float d = h->distance_from (point);
             float d_ = 0.0f;
 
-            while (neighbourNearer == true) {
+            while (neighbour_nearer == true) {
 
-                neighbourNearer = false;
-                if (h->has_ne() && (d_ = h->ne->distanceFrom (point)) < d) {
+                neighbour_nearer = false;
+                if (h->has_ne() && (d_ = h->ne->distance_from (point)) < d) {
                     d = d_;
                     h = h->ne;
-                    neighbourNearer = true;
+                    neighbour_nearer = true;
 
-                } else if (h->has_nne() && (d_ = h->nne->distanceFrom (point)) < d) {
+                } else if (h->has_nne() && (d_ = h->nne->distance_from (point)) < d) {
                     d = d_;
                     h = h->nne;
-                    neighbourNearer = true;
+                    neighbour_nearer = true;
 
-                } else if (h->has_nnw() && (d_ = h->nnw->distanceFrom (point)) < d) {
+                } else if (h->has_nnw() && (d_ = h->nnw->distance_from (point)) < d) {
                     d = d_;
                     h = h->nnw;
-                    neighbourNearer = true;
+                    neighbour_nearer = true;
 
-                } else if (h->has_nw() && (d_ = h->nw->distanceFrom (point)) < d) {
+                } else if (h->has_nw() && (d_ = h->nw->distance_from (point)) < d) {
                     d = d_;
                     h = h->nw;
-                    neighbourNearer = true;
+                    neighbour_nearer = true;
 
-                } else if (h->has_nsw() && (d_ = h->nsw->distanceFrom (point)) < d) {
+                } else if (h->has_nsw() && (d_ = h->nsw->distance_from (point)) < d) {
                     d = d_;
                     h = h->nsw;
-                    neighbourNearer = true;
+                    neighbour_nearer = true;
 
-                } else if (h->has_nse() && (d_ = h->nse->distanceFrom (point)) < d) {
+                } else if (h->has_nse() && (d_ = h->nse->distance_from (point)) < d) {
                     d = d_;
                     h = h->nse;
-                    neighbourNearer = true;
+                    neighbour_nearer = true;
                 }
             }
 
@@ -2163,49 +2162,49 @@ export namespace sm
         }
 
         /*!
-         * Find the rect near @point, starting from startFrom, which should be as close
+         * Find the rect near @point, starting from start_from, which should be as close
          * as possible to point in order to reduce computation time.
          */
-        std::list<rect>::iterator findRectNearPoint (const sm::bezcoord<float>& point, std::list<rect>::iterator startFrom)
+        std::list<rect>::iterator find_rect_near_point (const sm::bezcoord<float>& point, std::list<rect>::iterator start_from)
         {
-            bool neighbourNearer = true;
+            bool neighbour_nearer = true;
 
-            std::list<sm::rect>::iterator h = startFrom;
-            float d = h->distanceFrom (point);
+            std::list<sm::rect>::iterator h = start_from;
+            float d = h->distance_from (point);
             float d_ = 0.0f;
 
-            while (neighbourNearer == true) {
+            while (neighbour_nearer == true) {
 
-                neighbourNearer = false;
-                if (h->has_ne() && (d_ = h->ne->distanceFrom (point)) < d) {
+                neighbour_nearer = false;
+                if (h->has_ne() && (d_ = h->ne->distance_from (point)) < d) {
                     d = d_;
                     h = h->ne;
-                    neighbourNearer = true;
+                    neighbour_nearer = true;
 
-                } else if (h->has_nne() && (d_ = h->nne->distanceFrom (point)) < d) {
+                } else if (h->has_nne() && (d_ = h->nne->distance_from (point)) < d) {
                     d = d_;
                     h = h->nne;
-                    neighbourNearer = true;
+                    neighbour_nearer = true;
 
-                } else if (h->has_nnw() && (d_ = h->nnw->distanceFrom (point)) < d) {
+                } else if (h->has_nnw() && (d_ = h->nnw->distance_from (point)) < d) {
                     d = d_;
                     h = h->nnw;
-                    neighbourNearer = true;
+                    neighbour_nearer = true;
 
-                } else if (h->has_nw() && (d_ = h->nw->distanceFrom (point)) < d) {
+                } else if (h->has_nw() && (d_ = h->nw->distance_from (point)) < d) {
                     d = d_;
                     h = h->nw;
-                    neighbourNearer = true;
+                    neighbour_nearer = true;
 
-                } else if (h->has_nsw() && (d_ = h->nsw->distanceFrom (point)) < d) {
+                } else if (h->has_nsw() && (d_ = h->nsw->distance_from (point)) < d) {
                     d = d_;
                     h = h->nsw;
-                    neighbourNearer = true;
+                    neighbour_nearer = true;
 
-                } else if (h->has_nse() && (d_ = h->nse->distanceFrom (point)) < d) {
+                } else if (h->has_nse() && (d_ = h->nse->distance_from (point)) < d) {
                     d = d_;
                     h = h->nse;
-                    neighbourNearer = true;
+                    neighbour_nearer = true;
                 }
             }
 
@@ -2220,14 +2219,14 @@ export namespace sm
          *
          * \param hi list iterator to starting rect.
          *
-         * By changing \a bdryFlag and \a insideFlag, it's possible to use this method
+         * By changing \a bdry_flag and \a inside_flag, it's possible to use this method
          * with region boundaries.
          */
-        void markFromBoundary (std::list<rect>::iterator hi,
-                               uint32_t bdryFlag = RECT_IS_BOUNDARY,
-                               uint32_t insideFlag = RECT_INSIDE_BOUNDARY)
+        void mark_from_boundary (std::list<rect>::iterator hi,
+                                 std::uint32_t bdry_flag = RECT_IS_BOUNDARY,
+                                 std::uint32_t inside_flag = RECT_INSIDE_BOUNDARY)
         {
-            this->markFromBoundary (&(*hi), bdryFlag, insideFlag);
+            this->mark_from_boundary (&(*hi), bdry_flag, inside_flag);
         }
 
         /*!
@@ -2238,14 +2237,14 @@ export namespace sm
          *
          * \param hi list iterator to a pointer to the starting rect.
          *
-         * By changing \a bdryFlag and \a insideFlag, it's possible to use this method
+         * By changing \a bdry_flag and \a inside_flag, it's possible to use this method
          * with region boundaries.
          */
-        void markFromBoundary (std::list<rect*>::iterator hi,
-                               uint32_t bdryFlag = RECT_IS_BOUNDARY,
-                               uint32_t insideFlag = RECT_INSIDE_BOUNDARY)
+        void mark_from_boundary (std::list<rect*>::iterator hi,
+                               std::uint32_t bdry_flag = RECT_IS_BOUNDARY,
+                               std::uint32_t inside_flag = RECT_INSIDE_BOUNDARY)
         {
-            this->markFromBoundary ((*hi), bdryFlag, insideFlag);
+            this->mark_from_boundary ((*hi), bdry_flag, inside_flag);
         }
 
         /*!
@@ -2256,21 +2255,21 @@ export namespace sm
          *
          * \param hi pointer to the starting rect.
          *
-         * By changing \a bdryFlag and \a insideFlag, it's possible to use this method
+         * By changing \a bdry_flag and \a inside_flag, it's possible to use this method
          * with region boundaries.
          */
-        void markFromBoundary (sm::rect* hi,
-                               uint32_t bdryFlag = RECT_IS_BOUNDARY,
-                               uint32_t insideFlag = RECT_INSIDE_BOUNDARY)
+        void mark_from_boundary (sm::rect* hi,
+                                 std::uint32_t bdry_flag = RECT_IS_BOUNDARY,
+                                 std::uint32_t inside_flag = RECT_INSIDE_BOUNDARY)
         {
             // Find a marked-inside rect next to this boundary rect. This will be the first direction to mark
             // a line of inside rects in.
             std::list<sm::rect>::iterator first_inside = this->rects.begin();
-            unsigned short firsti = 0;
-            for (unsigned short i = 0; i < 6; ++i) {
+            std::uint16_t firsti = 0;
+            for (std::uint16_t i = 0; i < 6; ++i) {
                 if (hi->has_neighbour(i)
-                    && hi->get_neighbour(i)->testFlags(insideFlag) == true
-                    && hi->get_neighbour(i)->testFlags(bdryFlag) == false
+                    && hi->get_neighbour(i)->test_flags(inside_flag) == true
+                    && hi->get_neighbour(i)->test_flags(bdry_flag) == false
                     ) {
                     first_inside = hi->get_neighbour(i);
                     firsti = i;
@@ -2279,34 +2278,34 @@ export namespace sm
             }
 
             // Mark a line in the first direction
-            this->markFromBoundaryCommon (first_inside, firsti, bdryFlag, insideFlag);
+            this->mark_from_boundary_common (first_inside, firsti, bdry_flag, inside_flag);
 
             // For each other direction also mark lines. Count direction upwards until we hit a boundary rect:
             short diri = (firsti + 1) % 6;
             // Can debug first *count up* direction with sm::rect::neighbour_pos(diri)
-            while (hi->has_neighbour(diri) && hi->get_neighbour(diri)->testFlags(bdryFlag)==false && diri != firsti) {
+            while (hi->has_neighbour(diri) && hi->get_neighbour(diri)->test_flags(bdry_flag)==false && diri != firsti) {
                 first_inside = hi->get_neighbour(diri);
-                this->markFromBoundaryCommon (first_inside, diri, bdryFlag, insideFlag);
+                this->mark_from_boundary_common (first_inside, diri, bdry_flag, inside_flag);
                 diri = (diri + 1) % 6;
             }
 
             // Then count downwards until we hit the other boundary rect
             diri = (firsti - 1);
             if (diri < 0) { diri = 5; }
-            while (hi->has_neighbour(diri) && hi->get_neighbour(diri)->testFlags(bdryFlag)==false && diri != firsti) {
+            while (hi->has_neighbour(diri) && hi->get_neighbour(diri)->test_flags(bdry_flag)==false && diri != firsti) {
                 first_inside = hi->get_neighbour(diri);
-                this->markFromBoundaryCommon (first_inside, diri, bdryFlag, insideFlag);
+                this->mark_from_boundary_common (first_inside, diri, bdry_flag, inside_flag);
                 diri = (diri - 1);
                 if (diri < 0) { diri = 5; }
             }
         }
 
         /*!
-         * Common code used by markFromBoundary()
+         * Common code used by mark_from_boundary()
          */
-        void markFromBoundaryCommon (std::list<rect>::iterator first_inside, unsigned short firsti,
-                                     uint32_t bdryFlag = RECT_IS_BOUNDARY,
-                                     uint32_t insideFlag = RECT_INSIDE_BOUNDARY)
+        void mark_from_boundary_common (std::list<rect>::iterator first_inside, std::uint16_t firsti,
+                                        std::uint32_t bdry_flag = RECT_IS_BOUNDARY,
+                                        std::uint32_t inside_flag = RECT_INSIDE_BOUNDARY)
         {
             // From the "first inside the boundary rect" head in the direction specified by firsti until a
             // boundary rect is reached.
@@ -2315,14 +2314,14 @@ export namespace sm
 #ifdef DO_WARNINGS
             bool warning_given = false;
 #endif
-            while (straight->testFlags(bdryFlag) == false) {
-                // Set insideBoundary true
-                straight->setFlag (insideFlag);
+            while (straight->test_flags(bdry_flag) == false) {
+                // Set inside_boundary true
+                straight->set_flag (inside_flag);
                 if (straight->has_neighbour(firsti)) {
                     straight = straight->get_neighbour (firsti);
                 } else {
                     // no further neighbour in this direction
-                    if (straight->testFlags(bdryFlag) == false) {
+                    if (straight->test_flags(bdry_flag) == false) {
 #ifdef DO_WARNINGS
                         if (!warning_given) {
                             std::cerr << "WARNING: Got to edge of region (dirn " << firsti
@@ -2339,7 +2338,7 @@ export namespace sm
         /*!
          * Given the current boundary rect iterator, bhi and the n_recents last boundary
          * rects in recently_seen, and assuming that bhi has had all its adjacent inside
-         * rects marked as insideBoundary, find the next boundary rect.
+         * rects marked as inside_boundary, find the next boundary rect.
          *
          * \param bhi The boundary rect iterator. From this rect, find the next boundary
          * rect.
@@ -2361,32 +2360,32 @@ export namespace sm
          * East first, then going anti-clockwise to the next direction; North-East and
          * so on), n_recents=2 appears to be sufficient for a thickness 2 boundary,
          * which is what can occur when setting a boundary using the method
-         * cartgrid::setEllipticalBoundary. Boundaries that are more than thickness 2
+         * cartgrid::setElliptical_boundary. Boundaries that are more than thickness 2
          * shouldn't really occur, whereas a boundary with a short section of thickness
-         * 2 can quite easily occur, as in setEllipticalBoundary, where insisting that
+         * 2 can quite easily occur, as in setElliptical_boundary, where insisting that
          * the boundary was strictly always only 1 rect thick would make that algorithm
          * more complex.
          *
-         * \param bdryFlag The flag used to recognise a boundary rect.
+         * \param bdry_flag The flag used to recognise a boundary rect.
          *
-         * \param insideFlag The flag used to recognise a rect that is inside the
+         * \param inside_flag The flag used to recognise a rect that is inside the
          * boundary.
          *
          * \return true if a next boundary neighbour was found, false otherwise.
          */
-        bool findNextBoundaryNeighbour (std::list<rect>::iterator& bhi,
-                                        std::deque<std::list<rect>::iterator>& recently_seen,
-                                        uint32_t n_recents = 2U,
-                                        uint32_t bdryFlag = RECT_IS_BOUNDARY,
-                                        uint32_t insideFlag = RECT_INSIDE_BOUNDARY) const
+        bool find_next_boundary_neighbour (std::list<rect>::iterator& bhi,
+                                           std::deque<std::list<rect>::iterator>& recently_seen,
+                                           std::uint32_t n_recents = 2U,
+                                           std::uint32_t bdry_flag = RECT_IS_BOUNDARY,
+                                           std::uint32_t inside_flag = RECT_INSIDE_BOUNDARY) const
         {
             bool gotnextneighbour = false;
 
             // From each boundary rect, loop round all 6 neighbours until we get to a new neighbour
-            for (unsigned short i = 0; i < 6 && gotnextneighbour == false; ++i) {
+            for (std::uint16_t i = 0; i < 6 && gotnextneighbour == false; ++i) {
 
                 // This is "if it's a neighbour and the neighbour is a boundary rect"
-                if (bhi->has_neighbour(i) && bhi->get_neighbour(i)->testFlags(bdryFlag)) {
+                if (bhi->has_neighbour(i) && bhi->get_neighbour(i)->test_flags(bdry_flag)) {
 
                     // cbhi is "candidate boundary rect iterator", now guaranteed to be a boundary rect
                     std::list<sm::rect>::iterator cbhi = bhi->get_neighbour(i);
@@ -2401,23 +2400,23 @@ export namespace sm
                     }
                     if (rect_already_seen) { continue; }
 
-                    unsigned short i_opp = ((i+3)%6);
+                    std::uint16_t i_opp = ((i+3)%6);
 
                     // Go round each of the candidate boundary rect's neighbours (but j!=i)
-                    for (unsigned short j = 0; j < 6; ++j) {
+                    for (std::uint16_t j = 0; j < 6; ++j) {
 
                         // Ignore the candidate boundary rect itself. if j==i_opp, then
                         // i's neighbour in dirn sm::rect::neighbour_pos(j) is the
                         // candidate iself, continue to next i
-                        if (j==i_opp) { continue; }
+                        if (j == i_opp) { continue; }
 
                         // What is this logic. If the candidate boundary rect (which is already
                         // known to be on the boundary) has a neighbour which is inside the
                         // boundary and not itself a boundary rect, then cbhi IS the next
                         // boundary rect.
                         if (cbhi->has_neighbour(j)
-                            && cbhi->get_neighbour(j)->testFlags(insideFlag)==true
-                            && cbhi->get_neighbour(j)->testFlags(bdryFlag)==false) {
+                            && cbhi->get_neighbour(j)->test_flags(inside_flag)==true
+                            && cbhi->get_neighbour(j)->test_flags(bdry_flag)==false) {
                             recently_seen.push_back (bhi);
                             if (recently_seen.size() > n_recents) { recently_seen.pop_front(); }
                             bhi = cbhi;
@@ -2432,45 +2431,45 @@ export namespace sm
         }
 
         /*!
-         * Mark rects as insideBoundary if they are inside the boundary. Starts from
+         * Mark rects as inside_boundary if they are inside the boundary. Starts from
          * \a hi which is assumed to already be known to refer to a rect lying inside the
          * boundary.
          */
-        void markRectsInside (std::list<rect>::iterator hi,
-                              uint32_t bdryFlag = RECT_IS_BOUNDARY,
-                              uint32_t insideFlag = RECT_INSIDE_BOUNDARY)
+        void mark_rects_inside (std::list<rect>::iterator hi,
+                                std::uint32_t bdry_flag = RECT_IS_BOUNDARY,
+                                std::uint32_t inside_flag = RECT_INSIDE_BOUNDARY)
         {
             // Run to boundary, marking as we go
             std::list<sm::rect>::iterator bhi(hi);
-            while (bhi->testFlags (bdryFlag) == false && bhi->has_nne()) {
-                bhi->setFlag (insideFlag);
+            while (bhi->test_flags (bdry_flag) == false && bhi->has_nne()) {
+                bhi->set_flag (inside_flag);
                 bhi = bhi->nne;
             }
             std::list<sm::rect>::iterator bhi_start = bhi;
 
             // Mark from first boundary rect and across the region
-            this->markFromBoundary (bhi, bdryFlag, insideFlag);
+            this->mark_from_boundary (bhi, bdry_flag, inside_flag);
 
             // a deque to hold the 'n_recents' most recently seen boundary rects.
             std::deque<std::list<sm::rect>::iterator> recently_seen;
-            uint32_t n_recents = 16U; // 2 should be sufficient for boundaries with double thickness
+            std::uint32_t n_recents = 16U; // 2 should be sufficient for boundaries with double thickness
             // sections. If problems occur, trying increasing this.
-            bool gotnext = this->findNextBoundaryNeighbour (bhi, recently_seen, n_recents, bdryFlag, insideFlag);
+            bool gotnext = this->find_next_boundary_neighbour (bhi, recently_seen, n_recents, bdry_flag, inside_flag);
             // Loop around boundary, marking inwards in all possible directions from each boundary rect
             while (gotnext && bhi != bhi_start) {
-                this->markFromBoundary (bhi, bdryFlag, insideFlag);
-                gotnext = this->findNextBoundaryNeighbour (bhi, recently_seen, n_recents, bdryFlag, insideFlag);
+                this->mark_from_boundary (bhi, bdry_flag, inside_flag);
+                gotnext = this->find_next_boundary_neighbour (bhi, recently_seen, n_recents, bdry_flag, inside_flag);
             }
         }
 
         /*!
          * Mark ALL rects as inside the domain
          */
-        void markAllRectsInsideDomain()
+        void markall_rects_inside_domain()
         {
             std::list<sm::rect>::iterator hi = this->rects.begin();
             while (hi != this->rects.end()) {
-                hi->setInsideDomain();
+                hi->set_inside_domain();
                 hi++;
             }
         }
@@ -2478,18 +2477,18 @@ export namespace sm
         /*!
          * Discard rects in this->rects that are outside the boundary #boundary.
          */
-        void discardOutsideBoundary()
+        void discard_outside_boundary()
         {
             // Mark those rects inside the boundary
-            std::list<sm::rect>::iterator centroidRect = this->findRectNearest (this->boundaryCentroid);
-            this->markRectsInside (centroidRect);
+            std::list<sm::rect>::iterator centroidRect = this->find_rect_nearest (this->boundary_centroid);
+            this->mark_rects_inside (centroidRect);
             // Run through and discard those rects outside the boundary:
             auto hi = this->rects.begin();
             while (hi != this->rects.end()) {
-                if (hi->testFlags(RECT_INSIDE_BOUNDARY) == false) {
+                if (hi->test_flags(RECT_INSIDE_BOUNDARY) == false) {
                     // When erasing a Rect, I need to update the neighbours of its
                     // neighbours.
-                    hi->disconnectNeighbours();
+                    hi->disconnect_neighbours();
                     // Having disconnected the neighbours, erase the rect.
                     hi = this->rects.erase (hi);
                 } else {
@@ -2497,29 +2496,29 @@ export namespace sm
                 }
             }
             // The rect::vi indices need to be re-numbered.
-            this->renumberVectorIndices();
+            this->renumber_vector_indices();
             // Finally, do something about the rectagonal grid vertices; set this to true to mark that the
             // iterators to the outermost vertices are no longer valid and shouldn't be used.
-            this->gridReduced = true;
+            this->grid_reduced = true;
         }
 
         /*!
          * Discard rects in this->rects that are outside the rectangular rect domain.
          */
-        void discardOutsideDomain()
+        void discard_outside_domain()
         {
-            // Similar to discardOutsideBoundary:
+            // Similar to discard_outside_boundary:
             auto hi = this->rects.begin();
             while (hi != this->rects.end()) {
-                if (hi->insideDomain() == false) {
-                    hi->disconnectNeighbours();
+                if (hi->inside_domain() == false) {
+                    hi->disconnect_neighbours();
                     hi = this->rects.erase (hi);
                 } else {
                     ++hi;
                 }
             }
-            this->renumberVectorIndices();
-            this->gridReduced = true;
+            this->renumber_vector_indices();
+            this->grid_reduced = true;
         }
 
         /*!
@@ -2529,19 +2528,19 @@ export namespace sm
          *
          * Return object contains: {xi-left, xi-right, yi-bottom, yi-top}
          */
-        std::array<int32_t, 4> findBoundaryExtents() const
+        std::array<std::int32_t, 4> find_boundary_extents() const
         {
             if constexpr (debug_cartgrid) {
-                std::cout << "Called for cartgrid 0x" << (uint64_t)this << std::endl;
+                std::cout << "Called for cartgrid 0x" << (std::uint64_t)this << std::endl;
             }
             // Return object
-            std::array<int32_t, 4> extents = {{0,0,0,0}};
+            std::array<std::int32_t, 4> extents = {{0,0,0,0}};
 
             // Find the furthest left and right rects and the furthest up and down rects.
             std::array<float, 4> limits = {{0,0,0,0}};
             bool first = true;
             for (auto r : this->rects) {
-                if (r.testFlags(RECT_IS_BOUNDARY) == true) {
+                if (r.test_flags(RECT_IS_BOUNDARY) == true) {
                     if (first) {
                         limits = {r.x, r.x, r.y, r.y};
                         extents = {r.xi, r.xi, r.yi, r.yi};
@@ -2579,7 +2578,7 @@ export namespace sm
          * Find the rect in the rect grid which is closest to the x,y position given by
          * pos.
          */
-        std::list<rect>::iterator findRectNearest (const sm::vec<float, 2>& pos)
+        std::list<rect>::iterator find_rect_nearest (const sm::vec<float, 2>& pos)
         {
             std::list<sm::rect>::iterator nearest = this->rects.end();
             std::list<sm::rect>::iterator ri = this->rects.begin();
@@ -2597,7 +2596,7 @@ export namespace sm
         }
 
         //! Assuming a rectangular cartgrid, find bottom left element
-        std::list<rect>::iterator findBottomLeft()
+        std::list<rect>::iterator find_bottom_left()
         {
             std::list<sm::rect>::iterator bottomleft = this->rects.begin();
             while (bottomleft->has_ns()) { bottomleft = bottomleft->ns; }
@@ -2609,10 +2608,10 @@ export namespace sm
          * Does what it says on the tin. Re-number the rect::vi vector index in each
          * rect in the cartgrid, from the start of the list<rect> rects until the end.
          */
-        void renumberVectorIndices()
+        void renumber_vector_indices()
         {
             if constexpr (debug_cartgrid) { std::cout << __FUNCTION__ << " called\n"; }
-            uint32_t vi = 0;
+            std::uint32_t vi = 0;
             this->vrects.clear();
             auto ri = this->rects.begin();
             while (ri != this->rects.end()) {
@@ -2644,7 +2643,7 @@ export namespace sm
          * Set true when a new boundary or domain has been applied. This means that
          * the #vertexNE, #vertexSW, and similar iterators are no longer valid.
          */
-        bool gridReduced = false;
+        bool grid_reduced = false;
 
     public:
         // Min/max x and y to record size of domain. Populate during init.

@@ -19,7 +19,7 @@ int main()
 
     sm::bezcurve<float, 3> cv;
     cv.fit (c);
-    std::cout << "Defined a " << cv.getOrder() << " nd/rd/th order curve" <<  std::endl;
+    std::cout << "Defined a " << cv.get_order() << " nd/rd/th order curve" <<  std::endl;
 
     // Now get points and output
     std::cout << "Plot f in octave with plot (f(:,1), f(:,2))\n";
@@ -32,5 +32,5 @@ int main()
     std::cout << "];\n\n";
 
     std::cout << "c=[\n";
-    std::cout << cv.outputControl();
+    std::cout << cv.output_control();
 }

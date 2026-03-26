@@ -53,7 +53,7 @@ export namespace sm
     struct bezcurve
     {
         //! Do-nothing constructor
-        bezcurve() { this->M = this->matrixSetup_M(); }
+        bezcurve() { this->M = this->matrix_setup_M(); }
 
         /*!
          * Construct a Bezier curve of order cp.size()-1 **with the initial and final
@@ -61,7 +61,7 @@ export namespace sm
          */
         bezcurve (sm::vvec<sm::vec<F, 2>> cp)
         {
-            this->M = this->matrixSetup_M();
+            this->M = this->matrix_setup_M();
 
             if ((this->C.rows() != cp.size()) || (this->C.cols() != 2u)) {
                 throw std::runtime_error ("bezcurve: size of control points does not match order");
@@ -83,7 +83,7 @@ export namespace sm
         //! Construct a Bezier curve using the control points provided in the matrix @cmat.
         bezcurve (const sm::mat<F, order + 1u, 2u>& cmat)
         {
-            this->M = this->matrixSetup_M();
+            this->M = this->matrix_setup_M();
             this->C = cmat;
             this->init();
         }
@@ -96,7 +96,7 @@ export namespace sm
         bezcurve (const sm::vec<Fy, 2>& ip, const sm::vec<Fy, 2>& fp,
                   const sm::vec<Fy, 2>& c1, const sm::vec<Fy, 2>& c2)
         {
-            this->M = this->matrixSetup_M();
+            this->M = this->matrix_setup_M();
             this->C(0, 0) = ip[0];
             this->C(0, 1) = ip[1];
             this->C(1, 0) = c1[0];
@@ -115,7 +115,7 @@ export namespace sm
         template <typename Fy = F> requires (order == 2)
         bezcurve (const sm::vec<Fy, 2>& ip, const sm::vec<Fy, 2>& fp, const sm::vec<Fy, 2>& c1)
         {
-            this->M = this->matrixSetup_M();
+            this->M = this->matrix_setup_M();
             this->C(0, 0) = ip[0];
             this->C(0, 1) = ip[1];
             this->C(1, 0) = c1[0];
@@ -129,7 +129,7 @@ export namespace sm
         template <typename Fy = F> requires (order == 1)
         bezcurve (const sm::vec<Fy, 2>& ip, const sm::vec<Fy, 2>& fp)
         {
-            this->M = this->matrixSetup_M();
+            this->M = this->matrix_setup_M();
             this->C(0, 0) = ip[0];
             this->C(0, 1) = ip[1];
             this->C(1, 0) = fp[0];
@@ -141,7 +141,7 @@ export namespace sm
         bezcurve (const sm::vec<F, 2>& ip, const sm::vec<F, 2>& fp,
                   const sm::vvec<sm::vec<F, 2>>& only_cp)
         {
-            this->M = this->matrixSetup_M();
+            this->M = this->matrix_setup_M();
             std::uint32_t n_ctrls = only_cp.size()+2;
             if (this->C.rows() != n_ctrls || this->C.cols() != 2) {
                 throw std::runtime_error ("bezcurve: size of control points does not match order");
@@ -186,7 +186,7 @@ export namespace sm
             this->fit (points);
 
             // preceding control points.
-            sm::vvec<sm::vec<F, 2>> prec_ctrl = preceding.getControls();
+            sm::vvec<sm::vec<F, 2>> prec_ctrl = preceding.get_controls();
             std::size_t len = prec_ctrl.size();
             if (len < 3) { return; }
 
@@ -288,7 +288,7 @@ export namespace sm
             preceding.updateControls (prec_ctrl);
 
             if constexpr (debug_bezcurve == true) {
-                std::cout << "Preceding controls: " << preceding.outputControl();
+                std::cout << "Preceding controls: " << preceding.output_control();
                 std::cout << "C (after line-up):\n" << this->C;
             }
 
@@ -307,7 +307,7 @@ export namespace sm
                 std::cout << "Optimization..." << std::endl;
             }
 
-            F startsos = this->computeObjective (points);
+            F startsos = this->compute_objective (points);
             if constexpr (debug_bezcurve == true) {
                 std::cout << "Objective with no optimization: " << startsos << std::endl;
             }
@@ -385,9 +385,9 @@ export namespace sm
                 if (simp.state == nm_simplex_state::NeedToComputeThenOrder) {
                     // 1. apply objective to each vertex
                     for (std::uint32_t i = 0; i <= simp.n; ++i) {
-                        this->setCFromV (simp.vertices[i], startrow);
+                        this->set_C_from_v (simp.vertices[i], startrow);
                         this->init(); // Re-setup this bezcurve
-                        simp.values[i] = this->computeObjective (points);
+                        simp.values[i] = this->compute_objective (points);
                     }
                     simp.order();
 
@@ -395,21 +395,21 @@ export namespace sm
                     simp.order();
 
                 } else if (simp.state == nm_simplex_state::NeedToComputeReflection) {
-                    this->setCFromV (simp.xr, startrow);
+                    this->set_C_from_v (simp.xr, startrow);
                     this->init(); // Re-setup this bezcurve
-                    F val = this->computeObjective (points);
+                    F val = this->compute_objective (points);
                     simp.apply_reflection (val);
 
                 } else if (simp.state == nm_simplex_state::NeedToComputeExpansion) {
-                    this->setCFromV (simp.xe, startrow);
+                    this->set_C_from_v (simp.xe, startrow);
                     this->init(); // Re-setup this bezcurve
-                    F val = this->computeObjective (points);
+                    F val = this->compute_objective (points);
                     simp.apply_expansion (val);
 
                 } else if (simp.state == nm_simplex_state::NeedToComputeContraction) {
-                    this->setCFromV (simp.xc, startrow);
+                    this->set_C_from_v (simp.xc, startrow);
                     this->init(); // Re-setup this bezcurve
-                    F val = this->computeObjective (points);
+                    F val = this->compute_objective (points);
                     simp.apply_contraction (val);
                 }
             }
@@ -419,9 +419,9 @@ export namespace sm
             std::cout << "Best value had objective = " << min_sos << std::endl;
             if (min_sos < startsos) {
                 std::cout << "This was an improvement" << std::endl;
-                this->setCFromV (simp.best_vertex(), startrow);
+                this->set_C_from_v (simp.best_vertex(), startrow);
                 this->init(); // Re-setup this bezcurve
-                F bestval = this->computeObjective (points);
+                F bestval = this->compute_objective (points);
                 std::cout << "FINISHED! Best approximation:\n" << this->C << "has value " << bestval << std::endl;
             } else {
                 std::cout << "Optimization failed to improve. Back to C." << std::endl;
@@ -431,7 +431,7 @@ export namespace sm
         }
 
         static constexpr bool penalise_curve_length = false;
-        F computeObjective (const sm::vvec<sm::vec<F, 2>>& points) const
+        F compute_objective (const sm::vvec<sm::vec<F, 2>>& points) const
         {
             // Compute relative positions of pairs in @points
             sm::vvec<F> sample_t;
@@ -442,27 +442,27 @@ export namespace sm
                 sample_t.push_back (lindist);
                 totaldist += lindist;
             }
-            sm::vvec<sm::vec<F, 2>> curvePoints;
+            sm::vvec<sm::vec<F, 2>> curve_points;
             for (std::size_t i = 0U; i < sample_t.size(); ++i) {
                 sample_t[i] /= totaldist;
                 // Have the t parameter value to sample our Bezier curve at now...
-                bezcoord<F> bc = this->computePoint (sample_t[i]);
-                curvePoints.push_back (bc.coord);
+                bezcoord<F> bc = this->compute_point (sample_t[i]);
+                curve_points.push_back (bc.coord);
             }
-            // Can now compare points and curvePoints.
-            if (curvePoints.size() != points.size()) {
+            // Can now compare points and curve_points.
+            if (curve_points.size() != points.size()) {
                 std::cout << "Can't optimize" << std::endl;
                 return F{-1};
             }
             F sos = F{0};
             for (std::size_t i = 0U; i < points.size(); ++i) {
-                sos += (points[i] - curvePoints[i]).length_sq();
+                sos += (points[i] - curve_points[i]).length_sq();
             }
 
             if constexpr (penalise_curve_length == true) {
                 // Add a penalty for the length of the curve, also, which should be as close
                 // to the linear length from point to point.
-                F clen = this->computeLength(50);
+                F clen = this->compute_length(50);
                 F distpart = (clen - totaldist) * (clen - totaldist);
                 std::cout << "sos part: " << sos << ", distance part: " << distpart << std::endl;
                 return sos + distpart;
@@ -595,12 +595,12 @@ export namespace sm
          * parameter space. The first point will be the start of the curve (t==0) and
          * the last point will be at the end of the curve (t==1).
          */
-        std::vector<bezcoord<F>> computePoints (std::uint32_t n) const
+        std::vector<bezcoord<F>> compute_points (std::uint32_t n) const
         {
             std::vector<bezcoord<F>> rtn;
             for (std::uint32_t i = 0; i < n; ++i) {
                 F t = i / static_cast<F>(n);
-                rtn.push_back (this->computePoint (t));
+                rtn.push_back (this->compute_point (t));
             }
             return rtn;
         }
@@ -615,7 +615,7 @@ export namespace sm
          * distance firstl from the initial point of the curve, rather than being a
          * distance l from the initial point.
          */
-        std::vector<bezcoord<F>> computePoints (F l, F firstl = F{0}) const
+        std::vector<bezcoord<F>> compute_points (F l, F firstl = F{0}) const
         {
             std::vector<bezcoord<F>> rtn;
             F t = F{0};
@@ -624,34 +624,34 @@ export namespace sm
             if (firstl > F{0}) {
                 // firstl is the desired distance to the first point and, if non-zero,
                 // overrides l for the first point.
-                bezcoord<F> b = this->computePoint (t, firstl);
+                bezcoord<F> b = this->compute_point (t, firstl);
                 rtn.push_back (b);
                 t = b.t();
-                lastnull = b.getNullCoordinate();
+                lastnull = b.get_null_coordinate();
             }
 
             // This searches forward to try to find a point which is 'l' further on. If
             // at any point t exceeds 1.0, we have to break out.
             while (t < F{1} && lastnull == false) {
-                bezcoord<F> b = this->computePoint (t, l);
+                bezcoord<F> b = this->compute_point (t, l);
                 rtn.push_back (b);
                 t = rtn.back().t();
-                lastnull = b.getNullCoordinate();
+                lastnull = b.get_null_coordinate();
             }
             return rtn;
         }
 
         //! Get a vector of points on the curve with horizontal spacing x.
-        std::vector<bezcoord<F>> computePointsHorz (F x) const
+        std::vector<bezcoord<F>> compute_points_horz (F x) const
         {
             std::vector<bezcoord<F>> rtn;
             F t = F{0};
             bool lastnull = false;
             while (t != F{1} && lastnull == false) {
-                bezcoord<F> b = this->computePointBySearchHorz (t, x);
+                bezcoord<F> b = this->compute_point_by_search_horz (t, x);
                 rtn.push_back (b);
                 t = rtn.back().t();
-                lastnull = b.getNullCoordinate();
+                lastnull = b.get_null_coordinate();
             }
             return rtn;
         }
@@ -661,23 +661,23 @@ export namespace sm
          * position with t in range [0,1]. This chooses either optimzed quartic/cubic
          * functions, or defaults to the matrix computation method.
          */
-        bezcoord<F> computePoint (F t) const
+        bezcoord<F> compute_point (F t) const
         {
             switch (order) {
             case 1:
-                return this->computePointLinear (t);
+                return this->compute_point_linear (t);
             case 2:
-                return this->computePointQuadratic (t);
+                return this->compute_point_quadratic (t);
             case 3:
-                return this->computePointCubic (t);
+                return this->compute_point_cubic (t);
             default:
-                // Default to matrix, as this is faster than computePointGeneral
-                return this->computePointMatrix (t);
+                // Default to matrix, as this is faster than compute_pointGeneral
+                return this->compute_point_matrix (t);
             }
         }
 
         //! Compute a Bezier curve of general order using the matrix method.
-        bezcoord<F> computePointMatrix (F t) const
+        bezcoord<F> compute_point_matrix (F t) const
         {
             this->checkt(t);
             constexpr std::int32_t mp = order + 1;
@@ -691,7 +691,7 @@ export namespace sm
         }
 
         //! Compute a Bezier curve of general order using the conventional method.
-        bezcoord<F> computePointGeneral (F t) const
+        bezcoord<F> compute_point_general (F t) const
         {
             this->checkt (t);
             F t_ = 1 - t;
@@ -725,23 +725,23 @@ export namespace sm
          * If it is not possible, without exceeding t, to advance a distance l, then set
          * a null bezcoord and return that.
          */
-        bezcoord<F> computePoint (F t, F l) const
+        bezcoord<F> compute_point (F t, F l) const
         {
             switch (order) {
             case 1:
-                return this->computePointLinear (t, l);
+                return this->compute_point_linear (t, l);
             default: // (including order 2 or 3)
-                return this->computePointBySearch (t, l);
+                return this->compute_point_by_search (t, l);
             }
         }
 
         //! Compute the unit tangent and unit normal at t.
         template<typename Fy> requires (order > 1)
-        std::pair<bezcoord<F>, bezcoord<F>> computeTangentNormal (const Fy t) const
+        std::pair<bezcoord<F>, bezcoord<F>> compute_tangent_normal (const Fy t) const
         {
             auto deriv_cp = this->derivative<F>();
             sm::bezcurve<F, order - 1u> deriv (deriv_cp);
-            bezcoord<F> tang = deriv.computePoint (static_cast<F>(t));
+            bezcoord<F> tang = deriv.compute_point (static_cast<F>(t));
             tang.normalize();
             bezcoord<F> norm = tang; // copies the parameter
             // rotate norm:
@@ -750,12 +750,12 @@ export namespace sm
         }
 
         template<typename Fy> requires (order == 1)
-        std::pair<bezcoord<F>, bezcoord<F>> computeTangentNormal (const Fy t) const
+        std::pair<bezcoord<F>, bezcoord<F>> compute_tangent_normal (const Fy t) const
         {
             // Can't compute tangent using the derivative as derivative would be a
             // curve with a single control point. The tangent to a line is
             // simply the line:
-            bezcoord<F> tang = this->computePoint (static_cast<F>(t));
+            bezcoord<F> tang = this->compute_point (static_cast<F>(t));
             tang.normalize();
             bezcoord<F> norm = tang; // copies the parameter
             // rotate norm:
@@ -770,10 +770,10 @@ export namespace sm
         std::string output (std::uint32_t numPoints) const
         {
             std::stringstream ss;
-            std::vector<bezcoord<F>> points = this->computePoints (numPoints);
+            std::vector<bezcoord<F>> points = this->compute_points (numPoints);
             typename std::vector<bezcoord<F>>::const_iterator i = points.begin();
             while (i != points.end()) {
-                if (!i->isNull()) {
+                if (!i->is_null()) {
                     ss << i->x() << "," << i->y() << std::endl;
                 }
                 ++i;
@@ -788,10 +788,10 @@ export namespace sm
         std::string output (F step) const
         {
             std::stringstream ss;
-            std::vector<bezcoord<F>> points = this->computePoints (step);
+            std::vector<bezcoord<F>> points = this->compute_points (step);
             typename std::vector<bezcoord<F>>::const_iterator i = points.begin();
             while (i != points.end()) {
-                if (!i->isNull()) {
+                if (!i->is_null()) {
                     ss << i->x() << "," << i->y() << std::endl;
                 }
                 ++i;
@@ -800,7 +800,7 @@ export namespace sm
         }
 
         //! Output the control points.
-        std::string outputControl() const
+        std::string output_control() const
         {
             std::stringstream ss;
             ss << this->C;
@@ -808,17 +808,17 @@ export namespace sm
         }
 
         //! A setter for the scaling factor.
-        void setScale (const F s)
+        void set_scale (const F s)
         {
             this->scale = s;
             this->linlengthscaled = this->scale * this->linlength;
         }
 
         //! A setter for the length threshold.
-        void setLthresh (const F l) { this->lthresh = l; }
+        void set_lthresh (const F l) { this->lthresh = l; }
 
         //! Gets the initial control point, unscaled
-        sm::vec<F, 2> getInitialPointUnscaled() const
+        sm::vec<F, 2> get_initial_point_unscaled() const
         {
             sm::vec<F, 2> ip_unscaled;
             ip_unscaled[0] = this->C(0,0);
@@ -827,7 +827,7 @@ export namespace sm
         }
 
         //! Gets the final control point, unscaled
-        sm::vec<F, 2> getFinalPointUnscaled() const
+        sm::vec<F, 2> get_final_point_unscaled() const
         {
             sm::vec<F, 2> fp_unscaled;
             fp_unscaled[0] = this->C(order,0);
@@ -836,7 +836,7 @@ export namespace sm
         }
 
         //! Gets the initial control point, scaled by the factor bezcurve::scale
-        sm::vec<F, 2> getInitialPointScaled() const
+        sm::vec<F, 2> get_initial_point_scaled() const
         {
             sm::vec<F, 2> ip_scaled;
             ip_scaled[0] = this->scale * this->C(0, 0);
@@ -845,7 +845,7 @@ export namespace sm
         }
 
         //! Gets the final control point, scaled by the factor bezcurve::scale
-        sm::vec<F, 2> getFinalPointScaled() const
+        sm::vec<F, 2> get_final_point_scaled() const
         {
             sm::vec<F, 2> fp_scaled;
             fp_scaled[0] = this->scale * this->C(order, 0);
@@ -854,7 +854,7 @@ export namespace sm
         }
 
         //! Getter for the control points in vector pair format
-        sm::vvec<sm::vec<F, 2>> getControls() const {
+        sm::vvec<sm::vec<F, 2>> get_controls() const {
             sm::vvec<sm::vec<F, 2>> rtn;
             for (std::uint32_t r = 0; r<this->C.n_rows; ++r) {
                 rtn.push_back (sm::vec<F, 2>({this->C(r, 0), this->C(r, 1)}));
@@ -863,7 +863,7 @@ export namespace sm
         }
 
         //! Get the order of the curve
-        std::uint32_t getOrder() const { return order; }
+        std::uint32_t get_order() const { return order; }
 
     private:
 
@@ -880,7 +880,7 @@ export namespace sm
          * Set C from the vector for floats vf, which ONLY changes the rows of C from
          * startrow and on.
          */
-        void setCFromV (const std::vector<F>& vf, std::int32_t r)
+        void set_C_from_v (const std::vector<F>& vf, std::int32_t r)
         {
             for (std::size_t i = 0U; i < vf.size(); i+=2) {
                 this->C(r, 0) = vf[i];
@@ -893,9 +893,9 @@ export namespace sm
          * Compute an approximation to the distance along the curve, by computing
          * npoints and summing their linear separations.
          */
-        F computeLength (std::uint32_t npoints) const
+        F compute_length (std::uint32_t npoints) const
         {
-            std::vector<bezcoord<F>> pts = this->computePoints (npoints);
+            std::vector<bezcoord<F>> pts = this->compute_points (npoints);
             F dist = F{0};
             for (std::size_t i = 1U; i < pts.size(); ++i) {
                 dist += (pts[i - 1].coord - pts[i].coord).length();
@@ -907,7 +907,7 @@ export namespace sm
          * Compute one point on the linear curve, distance t along the curve from the
          * starting position.
          */
-        bezcoord<F> computePointLinear (F t) const
+        bezcoord<F> compute_point_linear (F t) const
         {
             this->checkt(t);
             sm::vec<F, 2> b;
@@ -926,30 +926,30 @@ export namespace sm
          * along the line. It's not hard to do the maths for the linear case; see
          * LinearBez1.jpg and LinearBez2.jpg for the sums.
          */
-        bezcoord<F> computePointLinear (F t, F l) const
+        bezcoord<F> compute_point_linear (F t, F l) const
         {
-            bezcoord<F> b1 = this->computePoint (t);
-            bezcoord<F> e1 = this->computePoint (F{1});
-            F toEnd = b1.distanceTo (e1);
-            if (toEnd < l) {
-                // Return null coordinate as the result and set remaining to toEnd and
+            bezcoord<F> b1 = this->compute_point (t);
+            bezcoord<F> e1 = this->compute_point (F{1});
+            F to_end = b1.distance_to (e1);
+            if (to_end < l) {
+                // Return null coordinate as the result and set remaining to to_end and
                 // the last param to t.
                 bezcoord<F> rtn (true);
-                rtn.setRemaining (toEnd);
+                rtn.set_remaining (to_end);
                 rtn.param = t;
                 return rtn;
             }
             // Compute new t from l.
             F dt = l / this->linlengthscaled;
             t = t + dt;
-            return this->computePointLinear (t);
+            return this->compute_point_linear (t);
         }
 
         /*!
          * Compute one point on the quadratic curve, distance t along the curve from the
          * starting position.
          */
-        bezcoord<F> computePointQuadratic (F t) const
+        bezcoord<F> compute_point_quadratic (F t) const
         {
             this->checkt (t);
             sm::vec<F, 2> b;
@@ -967,7 +967,7 @@ export namespace sm
          * Compute one point on the cubic curve, distance t along the curve from the
          * starting position.
          */
-        bezcoord<F> computePointCubic (F t) const
+        bezcoord<F> compute_point_cubic (F t) const
         {
             this->checkt (t);
             sm::vec<F, 2> b;
@@ -984,14 +984,14 @@ export namespace sm
         }
 
         /*!
-         * A computePoint starting from the point for parameter value t and going to a
+         * A compute_point starting from the point for parameter value t and going to a
          * point which is Euclidean distance l from the starting point.
          *
          * This one uses a binary search to find the next point, and works for quadratic
          * and cubic Bezier curves for which it is difficult to compute the t that would
          * give a Euclidean extension l (it would work for linear curves too).
          */
-        bezcoord<F> computePointBySearch (F t, F l) const
+        bezcoord<F> compute_point_by_search (F t, F l) const
         {
             // Min and max of possible range for dt to make a step of length l in posn space
             F dtmin = F{0};
@@ -1000,17 +1000,17 @@ export namespace sm
             // First guess for dt. Arb. units in parameter space.
             F dt = dtmin + (dtmax - dtmin) / F{2};
 
-            bezcoord<F> b1 = this->computePoint (t);
+            bezcoord<F> b1 = this->compute_point (t);
 
             // Find distance from the initial position to the end of the
             // curve. If this is a shorter distance than l, then return.
-            bezcoord<F> e1 = this->computePoint (F{1});
-            F toEnd = b1.distanceTo (e1);
-            if (toEnd < l) {
+            bezcoord<F> e1 = this->compute_point (F{1});
+            F to_end = b1.distance_to (e1);
+            if (to_end < l) {
                 // Return null coordinate as the result and set remaining to
-                // toEnd and the last param to t.
+                // to_end and the last param to t.
                 bezcoord<F> rtn (true);
-                rtn.setRemaining (toEnd);
+                rtn.set_remaining (to_end);
                 rtn.param = t;
                 return rtn;
             }
@@ -1026,8 +1026,8 @@ export namespace sm
             while (!finished && ((t + dt) <= F{1})) {
 
                 // Compute position of candidate point dt beyond t in param space
-                b2 = this->computePoint (t + dt);
-                F dl = b1.distanceTo (b2);
+                b2 = this->compute_point (t + dt);
+                F dl = b1.distance_to (b2);
                 if (std::abs(l - dl) < lt) {
                     // Stop here.
                     finished = true;
@@ -1051,11 +1051,11 @@ export namespace sm
         }
 
         /*!
-         * Like computePointsBySearch, but instead of using the Euclidean distance,
+         * Like compute_points_by_search, but instead of using the Euclidean distance,
          * space points with x between them in the first coordinate - the horizonal
          * coordinate.
          */
-        bezcoord<F> computePointBySearchHorz (F t, F x) const
+        bezcoord<F> compute_point_by_search_horz (F t, F x) const
         {
             // Min and max of possible range for dt to make a step of length l in posn space
             F dtmin = F{0};
@@ -1064,17 +1064,17 @@ export namespace sm
             // First guess for dt. Arb. units in parameter space.
             F dt = dtmin + (dtmax - dtmin) / F{2};
 
-            bezcoord<F> b1 = this->computePoint (t);
+            bezcoord<F> b1 = this->compute_point (t);
 
             // Find distance from the initial position to the end of the curve. If this
             // is a shorter distance than l, then return.
-            bezcoord<F> e1 = this->computePoint (F{1});
-            F toEnd = b1.horzDistanceTo (e1);
-            if (toEnd < x) {
-                // Return null coordinate as the result and set remaining to toEnd and
+            bezcoord<F> e1 = this->compute_point (F{1});
+            F to_end = b1.horz_distance_to (e1);
+            if (to_end < x) {
+                // Return null coordinate as the result and set remaining to to_end and
                 // the last param to t.
                 bezcoord<F> rtn (true);
-                rtn.setRemaining (toEnd);
+                rtn.set_remaining (to_end);
                 rtn.param = t;
                 return rtn;
             }
@@ -1089,8 +1089,8 @@ export namespace sm
             while (!finished && ((t + dt) <= F{1}) && lastdt != dt) {
 
                 // Compute position of candidate point dt beyound t in param space
-                b2 = this->computePoint (t + dt);
-                F dx = b1.horzDistanceTo (b2);
+                b2 = this->compute_point (t + dt);
+                F dx = b1.horz_distance_to (b2);
 
                 if (std::abs(x - dx) < lt) {
                     // Stop here.
@@ -1144,7 +1144,7 @@ export namespace sm
 
         /*!
          * The as-the-crow-flies distance from p0 to p1. Use for for BEZLINEAR to avoid
-         * repeat computations. See, especially, computePointLinear (F t, F l) const
+         * repeat computations. See, especially, compute_point_linear (F t, F l) const
          */
         F linlength = F{0};
 
@@ -1163,7 +1163,7 @@ export namespace sm
          * Representations.
          */
         // Set up M.
-        sm::mat<F, order + 1u> matrixSetup_M()
+        sm::mat<F, order + 1u> matrix_setup_M()
         {
             // Check order here
             static_assert (order + 1u - 1 < sm::pt_rows, "This code is limited to Bezier Curves of order pt_rows - 1 "

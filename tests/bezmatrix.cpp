@@ -25,11 +25,11 @@ int main()
 
     sm::bezcurve<FLT, 3> cv (c);
 
-    std::cout << "Defined a " << cv.getOrder() << " nd/rd/th order curve" << std::endl;
+    std::cout << "Defined a " << cv.get_order() << " nd/rd/th order curve" << std::endl;
 
-    sm::bezcoord<FLT> bc = cv.computePointCubic (0.4);
-    sm::bezcoord<FLT> bm = cv.computePointMatrix (0.4);
-    sm::bezcoord<FLT> bg = cv.computePointGeneral (0.4);
+    sm::bezcoord<FLT> bc = cv.compute_point_cubic (0.4);
+    sm::bezcoord<FLT> bm = cv.compute_point_matrix (0.4);
+    sm::bezcoord<FLT> bg = cv.compute_point_general (0.4);
     std::cout << "cubic method: " << bc << std::endl;
     std::cout << "matrix method: " << bm << std::endl;
     std::cout << "general method: " << bg << std::endl;
@@ -54,7 +54,7 @@ int main()
     float tstep = 0.00001f;
     milliseconds m_b4 = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
     for (float t = 0.0f; t < 1.0f; t+=tstep) {
-        cv.computePointMatrix (t);
+        cv.compute_point_matrix (t);
     }
     milliseconds m_af = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
     milliseconds matrix_time = m_af - m_b4;
@@ -62,16 +62,16 @@ int main()
 
     milliseconds g_b4 = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
     for (float t = 0.0f; t < 1.0f; t+=tstep) {
-        cv.computePointGeneral (t);
+        cv.compute_point_general (t);
     }
     milliseconds g_af = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
     milliseconds general_time = g_af - g_b4;
     std::cout << "Computed " << (1.0f/tstep) << " bezier points (general method) in " << general_time.count() << " ms" << std::endl;
 
-    if (cv.getOrder() < 4) {
+    if (cv.get_order() < 4) {
         microseconds o_b4 = duration_cast<microseconds>(system_clock::now().time_since_epoch());
         for (float t = 0.0f; t < 1.0f; t+=tstep) {
-            cv.computePointCubic (t);
+            cv.compute_point_cubic (t);
         }
         microseconds o_af = duration_cast<microseconds>(system_clock::now().time_since_epoch());
         microseconds opt_time = o_af - o_b4;

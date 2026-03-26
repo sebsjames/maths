@@ -27,13 +27,13 @@ int main()
     // Put em in a bezcurvepath
     sm::bezcurvepath<float> bcp;
     bcp.name = "testbezcurves";
-    bcp.addCurve (cc3);
-    //bcp.addCurve (cc4); // Can no longer mix as we're using fixed sized sm::mat
+    bcp.add_curve (cc3);
+    //bcp.add_curve (cc4); // Can no longer mix as we're using fixed sized sm::mat
 
-    unsigned int nPoints = 201;
-    bcp.computePoints (nPoints);
-    std::vector<sm::bezcoord<float>> points = bcp.getPoints();
-    std::vector<sm::bezcoord<float>> tans = bcp.getTangents();
+    unsigned int n_points = 201;
+    bcp.compute_points (n_points);
+    std::vector<sm::bezcoord<float>> points = bcp.get_points();
+    std::vector<sm::bezcoord<float>> tans = bcp.get_tangents();
 
     for (auto p : points) {
         std::cout << p.x() << "," << p.y() << std::endl;
@@ -43,7 +43,7 @@ int main()
         std::cout << ta.x() << "," << ta.y() << std::endl;
     }
 
-    if (points.size() == nPoints) { rtn = 0; }
+    if (points.size() == n_points) { rtn = 0; }
 
     return rtn;
 }

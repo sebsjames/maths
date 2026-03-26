@@ -24,11 +24,11 @@ int main()
     std::ofstream f1;
     f1.open ("tests/curve.csv", std::ios::trunc|std::ios::out);
     f1.precision(12);
-    std::vector<sm::bezcoord<float>> a = cc.computePoints ((unsigned int)100);
+    std::vector<sm::bezcoord<float>> a = cc.compute_points ((unsigned int)100);
     typename std::vector<sm::bezcoord<float>>::iterator ai = a.begin();
     int ii = 0;
     while (ai != a.end()) {
-        if (ai->getNullCoordinate() == false) {
+        if (ai->get_null_coordinate() == false) {
             f1 << *(ai) << std::endl;
 
             // Pick a value out of the list and compare to validate this test

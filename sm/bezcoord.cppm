@@ -29,7 +29,7 @@ export namespace sm
         //! Construct empty bezcoord. Defaults to non-null.
         bezcoord() {}
         //! Construct empty coordinate, which may or may not be set to null.
-        bezcoord (bool nullcoord) : nullCoordinate (nullcoord) {}
+        bezcoord (bool nullcoord) : null_coordinate (nullcoord) {}
         //! Construct using just a 2D coordinate
         bezcoord (const sm::vec<F, 2>& r) : coord(r) {}
         //! Construct with coordinate and corresponding t parameter
@@ -38,11 +38,11 @@ export namespace sm
         bezcoord (F t, const sm::vec<F, 2>& r, F remain) : coord(r), param(t), remaining(remain) {}
 
         // Accessors
-        F getRemaining() const { return this->remaining; }
-        bool getNullCoordinate() const { return this->nullCoordinate; }
-        bool isNull() const { return this->nullCoordinate; }
-        void setRemaining (F r) { this->remaining = r; }
-        void setNullCoordinate (bool b) { this->nullCoordinate = b; }
+        F get_remaining() const { return this->remaining; }
+        bool get_null_coordinate() const { return this->null_coordinate; }
+        bool is_null() const { return this->null_coordinate; }
+        void set_remaining (F r) { this->remaining = r; }
+        void set_null_coordinate (bool b) { this->null_coordinate = b; }
 
         // Single character accessors, for easy-to-read client code.
         F x() const { return this->coord[0]; }
@@ -50,7 +50,7 @@ export namespace sm
         F t() const { return this->param; }
 
         //! Use this if you need to invert the y axis
-        void invertY() { this->coord[1] = -this->coord[1]; }
+        void invert_y() { this->coord[1] = -this->coord[1]; }
 
         /*!
          * Normalize the length that is made by drawing a vector from the origin to this
@@ -59,7 +59,7 @@ export namespace sm
         void normalize()
         {
             bezcoord origin(sm::vec<F, 2>({0.0f,0.0f}));
-            F len = origin.distanceTo (*this);
+            F len = origin.distance_to (*this);
             this->coord /= len;
         }
 
@@ -67,13 +67,13 @@ export namespace sm
          * Compute the Euclidean distance from the current coordinate to the given
          * coordinate.
          */
-        F distanceTo (bezcoord& other) const { return (this->coord - other.coord).length(); }
+        F distance_to (bezcoord& other) const { return (this->coord - other.coord).length(); }
 
         //! Horizontal distance between two bezcoords.
-        F horzDistanceTo (bezcoord& other) const { return (std::abs(this->x() - other.x())); }
+        F horz_distance_to (bezcoord& other) const { return (std::abs(this->x() - other.x())); }
 
         //! Vertical distance between two bezcoords.
-        F vertDistanceTo (bezcoord& other) const { return (std::abs(this->y() - other.y())); }
+        F vert_distance_to (bezcoord& other) const { return (std::abs(this->y() - other.y())); }
 
         //! Subtract the coordinate c from this bezcoord.
         void subtract (const sm::vec<F, 2>& c) { this->coord -= c; }
@@ -128,7 +128,7 @@ export namespace sm
          * a null coordinate but non-null param or remaining attributes, in the cases
          * where that might be useful.
          */
-        bool nullCoordinate = false;
+        bool null_coordinate = false;
     };
 
 } // namespace sm

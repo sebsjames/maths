@@ -397,11 +397,11 @@ export namespace sm
         void setBoundary (const bezcurvepath<float, 3>& p, bool loffset = true)
         {
             this->boundary = p;
-            if (!this->boundary.isNull()) {
+            if (!this->boundary.is_null()) {
                 // Compute the points on the boundary using half of the hex to hex
                 // spacing as the step size. The 'true' argument inverts the y axis.
-                this->boundary.computePoints (this->d/2.0f, true);
-                std::vector<sm::bezcoord<float>> bpoints = this->boundary.getPoints();
+                this->boundary.compute_points (this->d/2.0f, true);
+                std::vector<sm::bezcoord<float>> bpoints = this->boundary.get_points();
                 this->setBoundary (bpoints, loffset);
             }
         }
@@ -417,9 +417,9 @@ export namespace sm
         void setBoundaryOnly (const bezcurvepath<float>& p, bool loffset = true)
         {
             this->boundary = p;
-            if (!this->boundary.isNull()) {
-                this->boundary.computePoints (this->d/2.0f, true);
-                std::vector<sm::bezcoord<float>> bpoints = this->boundary.getPoints();
+            if (!this->boundary.is_null()) {
+                this->boundary.compute_points (this->d/2.0f, true);
+                std::vector<sm::bezcoord<float>> bpoints = this->boundary.get_points();
                 this->setBoundaryOnly (bpoints, loffset);
             }
         }
@@ -434,7 +434,7 @@ export namespace sm
          */
         void setBoundary (std::vector<bezcoord<float>>& bpoints, bool loffset = true)
         {
-            this->boundaryCentroid = sm::bezcurvepath<float>::getCentroid (bpoints);
+            this->boundaryCentroid = sm::bezcurvepath<float>::get_centroid (bpoints);
 
             auto bpi = bpoints.begin();
             // conditional executed if we reset the centre
@@ -483,7 +483,7 @@ export namespace sm
          */
         void setBoundaryOnly (std::vector<bezcoord<float>>& bpoints, bool loffset)
         {
-            this->boundaryCentroid = sm::bezcurvepath<float>::getCentroid (bpoints);
+            this->boundaryCentroid = sm::bezcurvepath<float>::get_centroid (bpoints);
 
             auto bpi = bpoints.begin();
             // conditional executed if we reset the centre
@@ -1021,8 +1021,8 @@ export namespace sm
         std::vector<std::list<hex>::iterator> getRegion (bezcurvepath<float>& p, sm::vec<float, 2>& regionCentroid,
                                                          bool applyOriginalBoundaryCentroid = true)
         {
-            p.computePoints (this->d/2.0f, true);
-            std::vector<sm::bezcoord<float>> bpoints = p.getPoints();
+            p.compute_points (this->d/2.0f, true);
+            std::vector<sm::bezcoord<float>> bpoints = p.get_points();
             return this->getRegion (bpoints, regionCentroid, applyOriginalBoundaryCentroid);
         }
 
@@ -1036,7 +1036,7 @@ export namespace sm
             this->clearRegionBoundaryFlags();
 
             // Compute region centroid from bpoints
-            regionCentroid = sm::bezcurvepath<float>::getCentroid (bpoints);
+            regionCentroid = sm::bezcurvepath<float>::get_centroid (bpoints);
 
             // A return object
             std::vector<std::list<sm::hex>::iterator> theRegion;

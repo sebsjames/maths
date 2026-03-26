@@ -8,13 +8,13 @@ int main()
 {
     int rtn = 0;
 
-    // A symmetric, zero-centered CartGrid
+    // A symmetric, zero-centered cartgrid
     sm::cartgrid cg(1.0f, 1.0f, 4.0f, 4.0f);     // dx, dy, span x, span y
-    cg.setBoundaryOnOuterEdge();
+    cg.set_boundary_on_outer_edge();
     std::cout << "Set up " << cg.num() << " pixels in a Cartesian grid of width/depth: " << cg.width() << "/" << cg.depth() << std::endl;
 
     for (auto a : cg.rects) {
-        std::cout << a.outputCart() << std::endl;
+        std::cout << a.output_cart() << std::endl;
     }
     if (cg.num() != 25) { --rtn; }
 
@@ -23,7 +23,7 @@ int main()
 
     {
         // Move so that all destinations are within the cartgrid
-        sm::vvec<sm::vec<float, 2>> actual_result = cg.shiftCoords(orig, -2, 1);       // -2 in the x direction.  Plus 1 in the y direction.
+        sm::vvec<sm::vec<float, 2>> actual_result = cg.shift_coords(orig, -2, 1);       // -2 in the x direction.  Plus 1 in the y direction.
         sm::vvec<sm::vec<float, 2>> expected_result = {{-1, 1}, {0, 1}, {-1, 0}, {0, 0}};
 
         if (expected_result != actual_result){
@@ -34,7 +34,7 @@ int main()
     }
     {
         // Move so that all destinations are within the cartgrid, non-exact number of rects.
-        sm::vvec<sm::vec<float, 2>> actual_result = cg.shiftCoords(orig, -2.1, 0.8);       // rounds to -2 in the x direction.  Plus 1 in the y direction.
+        sm::vvec<sm::vec<float, 2>> actual_result = cg.shift_coords(orig, -2.1, 0.8);       // rounds to -2 in the x direction.  Plus 1 in the y direction.
         sm::vvec<sm::vec<float, 2>> expected_result = {{-1, 1}, {0, 1}, {-1, 0}, {0, 0}};
 
         if (expected_result != actual_result){
@@ -45,7 +45,7 @@ int main()
     }
     {
         // Move so that some destinations are outside right boundary
-        sm::vvec<sm::vec<float, 2>> actual_result = cg.shiftCoords(orig, 1, 2);
+        sm::vvec<sm::vec<float, 2>> actual_result = cg.shift_coords(orig, 1, 2);
         sm::vvec<sm::vec<float, 2>> expected_result = {{2, 2}, {2, 1}};
 
         if (expected_result != actual_result){
@@ -56,7 +56,7 @@ int main()
     }
     {
         // Move so that some destinations are outside left boundary
-        sm::vvec<sm::vec<float, 2>> actual_result = cg.shiftCoords(orig, -4, -1);
+        sm::vvec<sm::vec<float, 2>> actual_result = cg.shift_coords(orig, -4, -1);
         sm::vvec<sm::vec<float, 2>> expected_result = {{-2, -1}, {-2, -2}};
 
         if (expected_result != actual_result){
@@ -67,7 +67,7 @@ int main()
     }
     {
         // Move so that some destinations are outside top boundary
-        sm::vvec<sm::vec<float, 2>> actual_result = cg.shiftCoords(orig, 0, 3);
+        sm::vvec<sm::vec<float, 2>> actual_result = cg.shift_coords(orig, 0, 3);
         sm::vvec<sm::vec<float, 2>> expected_result = {{1, 2}, {2, 2}};
 
         if (expected_result != actual_result){
@@ -78,7 +78,7 @@ int main()
     }
     {
         // Move so that some destinations are outside bottom boundary
-        sm::vvec<sm::vec<float, 2>> actual_result = cg.shiftCoords(orig, -2, -2);
+        sm::vvec<sm::vec<float, 2>> actual_result = cg.shift_coords(orig, -2, -2);
         sm::vvec<sm::vec<float, 2>> expected_result = {{-1, -2}, {0, -2}};
 
         if (expected_result != actual_result){
@@ -89,7 +89,7 @@ int main()
     }
     {
         // Move so that some destinations are outside bottom corner
-        sm::vvec<sm::vec<float, 2>> actual_result = cg.shiftCoords(orig, 1, -2);
+        sm::vvec<sm::vec<float, 2>> actual_result = cg.shift_coords(orig, 1, -2);
         sm::vvec<sm::vec<float, 2>> expected_result = {{2, -2}};
 
         if (expected_result != actual_result){
@@ -100,7 +100,7 @@ int main()
     }
     {
         // Move so that all destinations are outside the cartgrid
-        sm::vvec<sm::vec<float, 2>> actual_result = cg.shiftCoords(orig, 2, 1);
+        sm::vvec<sm::vec<float, 2>> actual_result = cg.shift_coords(orig, 2, 1);
         sm::vvec<sm::vec<float, 2>> expected_result = {};
 
         if (expected_result != actual_result){

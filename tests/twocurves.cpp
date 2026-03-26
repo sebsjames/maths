@@ -36,34 +36,34 @@ int main()
     // Now have two curves, generate points on the curves
     float steplen = 1.0f;
 
-    std::vector<sm::bezcoord<float>> a = cc1.computePoints (steplen);
+    std::vector<sm::bezcoord<float>> a = cc1.compute_points (steplen);
 
     // Look at 'em
     typename std::vector<sm::bezcoord<float>>::iterator ai = a.begin();
     while (ai != a.end()) {
-        if (ai->getNullCoordinate() == false) {
+        if (ai->get_null_coordinate() == false) {
             std::cout << *(ai) << std::endl;
         }
         ++ai;
     }
     --ai; // Step back to final null coordinate
-    std::cout << "Remaining: " << ai->getRemaining() << std::endl;
+    std::cout << "Remaining: " << ai->get_remaining() << std::endl;
     --ai; // Once more to last non-null coordinate
     std::cout << "Last element: " << ai->coord << std::endl;
     sm::vec<float, 2> last_of_cc1 = ai->coord;
 
-    float firstl = steplen - a.back().getRemaining();
-    std::vector<sm::bezcoord<float>> b = cc2.computePoints (steplen, firstl);
+    float firstl = steplen - a.back().get_remaining();
+    std::vector<sm::bezcoord<float>> b = cc2.compute_points (steplen, firstl);
 
     ai = b.begin();
     while (ai != b.end()) {
-        if (ai->getNullCoordinate() == false) {
+        if (ai->get_null_coordinate() == false) {
             std::cout << *(ai) << std::endl;
         }
         ++ai;
     }
     --ai; // Step back to final null coordinate
-    std::cout << "Remaining: " << ai->getRemaining() << std::endl;
+    std::cout << "Remaining: " << ai->get_remaining() << std::endl;
     --ai; // Once more to last non-null coordinate
     std::cout << "Last element: " << ai->coord << std::endl;
 

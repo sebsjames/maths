@@ -127,25 +127,25 @@ export namespace sm
          * Constructor taking index, dimension for a square pixel and integer position
          * indices. Computes Cartesian location from these.
          */
-        rect (const uint32_t& idx, const float& d_, const int32_t& xi_, const int32_t& yi_)
+        rect (const std::uint32_t& idx, const float& d_, const std::int32_t& xi_, const std::int32_t& yi_)
         {
             this->vi = idx;
             this->dx = d_;
             this->dy = d_;
             this->xi = xi_;
             this->yi = yi_;
-            this->computeLocation();
+            this->compute_location();
         }
 
         //! Constructor for a rectangular pixel
-        rect (const uint32_t& idx, const float& dx_, const float& dy_, const int32_t& xi_, const int32_t& yi_)
+        rect (const std::uint32_t& idx, const float& dx_, const float& dy_, const std::int32_t& xi_, const std::int32_t& yi_)
         {
             this->vi = idx;
             this->dx = dx_;
             this->dy = dy_;
             this->xi = xi_;
             this->yi = yi_;
-            this->computeLocation();
+            this->compute_location();
         }
 
 #ifdef CARTGRID_COMPILE_LOAD_AND_SAVE
@@ -227,7 +227,7 @@ export namespace sm
             h5data.read_val (dpath.c_str(), this->yi);
             dpath = h5path + "/distToBoundary";
             h5data.read_val (dpath.c_str(), this->distToBoundary);
-            uint32_t flgs = 0;
+            std::uint32_t flgs = 0;
             dpath = h5path + "/flags";
             h5data.read_val (dpath.c_str(), flgs);
             this->flags = flgs;
@@ -246,30 +246,30 @@ export namespace sm
             s += std::to_string(this->yi).substr(0,4) + "). ";
 
             if (this->has_ne()) {
-                s += "E: (" + std::to_string(this->ne->xi).substr(0,4) + "," + std::to_string(this->ne->yi).substr(0,4) + ") " + (this->ne->boundaryRect() == true ? "OB":"") + " ";
+                s += "E: (" + std::to_string(this->ne->xi).substr(0,4) + "," + std::to_string(this->ne->yi).substr(0,4) + ") " + (this->ne->boundary_rect() == true ? "OB":"") + " ";
             }
             if (this->has_nse()) {
-                s += "SE: (" + std::to_string(this->nse->xi).substr(0,4) + "," + std::to_string(this->nse->yi).substr(0,4) + ") " + (this->nse->boundaryRect() == true ? "OB":"") + " ";
+                s += "SE: (" + std::to_string(this->nse->xi).substr(0,4) + "," + std::to_string(this->nse->yi).substr(0,4) + ") " + (this->nse->boundary_rect() == true ? "OB":"") + " ";
             }
             if (this->has_ns()) {
-                s += "S: (" + std::to_string(this->ns->xi).substr(0,4) + "," + std::to_string(this->ns->yi).substr(0,4) + ") " + (this->ns->boundaryRect() == true ? "OB":"") + " ";
+                s += "S: (" + std::to_string(this->ns->xi).substr(0,4) + "," + std::to_string(this->ns->yi).substr(0,4) + ") " + (this->ns->boundary_rect() == true ? "OB":"") + " ";
             }
             if (this->has_nsw()) {
-                s += "SW: (" + std::to_string(this->nsw->xi).substr(0,4) + "," + std::to_string(this->nsw->yi).substr(0,4) + ") " + (this->nsw->boundaryRect() == true ? "OB":"") + " ";
+                s += "SW: (" + std::to_string(this->nsw->xi).substr(0,4) + "," + std::to_string(this->nsw->yi).substr(0,4) + ") " + (this->nsw->boundary_rect() == true ? "OB":"") + " ";
             }
             if (this->has_nw()) {
-                s += "W: (" + std::to_string(this->nw->xi).substr(0,4) + "," + std::to_string(this->nw->yi).substr(0,4) + ") " + (this->nw->boundaryRect() == true ? "OB":"") + " ";
+                s += "W: (" + std::to_string(this->nw->xi).substr(0,4) + "," + std::to_string(this->nw->yi).substr(0,4) + ") " + (this->nw->boundary_rect() == true ? "OB":"") + " ";
             }
             if (this->has_nnw()) {
-                s += "NW: (" + std::to_string(this->nnw->xi).substr(0,4) + "," + std::to_string(this->nnw->yi).substr(0,4) + ") " + (this->nnw->boundaryRect() == true ? "OB":"") + " ";
+                s += "NW: (" + std::to_string(this->nnw->xi).substr(0,4) + "," + std::to_string(this->nnw->yi).substr(0,4) + ") " + (this->nnw->boundary_rect() == true ? "OB":"") + " ";
             }
             if (this->has_nn()) {
-                s += "N: (" + std::to_string(this->nn->xi).substr(0,4) + "," + std::to_string(this->nn->yi).substr(0,4) + ") " + (this->nn->boundaryRect() == true ? "OB":"") + " ";
+                s += "N: (" + std::to_string(this->nn->xi).substr(0,4) + "," + std::to_string(this->nn->yi).substr(0,4) + ") " + (this->nn->boundary_rect() == true ? "OB":"") + " ";
             }
             if (this->has_nne()) {
-                s += "NE: (" + std::to_string(this->nne->xi).substr(0,4) + "," + std::to_string(this->nne->yi).substr(0,4) + ") " + (this->nne->boundaryRect() == true ? "OB":"") + " ";
+                s += "NE: (" + std::to_string(this->nne->xi).substr(0,4) + "," + std::to_string(this->nne->yi).substr(0,4) + ") " + (this->nne->boundary_rect() == true ? "OB":"") + " ";
             }
-            if (this->boundaryRect()) {
+            if (this->boundary_rect()) {
                 s += "(ON boundary)";
             } else  {
                 s += "(not boundary)";
@@ -281,7 +281,7 @@ export namespace sm
          * Produce a string containing information about this rect, focussing on
          * Cartesian position information.
          */
-        std::string outputCart() const
+        std::string output_cart() const
         {
             std::string s("rect ");
             s += std::to_string(this->vi) + " (";
@@ -292,17 +292,17 @@ export namespace sm
         }
 
         //! Output "(x,y)" coordinate string
-        std::string outputXY() const
+        std::string output_xy() const
         {
             std::string s("(");
             s += std::to_string(this->x).substr(0,4) + "," + std::to_string(this->y).substr(0,4) + ")";
             return s;
         }
 
-        //! Output a string containing just "XiYi(xi, yi)"
-        std::string outputXiYi() const
+        //! Output a string containing just "xiyi(xi, yi)"
+        std::string output_xiyi() const
         {
-            std::string s("XiYi(");
+            std::string s("xiyi(");
             s += std::to_string(this->xi).substr(0,4) + ",";
             s += std::to_string(this->yi).substr(0,4) + ")";
             return s;
@@ -364,7 +364,7 @@ export namespace sm
          * Convert xi and yi indices into x and y coordinates and also r and phi
          * coordinates, based on the rect-to-rect distances dx and dy.
          */
-        void computeLocation()
+        void compute_location()
         {
             // Compute Cartesian location
             this->x = this->dx * this->xi;
@@ -379,7 +379,7 @@ export namespace sm
          * by \a cartesianPoint to the centre of this rect.
          */
         template <typename F>
-        float distanceFrom (const sm::vec<F, 2> cartesianPoint) const
+        float distance_from (const sm::vec<F, 2> cartesianPoint) const
         {
             float deltax = cartesianPoint[0] - x;
             float deltay = cartesianPoint[1] - y;
@@ -390,26 +390,26 @@ export namespace sm
          * Compute the distance from the point given (in two-dimensions only; x and y)
          * by the bezcoord \a cartesianPoint to the centre of this rect.
          */
-        float distanceFrom (const bezcoord<float>& cartesianPoint) const
+        float distance_from (const bezcoord<float>& cartesianPoint) const
         {
             float deltax = cartesianPoint.x() - x;
             float deltay = cartesianPoint.y() - y;
             return std::sqrt (deltax*deltax + deltay*deltay);
         }
 
-        float distanceFrom (const sm::vec<float, 2>& cartesianPoint) const
+        float distance_from (const sm::vec<float, 2>& cartesianPoint) const
         {
             float deltax = cartesianPoint[0] - x;
             float deltay = cartesianPoint[1] - y;
-            return std::sqrt (deltax*deltax + deltay*deltay);
+            return std::sqrt (deltax * deltax + deltay * deltay);
         }
 
         //! Compute the distance from another rect to this one.
-        float distanceFrom (const rect& otherRect) const
+        float distance_from (const rect& otherRect) const
         {
             float deltax = otherRect.x - x;
             float deltay = otherRect.y - y;
-            return std::sqrt (deltax*deltax + deltay*deltay);
+            return std::sqrt (deltax * deltax + deltay * deltay);
         }
 
         /*!
@@ -465,25 +465,25 @@ export namespace sm
         float get_dy() const { return this->dy; }
 
         //! Get the shortest distance from the centre of the rect to its perimeter. This is the "short radius".
-        float getSR() const { return ((this->dx < this->dy ? this->dx : this->dy) * 0.5f); }
+        float get_sr() const { return ((this->dx < this->dy ? this->dx : this->dy) * 0.5f); }
 
         //! The distance from the centre of the rect to any of the vertices. This is the "long radius".
-        float getLR() const { return (std::sqrt (this->dx * this->dx + this->dy * this->dy) * 0.5f); }
+        float get_lr() const { return (std::sqrt (this->dx * this->dx + this->dy * this->dy) * 0.5f); }
 
         //! Compute and return the area of the rect
-        float getArea() const { return (this->dx * this->dy); }
+        float get_area() const { return (this->dx * this->dy); }
 
         //! The vertical distance between rect centres on adjacent rows.
-        float getV() const { return this->dy; }
+        float get_v() const { return this->dy; }
 
         //! The vertical distance from the centre of the rect to the "north east" vertex of the rect
-        float getVtoNE() const { return std::sqrt (this->dx * this->dx + this->dy * this->dy); }
+        float get_v_to_ne() const { return std::sqrt (this->dx * this->dx + this->dy * this->dy); }
 
         /*!
          * Return twice the vertical distance between rect centres on adjacent
          * rows. (unlikely to be useful, but included to match API of sm::Hex)
          */
-        float getTwoV() const { return 2.0f * this->dy; }
+        float get_two_v() const { return 2.0f * this->dy; }
 
         /*
          * Indices in x/y directions. These lie in the x-y plane. They index in positive
@@ -496,79 +496,79 @@ export namespace sm
         std::int32_t yi = 0;
 
         //! Getter for this->flags
-        std::uint32_t getFlags() const { return this->flags; }
+        std::uint32_t get_flags() const { return this->flags; }
 
         //! Set one or more flags, defined by flg, true
-        void setFlag (std::uint32_t flg) { this->flags |= flg; }
-        //! Alias for rect::setFlag
-        void setFlags (std::uint32_t flgs) { this->flags |= flgs; }
+        void set_flag (std::uint32_t flg) { this->flags |= flg; }
+        //! Alias for rect::set_flag
+        void set_flags (std::uint32_t flgs) { this->flags |= flgs; }
 
         //! Unset one or more flags, defined by flg, i.e. set false
-        void unsetFlag (std::uint32_t flg) { this->flags &= ~(flg); }
+        void unset_flag (std::uint32_t flg) { this->flags &= ~(flg); }
         //! Alias for rect::unsetFlag
-        void unsetFlags (std::uint32_t flgs) { this->flags &= ~(flgs); }
+        void unset_flags (std::uint32_t flgs) { this->flags &= ~(flgs); }
 
         //! If flags match flg, then return true
-        bool testFlag (std::uint32_t flg) const { return (this->flags & flg) == flg ? true : false; }
+        bool test_flag (std::uint32_t flg) const { return (this->flags & flg) == flg ? true : false; }
         //! Alias for rect::testFlag
-        bool testFlags (std::uint32_t flgs) const { return (this->flags & flgs) == flgs ? true : false; }
+        bool test_flags (std::uint32_t flgs) const { return (this->flags & flgs) == flgs ? true : false; }
 
         /*!
          * Set to true if this rect has been marked as being on a boundary. It is
          * expected that client code will then re-set the neighbour relations so that
          * onBoundary() would return true.
          */
-        bool boundaryRect() const { return this->flags & RECT_IS_BOUNDARY ? true : false; }
+        bool boundary_rect() const { return this->flags & RECT_IS_BOUNDARY ? true : false; }
         /*!
          * Mark the rect as a boundary rect. Boundary rects are also, by definition,
          * inside the boundary.
          */
-        void setBoundaryRect() { this->flags |= (RECT_IS_BOUNDARY | RECT_INSIDE_BOUNDARY); }
-        void unsetBoundaryREct() { this->flags &= ~(RECT_IS_BOUNDARY | RECT_INSIDE_BOUNDARY); }
+        void set_boundary_rect() { this->flags |= (RECT_IS_BOUNDARY | RECT_INSIDE_BOUNDARY); }
+        void unset_boundary_rect() { this->flags &= ~(RECT_IS_BOUNDARY | RECT_INSIDE_BOUNDARY); }
 
         //! Returns true if this rect is known to be inside the boundary.
-        bool insideBoundary() const { return this->flags & RECT_INSIDE_BOUNDARY ? true : false; }
+        bool inside_boundary() const { return this->flags & RECT_INSIDE_BOUNDARY ? true : false; }
         //! Set the flag that says this rect is known to be inside the boundary.
-        void setInsideBoundary() { this->flags |= RECT_INSIDE_BOUNDARY; }
+        void set_inside_boundary() { this->flags |= RECT_INSIDE_BOUNDARY; }
         //! Unset the flag that says this rect is inside the boundary.
-        void unsetInsideBoundary() { this->flags &= ~RECT_INSIDE_BOUNDARY; }
+        void unset_inside_boundary() { this->flags &= ~RECT_INSIDE_BOUNDARY; }
 
         //! Returns true if this rect is known to be inside a 'domain'.
-        bool insideDomain() const { return this->flags & RECT_INSIDE_DOMAIN ? true : false; }
+        bool inside_domain() const { return this->flags & RECT_INSIDE_DOMAIN ? true : false; }
         //! Set flag that says this rect is known to be inside a 'domain'.
-        void setInsideDomain() { this->flags |= RECT_INSIDE_DOMAIN; }
+        void set_inside_domain() { this->flags |= RECT_INSIDE_DOMAIN; }
         //! Unset flag that says this rect is known to be inside domain.
-        void unsetInsideDomain() { this->flags &= ~RECT_INSIDE_DOMAIN; }
+        void unset_inside_domain() { this->flags &= ~RECT_INSIDE_DOMAIN; }
 
         /*!
          * Set the RECT_USER_FLAG_0/1/2/3 from the passed in std::uint32_t.
          *
-         * E.g. rect->setUserFlags (RECT_USER_FLAG_0 | RECT_USER_FLAG_1);
+         * E.g. rect->set_user_flags (RECT_USER_FLAG_0 | RECT_USER_FLAG_1);
          *
          * This will set RECT_USER_FLAG_0 and RECT_USER_FLAG_1 AND UNSET RECT_USER_FLAG_2 &
          * RECT_USER_FLAG_3.
          */
-        void setUserFlags (std::uint32_t uflgs) { this->flags |= (uflgs & RECT_ALL_USER); }
+        void set_user_flags (std::uint32_t uflgs) { this->flags |= (uflgs & RECT_ALL_USER); }
 
         //! Set the single user flag 0, 1 2 or 3 as given by the passed-in std::uint32_t uflg_num.
-        void setUserFlag (std::uint32_t uflg_num)
+        void set_user_flag (std::uint32_t uflg_num)
         {
             std::uint32_t flg = 0x1UL << (28+uflg_num);
             this->flags |= flg;
         }
 
-        //! Un-setter corresponding to setUserFlag(std::uint32_t)
-        void unsetUserFlag (std::uint32_t uflg_num)
+        //! Un-setter corresponding to set_user_flag(std::uint32_t)
+        void unset_user_flag (std::uint32_t uflg_num)
         {
             std::uint32_t flg = 0x1UL << (28+uflg_num);
             this->flags &= ~flg;
         }
 
         //! Set all user flags to the unset state
-        void resetUserFlags() { this->flags &= RECT_NON_USER; }
+        void reset_user_flags() { this->flags &= RECT_NON_USER; }
 
         //! Getter for each user flag
-        bool getUserFlag (std::uint32_t uflg_num) const
+        bool get_user_flag (std::uint32_t uflg_num) const
         {
             std::uint32_t flg = 0x1UL << (28+uflg_num);
             return ((this->flags & flg) == flg);
@@ -578,14 +578,14 @@ export namespace sm
          * This can be populated with the distance to the nearest boundary rect, so that
          * an algorithm can set values in a rect based this metric.
          */
-        float distToBoundary = -1.0f;
+        float dist_to_boundary = -1.0f;
 
         /*!
          * Return true if this is a boundary rect - one on the outside edge of a rect
          * grid. The result is based on testing neihgbour relations, rather than
          * examining the value of the RECT_IS_BOUNDARY flag.
          */
-        bool onBoundary()
+        bool on_boundary()
         {
             return ((this->flags & RECT_HAS_NEIGHB_ALL) == RECT_HAS_NEIGHB_ALL) ? false : true;
         }
@@ -853,26 +853,26 @@ export namespace sm
             switch (ni) {
             case RECT_VERTEX_POS_NE:
             {
-                rtn[0] = this->x + this->getSR();
-                rtn[1] = this->y + this->getVtoNE();
+                rtn[0] = this->x + this->get_sr();
+                rtn[1] = this->y + this->get_v_to_ne();
                 break;
             }
             case RECT_VERTEX_POS_NW:
             {
-                rtn[0] = this->x - this->getSR();
-                rtn[1] = this->y + this->getVtoNE();
+                rtn[0] = this->x - this->get_sr();
+                rtn[1] = this->y + this->get_v_to_ne();
                 break;
             }
             case RECT_VERTEX_POS_SW:
             {
-                rtn[0] = this->x - this->getSR();
-                rtn[1] = this->y - this->getVtoNE();
+                rtn[0] = this->x - this->get_sr();
+                rtn[1] = this->y - this->get_v_to_ne();
                 break;
             }
             case RECT_VERTEX_POS_SE:
             {
-                rtn[0] = this->x + this->getSR();
-                rtn[1] = this->y - this->getVtoNE();
+                rtn[0] = this->x + this->get_sr();
+                rtn[1] = this->y - this->get_v_to_ne();
                 break;
             }
             default:
@@ -928,7 +928,7 @@ export namespace sm
         bool compare_vertex_coord (std::int32_t ni, sm::vec<F, 2>& coord) const
         {
             sm::vec<float, 2> vc = this->get_vertex_coord (ni);
-            float sr_thresh = this->getSR()/100.0f;
+            float sr_thresh = this->get_sr()/100.0f;
             if (std::abs(vc[0] - coord[0]) < sr_thresh
                 && std::abs(vc[1] - coord[1]) < sr_thresh) {
                 return true;
@@ -960,7 +960,7 @@ export namespace sm
         template <typename F>
         bool compare_coord (sm::vec<F, 2>& coord) const
         {
-            float sr_thresh = this->getSR()/100.0f;
+            float sr_thresh = this->get_sr()/100.0f;
             if (std::abs(this->x - coord[0]) < sr_thresh
                 && std::abs(this->y - coord[1]) < sr_thresh) {
                 return true;
@@ -969,7 +969,7 @@ export namespace sm
         }
 
         //! Un-set the pointers on all my neighbours so that THEY no longer point to ME.
-        void disconnectNeighbours()
+        void disconnect_neighbours()
         {
             if (this->has_ne()) {
                 if (this->ne->has_nw()) {

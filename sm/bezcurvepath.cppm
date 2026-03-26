@@ -45,7 +45,7 @@ export namespace sm
         std::string name = "";
 
         //! The initial coordinate for the bezcurvepath.
-        sm::vec<F, 2> initialCoordinate = { F{0}, F{0} };
+        sm::vec<F, 2> initial_coordinate = { F{0}, F{0} };
 
         //! A list of the bezcurves that make up the full bezcurvepath.
         std::list<bezcurve<F, order>> curves;
@@ -55,7 +55,7 @@ export namespace sm
 
         /*!
          * This can be filled with a set of points on the path made up by the Bezier
-         * curves. Do so with computePoints.
+         * curves. Do so with compute_points.
          */
         std::vector<bezcoord<F>> points;
 
@@ -69,7 +69,7 @@ export namespace sm
          * A null bezcurvepath is one which has no curves. If curves
          * is empty then the bezcurvepath is null.
          */
-        bool isNull() const
+        bool is_null() const
         {
             return this->curves.empty();
         }
@@ -78,34 +78,34 @@ export namespace sm
         void reset()
         {
             this->curves.clear();
-            this->initialCoordinate.zero();
+            this->initial_coordinate.zero();
             this->scale = F{1};
             this->name = "";
         }
 
         //! Set scaling on all member Bezier curves.
-        void setScale (const F s)
+        void set_scale (const F s)
         {
             this->scale = s;
-            this->initialCoordinate *= this->scale;
+            this->initial_coordinate *= this->scale;
             typename std::list<bezcurve<F, order>>::iterator i = this->curves.begin();
             while (i != this->curves.end()) {
-                i->setScale (this->scale);
+                i->set_scale (this->scale);
                 ++i;
             }
         }
 
         //! Add a curve to this->curves.
-        void addCurve (bezcurve<F, order>& c)
+        void add_curve (bezcurve<F, order>& c)
         {
             if (this->curves.empty()) {
-                this->initialCoordinate = c.getInitialPointScaled();
+                this->initial_coordinate = c.get_initial_point_scaled();
             }
             this->curves.push_back (c);
         }
 
         //! Remove a curve from this->curves.
-        void removeCurve()
+        void remove_curve()
         {
             if (!this->curves.empty()) { this->curves.pop_back(); }
         }
@@ -115,8 +115,8 @@ export namespace sm
         {
             std::cout << "------ bezcurvepath ------" << std::endl;
             std::cout << "Name: " << this->name << std::endl;
-            std::cout << "Initial coord: (" << this->initialCoordinate.first
-                      << "," << this->initialCoordinate.second << ")" << std::endl;
+            std::cout << "Initial coord: (" << this->initial_coordinate.first
+                      << "," << this->initial_coordinate.second << ")" << std::endl;
             std::cout << "Number of curves: " << this->curves.size() << std::endl;
             typename std::list<bezcurve<F, order>>::const_iterator i = this->curves.begin();
             while (i != this->curves.end()) {
@@ -152,16 +152,16 @@ export namespace sm
          * Compute the as-the-crow-flies distance from the initial coordinate of this
          * bezcurvepath to the final coordinate. Uses the scale factor.
          */
-        F getEndToEnd() const
+        F get_end_to_end() const
         {
-            // Distance from this->initialCoordinate to final point:
+            // Distance from this->initial_coordinate to final point:
             if (this->curves.empty()) { return F{0}; }
-            sm::vec<F, 2> cend = this->curves.back().getFinalPointScaled();
-            return (cend - initialCoordinate).length();
+            sm::vec<F, 2> cend = this->curves.back().get_final_point_scaled();
+            return (cend - initial_coordinate).length();
         }
 
         //! Compute & return the centroid of the passed in set of positions.
-        static sm::vec<F, 2> getCentroid (const std::vector<bezcoord<F>>& points)
+        static sm::vec<F, 2> get_centroid (const std::vector<bezcoord<F>>& points)
         {
             sm::vec<F, 2> c = {F{0}, F{0}};
             for (const bezcoord<F>& i : points) {
@@ -176,26 +176,26 @@ export namespace sm
          * thing between curves (skipping remaining, then advancing step-remaining into
          * the next curve and so on).
          *
-         * If invertY is true, then multiply all the y values in the coordinates by
+         * If invert_y is true, then multiply all the y values in the coordinates by
          * -1. SVG is encoded in a left hand coordinate system, so if you're going to
-         * plot the bezcoord points in a right hand system, set invertY to true.
+         * plot the bezcoord points in a right hand system, set invert_y to true.
          */
-        void computePoints (F step, bool invertY = false)
+        void compute_points (F step, bool invert_y = false)
         {
             this->points.clear();
             this->tangents.clear();
             this->normals.clear();
 
             // First the very start point:
-            bezcoord<F> startPt = this->curves.front().computePoint (F{0});
-            if (invertY) {
-                startPt.invertY();
+            bezcoord<F> start_pt = this->curves.front().compute_point (F{0});
+            if (invert_y) {
+                start_pt.invert_y();
             }
-            this->points.push_back (startPt);
+            this->points.push_back (start_pt);
 
             // Make cp a complete set of points for the current curve *including
             // the point in the curve for t=0*
-            std::pair<bezcoord<F>, bezcoord<F>> tn0 = this->curves.front().computeTangentNormal(F{0});
+            std::pair<bezcoord<F>, bezcoord<F>> tn0 = this->curves.front().compute_tangent_normal(F{0});
             this->tangents.push_back (tn0.first);
             this->normals.push_back (tn0.second);
 
@@ -204,15 +204,15 @@ export namespace sm
             // bezcurve before generating points:
             F firstl = F{0};
             while (i != this->curves.end()) {
-                std::vector<bezcoord<F>> cp = i->computePoints (step, firstl);
-                if (cp.back().isNull()) {
-                    firstl = step - cp.back().getRemaining();
+                std::vector<bezcoord<F>> cp = i->compute_points (step, firstl);
+                if (cp.back().is_null()) {
+                    firstl = step - cp.back().get_remaining();
                     cp.pop_back();
                 }
-                if (invertY) {
+                if (invert_y) {
                     typename std::vector<bezcoord<F>>::iterator bci = cp.begin();
                     while (bci != cp.end()) {
-                        bci->invertY();
+                        bci->invert_y();
                         ++bci;
                     }
                 }
@@ -220,7 +220,7 @@ export namespace sm
 
                 // Now compute tangents and normals
                 for (bezcoord<F> bp : cp) {
-                    std::pair<bezcoord<F>, bezcoord<F>> tn = i->computeTangentNormal(bp.t());
+                    std::pair<bezcoord<F>, bezcoord<F>> tn = i->compute_tangent_normal(bp.t());
                     this->tangents.push_back (tn.first);
                     this->normals.push_back (tn.second);
                 }
@@ -229,21 +229,21 @@ export namespace sm
         }
 
         // Getters
-        std::vector<bezcoord<F>> getPoints() const { return this->points; }
-        std::vector<bezcoord<F>> getTangents() const { return this->tangents; }
-        std::vector<bezcoord<F>> getNormals() const { return this->normals; }
+        std::vector<bezcoord<F>> get_points() const { return this->points; }
+        std::vector<bezcoord<F>> get_tangents() const { return this->tangents; }
+        std::vector<bezcoord<F>> get_normals() const { return this->normals; }
 
         /*!
          * Similar to the above, but ensure that there are @nPoints evenly spaced
-         * points along the curve. @invertY has the same meaning as in the other
+         * points along the curve. @invert_y has the same meaning as in the other
          * overload of this function.
          */
-        void computePoints (std::uint32_t nPoints, bool invertY = false)
+        void compute_points (std::uint32_t n_points, bool invert_y = false)
         {
             // Get end-to-end distance and compute a candidate step, then call other
             // overload.
-            if (nPoints == 0) {
-                std::cout << "nPoints should be >0, returning" << std::endl;
+            if (n_points == 0) {
+                std::cout << "n_points should be >0, returning" << std::endl;
                 return;
             }
             if (this->curves.empty()) {
@@ -253,52 +253,52 @@ export namespace sm
 
             this->points.clear();
 
-            F etoe = this->getEndToEnd();
-            F step = etoe/(nPoints-1);
-            std::uint32_t actualPoints = 0;
+            F etoe = this->get_end_to_end();
+            F step = etoe/(n_points-1);
+            std::uint32_t actual_points = 0;
 
-            while (actualPoints != nPoints) {
+            while (actual_points != n_points) {
                 this->points.clear();
                 // std::cout << "Getting points with step size " << step << std::endl;
-                this->computePoints (step, invertY);
-                actualPoints = this->points.size();
-                if (actualPoints != nPoints) {
+                this->compute_points (step, invert_y);
+                actual_points = this->points.size();
+                if (actual_points != n_points) {
 
                     // Modify step
                     F steptrial = F{0};
-                    if (actualPoints > nPoints) {
+                    if (actual_points > n_points) {
                         // Increase step size, starting with a doubling, then a half
                         // extra, then a quarter extra, etc
-                        actualPoints = 0;
+                        actual_points = 0;
                         F stepinc = step;
-                        while (actualPoints < nPoints) {
+                        while (actual_points < n_points) {
                             steptrial = step + stepinc;
                             this->points.clear();
-                            this->computePoints (steptrial, invertY);
-                            actualPoints = this->points.size();
+                            this->compute_points (steptrial, invert_y);
+                            actual_points = this->points.size();
                             stepinc /= 2.0f;
                         }
 
-                        if (std::abs(step-steptrial) < std::numeric_limits<F>::epsilon()) {
+                        if (std::abs(step - steptrial) < std::numeric_limits<F>::epsilon()) {
                             std::cout << "Numeric limit reached; can't change step a small "
                                       << "enough amount to change the number of points" << std::endl;
                             return;
                         }
                         step = steptrial;
 
-                    } else { // actualPoints < nPoints
+                    } else { // actual_points < n_points
                         // Decrease step size, starting with a halving, then a
-                        // quartering until we exceed nPoints
-                        actualPoints = 0;
+                        // quartering until we exceed n_points
+                        actual_points = 0;
                         F stepinc = step/2.0f;
-                        while (actualPoints < nPoints) {
+                        while (actual_points < n_points) {
                             steptrial = step - stepinc;
                             this->points.clear();
-                            this->computePoints (steptrial, invertY);
-                            actualPoints = this->points.size();
+                            this->compute_points (steptrial, invert_y);
+                            actual_points = this->points.size();
                             stepinc /= 2.0f;
                         }
-                        if (std::abs(step-steptrial) < std::numeric_limits<F>::epsilon()) {
+                        if (std::abs(step - steptrial) < std::numeric_limits<F>::epsilon()) {
                             std::cout << "Numeric limit reached; can't change step a small "
                                       << "enough amount to change the number of points" << std::endl;
                             return;
