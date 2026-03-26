@@ -33,9 +33,9 @@ int main()
     // Run the optimization
     if (!simp.run()) { std::cerr << "Objective was not set\n"; return -1; }
     // Check the final state which we expect to be 'TerminationThreshold':
-    if (simp.stopreason != sm::nm_simplex_stop_reason::TerminationThreshold) {
-        if (simp.stopreason == sm::nm_simplex_stop_reason::TooManyOperations) {
-            std::cerr << "The optimization stopped after TooManyOperations (" << simp.too_many_operations << ")\n";
+    if (simp.stopreason != sm::nm_simplex_stop_reason::termination_threshold) {
+        if (simp.stopreason == sm::nm_simplex_stop_reason::too_many_operations) {
+            std::cerr << "The optimization stopped after too_many_operations (" << simp.too_many_operations << ")\n";
         } else {
             std::cerr << "The optimization stopped for an unknown reason\n";
         }

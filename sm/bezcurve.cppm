@@ -380,9 +380,9 @@ export namespace sm
             // The shrink coefficient
             simp.sigma = 0.05; // .5
 
-            while (simp.state != nm_simplex_state::ReadyToStop) {
+            while (simp.state != nm_simplex_state::ready_to_stop) {
 
-                if (simp.state == nm_simplex_state::NeedToComputeThenOrder) {
+                if (simp.state == nm_simplex_state::need_to_compute_then_order) {
                     // 1. apply objective to each vertex
                     for (std::uint32_t i = 0; i <= simp.n; ++i) {
                         this->set_C_from_v (simp.vertices[i], startrow);
@@ -391,22 +391,22 @@ export namespace sm
                     }
                     simp.order();
 
-                } else if (simp.state == nm_simplex_state::NeedToOrder) {
+                } else if (simp.state == nm_simplex_state::need_to_order) {
                     simp.order();
 
-                } else if (simp.state == nm_simplex_state::NeedToComputeReflection) {
+                } else if (simp.state == nm_simplex_state::need_to_compute_reflection) {
                     this->set_C_from_v (simp.xr, startrow);
                     this->init(); // Re-setup this bezcurve
                     F val = this->compute_objective (points);
                     simp.apply_reflection (val);
 
-                } else if (simp.state == nm_simplex_state::NeedToComputeExpansion) {
+                } else if (simp.state == nm_simplex_state::need_to_compute_expansion) {
                     this->set_C_from_v (simp.xe, startrow);
                     this->init(); // Re-setup this bezcurve
                     F val = this->compute_objective (points);
                     simp.apply_expansion (val);
 
-                } else if (simp.state == nm_simplex_state::NeedToComputeContraction) {
+                } else if (simp.state == nm_simplex_state::need_to_compute_contraction) {
                     this->set_C_from_v (simp.xc, startrow);
                     this->init(); // Re-setup this bezcurve
                     F val = this->compute_objective (points);

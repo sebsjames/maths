@@ -38,7 +38,7 @@ int main()
     simp.run();
     // Get the result or determine that there was an error:
     std::vector<F> bv = {};
-    if (simp.stopreason == sm::nm_simplex_stop_reason::TerminationThreshold) {
+    if (simp.stopreason == sm::nm_simplex_stop_reason::termination_threshold) {
         bv = simp.best_vertex();
         std::cout << "Finished in " << simp.operation_count << " operations. Best approximation at: ("
                   << bv[0] << "," << bv[1] << ") has value " << simp.best_value() << std::endl;

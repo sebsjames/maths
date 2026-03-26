@@ -32,27 +32,27 @@ export namespace sm
     enum class nm_simplex_state : std::uint32_t
     {
         // The state is unknown
-        Unknown,
+        unknown,
         // Compute all vertices, then order them
-        NeedToComputeThenOrder,
+        need_to_compute_then_order,
         // Vertices are all computed, but need to be ordered
-        NeedToOrder,
+        need_to_order,
         // Need to compute the value of the reflected point, xr
-        NeedToComputeReflection,
+        need_to_compute_reflection,
         // Need to compute the value of the expanded point, xe
-        NeedToComputeExpansion,
+        need_to_compute_expansion,
         // Need to compute the value of the contracted point, xc
-        NeedToComputeContraction,
+        need_to_compute_contraction,
         // The algorithm has finished and found a location within tolerance
-        ReadyToStop
+        ready_to_stop
     };
 
     //! For what reason did we enter nm_simplex_state?
     enum class nm_simplex_stop_reason : std::uint32_t
     {
-        None,                 // There is currently no reason to stop
-        TerminationThreshold, // Normal reason for stopping, we got to the termination_threashd
-        TooManyOperations     // We exceeded too_many_operations
+        none,                 // There is currently no reason to stop
+        termination_threshold, // Normal reason for stopping, we got to the termination_threashd
+        too_many_operations     // We exceeded too_many_operations
     };
 
     /*!
@@ -90,7 +90,7 @@ export namespace sm
         std::uint64_t operation_count = 0ULL;
 
         //! If set >0, then if operation_count exceeds too_many_operations, then
-        //! ReadyToStop is set (and a warning emitted). Arriving at
+        //! ready_to_stop is set (and a warning emitted). Arriving at
         //! too_many_operations probably means termination_threshold was set too low.
         std::uint64_t too_many_operations = 0ULL;
 
@@ -131,10 +131,10 @@ export namespace sm
 
         //! This tells client code what it needs to do next. It either needs to order the points or
         //! compute a new objective function value for the reflected point xr;
-        nm_simplex_state state = nm_simplex_state::Unknown;
+        nm_simplex_state state = nm_simplex_state::unknown;
 
-        //! Store the reason the algorithm entered the state nm_simplex_state::ReadyToStop
-        nm_simplex_stop_reason stopreason = nm_simplex_stop_reason::None;
+        //! Store the reason the algorithm entered the state nm_simplex_state::ready_to_stop
+        nm_simplex_stop_reason stopreason = nm_simplex_stop_reason::none;
 
     public:
         // Constructors
@@ -155,7 +155,7 @@ export namespace sm
             for (sm::vvec<T>& v : this->vertices) {
                 v = initial_vertices[i++];
             }
-            this->state = nm_simplex_state::NeedToComputeThenOrder;
+            this->state = nm_simplex_state::need_to_compute_then_order;
         }
         //! Special constructor for 2 vertices in 1 dimension
         nm_simplex (const T& v0, const T& v1)
@@ -164,7 +164,7 @@ export namespace sm
             this->allocate();
             this->vertices[0][0] = v0;
             this->vertices[1][0] = v1;
-            this->state = nm_simplex_state::NeedToComputeThenOrder;
+            this->state = nm_simplex_state::need_to_compute_then_order;
         }
         //! Special constructor for 3 vertices in 2 dimensions
         nm_simplex (const sm::vec<T, 2>& v0,
@@ -178,7 +178,7 @@ export namespace sm
             this->vertices[1][1] = v1[1];
             this->vertices[2][0] = v2[0];
             this->vertices[2][1] = v2[1];
-            this->state = nm_simplex_state::NeedToComputeThenOrder;
+            this->state = nm_simplex_state::need_to_compute_then_order;
         }
         //! General constructor for n dimensional simplex
         nm_simplex (const std::uint32_t _n): n(_n) { this->allocate(); }
@@ -186,13 +186,13 @@ export namespace sm
         //! Reset the algorithm ready to go again
         void reset (const sm::vvec<sm::vvec<T>>& initial_vertices)
         {
-            this->stopreason = nm_simplex_stop_reason::None;
+            this->stopreason = nm_simplex_stop_reason::none;
             this->operation_count = 0ULL;
             this->n = initial_vertices.size() - 1;
             this->allocate();
             std::uint32_t i = 0U;
             for (sm::vvec<T>& v : this->vertices) { v = initial_vertices[i++]; }
-            this->state = nm_simplex_state::NeedToComputeThenOrder;
+            this->state = nm_simplex_state::need_to_compute_then_order;
         }
 
         /*!
@@ -210,20 +210,20 @@ export namespace sm
          */
         void step()
         {
-            if (this->state == nm_simplex_state::NeedToComputeThenOrder) {
+            if (this->state == nm_simplex_state::need_to_compute_then_order) {
                 for (std::uint32_t i = 0; i <= this->n; ++i) {
                     this->values[i] = this->objective (this->vertices[i]);
                 }
                 this->order();
-            } else if (this->state == nm_simplex_state::NeedToOrder) {
+            } else if (this->state == nm_simplex_state::need_to_order) {
                 this->order();
-            } else if (this->state == nm_simplex_state::NeedToComputeReflection) {
+            } else if (this->state == nm_simplex_state::need_to_compute_reflection) {
                 T val = this->objective (this->xr);
                 this->apply_reflection (val);
-            } else if (this->state == nm_simplex_state::NeedToComputeExpansion) {
+            } else if (this->state == nm_simplex_state::need_to_compute_expansion) {
                 T val = this->objective (this->xe);
                 this->apply_expansion (val);
-            } else if (this->state == nm_simplex_state::NeedToComputeContraction) {
+            } else if (this->state == nm_simplex_state::need_to_compute_contraction) {
                 T val = this->objective (this->xc);
                 this->apply_contraction (val);
             }
@@ -235,7 +235,7 @@ export namespace sm
         bool run()
         {
             if (!this->objective) { return false; } // user did not set an objective function
-            while (this->state != nm_simplex_state::ReadyToStop) { this->step(); }
+            while (this->state != nm_simplex_state::ready_to_stop) { this->step(); }
             return true;
         }
 
@@ -259,15 +259,15 @@ export namespace sm
             // returning of the best value relies on the vertices being ordered).
             T sd = this->values.std();
             if (sd < this->termination_threshold) {
-                this->state = nm_simplex_state::ReadyToStop;
-                this->stopreason = nm_simplex_stop_reason::TerminationThreshold;
+                this->state = nm_simplex_state::ready_to_stop;
+                this->stopreason = nm_simplex_stop_reason::termination_threshold;
                 return;
             } else if (this->too_many_operations > 0ULL
                        && this->operation_count > this->too_many_operations) {
-                // Reached too_many_operations. Setting state 'ReadyToStop'. Check
+                // Reached too_many_operations. Setting state 'ready_to_stop'. Check
                 // termination_threshold and the standard deviation of the final vertices.
-                this->state = nm_simplex_state::ReadyToStop;
-                this->stopreason = nm_simplex_stop_reason::TooManyOperations;
+                this->state = nm_simplex_state::ready_to_stop;
+                this->stopreason = nm_simplex_stop_reason::too_many_operations;
                 return;
             }
 
@@ -283,7 +283,7 @@ export namespace sm
             this->operation_count++;
             std::uint32_t worst = this->vertex_order[this->n];
             this->xr = this->x0 + (this->x0 - this->vertices[worst]) * this->alpha;
-            this->state = nm_simplex_state::NeedToComputeReflection;
+            this->state = nm_simplex_state::need_to_compute_reflection;
         }
 
     public:
@@ -300,7 +300,7 @@ export namespace sm
                 // the worst point in the simplex with the relected point.
                 this->values[vertex_order[n]] = this->xr_value;
                 this->vertices[vertex_order[n]] = this->xr;
-                this->state = nm_simplex_state::NeedToOrder;
+                this->state = nm_simplex_state::need_to_order;
 
             } else if (this->downhill && this->xr_value < this->values[vertex_order[0]]) {
                 // reflected is better (<) than best point so far; expand the reflected point to try
@@ -314,7 +314,7 @@ export namespace sm
                 // the worst point in the simplex with the relected point.
                 this->values[vertex_order[n]] = this->xr_value;
                 this->vertices[vertex_order[n]] = this->xr;
-                this->state = nm_simplex_state::NeedToOrder;
+                this->state = nm_simplex_state::need_to_order;
 
             } else if (this->downhill == false && this->xr_value > this->values[vertex_order[0]]) {
                 // reflected is better (>) than best point so far; expand
@@ -334,7 +334,7 @@ export namespace sm
         {
             this->operation_count++;
             this->xe = this->x0 + (this->xr - this->x0) * this->gamma;
-            this->state = nm_simplex_state::NeedToComputeExpansion;
+            this->state = nm_simplex_state::need_to_compute_expansion;
         }
 
     public:
@@ -349,12 +349,12 @@ export namespace sm
                 // expanded is better
                 this->values[vertex_order[this->n]] = this->xe_value;
                 this->vertices[vertex_order[this->n]] = this->xe;
-                this->state = nm_simplex_state::NeedToOrder;
+                this->state = nm_simplex_state::need_to_order;
             } else {
                 // expanded is not better, use reflected value
                 this->values[vertex_order[this->n]] = this->xr_value;
                 this->vertices[vertex_order[this->n]] = this->xr;
-                this->state = nm_simplex_state::NeedToOrder;
+                this->state = nm_simplex_state::need_to_order;
             }
         }
 
@@ -364,7 +364,7 @@ export namespace sm
             this->operation_count++;
             std::uint32_t worst = this->vertex_order[this->n];
             this->xc = this->x0 + (this->vertices[worst] - this->x0) * this->rho;
-            this->state = nm_simplex_state::NeedToComputeContraction;
+            this->state = nm_simplex_state::need_to_compute_contraction;
         }
 
     public:
@@ -377,7 +377,7 @@ export namespace sm
                 // contracted is better than worst
                 this->values[vertex_order[this->n]] = this->xc_value;
                 this->vertices[vertex_order[this->n]] = this->xc;
-                this->state = nm_simplex_state::NeedToOrder;
+                this->state = nm_simplex_state::need_to_order;
             } else {
                 this->shrink();
             }
@@ -390,7 +390,7 @@ export namespace sm
             for (std::uint32_t i = 1; i <= this->n; ++i) {
                 this->vertices[i] = this->vertices[0] + (this->vertices[i] - this->vertices[0]) * this->sigma;
             }
-            this->state = nm_simplex_state::NeedToComputeThenOrder;
+            this->state = nm_simplex_state::need_to_compute_then_order;
         }
 
         //! Compute x0, the centroid of all points except vertex n, or, put another way, the
