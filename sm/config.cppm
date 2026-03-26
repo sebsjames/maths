@@ -163,7 +163,7 @@ export namespace sm
             }
         }
 
-        // Wrappers around gets
+        // Typed getter
         template <typename T>
         T get (const std::string& thing, T defaultval) const
         {
@@ -199,6 +199,7 @@ export namespace sm
                 return this->root.contains(thing) ? this->root[thing].get<T>() : defaultval;
             }
         }
+
         // get as a json object
         nlohmann::json get (const std::string& thingname) const
         {
@@ -209,32 +210,8 @@ export namespace sm
             return rtn;
         }
 
-        bool getBool (const std::string& thing, bool defaultval) const
-        {
-            return this->get<bool> (thing, defaultval);
-        }
-        int32_t getInt (const std::string& thing, int32_t defaultval) const
-        {
-            return this->get<int32_t> (thing, defaultval);
-        }
-        uint32_t getUInt (const std::string& thing, uint32_t defaultval) const
-        {
-            return this->get<uint32_t> (thing, defaultval);
-        }
-        float getFloat (const std::string& thing, float defaultval) const
-        {
-            return this->get<float> (thing, defaultval);
-        }
-        double getDouble (const std::string& thing, double defaultval) const
-        {
-            return this->get<double> (thing, defaultval);
-        }
-        std::string getString (const std::string& thing, const std::string& defaultval) const
-        {
-            return this->get<std::string> (thing, defaultval);
-        }
-        // getArray is the same as get()
-        nlohmann::json getArray (const std::string& arrayname) const
+        // get_array is the same as get()
+        nlohmann::json get_array (const std::string& arrayname) const
         {
             nlohmann::json rtn;
             if (this->root.contains(arrayname)) {
@@ -242,9 +219,10 @@ export namespace sm
             }
             return rtn;
         }
+
         // Get an array of numbers as a sm::vvec.
         template <typename T>
-        sm::vvec<T> getvvec (const std::string& arrayname) const
+        sm::vvec<T> get_vvec (const std::string& arrayname) const
         {
             if (this->config_overrides.count (arrayname) > 0) {
                 // Interpret string as csv, ignoring brackets
@@ -269,7 +247,7 @@ export namespace sm
 
         // Get an array of numbers as a sm::vec.
         template <typename T, std::size_t N>
-        sm::vec<T, N> getvec (const std::string& arrayname) const
+        sm::vec<T, N> get_vec (const std::string& arrayname) const
         {
             sm::vec<T, N> rtn = {T{0}};
             if (this->config_overrides.count (arrayname) > 0) {
@@ -297,7 +275,7 @@ export namespace sm
         template <typename T>
         void set (const std::string& thing, T value) { this->root[thing] = value; }
         template <typename T>
-        void setArray (const std::string& thing, const std::vector<T>& values) { this->root[thing] = values; }
+        void set_array (const std::string& thing, const std::vector<T>& values) { this->root[thing] = values; }
 
         //! Set true when json has been initialised (i.e. thefile has been read)
         bool ready = false;

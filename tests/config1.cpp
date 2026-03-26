@@ -27,11 +27,11 @@ int main()
     {
         sm::config config(jsonfile);
         if (config.ready) {
-            const bool testbool = config.getBool ("testbool", false);
+            const bool testbool = config.get<bool> ("testbool", false);
             std::cout << "testbool from JSON: " << (testbool ? "true" : "false") << " (expect: true)\n";
-            const int testint = config.getInt ("testint", 3);
+            const int testint = config.get<std::int32_t> ("testint", 3);
             std::cout << "testint from JSON: " << testint << " (expect: 27)\n";
-            const float testfloat = config.getFloat ("testfloat", 9.8f);
+            const float testfloat = config.get<float> ("testfloat", 9.8f);
             std::cout << "testfloat from JSON: " << testfloat << " (expect: 7.63)\n";
 
             if (testbool == true && testint == 27 && testfloat == 7.63f) {
@@ -59,12 +59,12 @@ int main()
         if (str != "The default") { --rtn; }
 
         // Get a vvec and it should be empty
-        sm::vvec<float> vv = config.getvvec<float> ("a_name");
+        sm::vvec<float> vv = config.get_vvec<float> ("a_name");
         std::cout << "We get a vvec from an empty config: " << vv << std::endl;
         if (!vv.empty()) { --rtn; }
 
         // Get a vec and it should be all zeros
-        sm::vec<int32_t, 2> v = config.getvec<int32_t, 2> ("a_name");
+        sm::vec<int32_t, 2> v = config.get_vec<std::int32_t, 2> ("a_name");
         std::cout << "We get a vec from an empty config: " << v << std::endl;
         if (v[0] != 0 || v[1] != 0) { --rtn; }
     }
