@@ -1,8 +1,11 @@
 # Seb's maths library
 
-![cmake ubuntu 24 gcc 14 build test](https://github.com/sebsjames/maths/actions/workflows/cmake-ubu24-gcc14.yml/badge.svg)
-![cmake ubuntu 24 clang 18 build test](https://github.com/sebsjames/maths/actions/workflows/cmake-ubu24-clang16.yml/badge.svg)
-![cmake windows 22 build test](https://github.com/sebsjames/maths/actions/workflows/cmake-windows-2022.yml/badge.svg)
+![gcc 14 build test](https://github.com/sebsjames/maths/actions/workflows/ubuntu-modules-gcc14.yml/badge.svg)
+![gcc 15 build test](https://github.com/sebsjames/maths/actions/workflows/ubuntu-modules-gcc15.yml/badge.svg)
+![clang 18 build test](https://github.com/sebsjames/maths/actions/workflows/ubuntu-modules-clang18.yml/badge.svg)
+![clang 20 build test](https://github.com/sebsjames/maths/actions/workflows/ubuntu-modules-clang20.yml/badge.svg)
+![clang 22 build test](https://github.com/sebsjames/maths/actions/workflows/ubuntu-modules-clang22.yml/badge.svg)
+![windows 22 build test](https://github.com/sebsjames/maths/actions/workflows/cmake-windows-2022.yml/badge.svg)
 
 ## A modules-native mathematics library for modern C++
 
@@ -64,26 +67,37 @@ int main()
 }
 ```
 
+## Can I use the code header-only?
+
+I decided to go fully modules-native with this code. However, there is a `header-only` branch that contains the code in its last header-only form.
+
 ## Build requirements
 
-Minimum compilers: g++-14*, clang++-18, Visual Studio is currently untested.
+Minimum compilers: g++-14*, clang++-18, Visual Studio 2022.
 You will need cmake version 3.28.5 as a minimum.
-Ninja is required as a partner for cmake, as make does not yet support C++-20 modules.
+Ninja is required as a partner for cmake because GNU make does not yet support C++-20 modules.
 
-Installing clang on Ubuntu:
+*gcc 14 can only compile a subset of the test programs. gcc 15 compiles all the tests. gcc 16 may be required to compile the modules version of [mathplot](https://github.com/sebsjames/mathplot).*
+
+### Installing Clang on Ubuntu 24
+
+Clang-18, Clang-19 and Clang-20 are available in the default repositories:
+
 ```bash
 sudo apt install clang-18 clang-tools-18 # need both.
 ```
 
-*gcc 14 can only compile a subset of the test programs. gcc 15 compiles all the tests. gcc 16 may be required to compile the modules version of mathplot.*
+### Installing GCC on Ubuntu 24
+
+gcc 14 is available in the default repositories, but to install the recommended gcc 15, you can add an extra repository:
 
 ```bash
-mkdir build
-cd build
-# A cmake call something like (if you want to use gcc and your default c++ runtime library
-CC=gcc-15 CXX=g++-15 cmake .. -GNinja
-ninja
+sudo add-apt-repository ppa:ubuntu-toolchain-r/test # provides gcc-15
+sudo apt install gcc-15 g++-15
 ```
+
+### Building with Clang
+
 ```bash
 mkdir build
 cd build
@@ -91,5 +105,15 @@ cd build
 CC=clang-20 CXX=clang++-20 cmake .. -GNinja
 # Optionally add -DCMAKE_CXX_FLAGS="-stdlib=libc++" to compile with libc++ if it not your default
 # possibly also -DCMAKE_EXE_LINKER_FLAGS="-stdlib=libc++ -lc++abi"
+ninja
+```
+
+### Building with GCC
+
+```bash
+mkdir build
+cd build
+# A cmake call something like (if you want to use gcc and your default c++ runtime library
+CC=gcc-15 CXX=g++-15 cmake .. -GNinja
 ninja
 ```
