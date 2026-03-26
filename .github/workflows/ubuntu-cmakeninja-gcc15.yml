@@ -1,4 +1,4 @@
-name: Ubuntu gcc15 modules
+name: Ubuntu gcc15 cmake + ninja
 on:
   push:
     branches: [ "main" ]
@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   call-workflow-passing-data:
-    uses: sebsjames/maths/.github/workflows/ubuntu-modules-template.yml@main
+    uses: sebsjames/maths/.github/workflows/ubuntu-cmakeninja-template.yml@main
     with:
       RUNNER_IMAGE: ubuntu-24.04
       BUILD_TYPE: Release
