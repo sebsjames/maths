@@ -42,7 +42,7 @@ std::cout << vv << std::endl;
 A complete, short program example is:
 ```c++
 #include <iostream>
-#include <sm/vvec>
+import sm.vvec;
 int main()
 {
     sm::vvec<int> vv = { 1, -4, 6, 8 };
@@ -52,6 +52,7 @@ int main()
 ```
 When you compile and run, you should see this:
 ```
+# Fixme: Need the modules-happy compiler commands here for the vvec module!
 ~/codeproject$ g++ -I. -o vvec vvec.cpp && ./vvec
 (1,-4,6,8)
 ~/codeproject$
