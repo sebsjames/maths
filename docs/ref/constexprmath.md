@@ -11,10 +11,10 @@ permalink: /ref/constexprmath/
 {: .no_toc}
 
 ```c++
-#include <sm/constexpr_math>
+import sm.constexpr_math;
 ```
 
-Header file: [<sm/constexpr_math>](https://github.com/sebsjames/maths/blob/main/sm/constexpr_math).
+Module file: [sm/constexpr_math.cppm](https://github.com/sebsjames/maths/blob/main/sm/constexpr_math.cppm).
 
 **Table of Contents**
 

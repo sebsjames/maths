@@ -11,9 +11,9 @@ nav_order: 9
 {: .no_toc}
 
 ```c++
-#include <sm/histo>
+import sm.histo;
 ```
-Header file: [<sm/histo>](https://github.com/sebsjames/maths/blob/main/morph/histo.h).
+Module file: [sm/histo.cppm](https://github.com/sebsjames/maths/blob/main/sm/histo.cppm).
 
 **Table of Contents**
 
@@ -28,7 +28,7 @@ data values and the number of bins you want to sort it into.
 `sm::histo` takes two template arguments:
 
 ```c++
-namespace sm {
+export namespace sm {
     template <typename H=float, typename T=float>
     struct histo
 ```
@@ -44,7 +44,10 @@ into. Once constructed, you access histo member attributes for the
 results. Here's an example:
 
 ```c++
-#include <sm/histo>
+#include <iostream>
+import sm.histo;
+import sm.vvec;
+import sm.range;
 int main()
 {
     sm::vvec<int> numbers = { 1, 1, 2, 3, 4, 4, 4 };
@@ -96,7 +99,9 @@ The histogram statistics are available as:
 You can also obtain the proportion of counts above or below a position `x` on the bin axis using `histo::proportion_below(const T& x)`. Using the same example numbers:
 
 ```c++
-#include <sm/histo>
+#include <iostream>
+import sm.histo;
+import sm.vvec;
 int main()
 {
     sm::vvec<int> numbers = { 1, 1, 2, 3, 4, 4, 4 };
@@ -114,12 +119,12 @@ The function `histo::proportion_above(const T& x)` returns the proportion above 
 
 ## Histogram graphs
 
-You can graph your histograms with [`mathplot::GraphVisual`](https://sebsjames.github.io/mathplot/ref/visualmodels/graphvisual). See any of these mathplot examples [graph_histo.cpp](https://github.com/sebsjames/mathplot/blob/main/examples/graph_histo.cpp), [randvec.cpp](https://github.com/sebsjames/mathplot/blob/main/examples/randvec.cpp) or [bootstrap.cpp](https://github.com/sebsjames/mathplot/blob/main/examples/bootstrap.cpp).
+You can graph your histograms with [`mplot::GraphVisual`](https://sebsjames.github.io/mathplot/ref/visualmodels/graphvisual). See any of these mathplot examples [graph_histo.cpp](https://github.com/sebsjames/mathplot/blob/main/examples/graph_histo.cpp), [randvec.cpp](https://github.com/sebsjames/mathplot/blob/main/examples/randvec.cpp) or [bootstrap.cpp](https://github.com/sebsjames/mathplot/blob/main/examples/bootstrap.cpp).
 
 Very briefly:
 
 ```c++
-// includes: sm/vvec, sm/histo, mplot/Visual.h, mplot/GraphVisual.h
+// imports: sm.vec, sm.vvec, sm.histo, mplot.visual, mplot.graphvisual
 int main()
 {
     sm::vvec<int> numbers = { 1, 1, 2, 3, 4, 4, 4 };
@@ -130,7 +135,7 @@ int main()
     // Create a new GraphVisual with offset within the scene of 0,0,0. Note the type for
     // the GraphVisual has to match the *second* template type for the histo.
     auto gv = std::make_unique<mplot::GraphVisual<float>> (sm::vec<float>{0,0,0});
-    v.bindmodel (gv);
+    gv->set_parent (v.get_id());
 
     // Here we simply pass in our sm::histo object, h, as the data to graph
     gv->setdata (h);

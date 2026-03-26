@@ -11,9 +11,9 @@ nav_order: 6
 {: .no_toc}
 
 ```c++
-#include <sm/scale>
+import sm.scale;
 ```
-Header file: [<sm/scale>](https://github.com/sebsjames/maths/blob/main/sm/scale). Test code:  [tests/testScale](https://github.com/sebsjames/maths/blob/main/tests/testScale.cpp)  [tests/testScaleVector](https://github.com/sebsjames/maths/blob/main/tests/testScaleVector.cpp)
+Module file: [sm/scale.cppm](https://github.com/sebsjames/maths/blob/main/sm/scale.cppm). Test code:  [tests/scale1](https://github.com/sebsjames/maths/blob/main/tests/scale1.cpp)  [tests/scale_vector1](https://github.com/sebsjames/maths/blob/main/tests/scale_vector1.cpp)
 
 **Table of Contents**
 
@@ -30,7 +30,7 @@ Scaling values is not inherently complex, but to create a class which can linear
 
 The templated class `sm::scale` derives from `sm::scale_impl`:
 ```c++
-namespace sm {
+export namespace sm {
     template <typename T, typename S=T>
     struct scale : public scale_impl<number_type<T>::value, T, S> {};
 ```

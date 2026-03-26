@@ -11,9 +11,9 @@ permalink: /ref/flags
 {: .no_toc}
 
 ```c++
-#include <sm/flags>
+import sm.flags;
 ```
-Header file: [<sm/flags>](https://github.com/sebsjames/maths/blob/main/sm/flags).
+Module file: [sm/flags.cppm](https://github.com/sebsjames/maths/blob/main/sm/flags.cppm).
 
 **Table of Contents**
 

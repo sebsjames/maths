@@ -10,9 +10,9 @@ nav_order: 13
 {: .no_toc}
 
 ```c++
-#include <sm/hdfdata>
+import sm.hdfdata;
 ```
-Header file: [<sm/hdfdata>](https://github.com/sebsjames/maths/blob/main/sm/hdfdata).
+Module file: [sm/hdfdata.cppm](https://github.com/sebsjames/maths/blob/main/sm/hdfdata.cppm).
 
 **Table of Contents**
 

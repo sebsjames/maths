@@ -11,9 +11,9 @@ nav_order: 7
 {: .no_toc}
 
 ```c++
-#include <sm/random>
+import sm.random;
 ```
-Header file: [<sm/random>](https://github.com/sebsjames/maths/blob/main/sm/random). Test and example code:  [tests/testRandom](https://github.com/sebsjames/maths/blob/main/tests/testRandom.cpp) [tests/testRandString](https://github.com/sebsjames/maths/blob/main/tests/testRandString.cpp)
+Module file: [sm/random.cppm](https://github.com/sebsjames/maths/blob/main/sm/random.cppm). Test and example code:  [tests/random1](https://github.com/sebsjames/maths/blob/main/tests/random1.cpp) [tests/randstring1](https://github.com/sebsjames/maths/blob/main/tests/randstring1.cpp)
 
 **Table of Contents**
 
@@ -22,7 +22,10 @@ Header file: [<sm/random>](https://github.com/sebsjames/maths/blob/main/sm/rando
 
 ## Summary
 
-High quality random number generation (RNG) is important in many scientific simulation projects. `<sm/random>` provides a set of random number generation classes. These classes wrap the standard random number generation in the C++ `<random>` header to give a convenient interface for the programmer. While it is possible to select different pseudo random number generators, the classes all default to the very acceptable mt19937 [Mersenne Twister algorithm](https://en.wikipedia.org/wiki/Mersenne_Twister) (using the 32 bit version for `rand_uniform`/`rand_poisson` and the 64 bit version for `rand_normal` and `rand_lognormal`).
+High quality random number generation (RNG) is important in many scientific simulation projects.
+`sm.random` provides a set of random number generation classes.
+These classes wrap the standard random number generation in the C++ standard library `<random>` header to give a convenient interface for the programmer.
+While it is possible to select different pseudo random number generators, the classes all default to the very acceptable mt19937 [Mersenne Twister algorithm](https://en.wikipedia.org/wiki/Mersenne_Twister) (using the 32 bit version for `rand_uniform`/`rand_poisson` and the 64 bit version for `rand_normal` and `rand_lognormal`).
 
 ## Intervals
 
@@ -36,7 +39,7 @@ This page uses the common mathematical notation for intervals:
 Random number generation from a uniform distribution. Any possible value in the interval is equally likely to be returned. The `rand_uniform` class is templated and has integer and floating point specializations:
 
 ```c++
-namespace sm {
+export namespace sm {
     template <typename T = float, typename E = std::mt19937, bool = std::is_integral<std::decay_t<T>>::value>
     class rand_uniform {};
     // Both integer and floating point specializations are implemented
