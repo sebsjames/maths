@@ -137,35 +137,49 @@ macro(setup_module_variables_for_maths base_directory)
   )
 
   set(SM_ALL_MODULES
-    ${base_directory}/sm/mathconst.cppm
-    ${base_directory}/sm/trait_tests.cppm
-    ${base_directory}/sm/constexpr_math.cppm
-    ${base_directory}/sm/range.cppm
-    ${base_directory}/sm/polysolve.cppm
+    ${base_directory}/sm/algo.cppm
+    ${base_directory}/sm/anneal.cppm
+    ${base_directory}/sm/base64.cppm
     ${base_directory}/sm/bessel_i0.cppm
-    ${base_directory}/sm/random.cppm
-    ${base_directory}/sm/vec.cppm
-    ${base_directory}/sm/vvec.cppm
-    ${base_directory}/sm/scale.cppm
-    ${base_directory}/sm/hdfdata.cppm
-    ${base_directory}/sm/quaternion.cppm
-    ${base_directory}/sm/mat.cppm
-    ${base_directory}/sm/hex.cppm
-    ${base_directory}/sm/hexgrid.cppm
     ${base_directory}/sm/bezcoord.cppm
-    ${base_directory}/sm/binomial.cppm
     ${base_directory}/sm/bezcurve.cppm
     ${base_directory}/sm/bezcurvepath.cppm
-    ${base_directory}/sm/winder.cppm
+    ${base_directory}/sm/binomial.cppm
     ${base_directory}/sm/bootstrap.cppm
-    ${base_directory}/sm/grid.cppm
-    ${base_directory}/sm/algo.cppm
-    ${base_directory}/sm/nm_simplex.cppm
-    ${base_directory}/sm/histo.cppm
     ${base_directory}/sm/boxfilter.cppm
-    ${base_directory}/sm/config
-    ${base_directory}/sm/geometry.cppm
+    ${base_directory}/sm/cartgrid.cppm
+    ${base_directory}/sm/centroid.cppm
+    ${base_directory}/sm/CMakeLists.txt
+    ${base_directory}/sm/config.cppm
+    ${base_directory}/sm/constexpr_math.cppm
+    ${base_directory}/sm/crc32.cppm
+    ${base_directory}/sm/edgeconv.cppm
     ${base_directory}/sm/flags.cppm
+    ${base_directory}/sm/geometry.cppm
+    ${base_directory}/sm/geometry_polyhedra.cppm
+    ${base_directory}/sm/grid.cppm
+    ${base_directory}/sm/hdfdata.cppm
+    ${base_directory}/sm/hex.cppm
+    ${base_directory}/sm/hexgrid.cppm
+    ${base_directory}/sm/hexgrid_hdf.cppm
+    ${base_directory}/sm/hexyhisto.cppm
+    ${base_directory}/sm/histo.cppm
+    ${base_directory}/sm/mat.cppm
+    ${base_directory}/sm/mathconst.cppm
+    ${base_directory}/sm/maths-config.cmake
+    ${base_directory}/sm/nm_simplex.cppm
+    ${base_directory}/sm/onoff.cppm
+    ${base_directory}/sm/polysolve.cppm
+    ${base_directory}/sm/quaternion.cppm
+    ${base_directory}/sm/random.cppm
+    ${base_directory}/sm/range.cppm
+    ${base_directory}/sm/rect.cppm
+    ${base_directory}/sm/scale.cppm
+    ${base_directory}/sm/trait_tests.cppm
+    ${base_directory}/sm/util.cppm
+    ${base_directory}/sm/vec.cppm
+    ${base_directory}/sm/vvec.cppm
+    ${base_directory}/sm/winder.cppm
   )
 
 endmacro()
