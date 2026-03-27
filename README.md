@@ -71,6 +71,15 @@ int main()
 
 I decided to go fully modules-native with this code. However, there is a `header-only` branch that contains the code in its last header-only form.
 
+## Dependencies
+
+The majority of the code depends only on the standard library. There are two exceptions:
+
+* `sm::hdfdata` is a wrapper around the HDF5 API and to use it you need the HDF5 libraries (headers at compile time and a link to the shared object files at runtime)
+* `sm::config` uses `nlohmann::json` to read/write JSON so this requires the `nlohmann::json` headers to be available at compile time.
+
+There is also one test program (mat_4x4_vseigen.cpp) that will use the Eigen matrix headers if they are available. If Eigen is not available this test will be omitted.
+
 ## Build requirements
 
 Minimum compilers: g++-14*, clang++-18, Visual Studio 2022.

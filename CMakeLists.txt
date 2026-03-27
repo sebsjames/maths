@@ -86,23 +86,20 @@ endif(WIN32)
 
 # Lib finding
 
-# Find the HDF5 library. To prefer the use of static linking of HDF5, set HDF5_USE_STATIC_LIBRARIES first
-#set(HDF5_USE_STATIC_LIBRARIES ON)
+# The HDF5 library is required only to use sm.hdfdata. To prefer the use of static linking
+# of HDF5, call set(HDF5_USE_STATIC_LIBRARIES ON)
 find_package(HDF5)
 if(HDF5_FOUND)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${HDF5_DEFINITIONS}")
-endif()
-
-if(HDF5_FOUND)
   include_directories(${HDF5_INCLUDE_DIR})
 endif()
 
-# Use packaged nlohmann json. Required only for config1 test and use
-# of sm::config. It *does* have to be a version of nlohmann::json that
-# is happy to be incorporated into a module.
+# nlohmann json is required only to use sm.config (the config1 test)
+# It *does* have to be a version of nlohmann::json that is happy to be
+# incorporated into a module.
 find_package(nlohmann_json)
 
-# For a test program
+# Eigen is only used for a test/comparison program
 find_package(Eigen3 NO_MODULE)
 
 # A macro to make a list of modules into a unique list then add then to target_name
@@ -120,7 +117,7 @@ endfunction()
 #
 setup_module_variables_for_maths (${PROJECT_SOURCE_DIR})
 
-# All the headers are here
+# All the modules are here
 add_subdirectory(sm)
 
 # Unit testing using the ctest framework
