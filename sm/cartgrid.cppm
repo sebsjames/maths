@@ -860,7 +860,7 @@ export namespace sm
         // of view_angle.
         void resample_to_polar (const sm::vvec<float>& image_data,
                                 sm::cartgrid& cg_polar, sm::vvec<float>& polar_data,
-                                sm::vec<float, 2> view_pos, float view_angle, sm::scaling_function radscale = sm::scaling_function::Linear)
+                                sm::vec<float, 2> view_pos, float view_angle, sm::scaling_function radscale = sm::scaling_function::linear)
         {
             polar_data.zero();
 
@@ -883,7 +883,7 @@ export namespace sm
             for (std::uint32_t xi = 0; xi < cg_polar.num(); ++xi) { // for each output pixel which is an r/phi pair
 
                 float r = cg_polar.d_y[xi]; // Linear
-                if (radscale == sm::scaling_function::Logarithmic) {
+                if (radscale == sm::scaling_function::logarithmic) {
                     r = std::log (this->v+cg_polar.d_y[xi]) - std::log(this->v);
                     r *= 0.4f; // You can play with this factor
                     //std::cout << "For r linear = " << cg_polar.d_y[xi] << ", log transform is " << r << std::endl;

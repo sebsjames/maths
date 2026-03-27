@@ -62,8 +62,8 @@ export namespace sm
     //! \brief A label for what kind of scaling transformation to make
     enum class scaling_function
     {
-        Linear,
-        Logarithmic
+        linear,
+        logarithmic
     };
 
     // For stream operator
@@ -117,7 +117,7 @@ export namespace sm
          */
         std::string str() const
         {
-            std::string _type = this->type == scaling_function::Linear ? "Linear" : "Logarithmic";
+            std::string _type = this->type == scaling_function::linear ? "linear" : "logarithmic";
             std::stringstream ss;
             ss << _type << " scaling " << typeid(T).name() << " to " << typeid(S).name()
                << " as: " << this->transform_str()
@@ -348,13 +348,13 @@ export namespace sm
         void setlog()
         {
             this->reset();
-            this->type = scaling_function::Logarithmic;
+            this->type = scaling_function::logarithmic;
         }
 
         void setlinear()
         {
             this->reset();
-            this->type = scaling_function::Linear;
+            this->type = scaling_function::linear;
         }
 
         virtual bool ready() const = 0;
@@ -366,7 +366,7 @@ export namespace sm
          * What type of scaling function is in use? Intended for future implementations when scale
          * could carry out logarithmic (or other) scalings, in addition to linear transforms.
          */
-        scaling_function type = scaling_function::Linear;
+        scaling_function type = scaling_function::linear;
 
     public:
         //! Overload the stream output operator
@@ -419,8 +419,8 @@ export namespace sm
         //! Transform a single (math) vector T into a (math) vector S
         S transform_one (const T& datum) const
         {
-            if (this->type != scaling_function::Linear) {
-                throw std::runtime_error ("scale_impl<0=vector>::transform_one(): This transform function is for Linear scaling only");
+            if (this->type != scaling_function::linear) {
+                throw std::runtime_error ("scale_impl<0=vector>::transform_one(): This transform function is for linear scaling only");
             }
             if (params.size() != 2) {
                 throw std::runtime_error ("scale_impl<0=vector>::transform_one(): For linear scaling of ND vector lengths, need 2 params (set do_autoscale or call set_params())");
@@ -439,9 +439,9 @@ export namespace sm
         std::string transform_str() const
         {
             std::stringstream ss;
-            if (this->type == scaling_function::Logarithmic) {
+            if (this->type == scaling_function::logarithmic) {
                 ss << "log scaling of vectors is unimplemented";
-            } else if (this->type == scaling_function::Linear && this->params.size() > 1) {
+            } else if (this->type == scaling_function::linear && this->params.size() > 1) {
                 ss << "(elementwise) y[i] = (x[i] - (x[i]/|x|) * " << this->params[1] << ") * " << this->params[0];
             } else {
                 ss << "unknown scaling type";
@@ -459,9 +459,9 @@ export namespace sm
         T inverse_one (const S& datum) const
         {
             T rtn = T{};
-            if (this->type == scaling_function::Logarithmic) {
+            if (this->type == scaling_function::logarithmic) {
                 rtn = this->inverse_one_log (datum);
-            } else if (this->type == scaling_function::Linear) {
+            } else if (this->type == scaling_function::linear) {
                 rtn = this->inverse_one_linear (datum);
             } else {
                 throw std::runtime_error ("scale_impl<0=vector>::inverse_one(): Unknown scaling");
@@ -472,8 +472,8 @@ export namespace sm
         void compute_scaling (const sm::range<T>& input_range) { this->compute_scaling (input_range.min, input_range.max); }
         void compute_scaling (const T input_min, const T input_max)
         {
-            if (this->type != scaling_function::Linear) {
-                throw std::runtime_error ("scale_impl<0=vector>::compute_scaling)(): This scaling function is for Linear scaling only");
+            if (this->type != scaling_function::linear) {
+                throw std::runtime_error ("scale_impl<0=vector>::compute_scaling)(): This scaling function is for linear scaling only");
             }
             this->params.resize (2, T_el{0});
             // Vector version: get lengths of input_min/max
@@ -602,9 +602,9 @@ export namespace sm
         S transform_one (const T& datum) const
         {
             S rtn = S{0};
-            if (this->type == scaling_function::Logarithmic) {
+            if (this->type == scaling_function::logarithmic) {
                 rtn = this->transform_one_log (datum);
-            } else if (this->type == scaling_function::Linear) {
+            } else if (this->type == scaling_function::linear) {
                 rtn = this->transform_one_linear (datum);
             } else {
                 throw std::runtime_error ("scale_impl<1=scalar>::transform_one(): Unknown scaling");
@@ -616,9 +616,9 @@ export namespace sm
         std::string transform_str() const
         {
             std::stringstream ss;
-            if (this->type == scaling_function::Logarithmic && this->params.size() > 1) {
+            if (this->type == scaling_function::logarithmic && this->params.size() > 1) {
                 ss << "y = " << this->params[0] << " * log(x) + " << this->params[1];
-            } else if (this->type == scaling_function::Linear && this->params.size() > 1) {
+            } else if (this->type == scaling_function::linear && this->params.size() > 1) {
                 ss << "y = " << this->params[0] << " * x + " << this->params[1];
             } else {
                 ss << "unknown scaling type";
@@ -636,9 +636,9 @@ export namespace sm
         T inverse_one (const S& datum) const
         {
             T rtn = T{0};
-            if (this->type == scaling_function::Logarithmic) {
+            if (this->type == scaling_function::logarithmic) {
                 rtn = this->inverse_one_log (datum);
-            } else if (this->type == scaling_function::Linear) {
+            } else if (this->type == scaling_function::linear) {
                 rtn = this->inverse_one_linear (datum);
             } else {
                 throw std::runtime_error ("scale_impl<1=scalar>::inverse_one(): Unknown scaling");
@@ -649,9 +649,9 @@ export namespace sm
         void compute_scaling (const sm::range<T>& input_range) { this->compute_scaling (input_range.min, input_range.max); }
         void compute_scaling (const T input_min, const T input_max)
         {
-            if (this->type == scaling_function::Logarithmic) {
+            if (this->type == scaling_function::logarithmic) {
                 this->compute_scaling_log (input_min, input_max);
-            } else if (this->type == scaling_function::Linear) {
+            } else if (this->type == scaling_function::linear) {
                 this->compute_scaling_linear (input_min, input_max);
             } else {
                 throw std::runtime_error ("scale_impl<1=scalar>::compute_scaling(): Unknown scaling");
