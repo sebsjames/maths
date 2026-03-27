@@ -32,7 +32,7 @@ int main()
 
     auto hgrid = std::make_unique<sm::hexgrid>(0.02f, 4.0f, 0.0f);
     std::cout << "setBoundary..." << std::endl;
-    hgrid->setBoundary (bound);
+    hgrid->set_boundary (bound);
     std::cout << "Number of hexes is: " << hgrid->num() << std::endl;
 
     if (hgrid->num() == 782) {

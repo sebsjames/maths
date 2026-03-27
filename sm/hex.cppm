@@ -149,7 +149,7 @@ export namespace sm
             this->d = d_;
             this->ri = r_;
             this->gi = g_;
-            this->computeLocation();
+            this->compute_location();
         }
 
         //! Comparison operation to enable use of set<hex>
@@ -177,24 +177,24 @@ export namespace sm
             s += std::to_string(this->gi).substr(0,4) + "). ";
 
             if (this->has_ne()) {
-                s += "E: (" + std::to_string(this->ne->ri).substr(0,4) + "," + std::to_string(this->ne->gi).substr(0,4) + ") " + (this->ne->boundaryHex() == true ? "OB":"") + " ";
+                s += "E: (" + std::to_string(this->ne->ri).substr(0,4) + "," + std::to_string(this->ne->gi).substr(0,4) + ") " + (this->ne->boundary_hex() == true ? "OB":"") + " ";
             }
             if (this->has_nse()) {
-                s += "SE: (" + std::to_string(this->nse->ri).substr(0,4) + "," + std::to_string(this->nse->gi).substr(0,4) + ") " + (this->nse->boundaryHex() == true ? "OB":"") + " ";
+                s += "SE: (" + std::to_string(this->nse->ri).substr(0,4) + "," + std::to_string(this->nse->gi).substr(0,4) + ") " + (this->nse->boundary_hex() == true ? "OB":"") + " ";
             }
             if (this->has_nsw()) {
-                s += "SW: (" + std::to_string(this->nsw->ri).substr(0,4) + "," + std::to_string(this->nsw->gi).substr(0,4) + ") " + (this->nsw->boundaryHex() == true ? "OB":"") + " ";
+                s += "SW: (" + std::to_string(this->nsw->ri).substr(0,4) + "," + std::to_string(this->nsw->gi).substr(0,4) + ") " + (this->nsw->boundary_hex() == true ? "OB":"") + " ";
             }
             if (this->has_nw()) {
-                s += "W: (" + std::to_string(this->nw->ri).substr(0,4) + "," + std::to_string(this->nw->gi).substr(0,4) + ") " + (this->nw->boundaryHex() == true ? "OB":"") + " ";
+                s += "W: (" + std::to_string(this->nw->ri).substr(0,4) + "," + std::to_string(this->nw->gi).substr(0,4) + ") " + (this->nw->boundary_hex() == true ? "OB":"") + " ";
             }
             if (this->has_nnw()) {
-                s += "NW: (" + std::to_string(this->nnw->ri).substr(0,4) + "," + std::to_string(this->nnw->gi).substr(0,4) + ") " + (this->nnw->boundaryHex() == true ? "OB":"") + " ";
+                s += "NW: (" + std::to_string(this->nnw->ri).substr(0,4) + "," + std::to_string(this->nnw->gi).substr(0,4) + ") " + (this->nnw->boundary_hex() == true ? "OB":"") + " ";
             }
             if (this->has_nne()) {
-                s += "NE: (" + std::to_string(this->nne->ri).substr(0,4) + "," + std::to_string(this->nne->gi).substr(0,4) + ") " + (this->nne->boundaryHex() == true ? "OB":"") + " ";
+                s += "NE: (" + std::to_string(this->nne->ri).substr(0,4) + "," + std::to_string(this->nne->gi).substr(0,4) + ") " + (this->nne->boundary_hex() == true ? "OB":"") + " ";
             }
-            if (this->boundaryHex()) {
+            if (this->boundary_hex()) {
                 s += "(ON boundary)";
             } else  {
                 s += "(not boundary)";
@@ -206,7 +206,7 @@ export namespace sm
          * Produce a string containing information about this hex, focussing on Cartesian position
          * information.
          */
-        std::string outputCart() const
+        std::string output_cart() const
         {
             std::string s("hex ");
             s += std::to_string(this->vi).substr(0,2) + " (";
@@ -217,7 +217,7 @@ export namespace sm
         }
 
         //! Output "(x,y)" coordinate string
-        std::string outputXY() const
+        std::string output_xy() const
         {
             std::string s("(");
             s += std::to_string(this->x).substr(0,4) + "," + std::to_string(this->y).substr(0,4) + ")";
@@ -225,7 +225,7 @@ export namespace sm
         }
 
         //! Output a string containing just "RG(ri, gi)"
-        std::string outputRG() const
+        std::string output_rg() const
         {
             std::string s("RG(");
             s += std::to_string(this->ri).substr(0,4) + ",";
@@ -279,14 +279,14 @@ export namespace sm
          * Convert ri, gi and bi indices into x and y coordinates and also r and phi coordinates,
          * based on the hex-to-hex distance d.
          */
-        void computeLocation()
+        void compute_location()
         {
             // Compute Cartesian location
-            this->x = this->d*this->ri + (d/2.0f)*this->gi - (d/2.0f)*this->bi;
-            float v = this->getV();
-            this->y = v*this->gi + v*this->bi;
+            this->x = this->d * this->ri + (d / 2.0f) * this->gi - (d / 2.0f) * this->bi;
+            float v = this->get_v();
+            this->y = v * this->gi + v * this->bi;
             // And location in the Polar coordinate system
-            this->r = std::sqrt (x*x + y*y);
+            this->r = std::sqrt (x * x + y * y);
             this->phi = std::atan2 (y, x);
         }
 
@@ -368,31 +368,31 @@ export namespace sm
         float d = 1.0f;
 
         //! A getter for d, for completeness. d is the centre-to-centre distance between adjacent hexes.
-        float getD() const { return this->d; }
+        float get_d() const { return this->d; }
 
         //! Get the shortest distance from the centre to the perimeter. This is the "short radius".
-        float getSR() const { return this->d/2; }
+        float get_sr() const { return this->d/2; }
 
         //! The distance from the centre of the hex to any of the vertices. This is the "long radius".
         //! Also the side-length of an edge of the hex.
-        float getLR() const
+        float get_lr() const
         {
             float lr = this->d * sm::mathconst<float>::one_over_root_3;
             return lr;
         }
 
         //! Compute and return the area of the hex
-        float getArea() const { return (this->d * this->d * sm::mathconst<float>::root_3_over_2); }
+        float get_area() const { return (this->d * this->d * sm::mathconst<float>::root_3_over_2); }
 
         //! The vertical distance between hex centres on adjacent rows.
-        float getV() const
+        float get_v() const
         {
             float v = this->d * sm::mathconst<float>::root_3_over_2;
             return v;
         }
 
         //! The vertical distance from the centre of the hex to the "north east" vertex of the hex.
-        float getVtoNE() const
+        float get_v_to_ne() const
         {
             float v = this->d * sm::mathconst<float>::one_over_2_root_3;
             return v;
@@ -425,79 +425,79 @@ export namespace sm
         std::int32_t bi = 0;
 
         //! Getter for this->flags
-        std::uint32_t getFlags() const { return this->flags; }
+        std::uint32_t get_flags() const { return this->flags; }
 
         //! Set one or more flags, defined by flg, true
-        void setFlag (std::uint32_t flg) { this->flags |= flg; }
-        //! Alias for hex::setFlag
-        void setFlags (std::uint32_t flgs) { this->flags |= flgs; }
+        void set_flag (std::uint32_t flg) { this->flags |= flg; }
+        //! Alias for hex::set_flag
+        void set_flags (std::uint32_t flgs) { this->flags |= flgs; }
 
         //! Unset one or more flags, defined by flg, i.e. set false
-        void unsetFlag (std::uint32_t flg) { this->flags &= ~(flg); }
-        //! Alias for hex::unsetFlag
-        void unsetFlags (std::uint32_t flgs) { this->flags &= ~(flgs); }
+        void unset_flag (std::uint32_t flg) { this->flags &= ~(flg); }
+        //! Alias for hex::unset_flag
+        void unset_flags (std::uint32_t flgs) { this->flags &= ~(flgs); }
 
         //! If flags match flg, then return true
-        bool testFlag (std::uint32_t flg) const { return (this->flags & flg) == flg ? true : false; }
-        //! Alias for hex::testFlag
-        bool testFlags (std::uint32_t flgs) const { return (this->flags & flgs) == flgs ? true : false; }
+        bool test_flag (std::uint32_t flg) const { return (this->flags & flg) == flg ? true : false; }
+        //! Alias for hex::test_flag
+        bool test_flags (std::uint32_t flgs) const { return (this->flags & flgs) == flgs ? true : false; }
 
         /*!
          * Set to true if this hex has been marked as being on a boundary. It is expected that
-         * client code will then re-set the neighbour relations so that onBoundary() would return
+         * client code will then re-set the neighbour relations so that on_boundary() would return
          * true.
          */
-        bool boundaryHex() const { return this->flags & HEX_IS_BOUNDARY ? true : false; }
+        bool boundary_hex() const { return this->flags & HEX_IS_BOUNDARY ? true : false; }
         /*!
          * Mark the hex as a boundary hex. Boundary hexes are also, by definition, inside the
          * boundary.
          */
-        void setBoundaryHex() { this->flags |= (HEX_IS_BOUNDARY | HEX_INSIDE_BOUNDARY); }
-        void unsetBoundaryHex() { this->flags &= ~(HEX_IS_BOUNDARY | HEX_INSIDE_BOUNDARY); }
+        void set_boundary_hex() { this->flags |= (HEX_IS_BOUNDARY | HEX_INSIDE_BOUNDARY); }
+        void unset_boundary_hex() { this->flags &= ~(HEX_IS_BOUNDARY | HEX_INSIDE_BOUNDARY); }
 
         //! Returns true if this hex is known to be inside the boundary.
-        bool insideBoundary() const { return this->flags & HEX_INSIDE_BOUNDARY ? true : false; }
+        bool inside_boundary() const { return this->flags & HEX_INSIDE_BOUNDARY ? true : false; }
         //! Set the flag that says this hex is known to be inside the boundary.
-        void setInsideBoundary() { this->flags |= HEX_INSIDE_BOUNDARY; }
+        void set_inside_boundary() { this->flags |= HEX_INSIDE_BOUNDARY; }
         //! Unset the flag that says this hex is inside the boundary.
-        void unsetInsideBoundary() { this->flags &= ~HEX_INSIDE_BOUNDARY; }
+        void unset_inside_boundary() { this->flags &= ~HEX_INSIDE_BOUNDARY; }
 
         //! Returns true if this hex is known to be inside a rectangular, parallelogram or hexagonal 'domain'.
-        bool insideDomain() const { return this->flags & HEX_INSIDE_DOMAIN ? true : false; }
+        bool inside_domain() const { return this->flags & HEX_INSIDE_DOMAIN ? true : false; }
         //! Set flag that says this hex is known to be inside a rectangular, parallelogram or hexagonal 'domain'.
-        void setInsideDomain() { this->flags |= HEX_INSIDE_DOMAIN; }
+        void set_inside_domain() { this->flags |= HEX_INSIDE_DOMAIN; }
         //! Unset flag that says this hex is known to be inside domain.
-        void unsetInsideDomain() { this->flags &= ~HEX_INSIDE_DOMAIN; }
+        void unset_inside_domain() { this->flags &= ~HEX_INSIDE_DOMAIN; }
 
         /*!
          * Set the HEX_USER_FLAG_0/1/2/3 from the passed in std::uint32_t.
          *
-         * E.g. hex->setUserFlags (HEX_USER_FLAG_0 | HEX_USER_FLAG_1);
+         * E.g. hex->set_user_flags (HEX_USER_FLAG_0 | HEX_USER_FLAG_1);
          *
          * This will set HEX_USER_FLAG_0 and HEX_USER_FLAG_1 AND UNSET HEX_USER_FLAG_2 &
          * HEX_USER_FLAG_3.
          */
-        void setUserFlags (std::uint32_t uflgs) { this->flags |= (uflgs & HEX_ALL_USER); }
+        void set_user_flags (std::uint32_t uflgs) { this->flags |= (uflgs & HEX_ALL_USER); }
 
         //! Set the single user flag 0, 1 2 or 3 as given by the passed-in std::uint32_t uflg_num.
-        void setUserFlag (std::uint32_t uflg_num)
+        void set_user_flag (std::uint32_t uflg_num)
         {
             std::uint32_t flg = HEX_USER_FLAG_0 << uflg_num;
             this->flags |= flg;
         }
 
-        //! Un-setter corresponding to setUserFlag(std::uint32_t)
-        void unsetUserFlag (std::uint32_t uflg_num)
+        //! Un-setter corresponding to set_user_flag(std::uint32_t)
+        void unset_user_flag (std::uint32_t uflg_num)
         {
             std::uint32_t flg = HEX_USER_FLAG_0 << uflg_num;
             this->flags &= ~flg;
         }
 
         //! Set all user flags to the unset state
-        void resetUserFlags() { this->flags &= HEX_NON_USER; }
+        void reset_user_flags() { this->flags &= HEX_NON_USER; }
 
         //! Getter for each user flag
-        bool getUserFlag (std::uint32_t uflg_num) const
+        bool get_user_flag (std::uint32_t uflg_num) const
         {
             std::uint32_t flg = HEX_USER_FLAG_0 << uflg_num;
             return ((this->flags & flg) == flg);
@@ -507,14 +507,14 @@ export namespace sm
          * This can be populated with the distance to the nearest boundary hex, so that an algorithm
          * can set values in a hex based this metric.
          */
-        float distToBoundary = -1.0f;
+        float dist_to_boundary = -1.0f;
 
         /*!
          * Return true if this is a boundary hex - one on the outside edge of a hex grid. The result
          * is based on testing neihgbour relations, rather than examining the value of the
          * HEX_IS_BOUNDARY flag.
          */
-        bool onBoundary() const
+        bool on_boundary() const
         {
             return ((this->flags & HEX_HAS_NEIGHB_ALL) == HEX_HAS_NEIGHB_ALL) ? false : true;
         }
@@ -728,38 +728,38 @@ export namespace sm
             switch (ni) {
             case HEX_VERTEX_POS_NE:
             {
-                rtn[0] = this->x + this->getSR();
-                rtn[1] = this->y + this->getVtoNE();
+                rtn[0] = this->x + this->get_sr();
+                rtn[1] = this->y + this->get_v_to_ne();
                 break;
             }
             case HEX_VERTEX_POS_N:
             {
                 rtn[0] = this->x;
-                rtn[1] = this->y + this->getLR();
+                rtn[1] = this->y + this->get_lr();
                 break;
             }
             case HEX_VERTEX_POS_NW:
             {
-                rtn[0] = this->x - this->getSR();
-                rtn[1] = this->y + this->getVtoNE();
+                rtn[0] = this->x - this->get_sr();
+                rtn[1] = this->y + this->get_v_to_ne();
                 break;
             }
             case HEX_VERTEX_POS_SW:
             {
-                rtn[0] = this->x - this->getSR();
-                rtn[1] = this->y - this->getVtoNE();
+                rtn[0] = this->x - this->get_sr();
+                rtn[1] = this->y - this->get_v_to_ne();
                 break;
             }
             case HEX_VERTEX_POS_S:
             {
                 rtn[0] = this->x;
-                rtn[1] = this->y - this->getLR();
+                rtn[1] = this->y - this->get_lr();
                 break;
             }
             case HEX_VERTEX_POS_SE:
             {
-                rtn[0] = this->x + this->getSR();
-                rtn[1] = this->y - this->getVtoNE();
+                rtn[0] = this->x + this->get_sr();
+                rtn[1] = this->y - this->get_v_to_ne();
                 break;
             }
             default:
@@ -838,7 +838,7 @@ export namespace sm
         }
 
         //! Un-set the pointers on all my neighbours so that THEY no longer point to ME.
-        void disconnectNeighbours()
+        void disconnect_neighbours()
         {
             if (this->has_ne())  { if (this->ne->has_nw())   { this->ne->unset_nw(); } }
             if (this->has_nne()) { if (this->nne->has_nsw()) { this->nne->unset_nsw(); } }
