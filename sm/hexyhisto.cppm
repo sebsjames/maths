@@ -33,14 +33,14 @@ export namespace sm
             for (const sm::vec<T, 3>& datum : data) {
                 if (datum[2] < T{0}) { continue; }
                 // if datum is in a hex hi, then counts[hi->vg] += T{1};
-                auto hi = hg->findHexNearest (datum.less_one_dim());
+                auto hi = hg->find_hex_nearest (datum.less_one_dim());
 
                 // dist from hi to datum:
                 sm::vec<T> hipos = { hi->x, hi->y, T{0} };
                 T _d = (hipos - datum).length();
-                if (_d <= hg->getv()) {
+                if (_d <= hg->get_v()) {
                     counts[hi->vi] += T{1};
-                    //std::cout << "crossing at " << datum << " has nearest hex: " << hi->outputXY() << " for which count = " << counts[hi->vi] << std::endl;
+                    //std::cout << "crossing at " << datum << " has nearest hex: " << hi->output_xy() << " for which count = " << counts[hi->vi] << std::endl;
                     this->datacount++;
                 }
             }

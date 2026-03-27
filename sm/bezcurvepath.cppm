@@ -234,7 +234,7 @@ export namespace sm
         std::vector<bezcoord<F>> get_normals() const { return this->normals; }
 
         /*!
-         * Similar to the above, but ensure that there are @nPoints evenly spaced
+         * Similar to the above, but ensure that there are @n_points evenly spaced
          * points along the curve. @invert_y has the same meaning as in the other
          * overload of this function.
          */

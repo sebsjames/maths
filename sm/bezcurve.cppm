@@ -159,7 +159,7 @@ export namespace sm
             this->init();
         }
 
-        void updateControls (const sm::vvec<sm::vec<F, 2>>& cp)
+        void update_controls (const sm::vvec<sm::vec<F, 2>>& cp)
         {
             if (this->C.rows() != cp.size() || this->C.cols() != 2) {
                 throw std::runtime_error ("bezcurve: size of control points does not match order");
@@ -285,7 +285,7 @@ export namespace sm
 
             // Update the other curve's control points, also.
             prec_ctrl[len-2] = pm1_r_final;
-            preceding.updateControls (prec_ctrl);
+            preceding.update_controls (prec_ctrl);
 
             if constexpr (debug_bezcurve == true) {
                 std::cout << "Preceding controls: " << preceding.output_control();
@@ -414,7 +414,6 @@ export namespace sm
                 }
             }
             std::cout << "NM finished in " << simp.operation_count << " simplex change operations)" << std::endl;
-            sm::vvec<F> vP = simp.best_vertex();
             F min_sos = simp.best_value();
             std::cout << "Best value had objective = " << min_sos << std::endl;
             if (min_sos < startsos) {
@@ -608,7 +607,7 @@ export namespace sm
         /*!
          * Compute points on the curve which are distance l from each other in Cartesian
          * space. This will return 1 or more points in the vector. The last point in the
-         * vector will be a nullCoordinate bezcoord which will contain the Euclidean
+         * vector will be a null_coordinate bezcoord which will contain the Euclidean
          * distance to the end of the curve.
          *
          * If firstl is set and non-zero, then the first point will be a Cartesian
@@ -671,7 +670,7 @@ export namespace sm
             case 3:
                 return this->compute_point_cubic (t);
             default:
-                // Default to matrix, as this is faster than compute_pointGeneral
+                // Default to matrix, as this is faster than compute_point_general
                 return this->compute_point_matrix (t);
             }
         }
@@ -765,12 +764,12 @@ export namespace sm
 
         /*!
          * For debugging - output, as a string, the bezcoords of this curve, choosing
-         * numPoints points evenly spaced in the parameter space t=[0,1].
+         * num_points points evenly spaced in the parameter space t=[0,1].
          */
-        std::string output (std::uint32_t numPoints) const
+        std::string output (std::uint32_t num_points) const
         {
             std::stringstream ss;
-            std::vector<bezcoord<F>> points = this->compute_points (numPoints);
+            std::vector<bezcoord<F>> points = this->compute_points (num_points);
             typename std::vector<bezcoord<F>>::const_iterator i = points.begin();
             while (i != points.end()) {
                 if (!i->is_null()) {
@@ -1133,8 +1132,8 @@ export namespace sm
 
         /*!
          * How close we need to be to the target l for a given choice of dt. arb. units
-         * in position space (not parameter space).  This is used in computeBySearch and
-         * computeBySearchHorz.
+         * in position space (not parameter space).  This is used in compute_by_search and
+         * compute_by_search_horz.
          *
          * Should be set as an acceptable percentage error in the target l. So, 1.0
          * would mean that the threshold for finding a suitable dt to advance a distance

@@ -126,7 +126,7 @@ export namespace sm
          * e.g. some_program -co:varname=43 -co:"stringvar=something with spaces"
          *
          * Currently works for single parameter overrides (ones that you can read with
-         * config::getFloat() and similar) and ALSO for simple arrays. If you config override with a
+         * config::get<T>) and ALSO for simple arrays. If you config override with a
          * comma-separated list of values like this:
          *
          * some_program -co:myarray=1,2,3,4

@@ -542,56 +542,56 @@ export namespace sm
                 // alternating pattern of +/- as we go.
 
                 // 0.
-                sm::vec<F, 4> minorElem;
-                minorElem[0] = this->arr[4];
-                minorElem[1] = this->arr[5];
-                minorElem[2] = this->arr[7];
-                minorElem[3] = this->arr[8];
-                cofac[0] = mat<F, 2>::determinant (minorElem);
+                sm::vec<F, 4> minor_elem;
+                minor_elem[0] = this->arr[4];
+                minor_elem[1] = this->arr[5];
+                minor_elem[2] = this->arr[7];
+                minor_elem[3] = this->arr[8];
+                cofac[0] = mat<F, 2>::determinant (minor_elem);
 
                 // 3. Next minor elem matrix has only 2 elements changed
-                minorElem[0] = this->arr[1];
-                minorElem[1] = this->arr[2];
-                cofac[3] = -mat<F, 2>::determinant (minorElem);
+                minor_elem[0] = this->arr[1];
+                minor_elem[1] = this->arr[2];
+                cofac[3] = -mat<F, 2>::determinant (minor_elem);
 
                 // 6.
-                minorElem[2] = this->arr[4];
-                minorElem[3] = this->arr[5];
-                cofac[6] = mat<F, 2>::determinant (minorElem);
+                minor_elem[2] = this->arr[4];
+                minor_elem[3] = this->arr[5];
+                cofac[6] = mat<F, 2>::determinant (minor_elem);
 
                 // 1.
-                minorElem[0] = this->arr[3];
-                minorElem[1] = this->arr[5];
-                minorElem[2] = this->arr[6];
-                minorElem[3] = this->arr[8];
-                cofac[1] = -mat<F, 2>::determinant (minorElem);
+                minor_elem[0] = this->arr[3];
+                minor_elem[1] = this->arr[5];
+                minor_elem[2] = this->arr[6];
+                minor_elem[3] = this->arr[8];
+                cofac[1] = -mat<F, 2>::determinant (minor_elem);
 
                 // 4.
-                minorElem[0] = this->arr[0];
-                minorElem[1] = this->arr[2];
-                cofac[4] = mat<F, 2>::determinant (minorElem);
+                minor_elem[0] = this->arr[0];
+                minor_elem[1] = this->arr[2];
+                cofac[4] = mat<F, 2>::determinant (minor_elem);
 
                 // 7.
-                minorElem[2] = this->arr[3];
-                minorElem[3] = this->arr[5];
-                cofac[7] = -mat<F, 2>::determinant (minorElem);
+                minor_elem[2] = this->arr[3];
+                minor_elem[3] = this->arr[5];
+                cofac[7] = -mat<F, 2>::determinant (minor_elem);
 
                 // 2.
-                minorElem[0] = this->arr[3];
-                minorElem[1] = this->arr[4];
-                minorElem[2] = this->arr[6];
-                minorElem[3] = this->arr[7];
-                cofac[2] = mat<F, 2>::determinant (minorElem);
+                minor_elem[0] = this->arr[3];
+                minor_elem[1] = this->arr[4];
+                minor_elem[2] = this->arr[6];
+                minor_elem[3] = this->arr[7];
+                cofac[2] = mat<F, 2>::determinant (minor_elem);
 
                 // 5.
-                minorElem[0] = this->arr[0];
-                minorElem[1] = this->arr[1];
-                cofac[5] = -mat<F, 2>::determinant (minorElem);
+                minor_elem[0] = this->arr[0];
+                minor_elem[1] = this->arr[1];
+                cofac[5] = -mat<F, 2>::determinant (minor_elem);
 
                 // 8.
-                minorElem[2] = this->arr[3];
-                minorElem[3] = this->arr[4];
-                cofac[8] = mat<F, 2>::determinant (minorElem);
+                minor_elem[2] = this->arr[3];
+                minor_elem[3] = this->arr[4];
+                cofac[8] = mat<F, 2>::determinant (minor_elem);
 
             } else if constexpr (Nr == 4) {
 
@@ -600,137 +600,137 @@ export namespace sm
                 // alternating pattern of +/- as we go.
 
                 // 0.
-                sm::vec<F, 9> minorElem;
-                minorElem[0] = this->arr[5];
-                minorElem[3] = this->arr[9];
-                minorElem[6] = this->arr[13];
+                sm::vec<F, 9> minor_elem;
+                minor_elem[0] = this->arr[5];
+                minor_elem[3] = this->arr[9];
+                minor_elem[6] = this->arr[13];
 
-                minorElem[1] = this->arr[6];
-                minorElem[4] = this->arr[10];
-                minorElem[7] = this->arr[14];
+                minor_elem[1] = this->arr[6];
+                minor_elem[4] = this->arr[10];
+                minor_elem[7] = this->arr[14];
 
-                minorElem[2] = this->arr[7];
-                minorElem[5] = this->arr[11];
-                minorElem[8] = this->arr[15];
+                minor_elem[2] = this->arr[7];
+                minor_elem[5] = this->arr[11];
+                minor_elem[8] = this->arr[15];
 
-                cofac[0] = mat<F, 3>::determinant (minorElem);
+                cofac[0] = mat<F, 3>::determinant (minor_elem);
 
                 // 1. Next minor elem matrix has only 3 elements changed
-                minorElem[0] = this->arr[4];
-                minorElem[3] = this->arr[8];
-                minorElem[6] = this->arr[12];
-                cofac[1] = -mat<F, 3>::determinant (minorElem);
+                minor_elem[0] = this->arr[4];
+                minor_elem[3] = this->arr[8];
+                minor_elem[6] = this->arr[12];
+                cofac[1] = -mat<F, 3>::determinant (minor_elem);
 
                 // 2
-                minorElem[1] = this->arr[5];
-                minorElem[4] = this->arr[9];
-                minorElem[7] = this->arr[13];
-                cofac[2] = mat<F, 3>::determinant (minorElem);
+                minor_elem[1] = this->arr[5];
+                minor_elem[4] = this->arr[9];
+                minor_elem[7] = this->arr[13];
+                cofac[2] = mat<F, 3>::determinant (minor_elem);
 
                 // 3
-                minorElem[2] = this->arr[6];
-                minorElem[5] = this->arr[10];
-                minorElem[8] = this->arr[14];
-                cofac[3] = -mat<F, 3>::determinant (minorElem);
+                minor_elem[2] = this->arr[6];
+                minor_elem[5] = this->arr[10];
+                minor_elem[8] = this->arr[14];
+                cofac[3] = -mat<F, 3>::determinant (minor_elem);
 
                 // 4.
-                minorElem[0] = this->arr[1];
-                minorElem[3] = this->arr[9];
-                minorElem[6] = this->arr[13];
+                minor_elem[0] = this->arr[1];
+                minor_elem[3] = this->arr[9];
+                minor_elem[6] = this->arr[13];
 
-                minorElem[1] = this->arr[2];
-                minorElem[4] = this->arr[10];
-                minorElem[7] = this->arr[14];
+                minor_elem[1] = this->arr[2];
+                minor_elem[4] = this->arr[10];
+                minor_elem[7] = this->arr[14];
 
-                minorElem[2] = this->arr[3];
-                minorElem[5] = this->arr[11];
-                minorElem[8] = this->arr[15];
+                minor_elem[2] = this->arr[3];
+                minor_elem[5] = this->arr[11];
+                minor_elem[8] = this->arr[15];
 
-                cofac[4] = -mat<F, 3>::determinant (minorElem);
+                cofac[4] = -mat<F, 3>::determinant (minor_elem);
 
                 // 5.
-                minorElem[0] = this->arr[0];
-                minorElem[3] = this->arr[8];
-                minorElem[6] = this->arr[12];
-                cofac[5] = mat<F, 3>::determinant (minorElem);
+                minor_elem[0] = this->arr[0];
+                minor_elem[3] = this->arr[8];
+                minor_elem[6] = this->arr[12];
+                cofac[5] = mat<F, 3>::determinant (minor_elem);
 
                 // 6.
-                minorElem[1] = this->arr[1];
-                minorElem[4] = this->arr[9];
-                minorElem[7] = this->arr[13];
-                cofac[6] = -mat<F, 3>::determinant (minorElem);
+                minor_elem[1] = this->arr[1];
+                minor_elem[4] = this->arr[9];
+                minor_elem[7] = this->arr[13];
+                cofac[6] = -mat<F, 3>::determinant (minor_elem);
 
                 // 7.
-                minorElem[2] = this->arr[2];
-                minorElem[5] = this->arr[10];
-                minorElem[8] = this->arr[14];
-                cofac[7] = mat<F, 3>::determinant (minorElem);
+                minor_elem[2] = this->arr[2];
+                minor_elem[5] = this->arr[10];
+                minor_elem[8] = this->arr[14];
+                cofac[7] = mat<F, 3>::determinant (minor_elem);
 
                 // 8.
-                minorElem[0] = this->arr[1];
-                minorElem[3] = this->arr[5];
-                minorElem[6] = this->arr[13];
+                minor_elem[0] = this->arr[1];
+                minor_elem[3] = this->arr[5];
+                minor_elem[6] = this->arr[13];
 
-                minorElem[1] = this->arr[2];
-                minorElem[4] = this->arr[6];
-                minorElem[7] = this->arr[14];
+                minor_elem[1] = this->arr[2];
+                minor_elem[4] = this->arr[6];
+                minor_elem[7] = this->arr[14];
 
-                minorElem[2] = this->arr[3];
-                minorElem[5] = this->arr[7];
-                minorElem[8] = this->arr[15];
+                minor_elem[2] = this->arr[3];
+                minor_elem[5] = this->arr[7];
+                minor_elem[8] = this->arr[15];
 
-                cofac[8] = mat<F, 3>::determinant (minorElem);
+                cofac[8] = mat<F, 3>::determinant (minor_elem);
 
                 // 9.
-                minorElem[0] = this->arr[0];
-                minorElem[3] = this->arr[4];
-                minorElem[6] = this->arr[12];
-                cofac[9] = -mat<F, 3>::determinant (minorElem);
+                minor_elem[0] = this->arr[0];
+                minor_elem[3] = this->arr[4];
+                minor_elem[6] = this->arr[12];
+                cofac[9] = -mat<F, 3>::determinant (minor_elem);
 
                 // 10.
-                minorElem[1] = this->arr[1];
-                minorElem[4] = this->arr[5];
-                minorElem[7] = this->arr[13];
-                cofac[10] = mat<F, 3>::determinant (minorElem);
+                minor_elem[1] = this->arr[1];
+                minor_elem[4] = this->arr[5];
+                minor_elem[7] = this->arr[13];
+                cofac[10] = mat<F, 3>::determinant (minor_elem);
 
                 // 11.
-                minorElem[2] = this->arr[2];
-                minorElem[5] = this->arr[6];
-                minorElem[8] = this->arr[14];
-                cofac[11] = -mat<F, 3>::determinant (minorElem);
+                minor_elem[2] = this->arr[2];
+                minor_elem[5] = this->arr[6];
+                minor_elem[8] = this->arr[14];
+                cofac[11] = -mat<F, 3>::determinant (minor_elem);
 
                 // 12.
-                minorElem[0] = this->arr[1];
-                minorElem[3] = this->arr[5];
-                minorElem[6] = this->arr[9];
+                minor_elem[0] = this->arr[1];
+                minor_elem[3] = this->arr[5];
+                minor_elem[6] = this->arr[9];
 
-                minorElem[1] = this->arr[2];
-                minorElem[4] = this->arr[6];
-                minorElem[7] = this->arr[10];
+                minor_elem[1] = this->arr[2];
+                minor_elem[4] = this->arr[6];
+                minor_elem[7] = this->arr[10];
 
-                minorElem[2] = this->arr[3];
-                minorElem[5] = this->arr[7];
-                minorElem[8] = this->arr[11];
+                minor_elem[2] = this->arr[3];
+                minor_elem[5] = this->arr[7];
+                minor_elem[8] = this->arr[11];
 
-                cofac[12] = -mat<F, 3>::determinant (minorElem);
+                cofac[12] = -mat<F, 3>::determinant (minor_elem);
 
                 // 13.
-                minorElem[0] = this->arr[0];
-                minorElem[3] = this->arr[4];
-                minorElem[6] = this->arr[8];
-                cofac[13] = mat<F, 3>::determinant (minorElem);
+                minor_elem[0] = this->arr[0];
+                minor_elem[3] = this->arr[4];
+                minor_elem[6] = this->arr[8];
+                cofac[13] = mat<F, 3>::determinant (minor_elem);
 
                 // 14.
-                minorElem[1] = this->arr[1];
-                minorElem[4] = this->arr[5];
-                minorElem[7] = this->arr[9];
-                cofac[14] = -mat<F, 3>::determinant (minorElem);
+                minor_elem[1] = this->arr[1];
+                minor_elem[4] = this->arr[5];
+                minor_elem[7] = this->arr[9];
+                cofac[14] = -mat<F, 3>::determinant (minor_elem);
 
                 // 15.
-                minorElem[2] = this->arr[2];
-                minorElem[5] = this->arr[6];
-                minorElem[8] = this->arr[10];
-                cofac[15] = mat<F, 3>::determinant (minorElem);
+                minor_elem[2] = this->arr[2];
+                minor_elem[5] = this->arr[6];
+                minor_elem[8] = this->arr[10];
+                cofac[15] = mat<F, 3>::determinant (minor_elem);
 
             } else {
                 []<bool flag = false>() { static_assert(flag, "cofactor provided only for 3x3 and 4x4 matrices"); }();
@@ -1581,64 +1581,64 @@ export namespace sm
         /*!
          * Make a (frustrum) perspective projection in this matrix
          *
-         * @fovDeg Field of view, in degrees. Measured from the top of the field to
+         * @fov_deg Field of view, in degrees. Measured from the top of the field to
          * the bottom of the field (rather than from the left to the right).
          *
          * @aspect The field's aspect ratio. For a field which is wider than it is
          * high, this will be >1. That is, this is "the number of multiples of the
          * height that the width is"
          *
-         * @zNear The near/projection plane.
+         * @z_near The near/projection plane.
          *
-         * @zFar The far plane.
+         * @z_far The far plane.
          */
-        constexpr void perspective_inplace (F fovDeg, F aspect, F zNear, F zFar) noexcept
+        constexpr void perspective_inplace (F fov_deg, F aspect, F z_near, F z_far) noexcept
         {
             if constexpr (Nr != Nc || Nr != 4) { []<bool flag = false>() { static_assert(flag, "valid only for 4x4 matrices"); }(); }
-            (*this) = sm::mat<F, 4>::perspective (fovDeg, aspect, zNear, zFar);
+            (*this) = sm::mat<F, 4>::perspective (fov_deg, aspect, z_near, z_far);
         }
 
         /*!
          * Make a (frustrum) perspective projection
          *
-         * @fovDeg Field of view, in degrees. Measured from the top of the field to
+         * @fov_deg Field of view, in degrees. Measured from the top of the field to
          * the bottom of the field (rather than from the left to the right).
          *
          * @aspect The field's aspect ratio. For a field which is wider than it is
          * high, this will be >1. That is, this is "the number of multiples of the
          * height that the width is"
          *
-         * @zNear The near/projection plane.
+         * @z_near The near/projection plane.
          *
-         * @zFar The far plane.
+         * @z_far The far plane.
          *
          * \return the perspective projection matrix
          */
-        static constexpr sm::mat<F, 4> perspective (F fovDeg, F aspect, F zNear, F zFar) noexcept
+        static constexpr sm::mat<F, 4> perspective (F fov_deg, F aspect, F z_near, F z_far) noexcept
         {
             if constexpr (Nr != Nc || Nr != 4) { []<bool flag = false>() { static_assert(flag, "valid only for 4x4 matrices"); }(); }
 
             sm::mat<F, 4> m;
 
             // Bail out if the projection volume is zero-sized.
-            if (zNear == zFar || aspect == F{0}) { return m; }
+            if (z_near == z_far || aspect == F{0}) { return m; }
 
-            F fovRad_ov2 = fovDeg * sm::mathconst<F>::pi_over_360; // fovDeg/2 converted to radians
-            F sineFov = sm::cem::sin (fovRad_ov2);
-            if (sineFov == F{0}) { return m; }
-            F cotanFov = sm::cem::cos (fovRad_ov2) / sineFov;
-            F clip = zFar - zNear;
+            F fov_rad_ov2 = fov_deg * sm::mathconst<F>::pi_over_360; // fov_deg/2 converted to radians
+            F sine_fov = sm::cem::sin (fov_rad_ov2);
+            if (sine_fov == F{0}) { return m; }
+            F cotan_fov = sm::cem::cos (fov_rad_ov2) / sine_fov;
+            F clip = z_far - z_near;
 
             // Build perspective matrix
             m.arr.fill (F{0});
-            m.arr[0] = cotanFov / aspect; // n/(width/2) = 2n/width, or generally 2n/r-l
-            m.arr[5] = cotanFov;          // n/(height/2) = 2n/height, or generally 2n/t-b
+            m.arr[0] = cotan_fov / aspect; // n/(width/2) = 2n/width, or generally 2n/r-l
+            m.arr[5] = cotan_fov;          // n/(height/2) = 2n/height, or generally 2n/t-b
             // For fully general frustrum not centered on the z axis, we would add these:
             //m.arr[8] = r+l/r-l
             //m.arr[9] = t+b/t-b
-            m.arr[10] = -(zNear + zFar) / clip;
+            m.arr[10] = -(z_near + z_far) / clip;
             m.arr[11] = F{-1};
-            m.arr[14] = -(F{2} * zNear * zFar) / clip;
+            m.arr[14] = -(F{2} * z_near * z_far) / clip;
 
             return m;
         }
@@ -1650,15 +1650,15 @@ export namespace sm
          *
          * \param lb Left-bottom coordinate. lb[0] is 'x' and thus the left and lb[1] 'y' and is the bottom
          *
-         * \param zFar The 'far' z coordinate of the canonical viewing volume
+         * \param z_far The 'far' z coordinate of the canonical viewing volume
          *
-         * \param zNear The 'near' z coordinate of the canonical viewing volume
+         * \param z_near The 'near' z coordinate of the canonical viewing volume
          */
         constexpr void orthographic_inplace (const sm::vec<F, 2>& lb, const sm::vec<F, 2>& rt,
-                                             const F zNear, const F zFar) noexcept
+                                             const F z_near, const F z_far) noexcept
         {
             if constexpr (Nr != Nc || Nr != 4) { []<bool flag = false>() { static_assert(flag, "valid only for 4x4 matrices"); }(); }
-            (*this) = sm::mat<F, 4>::orthographic (lb, rt, zNear, zFar);
+            (*this) = sm::mat<F, 4>::orthographic (lb, rt, z_near, z_far);
         }
 
         /*!
@@ -1668,27 +1668,27 @@ export namespace sm
          *
          * \param lb Left-bottom coordinate. lb[0] is 'x' and thus the left and lb[1] 'y' and is the bottom
          *
-         * \param zFar The 'far' z coordinate of the canonical viewing volume
+         * \param z_far The 'far' z coordinate of the canonical viewing volume
          *
-         * \param zNear The 'near' z coordinate of the canonical viewing volume
+         * \param z_near The 'near' z coordinate of the canonical viewing volume
          */
         static constexpr sm::mat<F, 4> orthographic (const sm::vec<F, 2>& lb, const sm::vec<F, 2>& rt,
-                                                     const F zNear, const F zFar) noexcept
+                                                     const F z_near, const F z_far) noexcept
         {
             if constexpr (Nr != Nc || Nr != 4) { []<bool flag = false>() { static_assert(flag, "valid only for 4x4 matrices"); }(); }
 
             sm::mat<F, 4> m;
 
-            if (zNear == zFar) { return m; }
+            if (z_near == z_far) { return m; }
 
             // Build orthographic matrix
             m.arr.fill (F{0});
-            m.arr[0] = F{2} / (rt[0] - lb[0]);              //      2/(r-l)
-            m.arr[5] = F{2} / (rt[1] - lb[1]);              //      2/(t-b)
-            m.arr[10] = F{-2} / (zFar - zNear);             //     -2/(f-n)
-            m.arr[12] = -(rt[0] + lb[0]) / (rt[0] - lb[0]); // -(r+l)/(r-l)
-            m.arr[13] = -(rt[1] + lb[1]) / (rt[1] - lb[1]); // -(t+b)/(t-b)
-            m.arr[14] = -(zFar + zNear) / (zFar - zNear);   // -(f+n)/(f-n)
+            m.arr[0] = F{2} / (rt[0] - lb[0]);                  //      2/(r-l)
+            m.arr[5] = F{2} / (rt[1] - lb[1]);                  //      2/(t-b)
+            m.arr[10] = F{-2} / (z_far - z_near);               //     -2/(f-n)
+            m.arr[12] = -(rt[0] + lb[0]) / (rt[0] - lb[0]);     // -(r+l)/(r-l)
+            m.arr[13] = -(rt[1] + lb[1]) / (rt[1] - lb[1]);     // -(t+b)/(t-b)
+            m.arr[14] = -(z_far + z_near) / (z_far - z_near);   // -(f+n)/(f-n)
             m.arr[15] = F{1};
 
             return m;

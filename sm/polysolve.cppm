@@ -145,9 +145,9 @@ export namespace sm::polysolve
         const T discriminant = a1_norm * a1_norm - T{4} * a0_norm;
         std::vector<std::complex<T>> roots = {};
         if (discriminant >= T{0}) {
-            const T sqrtD = sm::cem::sqrt (discriminant);
-            const T r1 = (-a1_norm + sqrtD) / T{2};
-            const T r2 = (-a1_norm - sqrtD) / T{2};
+            const T sqrt_d = sm::cem::sqrt (discriminant);
+            const T r1 = (-a1_norm + sqrt_d) / T{2};
+            const T r2 = (-a1_norm - sqrt_d) / T{2};
             roots = { std::complex<T>{ r1, T{0} }, std::complex<T>{ r2, T{0} } };
         } else {
             const T real_part = -a1_norm / T{2};

@@ -36,14 +36,14 @@
  * full list: https://en.cppreference.com/w/cpp/numeric/random (such as weibull or
  * exponential).
  *
- * See tests/testRandom.cpp for a variety of usage examples. Here is a single, simple
+ * See tests/random1.cpp for a variety of usage examples. Here is a single, simple
  * example:
  *
  * \code
- * #include <sm/random.h>
- * sm::randuniform<double, std::mt19937_64> randDouble;
- * double sample = randDouble.get();
- * double sample2 = randDouble.get();
+ * import sm.random;
+ * sm::randuniform<double, std::mt19937_64> rand_double;
+ * double sample = rand_double.get();
+ * double sample2 = rand_double.get();
  * \endcode
  *
  * A final note: There are some faster RNG algorithms on the
@@ -94,7 +94,7 @@ namespace sm
         template <typename T = float, typename E = std::mt19937, bool = std::is_integral<std::decay_t<T>>::value>
         class rand_uniform {};
 
-        //! Floating-point number specialization of randUnifom.
+        //! Floating-point number specialization of rand_unifom.
         template <typename T, typename E> requires std::is_floating_point_v<std::decay_t<T>>
         class rand_uniform<T, E, false>
         {

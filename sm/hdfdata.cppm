@@ -1185,10 +1185,10 @@ export namespace sm
                     throw std::runtime_error ("hdfdata::add_contained_vals<Container<vvec<T>, Allocator>>: all contained vvecs must be of same size");
                 }
             }
-            hsize_t dim_vecNdcoords[2];
-            dim_vecNdcoords[0] = sz;
-            dim_vecNdcoords[1] = N; // N values in each enclosed vvec
-            hid_t dataspace_id = H5Screate_simple (2, dim_vecNdcoords, NULL);
+            hsize_t dim_vec_n_d_coords[2];
+            dim_vec_n_d_coords[0] = sz;
+            dim_vec_n_d_coords[1] = N; // N values in each enclosed vvec
+            hid_t dataspace_id = H5Screate_simple (2, dim_vec_n_d_coords, NULL);
             // Now determine width of T and select the most suitable data type to pass to open_dataset()
             hid_t dataset_id = 0;
             herr_t status = 0;
@@ -1256,11 +1256,11 @@ export namespace sm
         {
             if (vals.empty()) { return; }
             this->process_groups (path);
-            hsize_t dim_vecNdcoords[2];
-            dim_vecNdcoords[0] = vals.size();
-            dim_vecNdcoords[1] = N; // N doubles in each vec<T,N>
+            hsize_t dim_vec_n_d_coords[2];
+            dim_vec_n_d_coords[0] = vals.size();
+            dim_vec_n_d_coords[1] = N; // N doubles in each vec<T,N>
             // Note 2 dims (1st arg, which is rank = 2)
-            hid_t dataspace_id = H5Screate_simple (2, dim_vecNdcoords, NULL);
+            hid_t dataspace_id = H5Screate_simple (2, dim_vec_n_d_coords, NULL);
             // Now determine width of T and select the most suitable data type to pass to open_dataset()
             hid_t dataset_id = 0;
             herr_t status = 0;
@@ -1310,11 +1310,11 @@ export namespace sm
         {
             if (vals.empty()) { return; }
             this->process_groups (path);
-            hsize_t dim_vecNdcoords[2];
-            dim_vecNdcoords[0] = vals.size();
-            dim_vecNdcoords[1] = N; // N doubles in each vec<T,N>
+            hsize_t dim_vec_n_d_coords[2];
+            dim_vec_n_d_coords[0] = vals.size();
+            dim_vec_n_d_coords[1] = N; // N doubles in each vec<T,N>
             // Note 2 dims (1st arg, which is rank = 2)
-            hid_t dataspace_id = H5Screate_simple (2, dim_vecNdcoords, NULL);
+            hid_t dataspace_id = H5Screate_simple (2, dim_vec_n_d_coords, NULL);
             // Now determine width of T and select the most suitable data type to pass to open_dataset()
             hid_t dataset_id = 0;
             herr_t status = 0;
@@ -1364,11 +1364,11 @@ export namespace sm
         {
             if (vals.empty()) { return; }
             this->process_groups (path);
-            hsize_t dim_vecNdcoords[2];
-            dim_vecNdcoords[0] = vals.size();
-            dim_vecNdcoords[1] = N; // N doubles in each vec<T,N>
+            hsize_t dim_vec_n_d_coords[2];
+            dim_vec_n_d_coords[0] = vals.size();
+            dim_vec_n_d_coords[1] = N; // N doubles in each vec<T,N>
             // Note 2 dims (1st arg, which is rank = 2)
-            hid_t dataspace_id = H5Screate_simple (2, dim_vecNdcoords, NULL);
+            hid_t dataspace_id = H5Screate_simple (2, dim_vec_n_d_coords, NULL);
             // Now determine width of T and select the most suitable data type to pass to open_dataset()
             hid_t dataset_id = 0;
             herr_t status = 0;
@@ -1416,10 +1416,10 @@ export namespace sm
         template <typename T>
         void add_contained_vals (const char* path, const std::pair<T, T>& vals)
         {
-            std::vector<T> vT;
-            vT.push_back (vals.first);
-            vT.push_back (vals.second);
-            this->add_contained_vals (path, vT);
+            std::vector<T> v_vals;
+            v_vals.push_back (vals.first);
+            v_vals.push_back (vals.second);
+            this->add_contained_vals (path, v_vals);
         }
 
         //! Add nvals values from the pointer (to doubles) vals.

@@ -21,38 +21,38 @@ export namespace sm::util
 {
     /*!
      * Split a string of values into a vector using the separator string (not char)
-     * passed in as "separator". If ignoreTrailingEmptyVal is true, then a trailing
+     * passed in as "separator". If ignore_trailing_empty_val is true, then a trailing
      * separator with nothing after it will NOT cause an additional empty value in
-     * the returned vector. See also splitStringWithEncs
+     * the returned vector.
      */
     std::vector<std::string> string_to_vector (const std::string& s,
                                                const std::string& separator,
-                                               const bool ignoreTrailingEmptyVal = true)
+                                               const bool ignore_trailing_empty_val = true)
     {
         if (separator.empty()) {
             throw std::runtime_error ("Can't split the string; the separator is empty.");
         }
-        std::vector<std::string> theVec;
+        std::vector<std::string> the_vec;
         std::string entry("");
-        std::string::size_type sepLen = separator.size();
-        std::string::size_type a=0, b=0;
+        std::string::size_type sep_len = separator.size();
+        std::string::size_type a = 0, b = 0;
         while (a < s.size() && (b = s.find (separator, a)) != std::string::npos) {
-            entry = s.substr (a, b-a);
-            theVec.push_back (entry);
-            a=b+sepLen;
+            entry = s.substr (a, b - a);
+            the_vec.push_back (entry);
+            a = b + sep_len;
         }
         // Last one has no separator
         if (a < s.size()) {
             b = s.size();
-            entry = s.substr (a, b-a);
-            theVec.push_back (entry);
+            entry = s.substr (a, b - a);
+            the_vec.push_back (entry);
         } else {
-            if (!ignoreTrailingEmptyVal) {
-                theVec.push_back ("");
+            if (!ignore_trailing_empty_val) {
+                the_vec.push_back ("");
             }
         }
 
-        return theVec;
+        return the_vec;
     }
 
     // Strip bracket characters from string

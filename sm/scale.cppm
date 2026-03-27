@@ -10,15 +10,15 @@
  *
  * scale is a class for scaling (transforming) signals. It has been coded for linear scaling of
  * signals. It could also be used to logarithmically scale signals with suitable extension, and this
- * has been kept in mind (see ScaleFn). It has an autoscaling feature which allows a signal which
+ * has been kept in mind (see scaling_function). It has an autoscaling feature which allows a signal which
  * ranges between x and y to be rescaled to range between 0 and 1 (or -1 and 1 or -w and z)
  *
- * Classes created from the template class sm::scale will derive from one of the sm::ScaleImpl
+ * Classes created from the template class sm::scale will derive from one of the sm::scale_impl
  * <ntype, T, S> classes, where ntype is the 'number type' (0 means the numbers are mathematical
  * vectors like sm::vec, std::array or std::vector; 1 means that the numbers are scalars like
  * float, double or int)
  *
- * Usage: See \c tests/testScale.cpp \n
+ * Usage: See \c tests/scale1.cpp \n
  * e.g.:\n
  * \code{.cpp}
  *   sm::scale<float> s;
@@ -847,7 +847,7 @@ export namespace sm
      *
      * sm::scale derives from scale_impl<N> depending on the type of T
      *
-     * Usage: See tests/testScale.cpp
+     * Usage: See tests/scale1.cpp
      * e.g.:
      *   sm::scale<float> s;
      *   s.do_autoscale = true;

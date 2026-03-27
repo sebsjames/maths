@@ -4,8 +4,8 @@
  *
  * See https://github.com/sebsjames/maths
  *
- * A quaternion class for computing rotations in the visualization classes
- * (sm::Visual, sm::HexGridVisual, etc).
+ * A quaternion class for computing rotations. Used in sm::mat and in the mathplot visualization
+ * classes (mplot::Visual, mplot::HexGridVisual, etc).
  *
  * This quaternion class adopts the Hamiltonian convention - w,x,y,z.
  */
@@ -261,20 +261,20 @@ export namespace sm
             sm::vec<F, 4> my_coeffs = { w, x, y, z };
             sm::vec<F, 4> q2_coeffs = { q2.w, q2.x, q2.y, q2.z };
             const F d = my_coeffs.dot (q2_coeffs);
-            const F absD = sm::cem::abs (d);
+            const F abs_d = sm::cem::abs (d);
 
             F scale0 = {};
             F scale1 = {};
 
-            if (absD >= one) {
+            if (abs_d >= one) {
                 scale0 = F{1} - t;
                 scale1 = t;
             } else {
                 // theta is the angle between the 2 quaternions
-                F theta = sm::cem::acos (absD);
-                F sinTheta = sm::cem::sqrt (F{1} - absD * absD);
-                scale0 = sm::cem::sin ((F{1} - t) * theta) / sinTheta;
-                scale1 = sm::cem::sin ((t * theta)) / sinTheta;
+                F theta = sm::cem::acos (abs_d);
+                F sin_theta = sm::cem::sqrt (F{1} - abs_d * abs_d);
+                scale0 = sm::cem::sin ((F{1} - t) * theta) / sin_theta;
+                scale1 = sm::cem::sin ((t * theta)) / sin_theta;
             }
             if (d < F{0}) { scale1 = -scale1; }
 
@@ -343,18 +343,18 @@ export namespace sm
         constexpr void set_rotation (const vec<F, N>& axis, const F& angle) noexcept
         {
             F halfangle = angle * F{0.5};
-            F cosHalf = sm::cem::cos(halfangle);
-            F sinHalf = sm::cem::sin(halfangle);
+            F cos_half = sm::cem::cos(halfangle);
+            F sin_half = sm::cem::sin(halfangle);
             vec<F, 3> ax;
             ax[0] = axis[0];
             ax[1] = axis[1];
             ax[2] = axis[2];
             ax.renormalize();
 
-            this->w = cosHalf;
-            this->x = ax.x() * sinHalf;
-            this->y = ax.y() * sinHalf;
-            this->z = ax.z() * sinHalf;
+            this->w = cos_half;
+            this->x = ax.x() * sin_half;
+            this->y = ax.y() * sin_half;
+            this->z = ax.z() * sin_half;
 
             this->renormalize();
         }
@@ -366,9 +366,9 @@ export namespace sm
         constexpr void rotate (const F& axis_x, const F& axis_y, const F& axis_z, const F& angle) noexcept
         {
             F halfangle = angle * F{0.5};
-            F cosHalf = sm::cem::cos (halfangle);
-            F sinHalf = sm::cem::sin (halfangle);
-            quaternion<F> local(cosHalf, axis_x * sinHalf, axis_y * sinHalf, axis_z * sinHalf);
+            F cos_half = sm::cem::cos (halfangle);
+            F sin_half = sm::cem::sin (halfangle);
+            quaternion<F> local(cos_half, axis_x * sin_half, axis_y * sin_half, axis_z * sin_half);
             this->premultiply (local);
             this->renormalize();
         }

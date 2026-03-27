@@ -579,18 +579,18 @@ export namespace sm::geometry
             }
 
             // A function to add to faces_map (keyed by centroid of each face) faces contains indices.
-            auto add_face = [&faces_map, &count] (const sm::vec<F, 3>& vA,
-                                                  const sm::vec<F, 3>& vB,
-                                                  const sm::vec<F, 3>& vC,
+            auto add_face = [&faces_map, &count] (const sm::vec<F, 3>& v_a,
+                                                  const sm::vec<F, 3>& v_b,
+                                                  const sm::vec<F, 3>& v_c,
                                                   const sm::vec<std::int32_t, 3>& newface,
                                                   const std::int32_t newface_num)
             {
-                sm::vec<F, 3> centroid = (vA + vB + vC) / 3.0f;
+                sm::vec<F, 3> centroid = (v_a + v_b + v_c) / 3.0f;
                 faces_map[centroid] = newface;
                 count += 1;
                 if constexpr (debug_faces) {
-                    std::cout << "\n" << newface_num << " Added a face [" << vA << " -- " << vB << " -- " << vC << "]\n"
-                              <<"        (" << ((vA + vB + vC) / 3.0f) << "). ";
+                    std::cout << "\n" << newface_num << " Added a face [" << v_a << " -- " << v_b << " -- " << v_c << "]\n"
+                              <<"        (" << ((v_a + v_b + v_c) / 3.0f) << "). ";
                     std::cout << "\n" << newface_num << " Centroid: " << centroid;
                     std::cout << "\n" << newface_num << " Added a face ["
                               << newface[0] << " -- " << newface[1] << " -- " << newface[2] << "]\n";

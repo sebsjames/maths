@@ -35,7 +35,7 @@ export namespace sm
     enum class griddomainshape
     {
         rectangle,
-        boundary // The shape of the arbitrary boundary set with CartGrid::setBoundary
+        boundary // The shape of the arbitrary boundary set with cartgrid::set_boundary
     };
 
     //! The wrapping employed for the Cartesian grid.

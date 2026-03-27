@@ -108,7 +108,7 @@ export namespace sm
 
         /*!
          * The parameter value used to obtain this coordinate. Note this is only
-         * meaningful when this bezcoord is considered in conjunction with a BezCurve
+         * meaningful when this bezcoord is considered in conjunction with a bezcurve
          * instance.
          *
          * Range is 0 to 1.0. If set to -1.0, then this means "unset".

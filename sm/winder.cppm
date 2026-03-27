@@ -47,7 +47,7 @@ export namespace sm
      *  int winding_number = w.wind (pixel);
      *\endcode
      *
-     * \tparam T the (2D) coordinate type (this might be cv::Point, sm::BezCoord,
+     * \tparam T the (2D) coordinate type (this might be cv::Point, sm::bezcoord,
      * sm::vvec, sm::vec, std::array or std::vector)
      *
      * \tparam Container Something like an std::vector, std::list or std::array,
@@ -133,7 +133,7 @@ export namespace sm
                 pt[0] = bp[0] - px[0];
                 pt[1] = bp[1] - px[1];
             } else {
-                // cv::Point, sm::BezCoord should fall through here.
+                // cv::Point, sm::bezcoord should fall through here.
                 if constexpr (has_subtraction<T>::value == true) {
                     if constexpr (debug_extra == true) { std::cout << "T has subtraction\n"; }
                     pt = bp - px;

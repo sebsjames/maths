@@ -19,8 +19,8 @@ export module sm.base64;
 
 export namespace base64
 {
-    const char kEncodeLookup[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-    const char kPadCharacter = '=';
+    const char k_encode_lookup[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    const char k_pad_character = '=';
 
     std::string encode (const std::vector<std::uint8_t>& input)
     {
@@ -34,29 +34,29 @@ export namespace base64
             temp  = (*it++) << 16;
             temp += (*it++) << 8;
             temp += (*it++);
-            encoded.append(1, kEncodeLookup[(temp & 0x00FC0000) >> 18]);
-            encoded.append(1, kEncodeLookup[(temp & 0x0003F000) >> 12]);
-            encoded.append(1, kEncodeLookup[(temp & 0x00000FC0) >> 6 ]);
-            encoded.append(1, kEncodeLookup[(temp & 0x0000003F)      ]);
+            encoded.append(1, k_encode_lookup[(temp & 0x00FC0000) >> 18]);
+            encoded.append(1, k_encode_lookup[(temp & 0x0003F000) >> 12]);
+            encoded.append(1, k_encode_lookup[(temp & 0x00000FC0) >> 6 ]);
+            encoded.append(1, k_encode_lookup[(temp & 0x0000003F)      ]);
         }
 
         switch(input.size() % 3) {
         case 1:
         {
             temp = (*it++) << 16;
-            encoded.append(1, kEncodeLookup[(temp & 0x00FC0000) >> 18]);
-            encoded.append(1, kEncodeLookup[(temp & 0x0003F000) >> 12]);
-            encoded.append(2, kPadCharacter);
+            encoded.append(1, k_encode_lookup[(temp & 0x00FC0000) >> 18]);
+            encoded.append(1, k_encode_lookup[(temp & 0x0003F000) >> 12]);
+            encoded.append(2, k_pad_character);
             break;
         }
         case 2:
         {
             temp  = (*it++) << 16;
             temp += (*it++) << 8;
-            encoded.append(1, kEncodeLookup[(temp & 0x00FC0000) >> 18]);
-            encoded.append(1, kEncodeLookup[(temp & 0x0003F000) >> 12]);
-            encoded.append(1, kEncodeLookup[(temp & 0x00000FC0) >> 6 ]);
-            encoded.append(1, kPadCharacter);
+            encoded.append(1, k_encode_lookup[(temp & 0x00FC0000) >> 18]);
+            encoded.append(1, k_encode_lookup[(temp & 0x0003F000) >> 12]);
+            encoded.append(1, k_encode_lookup[(temp & 0x00000FC0) >> 6 ]);
+            encoded.append(1, k_pad_character);
             break;
         }
         }
@@ -71,8 +71,8 @@ export namespace base64
         std::size_t padding{};
 
         if(input.length()) {
-            if (input[input.length() - 1] == kPadCharacter) { padding++; }
-            if (input[input.length() - 2] == kPadCharacter) { padding++; }
+            if (input[input.length() - 1] == k_pad_character) { padding++; }
+            if (input[input.length() - 2] == k_pad_character) { padding++; }
         }
 
         std::vector<std::uint8_t> decoded;
@@ -89,7 +89,7 @@ export namespace base64
                 else if(*it >= 0x30 && *it <= 0x39) { temp |= *it + 0x04; }
                 else if(*it == 0x2B)                { temp |= 0x3E; }
                 else if(*it == 0x2F)                { temp |= 0x3F; }
-                else if(*it == kPadCharacter) {
+                else if(*it == k_pad_character) {
                     switch(input.end() - it) {
                     case 1:
                     {

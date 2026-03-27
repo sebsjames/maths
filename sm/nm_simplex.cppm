@@ -6,7 +6,7 @@
  *
  * A class to implement the Nelder-Mead algorithm. Implemented following the Wikipedia page. Client
  * code should create an instance of the nm_simplex class, then repeatedly call its public methods
- * until the objects state member is nm_simplex_state::ReadyToStop. Computation of whatever the
+ * until the objects state member is nm_simplex_state::ready_to_stop. Computation of whatever the
  * objective function is is left entirely to the client code. What the client code should do next is
  * stored in nm_simplex::state.
  *
