@@ -212,7 +212,7 @@ export namespace sm
             s += std::to_string(this->vi).substr(0,2) + " (";
             s += std::to_string(this->ri).substr(0,4) + ",";
             s += std::to_string(this->gi).substr(0,4) + ") is at (x,y) = ("
-               + std::to_string(this->x).substr(0,4) + "," + std::to_string(this->y).substr(0,4) + ")";
+            + std::to_string(this->x).substr(0,4) + "," + std::to_string(this->y).substr(0,4) + ")";
             return s;
         }
 

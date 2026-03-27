@@ -1019,7 +1019,7 @@ export namespace sm
          * \return a vector of iterators to the hexes that make up the region.
          */
         std::vector<std::list<hex>::iterator> get_region (bezcurvepath<float>& p, sm::vec<float, 2>& region_centroid,
-                                                         bool applyOriginal_boundary_centroid = true)
+                                                          bool applyOriginal_boundary_centroid = true)
         {
             p.compute_points (this->d / 2.0f, true);
             std::vector<sm::bezcoord<float>> bpoints = p.get_points();
@@ -1030,7 +1030,7 @@ export namespace sm
          * The overload of get_region that does all the work on a vector of coordinates
          */
         std::vector<std::list<hex>::iterator> get_region (std::vector<bezcoord<float>>& bpoints, sm::vec<float, 2>& region_centroid,
-                                                         bool applyOriginal_boundary_centroid = true)
+                                                          bool applyOriginal_boundary_centroid = true)
         {
             // First clear all region boundary flags, as we'll be defining a new region boundary
             this->clear_region_boundary_flags();
@@ -3061,7 +3061,7 @@ export namespace sm
          * \return An iterator into hexgrid::hexen which refers to the closest hex to \a point.
          */
         std::list<sm::hex>::iterator set_boundary (const sm::bezcoord<float>& point,
-                                                  std::list<sm::hex>::iterator startFrom)
+                                                   std::list<sm::hex>::iterator startFrom)
         {
             std::list<sm::hex>::iterator h = this->find_hex_near_point (point, startFrom);
             h->set_flag (sm::HEX_IS_BOUNDARY | sm::HEX_INSIDE_BOUNDARY);
@@ -3093,7 +3093,7 @@ export namespace sm
          * pointers to the hexes on the boundary.
          */
         bool boundary_contiguous (std::list<hex>::const_iterator bhi,
-                                 std::list<hex>::const_iterator hi, std::set<std::uint32_t>& seen)
+                                  std::list<hex>::const_iterator hi, std::set<std::uint32_t>& seen)
         {
             bool rtn = false;
             std::list<sm::hex>::const_iterator hi_next;
