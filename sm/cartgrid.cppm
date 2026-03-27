@@ -851,16 +851,16 @@ export namespace sm
         sm::vec<float, 2> findmax (const sm::vvec<float>& image_data)
         {
             std::uint32_t idx = image_data.argmax();
-            return sm::vec<float, 2>({this->d_x[idx], this->d_y[idx]});
+            return sm::vec<float, 2>{ this->d_x[idx], this->d_y[idx] };
         }
 
         // Create a radial representation of the image_data associated with this
         // cartgrid, which for this function is assumed to be rectangular. The
         // representation is taken from the location at view_pos, with an angular offset
         // of view_angle.
-        void resampleToPolar (const sm::vvec<float>& image_data,
-                              sm::cartgrid& cg_polar, sm::vvec<float>& polar_data,
-                              sm::vec<float, 2> view_pos, float view_angle, sm::scaling_function radscale = sm::scaling_function::Linear)
+        void resample_to_polar (const sm::vvec<float>& image_data,
+                                sm::cartgrid& cg_polar, sm::vvec<float>& polar_data,
+                                sm::vec<float, 2> view_pos, float view_angle, sm::scaling_function radscale = sm::scaling_function::Linear)
         {
             polar_data.zero();
 
@@ -868,15 +868,15 @@ export namespace sm
             sm::vec<float, 2> dist_per_pix = { this->d, this->v };
             sm::vec<float, 2> params = 1.0f / (2.0f * dist_per_pix * dist_per_pix);
             float assumecirc = params.mean();
-            sm::vec<float, 2> polar_span = cg_polar.getSpan();
+            sm::vec<float, 2> polar_span = cg_polar.get_span();
 
-            sm::vec<std::uint32_t, 2> polar_span_pix = cg_polar.getSpanPix();
+            sm::vec<std::uint32_t, 2> polar_span_pix = cg_polar.get_span_pix();
             if (polar_span_pix[0]%2 == 0) {
                 throw std::runtime_error ("Fix cg_polar to have an odd width (so that it runs from -x:0:+x)");
             }
 
             // Now now that polar_span in x is symmetric
-            float rad_per_dist = sm::mathconst<float>::two_pi/(polar_span[0]+cg_polar.getd());
+            float rad_per_dist = sm::mathconst<float>::two_pi/(polar_span[0] + cg_polar.get_d());
 
             std::list<sm::rect>::iterator lastrect = this->rects.begin();
 #pragma omp parallel for
@@ -894,8 +894,8 @@ export namespace sm
                 float phi_imframe = (cg_polar.d_x[xi] * rad_per_dist) + view_angle;
                 if (phi_imframe > sm::mathconst<float>::pi) { phi_imframe -= sm::mathconst<float>::two_pi; }
                 // x,y in the image frame associated with r,phi in the polar rep:
-                sm::vec<float, 2> abs_xy_imframe = sm::vec<float, 2>({r * std::cos(phi_imframe),
-                                                                            r * std::sin(phi_imframe)}) + view_pos;
+                sm::vec<float, 2> abs_xy_imframe = {r * std::cos (phi_imframe), r * std::sin (phi_imframe)};
+                abs_xy_imframe += view_pos;
 
                 // If abs_xy_imframe is outside the bounds of the image region, then leave value 0 and move on.
                 if (this->is_inside_rectangular_boundary (abs_xy_imframe) == false) { continue; }
@@ -910,7 +910,7 @@ export namespace sm
 
                 // Closest pix
                 std::list<sm::rect>::iterator curr = nearest;
-                float dd = (abs_xy_imframe - sm::vec<float, 2>({curr->x, curr->y})).length();
+                float dd = (abs_xy_imframe - sm::vec<float, 2>{ curr->x, curr->y }).length();
                 float expr = std::exp ( -(assumecirc * dd * dd) ) * image_data[curr->vi];
 
                 float contributors = 1.0f;
@@ -918,7 +918,7 @@ export namespace sm
                 for (std::uint16_t nn = 0; nn < 8; ++nn) {
                     if (nearest->has_neighbour(nn)) {
                         curr = nearest->get_neighbour(nn);
-                        float dd = (abs_xy_imframe - sm::vec<float, 2>({curr->x, curr->y})).length();
+                        float dd = (abs_xy_imframe - sm::vec<float, 2>{ curr->x, curr->y }).length();
                         // sum according to 2D Gaussian:
                         expr += std::exp ( -(assumecirc * dd * dd) ) * image_data[curr->vi];
                         contributors += 1.0f;
@@ -1256,46 +1256,46 @@ export namespace sm
         /*!
          * Getter for d.
          */
-        float getd() const { return this->d; }
+        float get_d() const { return this->d; }
 
         /*!
          * Getter for v - vertical rect spacing.
          */
-        float getv() const { return this->v; }
+        float get_v() const { return this->v; }
 
         //! Get the x_span/y_span
-        sm::vec<float, 2> getSpan() const { return sm::vec<float, 2>({this->x_span, this->y_span}); }
+        sm::vec<float, 2> get_span() const { return sm::vec<float, 2>{this->x_span, this->y_span}; }
 
         //! Get the x/y span in elements/pixels
-        sm::vec<std::uint32_t, 2> getSpanPix() const
+        sm::vec<std::uint32_t, 2> get_span_pix() const
         {
             std::uint32_t _x_pixdist = static_cast<std::uint32_t>(std::round(this->x_span/this->d));
             std::uint32_t _y_pixdist = static_cast<std::uint32_t>(std::round(this->y_span/this->v));
-            return sm::vec<std::uint32_t, 2>({ 1+_x_pixdist, 1+_y_pixdist });
+            return sm::vec<std::uint32_t, 2>{ 1 + _x_pixdist, 1 + _y_pixdist };
         }
 
         /*!
          * Get the shortest distance from the centre to the perimeter. This is the
          * "short radius".
          */
-        float getSR() const { return this->d/2; }
+        float get_sr() const { return 0.5f * this->d; }
 
         /*!
          * The distance from the centre of the rect to any of the vertices. This is the
          * "long radius".
          */
-        float getLR() const { return 0.5f * std::sqrt (this->d*this->d + this->v*this->v); }
+        float get_lr() const { return 0.5f * std::sqrt (this->d * this->d + this->v * this->v); }
 
         /*!
          * The vertical distance from the centre of the rect to the "north east" vertex
          * of the rect.
          */
-        float getVtoNE() const { return (0.5f * this->v); }
+        float get_v_to_ne() const { return 0.5f * this->v; }
 
         /*!
          * Compute and return the area of one rect in the grid.
          */
-        float getRectArea() const { return (this->d * this->v); }
+        float get_rect_area() const { return this->d * this->v; }
 
         /*!
          * Run through all the rects and compute the distance to the nearest boundary
@@ -1667,7 +1667,7 @@ export namespace sm
                 throw std::runtime_error ("The data vector is not the same size as the cartgrid.");
             }
             // Could relax this test...
-            if (kernelgrid.getd() != this->d) {
+            if (kernelgrid.get_d() != this->d) {
                 throw std::runtime_error ("The kernel cartgrid must have same d as this cartgrid to carry out convolution.");
             }
             if (&data == &result) {
@@ -2241,8 +2241,8 @@ export namespace sm
          * with region boundaries.
          */
         void mark_from_boundary (std::list<rect*>::iterator hi,
-                               std::uint32_t bdry_flag = RECT_IS_BOUNDARY,
-                               std::uint32_t inside_flag = RECT_INSIDE_BOUNDARY)
+                                 std::uint32_t bdry_flag = RECT_IS_BOUNDARY,
+                                 std::uint32_t inside_flag = RECT_INSIDE_BOUNDARY)
         {
             this->mark_from_boundary ((*hi), bdry_flag, inside_flag);
         }
