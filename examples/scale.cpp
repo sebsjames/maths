@@ -10,8 +10,9 @@
 #include <list>
 #include <array>
 #include <iostream>
-#include <sm/scale>
-#include <sm/vvec>
+
+import sm.scale;
+import sm.vvec;
 
 int main()
 {

@@ -1,34 +1,41 @@
-cmake_minimum_required(VERSION 3.14)
-project(maths)
+# 3.28.5 for basic C++20 modules; 3.30 to give access to import std;
+cmake_minimum_required(VERSION 3.28.5)
+
+# For future import std; support:
+# This specific value changes as experimental support evolves. See
+# `Help/dev/experimental.rst` in the CMake source corresponding to
+# your CMake build for the exact value to use.
+# This value is ok for cmake versions from 3.31.11 up to 4.2.3 (Seb)
+# set(CMAKE_EXPERIMENTAL_CXX_IMPORT_STD "d0edc3af-4c50-42ea-a356-e2862fe7a444")
+
+project(maths LANGUAGES CXX)
 
 message(STATUS "Install prefix: ${CMAKE_INSTALL_PREFIX}")
 message(STATUS "  (This can be changed with `cmake -DCMAKE_INSTALL_PREFIX=/some/place`")
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 20) # Would need to be 23 for future import std; support
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
+# For clang and future import std; support
+# set(CMAKE_CXX_EXTENSIONS ON)
+
+# For future import std; support:
+# Tell CMake that we explicitly want `import std`. This will initialize the
+# property on all targets declared after this to 1
+# set(CMAKE_CXX_MODULE_STD 1)
 
 # Add cmake directory to cmake modules path
-set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
+set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 
 # A build-failure test from https://github.com/iboB/icm
-#include(icm_build_failure_parse_and_run)
 include(icm_build_failure_testing)
 
 include(CheckIncludeFileCXX) # CHECK_INCLUDE_FILE_CXX will be used in later scripts
 
-# If I *require* std::format, I can start using it across this library. That
-# limits us to gcc-13 on Ubuntu (though it's the libc++ that contains
-# <format>). For now, test and use it only in examples.
-check_include_file_cxx(format HAVE_STD_FORMAT)
-if(NOT HAVE_STD_FORMAT)
-  message(INFO " Your compiler does not appear to provide std::format, some examples won't build.")
-  message(INFO " In future, <format> may be required.")
-endif()
+include(module_definitions)
 
 # Add the host definition to CXXFLAGS along with other switches
 if (APPLE)
-  set(CMAKE_CXX_FLAGS "-Wall -g -O3")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -g -O3")
 else()
   if(CMAKE_CXX_COMPILER_ID MATCHES MSVC OR CMAKE_CXX_COMPILER_FRONTEND_VARIANT MATCHES MSVC)
     # Set flags for Windows.
@@ -37,25 +44,32 @@ else()
     # /Zc:__cplusplus ensures __cplusplus define does not lie
     # /constexpr:steps is equivalent to -fconstexpr-steps or -fconstexpr-ops-limit
     if(CMAKE_CXX_COMPILER_ID MATCHES MSVC)
-      set(CMAKE_CXX_FLAGS "-DNOMINMAX /EHsc /Zc:__cplusplus /constexpr:steps500000000")
+      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DNOMINMAX /EHsc /Zc:__cplusplus /constexpr:steps500000000")
     else()
-      set(CMAKE_CXX_FLAGS "-DNOMINMAX /EHsc /Zc:__cplusplus")
+      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DNOMINMAX /EHsc /Zc:__cplusplus")
     endif()
   elseif(CMAKE_CXX_COMPILER_ID MATCHES Intel)
     # To use Intel compiler, you can call cmake as: `cmake -DCMAKE_CXX_COMPILER=icpc ..` or `CXX=icpc cmake ..`
     message(WARNING "Intel compiler has not been tested for some time")
-    set(CMAKE_CXX_FLAGS "-Wall -g -std=c++20 -xHOST -O3")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -g -std=c++20 -xHOST -O3")
   else() # GCC or Clang
-    if(CMAKE_CXX_COMPILER_ID MATCHES GNU)
+    if(CMAKE_CXX_COMPILER_ID MATCHES Clang)
+      if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 18)
+        message(FATAL_ERROR "Clang version must be at least 18")
+      else()
+        message(STATUS "Clang version ${CMAKE_CXX_COMPILER_VERSION} OK!")
+      endif()
+    elseif(CMAKE_CXX_COMPILER_ID MATCHES GNU)
       # Add compiler version check, to ensure gcc is version 11 or later.
-      if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 11)
-        message(FATAL_ERROR "GCC version must be at least 11")
+      if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 14)
+        message(FATAL_ERROR "GCC version must be at least 14")
       else()
         message(STATUS "GCC version ${CMAKE_CXX_COMPILER_VERSION} OK!")
       endif()
     endif()
+
     set(COMPREHENSIVE_WARNING_FLAGS "-Wall -Wextra -Wpedantic -pedantic-errors -Werror -Wfatal-errors -Wno-psabi -Wno-unknown-pragmas")
-    set(CMAKE_CXX_FLAGS "-g ${COMPREHENSIVE_WARNING_FLAGS} -O3")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g ${COMPREHENSIVE_WARNING_FLAGS} -O3")
     if(CMAKE_CXX_COMPILER_ID MATCHES GNU)
       # Make it possible to compile complex constexpr functions (gcc only)
       set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fconstexpr-ops-limit=5000000000")
@@ -65,26 +79,10 @@ else()
   endif()
 endif()
 
-# If you tell the code you have std::format, then it may use it
-if(HAVE_STD_FORMAT)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DMATHS_HAVE_STD_FORMAT")
-endif()
-
 # In Visual Studio, if CMAKE_BUILD_TYPE is "Debug", some programs will run very slowly
 if(WIN32)
   set(CMAKE_BUILD_TYPE "Release")
 endif(WIN32)
-
-# Some programs may require the ability to define literal template args of
-# type std::array (a C++-20 feature). Clang versions less than 18 can't.
-set(ARRAY_LITERAL_TEMPL_ARGS_ARE_OK 0)
-if(CMAKE_CXX_COMPILER_ID MATCHES Clang)
-  if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 18)
-    set(ARRAY_LITERAL_TEMPL_ARGS_ARE_OK 1)
-  endif()
-else()
-  set(ARRAY_LITERAL_TEMPL_ARGS_ARE_OK 1)
-endif()
 
 # Lib finding
 
@@ -99,16 +97,28 @@ if(HDF5_FOUND)
   include_directories(${HDF5_INCLUDE_DIR})
 endif()
 
-find_package(Armadillo)
-if(ARMADILLO_FOUND)
-  include_directories(${ARMADILLO_INCLUDE_DIR} ${ARMADILLO_INCLUDE_DIRS})
-endif()
-
-# Use packaged nlohmann json
-#find_package(nlohmann_json REQUIRED)
+# Use packaged nlohmann json. Required only for config1 test and use
+# of sm::config. It *does* have to be a version of nlohmann::json that
+# is happy to be incorporated into a module.
+find_package(nlohmann_json)
 
 # For a test program
-find_package (Eigen3 NO_MODULE)
+find_package(Eigen3 NO_MODULE)
+
+# A macro to make a list of modules into a unique list then add then to target_name
+function(target_sources_modules target_name)
+  # Parse function args for MODULES
+  set(multiValueArgs MODULES)
+  cmake_parse_arguments(PARSE_ARGV 0 arg "" "" "${multiValueArgs}")
+  # Uniqueify arg_MODULES:
+  list(REMOVE_DUPLICATES arg_MODULES)
+  target_sources(${target_name} PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${PROJECT_SOURCE_DIR} FILES ${arg_MODULES})
+endfunction()
+
+#
+# Module groups. see module_definitions.cmake
+#
+setup_module_variables_for_maths (${PROJECT_SOURCE_DIR})
 
 # All the headers are here
 add_subdirectory(sm)
@@ -119,6 +129,9 @@ if(BUILD_TESTS)
   enable_testing()
   add_subdirectory(tests)
 endif(BUILD_TESTS)
+
+# Programs that should NOT compile. These take a little longer to run
+option(BUILD_COMPILE_FAILURE_TESTS "Build compile failure tests" OFF)
 
 # Example code (you can also see tests/ for examples)
 option(BUILD_EXAMPLES "Build examples" ON)

@@ -1,5 +1,7 @@
 #include <iostream>
-#include <sm/algo>
+#include <limits>
+
+import sm.algo;
 
 int main()
 {

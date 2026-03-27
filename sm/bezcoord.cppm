@@ -1,0 +1,134 @@
+// -*- C++ -*-
+/*!
+ * This file is part of sebsjames/maths, a library of maths code for modern C++
+ *
+ * See https://github.com/sebsjames/maths
+ *
+ * sm::bezcoord - a Bezier curve coordinate class.
+ */
+module;
+
+#include <cmath>
+#include <ostream>
+#include <cmath>
+#include <concepts>
+
+export module sm.bezcoord;
+
+export import sm.vec;
+
+export namespace sm
+{
+    /*!
+     * A class defining a bezier curve coordinate, along with its parameter value and
+     * the distance remaining to the end of the curve.
+     */
+    template <typename F> requires std::is_floating_point_v<F>
+    struct bezcoord
+    {
+        //! Construct empty bezcoord. Defaults to non-null.
+        bezcoord() {}
+        //! Construct empty coordinate, which may or may not be set to null.
+        bezcoord (bool nullcoord) : null_coordinate (nullcoord) {}
+        //! Construct using just a 2D coordinate
+        bezcoord (const sm::vec<F, 2>& r) : coord(r) {}
+        //! Construct with coordinate and corresponding t parameter
+        bezcoord (F t, const sm::vec<F, 2>& r) : coord(r), param(t) {}
+        //! Construct with coord & t and also set the para remaining
+        bezcoord (F t, const sm::vec<F, 2>& r, F remain) : coord(r), param(t), remaining(remain) {}
+
+        // Accessors
+        F get_remaining() const { return this->remaining; }
+        bool get_null_coordinate() const { return this->null_coordinate; }
+        bool is_null() const { return this->null_coordinate; }
+        void set_remaining (F r) { this->remaining = r; }
+        void set_null_coordinate (bool b) { this->null_coordinate = b; }
+
+        // Single character accessors, for easy-to-read client code.
+        F x() const { return this->coord[0]; }
+        F y() const { return this->coord[1]; }
+        F t() const { return this->param; }
+
+        //! Use this if you need to invert the y axis
+        void invert_y() { this->coord[1] = -this->coord[1]; }
+
+        /*!
+         * Normalize the length that is made by drawing a vector from the origin to this
+         * coordinate.
+         */
+        void normalize()
+        {
+            bezcoord origin(sm::vec<F, 2>({0.0f,0.0f}));
+            F len = origin.distance_to (*this);
+            this->coord /= len;
+        }
+
+        /*!
+         * Compute the Euclidean distance from the current coordinate to the given
+         * coordinate.
+         */
+        F distance_to (bezcoord& other) const { return (this->coord - other.coord).length(); }
+
+        //! Horizontal distance between two bezcoords.
+        F horz_distance_to (bezcoord& other) const { return (std::abs(this->x() - other.x())); }
+
+        //! Vertical distance between two bezcoords.
+        F vert_distance_to (bezcoord& other) const { return (std::abs(this->y() - other.y())); }
+
+        //! Subtract the coordinate c from this bezcoord.
+        void subtract (const sm::vec<F, 2>& c) { this->coord -= c; }
+
+        //! Subtract the coordinate c from this bezcoord.
+        void subtract (const bezcoord& c) { this->coord -= c.coord; }
+
+        //! Add the coordinate c to this bezcoord.
+        void add (const sm::vec<F, 2>& c) { this->coord += c; }
+
+        //! Add the coordinate c to this bezcoord.
+        void add (const bezcoord& c) { this->coord += c.coord; }
+
+        bezcoord<F> operator- (const bezcoord& br) const
+        {
+            sm::vec<F, 2> p;
+            p = this->coord - br.coord;
+            return bezcoord<F>(p); // Note returned object contains remaining and param == -1
+        }
+
+        friend std::ostream& operator<< (std::ostream& output, const bezcoord& b)
+        {
+            output << b.t() << "," << b.x() << "," << b.y();
+            return output;
+        }
+
+        /*!
+         * Cartesian coordinates of the point. In keeping with SVG, coord.first (x) is
+         * positive rightwards and coord.second is positive downwards.
+         */
+        sm::vec<F, 2> coord = { F{0}, F{0} };
+
+        /*!
+         * The parameter value used to obtain this coordinate. Note this is only
+         * meaningful when this bezcoord is considered in conjunction with a bezcurve
+         * instance.
+         *
+         * Range is 0 to 1.0. If set to -1.0, then this means "unset".
+         */
+        F param = F{-1};
+
+    private:
+        /*!
+         * If set >-1, stores the remaining distance to the end point of the curve.
+         *
+         * Range is 0 to the max of type F. If set to -1.0, then this means "unset".
+         */
+        F remaining = F{-1};
+
+        /*!
+         * If this is a null coordinate, set this to true. Note that a bezcoord may have
+         * a null coordinate but non-null param or remaining attributes, in the cases
+         * where that might be useful.
+         */
+        bool null_coordinate = false;
+    };
+
+} // namespace sm

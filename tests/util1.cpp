@@ -1,8 +1,10 @@
 #include <string>
 #include <iostream>
 #include <fstream>
-#include <sm/vec>
-#include <sm/util>
+#include <cstdint>
+
+import sm.vec;
+import sm.util;
 
 int main()
 {

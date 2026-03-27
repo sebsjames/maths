@@ -1,0 +1,611 @@
+// -*- C++ -*-
+/*
+ * This file is part of sebsjames/maths, a library of maths code for modern C++
+ *
+ * See https://github.com/sebsjames/maths
+ *
+ * Geometry algorithms.
+ */
+module;
+
+#include <cstdint>
+#include <tuple>
+#include <algorithm>
+#include <iostream>
+#include <limits>
+#include <cmath>
+#include <bitset>
+#include <type_traits>
+
+export module sm.geometry;
+
+export import sm.mathconst;
+import sm.constexpr_math;
+import sm.range;
+import sm.algo;
+export import sm.vec;
+export import sm.vvec;
+
+export namespace sm
+{
+    enum class rotation_sense : std::uint32_t
+    {
+        colinear,
+        clockwise,
+        anticlockwise
+    };
+}
+
+export namespace sm::geometry
+{
+    /*!
+     * Compute orientation of three points which form a triangle pqr.
+     *
+     * \return 0 if co-linear, 1 if clockwise; 2 if anticlockwise
+     *
+     * Algorithm, which uses slopes, taken from
+     * https://www.geeksforgeeks.org/orientation-3-ordered-points/
+     */
+    template<typename T>
+    constexpr rotation_sense orientation (const sm::vec<T, 2>& p, const sm::vec<T, 2>& q, const sm::vec<T, 2>& r)
+    {
+        T val = (q[1] - p[1]) * (r[0] - q[0])  -  (q[0] - p[0]) * (r[1] - q[1]);
+        if (val == T{0}) { return rotation_sense::colinear; }
+        return (val > T{0}) ? rotation_sense::clockwise : rotation_sense::anticlockwise;
+    }
+
+    /*!
+     * Given three colinear points p, q, r, the function checks if
+     * point q lies on line segment 'pr'.
+     *
+     * Copied from:
+     * https://www.geeksforgeeks.org/check-if-two-given-line-segments-intersect/
+     */
+    template<typename T>
+    bool onsegment (const sm::vec<T, 2>& p, const sm::vec<T, 2>& q, const sm::vec<T, 2>& r)
+    {
+        return (q[0] <= std::max(p[0], r[0]) && q[0] >= std::min(p[0], r[0])
+                && q[1] <= std::max(p[1], r[1]) && q[1] >= std::min(p[1], r[1]));
+    }
+
+    /*!
+     * Do the line segments p1-q1 and p2-q2 intersect? Are they instead colinear? Return these
+     * booleans in a bitset (bit0: intersection, bit1: colinear)
+     *
+     * \param p1 Start of line segment 1
+     * \param q1 End of line segment 1
+     * \param p2 Start of line segment 2
+     * \param q2 End of line segment 2
+     *
+     * \return A bitset whose bit 0 indicates if the lines intersect and whose bit 1 indicates
+     * if the lines are colinear
+     */
+    template<typename T>
+    std::bitset<2> segments_intersect (const sm::vec<T, 2>& p1, const sm::vec<T, 2> q1,
+                                       const sm::vec<T, 2>& p2, const sm::vec<T, 2> q2)
+    {
+        std::bitset<2> rtn;
+        sm::rotation_sense p1q1p2 = sm::geometry::orientation (p1, q1, p2);
+        sm::rotation_sense p1q1q2 = sm::geometry::orientation (p1, q1, q2);
+        sm::rotation_sense p2q2p1 = sm::geometry::orientation (p2, q2, p1);
+        sm::rotation_sense p2q2q1 = sm::geometry::orientation (p2, q2, q1);
+        if (p1q1p2 != p1q1q2 && p2q2p1 != p2q2q1) { // They intersect
+            rtn.set(0, true);
+        } else { // Are they colinear?
+            if (p1q1p2 == sm::rotation_sense::colinear && sm::geometry::onsegment (p1, p2, q1)) { rtn.set(1, true); }
+            else if (p1q1q2 == sm::rotation_sense::colinear && sm::geometry::onsegment (p1, q2, q1)) { rtn.set(1, true); }
+            else if (p2q2p1 == sm::rotation_sense::colinear && sm::geometry::onsegment (p2, p1, q2)) { rtn.set(1, true); }
+            else if (p2q2q1 == sm::rotation_sense::colinear && sm::geometry::onsegment (p2, q1, q2)) { rtn.set(1, true); }
+        }
+
+        return rtn;
+    }
+
+    /*!
+     * Find the coordinate of the crossing point of the two line segments p1-q1 and p2-q2,
+     * *assuming* the segments intersect. Call this *after* you have used
+     * geometry::segments_intersect!
+     *
+     * \param p1 Start of line segment 1
+     * \param q1 End of line segment 1
+     * \param p2 Start of line segment 2
+     * \param q2 End of line segment 2
+     *
+     * \return Coordinate of the crossing point
+     */
+    template<typename T>
+    sm::vec<T, 2> crossing_point (const sm::vec<T, 2>& p1, const sm::vec<T, 2>& q1,
+                                  const sm::vec<T, 2>& p2, const sm::vec<T, 2>& q2)
+    {
+        sm::vec<T, 2> p = p1;
+        sm::vec<T, 2> r = p1 - q1;
+        sm::vec<T, 2> q = p2;
+        sm::vec<T, 2> s = p2 - q2;
+        auto t = (q - p).cross(s / r.cross(s));
+        sm::vec<T, 2> cross_point = p + t * r;
+        return cross_point;
+    }
+
+    /*!
+     * Find the convex hull of the given points on a 2D plane using Graham's scan.
+     *
+     * Coded up with the help of the Wikipedia page on Graham's scan.
+     */
+    template<typename T> requires std::is_arithmetic_v<T>
+    sm::vvec<sm::vec<T, 2>> graham_scan (const sm::vvec<sm::vec<T, 2>>& points)
+    {
+        // Find the lowest left point in points
+        sm::vec<T, 2> lowestleft = { std::numeric_limits<T>::max(), std::numeric_limits<T>::max() };
+        for (auto p : points) {
+            if (p[1] < lowestleft[1]) {
+                lowestleft = p;
+            } else if (p[1] == lowestleft[1]) {
+                if (p[0] < lowestleft[0]) {
+                    lowestleft = p;
+                }
+            } // else lowestleft unchanged
+        }
+
+        // Sort a copy of points by polar angle wrt lowestleft
+        sm::vvec<sm::vec<T, 2>> psrtd = points;
+        std::sort (psrtd.begin(), psrtd.end(), [lowestleft](const sm::vec<T, 2>& a, const sm::vec<T, 2>& b){
+            auto av = a - lowestleft;
+            auto bv = b - lowestleft;
+            T aa = av.angle();
+            T bb = bv.angle();
+            if (std::abs (aa - bb) < std::numeric_limits<T>::epsilon()) {
+                // If co-linear, sort based on length
+                return av.length_sq() < bv.length_sq();
+            }
+            return aa < bb;
+        });
+
+        sm::vvec<sm::vec<T, 2>> chull = {}; // Return object. Treated as a stack (LIFO) with push_back() and pop_back()
+        for (auto p : psrtd) {
+            while (chull.size() > 1
+                   && sm::geometry::orientation<T> (chull[chull.size() - 2], chull.back(), p) != rotation_sense::anticlockwise) {
+                chull.pop_back();
+            }
+            chull.push_back (p);
+        }
+
+        return chull;
+    }
+
+    // Does the line defined by p0->p1 pass through the box defined by the range box?
+    template<typename T>
+    bool aabb_line_intersect (const sm::range<sm::vec<T, 3>>& box,
+                              const sm::vec<T, 3>& p0, const sm::vec<T, 3>& p1)
+    {
+        auto line_intersect = [box, p0, p1](std::uint32_t dim)
+        {
+            sm::vec<T> p = p0;
+            sm::vec<T> v = p1 - p0;
+            sm::vec<T> n = sm::vec<T>::u(dim);
+            T ndotv = n.dot (v);
+            T ndotp = n.dot (p);
+            if (ndotv == T{0}) {
+                return false; // No intersect at all
+            }
+
+            T d = -box.min[dim];
+            T t = -(ndotp + d) / ndotv;
+            sm::vec<T> ip = p + v * t;
+
+            // Logic test...
+            bool isect1 = true;
+            for (std::uint8_t j = 0; j < 3; ++j) {
+                if (j != dim && (ip[j] < box.min[j] || ip[j] > box.max[j])) {
+                    isect1 = false;
+                }
+            }
+
+            d = -box.max[dim];
+            t = -(ndotp + d) / ndotv;
+            ip = p + v * t;
+
+            // Logic test...
+            bool isect2 = true;
+            for (std::uint8_t j = 0; j < 3; ++j) {
+                if (j != dim && (ip[j] < box.min[j] || ip[j] > box.max[j])) {
+                    isect2 = false;
+                }
+            }
+
+            return isect1 || isect2;
+
+        };
+        bool one = line_intersect (0);
+        bool two = line_intersect (1);
+        bool three = line_intersect (2);
+
+        return (one || two || three);
+    }
+
+    // Return the distance to the intersection of ray l0, l with plane p0, n.
+    // l0 is the ray origin, l is a vector giving the ray's direction and length
+    template<typename T>
+    T ray_plane_intersection (const sm::vec<T, 3>& p0, const sm::vec<T, 3>& n,
+                              const sm::vec<T, 3>& l0, const sm::vec<T, 3>& l)
+    {
+        T denom = l.dot (n);
+        T dist = (p0 - l0).dot (n) / denom;
+        if (sm::cem::isnan (dist) || sm::cem::isinf (dist)) {
+            return std::numeric_limits<T>::max(); // parallel; no intersection
+        } else {
+            return dist;
+        }
+    }
+
+    // Does the ray (l0, l) intersect with a disc radius r on plane (p0, n)?
+    // l0 is the ray origin, l is a vector giving the ray's direction and length
+    template<typename T>
+    bool ray_disc_intersection (const sm::vec<T, 3>& p0, const sm::vec<T, 3>& n, const T& r,
+                                const sm::vec<T, 3>& l0, const sm::vec<T, 3>& l)
+    {
+        T t = sm::geometry::ray_plane_intersection<T> (p0, n, l0, l);
+        if (t != std::numeric_limits<T>::max() && t != T{0}) {
+            sm::vec<T, 3> p = l0 + l * t;
+            sm::vec<T, 3> v = p - p0;
+            return (v.length_sq() <= r * r);
+        }
+        return false;
+    }
+
+    // Return the projection of the N dimensional vector v onto the hyperplane defined by the normal
+    // vector n. Defined for N >= 2 and floating point elements.
+    template<typename T, std::size_t N> requires std::is_floating_point_v<T> && (N > 1)
+    sm::vec<T, N> vector_plane_projection (const sm::vec<T, N>& n, const sm::vec<T, N>& v)
+    {
+        return v - (v.dot(n) / n.sos()) * n;
+    }
+
+    // Return the area of the 3D triangle - half of the unnormalized normal vector
+    template<typename T>
+    T tri_area (const sm::vec<T, 3>& t0, const sm::vec<T, 3>& t1, const sm::vec<T, 3>& t2)
+    {
+        return T{0.5} * (t1 - t0).cross (t2 - t0).length();
+    }
+
+    /*!
+     * Does the ray (l0, l) intersect with a triangle defined by t0, t1, t2?  l0 is the ray origin,
+     * l is a vector giving the ray's direction and length Return true/false. If true, p is the
+     * intersection coordinate. The order of the triangle indices is important (must be CW (? really
+     * clockwise ?))
+     * \tparam Ti the internal type for computations
+     */
+    template<typename T, typename Ti=T, bool include_boundary = true, bool sided = true, bool debug_rti = false>
+    std::tuple<bool, sm::vec<T, 3>> ray_tri_intersection (const sm::vec<T, 3>& t0, const sm::vec<T, 3>& t1, const sm::vec<T, 3>& t2,
+                                                          const sm::vec<T, 3>& l0, const sm::vec<T, 3>& l)
+    {
+        sm::vec<Ti, 3> _l = l.template as<Ti>();
+        sm::vec<Ti, 3> _n = (t1 - t0).cross (t2 - t0).template as<Ti>(); // renormalize not necessary in ray_plane_intersection
+
+        // The dirn of n and the sign of n.l is determined by the order of the triangle indices,
+        // which may, from an OpenGL indices container, be in any direction (either c.w or
+        // anti-c.w). So we have to pay attention to the defined normal on the three vertices as well.
+        if constexpr (sided) {
+            // Only register rays hitting front of triangle (so n must be -ve)
+            if (_n.dot (_l) >= Ti{0}) {
+                if constexpr (debug_rti) { std::cout << "RTI: ray hits the back, so no hit\n"; }
+                return { false, {} };
+            } // ray and plane are perpendicular or ray hits 'back'
+        } else {
+            if (_n.dot (_l) == Ti{0}) {
+                if constexpr (debug_rti) { std::cout << "RTI: ray/plane are perp., so no hit\n"; }
+                return { false, {} };
+            } // ray and plane are perpendicular
+        }
+        sm::vec<Ti, 3> _l0 = l0.template as<Ti>();
+        sm::vec<Ti, 3> _t0 = t0.template as<Ti>();
+        sm::vec<Ti, 3> _t1 = t1.template as<Ti>();
+        sm::vec<Ti, 3> _t2 = t2.template as<Ti>();
+
+        Ti d = sm::geometry::ray_plane_intersection<Ti> (_t0, _n, _l0, _l);
+        if (d < Ti{0}) {
+            if constexpr (debug_rti) {
+                std::cout << "RTI: triangle behind ray (" << d << " < 0), so no hit\n";
+            }
+            return { false, {} };
+        } // triangle is behind ray
+        if (d == std::numeric_limits<Ti>::max()) {
+            if constexpr (debug_rti) { std::cout << "RTI: ray/plane are parallel, so no hit\n"; }
+            return { false, {} };
+        } // ray and plane are parallel
+        sm::vec<Ti, 3> _p = d * _l + _l0; // hit point, p
+        // Test if p is inside t0,t1,t2.
+        bool isect = false;
+        if constexpr (include_boundary) {
+            // what if n was flipped?
+            isect = ((_n.dot ((_t1 - _t0).cross (_p - _t0)) >= Ti{0}) // >= to include triangle boundary
+                     && (_n.dot ((_t2 - _t1).cross (_p - _t1)) >= Ti{0})
+                     && (_n.dot ((_t0 - _t2).cross (_p - _t2)) >= Ti{0}));
+        } else {
+            isect = ((_n.dot ((_t1 - _t0).cross (_p - _t0)) > Ti{0})
+                     && (_n.dot ((_t2 - _t1).cross (_p - _t1)) > Ti{0})
+                     && (_n.dot ((_t0 - _t2).cross (_p - _t2)) > Ti{0}));
+        }
+        sm::vec<T, 3> p = _p.template as<T>();
+        return { isect, p };
+    }
+
+    // Compute distance-squared from point p to the line segment from v0 to v1. See https://paulbourke.net/geometry/
+    template<typename T, std::size_t N = 3>
+    T dist_to_lineseg_sq (const sm::vec<T, N>& v0, const sm::vec<T, N>& v1, const sm::vec<T, N>& p)
+    {
+        sm::vec<T, N> ev = v1 - v0; // edge vector
+        T l2 = ev.length_sq();
+        sm::vec<T, N> pv = p - v0;
+        if (l2 == T{0}) { return pv.length_sq(); }
+        T t = pv.dot (ev) / l2; // what proportion of pv projects onto ev?
+
+        sm::vec<T, N> pp = -p; // projection point '*'
+        if (t < T{0}) {
+            // Closest line seg end is v0
+            pp += v0;
+        } else  if (t > T{1}) {
+            // Closest line seg end is v1
+            pp += v1;
+        } else {
+            // It's the distance to the projection of p between v0 and v1
+            pp += (v0 + t * ev);
+        }
+        return pp.length_sq();
+
+        /*
+         * From '*' above is equivalent to the more easily understood:
+         *
+         * sm::vec<T, N> pp = {}; // projection point
+         * if (t < T{0}) { pp = v0; } else if (t > T{1}) { pp = v1; } else { pp = (v0 + t * ev); }
+         * return (pp - p).length_sq();
+         */
+    }
+
+    //! Compute distance from point p to the line segment from v0 to v1
+    template<typename T, std::size_t N = 3>
+    T dist_to_lineseg (const sm::vec<T, N>& v0, const sm::vec<T, N>& v1, const sm::vec<T, N>& p)
+    {
+        return sm::cem::sqrt (sm::geometry::dist_to_lineseg_sq (v0, v1, p));
+    }
+
+    //! Compute the distances from p to the triangle edges t0-t1, t1-t2 and t2-t0 and return the shortest one
+    template<typename T>
+    T dist_to_tri_edge (const sm::vec<T, 3>& t0, const sm::vec<T, 3>& t1, const sm::vec<T, 3>& t2, const sm::vec<T, 3>& p)
+    {
+        T d = std::numeric_limits<T>::max();
+
+        T _d = sm::geometry::dist_to_lineseg (t0, t1, p);
+        if (_d == T{0}) { return _d; }
+        d = std::min (_d, d);
+        _d = sm::geometry::dist_to_lineseg (t1, t2, p);
+        if (_d == T{0}) { return _d; }
+        d = std::min (_d, d);
+        _d = sm::geometry::dist_to_lineseg (t2, t0, p);
+        d = std::min (_d, d);
+
+        return d;
+    }
+
+    //! Compute the squared distances from p to the triangle edges t0-t1, t1-t2 and t2-t0 and return the shortest one
+    template<typename T>
+    T dist_to_tri_edge_sq (const sm::vec<T, 3>& t0, const sm::vec<T, 3>& t1, const sm::vec<T, 3>& t2, const sm::vec<T, 3>& p)
+    {
+        T d = std::numeric_limits<T>::max();
+
+        T _d = sm::geometry::dist_to_lineseg_sq (t0, t1, p);
+        if (_d == T{0}) { return _d; }
+        d = std::min (_d, d);
+        _d = sm::geometry::dist_to_lineseg_sq (t1, t2, p);
+        if (_d == T{0}) { return _d; }
+        d = std::min (_d, d);
+        _d = sm::geometry::dist_to_lineseg_sq (t2, t0, p);
+        d = std::min (_d, d);
+
+        return d;
+    }
+
+    // Does ray l0,l pass through/almost-nearly-through point p0? If so, return true
+    template<typename T>
+    bool ray_point_intersection (const sm::vec<T, 3>& p0, const sm::vec<T, 3>& l0, const sm::vec<T, 3>& l,
+                                 const T close_enough = std::numeric_limits<T>::epsilon())
+    {
+        T dist = sm::geometry::dist_to_lineseg<T, 3> (l0, (l0 + l), p0);
+        if (dist <= close_enough) { return true; }
+        return false;
+    }
+
+    // Find the 0, 1 or 2 points in space that the vector originating from l0 in direction l
+    // intersects with the sphere of radius s and centre s0.
+    template<typename T>
+    sm::vec<sm::vec<T, 3>, 2> ray_sphere_intersection (const sm::vec<T, 3>& s0, const T s, const sm::vec<T, 3>& l0, const sm::vec<T, 3>& l)
+    {
+        sm::vec<sm::vec<T, 3>, 2> rtn;
+        rtn[0] = {std::numeric_limits<T>::max()};
+        rtn[1] = {std::numeric_limits<T>::max()};
+        // Analytic solution
+        sm::vec<T, 3> L = l0 - s0;
+        T a = l.dot(l);
+        T b = T{2} * l.dot(L);
+        T c = L.dot(L) - s * s;
+        sm::vec<T, 2> t = sm::algo::solve_quadratic (a, b, c);
+        if (t[0] == std::numeric_limits<T>::max() && t[1] == t[0]) { return rtn; }
+
+        if (t[0] < T{0}) {
+            t[0] = t[1]; // If t0 is negative, let's use t1 instead.
+            if (t[0] < T{0}) { return rtn; } // Both t0 and t1 are negative.
+        }
+
+        // Compute rtn from t0, t1
+        rtn[0] = l0 + l * t[0];
+        rtn[1] = l0 + l * t[1];
+
+        return rtn;
+    }
+
+    namespace spherical_projection
+    {
+        enum class type : std::uint32_t
+        {
+            mercator,
+            equirectangular,
+            cassini
+        };
+
+        // Convert a position in xyz (ECEF Cartesian coordinates) to latitude/longitude where z is
+        // 'up' and 0 degrees longitude is the 'front of the earth' and the 'central meridian'. The
+        // output longitude will be in the interval (-pi, pi]. The output latitude is in the range
+        // [-pi/2, pi/2]. The length of the vector xyz is assumed to be the radius of the sphere.
+        template<typename T>
+        sm::vec<T, 2> xyz_to_latlong (const sm::vec<T, 3>& xyz)
+        {
+            const T r_sph = xyz.length();
+            return sm::vec<T, 2>{ sm::cem::asin (xyz[2] / r_sph), sm::cem::atan2 (xyz[1], xyz[0]) };
+        }
+
+        template<typename T>
+        sm::vec<T, 3> latlong_to_xyz (const sm::vec<T, 2>& latlong, const T& r_sph)
+        {
+            T coslat = sm::cem::cos (latlong[0]);  // latitude
+            T sinlat = sm::cem::sin (latlong[0]);
+            T coslong = sm::cem::cos (latlong[1]); // longitude
+            T sinlong = sm::cem::sin (latlong[1]);
+            return sm::vec<T, 3>{ r_sph * coslat * coslong, r_sph * coslat * sinlong , r_sph * sinlat };
+        }
+
+        /*
+         * Return planar Cartesian coordinates for the given latitude/longitude (in radians) on a
+         * sphere of radius r_sph given the Mercator mapping. Longitude will be constrained to be
+         * in the range (-pi, pi]. Lambda0 is a longitudinal offset.
+         *
+         * \param latlong The latitude and longitude input to map, in radians. longitude
+         * (latlong[1]) will be shifted by lambda0 and constrained between -pi and pi.
+         *
+         * \param r_sph The radius of the sphere
+         *
+         * \param lambda0 The central meridian for the map (radians). A 'longitudinal offset'.
+         */
+        template<typename T>
+        constexpr sm::vec<T, 2> mercator (const sm::vec<T, 2>& latlong, const T& r_sph, const T lambda0 = T{0})
+        {
+            T _tan = sm::cem::tan ( (latlong[0] + sm::mathconst<T>::pi_over_2) / T{2});
+            if (_tan == T{0}) { _tan = sm::cem::tan (sm::mathconst<T>::pi_over_2); } // avoid inf in return
+            T _long = latlong[1] - lambda0;
+            sm::algo::minus_pi_to_pi (_long);
+            return sm::vec<T, 2>{ r_sph * _long, r_sph * sm::cem::log (_tan) };
+        }
+
+        /*
+         * Return planar Cartesian coordinates for the given latitude/longitude (in radians) on a
+         * sphere of radius r_sph given the Equirectangular mapping.
+         *
+         * \tparam T the floating point type to use when computing the projection
+         *
+         * \param latlong The latitude and longitude input to map, in radians. longitude
+         * (latlong[1]) will be shifted by lambda0 and constrained between -pi and pi.
+         *
+         * \param r_sph The radius of the sphere
+         *
+         * \param lambda0 The central meridian for the map (radians). A 'longitudinal offset'.
+         *
+         * \param phi0 The 'central parallel' of the map (radians). This gives a 'latitudinal
+         * offset'. The map is cycled.
+         *
+         * \param phi1 The latitude that will show true scale in radians (0 gives flat square; pi/4
+         * gives the Gall isographic projection, etc, for details see the Wikipedia page). This
+         * essentially scales the output 2D map in the x-direction.
+         */
+        template<typename T>
+        constexpr sm::vec<T, 2> equirectangular (const sm::vec<T, 2>& latlong, const T& r_sph,
+                                                 const T lambda0 = T{0}, const T phi0 = T{0}, const T phi1 = T{0})
+        {
+            T cosphi1 = sm::cem::cos (phi1);
+            T _long = latlong[1] - lambda0;
+            sm::algo::minus_pi_to_pi (_long);
+            T _lat = latlong[0] - phi0;
+            if (_lat <= -sm::mathconst<T>::pi_over_2) {
+                _lat += sm::mathconst<T>::pi;
+            } else if (_lat > sm::mathconst<T>::pi_over_2) {
+                _lat -= sm::mathconst<T>::pi;
+            }
+            return sm::vec<T, 2> { r_sph * _long * cosphi1, r_sph * _lat };
+        }
+
+        /*
+         * Return planar Cartesian coordinates for the given latitude/longitude (in radians) on a
+         * sphere of radius r_sph given the Cassini mapping.
+         *
+         * \param latlong The latitude and longitude input to map, in radians. longitude
+         * (latlong[1]) will be shifted by lambda0 and constrained between -pi and pi.
+         *
+         * \param r_sph The radius of the sphere
+         *
+         * \param lambda0 The central meridian for the map (radians). A 'longitudinal offset'.
+         *
+         */
+        template<typename T>
+        constexpr sm::vec<T, 2> cassini (const sm::vec<T, 2>& latlong, const T& r_sph, const T lambda0 = T{0})
+        {
+            T _long = latlong[1] - lambda0;
+            sm::algo::minus_pi_to_pi (_long);
+            return sm::vec<T, 2>{
+                r_sph * sm::cem::asin (sm::cem::cos (latlong[0]) * sm::cem::sin (_long)),
+                r_sph * sm::cem::atan2 (sm::cem::sin (latlong[0]), sm::cem::cos (latlong[0]) * sm::cem::cos (_long))
+            };
+        }
+
+        // Return latitude, longitude (in radians) in a vec<T, 2> for the given 2D coordinate on a
+        // plane which was mapped using the equirectangular projection.
+        template<typename T>
+        constexpr sm::vec<T, 2> inverse_equirectangular (const sm::vec<T, 2>& xy, const T& r_sph,
+                                                         const T lambda0 = T{0}, const T phi0 = T{0}, const T phi1 = T{0})
+        {
+            return sm::vec<T, 2>{ xy[1] / r_sph + phi0,  xy[0] / (r_sph * sm::cem::cos (phi1)) + lambda0 };
+        }
+
+        // inverse_equirectangular, then converted into a 3D Cartesian coordinate
+        template<typename T>
+        constexpr sm::vec<T, 3> inverse_equirectangular_xyz (const sm::vec<T, 2>& xy, const T& r_sph)
+        {
+            return spherical_projection::latlong_to_xyz (spherical_projection::inverse_equirectangular (xy, r_sph), r_sph);
+        }
+
+        // Return latitude, longitude (in radians) in a vec<T, 2> for the given 2D coordinate on a
+        // plane which was mapped using the Cassini projection.
+        template<typename T>
+        constexpr sm::vec<T, 2> inverse_cassini (const sm::vec<T, 2>& xy, const T& r_sph, const T lambda0 = T{0})
+        {
+            constexpr T phi0 = T{0};
+            T d = xy[1] / r_sph + phi0;
+            return sm::vec<T, 2>{
+                sm::cem::asin (sm::cem::sin(d) * sm::cem::cos (xy[0] / r_sph)),         // lat
+                lambda0 + sm::cem::atan2 (sm::cem::tan(xy[0] / r_sph), sm::cem::cos(d)) // long
+            };
+        }
+
+        // inverse_cassini, then converted into a 3D Cartesian coordinate
+        template<typename T>
+        constexpr sm::vec<T, 3> inverse_cassini_xyz (const sm::vec<T, 2>& xy, const T& r_sph)
+        {
+            return spherical_projection::latlong_to_xyz (spherical_projection::inverse_cassini (xy, r_sph), r_sph);
+        }
+
+        // Return latitude, longitude (in radians) in a vec<T, 2> for the given 2D coordinate on a
+        // plane which was mapped using the Mercator projection.
+        template<typename T>
+        constexpr sm::vec<T, 2> inverse_mercator (const sm::vec<T, 2>& xy, const T& r_sph, const T lambda0 = T{0})
+        {
+            return sm::vec<T, 2>{
+                T{2} * sm::cem::atan (sm::cem::exp (xy[1] / r_sph)) - sm::mathconst<T>::pi_over_2,
+                lambda0 + (xy[0] / r_sph)
+            };
+        }
+
+        // inverse_mercator, then converted into a 3D Cartesian coordinate
+        template<typename T>
+        constexpr sm::vec<T, 3> inverse_mercator_xyz (const sm::vec<T, 2>& xy, const T& r_sph)
+        {
+            return spherical_projection::latlong_to_xyz (spherical_projection::inverse_mercator (xy, r_sph), r_sph);
+        }
+    }
+
+} // sm::geometry

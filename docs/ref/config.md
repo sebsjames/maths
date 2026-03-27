@@ -10,6 +10,6 @@ permalink: /ref/config
 ## Parameter management via JSON
 {: .no_toc}
 ```c++
-#include <sm/config>
+import sm.config;
 ```
 sm::config for saving and loading parameters in JSON.

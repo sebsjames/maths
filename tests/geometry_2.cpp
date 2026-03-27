@@ -1,5 +1,8 @@
 #include <iostream>
-#include <sm/geometry>
+
+import sm.geometry;
+import sm.range;
+import sm.vec;
 
 int main()
 {

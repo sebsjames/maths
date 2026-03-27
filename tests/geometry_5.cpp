@@ -3,7 +3,9 @@
  */
 
 #include <iostream>
-#include <sm/geometry>
+
+import sm.vec;
+import sm.geometry;
 
 int main()
 {

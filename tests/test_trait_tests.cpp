@@ -1,5 +1,15 @@
 #include <iostream>
-#include <sm/trait_tests>
+#include <set>
+#include <array>
+#include <vector>
+#include <list>
+#include <deque>
+#include <map>
+#include <complex>
+
+import sm.trait_tests;
+import sm.vec;
+import sm.vvec;
 
 template <typename _S=float>
 std::enable_if_t < sm::is_copyable_container<_S>::value, bool >
@@ -45,16 +55,6 @@ complex_from (const _S& v)
     std::cout << "Type _S=" << typeid(_S).name() << " size " << sizeof (v) << " is a complex" << std::endl;
     return true;
 }
-
-#include <sm/vec>
-#include <sm/vvec>
-#include <set>
-#include <array>
-#include <vector>
-#include <list>
-#include <deque>
-#include <map>
-#include <complex>
 
 int main()
 {

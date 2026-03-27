@@ -6,9 +6,11 @@
  */
 
 #include <iostream>
-#include <sm/vvec>
-#include <sm/random>
-#include <sm/nm_simplex>
+#include <vector>
+
+import sm.vvec;
+import sm.random;
+import sm.nm_simplex;
 
 // Here's the Rosenbrock banana function
 template<typename F>
@@ -36,7 +38,7 @@ int main()
     simp.run();
     // Get the result or determine that there was an error:
     std::vector<F> bv = {};
-    if (simp.stopreason == sm::nm_simplex_stop_reason::TerminationThreshold) {
+    if (simp.stopreason == sm::nm_simplex_stop_reason::termination_threshold) {
         bv = simp.best_vertex();
         std::cout << "Finished in " << simp.operation_count << " operations. Best approximation at: ("
                   << bv[0] << "," << bv[1] << ") has value " << simp.best_value() << std::endl;

@@ -11,9 +11,9 @@ nav_order: 3
 {: .no_toc }
 
 ```c++
-#include <sm/quaternion>
+import sm.quaternion;
 ```
-Header file: [<sm/quaternion>](https://github.com/sebsjames/maths/blob/main/sm/quaternion). Test and example code:  [tests/testQuaternion](https://github.com/sebsjames/maths/blob/main/tests/testQuaternion.cpp)
+Module file: [sm/quaternion.cppm](https://github.com/sebsjames/maths/blob/main/sm/quaternion.cppm). Test and example code:  [tests/quaternion1](https://github.com/sebsjames/maths/blob/main/tests/quaternion1.cpp)
 
 **Table of Contents**
 
@@ -26,7 +26,7 @@ A class for doing quaternion operations. Initially developed for use in [mathplo
 
 Defined as:
 ```c++
-namespace sm
+export namespace sm
 {
     template <typename F>
     struct quaternion

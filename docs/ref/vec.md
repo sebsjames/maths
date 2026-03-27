@@ -11,9 +11,9 @@ nav_order: 0
 {: .no_toc}
 
 ```c++
-#include <sm/vec>
+import sm.vec;
 ```
-Header file: [<sm/vec>](https://github.com/sebsjames/maths/blob/main/sm/vec). Test and example code:  [tests/testvec](https://github.com/sebsjames/maths/blob/main/tests/testvec.cpp), [tests/testvecElementOps](https://github.com/sebsjames/maths/blob/main/tests/testvecElementOps.cpp).
+Module file: [sm/vec.cppm](https://github.com/sebsjames/maths/blob/main/sm/vec.cppm). Test and example code:  [tests/vec1](https://github.com/sebsjames/maths/blob/main/tests/vec1.cpp), [tests/vec_elementops1](https://github.com/sebsjames/maths/blob/main/tests/vec_elementops1.cpp).
 
 **Table of contents**
 
@@ -30,9 +30,9 @@ functions to do compile-time maths. The majority of its methods are
 `noexcept` (they do *not* throw exceptions).
 
 ```c++
-namespace sm
+export namespace sm
 {
-    template <typename S=float, size_t N=3>
+    template <typename S=float, std::size_t N=3>
     struct vec : public std::array<S, N>
     {
 ```

@@ -10,10 +10,10 @@ permalink: /ref/mat/
 ## A matrix class
 {: .no_toc }
 ```c++
-#include <sm/mat>
+import sm.mat;
 ```
 
-Header file: [<sm/mat>](https://github.com/sebsjames/maths/blob/main/sm/mat). Test and example code:
+Module file: [sm/mat.cppm](https://github.com/sebsjames/maths/blob/main/sm/mat.cppm). Test and example code:
 [tests/mat_2x2_general](https://github.com/sebsjames/maths/blob/main/tests/mat_2x2_general.cpp)
 [tests/mat_3x3_general](https://github.com/sebsjames/maths/blob/main/tests/mat_3x3_general.cpp)
 [tests/mat_4x4](https://github.com/sebsjames/maths/blob/main/tests/mat_4x4.cpp)
@@ -28,9 +28,9 @@ A general matrix class with a templated element type and dimensions. `constexpr`
 
 Defined as:
 ```c++
-namespace sm
+export namespace sm
 {
-    template <typename F, uint32_t Nr, uint32_t Nc = Nr> requires std::is_floating_point_v<F>
+    template <typename F, std::uint32_t Nr, std::uint32_t Nc = Nr> requires std::is_floating_point_v<F>
     struct mat
     {
         // ...

@@ -1,9 +1,11 @@
 #include <iostream>
 #include <vector>
+#include <array>
 #include <list>
-#include <sm/winder>
-#include <sm/vec>
-#include <sm/vvec>
+
+import sm.winder;
+import sm.vec;
+import sm.vvec;
 
 /*
  * Winder code should be able to compute the winding number of a coordinate with

@@ -1,0 +1,292 @@
+// -*- C++ -*-
+/*
+ * This file is part of sebsjames/maths, a library of maths code for modern C++
+ *
+ * See https://github.com/sebsjames/maths
+ *
+ * A class for saving and retrieving parameters, with a scheme for command line
+ * overrides.
+ *
+ * This uses nlohmann::json to parse json files. This cannot be made into the module sm.config until
+ * nlohmann json is at version 3.12.1, which is their current development branch. For now, I'll keep
+ * config as a header that imports vvec and vec.
+ *
+ * Author: Seb James
+ */
+module;
+
+#include <list>
+#include <fstream>
+#include <sstream>
+#include <string>
+#include <iostream>
+#include <stdexcept>
+#include <vector>
+
+#include <nlohmann/json.hpp>
+
+export module sm.config;
+
+import sm.util;
+import sm.vvec;
+import sm.vec;
+
+export namespace sm
+{
+    /*!
+     * A configuration file class to help read simulation parameters from a JSON file.
+     *
+     * This reads a config file which should be arranged as a JSON file. The format is fairly
+     * free-form; getters and setters are used to access the parameters stored in the config file.
+     *
+     * This class also provides code for updating the JSON config and writing out the updated config
+     * into the log directory to make a record of the parameters used to generate a set of
+     * simulation data.
+     */
+    struct config
+    {
+        //! Default constructor, when config should be a class member. Call init() or parse() before use.
+        config(){}
+
+        //! Constructor which takes the path to the file that contains the JSON.
+        config (const std::string& configfile) { this->init (configfile); }
+
+        //! Perform config file initialization.
+        void init (const std::string& configfile)
+        {
+            this->thefile = configfile;
+            std::stringstream ess;
+            // Test for existence of the JSON file.
+            std::ifstream jsonfile_test;
+            jsonfile_test.open (configfile, std::ios::in);
+            if (jsonfile_test.is_open()) {
+                // File exists, should parse it
+                jsonfile_test.close();
+                // Parse the JSON
+                std::ifstream jsonfile (configfile, std::ifstream::binary);
+                jsonfile >> this->root;
+                // JSON is open and parsed
+                this->ready = true;
+            } // else We are creating a new Config, with no pre-existing content
+        }
+
+        //! Initialize from a string of JSON content (rather than a string that is a path to a JSON file)
+        void parse (const std::string& jsonstr)
+        {
+            if (this->thefile.empty()) { this->thefile = "/tmp/jsonstr.json"; }
+            this->root = nlohmann::json::parse (jsonstr);
+            this->ready = true;
+        }
+
+        void write() { this->write (this->thefile); }
+
+        //! Write out the JSON to a different file.
+        void write (const std::string& outfile)
+        {
+            std::ofstream configout;
+            configout.open (outfile.c_str(), std::ios::out|std::ios::trunc);
+            if (configout.is_open()) {
+                // Make a copy of root
+                nlohmann::json combined = this->root;
+                // add config_overrides, if necessary
+                if (!config_overrides.empty()) {
+                    nlohmann::json co(this->config_overrides);
+                    combined["config_overrides"] = co;
+                }
+                // Write out.
+                configout << std::setw(4) << combined << std::endl;
+                configout.close();
+            } else {
+                this->emsg = "Failed to open file '" + outfile + "' for writing";
+            }
+        }
+
+        //! Output the config as a string of text
+        std::string str() const
+        {
+            std::stringstream ss;
+            if (!config_overrides.empty()) {
+                nlohmann::json combined = this->root;
+                nlohmann::json co(this->config_overrides);
+                combined["config_overrides"] = co;
+                ss << std::setw(4) << combined << std::endl;
+            } else {
+                ss << std::setw(4) << this->root << std::endl;
+            }
+            return ss.str();
+        }
+
+        //! map of configuation parameter overrides applied via command line
+        std::map<std::string, std::string> config_overrides;
+
+        /*!
+         * Process command line args for 'Config overrides' and store as overrides for
+         * the relevant params. Can be used multiple times.
+         *
+         * e.g. some_program -co:varname=43 -co:"stringvar=something with spaces"
+         *
+         * Currently works for single parameter overrides (ones that you can read with
+         * config::get<T>) and ALSO for simple arrays. If you config override with a
+         * comma-separated list of values like this:
+         *
+         * some_program -co:myarray=1,2,3,4
+         *
+         * The within some_program you will be able to
+         *
+         * sm::vec<float, 4> myvec = conf.get_vec<float, 4>("myarray");
+         *
+         * or
+         *
+         * sm::vvec<float> myvvec = conf.get_vvec<float>("myarray");
+         *
+         * And the overridden values will be used.
+         */
+        void process_args (int32_t argc, char **argv)
+        {
+            for (int32_t i = 0; i < argc; ++i) {
+                std::string arg(argv[i]);
+                std::string::size_type pos = std::string::npos;
+                // co for 'Config override'
+                if ((pos = arg.find ("-oc:")) == 0) {
+                    std::cout << "NB: Use '-co:' rather than '-oc:'!!\n";
+                }
+                if ((pos = arg.find ("-co:")) == 0) {
+                    std::string arg_ss = arg.substr (4);
+                    // Split arg based on '='
+                    std::vector<std::string> co = sm::util::string_to_vector (arg_ss, std::string("="));
+                    if (co.size() >= 2) {
+                        std::cout << "Override parameter '" << co[0] << "' with value '" << co[1] << "'\n";
+                        //...so stick with using a map
+                        this->config_overrides[co[0]] = co[1];
+                    }
+                }
+            }
+        }
+
+        // Typed getter
+        template <typename T>
+        T get (const std::string& thing, T defaultval) const
+        {
+            if (this->config_overrides.count(thing) > 0) {
+                T rtn = defaultval;
+                // There's an override to apply. Type will determine how the thing is processed
+                if constexpr (std::is_same<std::decay_t<T>, bool>::value == true) {
+                    std::string bval = this->config_overrides.at(thing);
+                    if (bval == "true" || bval == "True") {
+                        rtn = true;
+                    } else if (bval == "false" || bval == "False") {
+                        rtn = false;
+                    } else {
+                        rtn = std::stoi (bval) > 0 ? true : false;
+                    }
+                } else if constexpr (std::is_same<std::decay_t<T>, int32_t>::value == true) {
+                    rtn = std::stoi (this->config_overrides.at(thing));
+                } else if constexpr (std::is_same<std::decay_t<T>, uint32_t>::value == true) {
+                    rtn = std::stoul (this->config_overrides.at(thing));
+                } else if constexpr (std::is_same<std::decay_t<T>, float>::value == true) {
+                    rtn = std::stof (this->config_overrides.at(thing));
+                } else if constexpr (std::is_same<std::decay_t<T>, double>::value == true) {
+                    rtn = std::stod (this->config_overrides.at(thing));
+                } else if constexpr (std::is_same<std::decay_t<T>, std::string>::value == true) {
+                    rtn = this->config_overrides.at(thing);
+                } else {
+                    std::cout << "Type not handled by sm::config::get, return default value: "
+                              << defaultval << std::endl;
+                }
+                return rtn;
+
+            } else {
+                return this->root.contains(thing) ? this->root[thing].get<T>() : defaultval;
+            }
+        }
+
+        // get as a json object
+        nlohmann::json get (const std::string& thingname) const
+        {
+            nlohmann::json rtn;
+            if (this->root.contains(thingname)) {
+                rtn = this->root[thingname];
+            }
+            return rtn;
+        }
+
+        // get_array is the same as get()
+        nlohmann::json get_array (const std::string& arrayname) const
+        {
+            nlohmann::json rtn;
+            if (this->root.contains(arrayname)) {
+                rtn = this->root[arrayname];
+            }
+            return rtn;
+        }
+
+        // Get an array of numbers as a sm::vvec.
+        template <typename T>
+        sm::vvec<T> get_vvec (const std::string& arrayname) const
+        {
+            if (this->config_overrides.count (arrayname) > 0) {
+                // Interpret string as csv, ignoring brackets
+                std::string ar_str = this->config_overrides.at (arrayname);
+                sm::util::strip_brackets (ar_str);
+                std::vector<std::string> arr = sm::util::string_to_vector (ar_str, ",");
+                sm::vvec<T> rtn (arr.size(), T{0});
+                for (std::size_t i = 0; i < arr.size(); ++i) {
+                    double d = std::atof (arr[i].c_str());
+                    rtn[i] = static_cast<T>(d);
+                }
+                return rtn;
+            } else {
+                nlohmann::json ar;
+                if (this->root.contains(arrayname)) { ar = this->root[arrayname]; }
+                sm::vvec<T> rtn (ar.size(), T{0});
+                typename sm::vvec<T>::size_type i = 0U;
+                for (auto el : ar) { rtn[i++] = static_cast<T>(el); }
+                return rtn;
+            }
+        }
+
+        // Get an array of numbers as a sm::vec.
+        template <typename T, std::size_t N>
+        sm::vec<T, N> get_vec (const std::string& arrayname) const
+        {
+            sm::vec<T, N> rtn = {T{0}};
+            if (this->config_overrides.count (arrayname) > 0) {
+                // Interpret string as csv, ignoring brackets
+                std::string ar_str = this->config_overrides.at (arrayname);
+                sm::util::strip_brackets (ar_str);
+                std::vector<std::string> arr = sm::util::string_to_vector (ar_str, ",");
+                for (std::size_t i = 0; i < arr.size() && i < N; ++i) {
+                    double d = std::atof (arr[i].c_str());
+                    rtn[i] = static_cast<T>(d);
+                }
+            } else {
+                nlohmann::json ar;
+                if (this->root.contains(arrayname)) { ar = this->root[arrayname]; }
+                auto el = ar.begin();
+                for (std::size_t i = 0; i < N && i < ar.size(); ++i) {
+                    rtn[i] = static_cast<T>(*el);
+                    el++;
+                }
+            }
+            return rtn;
+        }
+
+        // Setters
+        template <typename T>
+        void set (const std::string& thing, T value) { this->root[thing] = value; }
+        template <typename T>
+        void set_array (const std::string& thing, const std::vector<T>& values) { this->root[thing] = values; }
+
+        //! Set true when json has been initialised (i.e. thefile has been read)
+        bool ready = false;
+
+        //! Any error message is here.
+        std::string emsg = "";
+
+        // The root object which is set up in the constructor
+        nlohmann::json root;
+
+        // The file that holds the JSON
+        std::string thefile = "";
+    };
+} // namespace
