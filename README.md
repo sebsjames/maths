@@ -15,7 +15,7 @@ your C++ in simple, readable and comprehensible code.
 It provides:
 
 * Static and dynamically sized vector classes
-* Transform matrices
+* A matrix class (static allocation, provides all your 2x2, 3x3 or 4x4 transform matrix operations)
 * A quaternion class
 * Scaling and range (or interval) classes
 * Random number, and string generation
@@ -52,8 +52,8 @@ int main()
     // Create a fixed-size mathematical 3D vector object
     sm::vec<float, 3> v1 = { 1, 2, 3 };
 
-    // Create and intialize a quaternion rotation
-    sm::quaternion<float> q1 (sm::vec<float, 3>{1, 0, 0}, mc::pi_over_2);
+    // Create and intialize a quaternion rotation about the x axis
+    sm::quaternion<float> q1 (sm::vec<float, 3>::ux(), mc::pi_over_2);
 
     // Rotate the vector with the quaternion
     sm::vec<float, 3> v1_rotated = q1 * v1;
