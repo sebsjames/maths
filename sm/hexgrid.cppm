@@ -323,7 +323,7 @@ export namespace sm
                 }
             }
 
-            // gi is NorthEast
+            // gi is north-east
             inc = rgbpos[1] > 0 ? 1 : -1;
             for (std::int32_t ri = 0; ri != rgbpos[1] && hi != this->hexen.end(); ri+=inc) {
                 if (inc > 0) {
@@ -333,7 +333,7 @@ export namespace sm
                 }
             }
 
-            // bi is NorthWest
+            // bi is north-west
             inc = rgbpos[2] > 0 ? 1 : -1;
             for (std::int32_t ri = 0; ri != rgbpos[2] && hi != this->hexen.end(); ri+=inc) {
                 if (inc > 0) {
@@ -670,7 +670,7 @@ export namespace sm
                 xy[0] += this->d / 4.0f;
                 xy[1] += this->v / 2.0f;
             }
-            // TopaT
+            // Top
             for (std::int32_t i = 0; i < 2 * (rw + re); ++i) {
                 sm::bezcoord<float> b(xy);
                 bpoints.push_back (b);
@@ -969,7 +969,7 @@ export namespace sm
                         std::list<sm::hex>::iterator bh = this->hexen.begin();
                         while (bh != this->hexen.end()) {
                             if (bh->test_flags(sm::HEX_IS_BOUNDARY) == true) {
-                                float delta = h->distanceFrom (*bh);
+                                float delta = h->distance_from (*bh);
                                 if (delta < h->dist_to_boundary || h->dist_to_boundary < 0.0f) {
                                     h->dist_to_boundary = delta;
                                 }
@@ -1012,25 +1012,25 @@ export namespace sm
          *
          * It's assumed that the bezcurvepath defines a closed region.
          *
-         * If \a applyOriginal_boundary_centroid is true, then the region is translated by
+         * If \a apply_original_boundary_centroid is true, then the region is translated by
          * the same amount that the overall boundary was translated to ensure that the
          * boundary's centroid is at 0,0.
          *
          * \return a vector of iterators to the hexes that make up the region.
          */
         std::vector<std::list<hex>::iterator> get_region (bezcurvepath<float>& p, sm::vec<float, 2>& region_centroid,
-                                                          bool applyOriginal_boundary_centroid = true)
+                                                          bool apply_original_boundary_centroid = true)
         {
             p.compute_points (this->d / 2.0f, true);
             std::vector<sm::bezcoord<float>> bpoints = p.get_points();
-            return this->get_region (bpoints, region_centroid, applyOriginal_boundary_centroid);
+            return this->get_region (bpoints, region_centroid, apply_original_boundary_centroid);
         }
 
         /*!
          * The overload of get_region that does all the work on a vector of coordinates
          */
         std::vector<std::list<hex>::iterator> get_region (std::vector<bezcoord<float>>& bpoints, sm::vec<float, 2>& region_centroid,
-                                                          bool applyOriginal_boundary_centroid = true)
+                                                          bool apply_original_boundary_centroid = true)
         {
             // First clear all region boundary flags, as we'll be defining a new region boundary
             this->clear_region_boundary_flags();
@@ -1041,7 +1041,7 @@ export namespace sm
             // A return object
             std::vector<std::list<sm::hex>::iterator> the_region;
 
-            if (applyOriginal_boundary_centroid) {
+            if (apply_original_boundary_centroid) {
                 auto bpi = bpoints.begin();
                 while (bpi != bpoints.end()) {
                     bpi->subtract (this->original_boundary_centroid);
@@ -1316,7 +1316,7 @@ export namespace sm
             return expr_resampled;
         }
 
-        // Member attributes for visualising the compute_hex_overlap stuff. Put in class hexOverlapGeometry or something
+        // Member attributes for visualising the compute_hex_overlap stuff. Put in class hex_overlap_geometry or something
         vec<float, 2> sw_loc = {std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN()};
         vec<float, 2> nw_loc = {std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN()};
         vec<float, 2> ne_loc = {std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN()};
@@ -2541,9 +2541,9 @@ export namespace sm
         }
 
         // Set up wrapping. This works only on parallelogram shaped domains.
-        void setParallelogramWrap (bool onR, bool onG)
+        void set_parallelogram_wrap (bool on_r, bool on_g)
         {
-            if (!(onR && onG)) {
+            if (!(on_r && on_g)) {
                 throw std::runtime_error ("Test single axis wrapping then remove this exception.");
             }
 
@@ -2570,7 +2570,7 @@ export namespace sm
 
             std::int32_t count = 0;
             std::list<hex>::iterator row_start = bl_hex;
-            if (onR) {
+            if (on_r) {
                 // go to end of each row and wrap back to the start. This may only work
                 // for parallelograms, at least in an initial implementation.
                 // First row
@@ -2597,7 +2597,7 @@ export namespace sm
 
             std::list<hex>::iterator col_start = bl_hex;
             std::int32_t vcount = 0;
-            if (onG) { // scan up columns in the 'G' direction
+            if (on_g) { // scan up columns in the 'G' direction
                 // First col
                 std::list<hex>::iterator cur_hex = col_start;
                 while (cur_hex->has_nne()) { cur_hex = cur_hex->nne; ++vcount; }
@@ -2632,7 +2632,7 @@ export namespace sm
 
             // Final scan across to set se neighbours of end rows and nw neighbours of start rows.
             row_start = bl_hex;
-            if (onR && onG) {
+            if (on_r && on_g) {
                 std::list<hex>::iterator cur_hex = row_start;
                 // First row
                 for (std::int32_t i = 0; i < count; ++i) { cur_hex = cur_hex->ne; }
@@ -3054,16 +3054,16 @@ export namespace sm
         }
 
         /*!
-         * Starting from \a startFrom, and following nearest-neighbour relations, find
+         * Starting from \a start_from, and following nearest-neighbour relations, find
          * the closest hex in hexen to the coordinate point \a point, and set its
          * hex::on_boundary attribute to true.
          *
          * \return An iterator into hexgrid::hexen which refers to the closest hex to \a point.
          */
         std::list<sm::hex>::iterator set_boundary (const sm::bezcoord<float>& point,
-                                                   std::list<sm::hex>::iterator startFrom)
+                                                   std::list<sm::hex>::iterator start_from)
         {
-            std::list<sm::hex>::iterator h = this->find_hex_near_point (point, startFrom);
+            std::list<sm::hex>::iterator h = this->find_hex_near_point (point, start_from);
             h->set_flag (sm::HEX_IS_BOUNDARY | sm::HEX_INSIDE_BOUNDARY);
             return h;
         }
@@ -3143,9 +3143,9 @@ export namespace sm
          * region, extract the pointers to all the hexes in that region and store that
          * information for later use.
          */
-        std::list<hex>::iterator set_region_boundary (const bezcoord<float>& point, std::list<hex>::iterator startFrom)
+        std::list<hex>::iterator set_region_boundary (const bezcoord<float>& point, std::list<hex>::iterator start_from)
         {
-            std::list<sm::hex>::iterator h = this->find_hex_near_point (point, startFrom);
+            std::list<sm::hex>::iterator h = this->find_hex_near_point (point, start_from);
             h->set_flag (sm::HEX_IS_REGION_BOUNDARY | sm::HEX_INSIDE_REGION);
             return h;
         }
@@ -3255,49 +3255,49 @@ export namespace sm
         }
 
         /*!
-         * Find the hex near @point, starting from startFrom, which should be as close
+         * Find the hex near @point, starting from start_from, which should be as close
          * as possible to point in order to reduce computation time.
          */
-        std::list<hex>::iterator find_hex_near_point (const bezcoord<float>& point, std::list<hex>::iterator startFrom)
+        std::list<hex>::iterator find_hex_near_point (const bezcoord<float>& point, std::list<hex>::iterator start_from)
         {
-            bool neighbourNearer = true;
+            bool neighbour_nearer = true;
 
-            std::list<sm::hex>::iterator h = startFrom;
-            float dmin = h->distanceFrom (point);
+            std::list<sm::hex>::iterator h = start_from;
+            float dmin = h->distance_from (point);
             float dcur = 0.0f;
 
-            while (neighbourNearer == true) {
+            while (neighbour_nearer == true) {
 
-                neighbourNearer = false;
-                if (h->has_ne() && (dcur = h->ne->distanceFrom (point)) < dmin) {
+                neighbour_nearer = false;
+                if (h->has_ne() && (dcur = h->ne->distance_from (point)) < dmin) {
                     dmin = dcur;
                     h = h->ne;
-                    neighbourNearer = true;
+                    neighbour_nearer = true;
 
-                } else if (h->has_nne() && (dcur = h->nne->distanceFrom (point)) < dmin) {
+                } else if (h->has_nne() && (dcur = h->nne->distance_from (point)) < dmin) {
                     dmin = dcur;
                     h = h->nne;
-                    neighbourNearer = true;
+                    neighbour_nearer = true;
 
-                } else if (h->has_nnw() && (dcur = h->nnw->distanceFrom (point)) < dmin) {
+                } else if (h->has_nnw() && (dcur = h->nnw->distance_from (point)) < dmin) {
                     dmin = dcur;
                     h = h->nnw;
-                    neighbourNearer = true;
+                    neighbour_nearer = true;
 
-                } else if (h->has_nw() && (dcur = h->nw->distanceFrom (point)) < dmin) {
+                } else if (h->has_nw() && (dcur = h->nw->distance_from (point)) < dmin) {
                     dmin = dcur;
                     h = h->nw;
-                    neighbourNearer = true;
+                    neighbour_nearer = true;
 
-                } else if (h->has_nsw() && (dcur = h->nsw->distanceFrom (point)) < dmin) {
+                } else if (h->has_nsw() && (dcur = h->nsw->distance_from (point)) < dmin) {
                     dmin = dcur;
                     h = h->nsw;
-                    neighbourNearer = true;
+                    neighbour_nearer = true;
 
-                } else if (h->has_nse() && (dcur = h->nse->distanceFrom (point)) < dmin) {
+                } else if (h->has_nse() && (dcur = h->nse->distance_from (point)) < dmin) {
                     dmin = dcur;
                     h = h->nse;
-                    neighbourNearer = true;
+                    neighbour_nearer = true;
                 }
             }
 

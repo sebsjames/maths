@@ -167,7 +167,7 @@ export namespace sm
 
 #ifdef CARTGRID_COMPILE_LOAD_AND_SAVE
         /*!
-         * Save the data for this rect into the already open HdfData object \a h5data in
+         * Save the data for this rect into the already open hdfdata object \a h5data in
          * the path \a h5path.
          */
         void save (hdfdata& h5data, const std::string& h5path) const
@@ -194,8 +194,8 @@ export namespace sm
             h5data.add_val (dpath.c_str(), this->xi);
             dpath = h5path + "/yi";
             h5data.add_val (dpath.c_str(), this->yi);
-            dpath = h5path + "/distToBoundary";
-            h5data.add_val (dpath.c_str(), this->distToBoundary);
+            dpath = h5path + "/dist_to_boundary";
+            h5data.add_val (dpath.c_str(), this->dist_to_boundary);
             dpath = h5path + "/flags";
             h5data.add_val (dpath.c_str(), this->flags);
         }
@@ -225,8 +225,8 @@ export namespace sm
             h5data.read_val (dpath.c_str(), this->xi);
             dpath = h5path + "/yi";
             h5data.read_val (dpath.c_str(), this->yi);
-            dpath = h5path + "/distToBoundary";
-            h5data.read_val (dpath.c_str(), this->distToBoundary);
+            dpath = h5path + "/dist_to_boundary";
+            h5data.read_val (dpath.c_str(), this->dist_to_boundary);
             std::uint32_t flgs = 0;
             dpath = h5path + "/flags";
             h5data.read_val (dpath.c_str(), flgs);
@@ -376,39 +376,39 @@ export namespace sm
 
         /*!
          * Compute the distance from the point given (in two-dimensions only; x and y)
-         * by \a cartesianPoint to the centre of this rect.
+         * by \a cartesian_point to the centre of this rect.
          */
         template <typename F>
-        float distance_from (const sm::vec<F, 2> cartesianPoint) const
+        float distance_from (const sm::vec<F, 2> cartesian_point) const
         {
-            float deltax = cartesianPoint[0] - x;
-            float deltay = cartesianPoint[1] - y;
+            float deltax = cartesian_point[0] - x;
+            float deltay = cartesian_point[1] - y;
             return std::sqrt (deltax * deltax + deltay * deltay);
         }
 
         /*!
          * Compute the distance from the point given (in two-dimensions only; x and y)
-         * by the bezcoord \a cartesianPoint to the centre of this rect.
+         * by the bezcoord \a cartesian_point to the centre of this rect.
          */
-        float distance_from (const bezcoord<float>& cartesianPoint) const
+        float distance_from (const bezcoord<float>& cartesian_point) const
         {
-            float deltax = cartesianPoint.x() - x;
-            float deltay = cartesianPoint.y() - y;
+            float deltax = cartesian_point.x() - x;
+            float deltay = cartesian_point.y() - y;
             return std::sqrt (deltax*deltax + deltay*deltay);
         }
 
-        float distance_from (const sm::vec<float, 2>& cartesianPoint) const
+        float distance_from (const sm::vec<float, 2>& cartesian_point) const
         {
-            float deltax = cartesianPoint[0] - x;
-            float deltay = cartesianPoint[1] - y;
+            float deltax = cartesian_point[0] - x;
+            float deltay = cartesian_point[1] - y;
             return std::sqrt (deltax * deltax + deltay * deltay);
         }
 
         //! Compute the distance from another rect to this one.
-        float distance_from (const rect& otherRect) const
+        float distance_from (const rect& other_rect) const
         {
-            float deltax = otherRect.x - x;
-            float deltay = otherRect.y - y;
+            float deltax = other_rect.x - x;
+            float deltay = other_rect.y - y;
             return std::sqrt (deltax * deltax + deltay * deltay);
         }
 
@@ -423,15 +423,15 @@ export namespace sm
         std::uint32_t vi = 0;
 
         /*!
-         * This is the index into the d_ vectors in CartGrid which can be used to find
-         * the variables recorded for this rect. It's used in sm::CartGrid to
-         * populate CartGrid::d_nne, CartGrid::d_nnw, etc.
+         * This is the index into the d_ vectors in cartgrid which can be used to find
+         * the variables recorded for this rect. It's used in sm::cartgrid to
+         * populate cartgrid::d_nne, cartgrid::d_nnw, etc.
          *
-         * This indexes into the d_ vectors in the CartGrid object to which this rect
+         * This indexes into the d_ vectors in the cartgrid object to which this rect
          * belongs. The d_ vectors are ordered differently from the list<rect> object in
-         * CartGrid::rects and hence we have this attribute di in addition to the vector
+         * cartgrid::rects and hence we have this attribute di in addition to the vector
          * index vi, which provides an index into list<rect> or vector<rect> objects
-         * which either are, or are arranged like, RectGrid::rects
+         * which either are, or are arranged like, cartgrid::rects
          */
         std::uint32_t di = 0;
 
@@ -505,18 +505,18 @@ export namespace sm
 
         //! Unset one or more flags, defined by flg, i.e. set false
         void unset_flag (std::uint32_t flg) { this->flags &= ~(flg); }
-        //! Alias for rect::unsetFlag
+        //! Alias for rect::unset_flag
         void unset_flags (std::uint32_t flgs) { this->flags &= ~(flgs); }
 
         //! If flags match flg, then return true
         bool test_flag (std::uint32_t flg) const { return (this->flags & flg) == flg ? true : false; }
-        //! Alias for rect::testFlag
+        //! Alias for rect::test_flag
         bool test_flags (std::uint32_t flgs) const { return (this->flags & flgs) == flgs ? true : false; }
 
         /*!
          * Set to true if this rect has been marked as being on a boundary. It is
          * expected that client code will then re-set the neighbour relations so that
-         * onBoundary() would return true.
+         * on_boundary() would return true.
          */
         bool boundary_rect() const { return this->flags & RECT_IS_BOUNDARY ? true : false; }
         /*!
@@ -922,15 +922,15 @@ export namespace sm
          * Return true if coord is reasonably close to being in the same location as the
          * vertex at vertex \a ni with the distance threshold being set from the rect to
          * rect spacing. This is for distinguishing between vertices and centres on a
-         * rectGrid.
+         * rectangular grid.
          */
         template <typename F>
         bool compare_vertex_coord (std::int32_t ni, sm::vec<F, 2>& coord) const
         {
             sm::vec<float, 2> vc = this->get_vertex_coord (ni);
-            float sr_thresh = this->get_sr()/100.0f;
-            if (std::abs(vc[0] - coord[0]) < sr_thresh
-                && std::abs(vc[1] - coord[1]) < sr_thresh) {
+            float sr_thresh = this->get_sr() / 100.0f;
+            if (std::abs (vc[0] - coord[0]) < sr_thresh
+                && std::abs (vc[1] - coord[1]) < sr_thresh) {
                 return true;
             }
             return false;
@@ -955,12 +955,12 @@ export namespace sm
          * Return true if coord is reasonably close to being in the same location as the
          * centre of the rect, with the distance threshold being set from the rect to
          * rect spacing. This is for distinguishing between vertices and centres on a
-         * rectGrid.
+         * rect grid.
          */
         template <typename F>
         bool compare_coord (sm::vec<F, 2>& coord) const
         {
-            float sr_thresh = this->get_sr()/100.0f;
+            float sr_thresh = this->get_sr() / 100.0f;
             if (std::abs(this->x - coord[0]) < sr_thresh
                 && std::abs(this->y - coord[1]) < sr_thresh) {
                 return true;
@@ -1019,19 +1019,19 @@ export namespace sm
 
         //! Nearest neighbour to the East; in the plus x direction
         std::list<rect>::iterator ne;
-        //! Nearest neighbour to the NorthEast
+        //! Nearest neighbour to the North-East
         std::list<rect>::iterator nne;
         //! Nearest neighbour to the North; in the plus y direction.
         std::list<rect>::iterator nn;
-        //! Nearest neighbour to the NorthWest
+        //! Nearest neighbour to the North-West
         std::list<rect>::iterator nnw;
         //! Nearest neighbour to the West
         std::list<rect>::iterator nw;
-        //! Nearest neighbour to the SouthWest
+        //! Nearest neighbour to the South-West
         std::list<rect>::iterator nsw;
         //! Nearest neighbour to the South
         std::list<rect>::iterator ns;
-        //! Nearest neighbour to the SouthEast
+        //! Nearest neighbour to the South-East
         std::list<rect>::iterator nse;
 
     private:

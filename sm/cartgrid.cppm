@@ -28,7 +28,7 @@ export module sm.cartgrid;
 
 export import sm.rect;
 
-// cartgrid contains carried over code (from HexGrid) which allows for the imposition of
+// cartgrid contains carried over code (from hexgrid) which allows for the imposition of
 // arbitrary boundaries, specified as Bezier curves. To use a cartgrid with an arbitrary boundary, define
 // CARTGRID_COMPILE_WITH_BEZCURVES
 export import sm.bezcurvepath;
@@ -372,9 +372,6 @@ export namespace sm
             // Don't save bezcurvepath boundary - limit this to the ability to
             // save which elements are boundary elements and which aren't
 
-            // Don't save vertexE, vertexNE etc. Make sure to set grid_reduced
-            // = true when calling load()
-
             // vector<float>
             cgdata.add_contained_vals ("/d_x", d_x);
             cgdata.add_contained_vals ("/d_y", d_y);
@@ -443,8 +440,7 @@ export namespace sm
             cgdata.read_contained_vals ("/d_nse", this->d_nse);
             cgdata.read_contained_vals ("/d_flags", this->d_flags);
 
-            // Assume a boundary has been applied so set this true. Also, the cartgrid::save method doesn't
-            // save cartgrid::vertexE, etc
+            // Assume a boundary has been applied so set this true.
             this->grid_reduced = true;
 
             std::uint32_t rcount = 0;
@@ -455,10 +451,9 @@ export namespace sm
                 this->rects.push_back (r);
             }
 
-            // After creating rects list, need to set neighbour relations in each rect, as loaded in d_ne,
-            // etc.
+            // After creating rects list, need to set neighbour relations in each rect, as loaded in
+            // d_ne, etc.
             for (sm::rect& _r : this->rects) {
-                // ("Set neighbours for rect " << _r.outputRG());
                 // For each rect, six loops through rects:
                 if (_r.has_ne() == true) {
                     bool matched = false;
@@ -1043,11 +1038,10 @@ export namespace sm
         }
 
         /*!
-         * Get all the boundary rects in a list. This assumes that a boundary has
-         * already been set with one of the set_boundary() methods and so there is
-         * therefore a set of rects which are already marked as being on the boundary
-         * (with the attribute rect::boundaryRect == true) Do this by going around the
-         * boundary neighbour to neighbour?
+         * Get all the boundary rects in a list. This assumes that a boundary has already been set
+         * with one of the set_boundary() methods and so there is therefore a set of rects which are
+         * already marked as being on the boundary (with the attribute fn rect::boundary_rect()
+         * returning true) Do this by going around the boundary neighbour to neighbour?
          *
          * Now a getter for this->brects.
          */
@@ -1097,7 +1091,7 @@ export namespace sm
         }
 
         //! calculate perimeter of ellipse with radii \a a and \a b
-        float ellipsePerimeter (const float a, const float b) const
+        float ellipse_perimeter (const float a, const float b) const
         {
             double apb = (double)a+b;
             double amb = (double)a-b;
@@ -1935,16 +1929,16 @@ export namespace sm
         }
 
         /*!
-         * Starting from \a startFrom, and following nearest-neighbour relations, find
+         * Starting from \a start_from, and following nearest-neighbour relations, find
          * the closest rect in rects to the coordinate point \a point, and set its
          * rect::on_boundary attribute to true.
          *
          * \return An iterator into cartgrid::rects which refers to the closest rect to \a point.
          */
         std::list<sm::rect>::iterator set_boundary (const sm::bezcoord<float>& point,
-                                                    std::list<sm::rect>::iterator startFrom)
+                                                    std::list<sm::rect>::iterator start_from)
         {
-            std::list<sm::rect>::iterator h = this->find_rect_near_point (point, startFrom);
+            std::list<sm::rect>::iterator h = this->find_rect_near_point (point, start_from);
             h->set_flag (RECT_IS_BOUNDARY | RECT_INSIDE_BOUNDARY);
             return h;
         }
@@ -2025,9 +2019,9 @@ export namespace sm
          * region, extract the pointers to all the rects in that region and store that
          * information for later use.
          */
-        std::list<rect>::iterator set_region_boundary (const sm::bezcoord<float>& point, std::list<rect>::iterator startFrom)
+        std::list<rect>::iterator set_region_boundary (const sm::bezcoord<float>& point, std::list<rect>::iterator start_from)
         {
-            std::list<sm::rect>::iterator h = this->find_rect_near_point (point, startFrom);
+            std::list<sm::rect>::iterator h = this->find_rect_near_point (point, start_from);
             h->set_flag (RECT_IS_REGION_BOUNDARY | RECT_INSIDE_REGION);
             return h;
         }
@@ -2038,9 +2032,9 @@ export namespace sm
          * region, extract the pointers to all the rects in that region and store that
          * information for later use.
          */
-        std::list<rect>::iterator set_region_boundary (const sm::vec<float, 2>& point, std::list<rect>::iterator startFrom)
+        std::list<rect>::iterator set_region_boundary (const sm::vec<float, 2>& point, std::list<rect>::iterator start_from)
         {
-            std::list<sm::rect>::iterator h = this->find_rect_near_point (point, startFrom);
+            std::list<sm::rect>::iterator h = this->find_rect_near_point (point, start_from);
             h->set_flag (RECT_IS_REGION_BOUNDARY | RECT_INSIDE_REGION);
             return h;
         }
@@ -2115,11 +2109,11 @@ export namespace sm
             return false;
         }
 
-        std::list<rect>::iterator find_rect_near_point (const vec<float, 2>& point, std::list<rect>::iterator startFrom)
+        std::list<rect>::iterator find_rect_near_point (const vec<float, 2>& point, std::list<rect>::iterator start_from)
         {
             bool neighbour_nearer = true;
 
-            std::list<sm::rect>::iterator h = startFrom;
+            std::list<sm::rect>::iterator h = start_from;
             float d = h->distance_from (point);
             float d_ = 0.0f;
 
@@ -2360,9 +2354,9 @@ export namespace sm
          * East first, then going anti-clockwise to the next direction; North-East and
          * so on), n_recents=2 appears to be sufficient for a thickness 2 boundary,
          * which is what can occur when setting a boundary using the method
-         * cartgrid::setElliptical_boundary. Boundaries that are more than thickness 2
+         * cartgrid::set_elliptical_boundary. Boundaries that are more than thickness 2
          * shouldn't really occur, whereas a boundary with a short section of thickness
-         * 2 can quite easily occur, as in setElliptical_boundary, where insisting that
+         * 2 can quite easily occur, as in set_elliptical_boundary, where insisting that
          * the boundary was strictly always only 1 rect thick would make that algorithm
          * more complex.
          *
@@ -2480,8 +2474,8 @@ export namespace sm
         void discard_outside_boundary()
         {
             // Mark those rects inside the boundary
-            std::list<sm::rect>::iterator centroidRect = this->find_rect_nearest (this->boundary_centroid);
-            this->mark_rects_inside (centroidRect);
+            std::list<sm::rect>::iterator centroid_rect = this->find_rect_nearest (this->boundary_centroid);
+            this->mark_rects_inside (centroid_rect);
             // Run through and discard those rects outside the boundary:
             auto hi = this->rects.begin();
             while (hi != this->rects.end()) {
@@ -2640,8 +2634,7 @@ export namespace sm
         sm::bezcurvepath<float> boundary;
 
         /*!
-         * Set true when a new boundary or domain has been applied. This means that
-         * the #vertexNE, #vertexSW, and similar iterators are no longer valid.
+         * Set true when a new boundary or domain has been applied.
          */
         bool grid_reduced = false;
 

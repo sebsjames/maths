@@ -292,33 +292,33 @@ export namespace sm
 
         /*!
          * Compute the distance from the point given (in two-dimensions only; x and y) by @a
-         * cartesianPoint to the centre of this hex.
+         * cartesian_point to the centre of this hex.
          */
         template <typename F>
-        float distanceFrom (const sm::vec<F, 2> cartesianPoint) const
+        float distance_from (const sm::vec<F, 2> cartesian_point) const
         {
-            float dx = cartesianPoint[0] - x;
-            float dy = cartesianPoint[1] - y;
-            return std::sqrt (dx*dx + dy*dy);
+            float dx = cartesian_point[0] - x;
+            float dy = cartesian_point[1] - y;
+            return std::sqrt (dx * dx + dy * dy);
         }
 
         /*!
          * Compute the distance from the point given (in two-dimensions only; x and y) by the
-         * bezcoord @a cartesianPoint to the centre of this hex.
+         * bezcoord @a cartesian_point to the centre of this hex.
          */
-        float distanceFrom (const sm::bezcoord<float>& cartesianPoint) const
+        float distance_from (const sm::bezcoord<float>& cartesian_point) const
         {
-            float dx = cartesianPoint.x() - x;
-            float dy = cartesianPoint.y() - y;
-            return std::sqrt (dx*dx + dy*dy);
+            float dx = cartesian_point.x() - x;
+            float dy = cartesian_point.y() - y;
+            return std::sqrt (dx * dx + dy * dy);
         }
 
         //! Compute the distance from another hex to this one.
-        float distanceFrom (const hex& otherhex) const
+        float distance_from (const hex& otherhex) const
         {
             float dx = otherhex.x - x;
             float dy = otherhex.y - y;
-            return std::sqrt (dx*dx + dy*dy);
+            return std::sqrt (dx * dx + dy * dy);
         }
 
         /*!
@@ -371,7 +371,7 @@ export namespace sm
         float get_d() const { return this->d; }
 
         //! Get the shortest distance from the centre to the perimeter. This is the "short radius".
-        float get_sr() const { return this->d/2; }
+        float get_sr() const { return this->d / 2.0f; }
 
         //! The distance from the centre of the hex to any of the vertices. This is the "long radius".
         //! Also the side-length of an edge of the hex.
@@ -399,7 +399,7 @@ export namespace sm
         }
 
         //! Return twice the vertical distance between hex centres on adjacent rows.
-        float getTwoV() const
+        float get_two_v() const
         {
             float tv = this->d * sm::mathconst<float>::root_3;
             return tv;
@@ -415,12 +415,12 @@ export namespace sm
          */
         std::int32_t ri = 0;
         /*!
-         * Index in g direction - positive "NorthEast". In a direction 30 degrees East of North or
+         * Index in g direction - positive "North-East". In a direction 30 degrees East of North or
          * 60 degrees North of East.
          */
         std::int32_t gi = 0;
         /*!
-         * Index in b direction - positive "NorthWest". In a direction 30 degrees West of North
+         * Index in b direction - positive "North-West". In a direction 30 degrees West of North
          */
         std::int32_t bi = 0;
 
@@ -800,8 +800,8 @@ export namespace sm
         bool compare_vertex_coord (std::int32_t ni, sm::vec<F, 2>& coord) const
         {
             sm::vec<float, 2> vc = this->get_vertex_coord (ni);
-            if (std::abs(vc[0] - coord[0]) < this->d/100
-                && std::abs(vc[1] - coord[1]) < this->d/100) {
+            if (std::abs(vc[0] - coord[0]) < this->d / 100.0f
+                && std::abs(vc[1] - coord[1]) < this->d / 100.0f) {
                 return true;
             }
             return false;
@@ -830,8 +830,8 @@ export namespace sm
         template <typename F>
         bool compare_coord (sm::vec<F, 2>& coord) const
         {
-            if (std::abs(this->x - coord[0]) < this->d/100
-                && std::abs(this->y - coord[1]) < this->d/100) {
+            if (std::abs (this->x - coord[0]) < this->d / 100.0f
+                && std::abs (this->y - coord[1]) < this->d / 100.0f) {
                 return true;
             }
             return false;
@@ -854,19 +854,19 @@ export namespace sm
 
         //! Nearest neighbour to the East; in the plus r direction.
         std::list<hex>::iterator ne;
-        //! Nearest neighbour to the NorthEast; in the plus g direction.
+        //! Nearest neighbour to the North-East; in the plus g direction.
         std::list<hex>::iterator nne;
-        //! Nearest neighbour to the NorthWest; in the plus b direction.
+        //! Nearest neighbour to the North-West; in the plus b direction.
         std::list<hex>::iterator nnw;
         //! Nearest neighbour to the West; in the minus r direction.
         std::list<hex>::iterator nw;
-        //! Nearest neighbour to the SouthWest; in the minus g direction.
+        //! Nearest neighbour to the South-West; in the minus g direction.
         std::list<hex>::iterator nsw;
-        //! Nearest neighbour to the SouthEast; in the minus b direction.
+        //! Nearest neighbour to the South-East; in the minus b direction.
         std::list<hex>::iterator nse;
 
         //! The flags for this hex.
-        std::uint32_t flags = 0x0;
+        std::uint32_t flags = 0u;
     };
 
 } // namespace sm
