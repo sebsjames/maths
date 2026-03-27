@@ -54,8 +54,8 @@ export namespace sm
         h5data.add_val (dpath.c_str(), hx.gi);
         dpath = h5path + "/bi";
         h5data.add_val (dpath.c_str(), hx.bi);
-        dpath = h5path + "/distToBoundary";
-        h5data.add_val (dpath.c_str(), hx.distToBoundary);
+        dpath = h5path + "/dist_to_boundary";
+        h5data.add_val (dpath.c_str(), hx.dist_to_boundary);
         dpath = h5path + "/flags";
         h5data.add_val (dpath.c_str(), hx.flags);
     }
@@ -85,8 +85,8 @@ export namespace sm
         h5data.read_val (dpath.c_str(), hx.gi);
         dpath = h5path + "/bi";
         h5data.read_val (dpath.c_str(), hx.bi);
-        dpath = h5path + "/distToBoundary";
-        h5data.read_val (dpath.c_str(), hx.distToBoundary);
+        dpath = h5path + "/dist_to_boundary";
+        h5data.read_val (dpath.c_str(), hx.dist_to_boundary);
         uint32_t flgs = 0;
         dpath = h5path + "/flags";
         h5data.read_val (dpath.c_str(), flgs);
@@ -110,18 +110,18 @@ export namespace sm
         hgdata.add_val ("/d_growthbuffer_vert", hg.d_growthbuffer_vert);
 
         // sm::vec<float, 2>
-        hgdata.add_contained_vals ("/boundaryCentroid", hg.boundaryCentroid);
+        hgdata.add_contained_vals ("/boundary_centroid", hg.boundary_centroid);
 
         // Don't save bezcurvepath boundary - limit this to the ability to
         // save which hexes are boundary hexes and which aren't
 
-        // Don't save vertexE, vertexNE etc. Make sure to set gridReduced
+        // Don't save vertex_e, vertex_ne etc. Make sure to set grid_reduced
         // = true when calling load()
 
         // vector<float>
         hgdata.add_contained_vals ("/d_x", hg.d_x);
         hgdata.add_contained_vals ("/d_y", hg.d_y);
-        hgdata.add_contained_vals ("/d_distToBoundary", hg.d_distToBoundary);
+        hgdata.add_contained_vals ("/d_dist_to_boundary", hg.d_dist_to_boundary);
         // vector<int32_t>
         hgdata.add_contained_vals ("/d_ri", hg.d_ri);
         hgdata.add_contained_vals ("/d_gi", hg.d_gi);
@@ -151,10 +151,10 @@ export namespace sm
         hgdata.add_val ("/hcount", hcount);
 
         // What about vhexen? Probably don't save and re-call method to populate.
-        //hg.renumberVectorIndices();
+        //hg.renumber_vector_indices();
 
-        // What about bhexen? Probably re-run/test hg.boundaryContiguous() on load.
-        //hg.boundaryContiguous();
+        // What about bhexen? Probably re-run/test hg.boundary_contiguous() on load.
+        //hg.boundary_contiguous();
     }
 
     /*!
@@ -173,10 +173,10 @@ export namespace sm
         hgdata.read_val ("/d_growthbuffer_horz", hg.d_growthbuffer_horz);
         hgdata.read_val ("/d_growthbuffer_vert", hg.d_growthbuffer_vert);
 
-        hgdata.read_contained_vals ("/boundaryCentroid", hg.boundaryCentroid);
+        hgdata.read_contained_vals ("/boundary_centroid", hg.boundary_centroid);
         hgdata.read_contained_vals ("/d_x", hg.d_x);
         hgdata.read_contained_vals ("/d_y", hg.d_y);
-        hgdata.read_contained_vals ("/d_distToBoundary", hg.d_distToBoundary);
+        hgdata.read_contained_vals ("/d_dist_to_boundary", hg.d_dist_to_boundary);
         hgdata.read_contained_vals ("/d_ri", hg.d_ri);
         hgdata.read_contained_vals ("/d_gi", hg.d_gi);
         hgdata.read_contained_vals ("/d_bi", hg.d_bi);
@@ -189,8 +189,8 @@ export namespace sm
         hgdata.read_contained_vals ("/d_flags", hg.d_flags);
 
         // Assume a boundary has been applied so set this true. Also, the hexgrid::save method doesn't
-        // save hexgrid::vertexE, etc
-        hg.gridReduced = true;
+        // save hexgrid::vertex_e, etc
+        hg.grid_reduced = true;
 
         uint32_t hcount = 0;
         hgdata.read_val ("/hcount", hcount);
@@ -204,7 +204,6 @@ export namespace sm
         // After creating hexen list, need to set neighbour relations in each hex, as loaded in d_ne,
         // etc.
         for (sm::hex& _h : hg.hexen) {
-            // Set neighbours for hex " << _h.outputRG()
             // For each hex, six loops through hexen:
             if (_h.has_ne() == true) {
                 bool matched = false;
