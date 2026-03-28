@@ -9,24 +9,26 @@
 
 ## A modules-native mathematics library for modern C++
 
-This C++ modules-native library is intended to help you to write maths into
-your C++ in simple, readable and comprehensible code.
+This library provides vector and matrix maths with *templated
+precision*. It is intended to help you to write maths into your C++ in
+a simple, readable and modern idiom, with the ability to switch
+machine precision easily.
 
 It provides:
 
-* Static and dynamically sized vector classes
-* A matrix class (static allocation, provides all your 2x2, 3x3 or 4x4 transform matrix operations)
-* A quaternion class
-* Scaling and range (or interval) classes
+* Static and dynamically sized vector templates that are `constexpr`-capable
+* A matrix template (with static memory allocation) that provides comprehensive matrix operations
+* A quaternion template class
+* Scaling and range (or interval) templates
 * Random number, and string generation
 * Classes for working with 2D grids of data (Cartesian and hexagonal)
 * Bezier curves
 * A variety of algorithms (Nelder-Mead, simulated annealing, winding numbers, box filter)
 * Basic statistics including a histo class and a number of bootstrap methods
-* A compatible HDF5 wrapper class
-* A set of constexpr maths methods, derived from Keith O'Hara's GCEM project
+* A class that allows you to read and write to HDF5
+* A set of `constexpr` maths methods, derived from Keith O'Hara's GCEM project
 
-The vector classes are compatible with C++ algorithms, and have their
+The vector classes are compatible with the standard library's C++ algorithms, and have their
 own built-in methods.
 
 You can stream objects to debug or observe their values.
@@ -49,7 +51,7 @@ int main()
     // Mathematical constants are provided by mathconst
     using mc = sm::mathconst<float>;
 
-    // Create a fixed-size mathematical 3D vector object
+    // Create a fixed-size mathematical 3D vector object using single precision elements
     sm::vec<float, 3> v1 = { 1, 2, 3 };
 
     // Create and intialize a quaternion rotation about the x axis
@@ -67,13 +69,24 @@ int main()
 }
 ```
 
+## What libraries is it equivalent to?
+
+You could replace use of [GLM](https://github.com/g-truc/glm) with this library; in many ways it's like GLM, but with templated precision.
+For example, rather than `glm::vec2` whose dimensionality is fixed to 2 and precision to single, you use `sm::vec<float, 2>`.
+Because all of the class templates take precision as a template argument, you can build your algorithms using a `typedef` or `using`-defined type, leaving the choice of precision as one which can be modified at any stage of development.
+
+sebsjames/maths also provides some of the general matrix manipulation functionality offered by Armadillo and Eigen.
+However, it does not provide dynamically resizable matrices; all instances of `sm::mat` have a fixed size defined at compile-time.
+It does not pretend to be a comprehensive linear-algebra library, rather it provides a simple but flexible matrix class template for transformation matrix use and similar.
+It was developed to build the 3D plotting library [mathplot](https://github.com/sebsjames/mathplot).
+
 ## Can I use the code header-only?
 
 I decided to go fully modules-native with this code. However, there is a `header-only` branch that contains the code in its last header-only form.
 
 ## Dependencies
 
-The majority of the code depends only on the standard library. There are two exceptions:
+The majority of the code depends *only* on the standard library. There are two exceptions:
 
 * `sm::hdfdata` is a wrapper around the HDF5 API and to use it you need the HDF5 libraries (headers at compile time and a link to the shared object files at runtime)
 * `sm::config` uses `nlohmann::json` to read/write JSON so this requires the `nlohmann::json` headers to be available at compile time.
