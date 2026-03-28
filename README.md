@@ -16,7 +16,7 @@ machine precision easily.
 
 It provides:
 
-* Static and dynamically sized vector templates that are `constexpr`-capable
+* Static and dynamically sized vector templates that are `constexpr` capable
 * A matrix template (with static memory allocation) that provides comprehensive matrix operations
 * A quaternion template class
 * Scaling and range (or interval) templates
