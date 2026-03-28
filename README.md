@@ -28,8 +28,9 @@ It provides:
 * A class that allows you to read and write to HDF5
 * A set of `constexpr` maths methods, derived from Keith O'Hara's GCEM project
 
-The vector classes are compatible with the standard library's C++ algorithms, and have their
-own built-in methods.
+The vector classes are compatible with the standard library's C++ algorithms, and have their own built-in methods.
+
+The vector, quaternion, matrix and range classes are `constexpr` capable and can be used to build functions that generate lookup tables at compile time.
 
 You can stream objects to debug or observe their values.
 
