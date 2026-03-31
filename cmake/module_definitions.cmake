@@ -4,8 +4,11 @@
 #
 macro(setup_module_variables_for_maths base_directory)
 
-  set(SM_CONSTEXPR_MATH_MODULES
+  set(SM_MATHCONST_MODULES
     ${base_directory}/sm/mathconst.cppm
+  )
+  set(SM_CONSTEXPR_MATH_MODULES
+    ${SM_MATHCONST_MODULES}
     ${base_directory}/sm/constexpr_math.cppm
   )
   set(SM_POLYSOLVE_MODULES
@@ -134,6 +137,12 @@ macro(setup_module_variables_for_maths base_directory)
     ${SM_VVEC_MODULES}
     ${SM_UTIL_MODULES}
     ${base_directory}/sm/config.cppm
+  )
+  set(SM_CRC32_MODULES
+    ${base_directory}/sm/crc32.cppm
+  )
+  set(SM_FLAGS_MODULES
+    ${base_directory}/sm/flags.cppm
   )
 
   set(SM_ALL_MODULES
