@@ -1,7 +1,6 @@
 {
     "name": "sebsjames-maths",
     "dependencies": [
-        "hdf5",
-        "nlohmann-json"
+        "hdf5"
     ]
 }
