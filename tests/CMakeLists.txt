@@ -400,8 +400,8 @@ endif()
 
 # Test sm::config
 
-# GCC14 can't compile this (something to do with nlohmann::json). Also seems to be an issue on Windows
-if((CMAKE_CXX_COMPILER_ID MATCHES "Clang") OR (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 14.99))
+# GCC < version 16 can't compile sm::config (something to do with the nlohmann::json module). It also seems to be an issue on Windows
+if((CMAKE_CXX_COMPILER_ID MATCHES "Clang") OR (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 15.99))
   add_executable(config1 config1.cpp)
   target_sources_modules(config1 MODULES ${SM_CONFIG_MODULES} ${SM_UTIL_MODULES} ${SM_VVEC_MODULES} ${SM_VEC_MODULES})
   add_test(config1 config1)

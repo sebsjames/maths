@@ -7,9 +7,7 @@
  * A class for saving and retrieving parameters, with a scheme for command line
  * overrides.
  *
- * This uses nlohmann::json to parse json files. This cannot be made into the module sm.config until
- * nlohmann json is at version 3.12.1, which is their current development branch. For now, I'll keep
- * config as a header that imports vvec and vec.
+ * This uses nlohmann::json to parse json files.
  *
  * Author: Seb James
  */
