@@ -113,7 +113,7 @@ endfunction()
 #
 # Module groups. see module_definitions.cmake
 #
-setup_module_variables_for_maths (${PROJECT_SOURCE_DIR})
+setup_module_variables_for_maths (${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/json)
 
 # All the modules are here
 add_subdirectory(sm)
