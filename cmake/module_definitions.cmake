@@ -134,6 +134,7 @@ macro(setup_module_variables_for_maths base_directory)
     ${SM_VVEC_MODULES}
     ${SM_UTIL_MODULES}
     ${base_directory}/sm/config.cppm
+    ${base_directory}/json/src/modules/json.cppm
   )
 
   set(SM_ALL_MODULES

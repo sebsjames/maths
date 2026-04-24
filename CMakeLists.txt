@@ -94,10 +94,8 @@ if(HDF5_FOUND)
   include_directories(${HDF5_INCLUDE_DIR})
 endif()
 
-# nlohmann json is required only to use sm.config (the config1 test)
-# It *does* have to be a version of nlohmann::json that is happy to be
-# incorporated into a module.
-find_package(nlohmann_json)
+# nlohmann::json module json.cppm is submoduled for use with sm::config
+include_directories("${PROJECT_SOURCE_DIR}/json/include")
 
 # Eigen is only used for a test/comparison program
 find_package(Eigen3 NO_MODULE)

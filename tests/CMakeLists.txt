@@ -400,29 +400,9 @@ endif()
 
 # Test sm::config
 
-# We have to do a special test on nlohmann_json version and which
-# compiler we are on. g++/visualstudio have a problem with older
-# versions of json, but are ok with the very latest (currently
-# unreleased) version.
-if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-  if(nlohmann_json_FOUND)
-    if(nlohmann_json_VERSION GREATER 3.11.99)
-      set(can_do_config 1)
-    endif()
-  endif()
-elseif(CMAKE_CXX_COMPILER_ID MATCHES MSVC)
-  # Ignore config1 for VisualStudio for now (get a json error)
-else()
-  if(nlohmann_json_FOUND)
-    set(can_do_config 1)
-  endif(nlohmann_json_FOUND)
-endif()
-
-if(can_do_config)
-  add_executable(config1 config1.cpp)
-  target_sources_modules(config1 MODULES ${SM_CONFIG_MODULES} ${SM_UTIL_MODULES} ${SM_VVEC_MODULES} ${SM_VEC_MODULES})
-  add_test(config1 config1)
-endif(can_do_config)
+add_executable(config1 config1.cpp)
+target_sources_modules(config1 MODULES ${SM_CONFIG_MODULES} ${SM_UTIL_MODULES} ${SM_VVEC_MODULES} ${SM_VEC_MODULES})
+add_test(config1 config1)
 
 add_executable(zernike1 zernike1.cpp)
 target_sources_modules(zernike1 MODULES ${SM_ALGO_MODULES} ${SM_VVEC_MODULES})
