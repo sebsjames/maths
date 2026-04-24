@@ -2,7 +2,7 @@
 # Define variables of module groups for use by the sebsjames/maths
 # build process itself, and by client projects.
 #
-macro(setup_module_variables_for_maths base_directory)
+macro(setup_module_variables_for_maths base_directory json_directory)
 
   set(SM_MATHCONST_MODULES
     ${base_directory}/sm/mathconst.cppm
@@ -137,7 +137,7 @@ macro(setup_module_variables_for_maths base_directory)
     ${SM_VVEC_MODULES}
     ${SM_UTIL_MODULES}
     ${base_directory}/sm/config.cppm
-    ${base_directory}/json/src/modules/json.cppm
+    ${json_directory}/src/modules/json.cppm
   )
   set(SM_CRC32_MODULES
     ${base_directory}/sm/crc32.cppm
@@ -161,6 +161,7 @@ macro(setup_module_variables_for_maths base_directory)
     ${base_directory}/sm/centroid.cppm
     ${base_directory}/sm/CMakeLists.txt
     ${base_directory}/sm/config.cppm
+    ${json_directory}/src/modules/json.cppm
     ${base_directory}/sm/constexpr_math.cppm
     ${base_directory}/sm/crc32.cppm
     ${base_directory}/sm/edgeconv.cppm
@@ -176,7 +177,6 @@ macro(setup_module_variables_for_maths base_directory)
     ${base_directory}/sm/histo.cppm
     ${base_directory}/sm/mat.cppm
     ${base_directory}/sm/mathconst.cppm
-    ${base_directory}/sm/maths-config.cmake
     ${base_directory}/sm/nm_simplex.cppm
     ${base_directory}/sm/onoff.cppm
     ${base_directory}/sm/polysolve.cppm

@@ -400,9 +400,12 @@ endif()
 
 # Test sm::config
 
-add_executable(config1 config1.cpp)
-target_sources_modules(config1 MODULES ${SM_CONFIG_MODULES} ${SM_UTIL_MODULES} ${SM_VVEC_MODULES} ${SM_VEC_MODULES})
-add_test(config1 config1)
+# GCC14 can't compile this (something to do with nlohmann::json). Also seems to be an issue on Windows
+if((CMAKE_CXX_COMPILER_ID MATCHES "Clang") OR (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 14.99))
+  add_executable(config1 config1.cpp)
+  target_sources_modules(config1 MODULES ${SM_CONFIG_MODULES} ${SM_UTIL_MODULES} ${SM_VVEC_MODULES} ${SM_VEC_MODULES})
+  add_test(config1 config1)
+endif()
 
 add_executable(zernike1 zernike1.cpp)
 target_sources_modules(zernike1 MODULES ${SM_ALGO_MODULES} ${SM_VVEC_MODULES})

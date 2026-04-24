@@ -15,21 +15,24 @@
  */
 module;
 
+#include <cstdint>
+#include <type_traits>
 #include <list>
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <iomanip>
 #include <iostream>
 #include <stdexcept>
 #include <vector>
-
-#include <nlohmann/json.hpp>
+#include <map>
 
 export module sm.config;
 
+export import nlohmann.json;
 import sm.util;
-import sm.vvec;
-import sm.vec;
+export import sm.vvec;
+export import sm.vec;
 
 export namespace sm
 {
@@ -49,7 +52,18 @@ export namespace sm
         config(){}
 
         //! Constructor which takes the path to the file that contains the JSON.
+        config (const char* configfile) { this->init (std::string(configfile)); }
+
+        //! Constructor which takes the path to the file that contains the JSON.
         config (const std::string& configfile) { this->init (configfile); }
+
+        //! Construct with a pre-existing nlohmann::json object which is treated as the root
+        config (const nlohmann::json _root)
+        {
+            this->thefile = "/tmp/jsonstr.json";
+            this->root = _root;
+            this->ready = true;
+        }
 
         //! Perform config file initialization.
         void init (const std::string& configfile)
@@ -141,9 +155,9 @@ export namespace sm
          *
          * And the overridden values will be used.
          */
-        void process_args (int32_t argc, char **argv)
+        void process_args (std::int32_t argc, char **argv)
         {
-            for (int32_t i = 0; i < argc; ++i) {
+            for (std::int32_t i = 0; i < argc; ++i) {
                 std::string arg(argv[i]);
                 std::string::size_type pos = std::string::npos;
                 // co for 'Config override'
@@ -179,9 +193,9 @@ export namespace sm
                     } else {
                         rtn = std::stoi (bval) > 0 ? true : false;
                     }
-                } else if constexpr (std::is_same<std::decay_t<T>, int32_t>::value == true) {
+                } else if constexpr (std::is_same<std::decay_t<T>, std::int32_t>::value == true) {
                     rtn = std::stoi (this->config_overrides.at(thing));
-                } else if constexpr (std::is_same<std::decay_t<T>, uint32_t>::value == true) {
+                } else if constexpr (std::is_same<std::decay_t<T>, std::uint32_t>::value == true) {
                     rtn = std::stoul (this->config_overrides.at(thing));
                 } else if constexpr (std::is_same<std::decay_t<T>, float>::value == true) {
                     rtn = std::stof (this->config_overrides.at(thing));
