@@ -150,6 +150,18 @@ export namespace sm
         //! Return a string representation of the matrix
         std::string str() const noexcept { return this->str (this->arr); }
 
+        //! Return a string representation of the underlying array (this comes out as [ col0, col1, col2, col3 ])
+        std::string str_arr() const noexcept
+        {
+           std::stringstream ss;
+           ss <<"[ ";
+           for (std::uint32_t i = 0; i < (Nr * Nc) - 1; ++i) {
+               ss << this->arr[i] << ", ";
+           }
+           ss << this->arr[(Nr * Nc) - 1] << " ]\n";
+           return ss.str();
+        }
+
         //! set_identity is self-explanatory
         constexpr void set_identity() noexcept
         {
