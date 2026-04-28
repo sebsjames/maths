@@ -21,6 +21,8 @@ module;
 #include <cstdint>
 #include <limits>
 #include <array>
+#include <vector>
+#include <complex>
 #include <string>
 #include <sstream>
 #include <iostream>
@@ -33,6 +35,7 @@ export import sm.mathconst;
 export import sm.quaternion;
 export import sm.vec;
 import sm.constexpr_math;
+import sm.polysolve;
 
 export namespace sm
 {
@@ -839,6 +842,123 @@ export namespace sm
                 this->arr = this->adjugate();
                 *this *= (F{1} / det);
             }
+        }
+
+        /*!
+         * Compute the eigenvalues of this square NrxNr matrix.
+         * Returns a vector of Nr complex eigenvalues.
+         *
+         * Uses the Faddeev-LeVerrier algorithm to compute the characteristic
+         * polynomial det(A - lambda*I) = 0, then solves for roots using polysolve.
+         */
+        sm::vec<std::complex<F>, Nr> eigenvalues() const noexcept
+        {
+            if constexpr ((Nr != Nc) || (Nr < 2u)) { []<bool flag = false>() { static_assert(flag, "valid only for square matrices"); }(); }
+
+            // Use Faddeev-LeVerrier algorithm to get characteristic polynomial
+            std::vector<F> coeffs(Nr + 1, F{0});
+            coeffs[Nr] = F{1};  // Leading coefficient
+
+            sm::mat<F, Nr> M;
+
+            for (std::uint32_t k = 1u; k <= Nr; ++k) {
+                M = (*this) * M;  // M_k = A * M_{k-1}, where M_0 = I
+                F trace = M.trace();
+                coeffs[Nr - k] = -trace / F(k);
+
+                if (k < Nr) {
+                    // M = M_k + c_{n-k} * I
+                    for (std::uint32_t d = 0u; d < (Nr * Nr); d += (Nr + 1)) { // accesses diagonal elements
+                        M[d] += coeffs[Nr - k];
+                    }
+                }
+            }
+
+            std::vector<std::complex<F>> roots_vvec = sm::polysolve::solve<F> (coeffs);
+
+            // Convert from std::vector to sm::vec for return type
+            sm::vec<std::complex<F>, Nr> roots;
+            for (std::uint32_t k = 0u; k < Nr; ++k) { roots[k] = roots_vvec[k]; }
+
+            return roots;
+        }
+
+        /*!
+         * Find an eigenvector for a given eigenvalue.
+         * Returns a normalized eigenvector as a complex vector.
+         */
+        sm::vec<std::complex<F>, Nr> eigenvector (const std::complex<F>& lambda) const noexcept
+        {
+            static_assert ((Nr == Nc) || (Nr < 2u), "eigenvector method is valid only for square matrices");
+
+            constexpr F my_epsilon = F{1e-14};
+
+            // Form (A - lambda * I)
+            std::array<std::complex<F>, Nr * Nr> A_lambda = {}; // Aarrinus_lambda
+            for (std::uint32_t i = 0; i < (Nr * Nr); ++i) {
+                A_lambda[i] = std::complex<F>{ this->arr[i], F{0} };
+            }
+            for (std::uint32_t d = 0u; d < (Nr * Nr); d += (Nr + 1)) { // accesses diagonal elements
+                A_lambda[d] -= lambda;
+            }
+
+            sm::vec<std::complex<F>, Nr> v = {}; // initialized as all zeros
+
+            // Simplified null space finder: use last component as free variable
+            v[Nr - 1u] = std::complex<F>{ F{1}, F{0} };
+
+            // Back substitute (simplified approach)
+            for (std::uint32_t c = (Nr - 2u); c != std::numeric_limits<std::uint32_t>::max(); c--) { // c is 'column'
+                if (std::abs (A_lambda[(Nr * c) + c]) > my_epsilon) {
+
+                    const std::uint32_t re = (Nr * Nr) - (Nr - c); // row end index
+                    const std::uint32_t numel = Nr - c - 1u;       // number of elements in the sum for this row
+                    const std::uint32_t de = Nr * c;               // diagonal element but FIXME It AIN'T!
+
+                    for (std::uint32_t j = numel; j > c; --j) {
+                        const std::uint32_t rc = re - (numel - j) * Nc;
+                        v[c] += A_lambda[rc] * v[j];
+                    }
+                    std::cout << "Doing v[" << c << "] " << v[c] << " /= A_lambda[" << de << "] = " << A_lambda[de] << std::endl;
+                    v[c] /= A_lambda[de];
+                }
+            }
+
+            std::cout << "Pre-norm, v = " << v << std::endl;
+
+            // Normalize
+            F normsq = F{0};
+            for (std::uint32_t i = 0; i < Nr; ++i) { normsq += std::norm (v[i]); }
+            F norm = std::sqrt (normsq);
+            if (norm > my_epsilon) { v /= norm; }
+            std::cout << "Post-norm, v = " << v << std::endl;
+            return v;
+        }
+
+        /*!
+         * Compute both eigenvalues and their corresponding eigenvectors.
+         * Returns a vector of 4 pairs, each containing an eigenvalue and its eigenvector.
+         */
+        struct eigenpair
+        {
+            static_assert ((Nr == Nc) || (Nr < 2u), "eigenpair is valid only for square matrices");
+            std::complex<F> eigenvalue = {};
+            sm::vec<std::complex<F>, Nr> eigenvector = {};
+        };
+
+        sm::vec<eigenpair, Nr> eigenpairs() const noexcept
+        {
+            static_assert ((Nr == Nc) || (Nr < 2u), "eigenpairs method is valid only for square matrices");
+
+            sm::vec<eigenpair, Nr> pairs = {};
+            sm::vec<std::complex<F>, Nr> lambdas = this->eigenvalues();
+
+            for (std::uint32_t i = 0; i < Nr; ++i) {
+                pairs[i].eigenvalue = lambdas[i];
+                pairs[i].eigenvector = this->eigenvector (lambdas[i]);
+            }
+
+            return pairs;
         }
 
         template <typename T> requires std::is_arithmetic_v<T> && (Nr == 3) && (Nc == 3)

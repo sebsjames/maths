@@ -275,6 +275,10 @@ add_executable(mat_4x4_reflection mat_4x4_reflection.cpp)
 target_sources_modules(mat_4x4_reflection MODULES ${SM_MAT_MODULES})
 add_test(mat_4x4_reflection mat_4x4_reflection)
 
+add_executable(mat_4x4_eigenvalues mat_4x4_eigenvalues.cpp)
+target_sources_modules(mat_4x4_eigenvalues MODULES ${SM_MAT_MODULES})
+add_test(mat_4x4_eigenvalues mat_4x4_eigenvalues)
+
 if(0)
 if(NOT APPLE)
   # constexpr mat
