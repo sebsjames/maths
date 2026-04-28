@@ -853,7 +853,7 @@ export namespace sm
          */
         sm::vec<std::complex<F>, Nr> eigenvalues() const noexcept
         {
-            if constexpr ((Nr != Nc) || (Nr < 2u)) { []<bool flag = false>() { static_assert(flag, "valid only for square matrices"); }(); }
+            static_assert ((Nr == Nc) && (Nr >= 2u), "eigenvalues method is valid only for square matrices");
 
             // Use Faddeev-LeVerrier algorithm to get characteristic polynomial
             std::vector<F> coeffs(Nr + 1, F{0});
@@ -889,7 +889,7 @@ export namespace sm
          */
         sm::vec<std::complex<F>, Nr> eigenvector (const std::complex<F>& lambda) const noexcept
         {
-            static_assert ((Nr == Nc) || (Nr < 2u), "eigenvector method is valid only for square matrices");
+            static_assert ((Nr == Nc) && (Nr >= 2u), "eigenvector method is valid only for square matrices");
 
             constexpr F my_epsilon = F{1e-14};
 
@@ -941,7 +941,7 @@ export namespace sm
          */
         struct eigenpair
         {
-            static_assert ((Nr == Nc) || (Nr < 2u), "eigenpair is valid only for square matrices");
+            static_assert ((Nr == Nc) && (Nr >= 2u), "eigenpair is valid only for square matrices");
             std::complex<F> eigenvalue = {};
             sm::vec<std::complex<F>, Nr> eigenvector = {};
         };
