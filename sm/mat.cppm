@@ -903,21 +903,28 @@ export namespace sm
 
             std::uint32_t i_max = 0u;
             sm::vec<F, Nc> t_row = {}; // temp row
+            sm::vec<F, Nr> t_col = {}; // temp col
 
             // Converted from the Pseudocode on https://en.wikipedia.org/wiki/Gaussian_elimination
             while (r < Nr && c < Nc) {
-                std::cout << "Row r="<<r<<"\n";
-                // i_max = argmax (i = r ... Nr-1, abs(A[i, c]));
-                for (std::uint32_t i = 0; i < r; ++i) { t_row[i] = F{0}; }
-                for (std::uint32_t i = r; i < Nr; ++i) { t_row[i] = std::abs ((*this)(i, c)); }
-                i_max = t_row.argmax();
+                std::cout << "Row r = " << r << ", Col c = " << c << "\n";
+                // Find the k-th pivot
+                // i_max = argmax (i = r ... Nc-1, abs(A[i, c]));
+                for (std::uint32_t i = 0; i < r && i < Nr; ++i) { t_col[i] = F{0}; }
+                for (std::uint32_t i = r; i < Nr; ++i) { t_col[i] = std::abs ((*this)(i, c)); }
+                i_max = t_col.argmax();
+
                 if ((*this)(i_max, c) == F{0}) {
                     // No pivot in this column, pass to next column
                     std::cout << "No pivot...\n";
                     c++;
                 } else {
                     // swap rows (r, i_max);
-                    std::cout << "swap rows i_max " << i_max << " with this[i_max, c] = " << (*this)(i_max, c) << " = " << this->row (i_max) << " and r " << r << " = " << this->row (r) << std::endl;
+                    std::cout << "swap rows i_max "
+                              << i_max << " with this[i_max, c] = "
+                              << (*this)(i_max, c) << " = "
+                              << this->row (i_max)
+                              << " and row r " << r << " = " << this->row (r) << std::endl;
                     t_row = this->row (i_max);
                     this->set_row (i_max, this->row (r));
                     this->set_row (r, t_row);
@@ -1017,7 +1024,7 @@ export namespace sm
         }
 
 #if 0
-        // Get eigenvector of a complex matrix, given an eigenvalue
+        // Get eigenvector of a complex matrix, given a complex eigenvalue
         template<typename Fy=F> requires sm::is_complex<Fy>::value
         sm::vec<F, Nr> eigenvector (const F& lambda) const noexcept { /* writeme */ }
 #endif
