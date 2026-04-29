@@ -245,5 +245,32 @@ int main()
     float m1id0 = m1id[0];
     std::cout << "m1id[0] = " << m1id0 << std::endl;
 
+    // Row reduction...
+    sm::mat<float, 4> forreduc = {0,0,4,0,  0,0,0,3,  0,2,4,0,  1,1,0,3 };
+    std::cout << "For reduction:\n" << forreduc << std::endl;
+
+    forreduc.row_reduce_inplace();
+
+    std::cout << "AFTER reduction:\n" << forreduc << std::endl;
+
+    forreduc = {0,0,4,0,  0,2,0,3,  0,2,4,0,  1,1,0,3 };
+    std::cout << "For reduction:\n" << forreduc << std::endl;
+
+    forreduc.row_reduce_inplace();
+
+    std::cout << "AFTER reduction:\n" << forreduc << std::endl;
+
+    sm::mat<float, 2, 3> forreduc2 = {7, 7, -2, -2, 0, 0};
+    std::cout << "For reduction:\n" << forreduc2 << std::endl;
+    forreduc2.row_reduce_inplace();
+    std::cout << "AFTER reduction:\n" << forreduc2 << std::endl;
+
+    sm::mat<float, 5, 3> forreduc3 = {7, 7, 7, 7, 7, -2, -2, -2, -2, -2 , 0, 0, 0, 0, 0};
+    std::cout << "For reduction:\n" << forreduc3 << std::endl;
+    forreduc3.row_reduce_inplace();
+    std::cout << "AFTER reduction:\n" << forreduc3 << std::endl;
+
+
+    std::cout << "Test " << (rtn ? "FAILED" : "PASSED") << std::endl;
     return rtn;
 }

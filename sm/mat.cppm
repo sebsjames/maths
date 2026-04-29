@@ -21,6 +21,8 @@ module;
 #include <cstdint>
 #include <limits>
 #include <array>
+#include <vector>
+#include <complex>
 #include <string>
 #include <sstream>
 #include <iostream>
@@ -32,12 +34,16 @@ export module sm.mat;
 export import sm.mathconst;
 export import sm.quaternion;
 export import sm.vec;
+import sm.trait_tests;
 import sm.constexpr_math;
+import sm.polysolve;
 
 export namespace sm
 {
     // Forward declare class and stream operator
-    template <typename F, std::uint32_t Nr, std::uint32_t Nc = Nr> requires std::is_floating_point_v<F> struct mat;
+    template <typename F, std::uint32_t Nr, std::uint32_t Nc = Nr>
+    requires (std::is_floating_point_v<F> || sm::is_complex<F>::value == true) struct mat;
+
     template <typename F, std::uint32_t Nr, std::uint32_t Nc = Nr> std::ostream& operator<< (std::ostream&, const mat<F, Nr, Nc>&);
 
     /*!
@@ -45,7 +51,8 @@ export namespace sm
      *
      * \templateparam F The arithmetic? floating point? type in which to store the mat44's data.
      */
-    template <typename F, std::uint32_t Nr, std::uint32_t Nc> requires std::is_floating_point_v<F>
+    template <typename F, std::uint32_t Nr, std::uint32_t Nc>
+    requires (std::is_floating_point_v<F> || sm::is_complex<F>::value == true)
     struct mat
     {
         //! Default constructor
@@ -841,6 +848,212 @@ export namespace sm
             }
         }
 
+        /*!
+         * Compute the complex eigenvalues of this square Nr x Nr matrix of real numbers.
+         *
+         * Returns a vector of Nr complex eigenvalues.
+         *
+         * Uses the Faddeev-LeVerrier algorithm to compute the characteristic polynomial det(A -
+         * lambda*I) = 0, then solves for roots using polysolve.
+         */
+        template<typename Fy=F> requires std::is_floating_point_v<Fy>
+        sm::vec<std::complex<F>, Nr> eigenvalues() const noexcept
+        {
+            static_assert ((Nr == Nc) && (Nr >= 2u), "eigenvalues method is valid only for square matrices");
+
+            // Use Faddeev-LeVerrier algorithm to get characteristic polynomial
+            std::vector<F> coeffs(Nr + 1, F{0});
+            coeffs[Nr] = F{1};  // Leading coefficient
+
+            sm::mat<F, Nr> M;
+
+            for (std::uint32_t k = 1u; k <= Nr; ++k) {
+                M = (*this) * M;  // M_k = A * M_{k-1}, where M_0 = I
+                F trace = M.trace();
+                coeffs[Nr - k] = -trace / F(k);
+
+                if (k < Nr) {
+                    // M = M_k + c_{n-k} * I
+                    for (std::uint32_t d = 0u; d < (Nr * Nr); d += (Nr + 1)) { // accesses diagonal elements
+                        M[d] += coeffs[Nr - k];
+                    }
+                }
+            }
+
+            std::vector<std::complex<F>> roots_vvec = sm::polysolve::solve<F> (coeffs);
+
+            // Convert from std::vector to sm::vec for return type
+            sm::vec<std::complex<F>, Nr> roots;
+            for (std::uint32_t k = 0u; k < Nr; ++k) { roots[k] = roots_vvec[k]; }
+
+            return roots;
+        }
+
+#if 0
+        // We should also have a specialization to compute Eigenvalues of a complex matrix:
+        template<typename Fy=F> requires sm::is_complex<Fy>::value
+        sm::vec<F, Nr> eigenvalues() const noexcept { /* writeme */ }
+#endif
+
+        // Row-reduce *this using Gaussian elimination, updating *this
+        void row_reduce_inplace() noexcept
+        {
+            std::uint32_t r = 0u; // Initialization of the pivot row
+            std::uint32_t c = 0u; // Initialization of the pivot column
+
+            std::uint32_t i_max = 0u;
+            sm::vec<F, Nc> t_row = {}; // temp row
+            sm::vec<F, Nr> t_col = {}; // temp col
+
+            // Converted from the Pseudocode on https://en.wikipedia.org/wiki/Gaussian_elimination
+            while (r < Nr && c < Nc) {
+                std::cout << "Row r = " << r << ", Col c = " << c << "\n";
+                // Find the k-th pivot
+                // i_max = argmax (i = r ... Nc-1, abs(A[i, c]));
+                for (std::uint32_t i = 0; i < r && i < Nr; ++i) { t_col[i] = F{0}; }
+                for (std::uint32_t i = r; i < Nr; ++i) { t_col[i] = std::abs ((*this)(i, c)); }
+                i_max = t_col.argmax();
+
+                if ((*this)(i_max, c) == F{0}) {
+                    // No pivot in this column, pass to next column
+                    std::cout << "No pivot...\n";
+                    c++;
+                } else {
+                    // swap rows (r, i_max);
+                    std::cout << "swap rows i_max "
+                              << i_max << " with this[i_max, c] = "
+                              << (*this)(i_max, c) << " = "
+                              << this->row (i_max)
+                              << " and row r " << r << " = " << this->row (r) << std::endl;
+                    t_row = this->row (i_max);
+                    this->set_row (i_max, this->row (r));
+                    this->set_row (r, t_row);
+                    // Do for all rows below pivot:
+                    for (std::uint32_t i = r + 1u; i < Nr; i++) {
+                        F f = (*this)(i, c) / (*this)(r, c);
+                        // Fill with zeros the lower part of pivot column:
+                        (*this)(i, c) = F{0};
+                        // Do for all remaining elements in current row:
+                        for (std::uint32_t j = c + 1u; j < Nc; j++) {
+                            (*this)(i, j) = (*this)(i, j) - (*this)(r, j) * f;
+                        }
+                    }
+                    // Increase pivot row and column
+                    r++;
+                    c++;
+                }
+            }
+        }
+
+        // Row-reduce *this using Gaussian elimination, returning the row-reduced matrix
+        sm::mat<F, Nr, Nc> row_reduce() const noexcept
+        {
+            sm::mat<F, Nr, Nc> red = *this;
+            red.row_reduce_inplace();
+            return red;
+        }
+
+        /*!
+         * Find the eigenvectors for the set of eigenvalues found for this matrix of real values.
+         * Returns a normalized eigenvector as a complex vector.
+         */
+        template<typename Fy=F> requires std::is_floating_point_v<Fy>
+        sm::vec<std::complex<F>, Nr> eigenvector (const std::complex<F>& lambda) const noexcept
+        {
+            static_assert ((Nr == Nc) && (Nr >= 2u), "eigenvector method is valid only for square matrices");
+
+            // Let A = (*this)
+            // Find non-zero X that satisfies A X = lamba X;
+            // I.e. (A - lambda * I) X = 0
+
+            // Create augmented matrix. Here's (A...
+            sm::mat<std::complex<F>, Nr, Nc + 1> aug;
+
+            for (std::uint32_t c = 0; c < Nc; ++c) {
+                for (std::uint32_t r = 0; r < Nr; ++r) {
+                    aug(r, c) = (*this)(r, c);
+                }
+            }
+            // ... and here's: - lambda I)
+            for (std::uint32_t d = 0u; d < (Nr * Nr); d += (Nr + 1)) { // accesses diagonal elements
+                aug[d] -= lambda;
+            }
+            // Last col of augmented matrix contains zeros
+            for (std::uint32_t r = 0; r < Nr; ++r) {
+                aug(r, Nc) = std::complex<F>{ F{0}, F{0} };
+            }
+
+            // Row-reduce the augmented matrix using Gaussian elimination
+            aug.row_reduce_inplace();
+
+            constexpr F my_epsilon = F{1e-14};
+
+            sm::vec<std::complex<F>, Nr> v = {}; // initialized as all zeros
+
+#if 0
+            // Simplified null space finder: use last component as free variable
+            v[Nr - 1u] = std::complex<F>{ F{1}, F{0} };
+
+            // Back substitute (simplified approach)
+            for (std::uint32_t c = (Nr - 2u); c != std::numeric_limits<std::uint32_t>::max(); c--) { // c is 'column'
+                if (std::abs (aug[(Nr * c) + c]) > my_epsilon) {
+
+                    const std::uint32_t re = (Nr * Nr) - (Nr - c); // row end index
+                    const std::uint32_t numel = Nr - c - 1u;       // number of elements in the sum for this row
+                    const std::uint32_t de = Nr * c;               // diagonal element but FIXME It AIN'T!
+
+                    for (std::uint32_t j = numel; j > c; --j) {
+                        const std::uint32_t rc = re - (numel - j) * Nc;
+                        v[c] += aug[rc] * v[j];
+                    }
+                    std::cout << "Doing v[" << c << "] " << v[c] << " /= aug[" << de << "] = " << aug[de] << std::endl;
+                    v[c] /= aug[de];
+                }
+            }
+
+            std::cout << "Pre-norm, v = " << v << std::endl;
+
+            // Normalize
+            F normsq = F{0};
+            for (std::uint32_t i = 0; i < Nr; ++i) { normsq += std::norm (v[i]); }
+            F norm = std::sqrt (normsq);
+            if (norm > my_epsilon) { v /= norm; }
+            std::cout << "Post-norm, v = " << v << std::endl;
+#endif
+            return v;
+        }
+
+#if 0
+        // Get eigenvector of a complex matrix, given a complex eigenvalue
+        template<typename Fy=F> requires sm::is_complex<Fy>::value
+        sm::vec<F, Nr> eigenvector (const F& lambda) const noexcept { /* writeme */ }
+#endif
+        /*!
+         * Compute both eigenvalues and their corresponding eigenvectors.
+         * Returns a vector of 4 pairs, each containing an eigenvalue and its eigenvector.
+         */
+        struct eigenpair
+        {
+            static_assert ((Nr == Nc) && (Nr >= 2u), "eigenpair is valid only for square matrices");
+            std::complex<F> eigenvalue = {};
+            sm::vec<std::complex<F>, Nr> eigenvector = {};
+        };
+
+        sm::vec<eigenpair, Nr> eigenpairs() const noexcept
+        {
+            static_assert ((Nr == Nc) || (Nr < 2u), "eigenpairs method is valid only for square matrices");
+
+            sm::vec<eigenpair, Nr> pairs = {};
+            sm::vec<std::complex<F>, Nr> lambdas = this->eigenvalues();
+
+            for (std::uint32_t i = 0; i < Nr; ++i) {
+                pairs[i].eigenvalue = lambdas[i];
+                pairs[i].eigenvector = this->eigenvector (lambdas[i]);
+            }
+
+            return pairs;
+        }
+
         template <typename T> requires std::is_arithmetic_v<T> && (Nr == 3) && (Nc == 3)
         static constexpr mat<F, 3> reflection (const sm::vec<T, 3>& n) noexcept
         {
@@ -1101,71 +1314,72 @@ export namespace sm
          * Hat tip for the algorithm:
          * https://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/
          */
-        constexpr sm::quaternion<F> rotation() const noexcept
+        template<typename Fy = F> requires std::is_floating_point_v<Fy>
+        constexpr sm::quaternion<Fy> rotation() const noexcept
         {
             if constexpr ((Nr != 4 && Nr != 3) || Nr != Nc) {
                 []<bool flag = false>() { static_assert(flag, "valid only for 3x3 and 4x4 matrices"); }();
             }
 
-            sm::quaternion<F> q;
+            sm::quaternion<Fy> q;
 
             if constexpr (Nr == 3) {
 
-                F tr = this->trace();
-                if (tr > F{0}) {
-                    F S = sm::cem::sqrt (tr + F{1}) * F{2}; // S=4*qw
-                    q.w = F{0.25} * S;
+                Fy tr = this->trace();
+                if (tr > Fy{0}) {
+                    Fy S = sm::cem::sqrt (tr + Fy{1}) * Fy{2}; // S=4*qw
+                    q.w = Fy{0.25} * S;
                     q.x = (arr[5] - arr[7]) / S;
                     q.y = (arr[6] - arr[2]) / S;
                     q.z = (arr[1] - arr[3]) / S;
                 } else if ((arr[0] > arr[4]) && (arr[0] > arr[8])) {
-                    F S = sm::cem::sqrt (F{1} + arr[0] - arr[4] - arr[8]) * F{2}; // S=4*qx
+                    Fy S = sm::cem::sqrt (Fy{1} + arr[0] - arr[4] - arr[8]) * Fy{2}; // S=4*qx
                     q.w = (arr[5] - arr[7]) / S;
-                    q.x = F{0.25} * S;
+                    q.x = Fy{0.25} * S;
                     q.y = (arr[3] + arr[1]) / S;
                     q.z = (arr[6] + arr[2]) / S;
                 } else if (arr[4] > arr[8]) {
-                    F S = sm::cem::sqrt (F{1} + arr[4] - arr[0] - arr[8]) * F{2}; // S=4*qy
+                    Fy S = sm::cem::sqrt (Fy{1} + arr[4] - arr[0] - arr[8]) * Fy{2}; // S=4*qy
                     q.w = (arr[6] - arr[2]) / S;
                     q.x = (arr[3] + arr[1]) / S;
-                    q.y = F{0.25} * S;
+                    q.y = Fy{0.25} * S;
                     q.z = (arr[7] + arr[5]) / S;
                 } else {
-                    F S = sm::cem::sqrt (F{1} + arr[8] - arr[0] - arr[4]) * F{2}; // S=4*qz
+                    Fy S = sm::cem::sqrt (Fy{1} + arr[8] - arr[0] - arr[4]) * Fy{2}; // S=4*qz
                     q.w = (arr[1] - arr[3]) / S;
                     q.x = (arr[6] + arr[2]) / S;
                     q.y = (arr[7] + arr[5]) / S;
-                    q.z = F{0.25} * S;
+                    q.z = Fy{0.25} * S;
                 }
 
             } else { // Nr == 4
 
-                F tr = arr[0] + arr[5] + arr[10];
+                Fy tr = arr[0] + arr[5] + arr[10];
 
-                if (tr > F{0}) {
-                    F S = sm::cem::sqrt (tr + F{1}) * F{2}; // S=4*qw
-                    q.w = F{0.25} * S;
+                if (tr > Fy{0}) {
+                    Fy S = sm::cem::sqrt (tr + Fy{1}) * Fy{2}; // S=4*qw
+                    q.w = Fy{0.25} * S;
                     q.x = (arr[6] - arr[9]) / S;
                     q.y = (arr[8] - arr[2]) / S;
                     q.z = (arr[1] - arr[4]) / S;
                 } else if ((arr[0] > arr[5]) && (arr[0] > arr[10])) {
-                    F S = sm::cem::sqrt (F{1} + arr[0] - arr[5] - arr[10]) * F{2}; // S=4*qx
+                    Fy S = sm::cem::sqrt (Fy{1} + arr[0] - arr[5] - arr[10]) * Fy{2}; // S=4*qx
                     q.w = (arr[6] - arr[9]) / S;
-                    q.x = F{0.25} * S;
+                    q.x = Fy{0.25} * S;
                     q.y = (arr[4] + arr[1]) / S;
                     q.z = (arr[8] + arr[2]) / S;
                 } else if (arr[5] > arr[10]) {
-                    F S = sm::cem::sqrt (F{1} + arr[5] - arr[0] - arr[10]) * F{2}; // S=4*qy
+                    Fy S = sm::cem::sqrt (Fy{1} + arr[5] - arr[0] - arr[10]) * Fy{2}; // S=4*qy
                     q.w = (arr[8] - arr[2]) / S;
                     q.x = (arr[4] + arr[1]) / S;
-                    q.y = F{0.25} * S;
+                    q.y = Fy{0.25} * S;
                     q.z = (arr[9] + arr[6]) / S;
                 } else {
-                    F S = sm::cem::sqrt (F{1} + arr[10] - arr[0] - arr[6]) * F{2}; // S=4*qz
+                    Fy S = sm::cem::sqrt (Fy{1} + arr[10] - arr[0] - arr[6]) * Fy{2}; // S=4*qz
                     q.w = (arr[1] - arr[4]) / S;
                     q.x = (arr[8] + arr[2]) / S;
                     q.y = (arr[9] + arr[6]) / S;
-                    q.z = F{0.25} * S;
+                    q.z = Fy{0.25} * S;
                 }
             }
             return q;
@@ -1305,7 +1519,8 @@ export namespace sm
         }
 
         //! Right-multiply this->arr with m2 (only meaningful for square matrices)
-        template<typename Fy=F, std::uint32_t Nry = Nr, std::uint32_t Ncy = Nc> requires (Nc == Nry) && std::is_arithmetic_v<Fy>
+        template<typename Fy=F, std::uint32_t Nry = Nr, std::uint32_t Ncy = Nc>
+        requires (Nc == Nry) && (std::is_arithmetic_v<Fy> || (sm::is_complex<Fy>::value && sm::is_complex<F>::value))
         constexpr void operator*= (const mat<Fy, Nry, Ncy>& m2) noexcept
         {
             sm::vec<F, Nr * Ncy> m;
@@ -1367,7 +1582,8 @@ export namespace sm
         }
 
         //! Right multiply this->arr with m2.arr
-        template<typename Fy=F, std::uint32_t Nry = Nr, std::uint32_t Ncy = Nc> requires (Nc == Nry) && std::is_arithmetic_v<Fy>
+        template<typename Fy=F, std::uint32_t Nry = Nr, std::uint32_t Ncy = Nc>
+        requires (Nc == Nry) && (std::is_arithmetic_v<Fy> || (sm::is_complex<Fy>::value && sm::is_complex<F>::value))
         constexpr mat<F, Nr, Ncy> operator* (const mat<Fy, Nry, Ncy>& m2) const noexcept
         {
             mat<F, Nr, Ncy> m;
@@ -1465,14 +1681,14 @@ export namespace sm
         }
 
         //! *= operator for a scalar value.
-        template <typename T=F> requires std::is_arithmetic_v<T>
+        template <typename T=F> requires (std::is_arithmetic_v<T> || (sm::is_complex<T>::value && sm::is_complex<F>::value))
         constexpr void operator*= (const T& f) noexcept
         {
             for (std::uint32_t i = 0; i < Nr * Nc; ++i) { this->arr[i] *= f; }
         }
 
         //! * operator for a scalar value.
-        template <typename T=F> requires std::is_arithmetic_v<T>
+        template <typename T=F> requires (std::is_arithmetic_v<T> || (sm::is_complex<T>::value && sm::is_complex<F>::value))
         constexpr mat<F, Nr, Nc> operator* (const T& f) noexcept
         {
             mat<F, Nr, Nc> m = {};

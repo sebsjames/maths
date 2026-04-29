@@ -267,6 +267,10 @@ add_executable(mat_4x4_basic mat_4x4_basic.cpp)
 target_sources_modules(mat_4x4_basic MODULES ${SM_MAT_MODULES})
 add_test(mat_4x4_basic mat_4x4_basic)
 
+add_executable(mat_4x4_basic_complex mat_4x4_basic_complex.cpp)
+target_sources_modules(mat_4x4_basic_complex MODULES ${SM_MAT_MODULES})
+add_test(mat_4x4_basic_complex mat_4x4_basic_complex)
+
 add_executable(mat_4x4_basic2 mat_4x4_basic2.cpp)
 target_sources_modules(mat_4x4_basic2 MODULES ${SM_MAT_MODULES})
 add_test(mat_4x4_basic2 mat_4x4_basic2)
@@ -274,6 +278,10 @@ add_test(mat_4x4_basic2 mat_4x4_basic2)
 add_executable(mat_4x4_reflection mat_4x4_reflection.cpp)
 target_sources_modules(mat_4x4_reflection MODULES ${SM_MAT_MODULES})
 add_test(mat_4x4_reflection mat_4x4_reflection)
+
+add_executable(mat_4x4_eigenvalues mat_4x4_eigenvalues.cpp)
+target_sources_modules(mat_4x4_eigenvalues MODULES ${SM_MAT_MODULES})
+add_test(mat_4x4_eigenvalues mat_4x4_eigenvalues)
 
 if(0)
 if(NOT APPLE)
