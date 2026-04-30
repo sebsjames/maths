@@ -896,51 +896,42 @@ export namespace sm
             static_assert (false, "mat<>::eigenvalues for a complex matrix is not yet implemented");
         }
 
-        // Row-reduce *this using Gaussian elimination, updating *this
+        // Convert *this to (unreduced) row echelon form using Gaussian elimination, updating *this
         template<typename Fy=F> requires (Nc >= Nr) && std::is_floating_point_v<Fy>
-        void row_reduce_inplace() noexcept
+        void row_echelon_form_inplace() noexcept
         {
             std::uint32_t r = 0u; // Initialization of the pivot row
             std::uint32_t c = 0u; // Initialization of the pivot column
 
-            std::uint32_t i_max = 0u;
+            std::uint32_t r_piv = 0u;
             sm::vec<F, Nc> t_row = {}; // temp row
             sm::vec<F, Nr> t_col = {}; // temp col
 
             // Converted from the Pseudocode on https://en.wikipedia.org/wiki/Gaussian_elimination
             while (r < Nr && c < Nc) {
-                //std::cout << "Row r = " << r << ", Col c = " << c << "\n";
-                // Find the k-th pivot
-                // i_max = argmax (i = r ... Nc-1, abs(A[i, c]));
+                // Find the pivot for col c - the row in column c that has the greated abs. value
                 for (std::uint32_t i = 0; i < r && i < Nr; ++i) { t_col[i] = F{0}; }
                 for (std::uint32_t i = r; i < Nr; ++i) { t_col[i] = std::abs ((*this)(i, c)); }
-                i_max = t_col.argmax();
+                r_piv = t_col.argmax();
 
-                //std::cout << "i_max = " << i_max << " and c = " << c << std::endl;
-                //std::cout << "*this(" << i_max << ", " << c << ") = " << (*this)(i_max, c) << "\n";
-                if ((*this)(i_max, c) == F{0}) {
+                if (t_col[r_piv] == F{0}) {
                     // No pivot in this column, pass to next column
-                    //std::cout << "No pivot...\n";
                     c++;
                 } else {
-                    // swap rows (r, i_max);
-                    //std::cout << "swap rows i_max "
-                    //          << i_max << " with this[i_max, c] = "
-                    //          << (*this)(i_max, c) << " = "
-                    //          << this->row (i_max)
-                    //          << " and row r " << r << " = " << this->row (r) << std::endl;
-                    t_row = this->row (i_max);
-                    this->set_row (i_max, this->row (r));
-                    this->set_row (r, t_row);
+                    if (r_piv != r) {
+                        // swap rows (r, r_piv);
+                        t_row = this->row (r_piv);
+                        this->set_row (r_piv, this->row (r));
+                        this->set_row (r, t_row);
+                    } // else no need to swap rows
+
                     // Do for all rows below pivot:
                     for (std::uint32_t i = r + 1u; i < Nr; i++) {
                         F f = (*this)(i, c) / (*this)(r, c);
-                        // Fill with zeros the lower part of pivot column:
+                        // Fill the lower part of pivot column with zeros:
                         (*this)(i, c) = F{0};
                         // Do for all remaining elements in current row:
-                        for (std::uint32_t j = c + 1u; j < Nc; j++) {
-                            (*this)(i, j) -= (*this)(r, j) * f;
-                        }
+                        for (std::uint32_t j = c + 1u; j < Nc; j++) { (*this)(i, j) -= (*this)(r, j) * f; }
                     }
                     // Increase pivot row and column
                     r++;
@@ -949,12 +940,40 @@ export namespace sm
             }
         }
 
-        // Row-reduce *this using Gaussian elimination, returning the row-reduced matrix
-        sm::mat<F, Nr, Nc> row_reduce() const noexcept
+        // Convert a copy of this into (unreduced) row echelon form, using Gaussian elimination. Return the result.
+        sm::mat<F, Nr, Nc> row_echelon_form() const noexcept
         {
-            sm::mat<F, Nr, Nc> red = *this;
-            red.row_reduce_inplace();
-            return red;
+            sm::mat<F, Nr, Nc> ref = *this;
+            ref.row_echelon_form_inplace();
+            return ref;
+        }
+
+        // Divide each row, r,  of *this by the diagonal element (r, r)
+        template<typename Fy=F> requires (Nc >= Nr) && std::is_floating_point_v<Fy>
+        void divide_rows_by_diagonals_inplace() noexcept
+        {
+            for (std::uint32_t r = 0; r < Nr; ++r) {
+                F f = (*this)(r, r);
+                f = std::abs(f) > F{0} ? f : F{1};
+                for (std::uint32_t c = 0; c < Nc; ++c) { (*this)(r, c) /= f; }
+            }
+        }
+
+        // Convert *this into reduced row echelon form
+        template<typename Fy=F> requires (Nc >= Nr) && std::is_floating_point_v<Fy>
+        void reduced_row_echelon_form_inplace() noexcept
+        {
+            this->row_echelon_form_inplace();
+            this->divide_rows_by_diagonals_inplace();
+        }
+
+        // Convert a copy of *this into reduced row echelon form and return the result
+        sm::mat<F, Nr, Nc> reduced_row_echelon_form() const noexcept
+        {
+            sm::mat<F, Nr, Nc> rref = *this;
+            rref.row_echelon_form_inplace();
+            rref.divide_rows_by_diagonals_inplace();
+            return rref;
         }
 
         /*!
