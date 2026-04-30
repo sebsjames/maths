@@ -265,7 +265,7 @@ int main()
     forreduc2.row_reduce_inplace();
     std::cout << "AFTER reduction:\n" << forreduc2 << std::endl;
 
-    sm::mat<float, 5, 3> forreduc3 = {7, 7, 7, 7, 7, -2, -2, -2, -2, -2 , 0, 0, 0, 0, 0};
+    sm::mat<float, 5, 5> forreduc3 = {0, 0, 0, 0, 0, 7, 7, 7, 7, 7, -2, -2, -2, -2, -2 , 1, 1, 1, 1, 1, 8, 8, 8, 8, 8};
     std::cout << "For reduction:\n" << forreduc3 << std::endl;
     forreduc3.row_reduce_inplace();
     std::cout << "AFTER reduction:\n" << forreduc3 << std::endl;

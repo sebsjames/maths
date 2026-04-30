@@ -897,7 +897,7 @@ export namespace sm
         }
 
         // Row-reduce *this using Gaussian elimination, updating *this
-        template<typename Fy=F> requires std::is_floating_point_v<Fy> // for now
+        template<typename Fy=F> requires (Nc >= Nr) && std::is_floating_point_v<Fy>
         void row_reduce_inplace() noexcept
         {
             std::uint32_t r = 0u; // Initialization of the pivot row
@@ -909,24 +909,26 @@ export namespace sm
 
             // Converted from the Pseudocode on https://en.wikipedia.org/wiki/Gaussian_elimination
             while (r < Nr && c < Nc) {
-                std::cout << "Row r = " << r << ", Col c = " << c << "\n";
+                //std::cout << "Row r = " << r << ", Col c = " << c << "\n";
                 // Find the k-th pivot
                 // i_max = argmax (i = r ... Nc-1, abs(A[i, c]));
                 for (std::uint32_t i = 0; i < r && i < Nr; ++i) { t_col[i] = F{0}; }
                 for (std::uint32_t i = r; i < Nr; ++i) { t_col[i] = std::abs ((*this)(i, c)); }
                 i_max = t_col.argmax();
 
+                //std::cout << "i_max = " << i_max << " and c = " << c << std::endl;
+                //std::cout << "*this(" << i_max << ", " << c << ") = " << (*this)(i_max, c) << "\n";
                 if ((*this)(i_max, c) == F{0}) {
                     // No pivot in this column, pass to next column
-                    std::cout << "No pivot...\n";
+                    //std::cout << "No pivot...\n";
                     c++;
                 } else {
                     // swap rows (r, i_max);
-                    std::cout << "swap rows i_max "
-                              << i_max << " with this[i_max, c] = "
-                              << (*this)(i_max, c) << " = "
-                              << this->row (i_max)
-                              << " and row r " << r << " = " << this->row (r) << std::endl;
+                    //std::cout << "swap rows i_max "
+                    //          << i_max << " with this[i_max, c] = "
+                    //          << (*this)(i_max, c) << " = "
+                    //          << this->row (i_max)
+                    //          << " and row r " << r << " = " << this->row (r) << std::endl;
                     t_row = this->row (i_max);
                     this->set_row (i_max, this->row (r));
                     this->set_row (r, t_row);
@@ -937,7 +939,7 @@ export namespace sm
                         (*this)(i, c) = F{0};
                         // Do for all remaining elements in current row:
                         for (std::uint32_t j = c + 1u; j < Nc; j++) {
-                            (*this)(i, j) = (*this)(i, j) - (*this)(r, j) * f;
+                            (*this)(i, j) -= (*this)(r, j) * f;
                         }
                     }
                     // Increase pivot row and column
