@@ -120,8 +120,6 @@ int main()
         }
     }
 
-#if 0
-
     // Test 4: eigenpair verification for diagonal matrix
     {
         std::cout << "\nTest 4: eigenpair verification (Av = lambda v) - diagonal matrix\n";
@@ -186,6 +184,7 @@ int main()
         }
     }
 
+#if 0
     // Test 5: Individual eigenvector method
     {
         std::cout << "\nTest 5: Individual eigenvector method\n";

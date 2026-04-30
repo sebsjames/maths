@@ -896,25 +896,34 @@ export namespace sm
             static_assert (false, "mat<>::eigenvalues for a complex matrix is not yet implemented");
         }
 
+        // in row_echelon_form_inplace we need the underlying type of std::complex<T>
+        template<typename T> struct value_type_of { using type = T; };
+        template<typename T> struct value_type_of<std::complex<T>> { using type = typename std::complex<T>::value_type; };
+
         // Convert *this to (unreduced) row echelon form using Gaussian elimination, updating *this
-        template<typename Fy=F> requires (Nc >= Nr) && std::is_floating_point_v<Fy>
+        template<typename Fy=F> requires (Nc >= Nr)
         void row_echelon_form_inplace() noexcept
         {
             std::uint32_t r = 0u; // Initialization of the pivot row
             std::uint32_t c = 0u; // Initialization of the pivot column
 
+            std::uint32_t i_piv = 0u;
             std::uint32_t r_piv = 0u;
-            sm::vec<F, Nc> t_row = {}; // temp row
-            sm::vec<F, Nr> t_col = {}; // temp col
+            sm::vec<F, Nc> t_row; // temp row
+
+            using F_el = typename value_type_of<F>::type;
+            std::vector<F_el> t_col; // temp col for norms of values. This will be real whether F is real or std::complex
+            t_col.reserve (Nr);
 
             // Converted from the Pseudocode on https://en.wikipedia.org/wiki/Gaussian_elimination
             while (r < Nr && c < Nc) {
                 // Find the pivot for col c - the row in column c that has the greated abs. value
-                for (std::uint32_t i = 0; i < r && i < Nr; ++i) { t_col[i] = F{0}; }
-                for (std::uint32_t i = r; i < Nr; ++i) { t_col[i] = std::abs ((*this)(i, c)); }
-                r_piv = t_col.argmax();
+                t_col.resize (Nr - r);
+                for (std::uint32_t i = r; i < Nr; ++i) { t_col[i - r] = std::norm ((*this)(i, c)); }
+                i_piv = (std::max_element (t_col.begin(), t_col.end()) - t_col.begin());
+                r_piv = i_piv + r;
 
-                if (t_col[r_piv] == F{0}) {
+                if (t_col[i_piv] == F_el{0}) {
                     // No pivot in this column, pass to next column
                     c++;
                 } else {
@@ -949,7 +958,7 @@ export namespace sm
         }
 
         // Divide each row, r,  of *this by the diagonal element (r, r)
-        template<typename Fy=F> requires (Nc >= Nr) && std::is_floating_point_v<Fy>
+        template<typename Fy=F> requires (Nc >= Nr)
         void divide_rows_by_diagonals_inplace() noexcept
         {
             for (std::uint32_t r = 0; r < Nr; ++r) {
@@ -960,7 +969,7 @@ export namespace sm
         }
 
         // Convert *this into reduced row echelon form
-        template<typename Fy=F> requires (Nc >= Nr) && std::is_floating_point_v<Fy>
+        template<typename Fy=F> requires (Nc >= Nr)
         void reduced_row_echelon_form_inplace() noexcept
         {
             this->row_echelon_form_inplace();
@@ -1006,14 +1015,14 @@ export namespace sm
                 aug(r, Nc) = std::complex<F>{ F{0}, F{0} };
             }
 
-            // Row-reduce the augmented matrix using Gaussian elimination
-            aug.row_reduce_inplace();
-
-            constexpr F my_epsilon = F{1e-14};
+            // Change the augmented matrix into row echelon form
+            aug.row_echelon_form_inplace();
 
             sm::vec<std::complex<F>, Nr> v = {}; // initialized as all zeros
 
+            std::cout << "Back-substitute algo on matrix\n" << aug << std::endl;
 #if 0
+            constexpr F my_epsilon = F{1e-14};
             // Simplified null space finder: use last component as free variable
             v[Nr - 1u] = std::complex<F>{ F{1}, F{0} };
 

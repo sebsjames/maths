@@ -179,6 +179,13 @@ int main()
     sm::mat<std::complex<float>, 4> mult4inv_copy = mult4inv;
     if (mult4inv_copy != mult4inv) { ++rtn; }
 
+    // Row reduction...
+    sm::mat<std::complex<float>, 4> forreduc = {{0,5},0,4,0,  0,0,0,3,  0,2,4,0,  1,1,0,3 };
+    std::cout << "For reduction:\n" << forreduc << std::endl;
+    forreduc.row_echelon_form_inplace();
+    std::cout << "Row echelon form:\n" << forreduc << std::endl;
+
+
     std::cout << "Test " << (rtn ? "FAILED" : "PASSED") << std::endl;
 
     return rtn;
