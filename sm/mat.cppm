@@ -912,22 +912,20 @@ export namespace sm
             sm::vec<F, Nc> t_row; // temp row
 
             using F_el = typename value_type_of<F>::type;
-            std::vector<F_el> t_col; // temp col for norms of values. This will be real whether F is real or std::complex
-            t_col.reserve (Nr);
+            sm::vec<F_el, Nr> t_col; // temp col for norms of values. This will be real whether F is real or std::complex
 
             // Converted from the Pseudocode on https://en.wikipedia.org/wiki/Gaussian_elimination
             while (r < Nr && c < Nc) {
                 // Find the pivot for col c - the row in column c that has the greated abs. value
-                t_col.resize (Nr - r);
                 for (std::uint32_t i = r; i < Nr; ++i) { t_col[i - r] = std::norm ((*this)(i, c)); }
-                i_piv = (std::max_element (t_col.begin(), t_col.end()) - t_col.begin());
+                i_piv = (std::max_element (t_col.begin(), t_col.begin() + (Nr - r)) - t_col.begin());
                 r_piv = i_piv + r;
 
                 if (t_col[i_piv] == F_el{0}) {
                     // No pivot in this column, pass to next column
                     c++;
                 } else {
-                    if (r_piv != r) {
+                    if (i_piv != 0u) { // and thus r_piv != r
                         // swap rows (r, r_piv);
                         t_row = this->row (r_piv);
                         this->set_row (r_piv, this->row (r));
