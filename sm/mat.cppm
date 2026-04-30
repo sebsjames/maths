@@ -889,13 +889,15 @@ export namespace sm
             return roots;
         }
 
-#if 0
-        // We should also have a specialization to compute Eigenvalues of a complex matrix:
+        // We could also have a specialization to compute Eigenvalues of a complex matrix:
         template<typename Fy=F> requires sm::is_complex<Fy>::value
-        sm::vec<F, Nr> eigenvalues() const noexcept { /* writeme */ }
-#endif
+        sm::vec<F, Nr> eigenvalues() const noexcept
+        {
+            static_assert (false, "mat<>::eigenvalues for a complex matrix is not yet implemented");
+        }
 
         // Row-reduce *this using Gaussian elimination, updating *this
+        template<typename Fy=F> requires std::is_floating_point_v<Fy> // for now
         void row_reduce_inplace() noexcept
         {
             std::uint32_t r = 0u; // Initialization of the pivot row
@@ -1023,11 +1025,13 @@ export namespace sm
             return v;
         }
 
-#if 0
-        // Get eigenvector of a complex matrix, given a complex eigenvalue
+        // Get eigenvector of a complex matrix, given a complex eigenvalue (placeholder)
         template<typename Fy=F> requires sm::is_complex<Fy>::value
-        sm::vec<F, Nr> eigenvector (const F& lambda) const noexcept { /* writeme */ }
-#endif
+        sm::vec<F, Nr> eigenvector ([[maybe_unused]] const F& lambda) const noexcept
+        {
+            static_assert(false, "mat<>::eigenvector for a complex matrix is not yet implemented");
+        }
+
         /*!
          * Compute both eigenvalues and their corresponding eigenvectors.
          * Returns a vector of 4 pairs, each containing an eigenvalue and its eigenvector.
