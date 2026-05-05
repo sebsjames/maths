@@ -28,6 +28,7 @@ module;
 #include <iostream>
 #include <type_traits>
 #include <initializer_list>
+#include <algorithm>
 
 export module sm.mat;
 
