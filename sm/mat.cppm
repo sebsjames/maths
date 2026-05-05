@@ -1019,38 +1019,31 @@ export namespace sm
 
             sm::vec<std::complex<F>, Nr> v = {}; // initialized as all zeros
 
-            std::cout << "Back-substitute algo on matrix\n" << aug << std::endl;
-#if 0
             constexpr F my_epsilon = F{1e-14};
             // Simplified null space finder: use last component as free variable
             v[Nr - 1u] = std::complex<F>{ F{1}, F{0} };
-
             // Back substitute (simplified approach)
             for (std::uint32_t c = (Nr - 2u); c != std::numeric_limits<std::uint32_t>::max(); c--) { // c is 'column'
                 if (std::abs (aug[(Nr * c) + c]) > my_epsilon) {
 
                     const std::uint32_t re = (Nr * Nr) - (Nr - c); // row end index
                     const std::uint32_t numel = Nr - c - 1u;       // number of elements in the sum for this row
-                    const std::uint32_t de = Nr * c;               // diagonal element but FIXME It AIN'T!
+                    const std::uint32_t de = re - (Nr - c - 1) * Nc; // diagonal element
 
                     for (std::uint32_t j = numel; j > c; --j) {
                         const std::uint32_t rc = re - (numel - j) * Nc;
                         v[c] += aug[rc] * v[j];
                     }
-                    std::cout << "Doing v[" << c << "] " << v[c] << " /= aug[" << de << "] = " << aug[de] << std::endl;
                     v[c] /= aug[de];
                 }
             }
-
-            std::cout << "Pre-norm, v = " << v << std::endl;
 
             // Normalize
             F normsq = F{0};
             for (std::uint32_t i = 0; i < Nr; ++i) { normsq += std::norm (v[i]); }
             F norm = std::sqrt (normsq);
             if (norm > my_epsilon) { v /= norm; }
-            std::cout << "Post-norm, v = " << v << std::endl;
-#endif
+
             return v;
         }
 

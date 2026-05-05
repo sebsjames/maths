@@ -2,6 +2,7 @@
 #include <cmath>
 #include <iomanip>
 #include <complex>
+#include <vector>
 
 import sm.mat;
 
@@ -147,8 +148,8 @@ int main()
                 for (int row = 0; row < 4; ++row) {
                     Av[row] = std::complex<double>(0.0, 0.0);
                     for (int col = 0; col < 4; ++col) {
-                        std::cout << "A[col * 4 + row] =  " << A[col * 4 + row]
-                                  << ", pairs[i].eigenvector[col] =  " << pairs[i].eigenvector[col] << std::endl;
+                        //std::cout << "A[col * 4 + row] =  " << A[col * 4 + row]
+                        //          << ", pairs[i].eigenvector[col] =  " << pairs[i].eigenvector[col] << std::endl;
                         Av[row] += (A[col * 4 + row] * pairs[i].eigenvector[col]);
                     }
                 }
@@ -163,12 +164,12 @@ int main()
                 double error = 0.0;
                 for (int j = 0; j < 4; ++j) {
                     error += std::norm (Av[j] - lambda_v[j]);
-                    std::cout << "Av[j] " << Av[j] << " and lambda_v[j] " << lambda_v[j] << std::endl;
+                    //std::cout << "Av[j] " << Av[j] << " and lambda_v[j] " << lambda_v[j] << std::endl;
                 }
                 error = std::sqrt (error);
 
-                std::cout << "  Pair " << i << ": lambda = " << lambda_real
-                          << ", error = " << std::scientific << error << "\n";
+                //std::cout << "  Pair " << i << ": lambda = " << lambda_real
+                //          << ", error = " << std::scientific << error << "\n";
                 if (error < 1e-6) {
                     found_valid = true;
                     break;
@@ -184,7 +185,6 @@ int main()
         }
     }
 
-#if 0
     // Test 5: Individual eigenvector method
     {
         std::cout << "\nTest 5: Individual eigenvector method\n";
@@ -197,6 +197,8 @@ int main()
 
         sm::vec<std::complex<double>, 4> eigenvalues = A.eigenvalues();
 
+        std::cout << "Eigenvalues: " << eigenvalues << std::endl;
+
         // Find an eigenvalue close to one of the diagonal values
         size_t idx = 0;
         for (size_t i = 0; i < 4; ++i) {
@@ -207,7 +209,9 @@ int main()
             }
         }
 
-        sm::vec<std::complex<double>, 4> v = A.eigenvector(eigenvalues[idx]);
+        // All eigenvectors coming out as 0
+        sm::vec<std::complex<double>, 4> v = A.eigenvector (eigenvalues[idx]);
+
 
         std::cout << "  Eigenvalue lambda = " << eigenvalues[idx].real() << "\n";
         std::cout << "  Eigenvector v = ["
@@ -217,6 +221,7 @@ int main()
         // Verify normalization
         double norm_sq = 0.0;
         for (int j = 0; j < 4; ++j) {
+            std::cout << "v["<<j<<"] = " << v[j] << " and its norm: " << std::norm(v[j]) << std::endl;
             norm_sq += std::norm(v[j]);
         }
 
@@ -314,9 +319,7 @@ int main()
     {
         std::cout << "\nTest 8: Zero matrix\n";
         sm::mat<double, 4> A;
-        A.mat.fill(0.0);
-
-        std::cout << "  Matrix: All zeros\n";
+        A.set_zero();
 
         sm::vec<std::complex<double>, 4> eigenvalues = A.eigenvalues();
 
@@ -362,6 +365,8 @@ int main()
 
         sm::vec<std::complex<double>, 4> eigenvalues = R.eigenvalues();
 
+        std::cout << "  Computed eigenvalues: " << eigenvalues << std::endl;
+
         // For rotation matrix: sum and product should match trace and determinant
         std::complex<double> sum_eigenvalues(0.0, 0.0);
         std::complex<double> prod_eigenvalues(1.0, 0.0);
@@ -398,7 +403,7 @@ int main()
     {
         std::cout << "\nTest 10: Block diagonal matrix (two 2x2 rotations)\n";
         sm::mat<double, 4> B;
-        B.mat.fill(0.0);
+        B.set_zero();
 
         // First 2x2 block: 45deg rotation
         double c1 = std::cos (sm::mathconst<double>::pi_over_4);
@@ -456,7 +461,7 @@ int main()
         // Construct A = Q * diag(1,2,3,4) * Q^T where Q is orthogonal
         // Use Q = I for simplicity (gives us a diagonal matrix, which is symmetric)
         sm::mat<double, 4> A;
-        A.mat.fill(0.0);
+        A.set_zero();
         A[0] = 1.0;
         A[5] = 2.0;
         A[10] = 3.0;
@@ -511,7 +516,7 @@ int main()
     {
         std::cout << "\nTest 12: Cyclic permutation matrix\n";
         sm::mat<double, 4> P;
-        P.mat.fill(0.0);
+        P.set_zero();
         // Cyclic permutation: (1,2,3,4) -> (2,3,4,1)
         P[4] = 1.0;   // e1 -> e2
         P[9] = 1.0;   // e2 -> e3
@@ -556,7 +561,7 @@ int main()
             --rtn;
         }
     }
-#endif
+
     std::cout << (rtn == 0 ? "\nAll tests passed\n" : "\nSome tests failed\n");
     return rtn;
 }
