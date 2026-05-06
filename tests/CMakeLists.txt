@@ -234,6 +234,10 @@ target_compile_definitions(quaternion_rotations_double PUBLIC FLT=double)
 target_sources_modules(quaternion_rotations_double MODULES ${SM_QUATERNION_MODULES})
 add_test(quaternion_rotations_double quaternion_rotations_double)
 
+add_executable(mat_matrixeqns mat_matrixeqns.cpp)
+target_sources_modules(mat_matrixeqns MODULES ${SM_MAT_MODULES})
+add_test(mat_matrixeqns mat_matrixeqns)
+
 add_executable(mat_non_square mat_non_square.cpp)
 target_sources_modules(mat_non_square MODULES ${SM_MAT_MODULES})
 add_test(mat_non_square mat_non_square)
