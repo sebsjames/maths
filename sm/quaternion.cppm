@@ -256,23 +256,20 @@ export namespace sm
         // q2 was not a normalized quaternion.
         constexpr quaternion<F> slerp (const quaternion<F>& q2, const F t) const noexcept
         {
-            quaternion<F> interpolated;
-
             if (t < F{0} || t > F{1}) {
                 // Return an invalid quaternion that indicates that t was out of range
-                interpolated = { std::numeric_limits<F>::max() }; // interpolated.w is numeric_limits<F>::max
-                return interpolated;
+                return quaternion<F>{ std::numeric_limits<F>::max(), F{0}, F{0}, F{0} }; // rtn.w is numeric_limits<F>::max
             }
             if (!this->checkunit()) {
                 // Return an invalid quaternion that indicates that this quaternion is not a unit rotation
-                interpolated = { F{0}, std::numeric_limits<F>::max() }; // interpolated.x is numeric_limits<F>::max
-                return interpolated;
+                return quaternion<F>{ F{0}, std::numeric_limits<F>::max(), F{0}, F{0} }; // rtn.x is numeric_limits<F>::max
             }
             if (!q2.checkunit()) {
                 // Return an invalid quaternion that indicates that the input quaternion, q2, is not a unit rotation
-                interpolated = { F{0}, F{0}, std::numeric_limits<F>::max() }; // interpolated.y is numeric_limits<F>::max
-                return interpolated;
+                return quaternion<F>{ F{0}, F{0}, std::numeric_limits<F>::max(), F{0} }; // rtn.y is numeric_limits<F>::max
             }
+
+            quaternion<F> interpolated;
 
             constexpr F one = F{1} - std::numeric_limits<F>::epsilon();
             sm::vec<F, 4> my_coeffs = { w, x, y, z };
