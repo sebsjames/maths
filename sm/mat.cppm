@@ -28,7 +28,6 @@ module;
 #include <iostream>
 #include <type_traits>
 #include <initializer_list>
-#include <algorithm>
 
 export module sm.mat;
 
@@ -919,7 +918,7 @@ export namespace sm
             while (r < Nr && c < Nc) {
                 // Find the pivot for col c - the row in column c that has the greated abs. value
                 for (std::uint32_t i = r; i < Nr; ++i) { t_col[i - r] = std::norm ((*this)(i, c)); }
-                i_piv = (std::max_element (t_col.begin(), t_col.begin() + (Nr - r)) - t_col.begin());
+                i_piv = t_col.argmax (Nr - r); // find index of max element in first (Nr - r) elements of t_col
                 r_piv = i_piv + r;
 
                 if (t_col[i_piv] == F_el{0}) {
