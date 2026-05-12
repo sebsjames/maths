@@ -269,5 +269,22 @@ int main()
     std::cout << testvec << " is at angle " << ov_tv << " wrt " << othervec << " around the uz axis" << std::endl;
     if (ov_tv > 0.0f) { --rtn; }
 
+    sm::vec<float, 6> maxes = { 2, 1, 4, 5, 2, 7 };
+    std::cout << "argmax(up to 0) of " << maxes << " = " << maxes.argmax (0) << std::endl;
+    std::cout << "argmax(up to 1) of " << maxes << " = " << maxes.argmax (1) << std::endl;
+    std::cout << "argmax(up to 2) of " << maxes << " = " << maxes.argmax (2) << std::endl;
+    std::cout << "argmax(up to 3) of " << maxes << " = " << maxes.argmax (3) << std::endl;
+    std::cout << "argmax(up to 4) of " << maxes << " = " << maxes.argmax (4) << std::endl;
+    std::cout << "argmax(up to 5) of " << maxes << " = " << maxes.argmax (5) << std::endl;
+    std::cout << "argmax(up to 6) of " << maxes << " = " << maxes.argmax (6) << std::endl;
+
+    if (maxes.argmax(0) != 0
+        || maxes.argmax(1) != 0
+        || maxes.argmax(2) != 0
+        || maxes.argmax(3) != 2
+        || maxes.argmax(4) != 3
+        || maxes.argmax(5) != 3
+        || maxes.argmax(6) != 5) { --rtn; }
+
     return rtn;
 }
