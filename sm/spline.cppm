@@ -49,22 +49,46 @@ export namespace sm
                 B[2 * i]     = p[i][1];
                 B[2 * i + 1] = p[i + 1][1];
                 // A(r, c)
-                std::uint32_t r = i * 4;
-                A(2 * i, r + 0) = p[i][0] * p[i][0] * p[i][0];
-                A(2 * i, r + 1) = p[i][0] * p[i][0];
-                A(2 * i, r + 2) = p[i][0];
-                A(2 * i, r + 3) = 1;
+                std::uint32_t sc = i * 4;
+                A(2 * i, sc + 0) = p[i][0] * p[i][0] * p[i][0];
+                A(2 * i, sc + 1) = p[i][0] * p[i][0];
+                A(2 * i, sc + 2) = p[i][0];
+                A(2 * i, sc + 3) = F{1};
 
-                A(2 * i + 1, r + 0) = p[i + 1][0] * p[i + 1][0] * p[i + 1][0];
-                A(2 * i + 1, r + 1) = p[i + 1][0] * p[i + 1][0];
-                A(2 * i + 1, r + 2) = p[i + 1][0];
-                A(2 * i + 1, r + 3) = 1;
+                A(2 * i + 1, sc + 0) = p[i + 1][0] * p[i + 1][0] * p[i + 1][0];
+                A(2 * i + 1, sc + 1) = p[i + 1][0] * p[i + 1][0];
+                A(2 * i + 1, sc + 2) = p[i + 1][0];
+                A(2 * i + 1, sc + 3) = F{1};
             }
 
-            // Fill the first derivative equations in
-            for (std::uint32_t i = 0; i < N - 1; ++i) { // for each of N - 1 pairs of eqns
+            // Fill the N - 2 first derivative equations in
+            for (std::uint32_t i = 0; i < N - 2; ++i) {
                 // B stays 0 for these rows
+                std::uint32_t sc = i * 4;
+                A((2 * (N - 1)) + i, sc + 0) = F{-3} * p[i + 1][0] * p[i + 1][0];
+                A((2 * (N - 1)) + i, sc + 1) = F{-2} * p[i + 1][0];
+                A((2 * (N - 1)) + i, sc + 2) = F{-1};
+                A((2 * (N - 1)) + i, sc + 4) = F{3} * p[i + 1][0] * p[i + 1][0];
+                A((2 * (N - 1)) + i, sc + 5) = F{2} * p[i + 1][0];
+                A((2 * (N - 1)) + i, sc + 6) = F{1};
             }
+
+            // Fill N - 2 second derivative equations
+            for (std::uint32_t i = 0; i < N - 2; ++i) {
+                // B stays 0 for these rows
+                std::uint32_t sc = i * 4;
+                A(2 * (N - 1) + N - 2 + i, sc + 0) = F{-6} * p[i + 1][0];
+                A(2 * (N - 1) + N - 2 + i, sc + 1) = F{-2};
+                A(2 * (N - 1) + N - 2 + i, sc + 4) = F{6} * p[i + 1][0];
+                A(2 * (N - 1) + N - 2 + i, sc + 5) = F{2};
+
+            }
+
+            // The final 2 equations from the boundary condition that F"(end) = 0
+            A(4 * (N - 1) - 2, 0) = F{6} * p[0][0];
+            A(4 * (N - 1) - 2, 1) = F{2};
+            A(4 * (N - 1) - 1, (N - 1) * 4 - N) = F{6} * p[N - 1][0];
+            A(4 * (N - 1) - 1, (N - 1) * 4 - N + 1) = F{2};
 
             std::cout << "A = \n" << A << " * X = " << B << std::endl;
         }
