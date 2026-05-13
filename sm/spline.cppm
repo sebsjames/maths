@@ -91,6 +91,12 @@ export namespace sm
             A(4 * (N - 1) - 1, (N - 1) * 4 - N + 1) = F{2};
 
             std::cout << "A = \n" << A << " * X = " << B << std::endl;
+
+            A.row_echelon_form_inplace();
+
+            std::cout << "row echelon A = \n" << A << " * X = " << B << std::endl;
+
+            // Solve the above using the back substitution as in the mat::eigenvector function
         }
     };
 }
