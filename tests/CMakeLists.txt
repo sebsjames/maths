@@ -319,6 +319,11 @@ add_executable(rotations2 rotations2.cpp)
 target_sources_modules(rotations2 MODULES ${SM_MAT_MODULES})
 add_test(rotations2 rotations2)
 
+# Spline interpolation
+add_executable(spline1 spline1.cpp)
+target_sources_modules(spline1 MODULES ${SM_SPLINE_MODULES})
+add_test(spline1 spline1)
+
 add_executable(test_trait_tests test_trait_tests.cpp)
 target_sources_modules(test_trait_tests MODULES ${SM_VEC_MODULES} ${SM_VVEC_MODULES})
 add_test(test_trait_tests test_trait_tests)
