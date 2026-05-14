@@ -92,11 +92,27 @@ export namespace sm
 
             std::cout << "A = \n" << A << " * X = " << B << std::endl;
 
-            A.row_echelon_form_inplace();
+            // Solve the above using the back substitution as in the mat::eigenvector function?
+            sm::mat<F, 4 * (N - 1), 4 * (N - 1) + 1> Aug = {{}};
+            for (std::uint32_t i = 0; i < 4 * (N - 1); ++i) {
+                for (std::uint32_t j = 0; j < 4 * (N - 1); ++j) {
+                    Aug(i, j) = A(i, j);
+                }
+            }
+            for (std::uint32_t i = 0; i < 4 * (N - 1); ++i) {
+                Aug(i, 4 * (N-1)) = B[i];
+            }
+            Aug.row_echelon_form_inplace();
+            std::cout << "Aug row echelon:\n" << Aug << std::endl;
+            sm::vec<F, 4 * (N - 1)> X = Aug.back_substitution();
 
-            std::cout << "row echelon A = \n" << A << " * X = " << B << std::endl;
-
-            // Solve the above using the back substitution as in the mat::eigenvector function
+            std::cout << "X = " << X << std::endl;
+            // or A X = B => Ainv A X = Ainv B
+            // Would be nice, but currently I don't have inverse() for matrices more than 4x4 (need
+            // general determinant and cofactor implementations):
+            //
+            //sm::vec<F, 4 * (N - 1)> X = A.inverse() * B;
+            //std::cout << "X = " << X << std::endl;
         }
     };
 }

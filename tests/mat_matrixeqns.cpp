@@ -27,6 +27,27 @@ int main()
     }
 
     {
+        // Check https://www.mathsisfun.com/algebra/systems-linear-equations-matrices.html example:
+        //sm::mat<float, 3> A = { 1, 0, 2,  1, 2, 5,  1, 5, -1 };
+        //sm::vec<float, 3> B = { 6, -4, 27 };
+        sm::mat<float, 3, 4> Aug = { 1, 0, 2,  1, 2, 5,  1, 5, -1, 6, -4, 27 };
+        Aug.row_echelon_form_inplace();
+        std::cout << "\nAug row echelon:\n" << Aug << std::endl;
+        //Aug.divide_rows_by_diagonals_inplace();
+        //std::cout << "\nAug after divide:\n" << Aug << std::endl;
+        sm::vec<float, 3> X = Aug.back_substitution();
+
+        std::cout << "mathisfun? " << X << std::endl; // 5, 3, -2
+
+        sm::vec<float, 3> X_expected = { 5.0f, 3.0f, -2.0f };
+        sm::vec<float, 3> diffs = X - X_expected;
+        if (diffs.abs().sum() > 10.0f * std::numeric_limits<float>::epsilon()) {
+            std::cout << "diffs.abs() are " << diffs.abs() << " and abs().sum(): " << diffs.abs().sum() << std::endl;
+            --rtn;
+        }
+    }
+
+    {
         // Compute parameters a3, a4 and a5 for the min-jerk trajectory to travel a distance xf
         // (starting at x=0) in time tf:
         //

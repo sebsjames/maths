@@ -983,6 +983,74 @@ export namespace sm
             return rref;
         }
 
+        // Solve matrix by back-substitution. row_echelon_form is fine (don't need reduced row echelon form)
+        template<typename Fy=F> requires (Nc == Nr + 1) // is this true?
+        sm::vec<F, Nr> back_substitution()
+        {
+            sm::vec<F, Nr> x = {}; // initialized as all zeros
+
+            using F_el = typename value_type_of<F>::type;
+            constexpr F_el my_epsilon = F_el{1e-14}; // needs to be F_el if F is complex
+
+            // Simplified null space finder: use last component as free variable
+            x[Nr - 1u] = (*this)(Nr - 1, Nc - 1) / (*this)(Nr - 1, Nc - 2);
+            std::cout << "Initial x = " << x << std::endl;
+
+#if 1
+            // https://www.mathwords.com/b/back_substitution.htm
+            for (std::uint32_t i = (Nr - 2u); i != std::numeric_limits<std::uint32_t>::max(); i--) {
+
+                //////////////////////////////////////
+                std::cout << "Row " << i << std::endl;
+
+                if (std::abs ((*this)(i, i)) > my_epsilon) { // abs value of the triangular element
+
+                    const std::uint32_t n = Nr - i;      // number of elements in the sum for this row
+                    std::cout << "n = " << n << std::endl;
+
+                    // This is seriously foxing me.
+                    F sum = F{0};
+                    for (std::uint32_t j = 0; j < n; ++j) {
+                        sum += (*this)(i, i + j) * x[Nr - 1 - j];
+                    }
+
+                    std::cout << "The divisor for this row is " << (*this)(i, i) << std::endl;
+                    x[i] = ((*this)(i, Nc - 1) - sum ) / (*this)(i, i);
+
+                } else {
+                    std::cout << "(*this)(i, i) is too small: " << (*this)(i, i) << std::endl;
+                }
+            }
+#else
+            // Back substitute (simplified approach)
+            constexpr std::uint32_t _Nr = Nr;
+            constexpr std::uint32_t _Nc = Nc - 1;
+            // Here, _Nr/_Nc are the number of rows/cols in the square part of the matrix
+            for (std::uint32_t c = (_Nr - 2u); c != std::numeric_limits<std::uint32_t>::max(); c--) { // c is 'column'
+                if (std::abs ((*this)[(_Nr * c) + c]) > my_epsilon) {
+
+                    const std::uint32_t re = (_Nr * _Nr) - (_Nr - c); // row end index
+                    const std::uint32_t numel = _Nr - c - 1u;       // number of elements in the sum for this row
+                    const std::uint32_t de = re - (_Nr - c - 1) * _Nc; // diagonal element
+
+                    for (std::uint32_t j = numel; j > c; --j) {
+                        const std::uint32_t rc = re - (numel - j) * _Nc;
+                        v[c] += (*this)[rc] * v[j];
+                    }
+                    v[c] /= (*this)[de];
+                }
+            }
+#endif
+#if 0
+            // Normalize
+            F_el normsq = F_el{0};
+            for (std::uint32_t i = 0; i < Nr; ++i) { normsq += std::norm (x[i]); }
+            F_el norm = std::sqrt (normsq);
+            if (norm > my_epsilon) { x /= norm; }
+#endif
+            return x;
+        }
+
         /*!
          * Find the eigenvectors for the set of eigenvalues found for this matrix of real values.
          * Returns a normalized eigenvector as a complex vector.
@@ -1015,34 +1083,7 @@ export namespace sm
 
             // Change the augmented matrix into row echelon form
             aug.row_echelon_form_inplace();
-
-            sm::vec<std::complex<F>, Nr> v = {}; // initialized as all zeros
-
-            constexpr F my_epsilon = F{1e-14};
-            // Simplified null space finder: use last component as free variable
-            v[Nr - 1u] = std::complex<F>{ F{1}, F{0} };
-            // Back substitute (simplified approach)
-            for (std::uint32_t c = (Nr - 2u); c != std::numeric_limits<std::uint32_t>::max(); c--) { // c is 'column'
-                if (std::abs (aug[(Nr * c) + c]) > my_epsilon) {
-
-                    const std::uint32_t re = (Nr * Nr) - (Nr - c); // row end index
-                    const std::uint32_t numel = Nr - c - 1u;       // number of elements in the sum for this row
-                    const std::uint32_t de = re - (Nr - c - 1) * Nc; // diagonal element
-
-                    for (std::uint32_t j = numel; j > c; --j) {
-                        const std::uint32_t rc = re - (numel - j) * Nc;
-                        v[c] += aug[rc] * v[j];
-                    }
-                    v[c] /= aug[de];
-                }
-            }
-
-            // Normalize
-            F normsq = F{0};
-            for (std::uint32_t i = 0; i < Nr; ++i) { normsq += std::norm (v[i]); }
-            F norm = std::sqrt (normsq);
-            if (norm > my_epsilon) { v /= norm; }
-
+            sm::vec<std::complex<F>, Nr> v = aug.back_substitution();
             return v;
         }
 
