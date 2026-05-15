@@ -35,6 +35,7 @@ install(
   mathconst.cppm
   nm_simplex.cppm
   onoff.cppm
+  pca.cppm
   polysolve.cppm
   quaternion.cppm
   random.cppm
