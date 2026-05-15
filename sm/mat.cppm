@@ -984,42 +984,40 @@ export namespace sm
         }
 
         // Solve matrix by back-substitution. row_echelon_form is fine (don't need reduced row echelon form)
-        template<typename Fy=F> requires (Nc == Nr + 1) // is this true?
+        template<typename Fy=F> requires (Nc == Nr + 1)
         sm::vec<F, Nr> back_substitution()
         {
             sm::vec<F, Nr> x = {}; // initialized as all zeros
 
-            using F_el = typename value_type_of<F>::type;
-            constexpr F_el my_epsilon = F_el{1e-14}; // needs to be F_el if F is complex
 
             // Simplified null space finder: use last component as free variable
-            x[Nr - 1u] = (*this)(Nr - 1, Nc - 1) / (*this)(Nr - 1, Nc - 2);
+            //x[Nr - 1u] = (*this)(Nr - 1, Nc - 1) / (*this)(Nr - 1, Nc - 2);
             std::cout << "Initial x = " << x << std::endl;
 
 #if 1
             // https://www.mathwords.com/b/back_substitution.htm
-            for (std::uint32_t i = (Nr - 2u); i != std::numeric_limits<std::uint32_t>::max(); i--) {
+            for (std::uint32_t i = (Nr - 1u); i != std::numeric_limits<std::uint32_t>::max(); i--) {
 
                 //////////////////////////////////////
                 std::cout << "Row " << i << std::endl;
 
-                if (std::abs ((*this)(i, i)) > my_epsilon) { // abs value of the triangular element
+                // using F_el = typename value_type_of<F>::type;
+                // constexpr F_el my_epsilon = F_el{1e-14}; // needs to be F_el if F is complex
+                // if (std::abs ((*this)(i, i)) > my_epsilon) { // abs value of the triangular element (add later)
 
-                    const std::uint32_t n = Nr - i;      // number of elements in the sum for this row
-                    std::cout << "n = " << n << std::endl;
+                const std::uint32_t n = Nr - i - 1;      // number of elements in the sum for this row
+                std::cout << "n = " << n << std::endl;
 
-                    // This is seriously foxing me.
-                    F sum = F{0};
-                    for (std::uint32_t j = 0; j < n; ++j) {
-                        sum += (*this)(i, i + j) * x[Nr - 1 - j];
-                    }
-
-                    std::cout << "The divisor for this row is " << (*this)(i, i) << std::endl;
-                    x[i] = ((*this)(i, Nc - 1) - sum ) / (*this)(i, i);
-
-                } else {
-                    std::cout << "(*this)(i, i) is too small: " << (*this)(i, i) << std::endl;
+                F sum = F{0};
+                for (std::uint32_t j = 0; j < n; ++j) {
+                    std::cout << "Row i, adding A("<<i<<", "<<(i + n - j)<<") * x[i+n-j = "<<(i + n - j)<<"]\n";
+                    sum += (*this)(i, i + n - j) * x[i + n - j];
                 }
+
+                std::cout << " x["<<i<<"] = ( A("<<i<<", "<<(Nc - 1)<<") - sum ) / A("<<i<<", "<<i<<");" << std::endl;
+                std::cout << "      =  (" << (*this)(i, Nc - 1) << " - " << sum << " ) / " << (*this)(i, i);
+                x[i] = ((*this)(i, Nc - 1) - sum ) / (*this)(i, i);
+                std::cout << " = " << x[i] << std::endl;
             }
 #else
             // Back substitute (simplified approach)
