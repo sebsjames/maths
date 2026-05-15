@@ -1065,10 +1065,13 @@ export namespace sm
 
             // Change the augmented matrix into row echelon form
             aug.row_echelon_form_inplace();
-            sm::vec<std::complex<F>, Nr> v = aug.back_substitution();
 
-            // What I'm not accounting for here is that the row in the matrix for the lambda we've
-            // been passed is all zeros and so that v is a 'free value'.
+            // The row in the matrix for the lambda we've been passed will be all zeros and so that v is
+            // a 'free value'. It will be the bottom row, so set these two elements to the value 1:
+            aug(Nr - 1, Nc - 1) = F{1};
+            aug(Nr - 1, Nc) = F{1};
+
+            sm::vec<std::complex<F>, Nr> v = aug.back_substitution();
 
             // Normalize v
             using F_el = typename value_type_of<F>::type;
