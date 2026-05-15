@@ -41,6 +41,7 @@ install(
   range.cppm
   rect.cppm
   scale.cppm
+  spline.cppm
   trait_tests.cppm
   util.cppm
   vec.cppm

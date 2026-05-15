@@ -750,6 +750,16 @@ namespace sm
             return idx;
         }
 
+        //! Return the index of the maximum (most positive) component of the vector in the first_n elements
+        constexpr std::size_t argmax (const std::size_t first_n) const noexcept
+        {
+            auto eiter = first_n >= this->size() ? this->end() : this->begin() + first_n;
+            auto themax = std::max_element (this->begin(), eiter);
+            std::size_t idx = (themax - this->begin());
+            return idx;
+        }
+
+
         //! Return the value of the minimum (smallest or most negative) component of the vector.
         constexpr S min() const noexcept
         {

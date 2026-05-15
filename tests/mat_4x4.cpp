@@ -244,6 +244,31 @@ int main()
     const sm::mat<float, 4> m1id;
     float m1id0 = m1id[0];
     std::cout << "m1id[0] = " << m1id0 << std::endl;
+    // Row reduction...
+    sm::mat<float, 4> forreduc = {0,0,4,0,  0,0,0,3,  0,2,4,0,  1,1,0,3 };
+    std::cout << "For reduction:\n" << forreduc << std::endl;
+    forreduc.row_echelon_form_inplace();
+    std::cout << "Row echelon form:\n" << forreduc << std::endl;
+    forreduc.reduced_row_echelon_form_inplace();
+    std::cout << "Reduced row echelon form:\n" << forreduc << std::endl;
 
+    forreduc = {0,0,4,0,  0,2,0,3,  0,2,4,0,  1,1,0,3 };
+    std::cout << "For reduction:\n" << forreduc << std::endl;
+    forreduc.reduced_row_echelon_form_inplace();
+    std::cout << "Reduced row echelon form:\n" << forreduc << std::endl;
+
+    sm::mat<float, 2, 3> forreduc2 = {7, 7, -2, -2, 0, 0};
+    std::cout << "For reduction:\n" << forreduc2 << std::endl;
+    std::cout << "Row echelon form:\n" << forreduc2.row_echelon_form() << std::endl;
+
+    forreduc2.reduced_row_echelon_form_inplace();
+    std::cout << "Reduced row echelon form:\n" << forreduc2 << std::endl;
+
+    sm::mat<float, 5, 5> forreduc3 = {0, 0, 0, 0, 0, 7, 7, 7, 7, 0, -2, -2, -2, -2, -2 , 1, 1, 1, 1, 1, 8, 8, 8, 8, 8};
+    std::cout << "For reduction:\n" << forreduc3 << std::endl;
+    forreduc3.reduced_row_echelon_form_inplace();
+    std::cout << "Reduced row echelon form:\n" << forreduc3 << std::endl;
+
+    std::cout << "Test " << (rtn ? "FAILED" : "PASSED") << std::endl;
     return rtn;
 }
