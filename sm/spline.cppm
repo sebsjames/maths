@@ -18,6 +18,7 @@ export module sm.spline;
 import sm.constexpr_math; // constexpr math functions from Keith O'Hara
 export import sm.mathconst;
 export import sm.vec;
+export import sm.vvec;
 export import sm.mat;
 
 export namespace sm
@@ -27,14 +28,21 @@ export namespace sm
     template<typename F, std::uint32_t N>
     struct spline
     {
+        spline() {}
+        spline (const sm::vec<sm::vec<F, 2>, N>& _p)
+        {
+            p = _p;
+            this->compute_coefficients();
+        }
+
         // Points
-        sm::vec<sm::vec<F, 2>, N> p; // imagine N = 4
+        sm::vec<sm::vec<F, 2>, N> p;
         // Coefficients. c[0][3] to c[0][0] are the coefficients for cubic function 0. c[0][3] is
         // the coefficient of x^3
         sm::vec<sm::vec<F, 4>, (N - 1)> c;
 
         // Compute coefficients from points
-        void compute()
+        void compute_coefficients()
         {
             // A x = B
             sm::mat<F, 4 * (N - 1), 4 * (N - 1)> A = {{}};
@@ -90,8 +98,6 @@ export namespace sm
             A(4 * (N - 1) - 1, (N - 1) * 4 - N) = F{6} * p[N - 1][0];
             A(4 * (N - 1) - 1, (N - 1) * 4 - N + 1) = F{2};
 
-            std::cout << "A = \n" << A << " * X = " << B << std::endl;
-
             // Solve the above using the back substitution as in the mat::eigenvector function?
             sm::mat<F, 4 * (N - 1), 4 * (N - 1) + 1> Aug = {{}};
             for (std::uint32_t i = 0; i < 4 * (N - 1); ++i) {
@@ -102,17 +108,35 @@ export namespace sm
             for (std::uint32_t i = 0; i < 4 * (N - 1); ++i) {
                 Aug(i, 4 * (N-1)) = B[i];
             }
+            // Convert augmented matrix to row echelon form...
             Aug.row_echelon_form_inplace();
-            std::cout << "Aug row echelon:\n" << Aug << std::endl;
+            // and solve by back-substitution
             sm::vec<F, 4 * (N - 1)> X = Aug.back_substitution();
 
-            std::cout << "X = " << X << std::endl;
-            // or A X = B => Ainv A X = Ainv B
-            // Would be nice, but currently I don't have inverse() for matrices more than 4x4 (need
-            // general determinant and cofactor implementations):
-            //
-            //sm::vec<F, 4 * (N - 1)> X = A.inverse() * B;
-            //std::cout << "X = " << X << std::endl;
+            // Copy X into c.
+            for (std::uint32_t i = 0; i < N - 1; ++i) {
+                for (std::uint32_t j = 0; j < 4; ++j) { this->c[i][3 - j] = X[4 * i + j]; }
+            }
+        }
+
+        F compute (const F x)
+        {
+            F y = F{0};
+            // Find which curve to use
+            for (std::uint32_t i = 1; i < p.size(); ++i) {
+                if (x <= p[i][0]) { // Do the cubic computation for c[i-1]
+                    y = c[i - 1][0] + c[i - 1][1] * x + c[i - 1][2] * x * x + c[i - 1][3] * x * x * x;
+                    break;
+                }
+            }
+            return y;
+        }
+
+        sm::vvec<F> compute (const sm::vvec<F>& x)
+        {
+            sm::vvec<F> y (x.size());
+            for (std::uint32_t i = 0; i < x.size(); ++i) { y[i] = this->compute (x[i]); }
+            return y;
         }
     };
 }
