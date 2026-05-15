@@ -17,12 +17,12 @@ machine precision easily.
 It provides:
 
 * Static and dynamically sized vector templates that are `constexpr` capable
-* A matrix template (with static memory allocation) that provides comprehensive matrix operations
+* A matrix template (with static memory allocation) that provides comprehensive matrix operations for real and complex values
 * A quaternion template class
 * Scaling and range (or interval) templates
 * Random number, and string generation
 * Classes for working with 2D grids of data (Cartesian and hexagonal)
-* Bezier curves
+* Bezier curves and cubic spline fits
 * A variety of algorithms (Nelder-Mead, simulated annealing, winding numbers, box filter)
 * Basic statistics including a histo class and a number of bootstrap methods
 * A class that allows you to read and write to HDF5
