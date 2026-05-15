@@ -959,9 +959,10 @@ export namespace sm
         template<typename Fy=F> requires (Nc >= Nr)
         void divide_rows_by_diagonals_inplace() noexcept
         {
+            using F_el = typename value_type_of<F>::type;
             for (std::uint32_t r = 0; r < Nr; ++r) {
                 F f = (*this)(r, r);
-                f = std::abs(f) > F{0} ? f : F{1};
+                f = std::abs(f) > F_el{0} ? f : F{1};
                 for (std::uint32_t c = 0; c < Nc; ++c) { (*this)(r, c) /= f; }
             }
         }
@@ -1065,6 +1066,9 @@ export namespace sm
             // Change the augmented matrix into row echelon form
             aug.row_echelon_form_inplace();
             sm::vec<std::complex<F>, Nr> v = aug.back_substitution();
+
+            // What I'm not accounting for here is that the row in the matrix for the lambda we've
+            // been passed is all zeros and so that v is a 'free value'.
 
             // Normalize v
             using F_el = typename value_type_of<F>::type;
