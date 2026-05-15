@@ -38,6 +38,7 @@ install(
   polysolve.cppm
   quaternion.cppm
   random.cppm
+  random_walk.cppm
   range.cppm
   rect.cppm
   scale.cppm
