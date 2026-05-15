@@ -983,6 +983,55 @@ export namespace sm
             return rref;
         }
 
+        // Solve matrix by back-substitution. row_echelon_form is fine (don't need reduced row
+        // echelon form). Nans in result mean there was no solution.
+        template<typename Fy=F> requires (Nc == Nr + 1)
+        sm::vec<F, Nr> back_substitution()
+        {
+            using F_el = typename value_type_of<F>::type;
+            constexpr F_el eps = F_el{1e-14}; // needs to be F_el if F is complex
+
+            sm::vec<F, Nr> x = {};
+            constexpr bool human_readable_version = false;
+
+            if constexpr (human_readable_version) {
+                // Developed first with human-friendly matrix array indexing like A(r, c)
+                for (std::uint32_t i = (Nr - 1u); i != std::numeric_limits<std::uint32_t>::max(); i--) {
+                    if (std::abs ((*this)(i, i)) > eps) {   // abs value of the triangular element
+                        const std::uint32_t n = Nr - i - 1; // number of elements in the sum
+                        F sum = F{0};
+                        for (std::uint32_t j = 0; j < n; ++j) {
+                            sum += (*this)(i, i + n - j) * x[i + n - j];
+                        }
+                        x[i] = ((*this)(i, Nc - 1) - sum ) / (*this)(i, i);
+                    }  // else x[i] remains 0. This could mean no solution if (*this)(i, Nc - 1) != 0
+                }
+            } else {
+                // But compile this; Converting operator indexing to array indices as: (r, c) -> idx
+                // = (c * Nr) + r and removing need for the sum variable.
+                for (std::uint32_t i = (Nr - 1u); i != std::numeric_limits<std::uint32_t>::max(); i--) {
+                    const std::uint32_t de = (i * Nr) + i;        // diagonal element
+                    const std::uint32_t le = ((Nc - 1) * Nr) + i; // last element
+                    if (std::abs (this->arr[de]) > eps) {
+                        const std::uint32_t n = Nr - i - 1;
+                        x[i] = this->arr[le];
+                        for (std::uint32_t j = 0; j < n; ++j) {
+                            const std::uint32_t se = (Nr - 1 - j) * Nr + i;
+                            x[i] -= this->arr[se] * x[i + n - j];
+                        }
+                        x[i] /= this->arr[de];
+                    } else {
+                        if constexpr (sm::is_complex<F>::value) {
+                            if (this->arr[le] != F{0}) { x[i] = F{std::numeric_limits<F_el>::quiet_NaN()}; }
+                        } else {
+                            if (this->arr[le] != F{0}) { x[i] = std::numeric_limits<F>::quiet_NaN(); }
+                        }
+                    }
+                }
+            }
+            return x;
+        }
+
         /*!
          * Find the eigenvectors for the set of eigenvalues found for this matrix of real values.
          * Returns a normalized eigenvector as a complex vector.
@@ -1015,32 +1064,14 @@ export namespace sm
 
             // Change the augmented matrix into row echelon form
             aug.row_echelon_form_inplace();
+            sm::vec<std::complex<F>, Nr> v = aug.back_substitution();
 
-            sm::vec<std::complex<F>, Nr> v = {}; // initialized as all zeros
-
-            constexpr F my_epsilon = F{1e-14};
-            // Simplified null space finder: use last component as free variable
-            v[Nr - 1u] = std::complex<F>{ F{1}, F{0} };
-            // Back substitute (simplified approach)
-            for (std::uint32_t c = (Nr - 2u); c != std::numeric_limits<std::uint32_t>::max(); c--) { // c is 'column'
-                if (std::abs (aug[(Nr * c) + c]) > my_epsilon) {
-
-                    const std::uint32_t re = (Nr * Nr) - (Nr - c); // row end index
-                    const std::uint32_t numel = Nr - c - 1u;       // number of elements in the sum for this row
-                    const std::uint32_t de = re - (Nr - c - 1) * Nc; // diagonal element
-
-                    for (std::uint32_t j = numel; j > c; --j) {
-                        const std::uint32_t rc = re - (numel - j) * Nc;
-                        v[c] += aug[rc] * v[j];
-                    }
-                    v[c] /= aug[de];
-                }
-            }
-
-            // Normalize
-            F normsq = F{0};
+            // Normalize v
+            using F_el = typename value_type_of<F>::type;
+            constexpr F_el my_epsilon = F_el{1e-14}; // needs to be F_el if F is complex
+            F_el normsq = F_el{0};
             for (std::uint32_t i = 0; i < Nr; ++i) { normsq += std::norm (v[i]); }
-            F norm = std::sqrt (normsq);
+            F_el norm = std::sqrt (normsq);
             if (norm > my_epsilon) { v /= norm; }
 
             return v;

@@ -60,6 +60,11 @@ macro(setup_module_variables_for_maths base_directory json_directory)
     ${SM_QUATERNION_MODULES}
     ${base_directory}/sm/mat.cppm
   )
+  set(SM_SPLINE_MODULES
+    ${SM_VVEC_MODULES}
+    ${SM_MAT_MODULES}
+    ${base_directory}/sm/spline.cppm
+  )
   set(SM_BEZCOORD_MODULES
     ${SM_VEC_MODULES}
     ${base_directory}/sm/bezcoord.cppm
