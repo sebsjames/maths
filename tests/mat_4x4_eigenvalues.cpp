@@ -27,7 +27,7 @@ int main()
         sm::vec<std::complex<double>, 4> eigenvalues = A.eigenvalues();
 
         // Note: Due to numerical precision in polynomial root finding,
-        // we verify the characteristic polynomial is correct
+        // we verify the characteristic polynomial is correct.
         std::cout << "  Computed Eigenvalues: ";
         for (size_t i = 0; i < 4; ++i) {
             std::cout << eigenvalues[i].real();
@@ -37,6 +37,15 @@ int main()
             if (i < 3) std::cout << ", ";
         }
         std::cout << "\n";
+
+        if ((eigenvalues[0].real() - A[0]) > 1e-10
+            || (eigenvalues[1].real() - A[5]) > 1e-10
+            || (eigenvalues[2].real() - A[10]) > 1e-10
+            || (eigenvalues[3].real() - A[15]) > 1e-10) {
+            std::cout << "Eigenvalues do not seem to be correct\n";
+            --rtn;
+        }
+
 
         // For diagonal matrix, we verify trace and determinant are correct
         double trace = A.trace();
