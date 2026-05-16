@@ -869,8 +869,7 @@ export namespace sm
 
             for (std::uint32_t k = 1u; k <= Nr; ++k) {
                 M = (*this) * M;  // M_k = A * M_{k-1}, where M_0 = I
-                F trace = M.trace();
-                coeffs[Nr - k] = -trace / F(k);
+                coeffs[Nr - k] = -(M.trace()) / F(k);
 
                 if (k < Nr) {
                     // M = M_k + c_{n-k} * I
@@ -993,43 +992,27 @@ export namespace sm
             constexpr F_el eps = F_el{1e-14}; // needs to be F_el if F is complex
 
             sm::vec<F, Nr> x = {};
-            constexpr bool human_readable_version = false;
 
-            if constexpr (human_readable_version) {
-                // Developed first with human-friendly matrix array indexing like A(r, c)
-                for (std::uint32_t i = (Nr - 1u); i != std::numeric_limits<std::uint32_t>::max(); i--) {
-                    if (std::abs ((*this)(i, i)) > eps) {   // abs value of the triangular element
-                        const std::uint32_t n = Nr - i - 1; // number of elements in the sum
-                        F sum = F{0};
-                        for (std::uint32_t j = 0; j < n; ++j) {
-                            sum += (*this)(i, i + n - j) * x[i + n - j];
-                        }
-                        x[i] = ((*this)(i, Nc - 1) - sum ) / (*this)(i, i);
-                    }  // else x[i] remains 0. This could mean no solution if (*this)(i, Nc - 1) != 0
-                }
-            } else {
-                // But compile this; Converting operator indexing to array indices as: (r, c) -> idx
-                // = (c * Nr) + r and removing need for the sum variable.
-                for (std::uint32_t i = (Nr - 1u); i != std::numeric_limits<std::uint32_t>::max(); i--) {
-                    const std::uint32_t de = (i * Nr) + i;        // diagonal element
-                    const std::uint32_t le = ((Nc - 1) * Nr) + i; // last element
-                    if (std::abs (this->arr[de]) > eps) {
-                        const std::uint32_t n = Nr - i - 1;
-                        x[i] = this->arr[le];
-                        for (std::uint32_t j = 0; j < n; ++j) {
-                            const std::uint32_t se = (Nr - 1 - j) * Nr + i;
-                            x[i] -= this->arr[se] * x[i + n - j];
-                        }
-                        x[i] /= this->arr[de];
+            for (std::uint32_t i = (Nr - 1u); i != std::numeric_limits<std::uint32_t>::max(); i--) {
+                const std::uint32_t de = (i * Nr) + i;        // diagonal element A(r, r)
+                const std::uint32_t le = ((Nc - 1) * Nr) + i; // last element A(r, Nc - 1)
+                if (std::abs (this->arr[de]) > eps) { // std::abs not sm::cem::abs as F may be complex
+                    const std::uint32_t n = Nr - i - 1;
+                    x[i] = this->arr[le];
+                    for (std::uint32_t j = 0; j < n; ++j) {
+                        const std::uint32_t se = (Nr - 1 - j) * Nr + i; // sum element A(i, i + n - j)
+                        x[i] -= this->arr[se] * x[i + n - j];
+                    }
+                    x[i] /= this->arr[de];
+                } else {
+                    if constexpr (sm::is_complex<F>::value) {
+                        if (this->arr[le] != F{0}) { x[i] = F{std::numeric_limits<F_el>::quiet_NaN()}; }
                     } else {
-                        if constexpr (sm::is_complex<F>::value) {
-                            if (this->arr[le] != F{0}) { x[i] = F{std::numeric_limits<F_el>::quiet_NaN()}; }
-                        } else {
-                            if (this->arr[le] != F{0}) { x[i] = std::numeric_limits<F>::quiet_NaN(); }
-                        }
+                        if (this->arr[le] != F{0}) { x[i] = std::numeric_limits<F>::quiet_NaN(); } // else x[i] remains 0
                     }
                 }
             }
+
             return x;
         }
 
