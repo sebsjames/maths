@@ -986,7 +986,7 @@ export namespace sm
         // Solve matrix by back-substitution. row_echelon_form is fine (don't need reduced row
         // echelon form). Nans in result mean there was no solution.
         template<typename Fy=F> requires (Nc == Nr + 1)
-        sm::vec<F, Nr> back_substitution()
+        sm::vec<F, Nr> back_substitution() const noexcept
         {
             using F_el = typename value_type_of<F>::type;
             constexpr F_el eps = F_el{1e-14}; // needs to be F_el if F is complex
