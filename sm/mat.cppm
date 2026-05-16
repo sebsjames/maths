@@ -1005,6 +1005,9 @@ export namespace sm
                     }
                     x[i] /= this->arr[de];
                 } else {
+                    // arr[de] == 0. If the value in the right-most column is 0 AND the value in the
+                    // diagonal is 0, then we have a free value and x[i] remains 0. If the value in
+                    // the right most column is != 0, but arr[de] == 0, we have no solution.
                     if constexpr (sm::is_complex<F>::value) {
                         if (this->arr[le] != F{0}) { x[i] = F{std::numeric_limits<F_el>::quiet_NaN()}; }
                     } else {
