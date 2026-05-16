@@ -869,7 +869,7 @@ export namespace sm
 
             for (std::uint32_t k = 1u; k <= Nr; ++k) {
                 M = (*this) * M;  // M_k = A * M_{k-1}, where M_0 = I
-                coeffs[Nr - k] = -(M.trace()) / F(k);
+                coeffs[Nr - k] = -M.trace() / static_cast<F>(k);
 
                 if (k < Nr) {
                     // M = M_k + c_{n-k} * I
