@@ -27,7 +27,7 @@ int main()
         sm::vec<std::complex<double>, 4> eigenvalues = A.eigenvalues();
 
         // Note: Due to numerical precision in polynomial root finding,
-        // we verify the characteristic polynomial is correct.
+        // we verify the characteristic polynomial is correct
         std::cout << "  Computed Eigenvalues: ";
         for (size_t i = 0; i < 4; ++i) {
             std::cout << eigenvalues[i].real();
