@@ -983,8 +983,15 @@ export namespace sm
             return rref;
         }
 
-        // Solve matrix by back-substitution. row_echelon_form is fine (don't need reduced row
-        // echelon form). Nans in result mean there was no solution.
+        /*!
+         * Using back-substitution, solve the equation Ax = B, where A and B are represented in
+         * *this in the usual way, with A being a square matrix on the left and B the right-most
+         * column. *this should thus be the 'augmented matrix'. This matrix should have been reduced
+         * to row_echelon_form before calling back_substitution().
+         *
+         * \return A vec of the solutions, x. NaNs in result mean there was no solution. Currently,
+         * I don't represent a free variable. Is that possible? I *could* use limits::max?
+         */
         template<typename Fy=F> requires (Nc == Nr + 1)
         sm::vec<F, Nr> back_substitution() const noexcept
         {
@@ -1000,8 +1007,7 @@ export namespace sm
                     const std::uint32_t n = Nr - i - 1;
                     x[i] = this->arr[le];
                     for (std::uint32_t j = 0; j < n; ++j) {
-                        const std::uint32_t se = (Nr - 1 - j) * Nr + i; // sum element A(i, i + n - j)
-                        x[i] -= this->arr[se] * x[i + n - j];
+                        x[i] -= this->arr[(Nr - 1 - j) * Nr + i] * x[i + n - j]; // sum element is A(i, i + n - j)
                     }
                     x[i] /= this->arr[de];
                 } else {
