@@ -38,6 +38,15 @@ int main()
         }
         std::cout << "\n";
 
+        if ((eigenvalues[0].real() - A[0]) > 1e-10
+            || (eigenvalues[1].real() - A[5]) > 1e-10
+            || (eigenvalues[2].real() - A[10]) > 1e-10
+            || (eigenvalues[3].real() - A[15]) > 1e-10) {
+            std::cout << "Eigenvalues do not seem to be correct\n";
+            --rtn;
+        }
+
+
         // For diagonal matrix, we verify trace and determinant are correct
         double trace = A.trace();
         double det = A.determinant();
