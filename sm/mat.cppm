@@ -1409,7 +1409,7 @@ export namespace sm
 
             } else { // Nr == 4
 
-                Fy tr = arr[0] + arr[5] + arr[10];
+                Fy tr = arr[0] + arr[5] + arr[10]; // Trace of the 3x3 [so not this->trace()]
 
                 if (tr > Fy{0}) {
                     Fy S = sm::cem::sqrt (tr + Fy{1}) * Fy{2}; // S=4*qw
@@ -1430,7 +1430,7 @@ export namespace sm
                     q.y = Fy{0.25} * S;
                     q.z = (arr[9] + arr[6]) / S;
                 } else {
-                    Fy S = sm::cem::sqrt (Fy{1} + arr[10] - arr[0] - arr[6]) * Fy{2}; // S=4*qz
+                    Fy S = sm::cem::sqrt (Fy{1} + arr[10] - arr[0] - arr[5]) * Fy{2}; // S=4*qz
                     q.w = (arr[1] - arr[4]) / S;
                     q.x = (arr[8] + arr[2]) / S;
                     q.y = (arr[9] + arr[6]) / S;
