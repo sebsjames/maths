@@ -1063,7 +1063,7 @@ namespace sm
                     q.y = F{0.25} * S;
                     q.z = (arr[9] + arr[6]) / S;
                 } else {
-                    F S = sm::cem::sqrt (F{1} + arr[10] - arr[0] - arr[6]) * F{2}; // S=4*qz
+                    F S = sm::cem::sqrt (F{1} + arr[10] - arr[0] - arr[5]) * F{2}; // S=4*qz
                     q.w = (arr[1] - arr[4]) / S;
                     q.x = (arr[8] + arr[2]) / S;
                     q.y = (arr[9] + arr[6]) / S;
