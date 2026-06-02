@@ -28,6 +28,11 @@ macro(setup_module_variables_for_maths base_directory json_directory)
     ${base_directory}/sm/trait_tests.cppm
     ${base_directory}/sm/range.cppm
   )
+  set(SM_INTERVAL_MODULES
+    ${SM_CONSTEXPR_MATH_MODULES}
+    ${base_directory}/sm/trait_tests.cppm
+    ${base_directory}/sm/interval.cppm
+  )
   set(SM_VEC_MODULES
     ${SM_RANGE_MODULES}
     ${SM_RANDOM_MODULES}

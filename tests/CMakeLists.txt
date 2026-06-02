@@ -40,6 +40,37 @@ add_executable(range_vector1 range_vector1.cpp)
 target_sources_modules(range_vector1 MODULES ${SM_VEC_MODULES})
 add_test(range_vector1 range_vector1)
 
+# sm::interval
+add_executable(interval_intersects interval_intersects.cpp)
+target_sources_modules(interval_intersects MODULES ${SM_VEC_MODULES} ${SM_INTERVAL_MODULES})
+add_test(interval_intersects interval_intersects)
+
+# sm::interval
+add_executable(interval_adding interval_adding.cpp)
+target_sources_modules(interval_adding MODULES ${SM_VEC_MODULES} ${SM_INTERVAL_MODULES})
+add_test(interval_adding interval_adding)
+
+# sm::interval
+add_executable(interval1 interval1.cpp)
+target_compile_features(interval1 PUBLIC   cxx_std_23)
+target_sources_modules(interval1 MODULES ${SM_INTERVAL_MODULES})
+add_test(interval1 interval1)
+
+# sm::interval
+add_executable(interval_constexpr1 interval_constexpr1.cpp)
+target_sources_modules(interval_constexpr1 MODULES ${SM_INTERVAL_MODULES})
+add_test(interval_constexpr1 interval_constexpr1)
+
+# sm::interval
+add_executable(interval_complex1 interval_complex1.cpp)
+target_sources_modules(interval_complex1 MODULES ${SM_INTERVAL_MODULES})
+add_test(interval_complex1 interval_complex1)
+
+# sm::interval
+add_executable(interval_vector1 interval_vector1.cpp)
+target_sources_modules(interval_vector1 MODULES ${SM_VEC_MODULES} ${SM_INTERVAL_MODULES})
+add_test(interval_vector1 interval_vector1)
+
 # sm::random
 add_executable(random1 random1.cpp)
 target_sources_modules(random1 MODULES ${SM_RANDOM_MODULES})

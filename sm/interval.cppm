@@ -27,7 +27,7 @@ module;
 #include <complex>
 #include <span>
 
-export module sm.range;
+export module sm.interval;
 
 import sm.trait_tests;
 export import sm.constexpr_math;
