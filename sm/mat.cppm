@@ -131,13 +131,20 @@ export namespace sm
         alignas(sm::vec<F, Nr * Nc>) sm::vec<F, Nr * Nc> arr;
 
         //! Return a string representation of the passed-in array (assumed column major and containing Nc columns)
-        static std::string str (const sm::vec<F, Nr * Nc>& _arr, const std::uint32_t prec = 6) noexcept
+        static std::string str (const sm::vec<F, Nr * Nc>& _arr, const std::uint32_t prec = std::numeric_limits<F>::max_digits10) noexcept
         {
             std::string s;
             for (std::uint32_t r = 0; r < Nr; ++r) {
                 s += "| ";
                 for (std::uint32_t c = 0; c < Nc; ++c) {
-                    s += std::format ("{:^{}.{}}", _arr[r + (c * Nr)], prec + 4u, prec);
+                    if constexpr (sm::is_complex<F>::value) {
+                        std::string cplx = std::format (" ({:^.{}}, {:^.{}}) ",
+                                                        std::real (_arr[r + (c * Nr)]), prec,
+                                                        std::imag (_arr[r + (c * Nr)]), prec);
+                        s += std::format ("{:^{}}", cplx, prec + 4u);
+                    } else {
+                        s += std::format ("{:^{}.{}}", _arr[r + (c * Nr)], prec + 4u, prec);
+                    }
                 }
                 s += " |\n";
             }
@@ -149,15 +156,28 @@ export namespace sm
         std::string str (const std::uint32_t prec = std::numeric_limits<float>::max_digits10) const noexcept { return this->str (this->arr, prec); }
 
         //! Return a string representation of the underlying array (this comes out as [ col0, col1, col2, col3 ])
-        std::string str_arr (const std::uint32_t prec = std::numeric_limits<F>::max_digits10) const noexcept
+        static std::string str_arr (const sm::vec<F, Nr * Nc>& _arr, const std::uint32_t prec = std::numeric_limits<F>::max_digits10) noexcept
         {
            std::string s;
            s += "[ ";
            for (std::uint32_t i = 0; i < (Nr * Nc) - 1; ++i) {
-               s += std::format ("{:.{}}, ", this->arr[i], prec);
+               if constexpr (sm::is_complex<F>::value) {
+                   s += std::format ("({:^.{}}, {:^.{}}), ", std::real (_arr[i]), prec, std::imag (_arr[i]), prec);
+               } else {
+                   s += std::format ("{:.{}}, ", _arr[i], prec);
+               }
            }
-           s += std::format ("{:.{}} ]\n", this->arr[(Nr * Nc) - 1], prec);
+           if constexpr (sm::is_complex<F>::value) {
+               s += std::format (" ({:^.{}}, {:^.{}}) ]", std::real (_arr[(Nr * Nc) - 1]), prec, std::imag (_arr[(Nr * Nc) - 1]), prec);
+           } else {
+               s += std::format ("{:.{}} ]", _arr[(Nr * Nc) - 1], prec);
+           }
            return s;
+        }
+
+        std::string str_arr (const std::uint32_t prec = std::numeric_limits<F>::max_digits10) const noexcept
+        {
+            return str_arr (this->arr, prec);
         }
 
         //! set_identity is self-explanatory

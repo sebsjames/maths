@@ -20,10 +20,10 @@ int main()
     std::cout << "cout << m1.str(2):\n" << m1.str(2);
     std::cout << "cout << m1.str(1):\n" << m1.str(1);
 
-    std::cout << "cout << m1.str_arr():\n" << m1.str_arr();
-    std::cout << "cout << m1.str_arr(4):\n" << m1.str_arr(4);
-    std::cout << "cout << m1.str_arr(2):\n" << m1.str_arr(2);
-    std::cout << "cout << m1.str_arr(1):\n" << m1.str_arr(1);
+    std::cout << "cout << m1.str_arr():\n" << m1.str_arr() << std::endl;
+    std::cout << "cout << m1.str_arr(4):\n" << m1.str_arr(4) << std::endl;
+    std::cout << "cout << m1.str_arr(2):\n" << m1.str_arr(2) << std::endl;
+    std::cout << "cout << m1.str_arr(1):\n" << m1.str_arr(1) << std::endl;
 
     std::cout << "\ndouble:\n";
     using mcd = sm::mathconst<double>;
@@ -41,16 +41,16 @@ int main()
     std::cout << "cout << m1.str(2):\n" << m1d.str(2);
     std::cout << "cout << m1.str(1):\n" << m1d.str(1);
 
-    std::cout << "cout << m1.str_arr():\n" << m1d.str_arr();
-    std::cout << "cout << m1.str_arr(4):\n" << m1d.str_arr(4);
-    std::cout << "cout << m1.str_arr(2):\n" << m1d.str_arr(2);
-    std::cout << "cout << m1.str_arr(1):\n" << m1d.str_arr(1);
+    std::cout << "cout << m1.str_arr():\n" << m1d.str_arr() << std::endl;
+    std::cout << "cout << m1.str_arr(4):\n" << m1d.str_arr(4) << std::endl;
+    std::cout << "cout << m1.str_arr(2):\n" << m1d.str_arr(2) << std::endl;
+    std::cout << "cout << m1.str_arr(1):\n" << m1d.str_arr(1) << std::endl;
 
     constexpr std::complex<float> c0 = { 0.0f };
     constexpr std::complex<float> c1 = { 1.0f };
     sm::mat<std::complex<float>, 4> m1c = { c0, c1, c0, c0,  c1, c0, c0, c0,  c0, c0, -c1, c0,  c0, c0, c0, c1 };
 
     std::cout << "Complex mat:\n" << m1c << std::endl;
-
+    std::cout << "Complex mat str_arr():\n" << m1c.str_arr() << std::endl;
     return 0;
 }
