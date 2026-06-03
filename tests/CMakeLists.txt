@@ -259,6 +259,10 @@ add_executable(mat_4x4 mat_4x4.cpp)
 target_sources_modules(mat_4x4 MODULES ${SM_MAT_MODULES})
 add_test(mat_4x4 mat_4x4)
 
+add_executable(mat_formatting mat_formatting.cpp)
+target_sources_modules(mat_formatting MODULES ${SM_MAT_MODULES})
+add_test(mat_formatting mat_formatting)
+
 add_executable(mat_4x4_translate mat_4x4_translate.cpp)
 target_sources_modules(mat_4x4_translate MODULES ${SM_MAT_MODULES})
 add_test(mat_4x4_translate mat_4x4_translate)

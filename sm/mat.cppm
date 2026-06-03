@@ -24,7 +24,7 @@ module;
 #include <vector>
 #include <complex>
 #include <string>
-#include <sstream>
+#include <format>
 #include <iostream>
 #include <type_traits>
 #include <initializer_list>
@@ -131,42 +131,33 @@ export namespace sm
         alignas(sm::vec<F, Nr * Nc>) sm::vec<F, Nr * Nc> arr;
 
         //! Return a string representation of the passed-in array (assumed column major and containing Nc columns)
-        static std::string str (const sm::vec<F, Nr * Nc>& _arr) noexcept
+        static std::string str (const sm::vec<F, Nr * Nc>& _arr, const std::uint32_t prec = 6) noexcept
         {
-            std::stringstream ss;
-            ss <<"[ ";
+            std::string s;
             for (std::uint32_t r = 0; r < Nr; ++r) {
-                if (r == 0) {
-                    ss << " ";
-                } else {
-                    ss << "   ";
-                }
+                s += "| ";
                 for (std::uint32_t c = 0; c < Nc; ++c) {
-                    ss << _arr[r + (c * Nr)];
-                    if (c != Nc - 1) {
-                        ss << ", ";
-                    } else {
-                        if (r != Nr - 1) { ss << " ;\n"; }
-                    }
+                    s += std::format ("{:^{}.{}}", _arr[r + (c * Nr)], prec + 4u, prec);
                 }
+                s += " |\n";
             }
-            ss << "  ]\n";
-            return ss.str();
+            s += "\n";
+            return s;
         }
 
-        //! Return a string representation of the matrix
-        std::string str() const noexcept { return this->str (this->arr); }
+        //! Return a string representation of the matrix. Note choice of max_digits10 for the type float, regardless of the type F
+        std::string str (const std::uint32_t prec = std::numeric_limits<float>::max_digits10) const noexcept { return this->str (this->arr, prec); }
 
         //! Return a string representation of the underlying array (this comes out as [ col0, col1, col2, col3 ])
-        std::string str_arr() const noexcept
+        std::string str_arr (const std::uint32_t prec = std::numeric_limits<F>::max_digits10) const noexcept
         {
-           std::stringstream ss;
-           ss <<"[ ";
+           std::string s;
+           s += "[ ";
            for (std::uint32_t i = 0; i < (Nr * Nc) - 1; ++i) {
-               ss << this->arr[i] << ", ";
+               s += std::format ("{:.{}}, ", this->arr[i], prec);
            }
-           ss << this->arr[(Nr * Nc) - 1] << " ]\n";
-           return ss.str();
+           s += std::format ("{:.{}} ]\n", this->arr[(Nr * Nc) - 1], prec);
+           return s;
         }
 
         //! set_identity is self-explanatory
