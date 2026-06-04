@@ -111,15 +111,17 @@ sudo apt install clang-18 clang-tools-18 # need both.
 
 ### Installing GCC on Ubuntu 24
 
-To install gcc 15 or gcc 16, you can add an extra repository:
+To install gcc 15, you can add an extra repository:
 
 ```bash
 sudo add-apt-repository ppa:ubuntu-toolchain-r/test # provides recent gcc versions
 sudo apt install gcc-15 g++-15
-sudo apt install gcc-16 g++-16
 ```
 
-At time of writing, gcc-16 is still in pre-release; I have been compiling it from source.
+At time of writing, gcc-16 is just released. I have been compiling it
+from source. It may be ok to install from the ubuntu-toolchain repo,
+though right now, the version there is slightly behind the released
+gcc-16 and doesn't complete the build.
 
 ### Building with Clang
 
@@ -128,8 +130,8 @@ mkdir build
 cd build
 # A cmake call something like (if you want to use clang and your default libc++/libstdc++):
 CC=clang-20 CXX=clang++-20 cmake .. -GNinja
-# Optionally add -DCMAKE_CXX_FLAGS="-stdlib=libc++" to compile with libc++ if it not your default
-# possibly also -DCMAKE_EXE_LINKER_FLAGS="-stdlib=libc++ -lc++abi"
+# Optionally add -DCMAKE_CXX_FLAGS="-stdlib=libc++" to compile with libc++ if it is not your default
+# possibly also: -DCMAKE_EXE_LINKER_FLAGS="-stdlib=libc++ -lc++abi"
 ninja
 ```
 
