@@ -108,6 +108,22 @@ export namespace sm
             if (this->t > this->n_steps) { this->reset(); }
         }
 
+        // Generate a walk of n_steps with given starting positional/angular state
+        sm::vvec<sm::vec<T, 2>> generate (const T theta0 = T{0}, const sm::vec<T, 2> position0 = sm::vec<T, 2>{})
+        {
+            sm::vvec<sm::vec<T, 2>> coords;
+            T _theta = theta0;                   // rotational state of walking agent
+            sm::vec<T, 2> position = position0;  // positional state of walking agent
+            for (std::uint32_t i = 0; i < this->n_steps; ++i) {
+                this->step();
+                // Use walk.omega (angular speed) and walk.speed (linear/fwds) to generate x/y
+                _theta += this->omega;
+                position += sm::vec<T, 2>{this->speed * std::cos (_theta), this->speed * std::sin (_theta)};
+                coords.push_back (position);
+            }
+            return coords;
+        }
+
         // Number of steps total.
         std::uint32_t n_steps = 0;
         // Current time step
