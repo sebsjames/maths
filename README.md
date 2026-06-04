@@ -155,6 +155,6 @@ I installed gcc 16 in /opt/gcc-16 so my build was:
 ```bash
 mkdir build
 cd build
-CC=/opt/gcc-16/bin/gcc CXX=/opt/gcc-16/bin/g++ cmake .. -GNinja -DCMAKE_CXX_FLAGS="-static-libstdc++""
+CC=/opt/gcc-16/bin/gcc CXX=/opt/gcc-16/bin/g++ cmake .. -GNinja -DCMAKE_CXX_FLAGS="-static-libstdc++"
 ninja
 ```
