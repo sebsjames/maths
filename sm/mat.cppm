@@ -155,10 +155,11 @@ export namespace sm
                         s += std::format ("{:^{}}", cplx, prec + extra_space);
                     } else {
                         if constexpr (approximate_zero == true) {
-                            if (sm::cem::abs (_arr[r + (c * Nr)]) < 20 * std::numeric_limits<F>::epsilon()) {
+                            const F el = _arr[r + (c * Nr)];
+                            if (el != F{0} && sm::cem::abs (el) < 20 * std::numeric_limits<F>::epsilon()) {
                                 s += std::format ("{:^{}}", "~0 ", prec + extra_space);
                             } else {
-                                s += std::format ("{:^{}.{}}", _arr[r + (c * Nr)], prec + extra_space, prec);
+                                s += std::format ("{:^{}.{}}", el, prec + extra_space, prec);
                             }
                         } else {
                             s += std::format ("{:^{}.{}}", _arr[r + (c * Nr)], prec + extra_space, prec);
