@@ -24,7 +24,7 @@ module;
 #include <vector>
 #include <complex>
 #include <string>
-#include <sstream>
+#include <format>
 #include <iostream>
 #include <type_traits>
 #include <initializer_list>
@@ -130,43 +130,73 @@ export namespace sm
          */
         alignas(sm::vec<F, Nr * Nc>) sm::vec<F, Nr * Nc> arr;
 
-        //! Return a string representation of the passed-in array (assumed column major and containing Nc columns)
-        static std::string str (const sm::vec<F, Nr * Nc>& _arr) noexcept
+        /*!
+         * Return a string representation of the passed-in array (assumed column major and containing Nc columns)
+         *
+         * \param _arr The array representing the matrix
+         * \param prec The number of significant figures to show in each element
+         * \tparam approximate_zero If true, then for values < 20*epsilon, show "~0" isntead of something like "-1.99349e-07"
+         */
+        template<bool approximate_zero = true>
+        static std::string str (const sm::vec<F, Nr * Nc>& _arr,
+                                const std::uint32_t prec = std::numeric_limits<F>::max_digits10) noexcept
         {
-            std::stringstream ss;
-            ss <<"[ ";
+            // Extra formatting space. +6 allows for the characters '-.e-NN' in '-x.xxxxxe-NN' and ensure that matrices print out neatly
+            constexpr std::uint32_t extra_space = 6u;
+
+            std::string s;
             for (std::uint32_t r = 0; r < Nr; ++r) {
-                if (r == 0) {
-                    ss << " ";
-                } else {
-                    ss << "   ";
-                }
+                s += "| ";
                 for (std::uint32_t c = 0; c < Nc; ++c) {
-                    ss << _arr[r + (c * Nr)];
-                    if (c != Nc - 1) {
-                        ss << ", ";
+                    if constexpr (sm::is_complex<F>::value) {
+                        std::string cplx = std::format (" ({:^.{}}, {:^.{}}) ",
+                                                        std::real (_arr[r + (c * Nr)]), prec,
+                                                        std::imag (_arr[r + (c * Nr)]), prec);
+                        s += std::format ("{:^{}}", cplx, prec + extra_space);
                     } else {
-                        if (r != Nr - 1) { ss << " ;\n"; }
+                        if constexpr (approximate_zero == true) {
+                            if (sm::cem::abs (_arr[r + (c * Nr)]) < 20 * std::numeric_limits<F>::epsilon()) {
+                                s += std::format ("{:^{}}", "~0 ", prec + extra_space);
+                            } else {
+                                s += std::format ("{:^{}.{}}", _arr[r + (c * Nr)], prec + extra_space, prec);
+                            }
+                        } else {
+                            s += std::format ("{:^{}.{}}", _arr[r + (c * Nr)], prec + extra_space, prec);
+                        }
                     }
                 }
+                s += " |\n";
             }
-            ss << "  ]\n";
-            return ss.str();
+            s += "\n";
+            return s;
         }
 
-        //! Return a string representation of the matrix
-        std::string str() const noexcept { return this->str (this->arr); }
+        //! Return a string representation of the matrix. Note choice of digits10 for the type float, regardless of the type F
+        std::string str (const std::uint32_t prec = std::numeric_limits<float>::digits10) const noexcept { return this->str (this->arr, prec); }
 
         //! Return a string representation of the underlying array (this comes out as [ col0, col1, col2, col3 ])
-        std::string str_arr() const noexcept
+        static std::string str_arr (const sm::vec<F, Nr * Nc>& _arr, const std::uint32_t prec = std::numeric_limits<F>::max_digits10) noexcept
         {
-           std::stringstream ss;
-           ss <<"[ ";
+           std::string s;
+           s += "[ ";
            for (std::uint32_t i = 0; i < (Nr * Nc) - 1; ++i) {
-               ss << this->arr[i] << ", ";
+               if constexpr (sm::is_complex<F>::value) {
+                   s += std::format ("({:^.{}}, {:^.{}}), ", std::real (_arr[i]), prec, std::imag (_arr[i]), prec);
+               } else {
+                   s += std::format ("{:.{}}, ", _arr[i], prec);
+               }
            }
-           ss << this->arr[(Nr * Nc) - 1] << " ]\n";
-           return ss.str();
+           if constexpr (sm::is_complex<F>::value) {
+               s += std::format (" ({:^.{}}, {:^.{}}) ]", std::real (_arr[(Nr * Nc) - 1]), prec, std::imag (_arr[(Nr * Nc) - 1]), prec);
+           } else {
+               s += std::format ("{:.{}} ]", _arr[(Nr * Nc) - 1], prec);
+           }
+           return s;
+        }
+
+        std::string str_arr (const std::uint32_t prec = std::numeric_limits<float>::digits10) const noexcept
+        {
+            return str_arr (this->arr, prec);
         }
 
         //! set_identity is self-explanatory
