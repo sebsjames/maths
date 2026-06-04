@@ -130,9 +130,20 @@ export namespace sm
          */
         alignas(sm::vec<F, Nr * Nc>) sm::vec<F, Nr * Nc> arr;
 
-        //! Return a string representation of the passed-in array (assumed column major and containing Nc columns)
-        static std::string str (const sm::vec<F, Nr * Nc>& _arr, const std::uint32_t prec = std::numeric_limits<F>::max_digits10) noexcept
+        /*!
+         * Return a string representation of the passed-in array (assumed column major and containing Nc columns)
+         *
+         * \param _arr The array representing the matrix
+         * \param prec The number of significant figures to show in each element
+         * \tparam approximate_zero If true, then for values < 20*epsilon, show "~0" isntead of something like "-1.99349e-07"
+         */
+        template<bool approximate_zero = true>
+        static std::string str (const sm::vec<F, Nr * Nc>& _arr,
+                                const std::uint32_t prec = std::numeric_limits<F>::max_digits10) noexcept
         {
+            // Extra formatting space. +6 allows for the characters '-.e-NN' in '-x.xxxxxe-NN' and ensure that matrices print out neatly
+            constexpr std::uint32_t extra_space = 6u;
+
             std::string s;
             for (std::uint32_t r = 0; r < Nr; ++r) {
                 s += "| ";
@@ -141,9 +152,17 @@ export namespace sm
                         std::string cplx = std::format (" ({:^.{}}, {:^.{}}) ",
                                                         std::real (_arr[r + (c * Nr)]), prec,
                                                         std::imag (_arr[r + (c * Nr)]), prec);
-                        s += std::format ("{:^{}}", cplx, prec + 4u);
+                        s += std::format ("{:^{}}", cplx, prec + extra_space);
                     } else {
-                        s += std::format ("{:^{}.{}}", _arr[r + (c * Nr)], prec + 4u, prec);
+                        if constexpr (approximate_zero == true) {
+                            if (sm::cem::abs (_arr[r + (c * Nr)]) < 20 * std::numeric_limits<F>::epsilon()) {
+                                s += std::format ("{:^{}}", "~0 ", prec + extra_space);
+                            } else {
+                                s += std::format ("{:^{}.{}}", _arr[r + (c * Nr)], prec + extra_space, prec);
+                            }
+                        } else {
+                            s += std::format ("{:^{}.{}}", _arr[r + (c * Nr)], prec + extra_space, prec);
+                        }
                     }
                 }
                 s += " |\n";
@@ -152,8 +171,8 @@ export namespace sm
             return s;
         }
 
-        //! Return a string representation of the matrix. Note choice of max_digits10 for the type float, regardless of the type F
-        std::string str (const std::uint32_t prec = std::numeric_limits<float>::max_digits10) const noexcept { return this->str (this->arr, prec); }
+        //! Return a string representation of the matrix. Note choice of digits10 for the type float, regardless of the type F
+        std::string str (const std::uint32_t prec = std::numeric_limits<float>::digits10) const noexcept { return this->str (this->arr, prec); }
 
         //! Return a string representation of the underlying array (this comes out as [ col0, col1, col2, col3 ])
         static std::string str_arr (const sm::vec<F, Nr * Nc>& _arr, const std::uint32_t prec = std::numeric_limits<F>::max_digits10) noexcept
@@ -175,7 +194,7 @@ export namespace sm
            return s;
         }
 
-        std::string str_arr (const std::uint32_t prec = std::numeric_limits<F>::max_digits10) const noexcept
+        std::string str_arr (const std::uint32_t prec = std::numeric_limits<float>::digits10) const noexcept
         {
             return str_arr (this->arr, prec);
         }
