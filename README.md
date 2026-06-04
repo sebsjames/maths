@@ -135,12 +135,26 @@ CC=clang-20 CXX=clang++-20 cmake .. -GNinja
 ninja
 ```
 
-### Building with GCC
+### Building with a package-installed GCC
+
+For a correctly installed GCC, you can build like this:
 
 ```bash
 mkdir build
 cd build
-# A cmake call something like (if you want to use gcc and your default c++ runtime library)
+# A cmake call something like
 CC=gcc-15 CXX=g++-15 cmake .. -GNinja
+ninja
+```
+### Building with a from-source-compiled GCC
+
+If you're building with a from-source compiled version of gcc, then you have to take a little care to ensure that you get the right associated c++ runtime library rather than the possibly out-of-date one that's installed on your system.
+One way to do this is to ask the compiler to link libstdc++ statically. This seems to ensure that you get the exact libstdc++ that's associated with your compiler.
+I installed gcc 16 in /opt/gcc-16 so my build was:
+
+```bash
+mkdir build
+cd build
+CC=/opt/gcc-16/bin/gcc CXX=/opt/gcc-16/bin/g++ cmake .. -GNinja -DCMAKE_CXX_FLAGS="-static-libstdc++""
 ninja
 ```
