@@ -65,6 +65,15 @@ namespace sm
             this->max = _max;
         }
 
+        // Pass in a value and return either the value or whichever of min or max it exceeded
+        constexpr T constrain (const T& val) noexcept
+        {
+            T constrained = val;
+            if (val > this->max) { constrained = this->max; }
+            else if (val < this->min) { constrained = this->min; }
+            return constrained;
+        }
+
         // Output a string representation of the min and max. Rewrite with <format> at some point.
         std::string str() const
         {
