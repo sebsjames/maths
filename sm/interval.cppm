@@ -342,10 +342,6 @@ export namespace sm
                 //    1 1 1  T
                 return (other_inside > 4 || (other_inside % 2 /* != 0 */));
 
-#if 0 // originally:
-                return ((other.min < this->max) && (other.min > this->min)) || ((other.max < this->max) && (other.max > this->min));
-#endif
-
             } else {
                 using T_el=std::remove_reference_t<decltype(*std::begin(std::declval<T&>()))>;
                 std::size_t sz = sizeof (T) / sizeof (T_el);
@@ -357,6 +353,9 @@ export namespace sm
         }
 
         // Could add intersection and union methods
+        //
+        // Actually, not sure if I can, as I will not be able to determine the bounds (whether open
+        // or closed) of the result at compile time.
 
         // What's the 'span of the interval'? Whether scalar or complex (or vector), it's max - min
         constexpr T span() const noexcept { return this->max - this->min; }

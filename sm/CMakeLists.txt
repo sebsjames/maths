@@ -31,6 +31,7 @@ install(
   hexgrid_hdf.cppm
   hexyhisto.cppm
   histo.cppm
+  interval.cppm
   mat.cppm
   mathconst.cppm
   nm_simplex.cppm

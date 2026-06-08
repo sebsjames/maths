@@ -47,6 +47,32 @@ int main()
     std::cout << "interval from vector: " << r_fromvec << std::endl;
     if (r_fromvec.min != -2 || r_fromvec.max != 19) { --rtn; }
 
+    // Semi-open now: [2, 4)
+    sm::interval<float, sm::interval_endpoint::closed, sm::interval_endpoint::open> rso1 (2.0f, 4.0f);
+    std::cout << "A semi-open interval: " << rso1 << std::endl;
+    // (1, 2]
+    sm::interval<float, sm::interval_endpoint::open, sm::interval_endpoint::closed> rso2 (1.0f, 2.0f);
+    std::cout << "Another semi-open interval: " << rso2 << std::endl;
+    // Tests:
+    if (rso1.contains(rso2)) { --rtn; }
+    if (rso2.contains(rso1)) { --rtn; }
+    if (rso1.intersects (rso2) == false)  { --rtn; }
+    if (rso2.intersects (rso1) == false)  { --rtn; }
+    rso2.max -= std::numeric_limits<float>::epsilon();
+    if (rso1.intersects (rso2) == true)  { --rtn; }
+
+    // (1, 2)
+    sm::interval<float, sm::interval_endpoint::open, sm::interval_endpoint::open> rso3 (1.0f, 2.0f);
+    if (rso1.intersects (rso3) == true)  { --rtn; }
+
+    // (0, 1]
+    sm::interval<float, sm::interval_endpoint::open, sm::interval_endpoint::closed> rso4 (0.0f, 1.0f);
+    if (rso3.intersects (rso4)) { --rtn; }
+
+    // Make rso3 overlap with rso4 by moving rso3's min (infimum)
+    rso3.min -= std::numeric_limits<float>::epsilon();
+    if (rso3.intersects (rso4) == false) { --rtn; }
+
     std::cout << "Test " << (rtn == 0 ? "Passed" : "Failed") << std::endl;
     return rtn;
 }
