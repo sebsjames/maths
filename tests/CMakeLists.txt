@@ -71,6 +71,12 @@ add_executable(interval_vector1 interval_vector1.cpp)
 target_sources_modules(interval_vector1 MODULES ${SM_VEC_MODULES} ${SM_INTERVAL_MODULES})
 add_test(interval_vector1 interval_vector1)
 
+# sm::interval
+# FIXME: Getting an odd compiler error for this one.
+add_executable(interval_vectorequality interval_vectorequality.cpp)
+target_sources_modules(interval_vectorequality MODULES ${SM_VEC_MODULES} ${SM_INTERVAL_MODULES})
+add_test(interval_vectorequality interval_vectorequality)
+
 # sm::random
 add_executable(random1 random1.cpp)
 target_sources_modules(random1 MODULES ${SM_RANDOM_MODULES})
