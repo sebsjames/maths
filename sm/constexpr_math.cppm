@@ -262,10 +262,11 @@ export namespace sm::cem // ConstExpr Math
         constexpr T1 pow_integral (const T1 base, const T2 exp_term) noexcept { return internal::pow_integral_type_check (base, exp_term); }
     }
 
-    // If our C++ is less than C++23 or if we have clang and our C++ is any version, include the
-    // sm::cem::ceil/floar/abs/round intrinsics. clang has constexpr capable extension intrinsics
-    // for ceil, etc, so it's odd (to me) that std::ceil is disallowed in a constexpr by clang23.
-#if defined( __clang__ ) || __cplusplus < 202302L
+    // If our C++ is less than C++23 or if we have clang/VisualStudio and our C++ is any version,
+    // include the sm::cem::ceil/floar/abs/round intrinsics. clang has constexpr capable extension
+    // intrinsics for ceil, etc, so it's odd (to me) that std::ceil is disallowed in a constexpr by
+    // clang23 and by VisualStudio.
+#if defined( __clang__ )  || defined( _MSC_VER ) || __cplusplus < 202302L
 
     namespace internal // ceil
     {
