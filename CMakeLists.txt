@@ -13,7 +13,7 @@ project(maths LANGUAGES CXX)
 message(STATUS "Install prefix: ${CMAKE_INSTALL_PREFIX}")
 message(STATUS "  (This can be changed with `cmake -DCMAKE_INSTALL_PREFIX=/some/place`")
 
-set(CMAKE_CXX_STANDARD 20) # Would need to be 23 for future import std; support
+set(CMAKE_CXX_STANDARD 23) # Allow 23 for future import std; support
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # For clang and future import std; support
 # set(CMAKE_CXX_EXTENSIONS ON)
