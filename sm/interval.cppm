@@ -5,14 +5,27 @@
  * See https://github.com/sebsjames/maths
  *
  * A (no longer quite so) tiny container class to hold the information defining a mathematical
- * interval. With range, I wanted a common type in which to return minmax values for use in sm::vec
- * and sm::vvec. An option would have been an std::array, but I prefer this, as vvec doesn't
- * otherwise need to include <array>. range can be used in constexpr functions.
+ * interval. With the earlier incarnation of this code, which was called sm::range, I wanted a
+ * common type in which to return minmax values for use in sm::vec and sm::vvec. An option would
+ * have been an std::array, but I preferred this, as vvec doesn't otherwise need to include
+ * <array>.
  *
- * The class has become a full interval class, covering (for most cases) closed, open and semi-open
- * intervals, both for real numbers, complex numbers and vectors.
+ * The class has since become an interval class, covering (for most cases) closed, open and
+ * semi-open intervals, both for real numbers, complex numbers and vectors.
  *
- * Extra bonus: You can use this as an implementation of an axis-aligned bounding box!
+ * The design is a struct containing two values (the min and max), with the nature of the endpoints
+ * defined with template parameters. This means that there are some limitations. While we can write
+ * a function that returns whether a value falls within the interval or not, we can't write a
+ * function that return the union or intersection of two intervals, because the runtime values would
+ * have to determine the type of the return object (i.e., its endpoint template parameters). If
+ * intersection and union methods become a requirement in the future, it may be necessary to write a
+ * new interval class containing a runtime-variable encoding of the endpoint types. This could cost
+ * only 2 bits of storage space (or more practically a single std::uint32_t). However, at present
+ * this functionality is not required; in fact, sm::interval will almost always be used with the
+ * default closed extrema with the interval being notated [min, max].
+ *
+ * Extra bonus: You can use sm::interval<vector_type> as an implementation of an axis-aligned
+ * bounding box! You can also use sm::interval<> in constexpr functions.
  *
  * Author: Seb James
  * Date: June 2026
@@ -352,10 +365,11 @@ export namespace sm
             }
         }
 
-        // Could add intersection and union methods
+        // A note on intersection(interval<>& other) and union(interval<>& other) methods
         //
-        // Actually, not sure if I can, as I will not be able to determine the bounds (whether open
-        // or closed) of the result at compile time.
+        // I don't think this is possible for an interval class with compile-time defined
+        // infimum/supremum. It would not be possible to determine the bounds (whether open or
+        // closed) of the result at compile time.
 
         // What's the 'span of the interval'? Whether scalar or complex (or vector), it's max - min
         constexpr T span() const noexcept { return this->max - this->min; }
