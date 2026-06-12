@@ -68,6 +68,7 @@ export module sm.random;
 
 import sm.mathconst;
 import sm.bessel_i0;
+export import sm.interval;
 
 namespace sm
 {
@@ -132,6 +133,20 @@ namespace sm
             {
                 this->generator.seed (_seed);
                 typename std::uniform_real_distribution<T>::param_type prms (a, b);
+                this->dist.param (prms);
+            }
+            //! This constructor gives RN generator which works in with the given semi open interval [a,b)
+            rand_uniform (const sm::interval<T, sm::interval_endpoint::closed, sm::interval_endpoint::open>& ab) noexcept
+            {
+                typename std::uniform_real_distribution<T>::param_type prms (ab.min, ab.max);
+                this->dist.param (prms);
+            }
+            //! This constructor gives RN generator which works in with the given semi open interval [a,b)
+            rand_uniform (const sm::interval<T, sm::interval_endpoint::closed, sm::interval_endpoint::open>& ab,
+                          std::uint32_t _seed) noexcept
+            {
+                this->generator.seed (_seed);
+                typename std::uniform_real_distribution<T>::param_type prms (ab.min, ab.max);
                 this->dist.param (prms);
             }
             //! Copy constructor copies the parameters of the distribution
@@ -222,6 +237,19 @@ namespace sm
             {
                 this->generator.seed (_seed);
                 typename std::uniform_int_distribution<T>::param_type prms (a, b);
+                this->dist.param (prms);
+            }
+            //! This constructor gives RN generator which works in with the given closed interval [a,b]
+            rand_uniform (const sm::interval<T>& ab) noexcept
+            {
+                typename std::uniform_real_distribution<T>::param_type prms (ab.min, ab.max);
+                this->dist.param (prms);
+            }
+            //! This constructor gives RN generator which works in with the given closed interval [a,b]
+            rand_uniform (const sm::interval<T>& ab, std::uint32_t _seed) noexcept
+            {
+                this->generator.seed (_seed);
+                typename std::uniform_int_distribution<T>::param_type prms (ab.min, ab.max);
                 this->dist.param (prms);
             }
             //! Copy constructor copies the distribution parameters
