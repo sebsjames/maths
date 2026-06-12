@@ -1,15 +1,15 @@
 #include <iostream>
 #include <complex>
 
-import sm.range;
+import sm.interval;
 
 int main()
 {
     int rtn = 0;
 
-    sm::range<std::complex<float>> r({2.0f, 1.0f}, {4.0f, -1.0f});
+    sm::interval<std::complex<float>> r({2.0f, 1.0f}, {4.0f, -1.0f});
 
-    if (r.update ({10.0f, 30.0f}) == false) { --rtn; } // Update with this value should change the range and return true
+    if (r.update ({10.0f, 30.0f}) == false) { --rtn; } // Update with this value should change the interval and return true
     if (r.update ({10.0f, 30.0f}) == true) { --rtn; }  // Can't update again and get true returned
 
     if (r.contains (std::complex<float>{0.1f, 0.04f}) == true) { --rtn; }
@@ -19,7 +19,7 @@ int main()
     std::cout << "r.mid: " << r.mid() << std::endl;
 
     // Fully real
-    sm::range<std::complex<float>> r1({2.0f, 0.0f}, {4.0f, 0.0f});
+    sm::interval<std::complex<float>> r1({2.0f, 0.0f}, {4.0f, 0.0f});
     if (r1.update ({10.0f, 0.0f}) == false) { --rtn; }
     if (r1.update ({10.0f, 0.0f}) == true) { --rtn; }
     if (r1.update ({-20.0f, 0.0f}) == false) { --rtn; }
@@ -31,7 +31,7 @@ int main()
     std::cout << "r1.mid: " << r1.mid() << std::endl;
 
     // Fully imaginary
-    sm::range<std::complex<float>> r2({0.0f, 2.0f}, {0.0f, 2.0f});
+    sm::interval<std::complex<float>> r2({0.0f, 2.0f}, {0.0f, 2.0f});
     if (r2.update ({0.0f, 10.0f}) == false) { --rtn; }
     if (r2.update ({0.0f, 10.0f}) == true) { --rtn; }
     if (r2.update ({0.0f, -20.0f}) == false) { --rtn; }

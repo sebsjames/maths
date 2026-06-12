@@ -19,22 +19,23 @@ macro(setup_module_variables_for_maths base_directory json_directory)
     ${SM_POLYSOLVE_MODULES}
     ${base_directory}/sm/bessel_i0.cppm
   )
-  set(SM_RANDOM_MODULES
-    ${SM_BESSEL_I0_MODULES}
-    ${base_directory}/sm/random.cppm
-  )
-  set(SM_RANGE_MODULES
+  set(SM_INTERVAL_MODULES
     ${SM_CONSTEXPR_MATH_MODULES}
     ${base_directory}/sm/trait_tests.cppm
-    ${base_directory}/sm/range.cppm
+    ${base_directory}/sm/interval.cppm
+  )
+  set(SM_RANDOM_MODULES
+    ${SM_BESSEL_I0_MODULES}
+    ${SM_INTERVAL_MODULES}    
+    ${base_directory}/sm/random.cppm
   )
   set(SM_VEC_MODULES
-    ${SM_RANGE_MODULES}
+    ${SM_INTERVAL_MODULES}
     ${SM_RANDOM_MODULES}
     ${base_directory}/sm/vec.cppm
   )
   set(SM_VVEC_MODULES
-    ${SM_RANGE_MODULES}
+    ${SM_INTERVAL_MODULES}
     ${SM_RANDOM_MODULES}
     ${base_directory}/sm/vvec.cppm
   )

@@ -39,7 +39,7 @@ export import sm.grid; // for gridfeatures
 import sm.vec;
 import sm.vvec;
 import sm.scale;
-import sm.range;
+import sm.interval;
 import sm.boxfilter;
 
 // If the cartgrid::save and cartgrid::load methods are required, define
@@ -238,8 +238,8 @@ export namespace sm
         alignas(8) std::vector<std::int32_t> d_xi;
         alignas(8) std::vector<std::int32_t> d_yi;
 
-        sm::range<std::int32_t> xi_minmax;
-        sm::range<std::int32_t> yi_minmax;
+        sm::interval<std::int32_t> xi_minmax;
+        sm::interval<std::int32_t> yi_minmax;
 
         /*!
          * Flags, such as "on boundary", "inside boundary", "outside boundary", "has
@@ -1402,8 +1402,8 @@ export namespace sm
 
             // Create vectors containing the min and max x and y indices. Bottom left element is
             // d_xi[0] and top right is represented by d_yi[last]
-            this->xi_minmax = sm::range<std::int32_t>(d_xi[0], d_xi[d_xi.size()-1]);
-            this->yi_minmax = sm::range<std::int32_t>(d_yi[0], d_yi[d_yi.size()-1]);
+            this->xi_minmax = sm::interval<std::int32_t>(d_xi[0], d_xi[d_xi.size()-1]);
+            this->yi_minmax = sm::interval<std::int32_t>(d_yi[0], d_yi[d_yi.size()-1]);
 
             this->populate_d_neighbours();
         }
@@ -1796,8 +1796,8 @@ export namespace sm
                 this->h_px = 2 * half_cols + 1;
             }
 
-            this->x_minmax = sm::range<float>(-half_cols * this->d, half_cols * this->d);
-            this->y_minmax = sm::range<float>(-half_rows * this->v, half_rows * this->v);
+            this->x_minmax = sm::interval<float>(-half_cols * this->d, half_cols * this->d);
+            this->y_minmax = sm::interval<float>(-half_rows * this->v, half_rows * this->v);
 
             // The "vector iterator" - this is an identity iterator that is added to each rect in the grid.
             std::uint32_t vi = 0;
@@ -1857,8 +1857,8 @@ export namespace sm
             if constexpr (debug_cartgrid) {
                 std::cout << __FUNCTION__ << " called for ("<<x1<<","<<y1<<") to ("<<x2<<","<<y2<<")\n";
             }
-            this->x_minmax = sm::range<float>(x1, x2);
-            this->y_minmax = sm::range<float>(y1, y2);
+            this->x_minmax = sm::interval<float>(x1, x2);
+            this->y_minmax = sm::interval<float>(y1, y2);
 
             std::int32_t _xi = std::round(x1/this->d);
             std::int32_t _xf = std::round(x2/this->d);
@@ -2640,8 +2640,8 @@ export namespace sm
 
     public:
         // Min/max x and y to record size of domain. Populate during init.
-        sm::range<float> x_minmax;
-        sm::range<float> y_minmax;
+        sm::interval<float> x_minmax;
+        sm::interval<float> y_minmax;
     };
 
 } // namespace sm

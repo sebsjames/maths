@@ -31,6 +31,7 @@ install(
   hexgrid_hdf.cppm
   hexyhisto.cppm
   histo.cppm
+  interval.cppm
   mat.cppm
   mathconst.cppm
   nm_simplex.cppm
@@ -39,7 +40,6 @@ install(
   quaternion.cppm
   random.cppm
   random_walk.cppm
-  range.cppm
   rect.cppm
   scale.cppm
   spline.cppm

@@ -1,0 +1,78 @@
+#include <iostream>
+#include <vector>
+#include <span>
+
+import sm.interval;
+
+int main()
+{
+    int rtn = 0;
+
+    sm::interval<float> r(2.0f, 4.0f);
+    if (r.update (1.0f) == false) { --rtn; } // Update with 1 should change the interval and return true
+    if (r.update (5.0f) == false) { --rtn; } // Update with 5 should change the interval and return true
+    if (r.update (3.0f) == true) { --rtn; } // Update with 3 should not change the interval
+
+    sm::interval<std::int32_t> r1 = { 1, 100 };
+    sm::interval<int> r2 = { 10, 90 };
+    sm::interval<int> r3 = { -1, 2 };
+    sm::interval<int> r4 = { 90, 100 };
+    sm::interval<int> r5 = { 90, 101 };
+    sm::interval<int> r6 = { 101, 102 };
+    std::cout << "interval " << r1 << (r1.contains(r2) ? " contains " : " doesn't contain ") << r2 << std::endl;
+    std::cout << "interval " << r1 << (r1.contains(r3) ? " contains " : " doesn't contain ") << r3 << std::endl;
+
+    if (r1.contains(r2) == false) { --rtn; }
+    if (r1.contains(r3) == true) { --rtn; }
+    if (r1.contains(r4) == false) { --rtn; }
+    if (r1.contains(r5) == true) { --rtn; }
+    if (r1.contains(r6) == true) { --rtn; }
+
+    std::cout << "interval " << r4 << ".mid() = " << r4.mid() << std::endl;
+
+    std::vector<int> v = { 1, 2, 4, 4, 5 };
+    // You can't make a span from const iterators
+    std::span<int> sp (v.begin(), v.end());
+    sm::interval<int> rs = sm::interval<int>::get_from (sp);
+    std::cout << "interval from span: " << rs << std::endl;
+    if (rs.min != 1 || rs.max != 5) { --rtn; }
+
+    std::span<int> sp2 (v.begin(), 3);
+    sm::interval<int> rs2 = sm::interval<int>::get_from (sp2);
+    std::cout << "interval from smaller span: " << rs2 << std::endl;
+    if (rs2.min != 1 || rs2.max != 4) { --rtn; }
+
+    std::vector<int> vint = { 1, -2, 5, 19 };
+    sm::interval<int> r_fromvec = sm::interval<int>::get_from (vint);
+    std::cout << "interval from vector: " << r_fromvec << std::endl;
+    if (r_fromvec.min != -2 || r_fromvec.max != 19) { --rtn; }
+
+    // Semi-open now: [2, 4)
+    sm::interval<float, sm::interval_endpoint::closed, sm::interval_endpoint::open> rso1 (2.0f, 4.0f);
+    std::cout << "A semi-open interval: " << rso1 << std::endl;
+    // (1, 2]
+    sm::interval<float, sm::interval_endpoint::open, sm::interval_endpoint::closed> rso2 (1.0f, 2.0f);
+    std::cout << "Another semi-open interval: " << rso2 << std::endl;
+    // Tests:
+    if (rso1.contains(rso2)) { --rtn; }
+    if (rso2.contains(rso1)) { --rtn; }
+    if (rso1.intersects (rso2) == false)  { --rtn; }
+    if (rso2.intersects (rso1) == false)  { --rtn; }
+    rso2.max -= std::numeric_limits<float>::epsilon();
+    if (rso1.intersects (rso2) == true)  { --rtn; }
+
+    // (1, 2)
+    sm::interval<float, sm::interval_endpoint::open, sm::interval_endpoint::open> rso3 (1.0f, 2.0f);
+    if (rso1.intersects (rso3) == true)  { --rtn; }
+
+    // (0, 1]
+    sm::interval<float, sm::interval_endpoint::open, sm::interval_endpoint::closed> rso4 (0.0f, 1.0f);
+    if (rso3.intersects (rso4)) { --rtn; }
+
+    // Make rso3 overlap with rso4 by moving rso3's min (infimum)
+    rso3.min -= std::numeric_limits<float>::epsilon();
+    if (rso3.intersects (rso4) == false) { --rtn; }
+
+    std::cout << "Test " << (rtn == 0 ? "Passed" : "Failed") << std::endl;
+    return rtn;
+}

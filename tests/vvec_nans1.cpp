@@ -2,7 +2,6 @@
 #include <iostream>
 
 import sm.vvec;
-import sm.range; // for clang
 
 int main()
 {

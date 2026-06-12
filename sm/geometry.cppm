@@ -21,7 +21,7 @@ export module sm.geometry;
 
 export import sm.mathconst;
 import sm.constexpr_math;
-import sm.range;
+import sm.interval;
 import sm.algo;
 export import sm.vec;
 export import sm.vvec;
@@ -174,7 +174,7 @@ export namespace sm::geometry
 
     // Does the line defined by p0->p1 pass through the box defined by the range box?
     template<typename T>
-    bool aabb_line_intersect (const sm::range<sm::vec<T, 3>>& box,
+    bool aabb_line_intersect (const sm::interval<sm::vec<T, 3>>& box,
                               const sm::vec<T, 3>& p0, const sm::vec<T, 3>& p1)
     {
         auto line_intersect = [box, p0, p1](std::uint32_t dim)

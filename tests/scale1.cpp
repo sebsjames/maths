@@ -10,7 +10,7 @@
 import sm.vec;
 import sm.scale;
 import sm.vvec;  // for clang (scale export imports vvec)
-import sm.range; // for clang (vec, vvec export imports vvec)
+import sm.interval; // for clang (vec, vvec export imports vvec)
 
 int main ()
 {
@@ -280,8 +280,8 @@ int main ()
     if (!std::isnan(resultnan[5])) { --rtn; }
 
     sm::scale<int, float> sif;
-    sif.output_range = sm::range<float>{0, 5};
-    sif.compute_scaling (sm::range<int>{-10, 10});
+    sif.output_range = sm::interval<float>{0, 5};
+    sif.compute_scaling (sm::interval<int>{-10, 10});
     std::cout << "input 8(int) transforms to float: " << sif.transform_one (8) << std::endl;
     if (sif.transform_one (8) != 4.5f) { --rtn; }
 
@@ -328,12 +328,12 @@ int main ()
     if (cpxidsc.transform_one (std::complex<float>{1,-2}) != std::complex<float>{1,-2}) { --rtn; }
 
     sm::scale<float, double> scrng;
-    scrng.output_range = sm::range<double>{0.0, 5.0};
-    scrng.compute_scaling (sm::range<float>{-10.0f, 10.0f});
+    scrng.output_range = sm::interval<double>{0.0, 5.0};
+    scrng.compute_scaling (sm::interval<float>{-10.0f, 10.0f});
 
-    sm::range<float> for_scaling = { -1.0f, 20.0f };
-    sm::range<double> r_tformed = scrng.transform (for_scaling);
-    sm::range<float> r_itfromed = scrng.inverse (r_tformed);
+    sm::interval<float> for_scaling = { -1.0f, 20.0f };
+    sm::interval<double> r_tformed = scrng.transform (for_scaling);
+    sm::interval<float> r_itfromed = scrng.inverse (r_tformed);
     std::cout << for_scaling << " scales to " <<  r_tformed << " which inverses back to " << r_itfromed << std::endl;
 
     sm::scale<double, float> nullsc1;

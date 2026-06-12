@@ -32,7 +32,7 @@ module;
 export module sm.vvec;
 
 export import sm.mathconst;
-export import sm.range;
+export import sm.interval;
 import sm.random;
 import sm.trait_tests;
 
@@ -407,7 +407,7 @@ export namespace sm
         template <typename Sy=S> requires (!std::is_integral_v<std::decay_t<Sy>>)
         void rescale() noexcept
         {
-            sm::range<Sy> r = this->minmax();
+            sm::interval<Sy> r = this->minmax();
             Sy m = r.max - r.min;
             Sy g = r.min;
             auto rescale_op = [m, g](Sy f) { return (f - g)/m; };
@@ -418,7 +418,7 @@ export namespace sm
         template <typename Sy=S> requires (!std::is_integral_v<std::decay_t<Sy>>)
         void rescale_neg() noexcept
         {
-            sm::range<Sy> r = this->minmax();
+            sm::interval<Sy> r = this->minmax();
             Sy m = r.max - r.min;
             Sy g = r.max;
             auto rescale_op = [m, g](Sy f) { return (f - g)/m; };
@@ -429,7 +429,7 @@ export namespace sm
         template <typename Sy=S> requires (!std::is_integral_v<std::decay_t<Sy>>)
         void rescale_sym() noexcept
         {
-            sm::range<Sy> r = this->minmax();
+            sm::interval<Sy> r = this->minmax();
             Sy m = (r.max - r.min) / Sy{2};
             Sy g = (r.max + r.min) / Sy{2};
             auto rescale_op = [m, g](Sy f) { return (f - g)/m; };
@@ -896,15 +896,15 @@ export namespace sm
         //! pass 'true' as the template arg, then you can test for nans, and return the min/max of
         //! the rest of the numbers
         template<bool test_for_nans = false>
-        sm::range<S> minmax() const noexcept { return this->range<test_for_nans>(); }
+        sm::interval<S> minmax() const noexcept { return this->range<test_for_nans>(); }
 
         //! \return the range of values in the vvec (the min and max values). If you pass 'true' as
         //! the template arg, then you can test for nans, and return the min/max of the rest of the
         //! numbers
         template<bool test_for_nans = false, typename Sy = S> requires std::is_scalar_v<std::decay_t<Sy>>
-        sm::range<S> range() const noexcept
+        sm::interval<S> range() const noexcept
         {
-            sm::range<S> r;
+            sm::interval<S> r;
             if constexpr (test_for_nans) {
                 if (this->has_nan()) {
                     // Deal with non-numbers by removing them
@@ -930,12 +930,12 @@ export namespace sm
          * For vvec of vecs. The range of vec lengths in this vvec of vecs. Define this as the
          * shortest vector to the longest vector.
          *
-         * \return an sm::range containing the shortest vector as min and the longest vector as max.
+         * \return an sm::interval containing the shortest vector as min and the longest vector as max.
          */
         template <typename Sy=S> requires sm::is_copyable_fixedsize<std::decay_t<Sy>>::value
-        sm::range<S> range_of_length() const noexcept
+        sm::interval<S> range_of_length() const noexcept
         {
-            sm::range<S> r;
+            sm::interval<S> r;
             r.min = this->shortest();
             r.max = this->longest();
             return r;
@@ -951,7 +951,7 @@ export namespace sm
          * Same as vvec<>::extent
          */
         template <typename Sy=S> requires sm::is_copyable_fixedsize<std::decay_t<Sy>>::value
-        sm::range<S> range() const noexcept
+        sm::interval<S> range() const noexcept
         {
             constexpr S s = {};                  // A dummy variable whose size is stored as sz
             constexpr std::size_t sz = s.size(); // Should work for S=std::array or sm::vec
@@ -971,12 +971,12 @@ export namespace sm
                     max[i] = (*this)[j][i] > max[i] ? (*this)[j][i] : max[i];
                 }
             }
-            return sm::range<S>{min, max};
+            return sm::interval<S>{min, max};
         }
 
-        // The extent if S is scalar is just the same as range; a sm::range<S> is returned.
+        // The extent if S is scalar is just the same as range; a sm::interval<S> is returned.
         template <typename Sy=S> requires std::is_scalar_v<std::decay_t<Sy>>
-        sm::range<S> extent() const noexcept { return this->range(); }
+        sm::interval<S> extent() const noexcept { return this->range(); }
 
         /*!
          * For a vvec of vecs/arrays extent (that is, S is a sm::vec or std::array),
@@ -988,7 +988,7 @@ export namespace sm
          * (sm::is_copyable_fixedsize).
          */
         template <typename Sy=S> requires sm::is_copyable_fixedsize<std::decay_t<Sy>>::value
-        sm::range<S> extent() const noexcept { return this->range(); }
+        sm::interval<S> extent() const noexcept { return this->range(); }
 
         /*!
          * \brief Finds the 'crossing points' of a function

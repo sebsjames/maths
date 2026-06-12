@@ -76,6 +76,13 @@ int main()
     std::vector<float> tenrns34 = rubndf4.get(10);
     for (auto d : tenrns34) { std::cout << d << std::endl; }
 
+    // Another way to define the interval which the rand_uniform returns. Note it has to be semi-open (closed, open)
+    constexpr sm::interval<float, sm::interval_endpoint::closed, sm::interval_endpoint::open> ivl = {0.0f, 1000.0f};
+    sm::rand_uniform<float, std::mt19937> randintvl (ivl);
+    std::cout << "Ten random float numbers from the third 'default seed rng', specified with the sm::interval " << ivl << "\n";
+    std::vector<float> tenrndivl = randintvl.get(10);
+    for (auto d : tenrndivl) { std::cout << d << std::endl; }
+
     // Normally distributed numbers:
     sm::rand_normal<double, std::mt19937_64> rnorm (5, 0.1);
     std::vector<double> tennorms = rnorm.get(10);

@@ -1,6 +1,6 @@
 #include <iostream>
 
-import sm.range;
+import sm.interval;
 import sm.vvec;
 import sm.histo;
 
@@ -13,7 +13,7 @@ int main()
 
     std::cout << "For data: " << numbers << " arranged into three bins:\n\n";
 
-    sm::range<int> _datarange = h.datarange; // Data range in terms of first histo template param type
+    sm::interval<int> _datarange = h.datarange; // Data range in terms of first histo template param type
     std::cout << "data range is: " << _datarange << std::endl;
 
     std::size_t _datacount = h.datacount; // Counts use the std::size_t type
