@@ -1,6 +1,5 @@
 # Seb's maths library
 
-![GCC 14](https://github.com/sebsjames/maths/actions/workflows/ubuntu-cmakeninja-gcc14.yml/badge.svg)
 ![GCC 15](https://github.com/sebsjames/maths/actions/workflows/ubuntu-cmakeninja-gcc15.yml/badge.svg)
 ![Clang 18](https://github.com/sebsjames/maths/actions/workflows/ubuntu-cmakeninja-clang18.yml/badge.svg)
 ![Clang 20](https://github.com/sebsjames/maths/actions/workflows/ubuntu-cmakeninja-clang20.yml/badge.svg)
@@ -96,11 +95,11 @@ There is also one test program (mat_4x4_vseigen.cpp) that will use the Eigen mat
 
 ## Build requirements
 
-Minimum compilers: g++-14*, clang++-18, Visual Studio 2022.
+Minimum compilers: g++-15, clang++-18, Visual Studio 2022.
 You will need cmake version 3.28.5 as a minimum.
 Ninja is required as a partner for cmake because GNU make does not yet support C++-20 modules.
 
-*gcc 14 can only compile a subset of the test programs. gcc 15 compiles all the tests. gcc 16 may be required to compile the modules version of [mathplot](https://github.com/sebsjames/mathplot).*
+gcc 15 compiles all the unit tests in *this* repository. If you wish to visualize with [mathplot](https://github.com/sebsjames/mathplot), you'll need gcc 16 (or clang-20 and up) for that code.
 
 ### Installing Clang on Ubuntu 24
 
@@ -112,31 +111,50 @@ sudo apt install clang-18 clang-tools-18 # need both.
 
 ### Installing GCC on Ubuntu 24
 
-gcc 14 is available in the default repositories, but to install the recommended gcc 15, you can add an extra repository:
+To install gcc 15, you can add an extra repository:
 
 ```bash
-sudo add-apt-repository ppa:ubuntu-toolchain-r/test # provides gcc-15
+sudo add-apt-repository ppa:ubuntu-toolchain-r/test # provides recent gcc versions
 sudo apt install gcc-15 g++-15
 ```
+
+At time of writing, gcc-16 is just released. I have been compiling it
+from source. It may be ok to install from the ubuntu-toolchain repo,
+though right now, the version there is slightly behind the released
+gcc-16 and doesn't complete the build.
 
 ### Building with Clang
 
 ```bash
 mkdir build
 cd build
-# A cmake call something like (if you want to use clang and your default libc++/libstdc++:
+# A cmake call something like (if you want to use clang and your default libc++/libstdc++):
 CC=clang-20 CXX=clang++-20 cmake .. -GNinja
-# Optionally add -DCMAKE_CXX_FLAGS="-stdlib=libc++" to compile with libc++ if it not your default
-# possibly also -DCMAKE_EXE_LINKER_FLAGS="-stdlib=libc++ -lc++abi"
+# Optionally add -DCMAKE_CXX_FLAGS="-stdlib=libc++" to compile with libc++ if it is not your default
+# possibly also: -DCMAKE_EXE_LINKER_FLAGS="-stdlib=libc++ -lc++abi"
 ninja
 ```
 
-### Building with GCC
+### Building with a package-installed GCC
+
+For a correctly installed GCC, you can build like this:
 
 ```bash
 mkdir build
 cd build
-# A cmake call something like (if you want to use gcc and your default c++ runtime library
+# A cmake call something like
 CC=gcc-15 CXX=g++-15 cmake .. -GNinja
+ninja
+```
+### Building with a from-source-compiled GCC
+
+If you're building with a from-source compiled version of gcc, then you have to take a little care to ensure that you get the right associated c++ runtime library rather than the possibly out-of-date one that's installed on your system.
+One way to do this is to ask the compiler to link libstdc++ statically. This seems to ensure that you get the exact libstdc++ that's associated with your compiler.
+I installed gcc 16 in /opt/gcc-16 so my build was:
+
+```bash
+mkdir build
+cd build
+CC=/opt/gcc-16/bin/gcc CXX=/opt/gcc-16/bin/g++ cmake .. -GNinja -DCMAKE_CXX_FLAGS="-static-libstdc++"
 ninja
 ```

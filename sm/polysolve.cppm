@@ -17,7 +17,7 @@
  * - Handles real and complex roots, multiple roots, degenerate cases
  *
  * Usage:
- *   #include <sm/polysolve>
+ *   import sm.polysolve;
  *   std::vector<double> coeffs = {6.0, -5.0, 1.0};         // [a0, a1, a2] for x^2 - 5x + 6 = 0
  *   std::vector<std::complex<double>> roots = polysolve::solve<double> (coeffs);
  *   std::vector<double> real_roots = polysolve::real<double> (coeffs);
