@@ -6,40 +6,6 @@ include_directories(BEFORE ${PROJECT_SOURCE_DIR})
 # Each C++ module file has to be listed here (as they don't have a .cppm or .ixx file suffix)
 set_source_files_properties (${SM_ALL_MODULES} PROPERTIES LANGUAGE CXX)
 
-# sm::range
-add_executable(range_intersects range_intersects.cpp)
-# FIXME: Make a macro that takes name (range_intersects here) and
-# SM_VEC_MODULES etc and makes this line, after first making the list
-# of modules unique.
-target_sources_modules(range_intersects MODULES ${SM_VEC_MODULES})
-add_test(range_intersects range_intersects)
-
-# sm::range
-add_executable(range_adding range_adding.cpp)
-target_sources_modules(range_adding MODULES ${SM_VEC_MODULES})
-add_test(range_adding range_adding)
-
-# sm::range
-add_executable(range1 range1.cpp)
-target_compile_features(range1 PUBLIC   cxx_std_23)
-target_sources_modules(range1 MODULES ${SM_RANGE_MODULES})
-add_test(range1 range1)
-
-# sm::range
-add_executable(range_constexpr1 range_constexpr1.cpp)
-target_sources_modules(range_constexpr1 MODULES ${SM_RANGE_MODULES})
-add_test(range_constexpr1 range_constexpr1)
-
-# sm::range
-add_executable(range_complex1 range_complex1.cpp)
-target_sources_modules(range_complex1 MODULES ${SM_RANGE_MODULES})
-add_test(range_complex1 range_complex1)
-
-# sm::range
-add_executable(range_vector1 range_vector1.cpp)
-target_sources_modules(range_vector1 MODULES ${SM_VEC_MODULES})
-add_test(range_vector1 range_vector1)
-
 # sm::interval
 add_executable(interval_intersects interval_intersects.cpp)
 target_sources_modules(interval_intersects MODULES ${SM_VEC_MODULES} ${SM_INTERVAL_MODULES})
