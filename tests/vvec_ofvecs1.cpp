@@ -8,7 +8,7 @@
 
 import sm.vvec;
 import sm.vec;
-import sm.range; // for clang
+import sm.interval; // for clang
 
 int main()
 {
@@ -102,7 +102,7 @@ int main()
         --rtn;
     }
 
-    sm::range<sm::vec<double, 3>> vextnts = vvshrt.extent();
+    sm::interval<sm::vec<double, 3>> vextnts = vvshrt.extent();
     std::cout << "vextnts = " << vextnts << std::endl;
 
     if (vextnts.min == sm::vec<double, 3>{-6.78819124e-05, -0, 0}
@@ -113,7 +113,7 @@ int main()
     }
 
     // Check scalar vvec::extent() function (which calls back to vvec::range())
-    sm::range<float> vfr = sm::vvec<float>{1, 2, 3, 4}.extent();
+    sm::interval<float> vfr = sm::vvec<float>{1, 2, 3, 4}.extent();
     std::cout << "scalar range: " << vfr << std::endl;
     vfr = sm::vvec<float>{1, 2, -3, 4}.extent();
     std::cout << "scalar range: " << vfr << std::endl;
@@ -129,7 +129,7 @@ int main()
     };
     std::array<int, 2> themin = {-7, -8};
     std::array<int, 2> themax = {90, 8};
-    sm::range<std::array<int, 2>> vvair = vvai.extent();
+    sm::interval<std::array<int, 2>> vvair = vvai.extent();
     if (themin != vvair.min || themax != vvair.max) { --rtn; }
 
 #if 0

@@ -13,7 +13,7 @@
 #include <array>
 
 import sm.vec;
-import sm.range; // for clang. sm.vec export-imports this which works for g++-15.
+import sm.interval; // for clang. sm.vec export-imports this which works for g++-15.
 import sm.mathconst;
 
 constexpr sm::vec<double, 3> vec_add()
@@ -232,14 +232,14 @@ constexpr sm::vec<double, 3> vec_floatchanges()
     return v2;
 }
 
-constexpr sm::range<double> vec_range()
+constexpr sm::interval<double> vec_range()
 {
     sm::vec<double> v = {1, 2, 3};
-    sm::range<double> r = v.range();
+    sm::interval<double> r = v.range();
     return r;
 }
 
-constexpr sm::range<double> vec_rescale()
+constexpr sm::interval<double> vec_rescale()
 {
     sm::vec<double, 5> v = { 1, 2, 3, 4, 5 };
     v.rescale_neg();
@@ -513,10 +513,10 @@ int main()
         std::cout << "Fail 23" << result23 << "\n"; rtn -= 1;
     }
 
-    constexpr sm::range<double> result24 = vec_range();
+    constexpr sm::interval<double> result24 = vec_range();
     if (result24.min != 1 || result24.max != 3) { std::cout << "Fail 24\n"; rtn -= 1; }
 
-    constexpr sm::range<double> result25 = vec_rescale();
+    constexpr sm::interval<double> result25 = vec_rescale();
     if (result25.min != 0 || result25.max != 1) { std::cout << "Fail 25\n"; rtn -= 1; }
 
     constexpr sm::vec<double, 6> result26 = vec_rotate();

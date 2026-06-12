@@ -124,7 +124,7 @@ export namespace sm
         T kappa = T{100};                   // Von Mises concentration parameter
         sm::vvec<T> a = {};                 // Acceleration values
         // Uniform RNG range outbound [0, 0.05]
-        sm::range<T> amm = { T{0}, T{0.005} };
+        sm::interval<T> amm = { T{0}, T{0.005} };
         // how often does the acceleration change?
         std::uint32_t a_tau = 50;
 

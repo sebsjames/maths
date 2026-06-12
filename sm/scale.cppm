@@ -55,7 +55,7 @@ export module sm.scale;
 
 import sm.trait_tests;
 export import sm.vvec;
-export import sm.range;
+export import sm.interval;
 
 export namespace sm
 {
@@ -267,15 +267,15 @@ export namespace sm
         }
 
         //! Transform a range
-        sm::range<S> transform (const sm::range<T>& data)
+        sm::interval<S> transform (const sm::interval<T>& data)
         {
-            return sm::range<S>{ this->transform_one (data.min), this->transform_one (data.max) };
+            return sm::interval<S>{ this->transform_one (data.min), this->transform_one (data.max) };
         }
 
         //! Inverse transform a range
-        sm::range<T> inverse (const sm::range<S>& data)
+        sm::interval<T> inverse (const sm::interval<S>& data)
         {
-            return sm::range<T>{ this->inverse_one (data.min), this->inverse_one (data.max) };
+            return sm::interval<T>{ this->inverse_one (data.min), this->inverse_one (data.max) };
         }
 
         /*!
@@ -288,7 +288,7 @@ export namespace sm
          * \param input_max The maximum value of the input data
          */
         virtual void compute_scaling (const T input_min, const T input_max) = 0;
-        virtual void compute_scaling (const sm::range<T>& input_range) = 0;
+        virtual void compute_scaling (const sm::interval<T>& input_range) = 0;
 
         //! Set the identity scaling (a linear scaling with 0 mapping to 0 and 1 mapping to 1)
         virtual void identity_scaling() = 0;
@@ -321,13 +321,13 @@ export namespace sm
         void compute_scaling_from_data (const Container& data)
         {
             using Tc = typename Container::value_type;
-            sm::range<Tc> mm = sm::range<Tc>::get_from (data);
+            sm::interval<Tc> mm = sm::interval<Tc>::get_from (data);
             this->compute_scaling (mm.min, mm.max);
         }
 
         void compute_scaling_from_data (const std::span<T> data)
         {
-            sm::range<T> mm = sm::range<T>::get_from (data);
+            sm::interval<T> mm = sm::interval<T>::get_from (data);
             this->compute_scaling (mm.min, mm.max);
         }
 
@@ -414,7 +414,7 @@ export namespace sm
         using S_el=std::remove_reference_t<decltype(*std::begin(std::declval<S&>()))>;
 
         //! The output range required. Change if you want to scale to something other than [0, 1]
-        sm::range<S_el> output_range = sm::range<S_el>(S_el{0}, S_el{1});
+        sm::interval<S_el> output_range = sm::interval<S_el>(S_el{0}, S_el{1});
 
         //! Transform a single (math) vector T into a (math) vector S
         S transform_one (const T& datum) const
@@ -469,7 +469,7 @@ export namespace sm
             return rtn;
         }
 
-        void compute_scaling (const sm::range<T>& input_range) { this->compute_scaling (input_range.min, input_range.max); }
+        void compute_scaling (const sm::interval<T>& input_range) { this->compute_scaling (input_range.min, input_range.max); }
         void compute_scaling (const T input_min, const T input_max)
         {
             if (this->type != scaling_function::linear) {
@@ -597,7 +597,7 @@ export namespace sm
     struct scale_impl<1, T, S> : public scale_impl_base<T, S>
     {
         //! The output range required. Change if you want to scale to something other than [0, 1]
-        sm::range<S> output_range = sm::range<S>(S{0}, S{1});
+        sm::interval<S> output_range = sm::interval<S>(S{0}, S{1});
 
         S transform_one (const T& datum) const
         {
@@ -646,7 +646,7 @@ export namespace sm
             return rtn;
         }
 
-        void compute_scaling (const sm::range<T>& input_range) { this->compute_scaling (input_range.min, input_range.max); }
+        void compute_scaling (const sm::interval<T>& input_range) { this->compute_scaling (input_range.min, input_range.max); }
         void compute_scaling (const T input_min, const T input_max)
         {
             if (this->type == scaling_function::logarithmic) {
