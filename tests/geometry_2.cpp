@@ -1,14 +1,14 @@
 #include <iostream>
 
 import sm.geometry;
-import sm.range;
+import sm.interval;
 import sm.vec;
 
 int main()
 {
     int rtn = 0;
 
-    sm::range<sm::vec<float>> box = { {0,0,0}, {1,1,1} };
+    sm::interval<sm::vec<float>> box = { {0,0,0}, {1,1,1} };
 
     sm::vec<float> p0 = {0.5, -2, 0.5};
     sm::vec<float> p1 = {0.5,  2, 0.5};

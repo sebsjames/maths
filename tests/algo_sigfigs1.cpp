@@ -1,6 +1,6 @@
 #include <iostream>
 
-import sm.range;
+import sm.interval;
 import sm.algo;
 
 int main()
@@ -12,23 +12,23 @@ int main()
 
     float f = 3.999999999998f;
     std::cout << "\nTest " << tnum << ": " <<  f << std::endl;
-    sm::range<int> sf = sm::algo::significant_cols (f);
+    sm::interval<int> sf = sm::algo::significant_cols (f);
     std::cout << "sf: " << sf << std::endl;
-    if (sf != sm::range<int>{0, 0}) { std::cout << "Fail " << tnum << std::endl; --rtn; }
+    if (sf != sm::interval<int>{0, 0}) { std::cout << "Fail " << tnum << std::endl; --rtn; }
     ++tnum;
 
     f = 4.123f;
     std::cout << "\nTest " << tnum << ": " <<  f << std::endl;
     sf = sm::algo::significant_cols (f);
     std::cout << "sf: " << sf << std::endl;
-    if (sf != sm::range<int>{-3, 0}) { std::cout << "Fail " << tnum << std::endl; --rtn; }
+    if (sf != sm::interval<int>{-3, 0}) { std::cout << "Fail " << tnum << std::endl; --rtn; }
     ++tnum;
 
     f = -4.123f;
     std::cout << "\nTest " << tnum << ": " <<  f << std::endl;
     sf = sm::algo::significant_cols (f);
     std::cout << "sf: " << sf << std::endl;
-    if (sf != sm::range<int>{-3, 0}) { std::cout << "Fail " << tnum << std::endl; --rtn; }
+    if (sf != sm::interval<int>{-3, 0}) { std::cout << "Fail " << tnum << std::endl; --rtn; }
     ++tnum;
 
     std::cout << "\nTest " << tnum << ": " <<  f << std::endl;
@@ -41,21 +41,21 @@ int main()
     std::cout << "\nTest " << tnum << ": " <<  f << std::endl;
     sf = sm::algo::significant_cols (f);
     std::cout << "sf: " << sf << std::endl;
-    if (sf != sm::range<int>{-6, 0}) { std::cout << "Fail " << tnum << std::endl; --rtn; }
+    if (sf != sm::interval<int>{-6, 0}) { std::cout << "Fail " << tnum << std::endl; --rtn; }
     ++tnum;
 
     f = 23948318.0f;
     std::cout << "\nTest " << tnum << ": " <<  f << std::endl;
     sf = sm::algo::significant_cols (f);
     std::cout << "sf: " << sf << std::endl;
-    if (sf != sm::range<int>{1, 7}) { std::cout << "Fail " << tnum << std::endl; --rtn; }
+    if (sf != sm::interval<int>{1, 7}) { std::cout << "Fail " << tnum << std::endl; --rtn; }
     ++tnum;
 
     f = 2394000.0f;
     std::cout << "\nTest " << tnum << ": " <<  f << std::endl;
     sf = sm::algo::significant_cols (f);
     std::cout << "sf: " << sf << std::endl;
-    if (sf != sm::range<int>{3, 6}) { std::cout << "Fail " << tnum << std::endl; --rtn; }
+    if (sf != sm::interval<int>{3, 6}) { std::cout << "Fail " << tnum << std::endl; --rtn; }
     ++tnum;
 
     // This example gives us the 'rounding problem'
@@ -63,42 +63,42 @@ int main()
     std::cout << "\nTest " << tnum << ": " <<  d << std::endl;
     sf = sm::algo::significant_cols (d);
     std::cout << "sf: " << sf << std::endl;
-    if (sf != sm::range<int>{-3, 7}) { std::cout << "Fail " << tnum << std::endl; --rtn; }
+    if (sf != sm::interval<int>{-3, 7}) { std::cout << "Fail " << tnum << std::endl; --rtn; }
     ++tnum;
 
     d = 23.123832;
     std::cout << "\nTest " << tnum << ": " <<  d << std::endl;
     sf = sm::algo::significant_cols (d);
     std::cout << "sf: " << sf << std::endl;
-    if (sf != sm::range<int>{-6, 1}) { std::cout << "Fail " << tnum << std::endl; --rtn; }
+    if (sf != sm::interval<int>{-6, 1}) { std::cout << "Fail " << tnum << std::endl; --rtn; }
     ++tnum;
 
     // Test nan and constexpr
     std::cout << "\nTest " << tnum << ": " <<  std::numeric_limits<double>::quiet_NaN() << std::endl;
-    constexpr sm::range<int> sfce = sm::algo::significant_cols (std::numeric_limits<double>::quiet_NaN());
+    constexpr sm::interval<int> sfce = sm::algo::significant_cols (std::numeric_limits<double>::quiet_NaN());
     std::cout << "sf: " << sfce << std::endl;
-    if (sfce != sm::range<int>{0, 0}) { std::cout << "Fail " << tnum << std::endl; --rtn; }
+    if (sfce != sm::interval<int>{0, 0}) { std::cout << "Fail " << tnum << std::endl; --rtn; }
     ++tnum;
 
     d = 2.999275;
     std::cout << "\nTest " << tnum << ": " <<  d << std::endl;
     sf = sm::algo::significant_cols (d);
     std::cout << "sf: " << sf << std::endl;
-    if (sf != sm::range<int>{-6, 0}) { std::cout << "Fail " << tnum << std::endl; --rtn; }
+    if (sf != sm::interval<int>{-6, 0}) { std::cout << "Fail " << tnum << std::endl; --rtn; }
     ++tnum;
 
     d = 2.9999275;
     std::cout << "\nTest " << tnum << ": " <<  d << std::endl;
     sf = sm::algo::significant_cols (d);
     std::cout << "sf: " << sf << std::endl;
-    if (sf != sm::range<int>{-7, 0}) { std::cout << "Fail " << tnum << std::endl; --rtn; }
+    if (sf != sm::interval<int>{-7, 0}) { std::cout << "Fail " << tnum << std::endl; --rtn; }
     ++tnum;
 
     d = 2.9999975;
     std::cout << "\nTest " << tnum << ": " <<  d << std::endl;
     sf = sm::algo::significant_cols (d);
     std::cout << "sf: " << sf << std::endl;
-    if (sf != sm::range<int>{-7, 0}) { std::cout << "Fail " << tnum << std::endl; --rtn; }
+    if (sf != sm::interval<int>{-7, 0}) { std::cout << "Fail " << tnum << std::endl; --rtn; }
     ++tnum;
 
     // Back to float
@@ -106,21 +106,21 @@ int main()
     std::cout << "\nTest " << tnum << ": " <<  f << std::endl;
     sf = sm::algo::significant_cols (f);
     std::cout << "sf: " << sf << std::endl;
-    if (sf != sm::range<int>{-6, 0}) { std::cout << "Fail " << tnum << std::endl; --rtn; }
+    if (sf != sm::interval<int>{-6, 0}) { std::cout << "Fail " << tnum << std::endl; --rtn; }
     ++tnum;
 
     f = 2.9999995f;
     std::cout << "\nTest " << tnum << ": " <<  f << std::endl;
     sf = sm::algo::significant_cols (f);
     std::cout << "sf: " << sf << std::endl;
-    if (sf != sm::range<int>{0, 0}) { std::cout << "Fail " << tnum << std::endl; --rtn; }
+    if (sf != sm::interval<int>{0, 0}) { std::cout << "Fail " << tnum << std::endl; --rtn; }
     ++tnum;
 
     f = 9.36f;
     std::cout << "\nTest " << tnum << ": " <<  f << std::endl;
     sf = sm::algo::significant_cols (f);
     std::cout << "sf: " << sf << std::endl;
-    if (sf != sm::range<int>{-2, 0}) { std::cout << "Fail " << tnum << std::endl; --rtn; }
+    if (sf != sm::interval<int>{-2, 0}) { std::cout << "Fail " << tnum << std::endl; --rtn; }
     ++tnum;
 
 

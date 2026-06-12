@@ -111,6 +111,18 @@ export namespace sm
         }
 
         template<typename Ty=T, interval_endpoint infimum_y, interval_endpoint supremum_y>
+        requires (sm::number_type<Ty>::value == 0) // vector elements
+        constexpr bool operator== (const interval<Ty, infimum_y, supremum_y>& rhs) const noexcept
+        {
+            // Assume our vector elements have their own operator==. This will work for sm::interval<sm::vec<>>
+            if constexpr (infimum_y != infimum || supremum_y != supremum) {
+                return false;
+            } else {
+                return this->min == rhs.min && this->max == rhs.max;
+            }
+        }
+
+        template<typename Ty=T, interval_endpoint infimum_y, interval_endpoint supremum_y>
         requires std::is_floating_point_v<Ty>
         constexpr bool operator== (const interval<Ty, infimum_y, supremum_y>& rhs) const noexcept
         {

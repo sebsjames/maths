@@ -6,7 +6,7 @@ import sm.constexpr_math;
 import sm.quaternion;
 import sm.vec;
 import sm.random;
-import sm.range; // for clang
+import sm.interval;
 
 int main()
 {
@@ -135,7 +135,7 @@ int main()
     sm::rand_uniform<float> rngf;
     sm::vec<float> vecf;
     float amountf;
-    sm::range<float> metric_rangef (0.0f, 0.0f);
+    sm::interval<float> metric_rangef (0.0f, 0.0f);
     for (unsigned int i = 0; i < 1000000; ++i) {
         rngf.get(vecf);
         vecf.renormalize();
@@ -156,7 +156,7 @@ int main()
     sm::rand_uniform<double> rngd;
     sm::vec<double> vecd;
     double amountd;
-    sm::range<double> metric_ranged (0.0f, 0.0f);
+    sm::interval<double> metric_ranged (0.0f, 0.0f);
     for (unsigned int i = 0; i < 1000000; ++i) {
         rngd.get(vecd);
         vecd.renormalize();

@@ -18,7 +18,7 @@ export module sm.histo;
 
 import sm.vec;
 import sm.vvec;
-import sm.range;
+import sm.interval;
 
 export namespace sm
 {
@@ -81,7 +81,7 @@ export namespace sm
          * specify this.
          */
         template < template <typename, typename> typename Container, typename Allocator=std::allocator<H> >
-        histo (const Container<H, Allocator>& data, std::size_t n, const sm::range<H>& manual_datarange)
+        histo (const Container<H, Allocator>& data, std::size_t n, const sm::interval<H>& manual_datarange)
         {
             this->init (data, n, manual_datarange);
         }
@@ -105,7 +105,7 @@ export namespace sm
          * specify this.
          */
         template < template <typename, typename> typename Container, typename Allocator=std::allocator<H> >
-        void init (const Container<H, Allocator>& data, std::size_t n, const sm::range<H>& manual_datarange)
+        void init (const Container<H, Allocator>& data, std::size_t n, const sm::interval<H>& manual_datarange)
         {
             this->datarange = { H{0}, H{0} };
             this->bins.resize (n, T{0});
@@ -122,10 +122,10 @@ export namespace sm
             // Compute bin widths from range of data and n.
             if (manual_datarange.min == std::numeric_limits<H>::max()
                 && manual_datarange.max == std::numeric_limits<H>::max()) {
-                this->datarange = sm::range<H>::get_from (data);
+                this->datarange = sm::interval<H>::get_from (data);
             } else {
                 // Check manual_datarange
-                sm::range<H> actual_datarange = sm::range<H>::get_from (data);
+                sm::interval<H> actual_datarange = sm::interval<H>::get_from (data);
                 if (!manual_datarange.contains (actual_datarange)) {
                     throw std::runtime_error ("sm::histo: Make sure the manual_datarange is *larger* than the data's own datarange");
                 }
@@ -167,7 +167,7 @@ export namespace sm
         template < template <typename, typename> typename Container, typename Allocator=std::allocator<H> >
         void init (const Container<H, Allocator>& data, std::size_t n)
         {
-            sm::range<H> r { std::numeric_limits<H>::max(), std::numeric_limits<H>::max() };
+            sm::interval<H> r { std::numeric_limits<H>::max(), std::numeric_limits<H>::max() };
             this->init (data, n, r);
         }
 
@@ -198,7 +198,7 @@ export namespace sm
         T proportion_above (const T& position) const noexcept { return T{1} - this->proportion_below (position); }
 
         //! The max and min of the histogram data. Computed in constructor.
-        sm::range<H> datarange;
+        sm::interval<H> datarange;
         //! how many elements were there in data?
         std::size_t datacount = 0u;
         //! A computed width for each bin. Computed from the values that appear in the data

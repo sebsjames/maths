@@ -7,7 +7,7 @@
 import sm.random;
 import sm.vvec;
 import sm.bootstrap;
-import sm.range; // for clang
+import sm.interval;
 import sm.vec; // for clang
 
 int main()
@@ -72,7 +72,7 @@ int main()
         ++n;
     }
 
-    sm::range<double> r = non_sig_diffs.minmax();
+    sm::interval<double> r = non_sig_diffs.minmax();
     std::cout << "Range of significance levels for non different distributions was " << r << std::endl;
 
     // Statistical variability seems to allow quite a few unexpected results. Pass the
