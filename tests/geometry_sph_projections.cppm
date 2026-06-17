@@ -3,13 +3,18 @@
 // This just tests a few cases of latlong -> xy and back.
 //
 // A good unit test would test that the forward transform generated expected numbers, too.
+module;
 
 #include <iostream>
 #include <limits>
 
+export module smtest.geometry_sph_projections;
+
 import sm.vec;
 import sm.geometry;
 
+export namespace smtest::geometry_sph_projections
+{
 int main()
 {
     int rtn = 0;
@@ -61,4 +66,5 @@ int main()
     if ((latlong - mll_back).abs() > thr) { --rtn; }
 
     return rtn;
+}
 }

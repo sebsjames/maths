@@ -1,9 +1,15 @@
+module;
+
 #include <iostream>
+
+export module smtest.geometry_2;
 
 import sm.geometry;
 import sm.range;
 import sm.vec;
 
+export namespace smtest::geometry_2
+{
 int main()
 {
     int rtn = 0;
@@ -21,4 +27,5 @@ int main()
 
     std::cout << "Test " << (rtn < 0 ? "Failed" : "Passed") << std::endl;
     return rtn;
+}
 }

@@ -1,12 +1,17 @@
 /*
  * Testing ray intersection functions
  */
+module;
 
 #include <iostream>
+
+export module smtest.geometry_3;
 
 import sm.vec;
 import sm.geometry;
 
+export namespace smtest::geometry_3
+{
 int main()
 {
     int rtn = 0;
@@ -98,4 +103,5 @@ int main()
     if (rtn) { std::cout << "FAILED\n"; } else { std::cout << "SUCCEEDED\n"; }
 
     return rtn;
+}
 }

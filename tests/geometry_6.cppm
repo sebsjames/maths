@@ -1,13 +1,18 @@
 /*
  * Testing triangle area
  */
+module;
 
 #include <iostream>
+
+export module smtest.geometry_6;
 
 import sm.vec;
 import sm.mat;
 import sm.geometry;
 
+export namespace smtest::geometry_6
+{
 int main()
 {
     int rtn = 0;
@@ -56,4 +61,5 @@ int main()
     }
 
     return rtn;
+}
 }

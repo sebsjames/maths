@@ -1,8 +1,14 @@
+module;
+
 #include <iostream>
+
+export module smtest.geometry_xyz_to_latlong;
 
 import sm.vec;
 import sm.geometry;
 
+export namespace smtest::geometry_xyz_to_latlong
+{
 int main()
 {
     int rtn = 0;
@@ -50,4 +56,5 @@ int main()
     if (ll[1] != -sm::mathconst<float>::pi_over_2) { std::cout << "Failed on -y axis\n"; --rtn; }
 
     return rtn;
+}
 }

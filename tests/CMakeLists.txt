@@ -458,33 +458,20 @@ target_sources_modules(algo_roundtocol1 MODULES ${SM_ALGO_MODULES} ${SM_VVEC_MOD
 add_test(algo_roundtocol1 algo_roundtocol1)
 
 if((CMAKE_CXX_COMPILER_ID MATCHES "Clang") OR (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 14.99))
-  my_add_executable(geometry_2 geometry_2.cpp)
-  target_sources_modules(geometry_2 MODULES ${SM_GEOMETRY_MODULES})
-  add_test(geometry_2 geometry_2)
 
-  my_add_executable(geometry_3 geometry_3.cpp)
-  target_sources_modules(geometry_3 MODULES ${SM_GEOMETRY_MODULES})
-  add_test(geometry_3 geometry_3)
-
-  my_add_executable(geometry_4 geometry_4.cpp)
-  target_sources_modules(geometry_4 MODULES ${SM_GEOMETRY_MODULES})
-  add_test(geometry_4 geometry_4)
-
-  my_add_executable(geometry_5 geometry_5.cpp)
-  target_sources_modules(geometry_5 MODULES ${SM_GEOMETRY_MODULES})
-  add_test(geometry_5 geometry_5)
-
-  my_add_executable(geometry_6 geometry_6.cpp)
-  target_sources_modules(geometry_6 MODULES ${SM_MAT_MODULES} ${SM_GEOMETRY_MODULES})
-  add_test(geometry_6 geometry_6)
-
-  my_add_executable(geometry_xyz_to_latlong geometry_xyz_to_latlong.cpp)
-  target_sources_modules(geometry_xyz_to_latlong MODULES ${SM_GEOMETRY_MODULES})
-  add_test(geometry_xyz_to_latlong geometry_xyz_to_latlong)
-
-  my_add_executable(geometry_sph_projections geometry_sph_projections.cpp)
-  target_sources_modules(geometry_sph_projections MODULES ${SM_GEOMETRY_MODULES})
-  add_test(geometry_sph_projections geometry_sph_projections)
+  add_executable(geometry geometry.cpp)
+  target_sources_modules(geometry MODULES
+    ${SM_MAT_MODULES}
+    ${SM_GEOMETRY_MODULES}
+    ${PROJECT_SOURCE_DIR}/tests/geometry_2.cppm
+    ${PROJECT_SOURCE_DIR}/tests/geometry_3.cppm
+    ${PROJECT_SOURCE_DIR}/tests/geometry_4.cppm
+    ${PROJECT_SOURCE_DIR}/tests/geometry_5.cppm
+    ${PROJECT_SOURCE_DIR}/tests/geometry_6.cppm
+    ${PROJECT_SOURCE_DIR}/tests/geometry_xyz_to_latlong.cppm
+    ${PROJECT_SOURCE_DIR}/tests/geometry_sph_projections.cppm
+  )
+  add_test(geometry geometry)
 
   my_add_executable(graham_scan_1 graham_scan_1.cpp)
   target_sources_modules(graham_scan_1 MODULES ${SM_GEOMETRY_MODULES})
