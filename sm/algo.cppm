@@ -387,4 +387,12 @@ export namespace sm::algo
         return sm::vec<T, 2>{m, c};
     }
 
+    //! Random Sample Consensus (RANSAC). Return slope (first) and offset (second) (m and c from 'y
+    //! = mx + c') in an vec<T, 2>
+    template < template <typename, typename> typename C, typename T, typename Al=std::allocator<T> >
+    sm::vec<T, 2> ransac (const C<T, Al>& x, const C<T, Al>& y)
+    {
+        
+        return sm::vec<T, 2>{m, c};
+    }
 } // sm::algo
