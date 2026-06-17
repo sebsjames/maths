@@ -21,6 +21,7 @@ module;
 export module sm.algo;
 
 import sm.constexpr_math; // constexpr math functions from Keith O'Hara
+import sm.random;
 export import sm.mathconst;
 export import sm.range;
 export import sm.vec;
@@ -387,12 +388,103 @@ export namespace sm::algo
         return sm::vec<T, 2>{m, c};
     }
 
-    //! Random Sample Consensus (RANSAC). Return slope (first) and offset (second) (m and c from 'y
-    //! = mx + c') in an vec<T, 2>
+    /*! Random Sample Consensus (RANSAC) for finding the parameters of a linear model in datasets with a significant number of outliers  
+     *  x: x values of a 2D dataset
+     *  y: y values of a 2D dataset
+     *  max_iterations: Number of attempts allowed to find the highest number of inlier points.
+     *  inlier_threshold: Distance within which a point is considered to belong to the model.
+     *  min_inliers: Minimum number of inlier points allowed in the linear model.
+     *  seed: Random seed
+     *  Return slope (first) and offset (second) (m and c from 'y = mx + c') in an vec<T, 2>
+     */ 
     template < template <typename, typename> typename C, typename T, typename Al=std::allocator<T> >
-    sm::vec<T, 2> ransac (const C<T, Al>& x, const C<T, Al>& y)
+    sm::vec<T, 2> ransac (const C<T, Al>& x, const C<T, Al>& y,
+                          int max_iterations = 200,
+                          float inlier_threshold = 1.0f,
+                          int min_inliers = 2,
+                          uint32_t seed = 42)
     {
+        if (x.empty() || y.empty()) {
+            throw std::runtime_error ("ransac: x or y is empty.");
+        }
+        if (x.size() != y.size()) {
+            throw std::runtime_error ("ransac: both number arrays to be same size.");
+        }
+        if (x.size() < 2) {
+            throw std::runtime_error ("ransac: at least two points are required.");
+        }
+        if (max_iterations < 1) {
+            throw std::runtime_error ("ransac: max_iterations must be >= 1.");
+        }
+        if (inlier_threshold <= 0.0f) {
+            throw std::runtime_error ("ransac: inlier_threshold must be > 0.");
+        }
+
+        using size_type = typename C<T, Al>::size_type;
+        const size_type n = x.size();
+        const T inlier_threshold_t = static_cast<T>(inlier_threshold);
+
+        sm::rand_uniform<size_type> pick_idx(0, n - 1, seed);
+
+        int best_inliers = -1;
+        T best_m = T{0};
+        T best_c = T{0};
+        std::vector<uint8_t> best_mask(n, 0);
+
+        constexpr T eps = static_cast<T>(1e-9);
+        for (int it = 0; it < max_iterations; ++it) {
+            size_type i0 = pick_idx.get();
+            size_type i1 = pick_idx.get();
+            if (i0 == i1) { continue; }
+
+            const T dx = x[i1] - x[i0];
+            if (std::abs(dx) <= eps) { continue; }
+
+            const T m = (y[i1] - y[i0]) / dx;
+            const T c = y[i0] - (m * x[i0]);
+
+            int inliers = 0;
+            std::vector<uint8_t> mask(n, 0);
+            for (size_type i = 0; i < n; ++i) {
+                const T residual = std::abs(y[i] - ((m * x[i]) + c));
+                if (residual <= inlier_threshold_t) {
+                    mask[i] = 1;
+                    ++inliers;
+                }
+            }
+
+            if (inliers > best_inliers) {
+                best_inliers = inliers;
+                best_m = m;
+                best_c = c;
+                best_mask = std::move(mask);
+            }
+        }
+
+        if (best_inliers < std::max(2, min_inliers)) {
+            return sm::algo::linregr<C, T, Al>(x, y);
+        }
+
+        std::vector<T> x_inliers;
+        std::vector<T> y_inliers;
+        x_inliers.reserve(n);
+        y_inliers.reserve(n);
+        for (size_type i = 0; i < n; ++i) {
+            if (best_mask[i] == 0) { continue; }
+            x_inliers.push_back(x[i]);
+            y_inliers.push_back(y[i]);
+        }
+
+        if (x_inliers.size() >= 2) {
+            sm::vec<T, 2> mc = sm::algo::linregr<std::vector, T, std::allocator<T>>(x_inliers, y_inliers);
+            best_m = mc[0];
+            best_c = mc[1];
+        }
+
+        T m = best_m;
+        T c = best_c;
         
         return sm::vec<T, 2>{m, c};
     }
+    
 } // sm::algo

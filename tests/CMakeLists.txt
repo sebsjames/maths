@@ -457,6 +457,10 @@ my_add_executable(algo_roundtocol1 algo_roundtocol1.cpp)
 target_sources_modules(algo_roundtocol1 MODULES ${SM_ALGO_MODULES} ${SM_VVEC_MODULES})
 add_test(algo_roundtocol1 algo_roundtocol1)
 
+my_add_executable(algo_ransac algo_ransac.cpp)
+target_sources_modules(algo_ransac MODULES ${SM_ALGO_MODULES} ${SM_VVEC_MODULES})
+add_test(algo_ransac algo_ransac)
+
 if((CMAKE_CXX_COMPILER_ID MATCHES "Clang") OR (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 14.99))
   my_add_executable(geometry_2 geometry_2.cpp)
   target_sources_modules(geometry_2 MODULES ${SM_GEOMETRY_MODULES})
