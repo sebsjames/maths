@@ -388,7 +388,10 @@ export namespace sm::algo
         return sm::vec<T, 2>{m, c};
     }
 
-    /*! Random Sample Consensus (RANSAC) for finding the parameters of a linear model in datasets with a significant number of outliers  
+    /*!
+     * Random Sample Consensus (RANSAC) for finding the parameters of a linear model in datasets
+     * with a significant number of outliers
+     *
      *  x: x values of a 2D dataset
      *  y: y values of a 2D dataset
      *  max_iterations: Number of attempts allowed to find the highest number of inlier points.
@@ -396,13 +399,13 @@ export namespace sm::algo
      *  min_inliers: Minimum number of inlier points allowed in the linear model.
      *  seed: Random seed
      *  Return slope (first) and offset (second) (m and c from 'y = mx + c') in an vec<T, 2>
-     */ 
+     */
     template < template <typename, typename> typename C, typename T, typename Al=std::allocator<T> >
     sm::vec<T, 2> ransac (const C<T, Al>& x, const C<T, Al>& y,
-                          int max_iterations = 200,
-                          float inlier_threshold = 1.0f,
-                          int min_inliers = 2,
-                          uint32_t seed = 42)
+                          std::int32_t max_iterations = 200,
+                          T inlier_threshold = T{1},
+                          std::int32_t min_inliers = 2,
+                          std::uint32_t seed = 42)
     {
         if (x.empty() || y.empty()) {
             throw std::runtime_error ("ransac: x or y is empty.");
@@ -426,13 +429,13 @@ export namespace sm::algo
 
         sm::rand_uniform<size_type> pick_idx(0, n - 1, seed);
 
-        int best_inliers = -1;
+        std::int32_t best_inliers = -1;
         T best_m = T{0};
         T best_c = T{0};
         std::vector<uint8_t> best_mask(n, 0);
 
-        constexpr T eps = static_cast<T>(1e-9);
-        for (int it = 0; it < max_iterations; ++it) {
+        constexpr T eps = T{1e-9};
+        for (std::int32_t it = 0; it < max_iterations; ++it) {
             size_type i0 = pick_idx.get();
             size_type i1 = pick_idx.get();
             if (i0 == i1) { continue; }
@@ -443,8 +446,8 @@ export namespace sm::algo
             const T m = (y[i1] - y[i0]) / dx;
             const T c = y[i0] - (m * x[i0]);
 
-            int inliers = 0;
-            std::vector<uint8_t> mask(n, 0);
+            std::int32_t inliers = 0;
+            std::vector<std::uint8_t> mask(n, 0);
             for (size_type i = 0; i < n; ++i) {
                 const T residual = std::abs(y[i] - ((m * x[i]) + c));
                 if (residual <= inlier_threshold_t) {
@@ -483,8 +486,8 @@ export namespace sm::algo
 
         T m = best_m;
         T c = best_c;
-        
+
         return sm::vec<T, 2>{m, c};
     }
-    
+
 } // sm::algo
