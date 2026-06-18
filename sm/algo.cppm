@@ -17,10 +17,12 @@ module;
 #include <limits>
 #include <tuple>
 #include <vector>
+#include <memory>
 
 export module sm.algo;
 
 import sm.constexpr_math; // constexpr math functions from Keith O'Hara
+import sm.random;
 export import sm.mathconst;
 export import sm.range;
 export import sm.vec;
@@ -384,6 +386,112 @@ export namespace sm::algo
         T cov_xy = algo::covariance<C, T, Al> (x, ms_x[0], y, ms_y[0]);
         T m = cov_xy / ms_x[1];
         T c = ms_y[0] - (m * ms_x[0]);
+        return sm::vec<T, 2>{m, c};
+    }
+
+    /*!
+     * Random Sample Consensus (RANSAC) for finding the parameters of a linear model in datasets
+     * with a significant number of outliers
+     *
+     *  x: x values of a 2D dataset
+     *  y: y values of a 2D dataset
+     *  max_iterations: Number of attempts allowed to find the highest number of inlier points.
+     *  inlier_threshold: Distance within which a point is considered to belong to the model.
+     *  min_inliers: Minimum number of inlier points allowed in the linear model.
+     *  seed: Random seed. Defaults to max for uint32_t, in which case the seed is randomized
+     *  Return slope (first) and offset (second) (m and c from 'y = mx + c') in an vec<T, 2>
+     */
+    template < template <typename, typename> typename C, typename T, typename Al=std::allocator<T> >
+    sm::vec<T, 2> ransac (const C<T, Al>& x, const C<T, Al>& y,
+                          const std::int32_t max_iterations = 200,
+                          const T inlier_threshold = T{1},
+                          const std::int32_t min_inliers = 2,
+                          const std::uint32_t seed = std::numeric_limits<std::uint32_t>::max())
+    {
+        if (x.empty() || y.empty()) {
+            throw std::runtime_error ("ransac: x or y is empty.");
+        }
+        if (x.size() != y.size()) {
+            throw std::runtime_error ("ransac: both number arrays to be same size.");
+        }
+        if (x.size() < 2) {
+            throw std::runtime_error ("ransac: at least two points are required.");
+        }
+        if (max_iterations < 1) {
+            throw std::runtime_error ("ransac: max_iterations must be >= 1.");
+        }
+        if (inlier_threshold <= T{0}) {
+            throw std::runtime_error ("ransac: inlier_threshold must be > 0.");
+        }
+
+        using size_type = typename C<T, Al>::size_type;
+        const size_type n = x.size();
+
+        std::unique_ptr<sm::rand_uniform<size_type>> pick_idx;
+        if (seed == std::numeric_limits<std::uint32_t>::max()) {
+            pick_idx = std::make_unique<sm::rand_uniform<size_type>>(0, n - 1); // randomized seed
+        } else {
+            pick_idx = std::make_unique<sm::rand_uniform<size_type>>(0, n - 1, seed);
+        }
+
+        std::int32_t best_inliers = -1;
+        T best_m = T{0};
+        T best_c = T{0};
+        std::vector<uint8_t> best_mask(n, 0);
+
+        constexpr T eps = T{1e-9};
+        for (std::int32_t it = 0; it < max_iterations; ++it) {
+            size_type i0 = pick_idx->get();
+            size_type i1 = pick_idx->get();
+            if (i0 == i1) { continue; }
+
+            const T dx = x[i1] - x[i0];
+            if (std::abs(dx) <= eps) { continue; }
+
+            const T m = (y[i1] - y[i0]) / dx;
+            const T c = y[i0] - (m * x[i0]);
+
+            std::int32_t inliers = 0;
+            std::vector<std::uint8_t> mask(n, 0);
+            for (size_type i = 0; i < n; ++i) {
+                const T residual = std::abs(y[i] - ((m * x[i]) + c));
+                if (residual <= inlier_threshold) {
+                    mask[i] = 1;
+                    ++inliers;
+                }
+            }
+
+            if (inliers > best_inliers) {
+                best_inliers = inliers;
+                best_m = m;
+                best_c = c;
+                best_mask = std::move(mask);
+            }
+        }
+
+        if (best_inliers < std::max(2, min_inliers)) {
+            return sm::algo::linregr<C, T, Al>(x, y);
+        }
+
+        std::vector<T> x_inliers;
+        std::vector<T> y_inliers;
+        x_inliers.reserve(n);
+        y_inliers.reserve(n);
+        for (size_type i = 0; i < n; ++i) {
+            if (best_mask[i] == 0) { continue; }
+            x_inliers.push_back(x[i]);
+            y_inliers.push_back(y[i]);
+        }
+
+        if (x_inliers.size() >= 2) {
+            sm::vec<T, 2> mc = sm::algo::linregr<std::vector, T, std::allocator<T>>(x_inliers, y_inliers);
+            best_m = mc[0];
+            best_c = mc[1];
+        }
+
+        T m = best_m;
+        T c = best_c;
+
         return sm::vec<T, 2>{m, c};
     }
 
