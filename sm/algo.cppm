@@ -17,6 +17,7 @@ module;
 #include <limits>
 #include <tuple>
 #include <vector>
+#include <memory>
 
 export module sm.algo;
 
@@ -397,15 +398,15 @@ export namespace sm::algo
      *  max_iterations: Number of attempts allowed to find the highest number of inlier points.
      *  inlier_threshold: Distance within which a point is considered to belong to the model.
      *  min_inliers: Minimum number of inlier points allowed in the linear model.
-     *  seed: Random seed
+     *  seed: Random seed. Defaults to max for uint32_t, in which case the seed is randomized
      *  Return slope (first) and offset (second) (m and c from 'y = mx + c') in an vec<T, 2>
      */
     template < template <typename, typename> typename C, typename T, typename Al=std::allocator<T> >
     sm::vec<T, 2> ransac (const C<T, Al>& x, const C<T, Al>& y,
-                          std::int32_t max_iterations = 200,
-                          T inlier_threshold = T{1},
-                          std::int32_t min_inliers = 2,
-                          std::uint32_t seed = 42)
+                          const std::int32_t max_iterations = 200,
+                          const T inlier_threshold = T{1},
+                          const std::int32_t min_inliers = 2,
+                          const std::uint32_t seed = std::numeric_limits<std::uint32_t>::max())
     {
         if (x.empty() || y.empty()) {
             throw std::runtime_error ("ransac: x or y is empty.");
@@ -419,15 +420,19 @@ export namespace sm::algo
         if (max_iterations < 1) {
             throw std::runtime_error ("ransac: max_iterations must be >= 1.");
         }
-        if (inlier_threshold <= 0.0f) {
+        if (inlier_threshold <= T{0}) {
             throw std::runtime_error ("ransac: inlier_threshold must be > 0.");
         }
 
         using size_type = typename C<T, Al>::size_type;
         const size_type n = x.size();
-        const T inlier_threshold_t = static_cast<T>(inlier_threshold);
 
-        sm::rand_uniform<size_type> pick_idx(0, n - 1, seed);
+        std::unique_ptr<sm::rand_uniform<size_type>> pick_idx;
+        if (seed == std::numeric_limits<std::uint32_t>::max()) {
+            pick_idx = std::make_unique<sm::rand_uniform<size_type>>(0, n - 1); // randomized seed
+        } else {
+            pick_idx = std::make_unique<sm::rand_uniform<size_type>>(0, n - 1, seed);
+        }
 
         std::int32_t best_inliers = -1;
         T best_m = T{0};
@@ -436,8 +441,8 @@ export namespace sm::algo
 
         constexpr T eps = T{1e-9};
         for (std::int32_t it = 0; it < max_iterations; ++it) {
-            size_type i0 = pick_idx.get();
-            size_type i1 = pick_idx.get();
+            size_type i0 = pick_idx->get();
+            size_type i1 = pick_idx->get();
             if (i0 == i1) { continue; }
 
             const T dx = x[i1] - x[i0];
@@ -450,7 +455,7 @@ export namespace sm::algo
             std::vector<std::uint8_t> mask(n, 0);
             for (size_type i = 0; i < n; ++i) {
                 const T residual = std::abs(y[i] - ((m * x[i]) + c));
-                if (residual <= inlier_threshold_t) {
+                if (residual <= inlier_threshold) {
                     mask[i] = 1;
                     ++inliers;
                 }
