@@ -30,7 +30,7 @@ export module sm.vec;
 
 import sm.random;
 import sm.constexpr_math;
-export import sm.range;
+export import sm.interval;
 
 namespace sm
 {
@@ -431,7 +431,7 @@ namespace sm
         template <typename Sy=S> requires (!std::is_integral_v<std::decay_t<Sy>>)
         constexpr void rescale() noexcept
         {
-            sm::range<Sy> r = this->range();
+            sm::interval<Sy> r = this->range();
             Sy m = r.max - r.min;
             Sy g = r.min;
             auto rescale_op = [m, g](Sy f) { return (f - g)/m; };
@@ -442,7 +442,7 @@ namespace sm
         template <typename Sy=S> requires (!std::is_integral_v<std::decay_t<Sy>>)
         constexpr void rescale_neg() noexcept
         {
-            sm::range<Sy> r = this->range();
+            sm::interval<Sy> r = this->range();
             Sy m = r.max - r.min;
             Sy g = r.max;
             auto rescale_op = [m, g](Sy f) { return (f - g)/m; };
@@ -453,7 +453,7 @@ namespace sm
         template <typename Sy=S> requires (!std::is_integral_v<std::decay_t<Sy>>)
         constexpr void rescale_sym() noexcept
         {
-            sm::range<Sy> r = this->range();
+            sm::interval<Sy> r = this->range();
             Sy m = (r.max - r.min) / Sy{2};
             Sy g = (r.max + r.min) / Sy{2};
             auto rescale_op = [m, g](Sy f) { return (f - g)/m; };
@@ -777,10 +777,10 @@ namespace sm
         }
 
         //! Return the range of the vec (the min and max values of the vec)
-        constexpr sm::range<S> range() const noexcept
+        constexpr sm::interval<S> range() const noexcept
         {
             auto mm = std::minmax_element (this->begin(), this->end());
-            return sm::range<S>(*mm.first, *mm.second);
+            return sm::interval<S>(*mm.first, *mm.second);
         }
 
         //! Return true if any element is zero

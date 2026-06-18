@@ -6,7 +6,6 @@ include_directories(BEFORE ${PROJECT_SOURCE_DIR})
 # Each C++ module file has to be listed here (as they don't have a .cppm or .ixx file suffix)
 set_source_files_properties (${SM_ALL_MODULES} PROPERTIES LANGUAGE CXX)
 
-
 macro (my_add_executable my_target my_sourcefile)
   add_executable(${my_target} ${my_sourcefile})
   add_custom_command(
@@ -19,39 +18,42 @@ macro (my_add_executable my_target my_sourcefile)
   )
 endmacro()
 
-# sm::range
-my_add_executable(range_intersects range_intersects.cpp)
-# FIXME: Make a macro that takes name (range_intersects here) and
-# SM_VEC_MODULES etc and makes this line, after first making the list
-# of modules unique.
-target_sources_modules(range_intersects MODULES ${SM_VEC_MODULES})
-add_test(range_intersects range_intersects)
+# sm::interval
+add_executable(interval_intersects interval_intersects.cpp)
+target_sources_modules(interval_intersects MODULES ${SM_VEC_MODULES} ${SM_INTERVAL_MODULES})
+add_test(interval_intersects interval_intersects)
 
-# sm::range
-my_add_executable(range_adding range_adding.cpp)
-add_test(range_adding range_adding)
-target_sources_modules(range_adding MODULES ${SM_VEC_MODULES})
+# sm::interval
+add_executable(interval_adding interval_adding.cpp)
+target_sources_modules(interval_adding MODULES ${SM_VEC_MODULES} ${SM_INTERVAL_MODULES})
+add_test(interval_adding interval_adding)
 
-# sm::range
-my_add_executable(range1 range1.cpp)
-target_compile_features(range1 PUBLIC   cxx_std_23)
-target_sources_modules(range1 MODULES ${SM_RANGE_MODULES})
-add_test(range1 range1)
+# sm::interval
+add_executable(interval1 interval1.cpp)
+target_compile_features(interval1 PUBLIC   cxx_std_23)
+target_sources_modules(interval1 MODULES ${SM_INTERVAL_MODULES})
+add_test(interval1 interval1)
 
-# sm::range
-my_add_executable(range_constexpr1 range_constexpr1.cpp)
-target_sources_modules(range_constexpr1 MODULES ${SM_RANGE_MODULES})
-add_test(range_constexpr1 range_constexpr1)
+# sm::interval
+add_executable(interval_constexpr1 interval_constexpr1.cpp)
+target_sources_modules(interval_constexpr1 MODULES ${SM_INTERVAL_MODULES})
+add_test(interval_constexpr1 interval_constexpr1)
 
-# sm::range
-my_add_executable(range_complex1 range_complex1.cpp)
-target_sources_modules(range_complex1 MODULES ${SM_RANGE_MODULES})
-add_test(range_complex1 range_complex1)
+# sm::interval
+add_executable(interval_complex1 interval_complex1.cpp)
+target_sources_modules(interval_complex1 MODULES ${SM_INTERVAL_MODULES})
+add_test(interval_complex1 interval_complex1)
 
-# sm::range
-my_add_executable(range_vector1 range_vector1.cpp)
-target_sources_modules(range_vector1 MODULES ${SM_VEC_MODULES})
-add_test(range_vector1 range_vector1)
+# sm::interval
+add_executable(interval_vector1 interval_vector1.cpp)
+target_sources_modules(interval_vector1 MODULES ${SM_VEC_MODULES} ${SM_INTERVAL_MODULES})
+add_test(interval_vector1 interval_vector1)
+
+# sm::interval
+# FIXME: Getting an odd compiler error for this one.
+add_executable(interval_vectorequality interval_vectorequality.cpp)
+target_sources_modules(interval_vectorequality MODULES ${SM_VEC_MODULES} ${SM_INTERVAL_MODULES})
+add_test(interval_vectorequality interval_vectorequality)
 
 # sm::random
 my_add_executable(random1 random1.cpp)

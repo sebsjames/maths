@@ -1,14 +1,14 @@
 #include <iostream>
 import sm.vec;
-import sm.range;
+import sm.interval;
 
 int main()
 {
     int rtn = 0;
 
-    sm::range<sm::vec<float>> a = { {0,   0,   0  }, {1,   1,   1  } };
+    sm::interval<sm::vec<float>> a = { {0,   0,   0  }, {1,   1,   1  } };
 
-    sm::range<sm::vec<float>> b = { {0.5, 0.5, 0.5}, {1.5, 1.5, 1.5} };
+    sm::interval<sm::vec<float>> b = { {0.5, 0.5, 0.5}, {1.5, 1.5, 1.5} };
     if (a.intersects(b) == false) { --rtn; }
     if (b.intersects(a) == false) { --rtn; }
 

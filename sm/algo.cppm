@@ -24,7 +24,7 @@ export module sm.algo;
 import sm.constexpr_math; // constexpr math functions from Keith O'Hara
 import sm.random;
 export import sm.mathconst;
-export import sm.range;
+export import sm.interval;
 export import sm.vec;
 
 export namespace sm::algo
@@ -54,9 +54,9 @@ export namespace sm::algo
     // range whose max is the order of magnitude of the largest base10 column and whose
     // min is the order of magnitude of the smallest significant base10 column.
     template <typename F> requires std::is_floating_point_v<F>
-    constexpr sm::range<std::int32_t> significant_cols (const F& f)
+    constexpr sm::interval<std::int32_t> significant_cols (const F& f)
     {
-        sm::range<std::int32_t> sigcols = { 0, 0 };
+        sm::interval<std::int32_t> sigcols = { 0, 0 };
 
         // If NaN or infinity, return 0, 0. Or something else?
         if (sm::cem::isnan(f) || sm::cem::isinf(f)) { return sigcols; }
@@ -117,7 +117,7 @@ export namespace sm::algo
     template <typename F> requires std::is_floating_point_v<F>
     constexpr std::int32_t significant_figs (const F& f)
     {
-        sm::range<std::int32_t> sc = sm::algo::significant_cols<F> (f);
+        sm::interval<std::int32_t> sc = sm::algo::significant_cols<F> (f);
         return sc.span();
     }
 
