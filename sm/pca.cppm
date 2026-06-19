@@ -23,44 +23,24 @@ export namespace sm::pca
     template<typename T, std::uint32_t N> requires std::is_arithmetic_v<T>
     struct result
     {
+        // fill me in
     };
 
-    // Compute covariance using the summing method
+    // Return covariance matrix for the data z, using the matrix multiplication x.T * X / (dsz-1)
     template<typename T, std::uint32_t N> requires std::is_arithmetic_v<T>
-    sm::vec<T, N * N> covariance2 (const sm::vec<sm::vvec<T>, N>& z)
+    sm::mat<T, N, N> covariance (const sm::vec<sm::vvec<T>, N>& z)
     {
         std::uint32_t dsz = z[0].size();
-        sm::vec<sm::vvec<T>, N> mu_sig;
-        for (std::uint32_t i = 0; i < N; ++i) { mu_sig[i] = z[i].mean_std(); }
-        sm::vec<T, N * N> cm = {}; // cov matrix, column-wise (like matNN)
+        sm::mat<T, N, N> cm = {{}}; // Our covariance matrix
         for (std::uint32_t r = 0; r < N; ++r) {
             for (std::uint32_t c = 0; c < N; ++c) {
-                for (std::uint32_t i = 0; i < dsz; ++i) {
-                    //  in row 1, want cov (1, col), but cm is an array with column-wise data
-                    cm[r * N + c] += (z[r][i] - mu_sig[r][0]) * (z[c][i] - mu_sig[c][0]);
-                }
-                cm[r * N + c] /= (dsz - 1);
-            }
-        }
-
-        return cm;
-    }
-
-    // Compute covariance using the matrix multiplication x.T * X / (dsz-1)
-    template<typename T, std::uint32_t N> requires std::is_arithmetic_v<T>
-    sm::vec<T, N * N> covariance (const sm::vec<sm::vvec<T>, N>& z)
-    {
-        std::uint32_t dsz = z[0].size();
-        sm::vec<T, N * N> cm = {}; // cov matrix, column-wise (like matNN)
-        for (std::uint32_t r = 0; r < N; ++r) {
-            for (std::uint32_t c = 0; c < N; ++c) {
-                cm[r * N + c] = z[c].dot (z[r]) / (dsz - 1);
+                cm.arr[r * N + c] = z[c].dot (z[r]) / (dsz - 1);
             }
         }
         return cm;
     }
 
-    template <typename T, std::uint32_t N> requires std::is_arithmetic_v<T> && (N > 0) && (N < 5)
+    template <typename T, std::uint32_t N> requires std::is_arithmetic_v<T> && (N > 0)
     pca::result<T, N> compute (const sm::vec<sm::vvec<T>, N>& x)
     {
         pca::result<T, N> rtn;
@@ -83,80 +63,39 @@ export namespace sm::pca
         }
 
         // 2. Calculate covariance matrix of both x AND z.
-        const T dinv = T{1} / (dsz - 1);
-        std::cout << "dinv = " << dinv << std::endl;
-        [[maybe_unused]] sm::vec<T, N * N> cm_z = pca::covariance<T, N> (z);
+        [[maybe_unused]] sm::mat<T, N, N> cm_x = pca::covariance<T, N> (x);
+        sm::mat<T, N, N> cm_z = pca::covariance<T, N> (z);
+        std::cout << "Cov. matrix x:\n" << cm_x << std::endl;
+        std::cout << "Cov. matrix z:\n" << cm_z << std::endl;
 
         // 3. Compute Eigenvalues and vectors of the covariance matrix
-        if constexpr (N == 2) {
-#if 0
-            sm::mat<T, 2> m_z (cm_z);
+        sm::vec<typename sm::mat<T, N>::eigenpair, N> pairs = cm_z.eigenpairs();
 
-            std::cout << "cov matrix:\n" << m_z << std::endl;
-
-            sm::vec<typename sm::mat<T, 2>::eigenpair, N> eps = m_z.eigenpairs();
-
-            std::cout << "Eigenvalues:\n";
-            for (std::uint32_t i = 0; i < N; ++i) { std::cout << eps[i].eigenvalue << "\n"; }
-            std::cout << std::endl;
-
-            std::cout << "Eigenvectors:\n";
-            for (std::uint32_t i = 0; i < N; ++i) {
-                std::cout << "[";
-                for (std::uint32_t j = 0; j < N; ++j) {
-                    std::cout << eps[i].eigenvector[j] << " ";
-                }
-                std::cout << "]" << std::endl;
-            }
-#endif
-
-#if 0
-            sm::vec<sm::vvec<T>, N> x_proj;
-            for (std::uint32_t r = 0; r < N; ++r) {
-                x_proj[r] = z[r].dot (eps[i].eigenvector[0]);
-            }
-#endif
-
-#if 0
-            sm::vec<T, 2> pc1vec = m.row(0);
-            T angle1 = pc1vec.angle();
-            std::cout << "Angle of first component " << pc1vec << " is " << angle1 * sm::mathconst<T>::rad2deg << std::endl;
-            sm::vec<T, 2> pc2vec = m.row(1);
-            T angle2 = pc2vec.angle();
-            std::cout << "Angle of 2nd component " << pc2vec << " is " << angle2 * sm::mathconst<T>::rad2deg << std::endl;
-#endif
-
-        } else if constexpr (N == 3) {
-            // mat<T, 3>
-
-        } else if constexpr (N == 4) {
-#if 0
-            sm::mat<T, 4> m_z (cm_z);
-            std::cout << "cov matrix:\n" << m_z << std::endl;
-
-            sm::vec<typename sm::mat<T, 4>::eigenpair, N> eps = m_z.eigenpairs();
-
-            std::cout << "Eigenvalues:\n";
-            for (std::uint32_t i = 0; i < N; ++i) { std::cout << eps[i].eigenvalue << "\n"; }
-            std::cout << std::endl;
-
-            std::cout << "Eigenvectors:\n";
-            for (std::uint32_t i = 0; i < N; ++i) {
-                std::cout << "[";
-                for (std::uint32_t j = 0; j < N; ++j) {
-                    std::cout << eps[i].eigenvector[j] << " ";
-                }
-                std::cout << "]" << std::endl;
-            }
-#endif
-        } else {
-            // compile error
+        for (std::uint32_t i = 0; i < N; ++i) {
+            std::cout << "pairs["<<i<<"].eigenvalue = " << pairs[i].eigenvalue.real() <<" + " << pairs[i].eigenvalue.imag() << "i" << std::endl;
+            std::cout << "pairs["<<i<<"].eigenvector = " << pairs[i].eigenvector << std::endl;
         }
+
+#if 0
+        sm::vec<sm::vvec<T>, N> x_proj;
+        for (std::uint32_t r = 0; r < N; ++r) {
+            x_proj[r] = z[r].dot (eps[i].eigenvector);
+        }
+#endif
+
+#if 0
+        sm::vec<T, 2> pc1vec = m.row(0);
+        T angle1 = pc1vec.angle();
+        std::cout << "Angle of first component " << pc1vec << " is " << angle1 * sm::mathconst<T>::rad2deg << std::endl;
+        sm::vec<T, 2> pc2vec = m.row(1);
+        T angle2 = pc2vec.angle();
+        std::cout << "Angle of 2nd component " << pc2vec << " is " << angle2 * sm::mathconst<T>::rad2deg << std::endl;
+#endif
 
         return rtn;
     }
 
-    template <typename T, std::uint32_t N> requires std::is_arithmetic_v<T> && (N > 0) && (N < 5)
+    template <typename T, std::uint32_t N> requires std::is_arithmetic_v<T> && (N > 0)
     pca::result<T, N> compute (const sm::vvec<sm::vec<T, N>>& data)
     {
         // Each dimension of the vec is a feature. Repackage...

@@ -13,5 +13,6 @@ int main()
     for (std::uint32_t i = 0; i < sklearn::iris.size(); ++i) {
         x[i] = sklearn::iris[i].template as<double>();
     }
+    std::cout << "sm::pca::compute...\n";
     [[maybe_unused]] sm::pca::result<double, 4> pca_res = sm::pca::compute<double, 4> (x);
 }
