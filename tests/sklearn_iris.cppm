@@ -7,7 +7,8 @@
  * iris = load_iris()
  * sklearn_iris = iris['data']
  *
- * From iris['data'] we get this table of values
+ * From iris['data'] we get the table of values 'iris'
+ * From iris['target'] we get 'iris_flowertype'
  */
 export module sklearn.iris;
 
@@ -15,6 +16,17 @@ import sm.vec;
 
 export namespace sklearn
 {
+    constexpr sm::vec<int, 150> iris_flowertype =
+    {
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+        2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+        2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2
+    };
+
     constexpr sm::vec<typename sm::vec<double, 4>, 150> iris =
     {
         sm::vec<double, 4>{ 5.1, 3.5, 1.4, 0.2 },
