@@ -15,4 +15,8 @@ int main()
     }
     std::cout << "sm::pca::compute...\n";
     [[maybe_unused]] sm::pca::result<double, 4> pca_res = sm::pca::compute<double, 4> (x);
+    for (std::uint32_t i = 0; i < 4; ++i) {
+        std::cout << "PC " << (i + 1) << " = " << pca_res.pc_ev_real[i] << " which accounts for " << pca_res.pc_mags[i] << " of the variability\n";
+        std::cout << "\n" << pca_res.x_proj[i] << "\n";
+    }
 }
