@@ -8,16 +8,17 @@
  */
 module;
 
+#include <iostream>
 #include <cstdint>
 #include <type_traits>
 #include <complex>
 
 export module sm.pca;
 
+import sm.vvec;
 import sm.mat;
-import sm.polysolve; // maybe
 
-namespace sm::pca
+export namespace sm::pca
 {
     template<typename T, std::uint32_t N> requires std::is_arithmetic_v<T>
     struct result

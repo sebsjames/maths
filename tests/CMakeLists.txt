@@ -322,6 +322,15 @@ if(NOT APPLE)
 endif()
 endif()
 
+my_add_executable(pca_iris pca_iris.cpp)
+target_sources_modules(pca_iris MODULES
+  ${SM_VVEC_MODULES}
+  ${SM_MAT_MODULES}
+  ${PROJECT_SOURCE_DIR}/sm/pca.cppm
+  ${PROJECT_SOURCE_DIR}/tests/sklearn_iris.cppm
+)
+add_test(pca_iris pca_iris)
+
 # Test quaternion and mat44 rotations in float and double precision
 my_add_executable(rotations1_float rotations1.cpp)
 target_compile_definitions(rotations1_float PUBLIC FLT=float)
