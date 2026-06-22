@@ -235,9 +235,11 @@ export namespace sm::polysolve
             // Solve as quadratic in y^2
             std::vector<std::complex<T>> quad_roots = polysolve::quadratic<T> (T{1}, p, r);
             for (const auto& root : quad_roots) {
-                /* const */ std::complex<T> sqrt_root = std::sqrt (root);
+                const std::complex<T> sqrt_root = std::sqrt (root);
                 roots.push_back (sqrt_root);
-                roots.push_back (-sqrt_root);
+                // clang-22 does not like -sqrt_root
+                const std::complex<T> neg_sqrt_root = { -std::real(sqrt_root), -std::imag(sqrt_root) };
+                roots.push_back (neg_sqrt_root);
             }
         } else {
             // Resolve using cubic resolvent: z^3 + 2 * p * z^2 + (p^2 - 4 * r) * z - q^2 = 0
