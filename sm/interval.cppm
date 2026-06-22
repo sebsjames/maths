@@ -70,9 +70,9 @@ export namespace sm
               interval_endpoint supremum = interval_endpoint::closed>
     struct interval
     {
-        // The minimum value in the closed interval
+        // The value of the infimum (the minimum)
         T min = T{0};
-        // The maximum value
+        // The value of the supremum (the maximum)
         T max = T{0};
 
         // In the default constructor, min == max == T{0}
@@ -90,6 +90,16 @@ export namespace sm
         {
             this->min = _min;
             this->max = _max;
+        }
+
+        // Pass in a value and return either the value or whichever of min or max it exceeded
+        template<typename Ty = T> requires (infimum == interval_endpoint::closed) && (supremum == interval_endpoint::closed)
+        constexpr T constrain (const Ty& val) noexcept
+        {
+            T constrained = val;
+            if (val > this->max) { constrained = this->max; }
+            else if (val < this->min) { constrained = this->min; }
+            return constrained;
         }
 
         // Output a string representation of the min and max. Rewrite with <format> at some point.
