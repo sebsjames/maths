@@ -324,14 +324,33 @@ if(NOT APPLE)
 endif()
 endif()
 
-my_add_executable(pca_iris pca_iris.cpp)
-target_sources_modules(pca_iris MODULES
-  ${SM_VVEC_MODULES}
-  ${SM_MAT_MODULES}
-  ${PROJECT_SOURCE_DIR}/sm/pca.cppm
-  ${PROJECT_SOURCE_DIR}/tests/sklearn_iris.cppm
-)
-add_test(pca_iris pca_iris)
+# Several compilers have trouble with std::complex arithmetic. Clang
+# 22 has problems (I think it's a bug/regression). 20 is ok; 23 is ok.
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 22 OR CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 22)
+    message ("Clang version ${CMAKE_CXX_COMPILER_VERSION} is OK for complex arithmetic (22 is bad)")
+    set(CLANG_OK_FOR_COMPLEX_DIV 1)
+  endif()
+endif()
+# GCC 15 also has trouble (I think it's a bug), but GCC 16 is ok.
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 15.99)
+  message ("GCC version ${CMAKE_CXX_COMPILER_VERSION} is OK for complex arithmetic")
+  set(GCC_OK_FOR_COMPLEX_DIV 1)
+endif()
+# Visual studio had trouble like GCC 15 (i.e. with operator/ for
+# std::complex within a module). I'll just prevent it from compiling
+# pca_iris altogether; I don't know if a particular version would work.
+
+if(CLANG_OK_FOR_COMPLEX_DIV OR GCC_OK_FOR_COMPLEX_DIV)
+  my_add_executable(pca_iris pca_iris.cpp)
+  target_sources_modules(pca_iris MODULES
+    ${SM_VVEC_MODULES}
+    ${SM_MAT_MODULES}
+    ${PROJECT_SOURCE_DIR}/sm/pca.cppm
+    ${PROJECT_SOURCE_DIR}/tests/sklearn_iris.cppm
+  )
+  add_test(pca_iris pca_iris)
+endif()
 
 # Test quaternion and mat44 rotations in float and double precision
 my_add_executable(rotations1_float rotations1.cpp)
