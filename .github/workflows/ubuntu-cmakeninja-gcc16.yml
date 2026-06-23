@@ -23,3 +23,4 @@ jobs:
       COMPILER_PACKAGES: gcc-16 g++-16
       CC: gcc-16
       CXX: g++-16
+      CMAKE_CXX_FLAGS: -static-libstdc++
