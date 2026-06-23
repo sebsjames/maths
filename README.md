@@ -99,7 +99,7 @@ Minimum compilers: g++-15, clang++-18, Visual Studio 2022.
 You will need cmake version 3.28.5 as a minimum.
 Ninja is required as a partner for cmake because GNU make does not yet support C++-20 modules.
 
-gcc 15 compiles all the unit tests in *this* repository. If you wish to visualize with [mathplot](https://github.com/sebsjames/mathplot), you'll need gcc 16 (or clang-20 and up) for that code.
+gcc 15 compiles almost all the unit tests in *this* repository. If you wish to visualize with [mathplot](https://github.com/sebsjames/mathplot), you'll need gcc 16 (or clang-20 and up) for that code. If you wish to use `sm::pca` for Principle Component Analysis, you will need gcc 16 or Clang version *not* 22 (these compiler versions, along with Visual Studio, have trouble with std::complex arithmetic within modules).
 
 ### Installing Clang on Ubuntu 24
 

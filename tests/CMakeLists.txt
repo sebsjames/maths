@@ -325,14 +325,16 @@ endif()
 endif()
 
 # Several compilers have trouble with std::complex arithmetic. Clang
-# 22 has problems (I think it's a bug/regression). 20 is ok; 23 is ok.
+# 22 did not like unary negate of an std::complex value (I think it's
+# a bug/regression). 20 is ok; 23 is ok.
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 22 OR CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 22)
+  if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 22 OR CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 22.99)
     message ("Clang version ${CMAKE_CXX_COMPILER_VERSION} is OK for complex arithmetic (22 is bad)")
     set(CLANG_OK_FOR_COMPLEX_DIV 1)
   endif()
 endif()
-# GCC 15 also has trouble (I think it's a bug), but GCC 16 is ok.
+# GCC 15 also has trouble; with operator/ and std::complex arguments
+# (I think it's a bug), but GCC 16 is ok.
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 15.99)
   message ("GCC version ${CMAKE_CXX_COMPILER_VERSION} is OK for complex arithmetic")
   set(GCC_OK_FOR_COMPLEX_DIV 1)
