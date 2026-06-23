@@ -25,8 +25,13 @@ ax.set_position([0, 0, 0.95, 1])
 
 
 plt.cla()
-pca = decomposition.PCA(n_components=3)
+pca = decomposition.PCA(n_components=3,svd_solver="full")
 pca.fit(X)
+
+# What can I get out of pca?
+print ("Components:\n{}".format (pca.components_))
+print ("Explained variance: {}".format (pca.explained_variance_ratio_))
+
 X = pca.transform(X)
 
 for name, label in [("Setosa", 0), ("Versicolour", 1), ("Virginica", 2)]:
