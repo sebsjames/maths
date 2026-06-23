@@ -1,0 +1,25 @@
+name: Ubuntu gcc16 cmake + ninja
+on:
+  push:
+    branches: [ "main" ]
+    paths-ignore:
+      - 'docs/**'
+      - 'README**'
+      - 'examples/screenshots/**'
+      - 'examples/docs/**'
+  pull_request:
+    branches: [ "main" ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  call-workflow-passing-data:
+    uses: sebsjames/maths/.github/workflows/ubuntu-cmakeninja-template.yml@main
+    with:
+      RUNNER_IMAGE: ubuntu-24.04
+      BUILD_TYPE: Release
+      COMPILER_PACKAGES: gcc-16 g++-16
+      CC: gcc-16
+      CXX: g++-16
