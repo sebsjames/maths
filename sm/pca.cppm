@@ -4,7 +4,7 @@
  *
  * See https://github.com/sebsjames/maths
  *
- * Principle component analysis
+ * Principal component analysis
  */
 module;
 
@@ -20,7 +20,7 @@ import sm.mat;
 
 export namespace sm::pca
 {
-    // Return struct for a principle component analysis with N dimensions of data
+    // Return struct for a principal component analysis with N dimensions of data
     template<typename T, std::uint32_t N> requires std::is_arithmetic_v<T>
     struct result
     {
@@ -30,11 +30,11 @@ export namespace sm::pca
         sm::vec<sm::vvec<T>, N> z;
         // The covariance matrix of z
         sm::mat<T, N, N> cm_z;
-        // Principle components magnitudes. The proportion of the variability each component accounts for.
+        // Principal components magnitudes. The proportion of the variability each component accounts for.
         sm::vec<T, N> pc_mags = {};
-        // The real principle component Eigenvectors (with the imaginary components discarded).
+        // The real principal component Eigenvectors (with the imaginary components discarded).
         sm::vec<sm::vec<T, N>, N> pc_ev_real;
-        // This holds the input data, projected onto the principle components
+        // This holds the input data, projected onto the principal components
         sm::vec<sm::vvec<T>, N> x_proj;
     };
 
@@ -52,7 +52,7 @@ export namespace sm::pca
         return cm;
     }
 
-    // Perform Principle Component Analysis on N dimensions of data, storing results into the
+    // Perform Principal Component Analysis on N dimensions of data, storing results into the
     // return object.
     template <typename T, std::uint32_t N> requires std::is_arithmetic_v<T> && (N > 0)
     pca::result<T, N> compute (const sm::vec<sm::vvec<T>, N>& x)
@@ -79,7 +79,7 @@ export namespace sm::pca
         sm::vec<typename sm::mat<T, N>::eigenpair, N> pairs = rtn.cm_z.eigenpairs();
 
 
-        // 4. Store principle component magnitudes and vectors into rtn, in descending order of
+        // 4. Store principal component magnitudes and vectors into rtn, in descending order of
         // magnitude (PC1 has biggest eigenvalue)
         T ev_sum = T{0};
         for (std::uint32_t i = 0; i < N; ++i) { ev_sum += std::norm(pairs[i].eigenvalue); }
@@ -106,7 +106,7 @@ export namespace sm::pca
         return rtn;
     }
 
-    // Perform Principle Component Analysis for a vvec of vec data
+    // Perform Principal Component Analysis for a vvec of vec data
     template <typename T, std::uint32_t N> requires std::is_arithmetic_v<T> && (N > 0)
     pca::result<T, N> compute (const sm::vvec<sm::vec<T, N>>& data)
     {

@@ -18,7 +18,7 @@ int main()
     std::cout << "\nMeans and SDs of the input data are " << pca_res.mu_sig_x << std::endl;
     std::cout << "\nThe covariance matrix of the standardized data is\n\n" << pca_res.cm_z.str() << std::endl;
 
-    std::cout << "Principle Components:\n\n";
+    std::cout << "Principal Components:\n\n";
 
     for (std::uint32_t i = 0; i < 4; ++i) {
         std::cout << "PC " << (i + 1) << " = " << pca_res.pc_ev_real[i] << " which accounts for " << pca_res.pc_mags[i] << " of the variability\n";
