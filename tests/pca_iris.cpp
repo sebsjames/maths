@@ -16,7 +16,7 @@ int main()
     std::cout << "sm::pca::compute...\n";
     sm::pca::result<double, 4> pca_res = sm::pca::compute<double, 4> (x);
     std::cout << "\nMeans and SDs of the input data are " << pca_res.mu_sig_x << std::endl;
-    std::cout << "\nThe covariance matrix of the standardized data is\n\n" << pca_res.cm_z << std::endl;
+    std::cout << "\nThe covariance matrix of the standardized data is\n\n" << pca_res.cm_z.str() << std::endl;
 
     std::cout << "Principle Components:\n\n";
 
