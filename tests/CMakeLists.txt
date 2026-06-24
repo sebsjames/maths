@@ -336,13 +336,13 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR (CMAKE_CXX_COMPILER_ID STREQUAL "GNU
 
   if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 21.99 OR CMAKE_CXX_COMPILER_VERSION VERSION_LESS 22.99)
-      # Clang 22 moved to using 'reduced BMI mode' by
-      # default. pca_iris reveals a bug in this mode (it did not like
+      # Clang 22 moved to using 'reduced BMI mode' by default. My code
+      # in pca_iris revealed a bug in this mode (Clang 22 did not like
       # unary negate of an std::complex value). Clang 23 has fixed the
-      # bug. The workaround is to switch Clang22 back to 'full BMI
+      # bug. The workaround is to switch Clang 22 back to 'full BMI
       # mode' for this target.
       # https://github.com/llvm/llvm-project/issues/205361
-      target_compile_options(pca_iris PUBLIC -fno-modules-reduced-bmi) # or something
+      target_compile_options(pca_iris PUBLIC -fno-modules-reduced-bmi)
     endif()
   endif()
 
