@@ -335,7 +335,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR (CMAKE_CXX_COMPILER_ID STREQUAL "GNU
   my_add_executable(pca_iris pca_iris.cpp)
 
   if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 21.99 OR CMAKE_CXX_COMPILER_VERSION VERSION_LESS 22.99)
+    if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 21.99 AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 22.99)
       # Clang 22 moved to using 'reduced BMI mode' by default. My code
       # in pca_iris revealed a bug in this mode (Clang 22 did not like
       # unary negate of an std::complex value). Clang 23 has fixed the
