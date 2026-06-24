@@ -30,13 +30,13 @@ export namespace sm::pca
         sm::vec<sm::vvec<T>, N> z;
         // The covariance matrix of the zero-shifted data
         sm::mat<T, N, N> covariance;
-        // Principal components magnitudes. The proportion of the variability each component accounts for.
-        sm::vec<T, N> pc_mags = {};
-        // Principal components magnitudes as proportions
-        sm::vec<T, N> pc_props = {};
-        // The real principal component Eigenvectors (with the imaginary components discarded).
-        sm::vec<sm::vec<T, N>, N> pc_ev_real;
-        // This holds the input data, projected onto the principal components
+        // The principal component unit vectors
+        sm::vec<sm::vec<T, N>, N> pc_vectors;
+        // Principal component magnitudes (like the SD of the data in each dimension)
+        sm::vec<T, N> pc_magnitudes = {};
+        // Principal component proportions (of the variability each component accounts for)
+        sm::vec<T, N> pc_proportions = {};
+        // This holds the centred input data, projected onto the principal components
         sm::vec<sm::vvec<T>, N> x_proj;
         // If you need the projected data as a vvec of vecs, then call this
         sm::vvec<sm::vec<T, N>> get_x_proj()
@@ -93,23 +93,23 @@ export namespace sm::pca
         // magnitude (PC1 has biggest eigenvalue)
         for (std::uint32_t ii = 0; ii < N; ++ii) {
             std::uint32_t i = N - ii - 1;
-            rtn.pc_mags[i] = std::sqrt (std::norm (pairs[ii].eigenvalue));
+            rtn.pc_magnitudes[i] = std::sqrt (std::norm (pairs[ii].eigenvalue));
             for (std::uint32_t j = 0; j < N; ++j) {
-                rtn.pc_ev_real[i][j] = std::real (pairs[ii].eigenvector[j]);
+                rtn.pc_vectors[i][j] = std::real (pairs[ii].eigenvector[j]);
             }
         }
         // Compute the magnitudes as proportions
-        rtn.pc_props = rtn.pc_mags / rtn.pc_mags.sum();
+        rtn.pc_proportions = rtn.pc_magnitudes / rtn.pc_magnitudes.sum();
 
         // 5. Project each datum, and store the projected data in rtn.
         for (std::uint32_t i = 0; i < N; ++i) { rtn.x_proj[i].resize (dsz); }
-        sm::vec<T, N> _x = {};
+        sm::vec<T, N> _z = {};
         for (std::uint32_t j = 0; j < dsz; ++j) { // for each datum...
-            // Make the _x vec (for computing a dot product)
-            for (std::uint32_t i = 0; i < N; ++i) { _x[i] = rtn.z[i][j]; }
+            // Make the _z vec (for computing a dot product)
+            for (std::uint32_t i = 0; i < N; ++i) { _z[i] = rtn.z[i][j]; }
             // Construct the projected datum by computing dot product for each dim
             for (std::uint32_t i = 0; i < N; ++i) {
-                rtn.x_proj[i][j] = _x.dot (rtn.pc_ev_real[i]);
+                rtn.x_proj[i][j] = _z.dot (rtn.pc_vectors[i]);
             }
         }
 

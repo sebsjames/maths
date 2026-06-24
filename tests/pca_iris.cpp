@@ -21,6 +21,6 @@ int main()
     std::cout << "Principal Components:\n\n";
 
     for (std::uint32_t i = 0; i < 4; ++i) {
-        std::cout << "PC " << (i + 1) << " = " << pca_res.pc_ev_real[i] << " which accounts for " << pca_res.pc_props[i] << " of the variability\n";
+        std::cout << "PC " << (i + 1) << " = " << pca_res.pc_vectors[i] << " which accounts for " << pca_res.pc_proportions[i] << " of the variability\n";
     }
 }
