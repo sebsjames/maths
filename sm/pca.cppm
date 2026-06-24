@@ -26,11 +26,9 @@ export namespace sm::pca
     {
         // The mean and standard deviation of each dimension of the input data
         sm::vec<sm::vvec<T>, N> mu_sig_x;
-#if 0
-        // The input data, after it has been standardized
+        // The input data, after it has been zero-shifted
         sm::vec<sm::vvec<T>, N> z;
-#endif
-        // The covariance matrix of the input data
+        // The covariance matrix of the zero-shifted data
         sm::mat<T, N, N> covariance;
         // Principal components magnitudes. The proportion of the variability each component accounts for.
         sm::vec<T, N> pc_mags = {};
@@ -79,20 +77,14 @@ export namespace sm::pca
             if (dsz != x[i].size()) { return rtn; }
         } // at end, we know all x[i] have same size, as required
 
-        // 1. Compute mean and std, normalize/standardize
+        // 1. Compute mean and std then standardize (by shifting all data to be zero-centered)
         for (std::uint32_t i = 0; i < N; ++i) {
-            rtn.mu_sig_x[i] = x[i].mean_std();
-#if 0
-            rtn.z[i] = (x[i] - rtn.mu_sig_x[i][0]) / rtn.mu_sig_x[i][1];
-#endif
+            rtn.mu_sig_x[i] = x[i].mean_std();    // We don't really need the standard deviation
+            rtn.z[i] = x[i] - rtn.mu_sig_x[i][0]; // mean-shift
         }
 
-        // 2. Calculate covariance matrix.
-#if 0
+        // 2. Calculate covariance matrix of the zero-centered data
         rtn.covariance = pca::covariance<T, N> (rtn.z);
-#else
-        rtn.covariance = pca::covariance<T, N> (x);
-#endif
 
         // 3. Compute Eigenvalues and vectors of the covariance matrix. Last element is largest magnitude
         sm::vec<typename sm::mat<T, N>::eigenpair, N> pairs = rtn.covariance.eigenpairs();
@@ -106,14 +98,15 @@ export namespace sm::pca
                 rtn.pc_ev_real[i][j] = std::real (pairs[ii].eigenvector[j]);
             }
         }
+        // Compute the magnitudes as proportions
         rtn.pc_props = rtn.pc_mags / rtn.pc_mags.sum();
 
-        // 5. Project each datum, and store the projected data in rtn. Some people call these the "Principal components"
+        // 5. Project each datum, and store the projected data in rtn.
         for (std::uint32_t i = 0; i < N; ++i) { rtn.x_proj[i].resize (dsz); }
         sm::vec<T, N> _x = {};
         for (std::uint32_t j = 0; j < dsz; ++j) { // for each datum...
             // Make the _x vec (for computing a dot product)
-            for (std::uint32_t i = 0; i < N; ++i) { _x[i] = x[i][j]; }
+            for (std::uint32_t i = 0; i < N; ++i) { _x[i] = rtn.z[i][j]; }
             // Construct the projected datum by computing dot product for each dim
             for (std::uint32_t i = 0; i < N; ++i) {
                 rtn.x_proj[i][j] = _x.dot (rtn.pc_ev_real[i]);
