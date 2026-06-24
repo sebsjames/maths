@@ -30,6 +30,8 @@ export namespace sm::pca
         sm::vec<sm::vvec<T>, N> z;
         // The covariance matrix of z
         sm::mat<T, N, N> cm_z;
+        // The covariance matrix of the input data
+        sm::mat<T, N, N> cm_x;
         // Principal components magnitudes. The proportion of the variability each component accounts for.
         sm::vec<T, N> pc_mags = {};
         // The real principal component Eigenvectors (with the imaginary components discarded).
@@ -74,24 +76,23 @@ export namespace sm::pca
 
         // 2. Calculate covariance matrix of z.
         rtn.cm_z = pca::covariance<T, N> (rtn.z);
+        // And of x
+        rtn.cm_x = pca::covariance<T, N> (x);
 
         // 3. Compute Eigenvalues and vectors of the covariance matrix. Last element is largest magnitude
-        sm::vec<typename sm::mat<T, N>::eigenpair, N> pairs = rtn.cm_z.eigenpairs();
-
+        sm::vec<typename sm::mat<T, N>::eigenpair, N> pairs = rtn.cm_x.eigenpairs();
 
         // 4. Store principal component magnitudes and vectors into rtn, in descending order of
         // magnitude (PC1 has biggest eigenvalue)
-        T ev_sum = T{0};
-        for (std::uint32_t i = 0; i < N; ++i) { ev_sum += std::norm(pairs[i].eigenvalue); }
         for (std::uint32_t ii = 0; ii < N; ++ii) {
             std::uint32_t i = N - ii - 1;
-            rtn.pc_mags[i] = std::norm(pairs[ii].eigenvalue) / ev_sum;
+            rtn.pc_mags[i] = std::sqrt (std::norm (pairs[ii].eigenvalue));
             for (std::uint32_t j = 0; j < N; ++j) {
-                rtn.pc_ev_real[i][j] = std::real(pairs[ii].eigenvector[j]);
+                rtn.pc_ev_real[i][j] = std::real (pairs[ii].eigenvector[j]);
             }
         }
 
-        // 5. Project each datum, and store the projected data in rtn
+        // 5. Project each datum, and store the projected data in rtn. Some people call these the "Principal components"
         for (std::uint32_t i = 0; i < N; ++i) { rtn.x_proj[i].resize (dsz); }
         sm::vec<T, N> _z = {};
         for (std::uint32_t j = 0; j < dsz; ++j) { // for each datum...
