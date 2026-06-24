@@ -26,18 +26,29 @@ export namespace sm::pca
     {
         // The mean and standard deviation of each dimension of the input data
         sm::vec<sm::vvec<T>, N> mu_sig_x;
-        // The input data, after it has been standardized in the usual way
+#if 0
+        // The input data, after it has been standardized
         sm::vec<sm::vvec<T>, N> z;
-        // The covariance matrix of z
-        sm::mat<T, N, N> cm_z;
+#endif
         // The covariance matrix of the input data
-        sm::mat<T, N, N> cm_x;
+        sm::mat<T, N, N> covariance;
         // Principal components magnitudes. The proportion of the variability each component accounts for.
         sm::vec<T, N> pc_mags = {};
+        // Principal components magnitudes as proportions
+        sm::vec<T, N> pc_props = {};
         // The real principal component Eigenvectors (with the imaginary components discarded).
         sm::vec<sm::vec<T, N>, N> pc_ev_real;
         // This holds the input data, projected onto the principal components
         sm::vec<sm::vvec<T>, N> x_proj;
+        // If you need the projected data as a vvec of vecs, then call this
+        sm::vvec<sm::vec<T, N>> get_x_proj()
+        {
+            sm::vvec<sm::vec<T, N>> xp (x_proj[0].size());
+            for (std::uint32_t i = 0; i < x_proj[0].size(); ++i) {
+                for (std::uint32_t j = 0; j < N; ++j) { xp[i][j] = x_proj[j][i]; }
+            }
+            return xp;
+        }
     };
 
     // Return covariance matrix for the data z, using the matrix multiplication x.T * X / (dsz-1)
@@ -71,16 +82,20 @@ export namespace sm::pca
         // 1. Compute mean and std, normalize/standardize
         for (std::uint32_t i = 0; i < N; ++i) {
             rtn.mu_sig_x[i] = x[i].mean_std();
+#if 0
             rtn.z[i] = (x[i] - rtn.mu_sig_x[i][0]) / rtn.mu_sig_x[i][1];
+#endif
         }
 
-        // 2. Calculate covariance matrix of z.
-        rtn.cm_z = pca::covariance<T, N> (rtn.z);
-        // And of x
-        rtn.cm_x = pca::covariance<T, N> (x);
+        // 2. Calculate covariance matrix.
+#if 0
+        rtn.covariance = pca::covariance<T, N> (rtn.z);
+#else
+        rtn.covariance = pca::covariance<T, N> (x);
+#endif
 
         // 3. Compute Eigenvalues and vectors of the covariance matrix. Last element is largest magnitude
-        sm::vec<typename sm::mat<T, N>::eigenpair, N> pairs = rtn.cm_x.eigenpairs();
+        sm::vec<typename sm::mat<T, N>::eigenpair, N> pairs = rtn.covariance.eigenpairs();
 
         // 4. Store principal component magnitudes and vectors into rtn, in descending order of
         // magnitude (PC1 has biggest eigenvalue)
@@ -91,16 +106,17 @@ export namespace sm::pca
                 rtn.pc_ev_real[i][j] = std::real (pairs[ii].eigenvector[j]);
             }
         }
+        rtn.pc_props = rtn.pc_mags / rtn.pc_mags.sum();
 
         // 5. Project each datum, and store the projected data in rtn. Some people call these the "Principal components"
         for (std::uint32_t i = 0; i < N; ++i) { rtn.x_proj[i].resize (dsz); }
-        sm::vec<T, N> _z = {};
+        sm::vec<T, N> _x = {};
         for (std::uint32_t j = 0; j < dsz; ++j) { // for each datum...
-            // Make the _z vec (for computing a dot product)
-            for (std::uint32_t i = 0; i < N; ++i) { _z[i] = rtn.z[i][j]; }
+            // Make the _x vec (for computing a dot product)
+            for (std::uint32_t i = 0; i < N; ++i) { _x[i] = x[i][j]; }
             // Construct the projected datum by computing dot product for each dim
             for (std::uint32_t i = 0; i < N; ++i) {
-                rtn.x_proj[i][j] = _z.dot (rtn.pc_ev_real[i]);
+                rtn.x_proj[i][j] = _x.dot (rtn.pc_ev_real[i]);
             }
         }
 
