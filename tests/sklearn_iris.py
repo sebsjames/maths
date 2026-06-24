@@ -25,7 +25,7 @@ ax.set_position([0, 0, 0.95, 1])
 
 
 plt.cla()
-pca = decomposition.PCA(n_components=3,svd_solver="full")
+pca = decomposition.PCA(n_components=4,svd_solver="full")
 pca.fit(X)
 
 # What can I get out of pca?
@@ -47,8 +47,8 @@ for name, label in [("Setosa", 0), ("Versicolour", 1), ("Virginica", 2)]:
 y = np.choose(y, [1, 2, 0]).astype(float)
 ax.scatter(X[:, 0], X[:, 1], X[:, 2], c=y, cmap=plt.cm.nipy_spectral, edgecolor="k")
 
-ax.xaxis.set_ticklabels([])
-ax.yaxis.set_ticklabels([])
-ax.zaxis.set_ticklabels([])
+#ax.xaxis.set_ticklabels([])
+#ax.yaxis.set_ticklabels([])
+#ax.zaxis.set_ticklabels([])
 
 plt.show()
