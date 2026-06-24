@@ -324,27 +324,28 @@ if(NOT APPLE)
 endif()
 endif()
 
-# Several compilers have trouble with std::complex arithmetic. Clang
-# 22 did not like unary negate of an std::complex value (I think it's
-# a bug/regression). 20 is ok; 23 is ok.
-if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 22 OR CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 22.99)
-    message ("Clang version ${CMAKE_CXX_COMPILER_VERSION} is OK for complex arithmetic (22 is bad)")
-    set(CLANG_OK_FOR_COMPLEX_DIV 1)
-  endif()
-endif()
-# GCC 15 also has trouble; with operator/ and std::complex arguments
-# (I think it's a bug), but GCC 16 is ok.
-if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 15.99)
-  message ("GCC version ${CMAKE_CXX_COMPILER_VERSION} is OK for complex arithmetic")
-  set(GCC_OK_FOR_COMPLEX_DIV 1)
-endif()
+# All the major compilers showed some trouble with std::complex
+# arithmetic around June 2026. Clang 22 required a workaround.  GCC 15
+# also had trouble; with operator/ and std::complex arguments, but GCC
+# 16.1 was ok.
 # Visual studio had trouble like GCC 15 (i.e. with operator/ for
 # std::complex within a module). I'll just prevent it from compiling
-# pca_iris altogether; I don't know if a particular version would work.
-
-if(CLANG_OK_FOR_COMPLEX_DIV OR GCC_OK_FOR_COMPLEX_DIV)
+# pca_iris for now; I don't know if a particular version would work.
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION GREATER_EQUAL 16.1))
   my_add_executable(pca_iris pca_iris.cpp)
+
+  if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 21.99 OR CMAKE_CXX_COMPILER_VERSION VERSION_LESS 22.99)
+      # Clang 22 moved to using 'reduced BMI mode' by
+      # default. pca_iris reveals a bug in this mode (it did not like
+      # unary negate of an std::complex value). Clang 23 has fixed the
+      # bug. The workaround is to switch Clang22 back to 'full BMI
+      # mode' for this target.
+      # https://github.com/llvm/llvm-project/issues/205361
+      target_compile_options(pca_iris PUBLIC -fno-modules-reduced-bmi) # or something
+    endif()
+  endif()
+
   target_sources_modules(pca_iris MODULES
     ${SM_VVEC_MODULES}
     ${SM_MAT_MODULES}
