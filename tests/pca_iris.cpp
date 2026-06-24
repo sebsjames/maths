@@ -16,11 +16,11 @@ int main()
     std::cout << "sm::pca::compute...\n";
     sm::pca::result<double, 4> pca_res = sm::pca::compute<double, 4> (x);
     std::cout << "\nMeans and SDs of the input data are " << pca_res.mu_sig_x << std::endl;
-    std::cout << "\nThe covariance matrix of the standardized data is\n\n" << pca_res.cm_z.str() << std::endl;
+    std::cout << "\nThe covariance matrix of the zeroed data is\n\n" << pca_res.covariance.str() << std::endl;
 
     std::cout << "Principal Components:\n\n";
 
     for (std::uint32_t i = 0; i < 4; ++i) {
-        std::cout << "PC " << (i + 1) << " = " << pca_res.pc_ev_real[i] << " which accounts for " << pca_res.pc_mags[i] << " of the variability\n";
+        std::cout << "PC " << (i + 1) << " = " << pca_res.pc_ev_real[i] << " which accounts for " << pca_res.pc_props[i] << " of the variability\n";
     }
 }
