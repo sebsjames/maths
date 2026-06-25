@@ -50,14 +50,23 @@ export namespace sm::pca
     };
 
     // Return covariance matrix for the data z, using the matrix multiplication x.T * X / (dsz-1)
+    // If the arrays in z are not of the same length, return matrix containing the max possible value for type T
     template<typename T, std::uint32_t N> requires std::is_arithmetic_v<T>
     sm::mat<T, N, N> covariance (const sm::vec<sm::vvec<T>, N>& z)
     {
-        std::uint32_t dsz = z[0].size();
         sm::mat<T, N, N> cm = {{}}; // Our covariance matrix
+        std::uint32_t dsz = z[0].size();
+        // Sanity check the column lengths
+        if (dsz == 0u) { return cm; } // Matrix of zeros
+        for (std::uint32_t i = 1; i < N; ++i) {
+            if (dsz != z[i].size()) {
+                cm.set_from (std::numeric_limits<T>::max());
+                return cm;
+            }
+        }
         for (std::uint32_t r = 0; r < N; ++r) {
             for (std::uint32_t c = 0; c < N; ++c) {
-                cm.arr[r * N + c] = z[c].dot (z[r]) / (dsz - 1);
+                cm(r, c) = z[c].dot (z[r]) / (dsz - 1);
             }
         }
         return cm;
