@@ -32,6 +32,8 @@ export namespace sm::pca
     template<typename T, std::uint32_t N> requires std::is_floating_point_v<T>
     struct result
     {
+        // A status or error code
+        pca::error_code error = pca::error_code::uncomputed;
         // The length of each column of z
         std::uint32_t dsz = 0u;
         // The mean and standard deviation of each dimension of the input data
@@ -48,7 +50,7 @@ export namespace sm::pca
         sm::vec<T, N> pc_proportions = {};
         // This holds the centred input data, projected onto the principal components
         sm::vec<sm::vvec<T>, N> x_proj;
-        // If you need the projected data as a vvec of vecs, then call this
+        // If you need to obtain the projected data as a vvec of vecs, then call this
         sm::vvec<sm::vec<T, N>> get_x_proj()
         {
             sm::vvec<sm::vec<T, N>> xp (x_proj[0].size());
@@ -57,8 +59,6 @@ export namespace sm::pca
             }
             return xp;
         }
-        // A status or error code
-        pca::error_code error = pca::error_code::uncomputed;
     };
 
     // Return covariance matrix for the data z, using the matrix multiplication x.T * X / (dsz-1)
