@@ -6,16 +6,9 @@ include_directories(BEFORE ${PROJECT_SOURCE_DIR})
 # Each C++ module file has to be listed here (as they don't have a .cppm or .ixx file suffix)
 set_source_files_properties (${SM_ALL_MODULES} PROPERTIES LANGUAGE CXX)
 
+# On this branch, my_add_executable is just an alias for add_executable
 macro (my_add_executable my_target my_sourcefile)
   add_executable(${my_target} ${my_sourcefile})
-  add_custom_command(
-    TARGET ${my_target}
-    POST_BUILD
-    COMMAND ${CMAKE_COMMAND}
-    ARGS -E remove ./CMakeFiles/${my_target}.dir/*.pcm
-    ARGS -E remove ./CMakeFiles/${my_target}.dir/*.gcm
-    COMMENT "Clean pcm/gcm files for ${my_target}"
-  )
 endmacro()
 
 # sm::interval
