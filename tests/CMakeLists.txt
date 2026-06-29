@@ -7,7 +7,7 @@ include_directories(BEFORE ${PROJECT_SOURCE_DIR})
 set_source_files_properties (${SM_ALL_MODULES} PROPERTIES LANGUAGE CXX)
 
 # Compile a library with all modules other than those that need third party code or links (sm::config and sm::hdfdata)
-add_library(sm SHARED)
+add_library(sm STATIC)
 target_sources_modules(sm MODULES ${SM_ALL_MODULES})
 
 # sm::interval
@@ -439,7 +439,7 @@ target_link_libraries(zernike1 PRIVATE sm)
 add_test(zernike1 zernike1)
 
 add_executable(algo_1 algo_1.cpp)
-target_link_libraries(algo_1 PUBLIC sm)
+target_link_libraries(algo_1 PRIVATE sm)
 add_test(algo_1 algo_1)
 
 add_executable(algo_sigfigs1 algo_sigfigs1.cpp)
