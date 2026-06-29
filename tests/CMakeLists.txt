@@ -186,7 +186,7 @@ if(HDF5_FOUND
     AND NOT (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 15.0))
 
   # Make an additional library that links in libhdf
-  add_library (sm_hdfdata SHARED)
+  add_library (sm_hdfdata STATIC)
   target_sources_modules(sm_hdfdata MODULES ${SM_HDFDATA_MODULES})
   target_link_libraries(sm_hdfdata ${HDF5_C_LIBRARIES})
 
