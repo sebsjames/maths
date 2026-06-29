@@ -118,9 +118,6 @@ setup_module_variables_for_maths (${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/js
 # All the modules are here
 add_subdirectory(sm)
 
-# Partial cleanup of precompiled module files is an option
-option(CLEAN_PCM "Clear precompiled modules files (pcm/gcm) after building each target (they are usually saved by default, which can consume a lot of storage in your build directory)" OFF)
-
 # Unit testing using the ctest framework
 option(BUILD_TESTS "Build tests" ON)
 if(BUILD_TESTS)

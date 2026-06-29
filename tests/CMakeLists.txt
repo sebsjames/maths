@@ -8,16 +8,14 @@ set_source_files_properties (${SM_ALL_MODULES} PROPERTIES LANGUAGE CXX)
 
 macro (my_add_executable my_target my_sourcefile)
   add_executable(${my_target} ${my_sourcefile})
-  if (CLEAN_PCM)
   add_custom_command(
     TARGET ${my_target}
     POST_BUILD
     COMMAND ${CMAKE_COMMAND}
     ARGS -E remove ./CMakeFiles/${my_target}.dir/*.pcm
     ARGS -E remove ./CMakeFiles/${my_target}.dir/*.gcm
-    COMMENT "Cleaned pcm/gcm files for ${my_target}"
+    COMMENT "Clean pcm/gcm files for ${my_target}"
   )
-  endif(CLEAN_PCM)
 endmacro()
 
 # sm::interval
