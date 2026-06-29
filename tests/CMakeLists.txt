@@ -330,7 +330,7 @@ endif()
 # std::complex within a module). I'll just prevent it from compiling
 # pca_iris for now; I don't know if a particular version would work.
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION GREATER_EQUAL 16.1))
-  my_add_executable(pca_iris pca_iris.cpp)
+  add_executable(pca_iris pca_iris.cpp)
 
   if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 21.99 AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 22.99)
