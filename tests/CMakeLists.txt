@@ -313,6 +313,37 @@ if(NOT APPLE)
 endif()
 endif()
 
+# All the major compilers showed some trouble with std::complex
+# arithmetic around June 2026. Clang 22 required a workaround.  GCC 15
+# also had trouble; with operator/ and std::complex arguments, but GCC
+# 16.1 was ok.
+# Visual studio had trouble like GCC 15 (i.e. with operator/ for
+# std::complex within a module). I'll just prevent it from compiling
+# pca_iris for now; I don't know if a particular version would work.
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION GREATER_EQUAL 16.1))
+  add_executable(pca_iris pca_iris.cpp)
+
+  if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 21.99 AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 22.99)
+      # Clang 22 moved to using 'reduced BMI mode' by default. My code
+      # in pca_iris revealed a bug in this mode (Clang 22 did not like
+      # unary negate of an std::complex value). Clang 23 has fixed the
+      # bug. The workaround is to switch Clang 22 back to 'full BMI
+      # mode' for this target.
+      # https://github.com/llvm/llvm-project/issues/205361
+      target_compile_options(pca_iris PUBLIC -fno-modules-reduced-bmi)
+    endif()
+  endif()
+
+  target_sources_modules(pca_iris MODULES
+    ${SM_VVEC_MODULES}
+    ${SM_MAT_MODULES}
+    ${PROJECT_SOURCE_DIR}/sm/pca.cppm
+    ${PROJECT_SOURCE_DIR}/tests/sklearn_iris.cppm
+  )
+  add_test(pca_iris pca_iris)
+endif()
+
 # Test quaternion and mat44 rotations in float and double precision
 add_executable(rotations1_float rotations1.cpp)
 target_compile_definitions(rotations1_float PUBLIC FLT=float)

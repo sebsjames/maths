@@ -886,6 +886,13 @@ export namespace sm
          *
          * Uses the Faddeev-LeVerrier algorithm to compute the characteristic polynomial det(A -
          * lambda*I) = 0, then solves for roots using polysolve.
+         *
+         * The eigenvalues will be returned with lexicographic ordering, which is ensured in sm::polysolve::sort_roots:
+         *
+         * Sort complex roots in standard order:
+         * Lexicographic ordering by (real, imag) components.
+         * This places real roots first in ascending order, followed by complex roots.
+         * Complex conjugate pairs naturally appear adjacent.
          */
         template<typename Fy=F> requires std::is_floating_point_v<Fy>
         sm::vec<std::complex<F>, Nr> eigenvalues() const noexcept

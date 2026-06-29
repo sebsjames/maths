@@ -96,10 +96,11 @@ There is also one test program (mat_4x4_vseigen.cpp) that will use the Eigen mat
 ## Build requirements
 
 Minimum compilers: g++-15, clang++-18, Visual Studio 2022.
+Recommended compilers: g++-16, clang++-20.
 You will need cmake version 3.28.5 as a minimum.
 Ninja is required as a partner for cmake because GNU make does not yet support C++-20 modules.
 
-gcc 15 compiles all the unit tests in *this* repository. If you wish to visualize with [mathplot](https://github.com/sebsjames/mathplot), you'll need gcc 16 (or clang-20 and up) for that code.
+gcc 15 compiles (almost) all the unit tests in *this* repository, but its modules support is considered experimental, and so gcc 16 is recommended. If you wish to visualize with [mathplot](https://github.com/sebsjames/mathplot), you'll certainly need gcc 16 (or clang-20 and up) for that code.
 
 ### Installing Clang on Ubuntu 24
 
