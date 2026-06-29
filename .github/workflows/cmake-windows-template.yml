@@ -51,6 +51,11 @@ jobs:
       run: ./vcpkg install --triplet=${{ inputs.VCPKG_TRIPLET }} --x-manifest-root=${{ github.workspace }}\vcpkg --x-install-root=installed
       working-directory: vcpkg_repo
 
+    - name: Install latest CMake
+      uses: ssrobins/install-cmake@v1
+      with:
+        release-candidate: true
+
     - name: Configure CMake
       run: |
         cmake -B ${{ github.workspace }}/build `
