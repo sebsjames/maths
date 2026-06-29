@@ -439,7 +439,7 @@ target_link_libraries(zernike1 PRIVATE sm)
 add_test(zernike1 zernike1)
 
 add_executable(algo_1 algo_1.cpp)
-target_link_libraries(algo_1 PRIVATE sm)
+target_link_libraries(algo_1 PUBLIC sm)
 add_test(algo_1 algo_1)
 
 add_executable(algo_sigfigs1 algo_sigfigs1.cpp)
