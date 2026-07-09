@@ -1,4 +1,4 @@
-name: Windows 2022
+name: Windows/VisualStudio
 on:
   push:
     branches: [ "main" ]
@@ -14,6 +14,6 @@ jobs:
   call-workflow-passing-data:
     uses: sebsjames/maths/.github/workflows/cmake-windows-template.yml@main
     with:
-      RUNNER_IMAGE: windows-2022
+      RUNNER_IMAGE: windows-latest
       BUILD_TYPE: Release
       VCPKG_TRIPLET: x64-windows
