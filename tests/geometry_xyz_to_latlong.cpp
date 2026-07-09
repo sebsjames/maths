@@ -54,7 +54,7 @@ int main()
     xyz *= r;
     ll = sm::geometry::spherical_projection::xyz_to_latlong (xyz);
     std::cout << xyz << " has Latitude "<< ll[0] << " and longitude " << ll[1] << std::endl;
-    if (ll[1] != -sm::mathconst<float>::pi_over_2) { std::cout << "Failed on -y axis\n"; --rtn; }
+    if (not_about_equal (ll[1], -sm::mathconst<float>::pi_over_2, eps) == true) { std::cout << "Failed on -y axis\n"; --rtn; }
 
     return rtn;
 }
