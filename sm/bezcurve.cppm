@@ -23,6 +23,7 @@ module;
 #include <cstdint>
 #include <concepts>
 #include <random>
+#include <format>
 
 export module sm.bezcurve;
 
@@ -64,11 +65,12 @@ export namespace sm
             this->M = this->matrix_setup_M();
 
             if ((this->C.rows() != cp.size()) || (this->C.cols() != 2u)) {
-                throw std::runtime_error ("bezcurve: size of control points does not match order");
+                throw std::runtime_error (std::format("bezcurve constructor: size of control points ({}) does not match C.rows() ({}) OR C.cols() ({}) != 2",
+                                                      cp.size(), this->C.rows(), this->C.cols()));
             }
 
             if (order != cp.size() - 1u) {
-                throw std::runtime_error ("bezcurve: size of control points does not match order");
+                throw std::runtime_error (std::format("bezcurve constructor: size of control points - 1 ({}) does not match order ({})", cp.size() - 1, order));
             }
 
             for (std::uint32_t i = 0u; i < C.rows(); ++i) {
@@ -142,9 +144,10 @@ export namespace sm
                   const sm::vvec<sm::vec<F, 2>>& only_cp)
         {
             this->M = this->matrix_setup_M();
-            std::uint32_t n_ctrls = only_cp.size()+2;
+            std::uint32_t n_ctrls = only_cp.size() + 2;
             if (this->C.rows() != n_ctrls || this->C.cols() != 2) {
-                throw std::runtime_error ("bezcurve: size of control points does not match order");
+                throw std::runtime_error (std::format ("bezcurve (vec, vec, vvec) constructor: size of control points ({}) does not match C.rows() ({}) OR C.cols() ({}) != 2",
+                                                       n_ctrls, this->C.rows(), this->C.cols()));
             }
             this->C(0, 0) = ip[0];
             this->C(0, 1) = ip[1];
@@ -162,7 +165,8 @@ export namespace sm
         void update_controls (const sm::vvec<sm::vec<F, 2>>& cp)
         {
             if (this->C.rows() != cp.size() || this->C.cols() != 2) {
-                throw std::runtime_error ("bezcurve: size of control points does not match order");
+                throw std::runtime_error (std::format ("bezcurve update_controls: size of control points ({}) does not match order ({}) OR C.cols() ({}) != 2",
+                                                       cp.size(), this->C.rows(), this->C.cols()));
             }
             std::int32_t i = 0;
             for (auto c : cp) {
@@ -311,7 +315,7 @@ export namespace sm
             if constexpr (debug_bezcurve == true) {
                 std::cout << "Objective with no optimization: " << startsos << std::endl;
             }
-            sm::mat<F, order - 1u, 2u> Copy = this->C;
+            sm::mat<F, order + 1u, 2u> Copy = this->C;
 
             // Convert the middle rows of C to vector<F> to be the first NM vertex
             sm::vvec<F> v0;
@@ -855,7 +859,7 @@ export namespace sm
         //! Getter for the control points in vector pair format
         sm::vvec<sm::vec<F, 2>> get_controls() const {
             sm::vvec<sm::vec<F, 2>> rtn;
-            for (std::uint32_t r = 0; r<this->C.n_rows; ++r) {
+            for (std::uint32_t r = 0; r<this->C.rows(); ++r) {
                 rtn.push_back (sm::vec<F, 2>({this->C(r, 0), this->C(r, 1)}));
             }
             return rtn;
