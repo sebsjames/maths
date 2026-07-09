@@ -39,8 +39,6 @@ jobs:
 
     - name: Install dependencies
       run: |
-        brew trust aws/tap
-        brew update
         brew install libomp hdf5 llvm
 
     - name: Configure CMake
