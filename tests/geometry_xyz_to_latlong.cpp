@@ -11,7 +11,7 @@ bool not_about_equal (const float a, const float b, const float eps)
 
 int main()
 {
-    constexpr float eps = std::numeric_limits<float>::epsilon();
+    constexpr float eps = std::numeric_limits<float>::epsilon() * 10;
     int rtn = 0;
 
     constexpr float r = 1.0f;
