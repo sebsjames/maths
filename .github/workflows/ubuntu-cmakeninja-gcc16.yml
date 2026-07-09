@@ -1,4 +1,4 @@
-name: Ubuntu gcc16 cmake + ninja
+name: Ubuntu/gcc16
 on:
   push:
     branches: [ "main" ]

@@ -1,4 +1,4 @@
-name: Ubuntu gcc15 cmake + ninja
+name: Ubuntu/gcc15
 on:
   push:
     branches: [ "main" ]
