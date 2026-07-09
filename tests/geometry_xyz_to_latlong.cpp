@@ -40,7 +40,7 @@ int main()
     xyz *= r;
     ll = sm::geometry::spherical_projection::xyz_to_latlong (xyz);
     std::cout << xyz << " has Latitude "<< ll[0] << " and longitude " << ll[1] << std::endl;
-    if (ll[1] != sm::mathconst<float>::pi) { std::cout << "Failed on -x axis\n"; --rtn; }
+    if (ll[1] != sm::mathconst<float>::pi && ll[1] != -sm::mathconst<float>::pi) { std::cout << "Failed on -x axis\n"; --rtn; }
 
     xyz = { 0, -1, 0 };
     xyz.renormalize();
