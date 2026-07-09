@@ -1525,12 +1525,6 @@ namespace sm
             return rtn;
         }
 
-#if defined( __GNUC__ )    // gcc defines __GNUC__, but this seems to be defined when using clang so...
-# if !defined( __clang__ ) // Also check __clang__ is NOT defined
-#  pragma GCC diagnostic push
-#  pragma GCC diagnostic ignored "-Wmaybe-uninitialized" // for gcc-14
-# endif
-#endif
         //! vec subtraction operator
         template<typename Sy=S>
         constexpr vec<S, N> operator- (const vec<Sy, N>& v) const noexcept
@@ -1541,11 +1535,6 @@ namespace sm
             std::transform (this->begin(), this->end(), vrtn.begin(), subtract_v);
             return vrtn;
         }
-#if defined( __GNUC__ )
-# if !defined( __clang__ )
-#  pragma GCC diagnostic pop
-# endif
-#endif
 
         //! Scalar subtraction
         template <typename Sy=S> requires std::is_scalar_v<std::decay_t<Sy>>
