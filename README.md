@@ -3,6 +3,7 @@
 ![Mac OS with LLVM Clang](https://github.com/sebsjames/maths/actions/workflows/mac-cmakeninja-clang.yml/badge.svg)
 ![Windows with VisualStudio](https://github.com/sebsjames/maths/actions/workflows/cmake-windows-latest.yml/badge.svg)
 ![GCC 15](https://github.com/sebsjames/maths/actions/workflows/ubuntu-cmakeninja-gcc15.yml/badge.svg)
+![GCC 16](https://github.com/sebsjames/maths/actions/workflows/ubuntu-cmakeninja-gcc16.yml/badge.svg)
 ![Clang 18](https://github.com/sebsjames/maths/actions/workflows/ubuntu-cmakeninja-clang18.yml/badge.svg)
 ![Clang 20](https://github.com/sebsjames/maths/actions/workflows/ubuntu-cmakeninja-clang20.yml/badge.svg)
 ![Clang 22](https://github.com/sebsjames/maths/actions/workflows/ubuntu-cmakeninja-clang22.yml/badge.svg)
