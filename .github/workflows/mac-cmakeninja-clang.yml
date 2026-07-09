@@ -1,0 +1,24 @@
+name: MacOS/clang (homebrew)
+on:
+  push:
+    branches: [ "main" ]
+    paths-ignore:
+      - 'docs/**'
+      - 'README**'
+      - 'examples/screenshots/**'
+      - 'examples/docs/**'
+  pull_request:
+    branches: [ "main" ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  call-workflow-passing-data:
+    uses: sebsjames/maths/.github/workflows/mac-cmakeninja-template.yml@main
+    with:
+      RUNNER_IMAGE: macos-15
+      BUILD_TYPE: Release
+      CC: /opt/homebrew/opt/llvm/bin/clang
+      CXX: /opt/homebrew/opt/llvm/bin/clang++
