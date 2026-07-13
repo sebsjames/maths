@@ -20,18 +20,18 @@ It provides:
 * Static and dynamically sized vector templates that are `constexpr` capable
 * A matrix template (with static memory allocation) that provides comprehensive matrix operations for real and complex values
 * A quaternion template class
-* Scaling and range (or interval) templates
+* Scaling and mathematical interval templates
 * Random number, and string generation
 * Classes for working with 2D grids of data (Cartesian and hexagonal)
 * Bezier curves and cubic spline fits
 * A variety of algorithms (Nelder-Mead, simulated annealing, winding numbers, box filter)
-* Basic statistics including a histo class and a number of bootstrap methods
+* Basic statistics including a histo class, a number of bootstrap methods and principal component analysis
 * A class that allows you to read and write to HDF5
 * A set of `constexpr` maths methods, derived from Keith O'Hara's GCEM project
 
 The vector classes are compatible with the standard library's C++ algorithms, and have their own built-in methods.
 
-The vector, quaternion, matrix and range classes are `constexpr` capable and can be used to build functions that generate lookup tables at compile time.
+The vector, quaternion, matrix and interval classes are `constexpr` capable and can be used to build functions that generate lookup tables at compile time.
 
 You can stream objects to debug or observe their values.
 
