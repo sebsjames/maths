@@ -365,6 +365,11 @@ add_executable(spline1 spline1.cpp)
 target_link_libraries(spline1 PRIVATE sm)
 add_test(spline1 spline1)
 
+# 4th order Runge-Kutta ODE solver
+add_executable(rungekutta4_1 rungekutta4_1.cpp)
+target_link_libraries(rungekutta4_1 PRIVATE sm)
+add_test(rungekutta4_1 rungekutta4_1)
+
 add_executable(test_trait_tests test_trait_tests.cpp)
 target_link_libraries(test_trait_tests PRIVATE sm)
 add_test(test_trait_tests test_trait_tests)
