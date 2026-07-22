@@ -67,6 +67,8 @@ export namespace sm::evenspacing
     sm::vvec<sm::vec<F, 2>> find_coordinates (F xs, F xe, std::int32_t n, std::function<F(const F)> f)
     {
         sm::vvec<sm::vec<F, 2>> rtn (n, sm::vec<F, 2>{});
+        // require n >= 2
+        if (n < 2) { return rtn; }
         // Compute the distance between n evenly spaced points on the function f()
         F dd = sm::evenspacing::estimate_length<F> (xs, xe, n * 100, f) / (n - 1);
         // This is the 'last coord for which we output a line'
