@@ -172,6 +172,7 @@ macro(setup_module_variables_for_maths base_directory json_directory)
     ${SM_RANDOM_MODULES}
     ${SM_VEC_MODULES}
     ${SM_VVEC_MODULES}
+    ${SM_EVENSPACING_MODULES}
     ${SM_SCALE_MODULES}
     ${SM_UTIL_MODULES}
     ${SM_QUATERNION_MODULES}
