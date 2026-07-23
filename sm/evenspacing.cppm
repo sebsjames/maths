@@ -106,6 +106,9 @@ export namespace sm::evenspacing
                     // Bisect near and mid: near_x unchanged; far becomes mid
                     far = mid;
                     --searching;
+                } else {
+                    // don't expect this else clause, but decrement to avoid inf loop
+                    --searching;
                 }
             }
         }
