@@ -23,7 +23,7 @@
  *     // number of coordinates to find
  *     const std::int32_t n = 10;
  *     std::cout << "The function f(x) between " << x0 << " and " << x1 << " has length approx: "
- *               << sm::evenspacing::estimate_length (x0, x1, n * 100, f) << '\n';
+ *               << sm::evenspacing::estimate_length<float> (x0, x1, n * 100, f) << '\n';
  *     sm::vvec<sm::vec<float, 2>> es = sm::evenspacing::find_coordinates<float> (x0, x1, n, f);
  * }
  *
