@@ -181,6 +181,10 @@ add_executable(scale_complex1 scale_complex1.cpp)
 target_link_libraries(scale_complex1 PRIVATE sm)
 add_test(scale_complex1 scale_complex1)
 
+add_executable(evenspacing1 evenspacing1.cpp)
+target_link_libraries(evenspacing1 PRIVATE sm)
+add_test(evenspacing1 evenspacing1)
+
 if(HDF5_FOUND
     AND NOT CMAKE_CXX_COMPILER_ID MATCHES MSVC
     AND NOT (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 15.0))

@@ -39,6 +39,12 @@ macro(setup_module_variables_for_maths base_directory json_directory)
     ${SM_RANDOM_MODULES}
     ${base_directory}/sm/vvec.cppm
   )
+  set(SM_EVENSPACING_MODULES
+    ${SM_VEC_MODULES}
+    ${SM_VVEC_MODULES}
+    ${base_directory}/sm/evenspacing.cppm
+  )
+  list(REMOVE_DUPLICATES SM_EVENSPACING_MODULES)
   set(SM_SCALE_MODULES
     ${SM_VVEC_MODULES}
     ${base_directory}/sm/scale.cppm
@@ -166,6 +172,7 @@ macro(setup_module_variables_for_maths base_directory json_directory)
     ${SM_RANDOM_MODULES}
     ${SM_VEC_MODULES}
     ${SM_VVEC_MODULES}
+    ${SM_EVENSPACING_MODULES}
     ${SM_SCALE_MODULES}
     ${SM_UTIL_MODULES}
     ${SM_QUATERNION_MODULES}
