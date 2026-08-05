@@ -142,6 +142,11 @@ macro(setup_module_variables_for_maths base_directory json_directory)
     ${SM_HEX_MODULES}
     ${base_directory}/sm/hexgrid.cppm
   )
+  set(SM_HEXGRID_HDF_MODULES
+    ${SM_HEXGRID_MODULES}
+    ${SM_HDFDATA_MODULES}
+    ${base_directory}/sm/hexgrid_hdf.cppm
+  )
   set(SM_CARTGRID_MODULES
     ${SM_BEZCURVEPATH_MODULES}
     ${SM_RECT_MODULES}
