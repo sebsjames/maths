@@ -23,15 +23,13 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # property on all targets declared after this to 1
 # set(CMAKE_CXX_MODULE_STD 1)
 
-# Add cmake directory to cmake modules path
-set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
-
 # A build-failure test from https://github.com/iboB/icm
-include(icm_build_failure_testing)
+include(${PROJECT_SOURCE_DIR}/cmake/icm_build_failure_testing.cmake)
 
 include(CheckIncludeFileCXX) # CHECK_INCLUDE_FILE_CXX will be used in later scripts
 
-include(module_definitions)
+# Defines our C++ module code file lists (such as SM_VEC_MODULES)
+include(${PROJECT_SOURCE_DIR}/cmake/module_definitions.cmake)
 
 # Add the host definition to CXXFLAGS along with other switches
 if (APPLE)
