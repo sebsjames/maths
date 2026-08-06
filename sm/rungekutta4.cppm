@@ -13,6 +13,8 @@
  * sm::vvec both implement the arithmetic operators (operator+ for state + state and
  * operator* for state * scalar) required to write the RK4 update in the same form as
  * the classic scalar algorithm.
+ *
+ * \author Alex Blenkinsop (with Claude Code then human sanity check from Seb)
  */
 
 module;
@@ -82,7 +84,8 @@ export namespace sm
         X x = X{};
         // Step size
         T h = T{1};
-        // Keep k1 to k4 as members, in case they are vvecs or vecs (thus avoiding re-allocating their memory)
+        // Keep k1 to k4 as members, in case they are vvecs or vecs. This avoids re-allocating their
+        // memory on each call to rungekutta4::step().
         X k1 = X{};
         X k2 = X{};
         X k3 = X{};
