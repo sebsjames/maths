@@ -28,38 +28,11 @@ export import sm.vvec;
 export namespace sm
 {
     /*!
-     * \brief Advance dx/dt = f(t, x) by one RK4 step
-     *
-     * T is the scalar type of the independent variable, the step size and the RK4
-     * weighting coefficients. State is the type of the dependent variable x; it may be
-     * a plain scalar (a single ODE), an sm::vec<T, N> (a fixed-size system of N ODEs)
-     * or an sm::vvec<T> (a system of an arbitrary number of ODEs).
-     *
-     * Because sm::vec and sm::vvec both define operator+ (state + state) and operator*
-     * (state * scalar), this code reads exactly like the classic 1D scalar RK4 update.
-     */
-    template <typename T, typename State>
-    State rk4_step (const std::function<State(const T&, const State&)>& f,
-                    const T& t, const State& x, const T& h)
-    {
-        const T half_h = h / T{2};
-        const T sixth_h = h / T{6};
-
-        State k1 = f (t, x);
-        State k2 = f (t + half_h, x + k1 * half_h);
-        State k3 = f (t + half_h, x + k2 * half_h);
-        State k4 = f (t + h, x + k3 * h);
-
-        return x + (k1 + k2 * T{2} + k3 * T{2} + k4) * sixth_h;
-    }
-
-    /*!
      * \brief Stateful 4th order Runge-Kutta integrator
      *
      * Holds the current state (t, x) of a system dx/dt = f(t, x), the derivative
      * function f and a step size h, so that step() and integrate() can be called
-     * repeatedly to march the solution forward. See rk4_step() for the underlying
-     * single-step update.
+     * repeatedly to march the solution forward.
      *
      * Example (single scalar ODE, dx/dt = -x):
      *\code{.cpp}
@@ -69,53 +42,69 @@ export namespace sm
      *
      * Example (a fixed-size system of 2 ODEs; simple harmonic motion):
      *\code{.cpp}
-     * using State = sm::vec<double, 2>;
-     * sm::rungekutta4<double, State> rk (
-     *     [](const double& t, const State& x) { return State{ x[1], -x[0] }; },
-     *     State{ 1.0, 0.0 }, 0.0, 0.01);
+     * using X = sm::vec<double, 2>;
+     * sm::rungekutta4<double, X> rk (
+     *     [](const double& t, const X& x) { return X{ x[1], -x[0] }; },
+     *     X{ 1.0, 0.0 }, 0.0, 0.01);
      * rk.step();
      *\endcode
      *
      * Example (a system of an arbitrary number of ODEs):
      *\code{.cpp}
-     * using State = sm::vvec<double>;
-     * sm::rungekutta4<double, State> rk (
-     *     [](const double& t, const State& x) { return x * -1.0; },
-     *     State{ 1.0, 2.0, 3.0 }, 0.0, 0.01);
+     * using X = sm::vvec<double>;
+     * sm::rungekutta4<double, X> rk (
+     *     [](const double& t, const X& x) { return x * -1.0; },
+     *     X{ 1.0, 2.0, 3.0 }, 0.0, 0.01);
      * rk.step();
      *\endcode
+     *
+     * \tparam T The scalar type of the independent variable, the step size and the RK4
+     * weighting coefficients.
+     *
+     * \tparam X The type of the dependent variable x; it may be
+     * a plain scalar (a single ODE), an sm::vec<T, N> (a fixed-size system of N ODEs)
+     * or an sm::vvec<T> (a system of an arbitrary number of ODEs).
      */
-    template <typename T, typename State = T>
+    template <typename T, typename X = T>
     struct rungekutta4
     {
         rungekutta4() {}
 
-        rungekutta4 (const std::function<State(const T&, const State&)>& _f,
-                     const State& _x0, const T& _t0 = T{0}, const T& _h = T{1})
+        rungekutta4 (const std::function<X(const T&, const X&)>& _f,
+                     const X& _x0, const T& _t0 = T{0}, const T& _h = T{1})
             : f(_f), t(_t0), x(_x0), h(_h) {}
 
         // dx/dt = f(t, x)
-        std::function<State(const T&, const State&)> f;
-
+        std::function<X(const T&, const X&)> f;
         // Independent variable (time)
         T t = T{0};
         // Current state, x(t)
-        State x = State{};
+        X x = X{};
         // Step size
         T h = T{1};
 
-        // Advance the solution by one step of size h, updating t and x in place
+        /*!
+         * Advance the solution by one step of size h, updating t and x in place
+         */
         void step()
         {
-            this->x = sm::rk4_step<T, State> (this->f, this->t, this->x, this->h);
+            const T half_h = this->h / T{2};
+            const T sixth_h = this->h / T{6};
+
+            X k1 = this->f (this->t, this->x);
+            X k2 = this->f (this->t + half_h, this->x + k1 * half_h);
+            X k3 = this->f (this->t + half_h, this->x + k2 * half_h);
+            X k4 = this->f (this->t + this->h, this->x + k3 * this->h);
+
+            this->x += (k1 + k2 * T{2} + k3 * T{2} + k4) * sixth_h;
             this->t += this->h;
         }
 
         // Advance the solution by n_steps steps of size h, returning the trajectory of
-        // states (including the initial state) as an sm::vvec<State> of size n_steps + 1
-        sm::vvec<State> integrate (const std::uint32_t n_steps)
+        // states (including the initial state) as an sm::vvec<X> of size n_steps + 1
+        sm::vvec<X> integrate (const std::uint32_t n_steps)
         {
-            sm::vvec<State> traj (n_steps + 1);
+            sm::vvec<X> traj (n_steps + 1);
             traj[0] = this->x;
             for (std::uint32_t i = 1; i <= n_steps; ++i) {
                 this->step();
