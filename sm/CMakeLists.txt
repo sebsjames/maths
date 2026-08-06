@@ -21,6 +21,7 @@ install(
   constexpr_math.cppm
   crc32.cppm
   edgeconv.cppm
+  evenspacing.cppm
   flags.cppm
   geometry.cppm
   geometry_polyhedra.cppm
