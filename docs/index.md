@@ -23,12 +23,12 @@ sm::mathconst<double>::root_2 // Square root of two, double precision
 ```
 
 ## Closed intervals
-The `sm::range` class specifies a closed interval [a, b] to get min/max pairs. It's a small class, but it gets frequent use.
+The `sm::interval` class specifies a mathematical interval (usually closed: [a, b]) to get min/max pairs. It's a small class, but it gets frequent use.
 ```c++
 import sm.vvec;
-import sm.range;
+import sm.interval;
 sm::vvec<int> v = { -1, 2, 3, 10 };
-sm::range<int> r = v.range();
+sm::interval<int> r = v.range();
 std::cout << r;  // Outputs: [ -1, 10 ]; r.min == -1; r.max == 10
 ```
 
@@ -116,6 +116,18 @@ std::cout << "Proportions are: " << h.proportions << std::endl;
 ## Optimization
 Implementations of the Nelder-Mead (`sm::nm_simplex`) and Simulated Annealing (`sm::anneal`) algorithms are provided.
 
+## Solvers
+
+We now have a fourth order Runge-Kutta solver class in `sm.rungekutta4`:
+```c++
+auto dxdt = [](const float& t, const float& x) { return -x; }; // dx(t)/dt = -x;
+float x0 = 1.0f; // Initial state x(t0)
+float t0 = 0.0f;
+float h = 0.01f; // step size (fixed, not adaptive in this implementation)
+sm::rungekutta4<float> rk (dxdt, x0, t0, h);
+rk.step();
+```
+
 ## Bezier curves
 
 The grid classes `sm::hexgrid` and `sm::cargrid` make use of Bezier curves to specify arbitrary boundaries. see `sm.bezcurve` and friends.
@@ -130,4 +142,4 @@ There are a number of well known algorithms that I've had need of. These include
 * Bootstrap statistical analyses (`sm.bootstrap`)
 * The crc32 checksum (`sm.crc32`)
 * base64 encoding (`sm.base64`)
-* Line segment crossing, linear regression, covariance and several other miscellaneous algos in `sm.algo`
+* Line segment crossing, linear regression, covariance, ransac, and several other miscellaneous algos in `sm.algo`
