@@ -40,7 +40,7 @@ export namespace sm
      */
     template <typename T, typename State>
     State rk4_step (const std::function<State(const T&, const State&)>& f,
-                     const T& t, const State& x, const T& h)
+                    const T& t, const State& x, const T& h)
     {
         const T half_h = h / T{2};
         const T sixth_h = h / T{6};
@@ -91,7 +91,7 @@ export namespace sm
         rungekutta4() {}
 
         rungekutta4 (const std::function<State(const T&, const State&)>& _f,
-                      const State& _x0, const T& _t0 = T{0}, const T& _h = T{1})
+                     const State& _x0, const T& _t0 = T{0}, const T& _h = T{1})
             : f(_f), t(_t0), x(_x0), h(_h) {}
 
         // dx/dt = f(t, x)
