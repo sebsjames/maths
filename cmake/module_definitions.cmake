@@ -107,6 +107,13 @@ macro(setup_module_variables_for_maths base_directory json_directory)
   )
   list(REMOVE_DUPLICATES SM_RANDOM_WALK_MODULES)
 
+  set(SM_RUNGEKUTTA4_MODULES
+    ${SM_VEC_MODULES}
+    ${SM_VVEC_MODULES}
+    ${base_directory}/sm/rungekutta4.cppm
+  )
+  list(REMOVE_DUPLICATES SM_RUNGEKUTTA4_MODULES)
+
   set(SM_BEZCOORD_MODULES
     ${SM_VEC_MODULES}
     ${base_directory}/sm/bezcoord.cppm
@@ -252,6 +259,7 @@ macro(setup_module_variables_for_maths base_directory json_directory)
     ${SM_MAT_MODULES}
     ${SM_SPLINE_MODULES}
     ${SM_RANDOM_WALK_MODULES}
+    ${SM_RUNGEKUTTA4_MODULES}
     ${SM_BEZCOORD_MODULES}
     ${SM_HEX_MODULES}
     ${SM_RECT_MODULES}
