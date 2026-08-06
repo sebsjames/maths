@@ -82,6 +82,11 @@ export namespace sm
         X x = X{};
         // Step size
         T h = T{1};
+        // Keep k1 to k4 as members, in case they are vvecs or vecs (thus avoiding re-allocating their memory)
+        X k1 = X{};
+        X k2 = X{};
+        X k3 = X{};
+        X k4 = X{};
 
         /*!
          * Advance the solution by one step of size h, updating t and x in place
@@ -91,10 +96,10 @@ export namespace sm
             const T half_h = this->h / T{2};
             const T sixth_h = this->h / T{6};
 
-            X k1 = this->f (this->t, this->x);
-            X k2 = this->f (this->t + half_h, this->x + k1 * half_h);
-            X k3 = this->f (this->t + half_h, this->x + k2 * half_h);
-            X k4 = this->f (this->t + this->h, this->x + k3 * this->h);
+            this->k1 = this->f (this->t, this->x);
+            this->k2 = this->f (this->t + half_h, this->x + k1 * half_h);
+            this->k3 = this->f (this->t + half_h, this->x + k2 * half_h);
+            this->k4 = this->f (this->t + this->h, this->x + k3 * this->h);
 
             this->x += (k1 + k2 * T{2} + k3 * T{2} + k4) * sixth_h;
             this->t += this->h;
