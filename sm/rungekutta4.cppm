@@ -32,9 +32,9 @@ export namespace sm
     /*!
      * \brief Stateful 4th order Runge-Kutta integrator
      *
-     * Holds the current state (t, x) of a system dx/dt = f(t, x), the derivative
-     * function f and a step size h, so that step() and integrate() can be called
-     * repeatedly to march the solution forward.
+     * Holds the current state (t, x) of an ODE system defined by dx/dt = f(t, x) and a step size h,
+     * so that step() can be called repeatedly to find subsequent states x(t'), N steps into the
+     * future, where t' = t + N * h;
      *
      * Example (single scalar ODE, dx/dt = -x):
      *\code{.cpp}
@@ -84,12 +84,28 @@ export namespace sm
         X x = X{};
         // Step size
         T h = T{1};
+
+    private:
         // Keep k1 to k4 as members, in case they are vvecs or vecs. This avoids re-allocating their
         // memory on each call to rungekutta4::step().
         X k1 = X{};
         X k2 = X{};
         X k3 = X{};
         X k4 = X{};
+
+    public:
+        //! Initialize
+        void init (const std::function<X(const T&, const X&)>& _f,
+                   const X& _x0, const T& _t0 = T{0}, const T& _h = T{1})
+        {
+            this->f = _f;
+            this->x = _x0;
+            this->t = _t0;
+            this->h = _h;
+        }
+
+        //! If f has not been set, then the rungekutta4 instance is not ready
+        bool ready() { return this->f ? true : false; }
 
         /*!
          * Advance the solution by one step of size h, updating t and x in place
@@ -108,11 +124,15 @@ export namespace sm
             this->t += this->h;
         }
 
-        // Advance the solution by n_steps steps of size h, returning the trajectory of
-        // states (including the initial state) as an sm::vvec<X> of size n_steps + 1
+        /*!
+         * Advance the solution by n_steps steps of size h, returning the trajectory of
+         * states (including the initial state) as an sm::vvec<X> of size n_steps + 1
+         */
         sm::vvec<X> integrate (const std::uint32_t n_steps)
         {
-            sm::vvec<X> traj (n_steps + 1);
+            sm::vvec<X> traj = {};
+            if (!this->ready()) { return traj; } // empty
+            traj.resize (n_steps + 1);
             traj[0] = this->x;
             for (std::uint32_t i = 1; i <= n_steps; ++i) {
                 this->step();
