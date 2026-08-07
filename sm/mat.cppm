@@ -1134,7 +1134,7 @@ export namespace sm
 
         sm::vec<eigenpair, Nr> eigenpairs() const noexcept
         {
-            static_assert ((Nr == Nc) || (Nr < 2u), "eigenpairs method is valid only for square matrices");
+            static_assert ((Nr == Nc) && (Nr >= 2u), "eigenpairs method is valid only for square matrices");
 
             sm::vec<eigenpair, Nr> pairs = {};
             sm::vec<std::complex<F>, Nr> lambdas = this->eigenvalues();
