@@ -586,7 +586,7 @@ for (const auto& p : pairs) {
 }
 ```
 
-**Careful:** `eigenvalues()`, `eigenvector()` and `eigenpairs()` are only implemented for real (floating-point) `F` - calling any of them on a `sm::mat<std::complex<...>, ...>` is a compile error (`static_assert(false, ...)`). Also, `eigenpairs()`'s square-matrix guard is written as `(Nr == Nc) || (Nr < 2u)`, unlike the `(Nr == Nc) && (Nr >= 2u)` guard on the other eigen-methods - this looks like it should be `&&`, though calling it on an invalid shape will still eventually fail via `eigenvalues()`'s own (correct) guard.
+**Careful:** `eigenvalues()`, `eigenvector()` and `eigenpairs()` are only implemented for real (floating-point) `F` - calling any of them on a `sm::mat<std::complex<...>, ...>` is a compile error (`static_assert(false, ...)`).
 
 ## Complex matrices
 
