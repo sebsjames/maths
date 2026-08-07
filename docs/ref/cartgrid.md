@@ -13,8 +13,6 @@ permalink: /ref/cartgrid/
 import sm.cartgrid;
 ```
 
-`sm::cartgrid` is a Cartesian grid of [`sm::rect`](https://github.com/sebsjames/maths/blob/main/sm/rect.cppm) elements that, unlike [`sm::grid`](/maths/ref/grid/), can be clipped to an arbitrary domain boundary (a closed curve, rather than just a rectangle). If you plan to use only rectangular boundaries, prefer the simpler, templated (and more recent) `sm::grid` instead; `cartgrid` exists specifically for the case where you need to use an irregularly shaped domain of rectangular elements.
-
 Module file: [sm/cartgrid.cppm](https://github.com/sebsjames/maths/blob/main/sm/cartgrid.cppm). Test code:
 [tests/cartgrid1](https://github.com/sebsjames/maths/blob/main/tests/cartgrid1.cpp)
 [tests/cartgrid_gridshiftcoords](https://github.com/sebsjames/maths/blob/main/tests/cartgrid_gridshiftcoords.cpp)
@@ -26,6 +24,8 @@ Module file: [sm/cartgrid.cppm](https://github.com/sebsjames/maths/blob/main/sm/
 {:toc}
 
 ## Summary
+
+`sm::cartgrid` is a Cartesian grid of [`sm::rect`](https://github.com/sebsjames/maths/blob/main/sm/rect.cppm) elements that, unlike [`sm::grid`](/maths/ref/grid/), can be clipped to an arbitrary domain boundary (a closed curve, rather than just a rectangle). If you plan to use only rectangular boundaries, prefer the simpler, templated (and more recent) `sm::grid` instead; `cartgrid` exists specifically for the case where you need to use an irregularly shaped domain of rectangular elements.
 
 An `sm::cartgrid` always starts out as a plain rectangular lattice of `sm::rect` elements, each of which knows its own Cartesian position, its integer row/column indices, and (once neighbours have been wired up) iterators to up to eight neighbouring rects (E, NE, N, NW, W, SW, S, SE). You can use the grid exactly as-is (a plain rectangle), or clip it down to an arbitrary shape by supplying a boundary — a closed [`sm::bezcurvepath`](https://github.com/sebsjames/maths/blob/main/sm/bezcurvepath.cppm) or a raw list of boundary points. Clipping discards every `rect` outside the boundary and re-links the neighbour relationships of what remains, so the grid you're left with contains only the elements inside your chosen shape.
 

@@ -13,10 +13,6 @@ permalink: /ref/hexgrid/
 import sm.hexgrid;
 ```
 
-`sm::hexgrid` is a hexagonal-tiling counterpart to [`sm::grid`](/maths/ref/grid/): rather than using rectangular elements, it lays out a grid of hexagons (each an `sm::hex`).
-Its design differs from `sm::grid`, being more similar to [`sm::cartgrid`](/maths/ref/cartgrid/). `sm::hexgrid` defines an initial hexagonal grid of hexagons which you can then clip to an arbitrary boundary in exactly the same spirit as `cartgrid` clips its rectangular lattice.
-Where `cartgrid` and `sm::grid` share three boundary/wrap-related enums, `hexgrid` predates that enum-based design — its boundary shape is chosen by which `set_*_boundary` method you call, rather than by setting a `domain_shape` member. `hexgrid` was written before `cartgrid`, which predated `grid`.
-
 Module file: [sm/hexgrid.cppm](https://github.com/sebsjames/maths/blob/main/sm/hexgrid.cppm). See also [sm/hexgrid_hdf.cppm](https://github.com/sebsjames/maths/blob/main/sm/hexgrid_hdf.cppm) for HDF5 save/load support, and [sm/hex.cppm](https://github.com/sebsjames/maths/blob/main/sm/hex.cppm) for the per-element `sm::hex` class. Example and test code:
 [examples/hexgrid](https://github.com/sebsjames/maths/blob/main/examples/hexgrid.cpp)
 [tests/bez2](https://github.com/sebsjames/maths/blob/main/tests/bez2.cpp)
@@ -28,7 +24,14 @@ Module file: [sm/hexgrid.cppm](https://github.com/sebsjames/maths/blob/main/sm/h
 
 ## Summary
 
-`sm::hexgrid` always starts out as a  filled hexagon of hexagonal elements, built outwards ring-by-ring from a single centre hex until it reaches a requested diameter. As with `cartgrid`, you can leave the grid as this default hexagonal shape, or clip it down to an arbitrary boundary — a circle, ellipse, rectangle, parallelogram, or a boundary you supply yourself as a closed [`sm::bezcurvepath`](https://github.com/sebsjames/maths/blob/main/sm/bezcurvepath.cppm) or list of points. Clipping discards every hex outside the boundary and re-links the neighbour relationships of what remains.
+`sm::hexgrid` is a hexagonal-tiling counterpart to [`sm::grid`](/maths/ref/grid/): rather than using rectangular elements, it lays out a grid of hexagons (each an `sm::hex`) to manage spatial information for an associated computation.
+It was designed for a study of [reaction-diffusion systems across two dimensional domains](https://elifesciences.org/articles/55588). `std::vector` arrays held the system state variables, and the spatial information for each element was managed in the hexgrid. Here, it was useful to use a hexagonal grid, because this made the [computation of the Laplacian easy](https://elifesciences.org/articles/55588#s4).
+
+The design of `hexgrid` differs from that of `sm::grid`, being more similar to [`sm::cartgrid`](/maths/ref/cartgrid/). `sm::hexgrid` defines an initial hexagonal grid of hexagons which you can then clip to an arbitrary boundary in exactly the same spirit as `cartgrid` clips its rectangular lattice.
+Where `cartgrid` and `sm::grid` share three boundary/wrap-related enums, `hexgrid` predates that enum-based design; its boundary shape is chosen by which `set_*_boundary` method you call, rather than by setting a `domain_shape` member. `hexgrid` was written before `cartgrid`, which predated `grid`.
+
+
+`sm::hexgrid` always starts out as a  filled hexagon of hexagonal elements, built outwards ring-by-ring from a single centre hex until it reaches a requested diameter. As with `cartgrid`, you can leave the grid as this default hexagonal shape, or clip it down to an arbitrary boundary; a circle, ellipse, rectangle, parallelogram, or a boundary you supply yourself as a closed [`sm::bezcurvepath`](https://github.com/sebsjames/maths/blob/main/sm/bezcurvepath.cppm) or list of points. Clipping discards every hex outside the boundary and re-links the neighbour relationships of what remains.
 
 `sm::hexgrid` is a non-templated class with coordinates of type `float` and indices of type `std::uint32_t` (sometimes cast to `std::int32_t`). It does not derive from, or share any types with, `sm::grid`; it does, however, share a very similar design and method-naming convention with `sm::cartgrid`. `hexgrid` was designed first, then `cartgrid` was coded up using the same ideas. (The `set_boundary`/`set_boundary_only`/`set_boundary_on_outer_edge`/`get_region` family, and the flat `d_*` cache-vector convention, are essentially the same functions applied to hexes instead of rects.)
 
@@ -154,4 +157,4 @@ sm::hexgrid_load (hg2, "myhexgrid.h5");
 ```
 Loading reconstructs each hex's six neighbour relationships by matching saved indices against the freshly-loaded hex list; an O(n²) operation for large grids; and throws `std::runtime_error` if any expected neighbour can't be matched. The boundary curve itself (as a `bezcurvepath`) is not saved; only the resulting hex positions, flags and neighbour relationships are.
 
-*This page was authored with AI, based on human written code in hexgrid.cppm.*
+*This page was authored with AI, based on human written code in hexgrid.cppm and reviewed by Seb James.*
