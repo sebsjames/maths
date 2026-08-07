@@ -95,3 +95,5 @@ many different test coordinates as you like.
 You don't need to explicitly close the boundary path by repeating its first
 coordinate at the end; `wind()` always treats the segment from the last
 coordinate back to the first as part of the boundary.
+
+*This page was authored with AI, based on human written code in winder.cppm, and reviewed by Seb James*
