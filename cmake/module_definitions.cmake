@@ -232,6 +232,11 @@ macro(setup_module_variables_for_maths base_directory json_directory)
   )
   list(REMOVE_DUPLICATES SM_CONFIG_MODULES)
 
+  set(SM_BASE64_MODULES
+    ${base_directory}/sm/base64.cppm
+  )
+  list(REMOVE_DUPLICATES SM_BASE64_MODULES)
+
   set(SM_CRC32_MODULES
     ${base_directory}/sm/crc32.cppm
   )
@@ -275,6 +280,7 @@ macro(setup_module_variables_for_maths base_directory json_directory)
     ${SM_BEZCURVEPATH_MODULES}
     ${SM_HEXGRID_MODULES}
     ${SM_CARTGRID_MODULES}
+    ${SM_BASE64_MODULES}
     ${SM_CRC32_MODULES}
     ${SM_FLAGS_MODULES}
   )
