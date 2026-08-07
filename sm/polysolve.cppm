@@ -345,13 +345,13 @@ export namespace sm::polysolve
         if (degree == 0) { return {}; }
 
         // Use analytical solutions for degrees 1-4, numerical method for higher orders
-        if constexpr (N == 1) {
+        if (degree == 1) {
             return polysolve::linear<T> (c[1], c[0]);
-        } else if constexpr (N == 2) {
+        } else if (degree == 2) {
             return polysolve::quadratic<T> (c[2], c[1], c[0]);
-        } else if constexpr (N == 3) {
+        } else if (degree == 3) {
             return polysolve::cubic<T> (c[3], c[2], c[1], c[0]);
-        } else if constexpr (N == 4) {
+        } else if (degree == 4) {
             return polysolve::quartic<T> (c[4], c[3], c[2], c[1], c[0]);
         } else {
             return polysolve::high_order<T> (c);
