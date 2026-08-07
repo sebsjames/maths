@@ -198,3 +198,5 @@ parameters are always fully recorded.
   to interact with it directly via its own API.
 * `std::string thefile`. The path associated with this `sm::config` (set by
   the constructor/`init`, and used as the default target for `write()`).
+
+*This page was authored with AI, based on human written code in config.cppm, and reviewed by Seb James*

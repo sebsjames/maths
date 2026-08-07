@@ -221,3 +221,5 @@ int main()
     // vfread now equals vf
 }
 ```
+
+*This page was authored with AI, based on human written code in hdfdata.cppm, and reviewed by Seb James*
