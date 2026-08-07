@@ -2,7 +2,7 @@
 layout: page
 title: sm::pca
 parent: Reference
-nav_order: 10
+nav_order: 12
 permalink: /ref/pca/
 ---
 # sm::pca
