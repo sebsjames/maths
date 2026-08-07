@@ -54,4 +54,4 @@ try {
 }
 ```
 
-*This page was authored with AI, based on human written code in base64.cppm.*
+*This page was authored with AI, based on human written code in base64.cppm. Checked by Seb James*

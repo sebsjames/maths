@@ -50,4 +50,4 @@ T prob_density (const T x) const noexcept
 }
 ```
 
-*This page was authored with AI, based on human written code in bessel_i0.cppm.*
+*This page was authored with AI, based on human written code in bessel_i0.cppm. Checked by Seb James*
