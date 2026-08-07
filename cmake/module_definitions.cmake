@@ -165,6 +165,12 @@ macro(setup_module_variables_for_maths base_directory json_directory)
   )
   list(REMOVE_DUPLICATES SM_NM_SIMPLEX_MODULES)
 
+  set(SM_ANNEAL_MODULES
+    ${SM_HDFDATA_MODULES}
+    ${base_directory}/sm/anneal.cppm
+  )
+  list(REMOVE_DUPLICATES SM_ANNEAL_MODULES)
+
   set(SM_HISTO_MODULES
     ${SM_VEC_MODULES}
     ${SM_VVEC_MODULES}
@@ -247,7 +253,7 @@ macro(setup_module_variables_for_maths base_directory json_directory)
   )
   list(REMOVE_DUPLICATES SM_FLAGS_MODULES)
 
-  # All except SM_CONFIG_MODULES and SM_HDFDATA_MODULES
+  # All except SM_CONFIG_MODULES, SM_HDFDATA_MODULES, SM_ANNEAL_MODULES (avoiding need for library linking)
   set(SM_ALL_MODULES
     ${SM_MATHCONST_MODULES}
     ${SM_CONSTEXPR_MATH_MODULES}
