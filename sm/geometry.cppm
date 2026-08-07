@@ -414,6 +414,27 @@ export namespace sm::geometry
         return false;
     }
 
+    // Find roots of a x * x + b * x + c = 0 and return them in a two element vector. The value
+    // numeric_limits<F>::max() means that there was no root. If both are max, then there were no
+    // roots.
+    template <typename F>
+    constexpr sm::vec<F, 2> solve_quadratic (const F& a, const F& b, const F& c)
+    {
+        sm::vec<F, 2> x = { std::numeric_limits<F>::max(), std::numeric_limits<F>::max() };
+        F discr = b * b - F{4} * a * c;
+        if (discr < F{0}) {
+            return x;
+        } else if (discr == F{0}) {
+            x.set_from (F{-0.5} * b / a);
+        } else {
+            F q = (b > F{0}) ? F{-0.5} * (b + sm::cem::sqrt (discr)) : F{-0.5} * (b - sm::cem::sqrt (discr));
+            x[0] = q / a;
+            x[1] = c / q;
+            if (x[0] > x[1]) { x.rotate(); }; // rotate does swap for 2 element vector
+        }
+        return x;
+    }
+
     // Find the 0, 1 or 2 points in space that the vector originating from l0 in direction l
     // intersects with the sphere of radius s and centre s0.
     template<typename T>
@@ -424,10 +445,10 @@ export namespace sm::geometry
         rtn[1] = {std::numeric_limits<T>::max()};
         // Analytic solution
         sm::vec<T, 3> L = l0 - s0;
-        T a = l.dot(l);
-        T b = T{2} * l.dot(L);
-        T c = L.dot(L) - s * s;
-        sm::vec<T, 2> t = sm::algo::solve_quadratic (a, b, c);
+        sm::vec<T, 2> t = sm::geometry::solve_quadratic (l.dot(l), T{2} * l.dot(L), L.dot(L) - s * s);
+        // Instead of our local solve_quadratic function, we could use sm::polysolve like this (untested):
+        //   std::array<T, 3> abc = { l.dot(l), T{2} * l.dot(L), L.dot(L) - s * s };
+        //   std::vector<std::complex<T>> sm::polysolve::real (abc);
         if (t[0] == std::numeric_limits<T>::max() && t[1] == t[0]) { return rtn; }
 
         if (t[0] < T{0}) {
