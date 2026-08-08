@@ -178,8 +178,8 @@ export namespace sm
         }
 
         /*!
-         * Fit a curve to @points, lining up with the curve @c. Assumes this curve
-         * appends to the end of @c. *May also modify @c*. Set @optimize to true to try
+         * Fit a curve to @points, lining up with the curve @preceding. Assumes this curve
+         * appends to the end of @preceding. *May also modify @preceding*. Set @optimize to true to try
          * out experimental fit improvements.
          */
         void fit (const sm::vvec<sm::vec<F, 2>>& points, bezcurve<F, order>& preceding, bool optimize=false)
@@ -545,7 +545,7 @@ export namespace sm
         }
 
         //! Obtain and return the derivative of this Bezier curve
-        template<typename Fy> requires (order > 1)
+        template<typename Fy=F> requires (order > 1)
         sm::mat<F, order, 2u> derivative() const
         {
             sm::mat<F, order, 2u> deriv_cp;
@@ -561,6 +561,8 @@ export namespace sm
          *
          * Using the matrix representation find, from this->C, a C1 and C2 that trace
          * the same trajectory.
+         *
+         * See https://pomax.github.io/bezierinfo/#matrixsplit
          */
         std::pair<sm::mat<F, order + 1u, 2u>, sm::mat<F, order + 1u, 2u>> split (F z) const
         {
@@ -585,7 +587,8 @@ export namespace sm
             for (std::uint32_t i = 0; i < n; ++i) {
                 // 'rotate row'
                 sm::vec<F, n> rw = Q.row (i);
-                rw.rotate (n - 1 - i); // FIXME MAY BE IN WRONG DIRECTION NOW
+                std::int32_t rti = static_cast<std::int32_t>(n - 1 - i);
+                rw.rotate (-rti);
                 Q.set_row (i, rw);
             }
             sm::mat<F, n, 2u> C2 = Q.flipud() * this->C;
@@ -666,14 +669,13 @@ export namespace sm
          */
         bezcoord<F> compute_point (F t) const
         {
-            switch (order) {
-            case 1:
+            if constexpr (order == 1) {
                 return this->compute_point_linear (t);
-            case 2:
+            } else if constexpr (order == 2) {
                 return this->compute_point_quadratic (t);
-            case 3:
+            } else if constexpr (order == 3) {
                 return this->compute_point_cubic (t);
-            default:
+            } else {
                 // Default to matrix, as this is faster than compute_point_general
                 return this->compute_point_matrix (t);
             }
@@ -730,10 +732,9 @@ export namespace sm
          */
         bezcoord<F> compute_point (F t, F l) const
         {
-            switch (order) {
-            case 1:
+            if constexpr (order == 1) {
                 return this->compute_point_linear (t, l);
-            default: // (including order 2 or 3)
+            } else {
                 return this->compute_point_by_search (t, l);
             }
         }
