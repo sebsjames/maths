@@ -69,15 +69,9 @@ cv.update_controls (c);
 ```c++
 sm::bezcoord<float> pt = cv.compute_point (0.4f);
 ```
-Internally, this dispatches on `order`: closed-form evaluation for `order` 1-3, or the general matrix-multiply method for `order >= 4`. You can also call the underlying evaluators directly, regardless of the curve's actual order, if you want a specific one:
-```c++
-sm::bezcoord<float> bm = cv.compute_point_matrix (0.4f);   // Cohen-Riesenfeld matrix method (T * M * C)
-sm::bezcoord<float> bg = cv.compute_point_general (0.4f);  // direct Bernstein-polynomial summation
-sm::bezcoord<float> bc = cv.compute_point_cubic (0.4f);    // closed-form cubic (only meaningful if order == 3)
-```
-`tests/bezmatrix.cpp` confirms the matrix and general methods agree to within `1e-5` for a cubic curve.
+Internally, this selects different methods based on the `order`; closed-form evaluation for first to third order curves, or the general matrix-multiply method for order >= 4.
 
-`compute_point(t, l)` starts at parameter `t` and moves a further Euclidean distance `l` along the curve, via a binary search over `t` (the search's tolerance is set as a percentage of `l` with `set_lthresh(F)`, default `1`). If there isn't `l` worth of curve left after `t`, or the search doesn't converge, it returns a **null** `bezcoord` (`is_null() == true`) whose `remaining` field holds the actual distance left. This convention is exactly what lets [`sm::bezcurvepath`](/maths/ref/bezcurvepath/) stitch samples smoothly across a sequence of curves.
+`compute_point(t, l)` starts at parameter `t` and moves a further Euclidean distance `l` along the curve, via a binary search over `t` (the search's tolerance is set as a percentage of `l` with `set_lthresh(F)`, default `1`). If there isn't `l` worth of curve left after `t`, or the search doesn't converge, it returns a **null** `bezcoord` (`is_null() == true`) whose `remaining` field holds the actual distance left. This convention lets [`sm::bezcurvepath`](/maths/ref/bezcurvepath/) stitch samples smoothly across a sequence of curves.
 
 For sampling many points at once:
 ```c++
@@ -91,32 +85,35 @@ For the arc-length and horizontal-distance overloads, the *last* element of the 
 ```c++
 auto [tangent, normal] = cv.compute_tangent_normal (0.4f);
 ```
-For `order > 1` this is built from `derivative<F>()`, which returns the `order` control points of a curve one degree lower (the derivative curve). **Careful:** `derivative`'s template parameter isn't deducible (it's never used in a way the compiler can infer from arguments), so you must always supply it explicitly, e.g. `cv.derivative<float>()`.
+For `order > 1` this is built from `derivative<F>()`, which returns the `order` control points of a curve one degree lower (the derivative curve).
 
 ## Fitting a curve to points
 
 ```c++
 cv.fit (points); // points.size() must equal order + 1, exactly
 ```
-This is an *exact interpolation* through the given points (parameterized by their estimated arc-length positions along the curve), not a least-squares fit over more points than the curve has degrees of freedom - `fit` throws `std::runtime_error` if `points.size() != order + 1`. Internally, the fit is computed in `double` precision even when `F` is `float`, because (per the source's own rationale) single precision only gives reliable fits up to around order 4 or 5.
+This is an *exact interpolation* through the given points (parameterized by their estimated arc-length positions along the curve), not a least-squares fit over more points than the curve has degrees of freedom - `fit` throws `std::runtime_error` if `points.size() != order + 1`. Internally, the fit is computed in `double` precision even when `F` is `float`, because it was found that single precision only gives reliable fits up to around order 4 or 5.
 ```c++
 sm::vvec<sm::vec<float,2>> c = { {-0.28f,0.0f}, {0.28f,0.0f}, {0.28f,0.45f}, {-0.28f,0.45f} };
 sm::bezcurve<float, 3> cv;
 cv.fit (c);
 std::cout << cv.get_order() << std::endl; // 3
 ```
-There's also a three-argument overload, `fit (points, preceding, optimize = false)`, which additionally smooths the tangent direction across the join with a `preceding` curve, and - if `optimize` is `true` - refines the interior control points with an `sm::nm_simplex` search that minimizes `compute_objective(points)`. **Careful:** unlike the single-argument `fit`, this overload (and `optimize = true` in particular) isn't exercised by any test in this repository, so its correctness is less well-established.
+There's also a three-argument overload, `fit (points, preceding, optimize = false)`, which additionally smooths the tangent direction across the join with a `preceding` curve, and - if `optimize` is `true` - refines the interior control points with an `sm::nm_simplex` search that minimizes `compute_objective(points)`.
 
 `compute_objective(points)` is itself public: it returns the sum of squared distances between arc-length-sampled points on the curve and `points` (or `F{-1}` - a sentinel, not an exception - if the sizes don't line up), and is the quantity the optimizing `fit` overload minimizes.
 
 ## Splitting a curve
 
+You can split a curve into two curves at any point t in the range [0,
+1]. The function `split` returns two new control point matrices for the two shorter curves:
+
 ```c++
 auto [c1, c2] = cv.split (0.5f); // control-point matrices of the two halves, split at t=0.5
+// explicitly: std::pair<sm::mat<float, 4, 2>, sm::mat<float, 4, 2>> splitpair = cv.split (0.5f);
 sm::bezcurve<float, 3> cv1 (c1);
 sm::bezcurve<float, 3> cv2 (c2);
 ```
-**Careful:** the only place in this repository that exercises `split` (`tests/bezsplit.cpp`) has that code wrapped in `#if 0` (disabled), immediately after a `// FIXME MAY BE IN WRONG DIRECTION NOW` comment in `bezcurve.cppm` itself. Treat `split`'s correctness as unverified until that FIXME is resolved.
 
 ## Scale and other queries
 
