@@ -139,4 +139,24 @@ export namespace sm
             return y;
         }
     };
+
+    /*
+     * Place n additional elements between each element in v, computing a cubic spline
+     * interpolation. v must initially contain exactly N elements.
+     */
+    template <typename T, std::uint32_t N>
+    void cubic_spline_expansion (sm::vvec<T>& v, std::uint32_t n)
+    {
+        if (v.size() != N) { throw std::runtime_error ("v.size != N!"); }
+        sm::vec<sm::vec<T, 2>, N> p;
+        for (std::uint32_t i = 0; i < N; ++i) { p[i] = { static_cast<T>(n) * i, v[i] }; }
+        sm::spline<T, N> spl (p);
+        const std::uint64_t newsz = v.size() + (v.size() - 1) * n;
+        v.resize (newsz, T{0});
+        // The amount ti has to increment depends on the output size (n * [N-1]):
+        const T end = static_cast<T>(n) * (N - 1);
+        const T tinc = end / (newsz - 1);
+        T ti = T{0};
+        for (std::uint32_t i = 0; i < v.size(); ++i, ti += tinc) { v[i] = spl.compute (ti); }
+    }
 }
