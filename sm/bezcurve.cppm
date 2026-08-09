@@ -788,7 +788,7 @@ export namespace sm
 
         /*!
          * For debugging/file use. Output, as a string, the bezcoords of this curve with
-         * the step size step in Cartesian space.
+         * the step size @step in Cartesian space.
          */
         std::string output (F step) const
         {
