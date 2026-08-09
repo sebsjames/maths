@@ -23,9 +23,9 @@ int main()
 
     std::pair<sm::mat<FLT, 4, 2>, sm::mat<FLT, 4, 2>> nc = cv.split (FLT{0.5});
 
-    std::cout << "oc=[" << cv.output_control() << "]\n";
-    std::cout << "c1=[" << nc.first << "]\n";
-    std::cout << "c2=[" << nc.second << "]\n";
+    std::cout << "oc=\n" << cv.output_control() << "\n";
+    std::cout << "c1=\n" << nc.first << "\n";
+    std::cout << "c2=\n" << nc.second << "\n";
 
     sm::bezcurve<FLT, 3> cv1 (nc.first);
     sm::bezcurve<FLT, 3> cv2 (nc.second);

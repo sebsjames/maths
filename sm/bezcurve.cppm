@@ -74,9 +74,8 @@ export namespace sm
             }
 
             for (std::uint32_t i = 0u; i < C.rows(); ++i) {
-                std::cout << "C.row(i) = " << C.row (i); // A cout here seems to be critical to avoid segfault
+                // Here is the location of the old cout that seemed at some point to be necessary to avoid segfault.
                 this->C.set_row (i, cp[i]);
-                std::cout << "; set to " << C.row (i) << std::endl;
             }
 
             this->init();
@@ -1194,7 +1193,7 @@ export namespace sm
         sm::mat<F, order + 1u> M = { {} };
 
         //! The control points. Number of rows in C is order - 1, number of cols is 2
-        sm::mat<F, order + 1u, 2u> C = { {} }; // hmm, have to deal with order - 1 = 0
+        sm::mat<F, order + 1u, 2u> C = { {} };
 
         //! M*C
         sm::mat<F, order + 1u, 2u> MC = { {} };
