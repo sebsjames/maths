@@ -37,7 +37,7 @@ export namespace sm
 
                 // dist from hi to datum:
                 sm::vec<T> hipos = { hi->x, hi->y, T{0} };
-                T _d = (hipos - datum).length();
+                T _d = (hipos - datum.less_one_dim()).length();
                 if (_d <= hg->get_v()) {
                     counts[hi->vi] += T{1};
                     //std::cout << "crossing at " << datum << " has nearest hex: " << hi->output_xy() << " for which count = " << counts[hi->vi] << std::endl;

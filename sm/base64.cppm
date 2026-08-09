@@ -17,7 +17,7 @@ module;
 
 export module sm.base64;
 
-export namespace base64
+export namespace sm::base64
 {
     const char k_encode_lookup[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
     const char k_pad_character = '=';

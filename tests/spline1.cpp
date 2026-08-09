@@ -15,8 +15,6 @@ int main()
 
     spl.compute_coefficients();
 
-    std::cout << (rtn == 0 ? "\nAll tests passed\n" : "\nSome tests failed\n");
-
     sm::vvec<float> x;
     x.linspace (1, 8, 40);
     sm::vvec<float> y = spl.compute (x);

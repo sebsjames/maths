@@ -34,10 +34,127 @@ import sm.algo;
 import sm.vec;
 import sm.vvec;
 
-export namespace sm
+namespace sm
 {
+    namespace internal
+    {
+        constexpr sm::vec<int, 28> supported_N()
+        {
+            sm::vec<int, 28> sn = {};
+            int j = 0;
+            for (int i = 2; i < 21; ++i) { sn[j++] = i; } // 2 - 20
+            sn[j++] = 25;
+            for (int i = 30; i < 110; i += 10) { sn[j++] = i; } // 30 - 100
+            return sn;
+        }
+
+        // Place n elements between each element in v, computing a cubic spline interpolation,
+        // assuming that the x in f(x) increases from the minimum in v to its maximum. This calls
+        // fixed-size versions of cubic_spline_expansion due to the limitation from our fixed size
+        // sm::mat.
+        template <typename T>
+        void cubic_spline_expansion (sm::vvec<T>& v, std::uint32_t n)
+        {
+            constexpr sm::vec<int, 28> sn = supported_N();
+
+            // sm::mat is a fixed size matrix template class, so we have to have a switch statement
+            switch (v.size()) {
+            case 2:
+                sm::cubic_spline_expansion<T, 2> (v, n);
+                break;
+            case 3:
+                sm::cubic_spline_expansion<T, 3> (v, n);
+                break;
+            case 4:
+                sm::cubic_spline_expansion<T, 4> (v, n);
+                break;
+            case 5:
+                sm::cubic_spline_expansion<T, 5> (v, n);
+                break;
+            case 6:
+                sm::cubic_spline_expansion<T, 6> (v, n);
+                break;
+            case 7:
+                sm::cubic_spline_expansion<T, 7> (v, n);
+                break;
+            case 8:
+                sm::cubic_spline_expansion<T, 8> (v, n);
+                break;
+            case 9:
+                sm::cubic_spline_expansion<T, 9> (v, n);
+                break;
+            case 10:
+                sm::cubic_spline_expansion<T, 10> (v, n);
+                break;
+            case 11:
+                sm::cubic_spline_expansion<T, 11> (v, n);
+                break;
+            case 12:
+                sm::cubic_spline_expansion<T, 12> (v, n);
+                break;
+            case 13:
+                sm::cubic_spline_expansion<T, 13> (v, n);
+                break;
+            case 14:
+                sm::cubic_spline_expansion<T, 14> (v, n);
+                break;
+            case 15:
+                sm::cubic_spline_expansion<T, 15> (v, n);
+                break;
+            case 16:
+                sm::cubic_spline_expansion<T, 16> (v, n);
+                break;
+            case 17:
+                sm::cubic_spline_expansion<T, 17> (v, n);
+                break;
+            case 18:
+                sm::cubic_spline_expansion<T, 18> (v, n);
+                break;
+            case 19:
+                sm::cubic_spline_expansion<T, 19> (v, n);
+                break;
+            case 20:
+                sm::cubic_spline_expansion<T, 20> (v, n);
+                break;
+            case 25:
+                sm::cubic_spline_expansion<T, 25> (v, n);
+                break;
+            case 30:
+                sm::cubic_spline_expansion<T, 30> (v, n);
+                break;
+            case 40:
+                sm::cubic_spline_expansion<T, 40> (v, n);
+                break;
+            case 50:
+                sm::cubic_spline_expansion<T, 50> (v, n);
+                break;
+            case 60:
+                sm::cubic_spline_expansion<T, 60> (v, n);
+                break;
+            case 70:
+                sm::cubic_spline_expansion<T, 70> (v, n);
+                break;
+            case 80:
+                sm::cubic_spline_expansion<T, 80> (v, n);
+                break;
+            case 90:
+                sm::cubic_spline_expansion<T, 90> (v, n);
+                break;
+            case 100:
+                sm::cubic_spline_expansion<T, 100> (v, n);
+                break;
+            case 0:
+            case 1:
+            default:
+                std::cerr << "Make sure n_steps / a_tau gives a result in the list " << sn << std::endl;
+                throw std::runtime_error (std::format("internal::cubic_spline_expansion cannot handle a vvec of size {} with n = {}.", v.size(), n));
+                break;
+            }
+        }
+    } // namespace internal
+
     // Make a randomized path to follow
-    template <typename T>
+    export template <typename T>
     struct random_walk
     {
         random_walk() {}
@@ -73,7 +190,7 @@ export namespace sm
             this->a.randomize();
             this->a *= (amm.span());
             this->a += amm.min;
-            cubic_spline_expansion (this->a, this->a_tau);
+            internal::cubic_spline_expansion (this->a, this->a_tau);
         }
 
         // Reset state
@@ -86,7 +203,7 @@ export namespace sm
             this->speed = T{0};
         }
 
-        void about_turn() { this->theta += sm::mathconst<float>::pi; }
+        void about_turn() { this->theta += sm::mathconst<T>::pi; }
 
         // Advance the route generation by one timestep
         void step()
@@ -151,131 +268,5 @@ export namespace sm
         // Random number generation
         std::unique_ptr<sm::rand_vonmises<T>> rVM;
     };
-
-    template <typename T, std::uint32_t N>
-    void cubic_spline_expansion (sm::vvec<T>& v, std::uint32_t n)
-    {
-        if (v.size() != N) { throw std::runtime_error ("v.size != N!"); }
-        sm::vec<sm::vec<T, 2>, N> p;
-        for (std::uint32_t i = 0; i < N; ++i) { p[i] = { static_cast<T>(n) * i, v[i] }; }
-        sm::spline<T, N> spl (p);
-        v.resize (v.size() * (n + 1), T{0});
-        T ti = T{0};
-        for (std::uint32_t i = 0; i < v.size(); ++i, ti += T{1}) { v[i] = spl.compute (ti); }
-    }
-
-    constexpr sm::vec<int, 28> supported_N()
-    {
-        sm::vec<int, 28> sn = {};
-        int j = 0;
-        for (int i = 2; i < 21; ++i) { sn[j++] = i; } // 2 - 20
-        sn[j++] = 25;
-        for (int i = 30; i < 110; i += 10) { sn[j++] = i; } // 30 - 100
-        return sn;
-    }
-
-    // Place n elements between each element in v, computing a cubic spline interpolation, assuming
-    // that the x in f(x) increases by the value 1 with each step. Think of x as t, and there is 1
-    // timestep between each element in the expanded vvec v. This calls fixed-size versions of
-    // cubic_spline_expansion due to the limitation from our fixed size sm::mat.
-    template <typename T>
-    void cubic_spline_expansion (sm::vvec<T>& v, std::uint32_t n)
-    {
-        constexpr sm::vec<int, 28> sn = supported_N();
-
-        // sm::mat is a fixed size matrix template class, so we have to have a switch statement
-        switch (v.size()) {
-        case 2:
-            cubic_spline_expansion<T, 2> (v, n);
-            break;
-        case 3:
-            cubic_spline_expansion<T, 3> (v, n);
-            break;
-        case 4:
-            cubic_spline_expansion<T, 4> (v, n);
-            break;
-        case 5:
-            cubic_spline_expansion<T, 5> (v, n);
-            break;
-        case 6:
-            cubic_spline_expansion<T, 6> (v, n);
-            break;
-        case 7:
-            cubic_spline_expansion<T, 7> (v, n);
-            break;
-        case 8:
-            cubic_spline_expansion<T, 8> (v, n);
-            break;
-        case 9:
-            cubic_spline_expansion<T, 9> (v, n);
-            break;
-        case 10:
-            cubic_spline_expansion<T, 10> (v, n);
-            break;
-        case 11:
-            cubic_spline_expansion<T, 11> (v, n);
-            break;
-        case 12:
-            cubic_spline_expansion<T, 12> (v, n);
-            break;
-        case 13:
-            cubic_spline_expansion<T, 13> (v, n);
-            break;
-        case 14:
-            cubic_spline_expansion<T, 14> (v, n);
-            break;
-        case 15:
-            cubic_spline_expansion<T, 15> (v, n);
-            break;
-        case 16:
-            cubic_spline_expansion<T, 16> (v, n);
-            break;
-        case 17:
-            cubic_spline_expansion<T, 17> (v, n);
-            break;
-        case 18:
-            cubic_spline_expansion<T, 18> (v, n);
-            break;
-        case 19:
-            cubic_spline_expansion<T, 19> (v, n);
-            break;
-        case 20:
-            cubic_spline_expansion<T, 20> (v, n);
-            break;
-        case 25:
-            cubic_spline_expansion<T, 25> (v, n);
-            break;
-        case 30:
-            cubic_spline_expansion<T, 30> (v, n);
-            break;
-        case 40:
-            cubic_spline_expansion<T, 40> (v, n);
-            break;
-        case 50:
-            cubic_spline_expansion<T, 50> (v, n);
-            break;
-        case 60:
-            cubic_spline_expansion<T, 60> (v, n);
-            break;
-        case 70:
-            cubic_spline_expansion<T, 70> (v, n);
-            break;
-        case 80:
-            cubic_spline_expansion<T, 80> (v, n);
-            break;
-        case 90:
-            cubic_spline_expansion<T, 90> (v, n);
-            break;
-        case 100:
-            cubic_spline_expansion<T, 100> (v, n);
-            break;
-        case 0:
-        case 1:
-        default:
-            std::cerr << "Make sure n_steps / a_tau gives a result in the list " << sn << std::endl;
-            throw std::runtime_error (std::format("sm::cubic_spline_expansion cannot handle a vvec of size {} with n = {}.", v.size(), n));
-            break;
-        }
-    }
 
 } // namespace

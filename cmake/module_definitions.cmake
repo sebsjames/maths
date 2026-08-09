@@ -165,6 +165,12 @@ macro(setup_module_variables_for_maths base_directory json_directory)
   )
   list(REMOVE_DUPLICATES SM_NM_SIMPLEX_MODULES)
 
+  set(SM_ANNEAL_MODULES
+    ${SM_HDFDATA_MODULES}
+    ${base_directory}/sm/anneal.cppm
+  )
+  list(REMOVE_DUPLICATES SM_ANNEAL_MODULES)
+
   set(SM_HISTO_MODULES
     ${SM_VEC_MODULES}
     ${SM_VVEC_MODULES}
@@ -215,6 +221,14 @@ macro(setup_module_variables_for_maths base_directory json_directory)
   )
   list(REMOVE_DUPLICATES SM_HEXGRID_HDF_MODULES)
 
+  set(SM_HEXYHISTO_MODULES
+    ${SM_VEC_MODULES}
+    ${SM_VVEC_MODULES}
+    ${SM_HEXGRID_MODULES}
+    ${base_directory}/sm/hexyhisto.cppm
+  )
+  list(REMOVE_DUPLICATES SM_HEXYHISTO_MODULES)
+
   set(SM_CARTGRID_MODULES
     ${SM_BEZCURVEPATH_MODULES}
     ${SM_RECT_MODULES}
@@ -232,6 +246,11 @@ macro(setup_module_variables_for_maths base_directory json_directory)
   )
   list(REMOVE_DUPLICATES SM_CONFIG_MODULES)
 
+  set(SM_BASE64_MODULES
+    ${base_directory}/sm/base64.cppm
+  )
+  list(REMOVE_DUPLICATES SM_BASE64_MODULES)
+
   set(SM_CRC32_MODULES
     ${base_directory}/sm/crc32.cppm
   )
@@ -242,7 +261,7 @@ macro(setup_module_variables_for_maths base_directory json_directory)
   )
   list(REMOVE_DUPLICATES SM_FLAGS_MODULES)
 
-  # All except SM_CONFIG_MODULES and SM_HDFDATA_MODULES
+  # All except SM_CONFIG_MODULES, SM_HDFDATA_MODULES, SM_ANNEAL_MODULES (avoiding need for library linking)
   set(SM_ALL_MODULES
     ${SM_MATHCONST_MODULES}
     ${SM_CONSTEXPR_MATH_MODULES}
@@ -274,7 +293,9 @@ macro(setup_module_variables_for_maths base_directory json_directory)
     ${SM_BEZCURVE_MODULES}
     ${SM_BEZCURVEPATH_MODULES}
     ${SM_HEXGRID_MODULES}
+    ${SM_HEXYHISTO_MODULES}
     ${SM_CARTGRID_MODULES}
+    ${SM_BASE64_MODULES}
     ${SM_CRC32_MODULES}
     ${SM_FLAGS_MODULES}
   )
