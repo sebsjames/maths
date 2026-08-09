@@ -293,6 +293,7 @@ macro(setup_module_variables_for_maths base_directory json_directory)
     ${SM_BEZCURVE_MODULES}
     ${SM_BEZCURVEPATH_MODULES}
     ${SM_HEXGRID_MODULES}
+    ${SM_HEXYHISTO_MODULES}
     ${SM_CARTGRID_MODULES}
     ${SM_BASE64_MODULES}
     ${SM_CRC32_MODULES}
