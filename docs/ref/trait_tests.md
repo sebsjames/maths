@@ -92,4 +92,4 @@ Verified while writing this page (`tests/trait_tests_number_type.cpp`): all five
 sm::is_constexpr_constructible<T>(0); // true if T{} is a valid constant expression
 ```
 
-*This page was authored with AI, based on human written code in trait_tests.cppm.*
+*This page was authored with AI, based on human written code in trait_tests.cppm. Reviewed by Seb James.*
