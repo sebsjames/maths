@@ -221,6 +221,14 @@ macro(setup_module_variables_for_maths base_directory json_directory)
   )
   list(REMOVE_DUPLICATES SM_HEXGRID_HDF_MODULES)
 
+  set(SM_HEXYHISTO_MODULES
+    ${SM_VEC_MODULES}
+    ${SM_VVEC_MODULES}
+    ${SM_HEXGRID_MODULES}
+    ${base_directory}/sm/hexyhisto.cppm
+  )
+  list(REMOVE_DUPLICATES SM_HEXYHISTO_MODULES)
+
   set(SM_CARTGRID_MODULES
     ${SM_BEZCURVEPATH_MODULES}
     ${SM_RECT_MODULES}
