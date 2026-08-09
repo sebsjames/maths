@@ -86,7 +86,7 @@ export namespace sm
             this->speed = T{0};
         }
 
-        void about_turn() { this->theta += sm::mathconst<float>::pi; }
+        void about_turn() { this->theta += sm::mathconst<T>::pi; }
 
         // Advance the route generation by one timestep
         void step()
