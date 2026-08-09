@@ -42,7 +42,6 @@ The most general constructor takes all `order + 1` control points (including bot
 sm::vvec<sm::vec<float,2>> c = { {1,1}, {2,8}, {9,8}, {10,1} };
 sm::bezcurve<float, 3> cv (c); // order 3 -> needs exactly 4 points
 ```
-**Careful:** this constructor's control-point-copying loop unconditionally prints two lines of debug output per control point to `std::cout` - this isn't gated by any flag; it's just how the current code behaves. (The source comment above the `std::cout` call reads "A cout here seems to be critical to avoid segfault", suggesting it's a workaround left in place rather than deliberate logging.)
 
 You can also pass the control points directly as an `sm::mat<F, order+1, 2>`, or use one of the fixed-order convenience constructors:
 ```c++
@@ -115,32 +114,51 @@ sm::bezcurve<float, 3> cv1 (c1);
 sm::bezcurve<float, 3> cv2 (c2);
 ```
 
-## Scale and other queries
+## Scaling the output
+
+`bezcurve` has a scaling factor for the output coordinates. This was implemented to apply scaling factors from a SVG file, where curves are defined along with a scale to change into a desired set of units (such cm or mm). The scale defaults to 1, but may be changed wtih `set_scale`.
 
 ```c++
 cv.set_scale (2.0f); // see caveat below
 float len_x2 = cv.get_initial_point_scaled().length(); // scale applied
 std::uint32_t ord = cv.get_order();
-sm::vvec<sm::vec<float,2>> ctrls = cv.get_controls(); // unscaled
+sm::vvec<sm::vec<float,2>> ctrls = cv.get_controls();  // control points are unscaled
 ```
-**Careful:** `set_scale` only affects the coordinates returned by `compute_point`/`compute_points` for `order` 1, 2 and 3 - their closed-form evaluators explicitly multiply by `scale`. For `order >= 4`, `compute_point` dispatches to `compute_point_matrix`, which does **not** apply `scale` at all - so `set_scale` silently has no effect on evaluated points for higher-order curves, even though `get_initial_point_scaled()`/`get_final_point_scaled()` are still computed correctly.
 
-## Output and debugging
+## String output
+
+### Output the curve
+
+Output functions return a string containing a newline-separated list of coordinates on the curve.
+You can pass either an unsigned integer argument `num_points` to output a fixed number of points spaced evenly on the `t` parameter line, or a floating point argument `step` to obtain points spaced by a fixed arc length.
 
 ```c++
-std::cout << cv.output (40u);       // 40 evenly-spaced-in-t sample points, one 'x,y'-ish line each
-std::cout << cv.output (0.1f);      // sample points spaced by arc-length step 0.1
-std::cout << cv.output_control();   // the raw control-point matrix
+std::cout << cv.output (40u);  // 40 evenly-spaced-in-t sample points
+std::cout << cv.output (0.1f); // sample points spaced by arc-length step 0.1
 ```
-From `examples/bezcurve.cpp` (verified while writing this page), fitting a cubic to a rounded-rectangle-ish set of 4 points and printing its control matrix:
+
+These produce output like:
+
 ```
-Defined a 3 nd/rd/th order curve
-c=[
+6.48923,6.1053
+7.40207,5.69326
+8.18007,5.07463
+...
+```
+
+### Output the control matrix
+
+The control matrix is formatted by `sm::mat`:
+
+```c++
+std::cout << cv.output_control();
+```
+Gives:
+```
 |    -0.28        ~0       |
 |   0.533498   -0.663498   |
 |   0.533498     1.1135    |
 |    -0.28        0.45     |
-];
 ```
 
 *This page was authored with AI, based on human written code in bezcurve.cppm. Not yet reviewed*
