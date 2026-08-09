@@ -692,7 +692,8 @@ export namespace sm
                 T(0, i) = std::pow (t, static_cast<double>(i));
             }
             sm::mat<F, 1u, 2u> bp = T * this->MC;
-            return bezcoord<F> (t, bp.row (0));
+            sm::vec<F, 2> b = bp.row (0) * this->scale;
+            return bezcoord<F> (t, b);
         }
 
         //! Compute a Bezier curve of general order using the conventional method.
