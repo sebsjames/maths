@@ -31,7 +31,9 @@ Module file: [sm/bezcurve.cppm](https://github.com/sebsjames/maths/blob/main/sm/
 
 `sm::bezcurve<F, order>` represents a single Bezier curve of a fixed polynomial degree, `order` (`1` for a line, `2` for a quadratic, `3` for a cubic, and so on) - `order` has no default value and must always be given explicitly. Its `order + 1` control points are stored as an `sm::mat<F, order + 1, 2>` (one row per control point, columns for x and y) rather than as an array of `sm::vec`s.
 
-The class follows Cohen & Riesenfeld's (1982) general matrix representation of Bezier curves: it precomputes a basis-conversion matrix `M` and caches `M * C` (`C` being the control-point matrix) so that evaluating a point at parameter `t` is a single small matrix multiply, valid for any `order`. It also provides the classical direct Bernstein-polynomial summation as a cross-check. There's a compile-time ceiling on `order` of around 19 (`static_assert`, tied to a Pascal's-triangle lookup table sized for orders up to 20) - plenty for any practical use.
+The class implements Cohen & Riesenfeld's (1982) general matrix representation of Bezier curves: it precomputes a basis-conversion matrix `M` and caches `M * C` (`C` being the control-point matrix) so that evaluating a point at parameter `t` is a single small matrix multiply, valid for any `order`.
+It also contains an implementation of the classical direct Bernstein-polynomial summation as a cross-check.
+There's a compile-time ceiling on `order` of around 19 (tied to a Pascal's-triangle lookup table sized for orders up to 20) - plenty for any practical use.
 
 `sm::bezcurve` isn't `constexpr`-capable (it uses `std::cout`, `std::format`, exceptions, and - for one curve-fitting overload - an internal [`sm::nm_simplex`](/maths/ref/nm_simplex/) optimization).
 
@@ -161,4 +163,4 @@ Gives:
 |    -0.28        0.45     |
 ```
 
-*This page was authored with AI, based on human written code in bezcurve.cppm. Not yet reviewed*
+*This page was authored with AI, based on human written code in bezcurve.cppm. Reviewed by Seb James*
