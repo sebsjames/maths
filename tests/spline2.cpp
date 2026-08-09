@@ -8,7 +8,7 @@ int main()
 {
     int rtn = 0;
     // Test cubic_spline_expansion
-    sm::vvec<float> v_orig = { 1.0f, 2.0f, 3.0f, 4.0f }; // must be 4 elements to use _cubic_spline_expansion<float, 4>
+    sm::vvec<float> v_orig = { 1.0f, 2.0f, 3.0f, 4.0f }; // must be 4 elements to use sm::cubic_spline_expansion<float, 4>
     sm::vvec<float> v = v_orig;
     std::cout << "vvec is init: " << v << std::endl;
     sm::cubic_spline_expansion<float, 4> (v, 3u); // insert 3 points between each of the original 4

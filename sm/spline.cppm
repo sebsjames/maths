@@ -12,6 +12,7 @@ module;
 
 #include <cstdint>
 #include <iostream>
+#include <stdexcept>
 
 export module sm.spline;
 
