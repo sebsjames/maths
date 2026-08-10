@@ -71,3 +71,5 @@ Either step forwards for each timestep with `rungekutta4::step()` or call `integ
 sm::vvec<double> traj_s = rks.integrate (100);
 sm::vvec<sm::vec<float, 2>> traj_m = rkm.integrate (1000);
 ```
+
+*This page was authored with AI, based on the (AI + human) code in rungekutta4.cppm and reviewed by Seb James.*
