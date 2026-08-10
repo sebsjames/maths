@@ -62,19 +62,21 @@ export namespace sm::evenspacing
     }
 
     // Return a container of n evenly spaced (by distance along the curve) coordinates of the
-    // function f(x), starting at xs, f(xs) and ending at xe, f(xe)
+    // function f(x), starting at xs, f(xs) and ending at xe, f(xe). If n == 2, then a container of
+    // the first and last coordinates is returned; if n == 1 a container of the first coordinate is
+    // returned and if n == 0, an empty container is returned.
     template<typename F>
     sm::vvec<sm::vec<F, 2>> find_coordinates (F xs, F xe, std::int32_t n, std::function<F(const F)> f)
     {
         sm::vvec<sm::vec<F, 2>> rtn (n, sm::vec<F, 2>{});
+        // This will be the 'last coord for which we output a line'
+        sm::vec<F, 2> last = { xs, f(xs) };
+        // Add the start point
+        if (n > 0) { rtn[0] = last; }
         // require n >= 2
         if (n < 2) { return rtn; }
         // Compute the distance between n evenly spaced points on the function f()
         F dd = sm::evenspacing::estimate_length<F> (xs, xe, n * 100, f) / (n - 1);
-        // This is the 'last coord for which we output a line'
-        sm::vec<F, 2> last = { xs, f(xs) };
-        // Add the start point
-        rtn[0] = last;
         // Find the intermediate points
         for (std::int32_t i = 1; i < n - 1; ++i) {
             // For each i, find the x that adds dd to the path starting from (last_x, f(last_x))

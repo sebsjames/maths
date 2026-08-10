@@ -42,8 +42,10 @@ sm::vvec<sm::vec<float, 2>> pts = sm::evenspacing::find_coordinates<float> (0.0f
 ```
 Internally, it first calls `estimate_length` with `n * 100` samples to get a good target spacing, then finds each intermediate point with a bisection search along `f`, looking for the point at exactly that arc-length distance from the previous one. Verified while writing this page: for `f(x) = x` between 0 and 10, requesting 5 points gives `(0,0), (2.5,2.5), (4.998,4.998), (7.499,7.499), (10,10)` - the small deviations from an exact `2.5` step come from the bisection search's tolerance, not from `estimate_length`'s polyline approximation (which is exact for a straight line).
 
-**Careful:**
-* If `n < 2`, `find_coordinates` returns a vector of `n` zero-initialized coordinates without attempting to compute anything (no error is raised).
-* Each intermediate point's bisection search is capped at 100,000 iterations; if it doesn't converge within that, the search simply stops and whatever point it had settled on so far is used, without raising an error.
+**Note:**
+* If `n == 0`, `find_coordinates` returns an empty `vvec` vector.
+* If `n == 1`, it returns a vector containing only the start coordinate.
+* If `n == 2`, it returns a vector containing the start and end coordinates.
+* Each intermediate point's bisection search is capped at 100,000 iterations; if it hasn't converged, the search stops and the current best point is used (this function is designed to provide an approximately even spacing).
 
 *This page was authored with AI, based on human written code in evenspacing.cppm. Reviewed by Seb James*
