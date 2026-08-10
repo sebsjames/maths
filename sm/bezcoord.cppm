@@ -67,13 +67,13 @@ export namespace sm
          * Compute the Euclidean distance from the current coordinate to the given
          * coordinate.
          */
-        F distance_to (bezcoord& other) const { return (this->coord - other.coord).length(); }
+        F distance_to (const bezcoord& other) const { return (this->coord - other.coord).length(); }
 
         //! Horizontal distance between two bezcoords.
-        F horz_distance_to (bezcoord& other) const { return (std::abs(this->x() - other.x())); }
+        F horz_distance_to (const bezcoord& other) const { return (std::abs(this->x() - other.x())); }
 
         //! Vertical distance between two bezcoords.
-        F vert_distance_to (bezcoord& other) const { return (std::abs(this->y() - other.y())); }
+        F vert_distance_to (const bezcoord& other) const { return (std::abs(this->y() - other.y())); }
 
         //! Subtract the coordinate c from this bezcoord.
         void subtract (const sm::vec<F, 2>& c) { this->coord -= c; }
@@ -127,6 +127,11 @@ export namespace sm
          * If this is a null coordinate, set this to true. Note that a bezcoord may have
          * a null coordinate but non-null param or remaining attributes, in the cases
          * where that might be useful.
+         *
+         * A null bezcoord coordinate can hold a value in bezcoord::remaining, but any coord or
+         * param should be ignored. A bezcoord with null_coordinate true is used to indicate the
+         * remaining distance to the end of an sm::bezcurve, and is important when joining curves
+         * with bezcurvepath.
          */
         bool null_coordinate = false;
     };

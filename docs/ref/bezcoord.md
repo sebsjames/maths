@@ -22,7 +22,13 @@ Module file: [sm/bezcoord.cppm](https://github.com/sebsjames/maths/blob/main/sm/
 
 ## Summary
 
-An `sm::bezcoord<F>` bundles a 2D point on a Bezier curve together with the curve parameter `t` (in `[0, 1]`) that produced it, and (optionally) the distance remaining to the end of the curve from that point. It also has a 'null' flag, used as a sentinel by `bezcurve`/`bezcurvepath` methods that search along a curve for a point at a given distance and can fail to find one (see [Evaluating the curve](/maths/ref/bezcurve/#evaluating-the-curve)).
+An `sm::bezcoord<F>` bundles a 2D point (`bezcoord::coord`) on a Bezier curve together with the curve parameter `t` (in `[0, 1]`) that produced it (`bezcoord::param`). The distance remaining to the end of the `sm::bezcurve` to which the bezcoord may belong can be recorded in `bezcoord::remaining`.
+
+It also has the flag `bezcoord::null_coordinate`. A 'null' bezcoord can hold a value in `bezcoord::remaining`,
+but any value in `bezcoord::coord` or `bezcoord::param` should be ignored. A bezcoord with
+`null_coordinate` set `true` is used to indicate the remaining distance to the
+end of an `sm::bezcurve`, and is important when joining curves with
+`sm::bezcurvepath` (see the bezcurve section [Evaluating the curve](/maths/ref/bezcurve/#evaluating-the-curve)).
 
 `bezcoord` is mostly encountered as a *return type* from [`sm::bezcurve`](/maths/ref/bezcurve/) and [`sm::bezcurvepath`](/maths/ref/bezcurvepath/) methods rather than something you construct yourself, but it's a small, self-contained struct you can use on its own too.
 
@@ -42,19 +48,21 @@ sm::bezcoord<float> d (1.0f, sm::vec<float,2>{3.0f, 4.0f}, 2.5f); // ...and rema
 ## Accessors
 
 ```c++
-float x = c.x(), y = c.y(), t = c.t();  // short forms for coord[0], coord[1], param
-bool null = c.is_null();                // same as get_null_coordinate()
+float x = c.x(), y = c.y(), t = c.t(); // short forms for coord[0], coord[1], param
+bool null1 = c.get_null_coordinate();  // Query if this is a 'null coordinate'
+bool null2 = c.is_null();              // is_null() is the same as get_null_coordinate()
 c.set_null_coordinate (true);
 ```
 
 ## Distances
+
+Find distances from `bezcoord` a to `bezcoord` b:
 
 ```c++
 float d  = a.distance_to (b);       // Euclidean distance
 float dx = a.horz_distance_to (b);  // |a.x() - b.x()|
 float dy = a.vert_distance_to (b);  // |a.y() - b.y()|
 ```
-**Careful:** all three take their `other` argument as a non-`const` reference (`bezcoord& other`, not `const bezcoord&`), even though the methods themselves are `const` and don't modify `other`. This means you can't pass a temporary or a `const bezcoord` as the argument.
 
 ## Arithmetic
 
