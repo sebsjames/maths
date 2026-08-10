@@ -586,7 +586,7 @@ for (const auto& p : pairs) {
 }
 ```
 
-**Careful:** `eigenvalues()`, `eigenvector()` and `eigenpairs()` are only implemented for real (floating-point) `F` - calling any of them on a `sm::mat<std::complex<...>, ...>` is a compile error (`static_assert(false, ...)`).
+**Note:** Although eigenvalues are returned as complex matrices, `eigenvalues()`, `eigenvector()` and `eigenpairs()` are only implemented for real (floating-point) `F`. That is, you can find the complex eigenvalues of a real matrix. At present, an attempt to get the eigenvalues of a complex matrix will generate a compiler error, although this functionality could be implemented in future.
 
 ## Complex matrices
 
