@@ -334,51 +334,41 @@ export namespace sm
 
             } else if constexpr (sm::number_type<T>::value == 1) { // interval is scalar
 
-                //std::uint32_t itest = 0u;
-                // TEST 1. Is other's min inside my interval?
-                std::uint32_t othermin_inside_me = 0u;
+                std::uint32_t itest = 0u;
+                // TEST 1. Is other's min inside my interval?. Set bit 0.
                 // True if both of these are true:
-                //  1. othermin <(=) max
+                //  1.1. othermin <(=) max
                 if constexpr (supremum == interval_endpoint::closed && infimum_y == interval_endpoint::closed) {
-                    othermin_inside_me = 1u & (other.min <= this->max);
+                    itest = other.min <= this->max;
                 } else {
-                    othermin_inside_me = 1u & (other.min < this->max);
+                    itest = other.min < this->max;
                 }
-                //  2. othermin >(=) min
+                //  1.2. othermin >(=) min
                 if constexpr (infimum == interval_endpoint::closed && infimum_y == interval_endpoint::closed) {
-                    othermin_inside_me &= 1u & (other.min >= this->min);
+                    itest &= other.min >= this->min;
                 } else {
-                    othermin_inside_me &= 1u & (other.min > this->min);
+                    itest &= other.min > this->min;
                 }
-                //std::cout << "othermin_inside_me: " << othermin_inside_me << std::endl;
-                //itest = othermin_inside_me;
 
                 // TEST 2. Is other's max inside my interval?
-                std::uint32_t othermax_inside_me = 0u;
                 // True if both of these are true:
-                //  1. othermax <(=) max
+                //  2.1. othermax <(=) max
                 if constexpr (supremum == interval_endpoint::closed && supremum_y == interval_endpoint::closed) {
-                    othermax_inside_me |= 1u & (other.max <= this->max);
+                    itest |= (other.max <= this->max) << 1;
                 } else {
-                    othermax_inside_me |= 1u & (other.max < this->max);
+                    itest |= (other.max < this->max) << 1;
                 }
-                //  1. othermax >(=) min
+                //  2.2. othermax >(=) min
                 if constexpr (infimum == interval_endpoint::closed && supremum_y == interval_endpoint::closed) {
-                    othermax_inside_me &= 1u & (other.max >= this->min);
+                    itest &= 1u | ((other.max >= this->min) << 1);
                 } else {
-                    othermax_inside_me &= 1u & (other.max > this->min);
+                    itest &= 1u | ((other.max > this->min) << 1);
                 }
-                //std::cout << "othermax_inside_me: " << othermax_inside_me << std::endl;
-                //itest |= othermax_inside_me << 1;
 
-                // TEST 3. Is my min AND max inside other?
-                // No constexpr supremum/infimum tests required:
-                std::uint32_t other_encloses_me = 1u & ((other.max >= this->max) && (other.min <= this->min));
-                //std::cout << "other_encloses_me: " << other_encloses_me << std::endl;
-                //itest |= other_encloses_me << 2;
+                // TEST 3. Is my min AND max inside other? (No constexpr supremum/infimum tests required)
+                itest |= ((other.max >= this->max) && (other.min <= this->min)) << 2;
 
-                return (othermin_inside_me | othermax_inside_me | other_encloses_me) > 0u;
-                //return itest > 0u;
+                return itest > 0u;
 
             } else {
                 using T_el=std::remove_reference_t<decltype(*std::begin(std::declval<T&>()))>;
