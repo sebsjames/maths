@@ -137,6 +137,30 @@ export namespace sm
             }
         }
 
+        // If min > max, then if it's possible, swap them to make the interval valid. Only intended
+        // for use when working with bounding boxes that may have been rotated. Bit of a hack, this.
+        void make_valid_aabb() noexcept
+        {
+            if constexpr (sm::number_type<T>::value == 2) {
+                // We don't make these valid.
+                []<bool flag = false>() { static_assert(flag, "make_valid_aabb not implemented for complex"); }();
+            } else if constexpr (sm::number_type<T>::value == 1) {
+                []<bool flag = false>() { static_assert(flag, "make_valid_aabb not offered for scalar intervals"); }();
+            } else {
+                if constexpr (infimum == supremum) {
+                    for (std::uint32_t i = 0; i < this->min.size(); ++i) {
+                        if (this->min[i] > this->max[i]) {
+                            auto oldmax = this->max[i];
+                            this->max[i] = this->min[i];
+                            this->min[i] = oldmax;
+                        }
+                    }
+                } else {
+                    []<bool flag = false>() { static_assert(flag, "make_valid_aabb not possible if extrema are different"); }();
+                }
+            }
+        }
+
         // Output a string representation of the min and max. Rewrite with <format> at some point.
         std::string str() const
         {
