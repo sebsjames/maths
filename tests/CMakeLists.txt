@@ -15,6 +15,10 @@ add_executable(interval_intersects interval_intersects.cpp)
 target_link_libraries(interval_intersects PRIVATE sm)
 add_test(interval_intersects interval_intersects)
 
+add_executable(interval_intersects_scalar interval_intersects_scalar.cpp)
+target_link_libraries(interval_intersects_scalar PRIVATE sm)
+add_test(interval_intersects_scalar interval_intersects_scalar)
+
 # sm::interval
 add_executable(interval_adding interval_adding.cpp)
 target_link_libraries(interval_adding PRIVATE sm)
