@@ -11,12 +11,14 @@
  * <array>.
  *
  * The class has since become an interval class, covering (for most cases) closed, open and
- * semi-open intervals, both for real numbers, complex numbers and vectors.
+ * semi-open intervals, both for real numbers, complex numbers and even vectors (though proper
+ * mathematical intervals don't really cover vectors, so a sm::interval<vector_type> is really an
+ * axis-aligned bounding box).
  *
  * The design is a struct containing two values (the min and max), with the nature of the endpoints
  * defined with template parameters. This means that there are some limitations. While we can write
  * a function that returns whether a value falls within the interval or not, we can't write a
- * function that return the union or intersection of two intervals, because the runtime values would
+ * function that returns the union or intersection of two intervals, because the runtime values would
  * have to determine the type of the return object (i.e., its endpoint template parameters). If
  * intersection and union methods become a requirement in the future, it may be necessary to write a
  * new interval class containing a runtime-variable encoding of the endpoint types. This could cost
@@ -119,8 +121,19 @@ export namespace sm
                     return this->min <= this->max;
                 }
             } else {
-                // interval is vector. What's the test?
-                return true;
+                // interval is vector. What's the test? The test is that this should be an axis
+                // aligned bounding box with each dimension have min <(=) max
+                bool _valid = true;
+                if constexpr (infimum == interval_endpoint::open || supremum == interval_endpoint::open) {
+                    for (std::uint32_t i = 0; i < this->min.size(); ++i) {
+                        if ((this->min[i] < this->max[i]) == false) { _valid = false; }
+                    }
+                } else { // both suprema are closed min==max is ok
+                    for (std::uint32_t i = 0; i < this->min.size(); ++i) {
+                        if ((this->min[i] <= this->max[i]) == false) { _valid = false; }
+                    }
+                }
+                return _valid;
             }
         }
 
