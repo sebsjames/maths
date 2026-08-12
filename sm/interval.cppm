@@ -61,6 +61,19 @@ export namespace sm
     template <typename T, interval_endpoint infimum, interval_endpoint supremum>
     std::ostream& operator<< (std::ostream&, const interval<T, infimum, supremum>&);
 
+    namespace internal
+    {
+        // Return an I integer with sz bits set true/1
+        template <typename I> requires std::is_integral_v<I>
+        constexpr I n_bits (const std::size_t sz)
+        {
+            I all_set = I{0};
+            std::size_t Ibits = sizeof (I) * 8;
+            for (std::size_t i = 0; i < sz && i < Ibits; ++i) { all_set |= 1 << i; }
+            return all_set;
+        }
+    }
+
     // interval is a constexpr-friendly literal type defining an interval [min, max], (min, max],
     // [min, max) or (min, max).
     //
@@ -326,7 +339,7 @@ export namespace sm
                 if constexpr (infimum == interval_endpoint::closed && supremum == interval_endpoint::closed
                               && infimum_y == interval_endpoint::closed && supremum_y == interval_endpoint::closed) {
                     // Does other define a rectangle in the complex plane that fits inside the one made by this->min and max?
-                    unsigned int other_inside = 0;
+                    std::uint32_t other_inside = 0;
                     other_inside = 1u & (std::real(this->min) <= std::real(other.min) && std::imag(this->min) <= std::imag(other.min)
                                          && std::real(this->max) >= std::real(other.min) && std::imag(this->max) >= std::imag(other.min));
                     other_inside |= (1u & (std::real(this->min) <= std::real(other.max) && std::imag(this->min) <= std::imag(other.max)
@@ -336,7 +349,7 @@ export namespace sm
                     []<bool flag = false>() { static_assert(flag, "contains(interval) for T complex not implemented for open/semi-open"); }();
                 }
             } else if constexpr (sm::number_type<T>::value == 1) { // interval is scalar
-                unsigned int other_inside = 0;
+                std::uint32_t other_inside = 0;
                 // min is inside other.min?
                 if constexpr (infimum == interval_endpoint::open && infimum_y == interval_endpoint::closed) {
                     other_inside = 1u & (this->min < other.min);
@@ -410,10 +423,21 @@ export namespace sm
 
                 return itest > 0u;
 
-            } else {
+            } else { // interval is vector (so this test is an aabb bounding box intersection test)
+
                 using T_el=std::remove_reference_t<decltype(*std::begin(std::declval<T&>()))>;
-                std::size_t sz = sizeof (T) / sizeof (T_el);
+
+                constexpr std::size_t sz = sizeof (T) / sizeof (T_el);
+
+                // If you get this error, you could always change idim to std::uint64_t.
+                static_assert (sz <= 32,
+                               "The vector type in the sm::interval needs to be <= 32D to call sm::interval::intersects");
+
+                // Results of intersection tests for each dimension are collected in this unsigned
+                // integer. If sz > num bits in uint32_t, then this code would not work.
                 std::uint32_t idim = 0u;
+
+                constexpr std::uint32_t idim_all_dims = internal::n_bits<std::uint32_t> (sz);
 
                 // Test each dimension as a scalar intersection. If there's an intersection on ALL
                 // dimensions at once, then the vector intersection is true.
@@ -456,7 +480,7 @@ export namespace sm
 
                     idim |= (itest > 0u) ? (1u << i) : 0u;
                 }
-                return idim == 7u;
+                return idim == idim_all_dims;
             }
         }
 
