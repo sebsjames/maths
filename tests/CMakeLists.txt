@@ -11,9 +11,9 @@ add_library(sm STATIC)
 target_sources_modules(sm MODULES ${SM_ALL_MODULES})
 
 # sm::interval
-add_executable(interval_intersects interval_intersects.cpp)
-target_link_libraries(interval_intersects PRIVATE sm)
-add_test(interval_intersects interval_intersects)
+add_executable(interval_intersects_aabb interval_intersects_aabb.cpp)
+target_link_libraries(interval_intersects_aabb PRIVATE sm)
+add_test(interval_intersects_aabb interval_intersects_aabb)
 
 add_executable(interval_intersects_scalar interval_intersects_scalar.cpp)
 target_link_libraries(interval_intersects_scalar PRIVATE sm)
