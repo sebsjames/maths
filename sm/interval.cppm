@@ -40,6 +40,7 @@ module;
 #include <limits>
 #include <complex>
 #include <span>
+#include <type_traits>
 
 export module sm.interval;
 
@@ -62,8 +63,9 @@ export namespace sm
 
     namespace internal
     {
-        // Return an I integer with sz bits set true/1
-        template <typename I> requires std::is_integral_v<I>
+        // Return an I typed unsigned integer with sz bits set true/1 (if I is too narrow, <sz
+        // bits will be set true)
+        template <typename I> requires (std::is_integral_v<I> && std::is_unsigned_v<I>)
         constexpr I n_bits (const std::size_t sz)
         {
             I all_set = I{0};
