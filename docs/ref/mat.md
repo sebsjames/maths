@@ -24,7 +24,7 @@ Module file: [sm/mat.cppm](https://github.com/sebsjames/maths/blob/main/sm/mat.c
 {:toc}
 
 ## Summary
-A general matrix class with a templated element type and dimensions. `constexpr` capable.
+A general matrix class with a templated element type and dimensions. Fixed memory size and `constexpr` capable.
 
 Defined as:
 ```c++
@@ -38,9 +38,9 @@ export namespace sm
         sm::vec<F, Nr * Nc> arr;
 ```
 where `F` must be a floating point type, or a complex type such as `std::complex<float>` (see [Complex matrices](#complex-matrices)), `Nr` is the number of rows in the matrix and `Nc` the number of columns.
-The data is stored in an `sm::vec` array in column-major format; the left-most column of the matrix is stored in the first 4 elements of the array.
+The data is stored in an `sm::vec` array in column-major format. For example, the left-most column of a 4x4 `sm::mat` is stored in the first 4 elements of the array.
 
-This class is capable of transformation matrix operations, and it is often used to create 2x2, 3x3 and 4x4 matrices.
+With its compile-time fixed size, this class is ideal for transformation matrix operations, and it is often used to create 2x2, 3x3 and 4x4 matrices.
 
 ## Create a mat
 
@@ -141,17 +141,17 @@ sm::mat<double, 4> md = mf.as<double>();
 
 You can set the data manually with an initializer list:
 ```c++
-sm::mat<int, 4> m; // initially set up as identity matrix
+sm::mat<float, 4> m; // initially set up as identity matrix
 m = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
 std::cout << "Matrix contains:\n" << m << std::endl;
 ```
 which outputs:
 ```
 Matrix contains:
-[ 0 , 4 , 8 , 12 ;
-  1 , 5 , 9 , 13 ;
-  2 , 6 , 10 , 14 ;
-  3 , 7 , 11 , 15 ]
+|      0           4           8           12      |
+|      1           5           9           13      |
+|      2           6           10          14      |
+|      3           7           11          15      |
 ```
 
 You can change individual elements of the matrix with the array access operator:
@@ -163,11 +163,13 @@ std::cout << "Matrix updated:\n" << m << std::endl;
 The updated matrix is:
 ```
 Matrix updated:
-[ 0 , 4 , 8 , 12 ;
-  1 , 5 , 9 , 13 ;
-  2 , 6 , 10 , 14 ;
-  100 , 7 , 11 , 15 ]
+|      0           4           8           12      |
+|      1           5           9           13      |
+|      2           6           10          14      |
+|     100          7           11          15      |
 ```
+
+Note that the array access index (the '3' in `m[3]`) counts from array element 0 and counts down the columns, in turn.
 
 You can reset an sm::mat to the identity matrix:
 ```c++
@@ -184,11 +186,19 @@ m.set_from (2.0f); // every element of m is now 2.0f
 
 As well as the flat `operator[]`, you can read or write an element by its row and column with `operator()`:
 ```c++
-sm::mat<float, 4> m;
-float el = m (1, 2); // row 1, column 2
+sm::mat<float, 4> m; // Initialized as identity matrix
+float el = m (1, 2); // access value in row 1, column 2 (0)
 m (1, 2) = 5.0f;
 ```
-The rows and columns are counted starting from 0 (`m (0, 0) gives the very first element in row 0, col 0, which is the same as m[0]).
+```
+m:
+|      1           0           0           0       |
+|      0           1           5           0       |
+|      0           0           1           0       |
+|      0           0           0           1       |
+```
+
+The rows and columns are counted starting from 0 (`m (0, 0)` gives the very first element in row 0, col 0, and is equivalent to the array access `m[0]`).
 
 Reading out of range returns NaN; writing out of range clamps to the matrix's last element, rather than being undefined behaviour.
 
@@ -350,7 +360,7 @@ sm::mat<float, 4> mfb = sm::mat<float, 4>::frombasis (bx, by, bz);
 ```
 The matrix now encodes a transformation of a vector from the right handed Cartesian coordinate frame into the frame specified by the vectors bx, by and bz.
 ```c++
-    std::cout << "With matrix\n\n" << mfb << ",\n\n" << sm::vec<float>::ux() << " transforms to "
+    std::cout << "With matrix\n" << mfb << ",\n\n" << sm::vec<float>::ux() << " transforms to "
               << mfb * sm::vec<float>::ux() << std::endl << sm::vec<float>::uy() << " transforms to "
               << mfb * sm::vec<float>::uy() << std::endl << sm::vec<float>::uz() << " transforms to "
               << mfb * sm::vec<float>::uz() << std::endl << " and (1,2,3) transforms to "
@@ -360,16 +370,17 @@ gives output:
 ```
 With matrix
 
-[ 0.707 , -0.707 , 0 , 0 ;
-  0.707 , 0.707 , 0 , 0 ;
-  0 , 0 , 1 , 0 ;
-  0 , 0 , 0 , 1 ],
+|    0.707       -0.707        0           0       |
+|    0.707       0.707         0           0       |
+|      0           0           1           0       |
+|      0           0           0           1       |
 
 (1,0,0) transforms to (0.707000017,0.707000017,0,1)
 (0,1,0) transforms to (-0.707000017,0.707000017,0,1)
 (0,0,1) transforms to (0,0,1,1)
  and (1,2,3) transforms to (-0.707000017,2.12100005,3,1)
 ```
+Note: The output vectors resulting from a (4x4 matrix * vector) multiplication are always 4-vectors. You can ignore the last element or trim it with `.less_one_dim()`.
 
 ### Special setter  `perspective`
 
@@ -526,19 +537,21 @@ The adjugate and cofactor return `sm::vec` rather than `mat` as they are usually
 
 If you have a 4x4 matrix that encodes some combination of translation, rotation and scaling, a family of methods let you pull those components back out.
 
-`linear()` returns the top-left 3x3 block (the "linear part" of the transform, i.e. everything except translation); `translation()` returns the translation as an `sm::vec<F, 3>` (the top three elements of the last column):
+`linear()` returns the top-left 3x3 block (the 'linear' part of the transform, i.e. everything except translation); `translation()` returns the translation as an `sm::vec<F, 3>` (the top three elements of the last column):
 ```c++
 sm::mat<float, 4> m; // some transform...
 sm::mat<float, 3> rot3 = m.linear();
 sm::vec<float, 3> t = m.translation();
 ```
-Note that these are *getters* on an existing matrix, distinct from the pre-existing `translate`/`pretranslate` *instance methods* (which post/pre-multiply a translation into a matrix you already have) and from the static factory `mat<F, 4>::translation (const sm::vec<F, 3>& t)` (which builds a *fresh* translation matrix from scratch, equivalent to `pretranslate` on a default-constructed matrix). There's also an overload of the static factory taking an `sm::vec<F, 4>`.
+Note that these are *getters* on an existing matrix, distinct from the pre-existing `translate`/`pretranslate` *instance methods* (which post/pre-multiply a translation into a matrix you already have). Also, do not confuse `translation` with the static factory method `mat<F, 4>::translation (const sm::vec<F, 3>& t)` which builds a *fresh* translation matrix from scratch. (There's also one more overload of the static factory `translation` that accepts an `sm::vec<F, 4>` argument).
 
 Similarly, the instance method `rotation()` decomposes a 3x3 or 4x4 matrix's rotational part into an `sm::quaternion`. For a 4x4 matrix this only looks at the top-left 3x3 block, so `m.rotation()` and `m.linear().rotation()` are equivalent:
 ```c++
 sm::quaternion<float> q = m.rotation();
 ```
-Again, don't confuse this with the pre-existing instance method `rotate (axis, theta)` (which rotates a matrix you already have) or with the static factory `mat<F, 4>::rotation (const sm::vec<Fy, 3>& axis, const Fy& theta)` (which builds a fresh rotation matrix, equivalent to calling `rotate` on a default-constructed matrix). **`rotation()` (the getter) assumes the matrix encodes rotation *without* scaling** - it doesn't check that the determinant is 1, and it doesn't normalize the quaternion it returns, so if your matrix has scaling baked in, strip it first (see below) or normalize the result yourself.
+ `rotation()` *assumes the matrix encodes rotation without scaling* - it doesn't check that the determinant is 1, and it doesn't normalize the quaternion it returns, so if your matrix has scaling baked in, consider using `rotation_mat44` to remove the scaling (see below).
+
+Again, don't confuse this with the pre-existing instance method `rotate (axis, theta)` (which rotates a matrix you already have) or with the static factory `mat<F, 4>::rotation (const sm::vec<Fy, 3>& axis, const Fy& theta)` (which builds a fresh rotation matrix.
 
 If your matrix *does* have scaling baked in, `rotation_mat33()`/`rotation_mat44()` return just the rotational part with that scaling divided back out (each column of the linear block is renormalized to unit length), and `scaling_vec()`/`scaling_mat33()`/`scaling_mat44()` return the scaling itself, as a vector of the three column lengths, or as a diagonal matrix:
 ```c++
@@ -549,7 +562,9 @@ sm::mat<float, 4> rot44 = m.rotation_mat44();    // same, as a full 4x4 with an 
 
 ## Solving linear systems
 
-For a matrix that isn't 2x2, 3x3 or 4x4 (where `inverse()` isn't implemented), or simply as an alternative to computing a full inverse, you can solve `Ax = b` directly by Gaussian elimination. Build an *augmented matrix* `[A | b]` - `A`'s columns followed by one more column for `b` - then reduce it to row-echelon form and back-substitute:
+Square `sm::mat` matrices of size 2x2, 3x3 or 4x4 have an implementation of `inverse()` which allows solution of a linear system.
+
+You can solve `Ax = b` directly by Gaussian elimination to obtain the matrix inverse for square matrices larger than 4x4. Build an *augmented matrix* `[A | b]` - `A`'s columns followed by one more column for `b` - then reduce it to row-echelon form and back-substitute:
 ```c++
 // Solve: x + 2z = 6, x + 2y + 5z = -4, x + 5y - z = 27
 sm::mat<float, 3, 4> aug = { 1, 0, 2,   1, 2, 5,   1, 5, -1,   6, -4, 27 }; // [A | b], 3 rows x 4 cols
@@ -573,7 +588,7 @@ sm::mat<double, 4> A; A.set_identity();
 A[0] = 2.0; A[5] = 3.0; A[10] = 5.0; A[15] = 7.0; // diag(2, 3, 5, 7)
 sm::vec<std::complex<double>, 4> ev = A.eigenvalues(); // (2,0), (3,0), (5,0), (7,0)
 ```
-Internally, this uses the Faddeev-LeVerrier algorithm to build the characteristic polynomial's coefficients, then hands them to `sm::polysolve::solve` to find the roots - so it's exact for degree &le; 4 and numerical (Durand-Kerner) above that. **`eigenvalues()` requires `Nr == Nc` and `Nr >= 2`, and despite `sm::mat` generally being `constexpr`-capable, it is not itself `constexpr`** (it builds `std::vector`s and calls into `sm::polysolve` at runtime).
+Internally, this uses the Faddeev-LeVerrier algorithm to build the characteristic polynomial's coefficients, then hands them to `sm::polysolve::solve` to find the roots - so it's exact for degree &le; 4 and numerical (Durand-Kerner) above that. `eigenvalues()` requires `Nr == Nc` and `Nr >= 2`, and unlike most of `sm::mat` it is not a `constexpr` function (it calls into `sm::polysolve` at runtime).
 
 Given a single eigenvalue, `eigenvector (lambda)` finds a normalized eigenvector for it, by row-reducing the augmented matrix `[A - lambda*I | 0]` and back-substituting:
 ```c++
@@ -601,7 +616,7 @@ sm::mat<std::complex<float>, 4> minv = m.inverse();
 ```
 Determinant, trace, adjugate, cofactor, inverse, transpose, `row_echelon_form`/`back_substitution` and multiplication all work generically for complex `F`, exactly as they do for real matrices. Two things don't:
 * [Eigenvalues and eigenvectors](#eigenvalues-and-eigenvectors) are not yet implemented for complex matrices (a compile error, as noted above).
-* `mat * mat` and `mat * scalar` require **both** operands to be the same "kind" - both real/arithmetic, or both complex. You can't multiply a real `sm::mat` by a complex one (or a complex `mat` by a real scalar) directly with `operator*`.
+* At present, `mat * mat` and `mat * scalar` require **both** operands to be the same 'kind' - both real/arithmetic, or both complex. You can't multiply a real `sm::mat` by a complex one (or a complex `mat` by a real scalar) directly with `operator*`. See [#169](https://github.com/sebsjames/maths/issues/169).
 
 ## Printing and formatting
 
