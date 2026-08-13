@@ -25,6 +25,7 @@ import sm.interval;
 import sm.algo;
 export import sm.vec;
 export import sm.vvec;
+export import sm.mat;
 
 export namespace sm
 {
@@ -124,6 +125,88 @@ export namespace sm::geometry
         auto t = (q - p).cross(s / r.cross(s));
         sm::vec<T, 2> cross_point = p + t * r;
         return cross_point;
+    }
+
+    /*!
+     * Separating Axis Theorem test
+     *
+     * Implements a single separating axis test for two boxes whose centres are c1 and c2 with sizes
+     * given by the half-extent vectors x1/y1/z1 and x2/y2/z2.  Note that this does not compute or
+     * return the distance you would have to move back along the axis to separate (this information
+     * can be used to separate collided boxes). @axis is renormalized before use.
+     */
+    template<typename T> requires std::is_floating_point_v<T>
+    bool separating_axis_test (sm::vec<T, 3>& axis,
+                               const sm::vec<T, 3>& c1, const sm::vec<T, 3>& x1, const sm::vec<T, 3>& y1, const sm::vec<T, 3>& z1,
+                               const sm::vec<T, 3>& c2, const sm::vec<T, 3>& x2, const sm::vec<T, 3>& y2, const sm::vec<T, 3>& z2)
+    {
+        axis.renormalize();
+        auto l_on_axis = std::abs((c2 - c1).dot (axis));
+        auto sum = std::abs (x1.dot (axis)) + std::abs (y1.dot (axis)) + std::abs (z1.dot (axis))
+        + std::abs (x2.dot (axis)) + std::abs (y2.dot (axis)) + std::abs (z2.dot (axis));
+        return l_on_axis > sum;
+    }
+
+    /*!
+     * Use the separating axis theorem to detect a collision between two oriented bounding boxes in
+     * three dimensions.
+     *
+     * The oriented bounding boxes (obb) are passed in as references to 3x4 matrices. These contain
+     * four vectors in the matrix columns. col(0) is the centre of the obb, col(1) is the 'x'
+     * half-extent vector for the obb; col(2) is the 'y' half-extent vector and col(3) is the 'z'
+     * half-extent vector.
+     */
+    template<typename T> requires std::is_floating_point_v<T>
+    bool obb_collision_detect (const sm::mat<T, 3, 4>& obb1, const sm::mat<T, 3, 4>& obb2)
+    {
+        // Face normals. Our obb_x/y/z axes
+        const sm::vec<T, 3> c1 = obb1.col(0); // obb1 centre
+        const sm::vec<T, 3> x1 = obb1.col(1); // obb1 x half-extent
+        const sm::vec<T, 3> y1 = obb1.col(2); // obb1 y half-extent
+        const sm::vec<T, 3> z1 = obb1.col(3); // obb1 z half-extent
+        const sm::vec<T, 3> c2 = obb2.col(0);
+        const sm::vec<T, 3> x2 = obb2.col(1);
+        const sm::vec<T, 3> y2 = obb2.col(2);
+        const sm::vec<T, 3> z2 = obb2.col(3);
+
+        sm::vec<T, 3> nx1 = x1;
+        if (sm::geometry::separating_axis_test (nx1, c1, x1, y1, z1, c2, x2, y2, z2)) { return false; }
+        sm::vec<T, 3> ny1 = y1;
+        if (sm::geometry::separating_axis_test (ny1, c1, x1, y1, z1, c2, x2, y2, z2)) { return false; }
+        sm::vec<T, 3> nz1 = z1;
+        if (sm::geometry::separating_axis_test (nz1, c1, x1, y1, z1, c2, x2, y2, z2)) { return false; }
+
+        sm::vec<T, 3> nx2 = obb2.col(1);
+        if (sm::geometry::separating_axis_test (nx2, c1, x1, y1, z1, c2, x2, y2, z2)) { return false; }
+        sm::vec<T, 3> ny2 = obb2.col(2);
+        if (sm::geometry::separating_axis_test (ny2, c1, x1, y1, z1, c2, x2, y2, z2)) { return false; }
+        sm::vec<T, 3> nz2 = obb2.col(3);
+        if (sm::geometry::separating_axis_test (nz2, c1, x1, y1, z1, c2, x2, y2, z2)) { return false; }
+
+        // Edge combinations (formed from face normal cross products)
+        sm::vec<T, 3> cpx1x2 = x1.cross(x2);
+        if (sm::geometry::separating_axis_test (cpx1x2, c1, x1, y1, z1, c2, x2, y2, z2)) { return false; }
+        sm::vec<T, 3> cpx1y2 = x1.cross(y2);
+        if (sm::geometry::separating_axis_test (cpx1y2, c1, x1, y1, z1, c2, x2, y2, z2)) { return false; }
+        sm::vec<T, 3> cpx1z2 = x1.cross(z2);
+        if (sm::geometry::separating_axis_test (cpx1z2, c1, x1, y1, z1, c2, x2, y2, z2)) { return false; }
+
+        sm::vec<T, 3> cpy1x2 = y1.cross(x2);
+        if (sm::geometry::separating_axis_test (cpy1x2, c1, x1, y1, z1, c2, x2, y2, z2)) { return false; }
+        sm::vec<T, 3> cpy1y2 = y1.cross(y2);
+        if (sm::geometry::separating_axis_test (cpy1y2, c1, x1, y1, z1, c2, x2, y2, z2)) { return false; }
+        sm::vec<T, 3> cpy1z2 = y1.cross(z2);
+        if (sm::geometry::separating_axis_test (cpy1z2, c1, x1, y1, z1, c2, x2, y2, z2)) { return false; }
+
+        sm::vec<T, 3> cpz1x2 = z1.cross(x2);
+        if (sm::geometry::separating_axis_test (cpz1x2, c1, x1, y1, z1, c2, x2, y2, z2)) { return false; }
+        sm::vec<T, 3> cpz1y2 = z1.cross(y2);
+        if (sm::geometry::separating_axis_test (cpz1y2, c1, x1, y1, z1, c2, x2, y2, z2)) { return false; }
+        sm::vec<T, 3> cpz1z2 = z1.cross(z2);
+        if (sm::geometry::separating_axis_test (cpz1z2, c1, x1, y1, z1, c2, x2, y2, z2)) { return false; }
+
+        // If we get here, none of the 15 axes separate obb1 and obb2, and so they collide
+        return true;
     }
 
     /*!
