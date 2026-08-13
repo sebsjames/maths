@@ -256,6 +256,10 @@ add_executable(mat_non_square mat_non_square.cpp)
 target_link_libraries(mat_non_square PRIVATE sm)
 add_test(mat_non_square mat_non_square)
 
+add_executable(mat_negation mat_negation.cpp)
+target_link_libraries(mat_negation PRIVATE sm)
+add_test(mat_negation mat_negation)
+
 add_executable(mat_2x2_general mat_2x2_general.cpp)
 target_link_libraries(mat_2x2_general PRIVATE sm)
 add_test(mat_2x2_general mat_2x2_general)

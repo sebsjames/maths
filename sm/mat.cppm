@@ -1674,6 +1674,14 @@ export namespace sm
             this->arr.swap (m);
         }
 
+        //! Unary negate operator
+        constexpr mat<F, Nr, Nc> operator-() const noexcept
+        {
+            mat<F, Nr, Nc> m{};
+            for (std::uint32_t i = 0; i < Nr * Nc; ++i) { m.arr[i] = -this->arr[i]; }
+            return m;
+        }
+
         //! Right multiply this->arr with m2.arr
         template<typename Fy=F, std::uint32_t Nry = Nr, std::uint32_t Ncy = Nc>
         requires (Nc == Nry) && (std::is_arithmetic_v<Fy> || (sm::is_complex<Fy>::value && sm::is_complex<F>::value))
