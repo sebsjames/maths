@@ -128,12 +128,12 @@ export namespace sm::geometry
     }
 
     /*!
-     * Separating Axis Theorem.
+     * Separating Axis Theorem test
      *
      * Implements a single separating axis test for two boxes whose centres are c1 and c2 with sizes
-     * given by the half-extent vectors x1/y1/z1 and x2/y2/z2.  Note that this does not
-     * compute/return the distance you would have to move back along the axis to separate (this
-     * information can be used to separate collided boxes). @axis is renormalized at start.
+     * given by the half-extent vectors x1/y1/z1 and x2/y2/z2.  Note that this does not compute or
+     * return the distance you would have to move back along the axis to separate (this information
+     * can be used to separate collided boxes). @axis is renormalized before use.
      */
     template<typename T> requires std::is_floating_point_v<T>
     bool separating_axis_test (sm::vec<T, 3>& axis,
@@ -150,15 +150,20 @@ export namespace sm::geometry
     /*!
      * Use the separating axis theorem to detect a collision between two oriented bounding boxes in
      * three dimensions.
+     *
+     * The oriented bounding boxes are passed in a references to 3x4 matrices. These contain four
+     * vectors in the matrix columns. col(0) is the centre of the obb, col(1) is the 'x' half-extent
+     * vector for the obb; col(2) is the 'y' half extent vector and col(3) is the 'z' half extent
+     * vector.
      */
     template<typename T> requires std::is_floating_point_v<T>
     bool obb_collision_detect (const sm::mat<T, 3, 4>& obb1, const sm::mat<T, 3, 4>& obb2)
     {
         // Face normals. Our obb_x/y/z axes
-        const sm::vec<T, 3> c1 = obb1.col(0);
-        const sm::vec<T, 3> x1 = obb1.col(1);
-        const sm::vec<T, 3> y1 = obb1.col(2);
-        const sm::vec<T, 3> z1 = obb1.col(3);
+        const sm::vec<T, 3> c1 = obb1.col(0); // obb1 centre
+        const sm::vec<T, 3> x1 = obb1.col(1); // obb1 x half-extent
+        const sm::vec<T, 3> y1 = obb1.col(2); // obb1 y half-extent
+        const sm::vec<T, 3> z1 = obb1.col(3); // obb1 z half-extent
         const sm::vec<T, 3> c2 = obb2.col(0);
         const sm::vec<T, 3> x2 = obb2.col(1);
         const sm::vec<T, 3> y2 = obb2.col(2);
