@@ -1678,7 +1678,7 @@ export namespace sm
         constexpr mat<F, Nr, Nc> operator-() const noexcept
         {
             mat<F, Nr, Nc> m{};
-            for (std::uint32_t i = 0; i < Nr * Nc; ++i) { this->arr[i] = -this->arr[i]; }
+            for (std::uint32_t i = 0; i < Nr * Nc; ++i) { m.arr[i] = -this->arr[i]; }
             return m;
         }
 
