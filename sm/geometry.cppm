@@ -151,10 +151,10 @@ export namespace sm::geometry
      * Use the separating axis theorem to detect a collision between two oriented bounding boxes in
      * three dimensions.
      *
-     * The oriented bounding boxes are passed in a references to 3x4 matrices. These contain four
-     * vectors in the matrix columns. col(0) is the centre of the obb, col(1) is the 'x' half-extent
-     * vector for the obb; col(2) is the 'y' half extent vector and col(3) is the 'z' half extent
-     * vector.
+     * The oriented bounding boxes (obb) are passed in as references to 3x4 matrices. These contain
+     * four vectors in the matrix columns. col(0) is the centre of the obb, col(1) is the 'x'
+     * half-extent vector for the obb; col(2) is the 'y' half-extent vector and col(3) is the 'z'
+     * half-extent vector.
      */
     template<typename T> requires std::is_floating_point_v<T>
     bool obb_collision_detect (const sm::mat<T, 3, 4>& obb1, const sm::mat<T, 3, 4>& obb2)
