@@ -72,6 +72,22 @@ sm::interval<sm::vec<float>> box = { {0,0,0}, {1,1,1} };
 bool hits = sm::geometry::aabb_line_intersect (box, {0.5f,-2,0.5f}, {0.5f,2,0.5f}); // true
 ```
 
+## Oriented bounding boxes
+
+`sm::geometry::obb_collision_detect` can be used to detect a collision between two arbitrarily oriented cuboids.
+It implements the separating axis test due to [Gottschalk](https://gamma.cs.unc.edu/SSV/obb.pdf).
+Oriented bounding boxes are defined by a centre vector along with three orthogonal 'half-extent' vectors (from the origin to a face in each of the three axes of the cuboid).
+`sm::geometry::obb_collision_detect<T>` expects to receive these vectors packed into two 3x4 matrices (`sm::mat<T, 3, 4>`); one for each box. col(0) of the matrix holds the centre vector, and the x-y-z half-extent vectors are in col(1), col(2) and col(3).
+The function returns `true` if the boxes overlap and false otherwise.
+
+```c++
+// mathplot VisualModels have a function to return an oriented bounding box
+sm::mat<float, 3, 4> obb1 = mathplot_visualmodel1->get_viewmatrix_obb();
+sm::mat<float, 3, 4> obb2 = mathplot_visualmodel2->get_viewmatrix_obb();
+
+bool overlapping = sm::geometry::obb_collision_detect (obb1, obb2);
+```
+
 ## Rays, planes, discs, triangles and spheres
 
 `sm::geometry::ray_plane_intersection (p0, n, l0, l)` returns the distance along `l` to a plane through `p0` with normal `n`, or `std::numeric_limits<T>::max()` if the ray is parallel to the plane (verified for both exactly- and almost-parallel cases):
