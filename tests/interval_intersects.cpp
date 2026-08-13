@@ -58,12 +58,26 @@ int main()
     if (a.intersects(b) == false) { --rtn; }
     if (b.intersects(a) == false) { --rtn; }
 
+    // Invalid AABB intervals
     a = { { 10.2, 4.6, 0.8 }, { 12.8, 4.3, -1.3 } };
     b = { { 10.5, 4.2, 0.5 }, { 10.8, 4.5, -0.03 } };
-    std::cout << a << " n\n" << b << " \n    ?" << (a.intersects(b) ? "true" : "false") << std::endl;
-    std::cout << b << " n\n" << a << " \n    ?" << (a.intersects(b) ? "true" : "false") << std::endl;
-    //if (a.intersects(b) == false) { --rtn; }
-    //if (b.intersects(a) == false) { --rtn; }
+    std::cout << "Is " << a << " a valid interval (AABB)?: " << (a.valid() ? "Yes" : "No") << std::endl;
+    std::cout << "Is " << b << " a valid interval (AABB)?: " << (b.valid() ? "Yes" : "No") << std::endl;
+    if (a.valid() == true || b.valid() == true) { --rtn; }
+
+    // Expect these NOT to intersect because they are not valid. (a.min[i] !< a.max[i] Vi)
+    std::cout << a << " n\n" << b << " \n ? " << (a.intersects(b) ? "true" : "false") << std::endl;
+    std::cout << b << " n\n" << a << " \n ? " << (a.intersects(b) ? "true" : "false") << std::endl;
+    if (a.intersects(b) == true) { --rtn; }
+    if (b.intersects(a) == true) { --rtn; }
+
+    // Simpler, more readable invalid interval
+    a = { { -1, -1, -1 }, { 1, 1, 1 } }; // valid
+    b = { { 1, -1, -1 }, { -1, 1, 1 } }; // invalid, diagonal would make same sized cube that would intersect though.
+    std::cout << "Is " << a << " a valid interval (AABB)?: " << (a.valid() ? "Yes" : "No") << std::endl;
+    std::cout << "Is " << b << " a valid interval (AABB)?: " << (b.valid() ? "Yes" : "No") << std::endl;
+    if (a.valid() == false || b.valid() == true) { --rtn; }
+    if (a.intersects(b) == true) { --rtn; }
 
     std::cout << std::endl << "Test " << (rtn < 0 ? "Failed" : "Passed") << std::endl;
     return rtn;
