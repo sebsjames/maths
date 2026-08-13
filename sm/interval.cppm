@@ -11,23 +11,22 @@
  * <array>.
  *
  * The class has since become an interval class, covering (for most cases) closed, open and
- * semi-open intervals, both for real numbers, complex numbers and even vectors (though proper
- * mathematical intervals don't really cover vectors, so a sm::interval<vector_type> is really an
- * axis-aligned bounding box).
+ * semi-open intervals, both for real numbers, complex numbers and even vectors (though our
+ * sm::interval<vector_type> is really an axis-aligned bounding box rather than a proper
+ * mathematical interval).
  *
  * The design is a struct containing two values (the min and max), with the nature of the endpoints
  * defined with template parameters. This means that there are some limitations. While we can write
  * a function that returns whether a value falls within the interval or not, we can't write a
- * function that returns the union or intersection of two intervals, because the runtime values would
- * have to determine the type of the return object (i.e., its endpoint template parameters). If
- * intersection and union methods become a requirement in the future, it may be necessary to write a
- * new interval class containing a runtime-variable encoding of the endpoint types. This could cost
- * only 2 bits of storage space (or more practically a single std::uint32_t). However, at present
- * this functionality is not required; in fact, sm::interval will almost always be used with the
- * default closed extrema with the interval being notated [min, max].
+ * function that returns the union or intersection of two intervals, because the runtime values
+ * would have to determine the compile-time type of the return object (i.e., its endpoint template
+ * parameters). If intersection and union methods become a requirement in the future, it will be
+ * necessary to write a new interval class containing a runtime-variable encoding of the endpoint
+ * types. This could cost only 2 bits of storage space (or more practically a single
+ * std::uint32_t). At present this functionality is not required. In fact, sm::interval is almost
+ * always used with the default closed extrema (with the interval being notated [min, max]).
  *
- * Extra bonus: You can use sm::interval<vector_type> as an implementation of an axis-aligned
- * bounding box! You can also use sm::interval<> in constexpr functions.
+ * Extra bonus: You can also use sm::interval<> in constexpr functions.
  *
  * Author: Seb James
  * Date: June 2026
