@@ -11,21 +11,22 @@
  * <array>.
  *
  * The class has since become an interval class, covering (for most cases) closed, open and
- * semi-open intervals, both for real numbers, complex numbers and vectors.
+ * semi-open intervals, both for real numbers, complex numbers and even vectors (though our
+ * sm::interval<vector_type> is really an axis-aligned bounding box rather than a proper
+ * mathematical interval).
  *
  * The design is a struct containing two values (the min and max), with the nature of the endpoints
  * defined with template parameters. This means that there are some limitations. While we can write
  * a function that returns whether a value falls within the interval or not, we can't write a
- * function that return the union or intersection of two intervals, because the runtime values would
- * have to determine the type of the return object (i.e., its endpoint template parameters). If
- * intersection and union methods become a requirement in the future, it may be necessary to write a
- * new interval class containing a runtime-variable encoding of the endpoint types. This could cost
- * only 2 bits of storage space (or more practically a single std::uint32_t). However, at present
- * this functionality is not required; in fact, sm::interval will almost always be used with the
- * default closed extrema with the interval being notated [min, max].
+ * function that returns the union or intersection of two intervals, because the runtime values
+ * would have to determine the compile-time type of the return object (i.e., its endpoint template
+ * parameters). If intersection and union methods become a requirement in the future, it will be
+ * necessary to write a new interval class containing a runtime-variable encoding of the endpoint
+ * types. This could cost only 2 bits of storage space (or more practically a single
+ * std::uint32_t). At present this functionality is not required. In fact, sm::interval is almost
+ * always used with the default closed extrema (with the interval being notated [min, max]).
  *
- * Extra bonus: You can use sm::interval<vector_type> as an implementation of an axis-aligned
- * bounding box! You can also use sm::interval<> in constexpr functions.
+ * Extra bonus: You can also use sm::interval<> in constexpr functions.
  *
  * Author: Seb James
  * Date: June 2026
@@ -39,6 +40,7 @@ module;
 #include <limits>
 #include <complex>
 #include <span>
+#include <type_traits>
 
 export module sm.interval;
 
@@ -58,6 +60,20 @@ export namespace sm
 
     template <typename T, interval_endpoint infimum, interval_endpoint supremum>
     std::ostream& operator<< (std::ostream&, const interval<T, infimum, supremum>&);
+
+    namespace internal
+    {
+        // Return an I typed unsigned integer with sz bits set true/1 (if I is too narrow, <sz
+        // bits will be set true)
+        template <typename I> requires (std::is_integral_v<I> && std::is_unsigned_v<I>)
+        constexpr I n_bits (const std::size_t sz)
+        {
+            I all_set = I{0};
+            std::size_t Ibits = sizeof (I) * 8;
+            for (std::size_t i = 0; i < sz && i < Ibits; ++i) { all_set |= 1 << i; }
+            return all_set;
+        }
+    }
 
     // interval is a constexpr-friendly literal type defining an interval [min, max], (min, max],
     // [min, max) or (min, max).
@@ -100,6 +116,39 @@ export namespace sm
             if (val > this->max) { constrained = this->max; }
             else if (val < this->min) { constrained = this->min; }
             return constrained;
+        }
+
+        // Is the interval valid? A valid interval specifies a non-empty set. [0, 1] is valid. [1,
+        // 0] is not valid. [0, 0] is valid, (0, 0] is invalid. Note that an interval that has been
+        // search_initialized will initially be non-valid.
+        constexpr bool valid() const noexcept
+        {
+            if constexpr (sm::number_type<T>::value == 2) {
+                // interval is complex. What's the test?
+                return true;
+            } else if constexpr (sm::number_type<T>::value == 1) {
+                // interval is scalar
+                // extremum tests here
+                if constexpr (infimum == interval_endpoint::open || supremum == interval_endpoint::open) {
+                    return this->min < this->max;
+                } else { // both suprema are closed min==max is ok
+                    return this->min <= this->max;
+                }
+            } else {
+                // interval is vector. What's the test? The test is that this should be an axis
+                // aligned bounding box with each dimension have min <(=) max
+                bool _valid = true;
+                if constexpr (infimum == interval_endpoint::open || supremum == interval_endpoint::open) {
+                    for (std::uint32_t i = 0; i < this->min.size(); ++i) {
+                        if ((this->min[i] < this->max[i]) == false) { _valid = false; }
+                    }
+                } else { // both suprema are closed min==max is ok
+                    for (std::uint32_t i = 0; i < this->min.size(); ++i) {
+                        if ((this->min[i] <= this->max[i]) == false) { _valid = false; }
+                    }
+                }
+                return _valid;
+            }
         }
 
         // Output a string representation of the min and max. Rewrite with <format> at some point.
@@ -291,7 +340,7 @@ export namespace sm
                 if constexpr (infimum == interval_endpoint::closed && supremum == interval_endpoint::closed
                               && infimum_y == interval_endpoint::closed && supremum_y == interval_endpoint::closed) {
                     // Does other define a rectangle in the complex plane that fits inside the one made by this->min and max?
-                    unsigned int other_inside = 0;
+                    std::uint32_t other_inside = 0;
                     other_inside = 1u & (std::real(this->min) <= std::real(other.min) && std::imag(this->min) <= std::imag(other.min)
                                          && std::real(this->max) >= std::real(other.min) && std::imag(this->max) >= std::imag(other.min));
                     other_inside |= (1u & (std::real(this->min) <= std::real(other.max) && std::imag(this->min) <= std::imag(other.max)
@@ -301,7 +350,7 @@ export namespace sm
                     []<bool flag = false>() { static_assert(flag, "contains(interval) for T complex not implemented for open/semi-open"); }();
                 }
             } else if constexpr (sm::number_type<T>::value == 1) { // interval is scalar
-                unsigned int other_inside = 0;
+                std::uint32_t other_inside = 0;
                 // min is inside other.min?
                 if constexpr (infimum == interval_endpoint::open && infimum_y == interval_endpoint::closed) {
                     other_inside = 1u & (this->min < other.min);
@@ -324,6 +373,9 @@ export namespace sm
         template<typename Ty=T, interval_endpoint infimum_y, interval_endpoint supremum_y>
         constexpr bool intersects (const sm::interval<Ty, infimum_y, supremum_y>& other) const noexcept
         {
+            // Invalid intervals (those that are an empty set) can't intersect
+            if (this->valid() == false || other.valid() == false) { return false; }
+
             if constexpr (sm::number_type<T>::value == 2) { // interval is complex
                 // Does other define a rectangle in the complex plane that intersects the one made by this->min and max?
                 bool othermin_inside = std::real(this->min) <= std::real(other.min) && std::imag(this->min) <= std::imag(other.min)
@@ -333,57 +385,103 @@ export namespace sm
                 return othermin_inside || othermax_inside;
 
             } else if constexpr (sm::number_type<T>::value == 1) { // interval is scalar
-                // If othermin is inside this or othermax is inside this then intersects is true:
-                unsigned int other_inside = 0;
-                // othermin inside? True if both of these are true (then set bit 0 of other_inside)
-                //  1. othermin inside max?
+
+                // These tests depend on min <= max being true for both *this and other.
+
+                std::uint32_t itest = 0u;
+                // TEST 1. Is other's min inside my interval?. Set bit 0.
+                // True if both of these are true:
+                //  1.1. othermin <(=) max
                 if constexpr (supremum == interval_endpoint::closed && infimum_y == interval_endpoint::closed) {
-                    other_inside = 1u & (other.min <= this->max);
+                    itest = other.min <= this->max;
                 } else {
-                    other_inside = 1u & (other.min < this->max);
+                    itest = other.min < this->max;
                 }
-                //  2. othermin inside min?
+                //  1.2. othermin >(=) min
                 if constexpr (infimum == interval_endpoint::closed && infimum_y == interval_endpoint::closed) {
-                    other_inside &= 1u & (other.min >= this->min);
+                    itest &= other.min >= this->min;
                 } else {
-                    other_inside &= 1u & (other.min > this->min);
+                    itest &= other.min > this->min;
                 }
 
-                // othermax inside? True if both of these are true:
-                //  1. othermax inside max? then set bit 1 of other_inside
+                // TEST 2. Is other's max inside my interval?
+                // True if both of these are true:
+                //  2.1. othermax <(=) max
                 if constexpr (supremum == interval_endpoint::closed && supremum_y == interval_endpoint::closed) {
-                    other_inside |= (1u & (other.max <= this->max)) << 1;
+                    itest |= (other.max <= this->max) << 1;
                 } else {
-                    other_inside |= (1u & (other.max < this->max)) << 1;
+                    itest |= (other.max < this->max) << 1;
                 }
-                //  1. othermax inside min? then set bit 2 of other_inside
+                //  2.2. othermax >(=) min
                 if constexpr (infimum == interval_endpoint::closed && supremum_y == interval_endpoint::closed) {
-                    other_inside |= (1u & (other.max >= this->min)) << 2;
+                    itest &= 1u | ((other.max >= this->min) << 1);
                 } else {
-                    other_inside |= (1u & (other.max > this->min)) << 2;
+                    itest &= 1u | ((other.max > this->min) << 1);
                 }
 
-                // return true for:
-                //
-                //    2 1 0
-                //    -----
-                //    0 0 0  F
-                //    0 0 1  T
-                //    0 1 0  F
-                //    0 1 1  T
-                //    1 0 0  F
-                //    1 0 1  T
-                //    1 1 0  T
-                //    1 1 1  T
-                return (other_inside > 4 || (other_inside % 2 /* != 0 */));
+                // TEST 3. Is my min AND max inside other? (No constexpr supremum/infimum tests required)
+                itest |= ((other.max >= this->max) && (other.min <= this->min)) << 2;
 
-            } else {
+                return itest > 0u;
+
+            } else { // interval is vector (so this test is an aabb bounding box intersection test)
+
                 using T_el=std::remove_reference_t<decltype(*std::begin(std::declval<T&>()))>;
-                std::size_t sz = sizeof (T) / sizeof (T_el);
+
+                constexpr std::size_t sz = sizeof (T) / sizeof (T_el);
+
+                // If you get this error, you could always change idim to std::uint64_t.
+                static_assert (sz <= 32,
+                               "The vector type in the sm::interval needs to be <= 32D to call sm::interval::intersects");
+
+                // Results of intersection tests for each dimension are collected in this unsigned
+                // integer. If sz > num bits in uint32_t, then this code would not work.
+                std::uint32_t idim = 0u;
+
+                constexpr std::uint32_t idim_all_dims = internal::n_bits<std::uint32_t> (sz);
+
+                // Test each dimension as a scalar intersection. If there's an intersection on ALL
+                // dimensions at once, then the vector intersection is true.
                 for (std::size_t i = 0; i < sz; ++i) {
-                    if (other.min[i] > this->max[i] || other.max[i] < this->min[i]) { return false; }
+
+                    std::uint32_t itest = 0u;
+
+                    // TEST 1. Is other's min inside my interval?. Set bit 0.
+                    // True if both of these are true:
+                    //  1.1. othermin <(=) max
+                    if constexpr (supremum == interval_endpoint::closed && infimum_y == interval_endpoint::closed) {
+                        itest = (other.min[i] <= this->max[i]) << 0;
+                    } else {
+                        itest = (other.min[i] < this->max[i]) << 0;
+                    }
+                    //  1.2. othermin >(=) min
+                    if constexpr (infimum == interval_endpoint::closed && infimum_y == interval_endpoint::closed) {
+                        itest &= (other.min[i] >= this->min[i]) << 0;
+                    } else {
+                        itest &= (other.min[i] > this->min[i]) << 0;
+                    }
+
+                    // TEST 2. Is other's max inside my interval?
+                    // True if both of these are true:
+                    //  2.1. othermax <(=) max
+                    if constexpr (supremum == interval_endpoint::closed && supremum_y == interval_endpoint::closed) {
+                        itest |= (other.max[i] <= this->max[i]) << 1;
+                    } else {
+                        itest |= (other.max[i] < this->max[i]) << 1;
+                    }
+                    //  2.2. othermax >(=) min
+                    if constexpr (infimum == interval_endpoint::closed && supremum_y == interval_endpoint::closed) {
+                        itest &= 1u | ((other.max[i] >= this->min[i]) << 1);
+                    } else {
+                        itest &= 1u | ((other.max[i] > this->min[i]) << 1);
+                    }
+
+                    // TEST 3. Is my min AND max inside other? (No constexpr supremum/infimum tests required)
+                    itest |= ((other.max[i] >= this->max[i]) && (other.min[i] <= this->min[i])) << 2;
+
+                    idim |= (itest > 0u) ? (1u << i) : 0u;
                 }
-                return true;
+                return idim == idim_all_dims;
             }
         }
 

@@ -188,6 +188,8 @@ sm::mat<float, 4> m;
 float el = m (1, 2); // row 1, column 2
 m (1, 2) = 5.0f;
 ```
+The rows and columns are counted starting from 0 (`m (0, 0) gives the very first element in row 0, col 0, which is the same as m[0]).
+
 Reading out of range returns NaN; writing out of range clamps to the matrix's last element, rather than being undefined behaviour.
 
 You can also get or set a whole row or column at once, as an `sm::vec`:
