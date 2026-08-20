@@ -33,6 +33,7 @@ install(
   hexyhisto.cppm
   histo.cppm
   interval.cppm
+  jc_voronoi.cppm
   mat.cppm
   mathconst.cppm
   nm_simplex.cppm
