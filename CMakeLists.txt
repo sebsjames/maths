@@ -13,7 +13,24 @@ project(maths LANGUAGES CXX)
 message(STATUS "Install prefix: ${CMAKE_INSTALL_PREFIX}")
 message(STATUS "  (This can be changed with `cmake -DCMAKE_INSTALL_PREFIX=/some/place`")
 
-set(CMAKE_CXX_STANDARD 23) # Allow 23 for future import std; support
+# On the C++ standard to support: My use of C++20 modules (which have
+# taken some time for tool developers to support) requires me to use
+# compilers that are modern enough to support most C++23 features. So,
+# I *could* set the C++ standard for the library to 23 here. This
+# would allow some changes and updates to constexpr code (for example,
+# in constexpr_math.cppm), but I am not desperate to make these
+# changes. If and when I want the library to support `import std;`, it
+# will need the C++23 standard. At the time of writing, the library
+# passes Continuous Integration with `set(CMAKE_CXX_STANDARD 23)`.
+#
+# However, at present, the code in the library all compiles at the
+# C++20 standard. Additionally, although the related library
+# sebsjames/mathplot will compile at C++23, not every one of its CI
+# tests passes, and so it remains set at the C++20 level. Until import
+# std; is required, and mathplot can be compiled with C++23, I will
+# compile sebsjames/maths tests and examples at C++20 and keep the
+# code C++20 compatible.
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # For clang and future import std; support
 # set(CMAKE_CXX_EXTENSIONS ON)
