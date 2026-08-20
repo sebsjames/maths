@@ -32,11 +32,6 @@ export import sm.vec;
 import sm.geometry;
 import sm.winder;
 
-#ifndef JCV_EDGE_INTERSECT_THRESHOLD
-    // Fix for Issue #40
-    #define JCV_EDGE_INTERSECT_THRESHOLD 1.0e-10F
-#endif
-
 export namespace sm::jcv
 {
     // Seb has replaced the original point struct with use of his fixed-size mathematical vector
@@ -204,7 +199,7 @@ export namespace sm::jcv
         manager(){}
         ~manager() { jcv::manager<T>::diagram_free (&this->diagram); }
 
-        static constexpr T edge_intersect_threshold = T{JCV_EDGE_INTERSECT_THRESHOLD};
+        static constexpr T edge_intersect_threshold = T{1.0e-10}; // JCV_EDGE_INTERSECT_THRESHOLD: Fix for Issue #40
 
         // INTERNAL FUNCTIONS
 
