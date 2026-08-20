@@ -10,6 +10,8 @@
 // namespaced (jcv) so that type names look like jcv::site instead of jcv_site; jcv::edge rather
 // than jcv_edge, and so on.
 
+// The structs and functions in the namespace sm::jcv are exported as the module sm.jcv.
+
 module;
 
 #include <stdlib.h> // qsort(), malloc() & free(). Seb hasn't altered the C-style memory allocation
@@ -23,7 +25,7 @@ module;
 #include <bitset>
 #include <functional>
 
-export module jc.voronoi;
+export module sm.jcv;
 
 export import sm.mathconst;
 export import sm.vec;
@@ -35,7 +37,7 @@ import sm.winder;
     #define JCV_EDGE_INTERSECT_THRESHOLD 1.0e-10F
 #endif
 
-export namespace jcv
+export namespace sm::jcv
 {
 #pragma pack(push, 1)
 
