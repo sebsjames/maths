@@ -192,6 +192,14 @@ macro(setup_module_variables_for_maths base_directory json_directory)
   )
   list(REMOVE_DUPLICATES SM_GEOMETRY_MODULES)
 
+  set(SM_JCV_MODULES
+    ${SM_MATHCONST_MODULES}
+    ${SM_GEOMETRY_MODULES}
+    ${SM_WINDER_MODULES}
+    ${base_directory}/sm/jc_voronoi.cppm
+  )
+  list(REMOVE_DUPLICATES SM_JCV_MODULES)
+
   set(SM_BEZCURVE_MODULES
     ${SM_BEZCOORD_MODULES}
     ${SM_MAT_MODULES}
