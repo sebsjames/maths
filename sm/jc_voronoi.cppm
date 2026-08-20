@@ -39,8 +39,6 @@ import sm.winder;
 
 export namespace sm::jcv
 {
-#pragma pack(push, 1)
-
     // Seb has replaced the original point struct with use of his fixed-size mathematical vector
     // class, sm::vec
     template<typename T>
@@ -198,8 +196,6 @@ export namespace sm::jcv
     {
         std::vector<jcv::point<T>> points;
     };
-
-#pragma pack(pop)
 
     // The mananger class. Type T is what is called real in the original code
     template<typename T> requires std::is_floating_point_v<T>
