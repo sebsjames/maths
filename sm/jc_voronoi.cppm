@@ -80,14 +80,14 @@ export namespace sm::jcv
     };
 
     template<typename T>
-    struct delauney_iter
+    struct delaunay_iter
     {
         const edge<T>* sentinel;
         const edge<T>* current;
     };
 
     template<typename T>
-    struct delauney_edge
+    struct delaunay_edge
     {
         const edge<T>* edge_;      // The voronoi edge separating the two sites
         const site<T>* sites[2];
@@ -354,21 +354,21 @@ export namespace sm::jcv
             return diagram_get_next_edge (&e);
         }
 
-        // Creates an iterator over the delauney edges of a voronoi diagram
-        void delauney_begin (const diagram<T>* diagram, delauney_iter<T>* iter)
+        // Creates an iterator over the delaunay edges of a voronoi diagram
+        void delaunay_begin (const diagram<T>* diagram, delaunay_iter<T>* iter)
         {
             iter->current = 0;
             iter->sentinel = diagram_get_edges (diagram);
         }
 
         // Steps the iterator and returns the next edge Returns 0 when there are no more edges
-        int delauney_next (delauney_iter<T>* iter, delauney_edge<T>* next)
+        int delaunay_next (delaunay_iter<T>* iter, delaunay_edge<T>* next)
         {
             if (iter->sentinel) {
                 iter->current = iter->sentinel;
                 iter->sentinel = 0;
             } else {
-                // Note: If we use the raw edges, we still get a proper delauney triangulation
+                // Note: If we use the raw edges, we still get a proper delaunay triangulation
                 // However, the result looks less relevant to the cells contained within the bounding box
                 // E.g. some cells that look isolated from each other, suddenly still are connected,
                 // because they share an edge outside of the bounding box
@@ -1861,10 +1861,10 @@ ABOUT:
     A fast single file 2D voronoi diagram generator
 
 HISTORY:
-    0.9     2023-01-22  - Modified the Delauney iterator creation api
+    0.9     2023-01-22  - Modified the Delaunay iterator creation api
     0.8     2022-12-20  - Added fix for missing border edges
                           More robust removal of duplicate graph edges
-                          Added iterator for Delauney edges
+                          Added iterator for Delaunay edges
     0.7     2019-10-25  - Added support for clipping against convex polygons
                         - Added JCV_EDGE_INTERSECT_THRESHOLD for edge intersections
                         - Fixed issue where the bounds calculation wasn’t considering all points
