@@ -354,34 +354,37 @@ export namespace sm::jcv
             return diagram_get_next_edge (&e);
         }
 
+        // Used by delaunay code
+        delaunay_iter<T> d_iter = {};
+
         // Creates an iterator over the delaunay edges of a voronoi diagram
-        void delaunay_begin (const diagram<T>* diagram, delaunay_iter<T>* iter)
+        void delaunay_begin()
         {
-            iter->current = 0;
-            iter->sentinel = diagram_get_edges (diagram);
+            this->d_iter.current = nullptr;
+            this->d_iter.sentinel = diagram_get_edges (&this->diagram);
         }
 
         // Steps the iterator and returns the next edge Returns 0 when there are no more edges
-        int delaunay_next (delaunay_iter<T>* iter, delaunay_edge<T>* next)
+        int delaunay_next (delaunay_edge<T>* next)
         {
-            if (iter->sentinel) {
-                iter->current = iter->sentinel;
-                iter->sentinel = 0;
+            if (this->d_iter.sentinel) {
+                this->d_iter.current = this->d_iter.sentinel;
+                this->d_iter.sentinel = 0;
             } else {
                 // Note: If we use the raw edges, we still get a proper delaunay triangulation
                 // However, the result looks less relevant to the cells contained within the bounding box
                 // E.g. some cells that look isolated from each other, suddenly still are connected,
                 // because they share an edge outside of the bounding box
-                iter->current = diagram_get_next_edge (iter->current);
+                this->d_iter.current = diagram_get_next_edge (this->d_iter.current);
             }
 
-            while (iter->current && (iter->current->sites[0] == 0 || iter->current->sites[1] == 0)) {
-                iter->current = diagram_get_next_edge(iter->current);
+            while (this->d_iter.current && (this->d_iter.current->sites[0] == 0 || this->d_iter.current->sites[1] == 0)) {
+                this->d_iter.current = diagram_get_next_edge (this->d_iter.current);
             }
 
-            if (!iter->current) { return 0; }
+            if (!this->d_iter.current) { return 0; }
 
-            next->edge_ = iter->current;
+            next->edge_ = this->d_iter.current;
             next->sites[0] = next->edge_->sites[0];
             next->sites[1] = next->edge_->sites[1];
             next->pos[0] = next->sites[0]->p;
