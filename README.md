@@ -11,9 +11,10 @@
 ## A modules-native mathematics library for modern C++
 
 This library provides vector and matrix maths with *templated
-precision*. It is intended to help you to write maths into your C++ in
-a simple, readable and modern idiom, with the ability to switch
-machine precision easily.
+precision* for numerical/simulation programs written in C++20. It is
+intended to help you to write maths into your C++ in a simple,
+readable and modern idiom, with the ability to switch machine
+precision easily.
 
 It provides:
 
