@@ -24,6 +24,7 @@ export module sm.hex;
 export import sm.mathconst;
 export import sm.bezcoord;
 export import sm.vec;
+import sm.mat;
 
 export namespace sm
 {
@@ -319,6 +320,14 @@ export namespace sm
             float dx = otherhex.x - x;
             float dy = otherhex.y - y;
             return std::sqrt (dx * dx + dy * dy);
+        }
+
+        void transform (const sm::mat<float, 4>& tf)
+        {
+            sm::vec<float, 3> posn = { this->x, this->y };
+            posn = (tf * posn).less_one_dim();
+            this->x = posn[0];
+            this->y = posn[1];
         }
 
         /*!

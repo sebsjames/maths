@@ -950,6 +950,23 @@ export namespace sm
             return xmax;
         }
 
+        // If hexes have been transformed, then we have to store the transform matrix so that it can
+        // be used by client code (such as mathplot's HexGridVisual)
+        sm::mat<float, 4> tfm = sm::mat<float, 4>::identity();
+
+        // Transform the positions of the hexes. After transforming, the domain vectors may have to be recomputed
+        void transform (const sm::mat<float, 4>& tf)
+        {
+            this->tfm = tf;
+            std::list<sm::hex>::iterator h = this->hexen.begin();
+            while (h != this->hexen.end()) {
+                h->transform (this->tfm);
+                ++h;
+            }
+
+            if (this->d_x.empty() == false) { this->populate_d_vectors(); }
+        }
+
         /*!
          * Run through all the hexes and compute the distance to the nearest boundary
          * hex.
