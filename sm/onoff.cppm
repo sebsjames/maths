@@ -12,6 +12,7 @@ module;
 
 #include <cstdint>
 #include <stdexcept>
+#include <algorithm>
 
 export module sm.algo.onoff;
 
