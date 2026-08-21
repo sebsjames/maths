@@ -1261,6 +1261,66 @@ export namespace sm
         }
 
         /*!
+         * Resampling function (monochrome) for data with coordinates. g_sigma related to
+         * characteristic distance between elements in _data/_coords.
+         *
+         * Here, we assume the _coords are centered wrt the hexgrid.
+         */
+        sm::vvec<float> resample_data (const sm::vvec<float>& _data,
+                                       const sm::vvec<sm::vec<float, 2>>& _coords,
+                                       const float g_sigma)
+        {
+            std::uint32_t csz = _data.size();
+
+            // Return data object for the resampled result
+            sm::vvec<float> expr_resampled(this->num(), 0.0f);
+
+            // Before resampling, check if all the values in image_data are identical. In this case,
+            // we can short-cut the resampling process.
+            float i0 = _data[0];
+            bool all_same = true;
+            for (auto id : _data) {
+                if (id != i0) {
+                    all_same = false;
+                    break;
+                }
+            }
+            if (all_same) {
+                // Short-cut - just set all values in the resampled data to the same as in the input data
+                expr_resampled.set_from (i0);
+                return expr_resampled;
+            }
+
+            // Pass in a Gaussian for the sigma
+            sm::vec<float, 2> dist_per_pix = {g_sigma, g_sigma};
+            // Parameters for the Gaussian computation
+            sm::vec<float, 2> params = 1.0f / (2.0f * dist_per_pix * dist_per_pix);
+            sm::vec<float, 2> threesig = 3.0f * dist_per_pix;
+
+#pragma omp parallel for // parallel on this outer loop gives best result (5.8 s vs 7 s)
+            for (typename std::vector<float>::size_type xi = 0u; xi < this->d_x.size(); ++xi) {
+                float expr = 0.0f;
+                for (std::uint32_t i = 0; i < csz; ++i) {
+                    // Get x/y pixel coords:
+                    // sm::vec<std::uint32_t, 2> idx = {(i % image_pixelsz[0]), (i / image_pixelsz[0])};
+                    // Get the coordinates of the pixel at index i (in hexgrid units):
+                    // Distance from input pixel to output hex:
+                    float _d_x = this->d_x[xi] - _coords[i][0];
+                    float _d_y = this->d_y[xi] - _coords[i][1];
+                    // Compute contributions to each hex pixel, using 2D (elliptical) Gaussian
+                    if (_d_x < threesig[0] && _d_y < threesig[1]) { // Testing for distance gives slight speedup
+                        expr += std::exp ( - ( (params[0] * _d_x * _d_x) + (params[1] * _d_y * _d_y) ) ) * _data[i];
+                    }
+                }
+                expr_resampled[xi] = expr;
+            }
+
+            expr_resampled /= expr_resampled.max(); // renormalise result
+            expr_resampled *= _data.max();
+            return expr_resampled;
+        }
+
+        /*!
          * Resampling function (monochrome).
          *
          * \param image_data (input) The monochrome image as a vvec of floats.  The
