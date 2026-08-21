@@ -154,9 +154,43 @@ macro(setup_module_variables_for_maths base_directory json_directory)
 
   set(SM_ALGO_MODULES
     ${SM_VEC_MODULES}
+    ${SM_VVEC_MODULES}
+    ${base_directory}/sm/trait_tests.cppm
     ${base_directory}/sm/algo.cppm
+    ${base_directory}/sm/centroid.cppm
+    ${base_directory}/sm/boxfilter.cppm
+    ${base_directory}/sm/edgeconv.cppm
+    ${base_directory}/sm/onoff.cppm
   )
   list(REMOVE_DUPLICATES SM_ALGO_MODULES)
+
+  set(SM_CENTROID_MODULES
+    ${SM_VEC_MODULES}
+    ${SM_VVEC_MODULES}
+    ${base_directory}/sm/trait_tests.cppm
+    ${base_directory}/sm/centroid.cppm
+  )
+  list(REMOVE_DUPLICATES SM_CENTROID_MODULES)
+
+  set(SM_BOXFILTER_MODULES
+    ${SM_VEC_MODULES}
+    ${SM_VVEC_MODULES}
+    ${base_directory}/sm/boxfilter.cppm
+  )
+  list(REMOVE_DUPLICATES SM_BOXFILTER_MODULES)
+
+  set(SM_EDGECONV_MODULES
+    ${SM_VEC_MODULES}
+    ${SM_VVEC_MODULES}
+    ${base_directory}/sm/edgeconv.cppm
+  )
+  list(REMOVE_DUPLICATES SM_EDGECONV_MODULES)
+
+  set(SM_ONOFF_MODULES
+    ${SM_VVEC_MODULES}
+    ${base_directory}/sm/onoff.cppm
+  )
+  list(REMOVE_DUPLICATES SM_ONOFF_MODULES)
 
   set(SM_NM_SIMPLEX_MODULES
     ${SM_ALGO_MODULES}
@@ -177,13 +211,6 @@ macro(setup_module_variables_for_maths base_directory json_directory)
     ${base_directory}/sm/histo.cppm
   )
   list(REMOVE_DUPLICATES SM_HISTO_MODULES)
-
-  set(SM_BOXFILTER_MODULES
-    ${SM_VEC_MODULES}
-    ${SM_VVEC_MODULES}
-    ${base_directory}/sm/boxfilter.cppm
-  )
-  list(REMOVE_DUPLICATES SM_BOXFILTER_MODULES)
 
   set(SM_GEOMETRY_MODULES
     ${SM_ALGO_MODULES}
