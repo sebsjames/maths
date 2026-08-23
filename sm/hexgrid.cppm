@@ -1266,7 +1266,7 @@ export namespace sm
          *
          * Here, we assume the _coords are centered wrt the hexgrid.
          */
-        sm::vvec<float> resample_data (const sm::vvec<float>& _data,
+        sm::vvec<float> resample_data (const sm::vvec<float>& _data, float data_range,
                                        const sm::vvec<sm::vec<float, 2>>& _coords,
                                        const float g_sigma)
         {
@@ -1316,7 +1316,7 @@ export namespace sm
             }
 
             expr_resampled /= expr_resampled.max(); // renormalise result
-            expr_resampled *= _data.max();
+            expr_resampled *= data_range; //_data.max(); // This ain't right.
             return expr_resampled;
         }
 
