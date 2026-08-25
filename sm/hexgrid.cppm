@@ -347,6 +347,8 @@ export namespace sm
             return hi;
         }
 
+        static constexpr bool debug_boundary = false;
+
         /*!
          * Sets boundary to match the list of hexes passed in as @a phexes. Note, that
          * unlike void set_boundary (const bezcurvepath& p), this method does not apply
@@ -354,6 +356,7 @@ export namespace sm
          */
         void set_boundary (const std::list<sm::hex<F>>& phexes)
         {
+            if constexpr (debug_boundary) { std::cout << __FUNCTION__ << "(const std::list<sm::hex<F>>& phexes) called\n"; }
             this->boundary_centroid = this->compute_centroid (phexes);
 
             typename std::list<sm::hex<F>>::iterator bpoint = this->hexen.begin();
@@ -397,11 +400,13 @@ export namespace sm
          */
         void set_boundary (const bezcurvepath<F, 3>& p, bool loffset = true)
         {
+            if constexpr (debug_boundary) { std::cout << __FUNCTION__ << "(const bezcurvepath<F, 3>& p, bool loffset = true) called\n"; }
+
             this->boundary = p;
             if (!this->boundary.is_null()) {
                 // Compute the points on the boundary using half of the hex to hex
                 // spacing as the step size. The 'false' argument does not invert the y axis.
-                this->boundary.compute_points (this->d/9.0f);
+                this->boundary.compute_points (this->d/2.0f);
                 std::vector<sm::bezcoord<F>> bpoints = this->boundary.get_points();
                 this->set_boundary (bpoints, loffset);
             }
@@ -435,6 +440,8 @@ export namespace sm
          */
         void set_boundary (std::vector<bezcoord<F>>& bpoints, bool loffset = true)
         {
+            if constexpr (debug_boundary) { std::cout << __FUNCTION__ << "(std::vector<bezcoord<F>>& bpoints, bool loffset = true) called\n"; }
+
             this->boundary_centroid = sm::bezcurvepath<F>::get_centroid (bpoints);
 
             auto bpi = bpoints.begin();
@@ -1353,9 +1360,9 @@ export namespace sm
          * \return A new data vvec containing the resampled (and renormalised) hex pixel values
          */
         sm::vvec<F> resample_image (const sm::vvec<F>& image_data,
-                                        const std::uint32_t image_pixelwidth,
-                                        const sm::vec<F, 2>& image_scale,
-                                        const sm::vec<F, 2>& image_offset)
+                                    const std::uint32_t image_pixelwidth,
+                                    const sm::vec<F, 2>& image_scale,
+                                    const sm::vec<F, 2>& image_offset)
         {
             std::uint32_t csz = image_data.size();
             sm::vec<std::uint32_t, 2> image_pixelsz = {image_pixelwidth, csz / image_pixelwidth};
@@ -1679,7 +1686,7 @@ export namespace sm
          */
         // FIXME could be replaced with sm::geometry::segments_intersect()
         vec<F, 2> intersection (const vec<F, 2> _p1, const vec<F, 2> _q1,
-                                    const vec<F, 2> _p2, const vec<F, 2> _q2)
+                                const vec<F, 2> _p2, const vec<F, 2> _q2)
         {
             vec<F, 2> isect;
             isect.set_from (std::numeric_limits<F>::quiet_NaN());
