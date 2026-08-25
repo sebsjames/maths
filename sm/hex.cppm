@@ -136,6 +136,7 @@ export namespace sm
      *
      * Edges/Sides: East: 0, North-East: 1, North-West: 2 West: 3, South-West: 4, South-East: 5
      */
+    template<typename F>
     class hex
     {
     public:
@@ -144,7 +145,7 @@ export namespace sm
          * Constructor taking index, dimension and integer position indices. Computes Cartesian
          * location from these.
          */
-        hex (const std::uint32_t& idx, const float& d_, const std::int32_t& r_, const std::int32_t& g_)
+        hex (const std::uint32_t& idx, const F& d_, const std::int32_t& r_, const std::int32_t& g_)
         {
             this->vi = idx;
             this->d = d_;
@@ -283,8 +284,8 @@ export namespace sm
         void compute_location()
         {
             // Compute Cartesian location
-            this->x = this->d * this->ri + (d / 2.0f) * this->gi - (d / 2.0f) * this->bi;
-            float v = this->get_v();
+            this->x = this->d * this->ri + (d / F{2}) * this->gi - (d / F{2}) * this->bi;
+            F v = this->get_v();
             this->y = v * this->gi + v * this->bi;
             // And location in the Polar coordinate system
             this->r = std::sqrt (x * x + y * y);
@@ -295,11 +296,10 @@ export namespace sm
          * Compute the distance from the point given (in two-dimensions only; x and y) by @a
          * cartesian_point to the centre of this hex.
          */
-        template <typename F>
-        float distance_from (const sm::vec<F, 2> cartesian_point) const
+        F distance_from (const sm::vec<F, 2> cartesian_point) const
         {
-            float dx = cartesian_point[0] - x;
-            float dy = cartesian_point[1] - y;
+            F dx = cartesian_point[0] - x;
+            F dy = cartesian_point[1] - y;
             return std::sqrt (dx * dx + dy * dy);
         }
 
@@ -307,24 +307,24 @@ export namespace sm
          * Compute the distance from the point given (in two-dimensions only; x and y) by the
          * bezcoord @a cartesian_point to the centre of this hex.
          */
-        float distance_from (const sm::bezcoord<float>& cartesian_point) const
+        F distance_from (const sm::bezcoord<F>& cartesian_point) const
         {
-            float dx = cartesian_point.x() - x;
-            float dy = cartesian_point.y() - y;
+            F dx = cartesian_point.x() - x;
+            F dy = cartesian_point.y() - y;
             return std::sqrt (dx * dx + dy * dy);
         }
 
         //! Compute the distance from another hex to this one.
-        float distance_from (const hex& otherhex) const
+        F distance_from (const hex& otherhex) const
         {
-            float dx = otherhex.x - x;
-            float dy = otherhex.y - y;
+            F dx = otherhex.x - x;
+            F dy = otherhex.y - y;
             return std::sqrt (dx * dx + dy * dy);
         }
 
-        void transform (const sm::mat<float, 4>& tf)
+        void transform (const sm::mat<F, 4>& tf)
         {
-            sm::vec<float, 3> posn = { this->x, this->y };
+            sm::vec<F, 3> posn = { this->x, this->y };
             posn = (tf * posn).less_one_dim();
             this->x = posn[0];
             this->y = posn[1];
@@ -352,65 +352,65 @@ export namespace sm
         std::uint32_t di = 0;
 
         //! Cartesian coordinate 'x' of the centre of the hex. Public, for direct access by client code.
-        float x = 0.0f;
+        F x = F{0};
         //! Cartesian 'y' coordinate of the centre of the hex.
-        float y = 0.0f;
+        F y = F{0};
         // Getter for (x,y) as a sm::vec
-        sm::vec<float, 2> x_y() { return sm::vec<float, 2>({this->x, this->y}); }
+        sm::vec<F, 2> x_y() { return sm::vec<F, 2>({this->x, this->y}); }
 
         //! Polar coordinates of the centre of the hex. Public, for direct access by client code.
-        float r = 0.0f;
+        F r = F{0};
         //! Polar coordinate angle
-        float phi = 0.0f;
+        F phi = F{0};
 
         //! Position z of the hex is common to both Cartesian and Polar coordinate systems.
-        float z = 0.0f;
+        F z = F{0};
 
         //! Get the Cartesian position of this hex as a fixed size array.
-        std::array<float, 3> position() const
+        std::array<F, 3> position() const
         {
-            std::array<float,3> rtn = { { this->x, this->y, this->z } };
+            std::array<F,3> rtn = { { this->x, this->y, this->z } };
             return rtn;
         }
 
         //! The centre-to-centre distance from one hex to an immediately adjacent hex.
-        float d = 1.0f;
+        F d = F{1};
 
         //! A getter for d, for completeness. d is the centre-to-centre distance between adjacent hexes.
-        float get_d() const { return this->d; }
+        F get_d() const { return this->d; }
 
         //! Get the shortest distance from the centre to the perimeter. This is the "short radius".
-        float get_sr() const { return this->d / 2.0f; }
+        F get_sr() const { return this->d / F{2}; }
 
         //! The distance from the centre of the hex to any of the vertices. This is the "long radius".
         //! Also the side-length of an edge of the hex.
-        float get_lr() const
+        F get_lr() const
         {
-            float lr = this->d * sm::mathconst<float>::one_over_root_3;
+            F lr = this->d * sm::mathconst<F>::one_over_root_3;
             return lr;
         }
 
         //! Compute and return the area of the hex
-        float get_area() const { return (this->d * this->d * sm::mathconst<float>::root_3_over_2); }
+        F get_area() const { return (this->d * this->d * sm::mathconst<F>::root_3_over_2); }
 
         //! The vertical distance between hex centres on adjacent rows.
-        float get_v() const
+        F get_v() const
         {
-            float v = this->d * sm::mathconst<float>::root_3_over_2;
+            F v = this->d * sm::mathconst<F>::root_3_over_2;
             return v;
         }
 
         //! The vertical distance from the centre of the hex to the "north east" vertex of the hex.
-        float get_v_to_ne() const
+        F get_v_to_ne() const
         {
-            float v = this->d * sm::mathconst<float>::one_over_2_root_3;
+            F v = this->d * sm::mathconst<F>::one_over_2_root_3;
             return v;
         }
 
         //! Return twice the vertical distance between hex centres on adjacent rows.
-        float get_two_v() const
+        F get_two_v() const
         {
-            float tv = this->d * sm::mathconst<float>::root_3;
+            F tv = this->d * sm::mathconst<F>::root_3;
             return tv;
         }
 
@@ -516,7 +516,7 @@ export namespace sm
          * This can be populated with the distance to the nearest boundary hex, so that an algorithm
          * can set values in a hex based this metric.
          */
-        float dist_to_boundary = -1.0f;
+        F dist_to_boundary = F{-1};
 
         /*!
          * Return true if this is a boundary hex - one on the outside edge of a hex grid. The result
@@ -640,9 +640,9 @@ export namespace sm
          * Get a list<hex>::iterator to the neighbour at position \a ni.
          * East: 0, North-East: 1, North-West: 2, West: 3, South-West: 4, South-East: 5
          */
-        std::list<hex>::iterator get_neighbour (std::uint32_t ni) const
+        std::list<hex<F>>::iterator get_neighbour (std::uint32_t ni) const
         {
-            std::list<hex>::iterator hi;
+            typename std::list<sm::hex<F>>::iterator hi;
             switch (ni) {
             case HEX_NEIGHBOUR_POS_E:
             {
@@ -731,9 +731,9 @@ export namespace sm
          * which vertex to return the coordinate for. Use the definitions HEX_VERTEX_POS_N, etc to
          * pass in a human-readable label for the vertex.
          */
-        sm::vec<float, 2> get_vertex_coord (std::uint32_t ni) const
+        sm::vec<F, 2> get_vertex_coord (std::uint32_t ni) const
         {
-            sm::vec<float, 2> rtn = { 0.0f, 0.0f };
+            sm::vec<F, 2> rtn = { F{0}, F{0} };
             switch (ni) {
             case HEX_VERTEX_POS_NE:
             {
@@ -773,8 +773,8 @@ export namespace sm
             }
             default:
             {
-                rtn[0] = -1.0f;
-                rtn[1] = -1.0f;
+                rtn[0] = F{-1};
+                rtn[1] = F{-1};
                 break;
             }
             }
@@ -785,15 +785,15 @@ export namespace sm
          * Get the Cartesian coordinates of the given vertex of the hex. This sub-calls the overload
          * of get_vertex_coord which accepts a single, unsigned argument.
          */
-        sm::vec<float, 2> get_vertex_coord (std::int32_t ni) const
+        sm::vec<F, 2> get_vertex_coord (std::int32_t ni) const
         {
-            sm::vec<float, 2> rtn = { -3.0f, -3.0f };
+            sm::vec<F, 2> rtn = { F{-3}, F{-3} };
             if (ni > 5) {
-                rtn[0] = -4.0f;
+                rtn[0] = F{-4};
                 return rtn;
             }
             if (ni < 0) {
-                rtn[1] = -4.0f;
+                rtn[1] = F{-4};
                 return rtn;
             }
             rtn = this->get_vertex_coord (ni);
@@ -805,19 +805,17 @@ export namespace sm
          * vertex \a ni with the distance threshold being set from the hex to hex spacing. This is for
          * distinguishing between vertices and hex centres on a hexgrid.
          */
-        template <typename F>
         bool compare_vertex_coord (std::int32_t ni, sm::vec<F, 2>& coord) const
         {
-            sm::vec<float, 2> vc = this->get_vertex_coord (ni);
-            if (std::abs(vc[0] - coord[0]) < this->d / 100.0f
-                && std::abs(vc[1] - coord[1]) < this->d / 100.0f) {
+            sm::vec<F, 2> vc = this->get_vertex_coord (ni);
+            if (std::abs(vc[0] - coord[0]) < this->d / F{100}
+                && std::abs(vc[1] - coord[1]) < this->d / F{100}) {
                 return true;
             }
             return false;
         }
 
         //! Return true if the hex contains the vertex at \a coord
-        template <typename F>
         bool contains_vertex (sm::vec<F, 2>& coord) const
         {
             // check each of my vertices, if any match coord, then return true.
@@ -836,11 +834,10 @@ export namespace sm
          * the hex, with the distance threshold being set from the hex to hex spacing. This is for
          * distinguishing between vertices and hex centres on a hexgrid.
          */
-        template <typename F>
         bool compare_coord (sm::vec<F, 2>& coord) const
         {
-            if (std::abs (this->x - coord[0]) < this->d / 100.0f
-                && std::abs (this->y - coord[1]) < this->d / 100.0f) {
+            if (std::abs (this->x - coord[0]) < this->d / F{100}
+                && std::abs (this->y - coord[1]) < this->d / F{100}) {
                 return true;
             }
             return false;

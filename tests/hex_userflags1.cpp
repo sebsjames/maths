@@ -4,7 +4,7 @@
 
 import sm.hex;
 
-void showflags (const sm::hex& h)
+void showflags (const sm::hex<float>& h)
 {
     std::cout << "User flags 0-15: ";
     for (std::uint32_t i = 0; i < 16; ++i) {
@@ -21,7 +21,7 @@ std::int32_t main()
     std::int32_t g = 0;
     float d = 2.0f;
     std::uint32_t idx = 0;
-    sm::hex h(idx, d, r, g);
+    sm::hex<float> h(idx, d, r, g);
 
     showflags (h);
     if (h.get_user_flag(2) == true) {

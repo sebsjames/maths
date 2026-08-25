@@ -133,7 +133,7 @@ export namespace sm
         std::uint32_t d_growthbuffer_vert = 0;
 
         //! Add entries to all the d_ vectors for the hex pointed to by hi.
-        void d_push_back (std::list<hex>::iterator hi)
+        void d_push_back (std::list<sm::hex<F>>::iterator hi)
         {
             d_x.push_back (hi->x);
             d_y.push_back (hi->y);
@@ -158,7 +158,7 @@ export namespace sm
             this->d_nsw.resize (this->d_x.size(), 0);
             this->d_nse.resize (this->d_x.size(), 0);
 
-            std::list<sm::hex>::iterator hi = this->hexen.begin();
+            typename std::list<sm::hex<F>>::iterator hi = this->hexen.begin();
             while (hi != this->hexen.end()) {
 
                 if (hi->has_ne() == true) {
@@ -276,7 +276,7 @@ export namespace sm
         /*!
          * Compute the centroid of the passed in list of hexes.
          */
-        sm::vec<F, 2> compute_centroid (const std::list<hex>& phexes)
+        sm::vec<F, 2> compute_centroid (const std::list<sm::hex<F>>& phexes)
         {
             sm::vec<F, 2> centroid = {0,0};
             for (auto h : phexes) {
@@ -291,10 +291,10 @@ export namespace sm
          * Find the hex in the hex grid which is closest to the x,y position given by
          * pos.
          */
-        std::list<hex>::iterator find_hex_nearest (const sm::vec<F, 2>& pos)
+        std::list<sm::hex<F>>::iterator find_hex_nearest (const sm::vec<F, 2>& pos)
         {
-            std::list<sm::hex>::iterator nearest = this->hexen.end();
-            std::list<sm::hex>::iterator hi = this->hexen.begin();
+            typename std::list<sm::hex<F>>::iterator nearest = this->hexen.end();
+            typename std::list<sm::hex<F>>::iterator hi = this->hexen.begin();
             F dist = std::numeric_limits<F>::max();
             while (hi != this->hexen.end()) {
                 F dx = pos[0] - hi->x;
@@ -310,9 +310,9 @@ export namespace sm
         }
 
         // If possible, get the hex at the given rgb position
-        std::list<hex>::iterator find_hex_at (const sm::vec<std::int32_t, 3>& rgbpos)
+        std::list<sm::hex<F>>::iterator find_hex_at (const sm::vec<std::int32_t, 3>& rgbpos)
         {
-            std::list<sm::hex>::iterator hi = this->hexen.begin(); // First hex in hexen is always 0,0,0
+            typename std::list<sm::hex<F>>::iterator hi = this->hexen.begin(); // First hex in hexen is always 0,0,0
 
             // +ri is East
             std::int32_t inc = rgbpos[0] > 0 ? 1 : -1;
@@ -352,14 +352,14 @@ export namespace sm
          * unlike void set_boundary (const bezcurvepath& p), this method does not apply
          * any offset to the positions of the hexes in @a phexes.
          */
-        void set_boundary (const std::list<hex>& phexes)
+        void set_boundary (const std::list<sm::hex<F>>& phexes)
         {
             this->boundary_centroid = this->compute_centroid (phexes);
 
-            std::list<sm::hex>::iterator bpoint = this->hexen.begin();
-            std::list<sm::hex>::iterator bpi = this->hexen.begin();
+            typename std::list<sm::hex<F>>::iterator bpoint = this->hexen.begin();
+            typename std::list<sm::hex<F>>::iterator bpi = this->hexen.begin();
             while (bpi != this->hexen.end()) {
-                std::list<sm::hex>::const_iterator ppi = phexes.begin();
+                typename std::list<sm::hex<F>>::const_iterator ppi = phexes.begin();
                 while (ppi != phexes.end()) {
                     // NB: The assumption right now is that the phexes are from the same dimension hex grid
                     // as this->hexen.
@@ -376,7 +376,7 @@ export namespace sm
 
             // Check that the boundary is contiguous.
             std::set<std::uint32_t> seen;
-            std::list<sm::hex>::iterator hi = bpoint;
+            typename std::list<sm::hex<F>>::iterator hi = bpoint;
             if (this->boundary_contiguous (bpoint, hi, seen) == false) {
                 std::stringstream ee;
                 ee << "The boundary is not a contiguous sequence of hexes.";
@@ -452,7 +452,7 @@ export namespace sm
             }
 
             // now proceed with centroid changed or unchanged
-            std::list<sm::hex>::iterator nearby_boundary_point = this->hexen.begin(); // i.e the hex at 0,0
+            typename std::list<sm::hex<F>>::iterator nearby_boundary_point = this->hexen.begin(); // i.e the hex at 0,0
             bpi = bpoints.begin();
             while (bpi != bpoints.end()) {
                 nearby_boundary_point = this->set_boundary (*bpi++, nearby_boundary_point);
@@ -461,7 +461,7 @@ export namespace sm
             // Check that the boundary is contiguous.
             {
                 std::set<std::uint32_t> seen;
-                std::list<sm::hex>::iterator hi = nearby_boundary_point;
+                typename std::list<sm::hex<F>>::iterator hi = nearby_boundary_point;
                 if (this->boundary_contiguous (nearby_boundary_point, hi, seen) == false) {
                     std::stringstream ee;
                     ee << "The constructed boundary is not a contiguous sequence of hexes.";
@@ -503,7 +503,7 @@ export namespace sm
             // now proceed with centroid changed or unchanged. First: clear all boundary flags
             for (auto h : this->hexen) { h.unset_user_flag (sm::HEX_IS_BOUNDARY); }
 
-            std::list<sm::hex>::iterator nearby_boundary_point = this->hexen.begin(); // i.e the hex at 0,0
+            typename std::list<sm::hex<F>>::iterator nearby_boundary_point = this->hexen.begin(); // i.e the hex at 0,0
             bpi = bpoints.begin();
             while (bpi != bpoints.end()) {
                 nearby_boundary_point = this->set_boundary (*bpi++, nearby_boundary_point);
@@ -512,7 +512,7 @@ export namespace sm
             // Check that the boundary is contiguous.
             {
                 std::set<std::uint32_t> seen;
-                std::list<sm::hex>::iterator hi = nearby_boundary_point;
+                typename std::list<sm::hex<F>>::iterator hi = nearby_boundary_point;
                 if (this->boundary_contiguous (nearby_boundary_point, hi, seen) == false) {
                     std::stringstream ee;
                     ee << "The constructed boundary is not a contiguous sequence of hexes.";
@@ -532,7 +532,7 @@ export namespace sm
         {
             // From centre head to boundary, then mark boundary and walk
             // around the edge.
-            std::list<sm::hex>::iterator bpi = this->hexen.begin();
+            typename std::list<sm::hex<F>>::iterator bpi = this->hexen.begin();
             while (bpi->has_nne()) { bpi = bpi->nne; }
             bpi->set_flag (sm::HEX_IS_BOUNDARY | sm::HEX_INSIDE_BOUNDARY);
             while (bpi->has_ne()) {
@@ -565,7 +565,7 @@ export namespace sm
             }
             // Check that the boundary is contiguous.
             std::set<std::uint32_t> seen;
-            std::list<sm::hex>::iterator hi = bpi;
+            typename std::list<sm::hex<F>>::iterator hi = bpi;
             if (this->boundary_contiguous (bpi, hi, seen) == false) {
                 std::stringstream ee;
                 ee << "The boundary is not a contiguous sequence of hexes.";
@@ -586,9 +586,9 @@ export namespace sm
          *
          * Now a getter for this->bhexen.
          */
-        std::list<hex> get_boundary() const
+        std::list<sm::hex<F>> get_boundary() const
         {
-            std::list<sm::hex> bhexen_concrete;
+            typename std::list<sm::hex<F>> bhexen_concrete;
             auto hh = this->bhexen.begin();
             while (hh != this->bhexen.end()) {
                 bhexen_concrete.push_back (*(*hh));
@@ -959,7 +959,7 @@ export namespace sm
         void transform (const sm::mat<F, 4>& tf)
         {
             this->tfm = tf;
-            std::list<sm::hex>::iterator h = this->hexen.begin();
+            typename std::list<sm::hex<F>>::iterator h = this->hexen.begin();
             while (h != this->hexen.end()) {
                 h->transform (this->tfm);
                 ++h;
@@ -974,7 +974,7 @@ export namespace sm
          */
         void compute_distance_to_boundary()
         {
-            std::list<sm::hex>::iterator h = this->hexen.begin();
+            typename std::list<sm::hex<F>>::iterator h = this->hexen.begin();
             while (h != this->hexen.end()) {
                 if (h->test_flags(sm::HEX_IS_BOUNDARY) == true) {
                     h->dist_to_boundary = 0.0f;
@@ -984,7 +984,7 @@ export namespace sm
                         h->dist_to_boundary = -100.0;
                     } else {
                         // Not a boundary hex, but inside boundary
-                        std::list<sm::hex>::iterator bh = this->hexen.begin();
+                        typename std::list<sm::hex<F>>::iterator bh = this->hexen.begin();
                         while (bh != this->hexen.end()) {
                             if (bh->test_flags(sm::HEX_IS_BOUNDARY) == true) {
                                 F delta = h->distance_from (*bh);
@@ -1006,7 +1006,7 @@ export namespace sm
         void populate_d_vectors()
         {
             // The starting hex is always the centre one.
-            std::list<sm::hex>::iterator hi = this->hexen.begin();
+            typename std::list<sm::hex<F>>::iterator hi = this->hexen.begin();
             // Clear the d_ vectors.
             this->d_clear();
             // Now raster through the hexes, building the d_ vectors.
@@ -1022,7 +1022,7 @@ export namespace sm
          * Get a vector of hex pointers for all hexes that are inside/on the path
          * defined by the bezcurvepath \a p, thus this gets a 'region of hexes'. The hex
          * flags "region" and "region_boundary" are used, temporarily to mark out the
-         * region. The idea is that client code will then use the vector of sm::hex* to work
+         * region. The idea is that client code will then use the vector of sm::hex<F>* to work
          * with the region however it needs to.
          *
          * The centroid of the region is placed in \a region_centroid (i.e. \a
@@ -1036,8 +1036,8 @@ export namespace sm
          *
          * \return a vector of iterators to the hexes that make up the region.
          */
-        std::vector<std::list<hex>::iterator> get_region (bezcurvepath<F>& p, sm::vec<F, 2>& region_centroid,
-                                                          bool apply_original_boundary_centroid = true)
+        std::vector<typename std::list<sm::hex<F>>::iterator> get_region (bezcurvepath<F>& p, sm::vec<F, 2>& region_centroid,
+                                                                          bool apply_original_boundary_centroid = true)
         {
             p.compute_points (this->d / 2.0f);
             std::vector<sm::bezcoord<F>> bpoints = p.get_points();
@@ -1047,8 +1047,8 @@ export namespace sm
         /*!
          * The overload of get_region that does all the work on a vector of coordinates
          */
-        std::vector<std::list<hex>::iterator> get_region (std::vector<bezcoord<F>>& bpoints, sm::vec<F, 2>& region_centroid,
-                                                          bool apply_original_boundary_centroid = true)
+        std::vector<typename std::list<sm::hex<F>>::iterator> get_region (std::vector<bezcoord<F>>& bpoints, sm::vec<F, 2>& region_centroid,
+                                                                          bool apply_original_boundary_centroid = true)
         {
             // First clear all region boundary flags, as we'll be defining a new region boundary
             this->clear_region_boundary_flags();
@@ -1057,7 +1057,7 @@ export namespace sm
             region_centroid = sm::bezcurvepath<F>::get_centroid (bpoints);
 
             // A return object
-            std::vector<std::list<sm::hex>::iterator> the_region;
+            std::vector<typename std::list<sm::hex<F>>::iterator> the_region;
 
             if (apply_original_boundary_centroid) {
                 auto bpi = bpoints.begin();
@@ -1071,7 +1071,7 @@ export namespace sm
             }
 
             // Now find the hexes on the boundary of the region
-            std::list<sm::hex>::iterator nearby_region_boundary_point = this->hexen.begin(); // i.e the hex at 0,0
+            typename std::list<sm::hex<F>>::iterator nearby_region_boundary_point = this->hexen.begin(); // i.e the hex at 0,0
             typename std::vector<sm::bezcoord<F>>::iterator bpi = bpoints.begin();
             while (bpi != bpoints.end()) {
                 nearby_region_boundary_point = this->set_region_boundary (*bpi++, nearby_region_boundary_point);
@@ -1080,7 +1080,7 @@ export namespace sm
             // Check that the region boundary is contiguous.
             {
                 std::set<std::uint32_t> seen;
-                std::list<sm::hex>::iterator hi = nearby_region_boundary_point;
+                typename std::list<sm::hex<F>>::iterator hi = nearby_region_boundary_point;
                 if (this->region_boundary_contiguous (nearby_region_boundary_point, hi, seen) == false) {
                     std::stringstream ee;
                     ee << "The constructed region boundary is not a contiguous sequence of hexes.";
@@ -1089,11 +1089,11 @@ export namespace sm
             }
 
             // Mark hexes inside region. Use centroid of the region.
-            std::list<sm::hex>::iterator inside_regionhex = this->find_hex_nearest (region_centroid);
+            typename std::list<sm::hex<F>>::iterator inside_regionhex = this->find_hex_nearest (region_centroid);
             this->mark_hexes_inside (inside_regionhex, sm::HEX_IS_REGION_BOUNDARY, sm::HEX_INSIDE_REGION);
 
             // Populate the_region, then return it
-            std::list<sm::hex>::iterator hi = this->hexen.begin();
+            typename std::list<sm::hex<F>>::iterator hi = this->hexen.begin();
             while (hi != this->hexen.end()) {
                 if (hi->test_flags (sm::HEX_INSIDE_REGION) == true) {
                     the_region.push_back (hi);
@@ -1106,12 +1106,12 @@ export namespace sm
 
         //! Obtain a hexagonal region of hexes around a given central hex, marked by its
         //! d_ index. This is easier than getting a properly circular region of hexes.
-        std::vector<std::list<hex>::iterator> get_hexagonal_region (std::uint32_t centreindex, F radius)
+        std::vector<typename std::list<sm::hex<F>>::iterator> get_hexagonal_region (std::uint32_t centreindex, F radius)
         {
-            std::vector<std::list<sm::hex>::iterator> the_region;
+            std::vector<typename std::list<sm::hex<F>>::iterator> the_region;
 
             // Find the hex with index centreindex
-            std::list<hex>::iterator sh = this->hexen.begin(); // start hex
+            typename std::list<sm::hex<F>>::iterator sh = this->hexen.begin(); // start hex
             while (sh != this->hexen.end()) {
                 if (sh->vi == centreindex) { break; }
                 sh++;
@@ -1124,8 +1124,8 @@ export namespace sm
             // For each of 6 directions, step out to collect up the hexes on the disc
             // ring by ring. For rings 2 and above, also need to fill in hexes
             // (otherwise you end up with a snowflake shaped disc)
-            std::list<hex>::iterator h;
-            std::list<hex>::iterator h2; // for the tangent direction
+            typename std::list<sm::hex<F>>::iterator h;
+            typename std::list<sm::hex<F>>::iterator h2; // for the tangent direction
             for (std::uint16_t i = 0; i < 6; ++i) {
                 h = sh;
                 if (h->has_neighbour(i)) {
@@ -1188,12 +1188,12 @@ export namespace sm
             }
 
             // For each hex in this hexgrid, compute the convolution kernel
-            std::list<hex>::iterator hi = this->hexen.begin();
+            typename std::list<sm::hex<F>>::iterator hi = this->hexen.begin();
             for (; hi != this->hexen.end(); ++hi) {
                 T sum = T{0};
                 // For each kernel hex, sum up.
                 for (auto kh : kernelgrid.hexen) {
-                    std::list<hex>::iterator dhi = hi;
+                    typename std::list<sm::hex<F>>::iterator dhi = hi;
                     // Kernel hex coords r,g are: kh.ri, kh.gi, which may be (are EXPECTED to be) +ve or -ve
                     //
                     // Origin hex coords are h.ri, h.gi
@@ -1550,14 +1550,14 @@ export namespace sm
 
             static constexpr bool debugdata = false;
 
-            std::list<hex>::iterator h = this->hexen.begin();
+            typename std::list<sm::hex<F>>::iterator h = this->hexen.begin();
             while (h != this->hexen.end()) {
                 // image_data[i] is the data to shift.
                 bool datatocopy = false;
                 if constexpr (debugdata) {
                     datatocopy = image_data[h->vi] > T{0} ? true : false;
                 }
-                std::list<hex>::iterator dest_hex = h;
+                typename std::list<sm::hex<F>>::iterator dest_hex = h;
                 if (datatocopy) std::cout << "Copying hex data at " << h->output_rg() << "...";
                 if (int_rg[1] > 0) {
                     for (std::int32_t j = 0; j < int_rg[1] && dest_hex->has_nne(); ++j) {
@@ -2647,7 +2647,7 @@ export namespace sm
             bool first = true;
             std::array<F, 4> limits = {{0,0,0,0}};
             auto h = this->hexen.begin();
-            std::list<hex>::iterator bl_hex = this->hexen.begin();
+            typename std::list<sm::hex<F>>::iterator bl_hex = this->hexen.begin();
             while (h != this->hexen.end()) {
                 if (h->test_flags(sm::HEX_IS_BOUNDARY) == true) {
                     if (first) {
@@ -2665,12 +2665,12 @@ export namespace sm
             //std::cout << "Bottom left hex is " << bl_hex->output_cart() << std::endl;
 
             std::int32_t count = 0;
-            std::list<hex>::iterator row_start = bl_hex;
+            typename std::list<sm::hex<F>>::iterator row_start = bl_hex;
             if (on_r) {
                 // go to end of each row and wrap back to the start. This may only work
                 // for parallelograms, at least in an initial implementation.
                 // First row
-                std::list<hex>::iterator cur_hex = row_start;
+                typename std::list<sm::hex<F>>::iterator cur_hex = row_start;
                 while (cur_hex->has_ne()) { cur_hex = cur_hex->ne; }
                 cur_hex->set_ne(bl_hex);
                 bl_hex->set_nw(cur_hex);
@@ -2691,11 +2691,11 @@ export namespace sm
                 }
             }
 
-            std::list<hex>::iterator col_start = bl_hex;
+            typename std::list<sm::hex<F>>::iterator col_start = bl_hex;
             std::int32_t vcount = 0;
             if (on_g) { // scan up columns in the 'G' direction
                 // First col
-                std::list<hex>::iterator cur_hex = col_start;
+                typename std::list<sm::hex<F>>::iterator cur_hex = col_start;
                 while (cur_hex->has_nne()) { cur_hex = cur_hex->nne; ++vcount; }
                 cur_hex->set_nne (bl_hex);
                 bl_hex->set_nsw (cur_hex);
@@ -2729,7 +2729,7 @@ export namespace sm
             // Final scan across to set se neighbours of end rows and nw neighbours of start rows.
             row_start = bl_hex;
             if (on_r && on_g) {
-                std::list<hex>::iterator cur_hex = row_start;
+                typename std::list<sm::hex<F>>::iterator cur_hex = row_start;
                 // First row
                 for (std::int32_t i = 0; i < count; ++i) { cur_hex = cur_hex->ne; }
                 row_start->set_nnw(cur_hex->nne);
@@ -2748,19 +2748,19 @@ export namespace sm
         /*!
          * The list of hexes that make up this hexgrid.
          */
-        std::list<hex> hexen;
+        std::list<sm::hex<F>> hexen;
 
         /*!
          * Once boundary secured, fill this vector. Experimental - can I do parallel
          * loops with vectors of hexes? Ans: Not very well.
          */
-        std::vector<hex*> vhexen;
+        std::vector<sm::hex<F>*> vhexen;
 
         /*!
          * While determining if boundary is continuous, fill this maps container of
          * hexes.
          */
-        std::list<const hex*> bhexen; // Not better as a separate list<hex>?
+        std::list<const sm::hex<F>*> bhexen; // Not better as a separate list<sm::hex<F>>?
 
         /*!
          * Store the centroid of the boundary path. The centroid of a read-in
@@ -2797,12 +2797,12 @@ export namespace sm
             // Vectors of list-iterators to hexes in this->hexen. Used to keep a track of nearest
             // neighbours. I'm using vector, rather than a list as this allows fast random access of
             // elements and I'll not be inserting or erasing in the middle of the arrays.
-            std::vector<std::list<sm::hex>::iterator> prev_ring_even;
-            std::vector<std::list<sm::hex>::iterator> prev_ring_odd;
+            std::vector<typename std::list<sm::hex<F>>::iterator> prev_ring_even;
+            std::vector<typename std::list<sm::hex<F>>::iterator> prev_ring_odd;
 
             // Swap pointers between rings.
-            std::vector<std::list<sm::hex>::iterator>* prev_ring = &prev_ring_even;
-            std::vector<std::list<sm::hex>::iterator>* next_prev_ring = &prev_ring_odd;
+            std::vector<typename std::list<sm::hex<F>>::iterator>* prev_ring = &prev_ring_even;
+            std::vector<typename std::list<sm::hex<F>>::iterator>* next_prev_ring = &prev_ring_odd;
 
             // Direction iterators used in the loop for creating hexes
             std::int32_t ri = 0;
@@ -2813,7 +2813,7 @@ export namespace sm
 
             // Put central ring in the prev_ring vector:
             {
-                std::list<sm::hex>::iterator h = this->hexen.end(); --h;
+                typename std::list<sm::hex<F>>::iterator h = this->hexen.end(); --h;
                 prev_ring->push_back (h);
             }
 
@@ -3142,7 +3142,7 @@ export namespace sm
                 ring_side_len++;
 
                 // Swap prev_ring and next_prev_ring.
-                std::vector<std::list<sm::hex>::iterator>* tmp = prev_ring;
+                std::vector<typename std::list<sm::hex<F>>::iterator>* tmp = prev_ring;
                 prev_ring = next_prev_ring;
                 next_prev_ring = tmp;
             }
@@ -3156,28 +3156,28 @@ export namespace sm
          *
          * \return An iterator into hexgrid::hexen which refers to the closest hex to \a point.
          */
-        std::list<sm::hex>::iterator set_boundary (const sm::bezcoord<F>& point,
-                                                   std::list<sm::hex>::iterator start_from)
+        std::list<sm::hex<F>>::iterator set_boundary (const sm::bezcoord<F>& point,
+                                                      std::list<sm::hex<F>>::iterator start_from)
         {
-            std::list<sm::hex>::iterator h = this->find_hex_near_point (point, start_from);
+            typename std::list<sm::hex<F>>::iterator h = this->find_hex_near_point (point, start_from);
             h->set_flag (sm::HEX_IS_BOUNDARY | sm::HEX_INSIDE_BOUNDARY);
             return h;
         }
 
         /*!
          * Determine whether the boundary is contiguous. Whilst doing so, populate a
-         * list<hex> containing just the boundary hexes.
+         * list<sm::hex<F>> containing just the boundary hexes.
          */
         bool boundary_contiguous()
         {
             this->bhexen.clear();
-            std::list<sm::hex>::const_iterator bhi = this->hexen.begin();
+            typename std::list<sm::hex<F>>::const_iterator bhi = this->hexen.begin();
             if (this->find_boundaryhex (bhi) == false) {
                 // Found no boundary hex
                 return false;
             }
             std::set<std::uint32_t> seen;
-            std::list<sm::hex>::const_iterator hi = bhi;
+            typename std::list<sm::hex<F>>::const_iterator hi = bhi;
             return this->boundary_contiguous (bhi, hi, seen);
         }
 
@@ -3188,11 +3188,11 @@ export namespace sm
          * The overload with bhexes takes a list of hex pointers and populates it with
          * pointers to the hexes on the boundary.
          */
-        bool boundary_contiguous (std::list<hex>::const_iterator bhi,
-                                  std::list<hex>::const_iterator hi, std::set<std::uint32_t>& seen)
+        bool boundary_contiguous (std::list<sm::hex<F>>::const_iterator bhi,
+                                  std::list<sm::hex<F>>::const_iterator hi, std::set<std::uint32_t>& seen)
         {
             bool rtn = false;
-            std::list<sm::hex>::const_iterator hi_next;
+            typename std::list<sm::hex<F>>::const_iterator hi_next;
             seen.insert (hi->vi);
             // Insert into the std::list of hex pointers, too
             this->bhexen.push_back (&(*hi));
@@ -3239,9 +3239,9 @@ export namespace sm
          * region, extract the pointers to all the hexes in that region and store that
          * information for later use.
          */
-        std::list<hex>::iterator set_region_boundary (const bezcoord<F>& point, std::list<hex>::iterator start_from)
+        std::list<sm::hex<F>>::iterator set_region_boundary (const bezcoord<F>& point, std::list<sm::hex<F>>::iterator start_from)
         {
-            std::list<sm::hex>::iterator h = this->find_hex_near_point (point, start_from);
+            typename std::list<sm::hex<F>>::iterator h = this->find_hex_near_point (point, start_from);
             h->set_flag (sm::HEX_IS_REGION_BOUNDARY | sm::HEX_INSIDE_REGION);
             return h;
         }
@@ -3250,11 +3250,11 @@ export namespace sm
          * Determine whether the region boundary is contiguous, starting from the
          * boundary hex iterator #bhi.
          */
-        bool region_boundary_contiguous (std::list<hex>::const_iterator bhi,
-                                         std::list<hex>::const_iterator hi, std::set<std::uint32_t>& seen)
+        bool region_boundary_contiguous (std::list<sm::hex<F>>::const_iterator bhi,
+                                         std::list<sm::hex<F>>::const_iterator hi, std::set<std::uint32_t>& seen)
         {
             bool rtn = false;
-            std::list<sm::hex>::const_iterator hi_next;
+            typename std::list<sm::hex<F>>::const_iterator hi_next;
             seen.insert (hi->vi);
             // Insert into the list of hex pointers, too
             this->bhexen.push_back (&(*hi));
@@ -3297,7 +3297,7 @@ export namespace sm
          * assumes that set_boundary (const bezcurvepath&) has been called to mark the
          * hexes that lie on the boundary.
          */
-        bool find_boundaryhex (std::list<hex>::const_iterator& hi) const
+        bool find_boundaryhex (std::list<sm::hex<F>>::const_iterator& hi) const
         {
             if (hi->test_flags(sm::HEX_IS_BOUNDARY) == true) {
                 // No need to change the hex iterator
@@ -3305,42 +3305,42 @@ export namespace sm
             }
 
             if (hi->has_ne()) {
-                std::list<sm::hex>::const_iterator ci(hi->ne);
+                typename std::list<sm::hex<F>>::const_iterator ci(hi->ne);
                 if (this->find_boundaryhex (ci) == true) {
                     hi = ci;
                     return true;
                 }
             }
             if (hi->has_nne()) {
-                std::list<sm::hex>::const_iterator ci(hi->nne);
+                typename std::list<sm::hex<F>>::const_iterator ci(hi->nne);
                 if (this->find_boundaryhex (ci) == true) {
                     hi = ci;
                     return true;
                 }
             }
             if (hi->has_nnw()) {
-                std::list<sm::hex>::const_iterator ci(hi->nnw);
+                typename std::list<sm::hex<F>>::const_iterator ci(hi->nnw);
                 if (this->find_boundaryhex (ci) == true) {
                     hi = ci;
                     return true;
                 }
             }
             if (hi->has_nw()) {
-                std::list<sm::hex>::const_iterator ci(hi->nw);
+                typename std::list<sm::hex<F>>::const_iterator ci(hi->nw);
                 if (this->find_boundaryhex (ci) == true) {
                     hi = ci;
                     return true;
                 }
             }
             if (hi->has_nsw()) {
-                std::list<sm::hex>::const_iterator ci(hi->nsw);
+                typename std::list<sm::hex<F>>::const_iterator ci(hi->nsw);
                 if (this->find_boundaryhex (ci) == true) {
                     hi = ci;
                     return true;
                 }
             }
             if (hi->has_nse()) {
-                std::list<sm::hex>::const_iterator ci(hi->nse);
+                typename std::list<sm::hex<F>>::const_iterator ci(hi->nse);
                 if (this->find_boundaryhex (ci) == true) {
                     hi = ci;
                     return true;
@@ -3354,11 +3354,11 @@ export namespace sm
          * Find the hex near @point, starting from start_from, which should be as close
          * as possible to point in order to reduce computation time.
          */
-        std::list<hex>::iterator find_hex_near_point (const bezcoord<F>& point, std::list<hex>::iterator start_from)
+        std::list<sm::hex<F>>::iterator find_hex_near_point (const bezcoord<F>& point, std::list<sm::hex<F>>::iterator start_from)
         {
             bool neighbour_nearer = true;
 
-            std::list<sm::hex>::iterator h = start_from;
+            typename std::list<sm::hex<F>>::iterator h = start_from;
             F dmin = h->distance_from (point);
             F dcur = 0.0f;
 
@@ -3411,7 +3411,7 @@ export namespace sm
          * By changing \a bdry_flag and \a inside_flag, it's possible to use this method
          * with region boundaries.
          */
-        void mark_from_boundary (std::list<hex>::iterator hi,
+        void mark_from_boundary (std::list<sm::hex<F>>::iterator hi,
                                  std::uint32_t bdry_flag = sm::HEX_IS_BOUNDARY,
                                  std::uint32_t inside_flag = sm::HEX_INSIDE_BOUNDARY)
         {
@@ -3429,7 +3429,7 @@ export namespace sm
          * By changing \a bdry_flag and \a inside_flag, it's possible to use this method
          * with region boundaries.
          */
-        void mark_from_boundary (std::list<hex*>::iterator hi,
+        void mark_from_boundary (std::list<sm::hex<F>*>::iterator hi,
                                  std::uint32_t bdry_flag = sm::HEX_IS_BOUNDARY,
                                  std::uint32_t inside_flag = sm::HEX_INSIDE_BOUNDARY)
         {
@@ -3447,13 +3447,13 @@ export namespace sm
          * By changing \a bdry_flag and \a inside_flag, it's possible to use this method
          * with region boundaries.
          */
-        void mark_from_boundary (sm::hex* hi,
+        void mark_from_boundary (sm::hex<F>* hi,
                                  std::uint32_t bdry_flag = sm::HEX_IS_BOUNDARY,
                                  std::uint32_t inside_flag = sm::HEX_INSIDE_BOUNDARY)
         {
             // Find a marked-inside hex next to this boundary hex. This will be the first direction to mark
             // a line of inside hexes in.
-            std::list<sm::hex>::iterator first_inside = this->hexen.begin();
+            typename std::list<sm::hex<F>>::iterator first_inside = this->hexen.begin();
             std::uint16_t firsti = 0;
             for (std::uint16_t i = 0; i < 6; ++i) {
                 if (hi->has_neighbour(i)
@@ -3492,13 +3492,13 @@ export namespace sm
         /*!
          * Common code used by mark_from_boundary()
          */
-        void mark_from_boundary_common (std::list<hex>::iterator first_inside, std::uint16_t firsti,
+        void mark_from_boundary_common (std::list<sm::hex<F>>::iterator first_inside, std::uint16_t firsti,
                                         std::uint32_t bdry_flag = sm::HEX_IS_BOUNDARY,
                                         std::uint32_t inside_flag = sm::HEX_INSIDE_BOUNDARY)
         {
             // From the "first inside the boundary hex" head in the direction specified by firsti until a
             // boundary hex is reached.
-            std::list<sm::hex>::iterator straight = first_inside;
+            typename std::list<sm::hex<F>>::iterator straight = first_inside;
 
             while (straight->test_flags(bdry_flag) == false) {
                 // Set inside_boundary true
@@ -3550,8 +3550,8 @@ export namespace sm
          *
          * \return true if a next boundary neighbour was found, false otherwise.
          */
-        bool find_next_boundary_neighbour (std::list<hex>::iterator& bhi,
-                                           std::deque<std::list<hex>::iterator>& recently_seen,
+        bool find_next_boundary_neighbour (std::list<sm::hex<F>>::iterator& bhi,
+                                           std::deque<typename std::list<sm::hex<F>>::iterator>& recently_seen,
                                            std::uint32_t n_recents = 2U,
                                            std::uint32_t bdry_flag = sm::HEX_IS_BOUNDARY,
                                            std::uint32_t inside_flag = sm::HEX_INSIDE_BOUNDARY) const
@@ -3565,7 +3565,7 @@ export namespace sm
                 if (bhi->has_neighbour(i) && bhi->get_neighbour(i)->test_flags(bdry_flag)) {
 
                     // cbhi is "candidate boundary hex iterator", now guaranteed to be a boundary hex
-                    std::list<sm::hex>::iterator cbhi = bhi->get_neighbour(i);
+                    typename std::list<sm::hex<F>>::iterator cbhi = bhi->get_neighbour(i);
 
                     // Test if the candidate boundary hex is in the 'recently seen' deque
                     bool hex_already_seen = false;
@@ -3583,7 +3583,7 @@ export namespace sm
                     for (std::uint16_t j = 0; j < 6; ++j) {
 
                         // Ignore the candidate boundary hex itself. if j==i_opp, then
-                        // i's neighbour in dirn sm::hex::neighbour_pos(j) is the
+                        // i's neighbour in dirn sm::hex<F>::neighbour_pos(j) is the
                         // candidate iself, continue to next i
                         if (j==i_opp) { continue; }
 
@@ -3612,23 +3612,23 @@ export namespace sm
          * \a hi which is assumed to already be known to refer to a hex lying inside the
          * boundary.
          */
-        void mark_hexes_inside (std::list<hex>::iterator hi,
+        void mark_hexes_inside (std::list<sm::hex<F>>::iterator hi,
                                 std::uint32_t bdry_flag = sm::HEX_IS_BOUNDARY,
                                 std::uint32_t inside_flag = sm::HEX_INSIDE_BOUNDARY)
         {
             // Run to boundary, marking as we go
-            std::list<sm::hex>::iterator bhi(hi);
+            typename std::list<sm::hex<F>>::iterator bhi(hi);
             while (bhi->test_flags (bdry_flag) == false && bhi->has_nne()) {
                 bhi->set_flag (inside_flag);
                 bhi = bhi->nne;
             }
-            std::list<sm::hex>::iterator bhi_start = bhi;
+            typename std::list<sm::hex<F>>::iterator bhi_start = bhi;
 
             // Mark from first boundary hex and across the region
             this->mark_from_boundary (bhi, bdry_flag, inside_flag);
 
             // a deque to hold the 'n_recents' most recently seen boundary hexes.
-            std::deque<std::list<sm::hex>::iterator> recently_seen;
+            std::deque<typename std::list<sm::hex<F>>::iterator> recently_seen;
             std::uint32_t n_recents = 16U; // 2 should be sufficient for boundaries with double thickness
             // sections. If problems occur, trying increasing this.
             bool gotnext = this->find_next_boundary_neighbour (bhi, recently_seen, n_recents, bdry_flag, inside_flag);
@@ -3731,7 +3731,7 @@ export namespace sm
          */
         void mark_all_hexes_inside_domain()
         {
-            std::list<sm::hex>::iterator hi = this->hexen.begin();
+            typename std::list<sm::hex<F>>::iterator hi = this->hexen.begin();
             while (hi != this->hexen.end()) {
                 hi->set_inside_domain();
                 hi++;
@@ -3744,7 +3744,7 @@ export namespace sm
         void discard_outside_boundary()
         {
             // Mark those hexes inside the boundary
-            std::list<sm::hex>::iterator centroidhex = this->find_hex_nearest (this->boundary_centroid);
+            typename std::list<sm::hex<F>>::iterator centroidhex = this->find_hex_nearest (this->boundary_centroid);
             this->mark_hexes_inside (centroidhex);
             // Run through and discard those hexes outside the boundary:
             auto hi = this->hexen.begin();
@@ -3849,7 +3849,7 @@ export namespace sm
 
         /*!
          * Does what it says on the tin. Re-number the hex::vi vector index in each
-         * hex in the hexgrid, from the start of the list<hex> hexen until the end.
+         * hex in the hexgrid, from the start of the list<sm::hex<F>> hexen until the end.
          */
         void renumber_vector_indices()
         {
@@ -3898,12 +3898,12 @@ export namespace sm
          * boundary is applied to the original hexagonal grid. When this occurs,
          * grid_reduced should be set false.
          */
-        std::list<hex>::iterator vertex_e;
-        std::list<hex>::iterator vertex_ne;
-        std::list<hex>::iterator vertex_nw;
-        std::list<hex>::iterator vertex_w;
-        std::list<hex>::iterator vertex_sw;
-        std::list<hex>::iterator vertex_se;
+        std::list<sm::hex<F>>::iterator vertex_e;
+        std::list<sm::hex<F>>::iterator vertex_ne;
+        std::list<sm::hex<F>>::iterator vertex_nw;
+        std::list<sm::hex<F>>::iterator vertex_w;
+        std::list<sm::hex<F>>::iterator vertex_sw;
+        std::list<sm::hex<F>>::iterator vertex_se;
 
         /*!
          * Set true when a new boundary has been applied. This means that
