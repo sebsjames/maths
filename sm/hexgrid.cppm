@@ -1265,8 +1265,10 @@ export namespace sm
          * characteristic distance between elements in _data/_coords.
          *
          * Here, we assume the _coords are centered wrt the hexgrid.
+         *
+         * What requirements to we place on _data? zero-to-max? How to renormalize the output?
          */
-        sm::vvec<float> resample_data (const sm::vvec<float>& _data, float data_range,
+        sm::vvec<float> resample_data (const sm::vvec<float>& _data,
                                        const sm::vvec<sm::vec<float, 2>>& _coords,
                                        const float g_sigma)
         {
@@ -1315,8 +1317,9 @@ export namespace sm
                 expr_resampled[xi] = expr;
             }
 
-            expr_resampled /= expr_resampled.max(); // renormalise result
-            expr_resampled *= data_range; //_data.max(); // This ain't right.
+            //expr_resampled /= expr_resampled.max(); // renormalise result
+            // auto dr = _data.range();
+            //expr_resampled *= dr.max; // ?
             return expr_resampled;
         }
 
