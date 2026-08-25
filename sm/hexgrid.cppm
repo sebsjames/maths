@@ -399,8 +399,8 @@ export namespace sm
             this->boundary = p;
             if (!this->boundary.is_null()) {
                 // Compute the points on the boundary using half of the hex to hex
-                // spacing as the step size. The 'true' argument inverts the y axis.
-                this->boundary.compute_points (this->d/2.0f, true);
+                // spacing as the step size. The 'false' argument does not invert the y axis.
+                this->boundary.compute_points (this->d/2.0f);
                 std::vector<sm::bezcoord<float>> bpoints = this->boundary.get_points();
                 this->set_boundary (bpoints, loffset);
             }
@@ -418,7 +418,7 @@ export namespace sm
         {
             this->boundary = p;
             if (!this->boundary.is_null()) {
-                this->boundary.compute_points (this->d/2.0f, true);
+                this->boundary.compute_points (this->d/2.0f);
                 std::vector<sm::bezcoord<float>> bpoints = this->boundary.get_points();
                 this->set_boundary_only (bpoints, loffset);
             }
@@ -1038,7 +1038,7 @@ export namespace sm
         std::vector<std::list<hex>::iterator> get_region (bezcurvepath<float>& p, sm::vec<float, 2>& region_centroid,
                                                           bool apply_original_boundary_centroid = true)
         {
-            p.compute_points (this->d / 2.0f, true);
+            p.compute_points (this->d / 2.0f);
             std::vector<sm::bezcoord<float>> bpoints = p.get_points();
             return this->get_region (bpoints, region_centroid, apply_original_boundary_centroid);
         }
@@ -1277,7 +1277,7 @@ export namespace sm
             // Return data object for the resampled result
             sm::vvec<float> expr_resampled(this->num(), 0.0f);
 
-            // Before resampling, check if all the values in image_data are identical. In this case,
+            // Before resampling, check if all the values in _data are identical. In this case,
             // we can short-cut the resampling process.
             float i0 = _data[0];
             bool all_same = true;
@@ -1292,6 +1292,15 @@ export namespace sm
                 expr_resampled.set_from (i0);
                 return expr_resampled;
             }
+
+            sm::interval<float> drange = _data.range();
+
+            // Copy the data and normalize
+            sm::vvec<float> data = _data;
+            data -= drange.min; // min should be negative
+
+            auto shiftedrange = data.range();
+            data /= shiftedrange.max;
 
             // Pass in a Gaussian for the sigma
             sm::vec<float, 2> dist_per_pix = {g_sigma, g_sigma};
@@ -1311,15 +1320,21 @@ export namespace sm
                     float _d_y = this->d_y[xi] - _coords[i][1];
                     // Compute contributions to each hex pixel, using 2D (elliptical) Gaussian
                     if (_d_x < threesig[0] && _d_y < threesig[1]) { // Testing for distance gives slight speedup
-                        expr += std::exp ( - ( (params[0] * _d_x * _d_x) + (params[1] * _d_y * _d_y) ) ) * _data[i];
+                        expr += std::exp ( - ( (params[0] * _d_x * _d_x) + (params[1] * _d_y * _d_y) ) ) * data[i];
                     }
                 }
                 expr_resampled[xi] = expr;
             }
 
-            //expr_resampled /= expr_resampled.max(); // renormalise result
-            // auto dr = _data.range();
-            //expr_resampled *= dr.max; // ?
+            // renormalise result
+            auto errange = expr_resampled.range();
+            expr_resampled -= errange.min;
+            expr_resampled /= errange.span();
+
+            // Shift back to match the range of input data
+            expr_resampled *= shiftedrange.max;
+            expr_resampled += drange.min;
+
             return expr_resampled;
         }
 
