@@ -612,7 +612,7 @@ export namespace sm
          * \return A vector of the coordinates of points on the generated rectangle
          */
         std::vector<bezcoord<F>> rectangle_compute (const F x, const F y,
-                                                        const sm::vec<F, 2> c = {0.0f, 0.0f})
+                                                    const sm::vec<F, 2> c = {0.0f, 0.0f})
         {
             std::vector<sm::bezcoord<F>> bpoints;
 
@@ -657,8 +657,8 @@ export namespace sm
          * \return A vector of the coordinates of points on the generated pgram
          */
         std::vector<bezcoord<F>> parallelogram_compute (const std::int32_t re, const std::int32_t gne,
-                                                            const std::int32_t rw, const std::int32_t gsw,
-                                                            const sm::vec<F, 2> c = {0.0f, 0.0f})
+                                                        const std::int32_t rw, const std::int32_t gsw,
+                                                        const sm::vec<F, 2> c = {0.0f, 0.0f})
         {
             std::vector<sm::bezcoord<F>> bpoints;
             // Go to bottom left first
@@ -703,7 +703,7 @@ export namespace sm
          * \return A vector of the coordinates of points on the generated ellipse
          */
         std::vector<bezcoord<F>> ellipse_compute (const F a, const F b,
-                                                      const sm::vec<F, 2> c = {0.0f, 0.0f})
+                                                  const sm::vec<F, 2> c = {0.0f, 0.0f})
         {
             // Compute the points on the boundary using the parametric elliptical formula and
             // half of the hex to hex spacing as the angular step size. Return as bpoints.
@@ -1277,8 +1277,8 @@ export namespace sm
          * What requirements to we place on _data? zero-to-max? How to renormalize the output?
          */
         sm::vvec<F> resample_data (const sm::vvec<F>& _data,
-                                       const sm::vvec<sm::vec<F, 2>>& _coords,
-                                       const F g_sigma)
+                                   const sm::vvec<sm::vec<F, 2>>& _coords,
+                                   const F g_sigma)
         {
             std::uint32_t csz = _data.size();
 
