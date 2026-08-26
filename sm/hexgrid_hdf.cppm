@@ -296,7 +296,7 @@ export namespace sm
 
             if (_h.has_nse() == true) {
                 bool matched = false;
-                std::int32_t neighb_it = (std::uint32_t) hg.d_nse[_h.vi];
+                std::uint32_t neighb_it = (std::uint32_t) hg.d_nse[_h.vi];
                 typename std::list<sm::hex<F>>::iterator hi = hg.hexen.begin();
                 while (hi != hg.hexen.end()) {
                     if (hi->vi == neighb_it) {
