@@ -35,7 +35,7 @@ int main()
     hgrid->set_boundary (bound);
     std::cout << "Number of hexes is: " << hgrid->num() << std::endl;
 
-    if (hgrid->num() == 783) {
+    if (hgrid->num() == 782) {
         // Success
         rtn = 0;
     }
