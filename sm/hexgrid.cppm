@@ -1269,16 +1269,17 @@ export namespace sm
         }
 
         /*!
-         * Resampling function (monochrome) for data with coordinates. g_sigma related to
-         * characteristic distance between elements in _data/_coords.
+         * Resampling function (monochrome) for _data with regularly spaced coordinates. g_sigma
+         * should be the characteristic distance between elements in _coords.
          *
-         * Here, we assume the _coords are centered wrt the hexgrid.
+         * Here, we assume that coords are regularly spaced. If the coords are not regularly spaced,
+         * then the result of this algorithm will be incorrect (with slight distortions).
          *
-         * What requirements to we place on _data? zero-to-max? How to renormalize the output?
+         * We also assume the _coords are centered wrt the hexgrid.
          */
-        sm::vvec<F> resample_data (const sm::vvec<F>& _data,
-                                   const sm::vvec<sm::vec<F, 2>>& _coords,
-                                   const F g_sigma)
+        sm::vvec<F> resample_regular_data (const sm::vvec<F>& _data,
+                                           const sm::vvec<sm::vec<F, 2>>& _coords,
+                                           const F g_sigma)
         {
             std::uint32_t csz = _data.size();
 
@@ -1305,7 +1306,7 @@ export namespace sm
 
             // Copy the data and normalize
             sm::vvec<F> data = _data;
-            data -= drange.min; // min should be negative
+            data -= drange.min; // Shift min to zero
 
             auto shiftedrange = data.range();
             data /= shiftedrange.max;
@@ -1324,8 +1325,8 @@ export namespace sm
                     // sm::vec<std::uint32_t, 2> idx = {(i % image_pixelsz[0]), (i / image_pixelsz[0])};
                     // Get the coordinates of the pixel at index i (in hexgrid units):
                     // Distance from input pixel to output hex:
-                    F _d_x = this->d_x[xi] - _coords[i][0];
-                    F _d_y = this->d_y[xi] - _coords[i][1];
+                    const F _d_x = this->d_x[xi] - _coords[i][0];
+                    const F _d_y = this->d_y[xi] - _coords[i][1];
                     // Compute contributions to each hex pixel, using 2D (elliptical) Gaussian
                     if (_d_x < threesig[0] && _d_y < threesig[1]) { // Testing for distance gives slight speedup
                         expr += std::exp ( - ( (params[0] * _d_x * _d_x) + (params[1] * _d_y * _d_y) ) ) * data[i];
