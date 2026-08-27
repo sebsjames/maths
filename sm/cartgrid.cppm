@@ -768,7 +768,7 @@ export namespace sm
             if (!this->boundary.is_null()) {
                 // Compute the points on the boundary using half of the rect to rect
                 // spacing as the step size. The 'true' argument inverts the y axis.
-                this->boundary.compute_points (this->d/2.0f, true);
+                this->boundary.compute_points (this->d/2.0f);
                 std::vector<sm::bezcoord<float>> bpoints = this->boundary.get_points();
                 this->set_boundary (bpoints, loffset);
             }
@@ -786,7 +786,7 @@ export namespace sm
         {
             this->boundary = p;
             if (!this->boundary.is_null()) {
-                this->boundary.compute_points (this->d/2.0f, true); // FIXME PROBABLY NEEDS TO BE DIFFERENT
+                this->boundary.compute_points (this->d/2.0f); // FIXME PROBABLY NEEDS TO BE DIFFERENT
                 std::vector<sm::bezcoord<float>> bpoints = this->boundary.get_points();
                 this->set_boundary_only (bpoints, loffset);
             }
@@ -1430,7 +1430,7 @@ export namespace sm
                                                            sm::vec<float, 2>& region_centroid,
                                                            bool apply_original_boundary_centroid = true)
         {
-            p.compute_points (this->d/2.0f, true);
+            p.compute_points (this->d/2.0f);
             std::vector<sm::bezcoord<float>> bpoints = p.get_points();
             return this->get_region (bpoints, region_centroid, apply_original_boundary_centroid);
         }

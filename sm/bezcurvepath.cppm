@@ -53,6 +53,14 @@ export namespace sm
         //! A scaling factor that's used to convert the path into mm.
         F scale = F{1};
 
+        /*
+         * If invert_y is true, then when calling bezcurvepath<>::compute_points, multiply all the y
+         * values in the coordinates by -1. SVG is encoded in a left hand coordinate system, so if
+         * you're going to plot the bezcoord points in a right hand system, set
+         * bezcurvepath<>::invert_y to true.
+         */
+        bool invert_y = false;
+
         /*!
          * This can be filled with a set of points on the path made up by the Bezier
          * curves. Do so with compute_points.
@@ -175,12 +183,8 @@ export namespace sm
          * Crunch the numbers to generate the coordinates for the path, doing the right
          * thing between curves (skipping remaining, then advancing step-remaining into
          * the next curve and so on).
-         *
-         * If invert_y is true, then multiply all the y values in the coordinates by
-         * -1. SVG is encoded in a left hand coordinate system, so if you're going to
-         * plot the bezcoord points in a right hand system, set invert_y to true.
          */
-        void compute_points (F step, bool invert_y = false)
+        void compute_points (F step)
         {
             this->points.clear();
             this->tangents.clear();
@@ -188,9 +192,7 @@ export namespace sm
 
             // First the very start point:
             bezcoord<F> start_pt = this->curves.front().compute_point (F{0});
-            if (invert_y) {
-                start_pt.invert_y();
-            }
+            if (this->invert_y) { start_pt.invert_y(); }
             this->points.push_back (start_pt);
 
             // Make cp a complete set of points for the current curve *including
@@ -209,7 +211,7 @@ export namespace sm
                     firstl = step - cp.back().get_remaining();
                     cp.pop_back();
                 }
-                if (invert_y) {
+                if (this->invert_y) {
                     typename std::vector<bezcoord<F>>::iterator bci = cp.begin();
                     while (bci != cp.end()) {
                         bci->invert_y();
@@ -235,10 +237,9 @@ export namespace sm
 
         /*!
          * Similar to the above, but ensure that there are @n_points evenly spaced
-         * points along the curve. @invert_y has the same meaning as in the other
-         * overload of this function.
+         * points along the curve.
          */
-        void compute_points (std::uint32_t n_points, bool invert_y = false)
+        void compute_points (std::uint32_t n_points)
         {
             // Get end-to-end distance and compute a candidate step, then call other
             // overload.
@@ -260,7 +261,7 @@ export namespace sm
             while (actual_points != n_points) {
                 this->points.clear();
                 // std::cout << "Getting points with step size " << step << std::endl;
-                this->compute_points (step, invert_y);
+                this->compute_points (step);
                 actual_points = this->points.size();
                 if (actual_points != n_points) {
 
@@ -274,7 +275,7 @@ export namespace sm
                         while (actual_points < n_points) {
                             steptrial = step + stepinc;
                             this->points.clear();
-                            this->compute_points (steptrial, invert_y);
+                            this->compute_points (steptrial);
                             actual_points = this->points.size();
                             stepinc /= 2.0f;
                         }
@@ -294,7 +295,7 @@ export namespace sm
                         while (actual_points < n_points) {
                             steptrial = step - stepinc;
                             this->points.clear();
-                            this->compute_points (steptrial, invert_y);
+                            this->compute_points (steptrial);
                             actual_points = this->points.size();
                             stepinc /= 2.0f;
                         }

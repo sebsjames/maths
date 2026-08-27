@@ -23,7 +23,7 @@ export namespace sm
     {
         // Data is a vvec of coordinates. data[2] is ignored. hg is a hex grid, assumed to be in
         // same coordinate frame as data.
-        hexyhisto (const sm::vvec<sm::vec<T>>& data, sm::hexgrid* hg)
+        hexyhisto (const sm::vvec<sm::vec<T>>& data, sm::hexgrid<T>* hg)
         {
             std::uint32_t n = hg->num();
             this->counts.resize (n, T{0});

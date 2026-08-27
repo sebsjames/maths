@@ -30,7 +30,8 @@ export namespace sm
      * Save the data for this hex into the already open hdfdata object @h5data in the path
      * @h5path.
      */
-    void hex_save (const sm::hex& hx, sm::hdfdata& h5data, const std::string& h5path)
+    template<typename F>
+    void hex_save (const sm::hex<F>& hx, sm::hdfdata& h5data, const std::string& h5path)
     {
         std::string dpath = h5path + "/vi";
         h5data.add_val (dpath.c_str(), hx.vi);
@@ -61,7 +62,8 @@ export namespace sm
     }
 
     //! Load the data for this hex from a sm::hdfdata file
-    void hex_load (sm::hex& hx, hdfdata& h5data, const std::string& h5path)
+    template<typename F>
+    void hex_load (sm::hex<F>& hx, hdfdata& h5data, const std::string& h5path)
     {
         std::string dpath = h5path + "/vi";
         h5data.read_val (dpath.c_str(), hx.vi);
@@ -87,7 +89,7 @@ export namespace sm
         h5data.read_val (dpath.c_str(), hx.bi);
         dpath = h5path + "/dist_to_boundary";
         h5data.read_val (dpath.c_str(), hx.dist_to_boundary);
-        uint32_t flgs = 0;
+        std::uint32_t flgs = 0;
         dpath = h5path + "/flags";
         h5data.read_val (dpath.c_str(), flgs);
         hx.flags = flgs;
@@ -96,7 +98,8 @@ export namespace sm
      * Save this hexgrid (and all the hexes in it) into the HDF5 file at the
      * location @path.
      */
-    void hexgrid_save (const sm::hexgrid& hg, const std::string& path)
+    template<typename F>
+    void hexgrid_save (const sm::hexgrid<F>& hg, const std::string& path)
     {
         sm::hdfdata hgdata (path, std::ios::out | std::ios::trunc);
         hgdata.add_val ("/d", hg.d);
@@ -139,12 +142,12 @@ export namespace sm
 
         // list<hex> hexen
         // for i in list, save hex
-        std::list<sm::hex>::const_iterator h = hg.hexen.begin();
-        uint32_t hcount = 0;
+        typename std::list<sm::hex<F>>::const_iterator h = hg.hexen.begin();
+        std::uint32_t hcount = 0;
         while (h != hg.hexen.end()) {
             // Make up a path
             std::string h5path = "/hexen/" + std::to_string(hcount);
-            sm::hex_save (*h, hgdata, h5path);
+            sm::hex_save<F> (*h, hgdata, h5path);
             ++h;
             ++hcount;
         }
@@ -160,7 +163,8 @@ export namespace sm
     /*!
      * Populate hexgrid hg from the HDF5 file at the location @path.
      */
-    void hexgrid_load (sm::hexgrid& hg, const std::string& path)
+    template<typename F>
+    void hexgrid_load (sm::hexgrid<F>& hg, const std::string& path)
     {
         sm::hdfdata hgdata (path, std::ios::in);
         hgdata.read_val ("/d", hg.d);
@@ -192,23 +196,23 @@ export namespace sm
         // save hexgrid::vertex_e, etc
         hg.grid_reduced = true;
 
-        uint32_t hcount = 0;
+        std::uint32_t hcount = 0;
         hgdata.read_val ("/hcount", hcount);
-        for (uint32_t i = 0; i < hcount; ++i) {
+        for (std::uint32_t i = 0; i < hcount; ++i) {
             std::string h5path = "/hexen/" + std::to_string(i);
-            sm::hex h;
-            sm::hex_load (h, hgdata, h5path);
+            sm::hex<F> h;
+            sm::hex_load<F> (h, hgdata, h5path);
             hg.hexen.push_back (h);
         }
 
         // After creating hexen list, need to set neighbour relations in each hex, as loaded in d_ne,
         // etc.
-        for (sm::hex& _h : hg.hexen) {
+        for (sm::hex<F>& _h : hg.hexen) {
             // For each hex, six loops through hexen:
             if (_h.has_ne() == true) {
                 bool matched = false;
-                uint32_t neighb_it = (uint32_t) hg.d_ne[_h.vi];
-                std::list<sm::hex>::iterator hi = hg.hexen.begin();
+                std::uint32_t neighb_it = (std::uint32_t) hg.d_ne[_h.vi];
+                typename std::list<sm::hex<F>>::iterator hi = hg.hexen.begin();
                 while (hi != hg.hexen.end()) {
                     if (hi->vi == neighb_it) {
                         matched = true;
@@ -224,8 +228,8 @@ export namespace sm
 
             if (_h.has_nne() == true) {
                 bool matched = false;
-                uint32_t neighb_it = (uint32_t) hg.d_nne[_h.vi];
-                std::list<sm::hex>::iterator hi = hg.hexen.begin();
+                std::uint32_t neighb_it = (std::uint32_t) hg.d_nne[_h.vi];
+                typename std::list<sm::hex<F>>::iterator hi = hg.hexen.begin();
                 while (hi != hg.hexen.end()) {
                     if (hi->vi == neighb_it) {
                         matched = true;
@@ -241,8 +245,8 @@ export namespace sm
 
             if (_h.has_nnw() == true) {
                 bool matched = false;
-                uint32_t neighb_it = (uint32_t) hg.d_nnw[_h.vi];
-                std::list<sm::hex>::iterator hi = hg.hexen.begin();
+                std::uint32_t neighb_it = (std::uint32_t) hg.d_nnw[_h.vi];
+                typename std::list<sm::hex<F>>::iterator hi = hg.hexen.begin();
                 while (hi != hg.hexen.end()) {
                     if (hi->vi == neighb_it) {
                         matched = true;
@@ -258,8 +262,8 @@ export namespace sm
 
             if (_h.has_nw() == true) {
                 bool matched = false;
-                uint32_t neighb_it = (uint32_t) hg.d_nw[_h.vi];
-                std::list<sm::hex>::iterator hi = hg.hexen.begin();
+                std::uint32_t neighb_it = (std::uint32_t) hg.d_nw[_h.vi];
+                typename std::list<sm::hex<F>>::iterator hi = hg.hexen.begin();
                 while (hi != hg.hexen.end()) {
                     if (hi->vi == neighb_it) {
                         matched = true;
@@ -275,8 +279,8 @@ export namespace sm
 
             if (_h.has_nsw() == true) {
                 bool matched = false;
-                uint32_t neighb_it = (uint32_t) hg.d_nsw[_h.vi];
-                std::list<sm::hex>::iterator hi = hg.hexen.begin();
+                std::uint32_t neighb_it = (std::uint32_t) hg.d_nsw[_h.vi];
+                typename std::list<sm::hex<F>>::iterator hi = hg.hexen.begin();
                 while (hi != hg.hexen.end()) {
                     if (hi->vi == neighb_it) {
                         matched = true;
@@ -292,8 +296,8 @@ export namespace sm
 
             if (_h.has_nse() == true) {
                 bool matched = false;
-                uint32_t neighb_it = (uint32_t) hg.d_nse[_h.vi];
-                std::list<sm::hex>::iterator hi = hg.hexen.begin();
+                std::uint32_t neighb_it = (std::uint32_t) hg.d_nse[_h.vi];
+                typename std::list<sm::hex<F>>::iterator hi = hg.hexen.begin();
                 while (hi != hg.hexen.end()) {
                     if (hi->vi == neighb_it) {
                         matched = true;

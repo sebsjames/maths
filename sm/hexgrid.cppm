@@ -56,6 +56,7 @@ export namespace sm
      * contain information about the 2D surface represented by the hexgrid which is to
      * be computed.
      */
+    template<typename F=float>
     class alignas(8) hexgrid
     {
     public:
@@ -73,8 +74,8 @@ export namespace sm
          * The order in which these are populated is raster-style, from top left to
          * bottom right.
          */
-        alignas(alignof(std::vector<float>)) std::vector<float> d_x;
-        alignas(alignof(std::vector<float>)) std::vector<float> d_y;
+        alignas(alignof(std::vector<F>)) std::vector<F> d_x;
+        alignas(alignof(std::vector<F>)) std::vector<F> d_y;
         alignas(8) std::vector<std::int32_t> d_ri;
         alignas(8) std::vector<std::int32_t> d_gi;
         alignas(8) std::vector<std::int32_t> d_bi;
@@ -103,7 +104,7 @@ export namespace sm
         /*!
          * Distance to boundary for any hex.
          */
-        alignas(8) std::vector<float> d_dist_to_boundary;
+        alignas(8) std::vector<F> d_dist_to_boundary;
 
         /*!
          * The length of a row in the domain. The first hex in the first row will
@@ -132,7 +133,7 @@ export namespace sm
         std::uint32_t d_growthbuffer_vert = 0;
 
         //! Add entries to all the d_ vectors for the hex pointed to by hi.
-        void d_push_back (std::list<hex>::iterator hi)
+        void d_push_back (std::list<sm::hex<F>>::iterator hi)
         {
             d_x.push_back (hi->x);
             d_y.push_back (hi->y);
@@ -157,7 +158,7 @@ export namespace sm
             this->d_nsw.resize (this->d_x.size(), 0);
             this->d_nse.resize (this->d_x.size(), 0);
 
-            std::list<sm::hex>::iterator hi = this->hexen.begin();
+            typename std::list<sm::hex<F>>::iterator hi = this->hexen.begin();
             while (hi != this->hexen.end()) {
 
                 if (hi->has_ne() == true) {
@@ -251,9 +252,9 @@ export namespace sm
          * which may be useful as an identifier if several hexgrids are being managed
          * by client code, but is not otherwise made use of.
          */
-        hexgrid (float d_, float x_span_, float z_ = 0.0f) : d(d_), x_span(x_span_), z(z_)
+        hexgrid (F d_, F x_span_, F z_ = 0.0f) : d(d_), x_span(x_span_), z(z_)
         {
-            this->v = this->d * sm::mathconst<float>::root_3_over_2;
+            this->v = this->d * sm::mathconst<F>::root_3_over_2;
             this->init();
         }
 
@@ -263,10 +264,10 @@ export namespace sm
          * which may be useful as an identifier if several hexgrids are being managed
          * by client code, but it not otherwise made use of.
          */
-        void init (float d_, float x_span_, float z_ = 0.0f)
+        void init (F d_, F x_span_, F z_ = 0.0f)
         {
             this->d = d_;
-            this->v = this->d * sm::mathconst<float>::root_3_over_2;
+            this->v = this->d * sm::mathconst<F>::root_3_over_2;
             this->x_span = x_span_;
             this->z = z_;
             this->init();
@@ -275,9 +276,9 @@ export namespace sm
         /*!
          * Compute the centroid of the passed in list of hexes.
          */
-        sm::vec<float, 2> compute_centroid (const std::list<hex>& phexes)
+        sm::vec<F, 2> compute_centroid (const std::list<sm::hex<F>>& phexes)
         {
-            sm::vec<float, 2> centroid = {0,0};
+            sm::vec<F, 2> centroid = {0,0};
             for (auto h : phexes) {
                 centroid[0] += h.x;
                 centroid[1] += h.y;
@@ -290,15 +291,15 @@ export namespace sm
          * Find the hex in the hex grid which is closest to the x,y position given by
          * pos.
          */
-        std::list<hex>::iterator find_hex_nearest (const sm::vec<float, 2>& pos)
+        std::list<sm::hex<F>>::iterator find_hex_nearest (const sm::vec<F, 2>& pos)
         {
-            std::list<sm::hex>::iterator nearest = this->hexen.end();
-            std::list<sm::hex>::iterator hi = this->hexen.begin();
-            float dist = std::numeric_limits<float>::max();
+            typename std::list<sm::hex<F>>::iterator nearest = this->hexen.end();
+            typename std::list<sm::hex<F>>::iterator hi = this->hexen.begin();
+            F dist = std::numeric_limits<F>::max();
             while (hi != this->hexen.end()) {
-                float dx = pos[0] - hi->x;
-                float dy = pos[1] - hi->y;
-                float dl = std::sqrt (dx*dx + dy*dy);
+                F dx = pos[0] - hi->x;
+                F dy = pos[1] - hi->y;
+                F dl = std::sqrt (dx*dx + dy*dy);
                 if (dl < dist) {
                     dist = dl;
                     nearest = hi;
@@ -309,9 +310,9 @@ export namespace sm
         }
 
         // If possible, get the hex at the given rgb position
-        std::list<hex>::iterator find_hex_at (const sm::vec<std::int32_t, 3>& rgbpos)
+        std::list<sm::hex<F>>::iterator find_hex_at (const sm::vec<std::int32_t, 3>& rgbpos)
         {
-            std::list<sm::hex>::iterator hi = this->hexen.begin(); // First hex in hexen is always 0,0,0
+            typename std::list<sm::hex<F>>::iterator hi = this->hexen.begin(); // First hex in hexen is always 0,0,0
 
             // +ri is East
             std::int32_t inc = rgbpos[0] > 0 ? 1 : -1;
@@ -346,19 +347,22 @@ export namespace sm
             return hi;
         }
 
+        static constexpr bool debug_boundary = false;
+
         /*!
          * Sets boundary to match the list of hexes passed in as @a phexes. Note, that
          * unlike void set_boundary (const bezcurvepath& p), this method does not apply
          * any offset to the positions of the hexes in @a phexes.
          */
-        void set_boundary (const std::list<hex>& phexes)
+        void set_boundary (const std::list<sm::hex<F>>& phexes)
         {
+            if constexpr (debug_boundary) { std::cout << __FUNCTION__ << "(const std::list<sm::hex<F>>& phexes) called\n"; }
             this->boundary_centroid = this->compute_centroid (phexes);
 
-            std::list<sm::hex>::iterator bpoint = this->hexen.begin();
-            std::list<sm::hex>::iterator bpi = this->hexen.begin();
+            typename std::list<sm::hex<F>>::iterator bpoint = this->hexen.begin();
+            typename std::list<sm::hex<F>>::iterator bpi = this->hexen.begin();
             while (bpi != this->hexen.end()) {
-                std::list<sm::hex>::const_iterator ppi = phexes.begin();
+                typename std::list<sm::hex<F>>::const_iterator ppi = phexes.begin();
                 while (ppi != phexes.end()) {
                     // NB: The assumption right now is that the phexes are from the same dimension hex grid
                     // as this->hexen.
@@ -375,7 +379,7 @@ export namespace sm
 
             // Check that the boundary is contiguous.
             std::set<std::uint32_t> seen;
-            std::list<sm::hex>::iterator hi = bpoint;
+            typename std::list<sm::hex<F>>::iterator hi = bpoint;
             if (this->boundary_contiguous (bpoint, hi, seen) == false) {
                 std::stringstream ee;
                 ee << "The boundary is not a contiguous sequence of hexes.";
@@ -394,32 +398,34 @@ export namespace sm
          * the hexgrid, the centroid IS (0,0). If \a loffset is false, then \a p is not
          * translated in this way.
          */
-        void set_boundary (const bezcurvepath<float, 3>& p, bool loffset = true)
+        void set_boundary (const bezcurvepath<F, 3>& p, bool loffset = true)
         {
+            if constexpr (debug_boundary) { std::cout << __FUNCTION__ << "(const bezcurvepath<F, 3>& p, bool loffset = true) called\n"; }
+
             this->boundary = p;
             if (!this->boundary.is_null()) {
                 // Compute the points on the boundary using half of the hex to hex
-                // spacing as the step size. The 'true' argument inverts the y axis.
-                this->boundary.compute_points (this->d/2.0f, true);
-                std::vector<sm::bezcoord<float>> bpoints = this->boundary.get_points();
+                // spacing as the step size. The 'false' argument does not invert the y axis.
+                this->boundary.compute_points (this->d/2.0f);
+                std::vector<sm::bezcoord<F>> bpoints = this->boundary.get_points();
                 this->set_boundary (bpoints, loffset);
             }
         }
 
         /*!
          * This sets a boundary, just as sm::hexgrid::set_boundary(const
-         * sm::bezcurvepath<float> p, bool offset) does but WITHOUT discarding hexes
+         * sm::bezcurvepath<F> p, bool offset) does but WITHOUT discarding hexes
          * outside the boundary. Also, it first clears the previous boundary flags so
          * the new ones are the only ones marked on the boundary. It does this because
          * it does not discard hexes outside the boundary or repopulate the hexgrid but
          * it draws a new boundary that can be used by client code
          */
-        void set_boundary_only (const bezcurvepath<float>& p, bool loffset = true)
+        void set_boundary_only (const bezcurvepath<F>& p, bool loffset = true)
         {
             this->boundary = p;
             if (!this->boundary.is_null()) {
-                this->boundary.compute_points (this->d/2.0f, true);
-                std::vector<sm::bezcoord<float>> bpoints = this->boundary.get_points();
+                this->boundary.compute_points (this->d/2.0f);
+                std::vector<sm::bezcoord<F>> bpoints = this->boundary.get_points();
                 this->set_boundary_only (bpoints, loffset);
             }
         }
@@ -432,9 +438,11 @@ export namespace sm
          * the default value of \a loffset is changed to false, \a bpoints is NOT
          * translated.
          */
-        void set_boundary (std::vector<bezcoord<float>>& bpoints, bool loffset = true)
+        void set_boundary (std::vector<bezcoord<F>>& bpoints, bool loffset = true)
         {
-            this->boundary_centroid = sm::bezcurvepath<float>::get_centroid (bpoints);
+            if constexpr (debug_boundary) { std::cout << __FUNCTION__ << "(std::vector<bezcoord<F>>& bpoints, bool loffset = true) called\n"; }
+
+            this->boundary_centroid = sm::bezcurvepath<F>::get_centroid (bpoints);
 
             auto bpi = bpoints.begin();
             // conditional executed if we reset the centre
@@ -451,7 +459,7 @@ export namespace sm
             }
 
             // now proceed with centroid changed or unchanged
-            std::list<sm::hex>::iterator nearby_boundary_point = this->hexen.begin(); // i.e the hex at 0,0
+            typename std::list<sm::hex<F>>::iterator nearby_boundary_point = this->hexen.begin(); // i.e the hex at 0,0
             bpi = bpoints.begin();
             while (bpi != bpoints.end()) {
                 nearby_boundary_point = this->set_boundary (*bpi++, nearby_boundary_point);
@@ -460,7 +468,7 @@ export namespace sm
             // Check that the boundary is contiguous.
             {
                 std::set<std::uint32_t> seen;
-                std::list<sm::hex>::iterator hi = nearby_boundary_point;
+                typename std::list<sm::hex<F>>::iterator hi = nearby_boundary_point;
                 if (this->boundary_contiguous (nearby_boundary_point, hi, seen) == false) {
                     std::stringstream ee;
                     ee << "The constructed boundary is not a contiguous sequence of hexes.";
@@ -474,16 +482,16 @@ export namespace sm
 
         /*!
          * This sets a boundary, just as
-         * sm::hexgrid::set_boundary(vector<sm::bezcoord<float>& bpoints, bool offset)
+         * sm::hexgrid::set_boundary(vector<sm::bezcoord<F>& bpoints, bool offset)
          * does but WITHOUT discarding hexes outside the boundary. Also, it first clears
          * the previous boundary flags so the new ones are the only ones marked on the
          * boundary. It does this because it does not discard hexes outside the boundary
          * or repopulate the hexgrid but it draws a new boundary that can be used by
          * client code
          */
-        void set_boundary_only (std::vector<bezcoord<float>>& bpoints, bool loffset)
+        void set_boundary_only (std::vector<bezcoord<F>>& bpoints, bool loffset)
         {
-            this->boundary_centroid = sm::bezcurvepath<float>::get_centroid (bpoints);
+            this->boundary_centroid = sm::bezcurvepath<F>::get_centroid (bpoints);
 
             auto bpi = bpoints.begin();
             // conditional executed if we reset the centre
@@ -502,7 +510,7 @@ export namespace sm
             // now proceed with centroid changed or unchanged. First: clear all boundary flags
             for (auto h : this->hexen) { h.unset_user_flag (sm::HEX_IS_BOUNDARY); }
 
-            std::list<sm::hex>::iterator nearby_boundary_point = this->hexen.begin(); // i.e the hex at 0,0
+            typename std::list<sm::hex<F>>::iterator nearby_boundary_point = this->hexen.begin(); // i.e the hex at 0,0
             bpi = bpoints.begin();
             while (bpi != bpoints.end()) {
                 nearby_boundary_point = this->set_boundary (*bpi++, nearby_boundary_point);
@@ -511,7 +519,7 @@ export namespace sm
             // Check that the boundary is contiguous.
             {
                 std::set<std::uint32_t> seen;
-                std::list<sm::hex>::iterator hi = nearby_boundary_point;
+                typename std::list<sm::hex<F>>::iterator hi = nearby_boundary_point;
                 if (this->boundary_contiguous (nearby_boundary_point, hi, seen) == false) {
                     std::stringstream ee;
                     ee << "The constructed boundary is not a contiguous sequence of hexes.";
@@ -531,7 +539,7 @@ export namespace sm
         {
             // From centre head to boundary, then mark boundary and walk
             // around the edge.
-            std::list<sm::hex>::iterator bpi = this->hexen.begin();
+            typename std::list<sm::hex<F>>::iterator bpi = this->hexen.begin();
             while (bpi->has_nne()) { bpi = bpi->nne; }
             bpi->set_flag (sm::HEX_IS_BOUNDARY | sm::HEX_INSIDE_BOUNDARY);
             while (bpi->has_ne()) {
@@ -564,7 +572,7 @@ export namespace sm
             }
             // Check that the boundary is contiguous.
             std::set<std::uint32_t> seen;
-            std::list<sm::hex>::iterator hi = bpi;
+            typename std::list<sm::hex<F>>::iterator hi = bpi;
             if (this->boundary_contiguous (bpi, hi, seen) == false) {
                 std::stringstream ee;
                 ee << "The boundary is not a contiguous sequence of hexes.";
@@ -585,9 +593,9 @@ export namespace sm
          *
          * Now a getter for this->bhexen.
          */
-        std::list<hex> get_boundary() const
+        std::list<sm::hex<F>> get_boundary() const
         {
-            std::list<sm::hex> bhexen_concrete;
+            typename std::list<sm::hex<F>> bhexen_concrete;
             auto hh = this->bhexen.begin();
             while (hh != this->bhexen.end()) {
                 bhexen_concrete.push_back (*(*hh));
@@ -603,36 +611,36 @@ export namespace sm
          * \param c centre argument so that the rectangle centre is offset from the coordinate origin
          * \return A vector of the coordinates of points on the generated rectangle
          */
-        std::vector<bezcoord<float>> rectangle_compute (const float x, const float y,
-                                                        const sm::vec<float, 2> c = {0.0f, 0.0f})
+        std::vector<bezcoord<F>> rectangle_compute (const F x, const F y,
+                                                    const sm::vec<F, 2> c = {0.0f, 0.0f})
         {
-            std::vector<sm::bezcoord<float>> bpoints;
+            std::vector<sm::bezcoord<F>> bpoints;
 
             // Go to bottom left first
-            sm::vec<float, 2> bleft = {-0.5f * x, -0.5f * y};
-            sm::vec<float, 2> tright = {0.5f * x, 0.5f * y};
+            sm::vec<F, 2> bleft = {-0.5f * x, -0.5f * y};
+            sm::vec<F, 2> tright = {0.5f * x, 0.5f * y};
             bleft += c;
             tright += c;
 
             // 'Draw' bottom, a distance x. Divide up into about this->d/2 steps
-            float step = 0.5f * this->d;
-            for (float x1 = bleft[0]; x1 < tright[0]; x1 += step) {
-                sm::bezcoord<float> b(sm::vec<float, 2>{x1, bleft[1]});
+            F step = 0.5f * this->d;
+            for (F x1 = bleft[0]; x1 < tright[0]; x1 += step) {
+                sm::bezcoord<F> b(sm::vec<F, 2>{x1, bleft[1]});
                 bpoints.push_back (b);
             }
             // Right
-            for (float y1 = bleft[1]; y1 < tright[1]; y1 += step) {
-                sm::bezcoord<float> b(sm::vec<float, 2>{tright[0], y1});
+            for (F y1 = bleft[1]; y1 < tright[1]; y1 += step) {
+                sm::bezcoord<F> b(sm::vec<F, 2>{tright[0], y1});
                 bpoints.push_back (b);
             }
             // Top
-            for (float x1 = tright[0]; x1 >= bleft[0]; x1 -= step) {
-                sm::bezcoord<float> b(sm::vec<float, 2>{x1, tright[1]});
+            for (F x1 = tright[0]; x1 >= bleft[0]; x1 -= step) {
+                sm::bezcoord<F> b(sm::vec<F, 2>{x1, tright[1]});
                 bpoints.push_back (b);
             }
             // Left
-            for (float y1 = tright[1]; y1 >= bleft[1]; y1 -= step) {
-                sm::bezcoord<float> b(sm::vec<float, 2>{bleft[0], y1});
+            for (F y1 = tright[1]; y1 >= bleft[1]; y1 -= step) {
+                sm::bezcoord<F> b(sm::vec<F, 2>{bleft[0], y1});
                 bpoints.push_back (b);
             }
 
@@ -648,37 +656,37 @@ export namespace sm
          * \param c centre argument so that the parallelogram centre is offset from the coordinate origin
          * \return A vector of the coordinates of points on the generated pgram
          */
-        std::vector<bezcoord<float>> parallelogram_compute (const std::int32_t re, const std::int32_t gne,
-                                                            const std::int32_t rw, const std::int32_t gsw,
-                                                            const sm::vec<float, 2> c = {0.0f, 0.0f})
+        std::vector<bezcoord<F>> parallelogram_compute (const std::int32_t re, const std::int32_t gne,
+                                                        const std::int32_t rw, const std::int32_t gsw,
+                                                        const sm::vec<F, 2> c = {0.0f, 0.0f})
         {
-            std::vector<sm::bezcoord<float>> bpoints;
+            std::vector<sm::bezcoord<F>> bpoints;
             // Go to bottom left first
-            sm::vec<float, 2> xy = {-(rw * this->d + gsw * this->d / 2.0f), -gsw * this->v};
+            sm::vec<F, 2> xy = {-(rw * this->d + gsw * this->d / 2.0f), -gsw * this->v};
             xy += c;
 
             // 'Draw' bottom
             for (std::int32_t i = 0; i < 2 * (rw + re); ++i) {
-                sm::bezcoord<float> b(xy);
+                sm::bezcoord<F> b(xy);
                 bpoints.push_back (b);
                 xy[0] += this->d / 2.0f;
             }
             // Right
             for (std::int32_t i = 0; i < 2 * (gsw + gne); ++i) {
-                sm::bezcoord<float> b(xy);
+                sm::bezcoord<F> b(xy);
                 bpoints.push_back (b);
                 xy[0] += this->d / 4.0f;
                 xy[1] += this->v / 2.0f;
             }
             // Top
             for (std::int32_t i = 0; i < 2 * (rw + re); ++i) {
-                sm::bezcoord<float> b(xy);
+                sm::bezcoord<F> b(xy);
                 bpoints.push_back (b);
                 xy[0] -= this->d / 2.0f;
             }
             // Left
             for (std::int32_t i = 0; i < 2 * (gsw + gne); ++i) {
-                sm::bezcoord<float> b(xy);
+                sm::bezcoord<F> b(xy);
                 bpoints.push_back (b);
                 xy[0] -= this->d / 4.0f;
                 xy[1] -= this->v / 2.0f;
@@ -694,12 +702,12 @@ export namespace sm
          * \param c centre argument so that the ellipse centre is offset from the coordinate origin
          * \return A vector of the coordinates of points on the generated ellipse
          */
-        std::vector<bezcoord<float>> ellipse_compute (const float a, const float b,
-                                                      const sm::vec<float, 2> c = {0.0f, 0.0f})
+        std::vector<bezcoord<F>> ellipse_compute (const F a, const F b,
+                                                  const sm::vec<F, 2> c = {0.0f, 0.0f})
         {
             // Compute the points on the boundary using the parametric elliptical formula and
             // half of the hex to hex spacing as the angular step size. Return as bpoints.
-            std::vector<sm::bezcoord<float>> bpoints;
+            std::vector<sm::bezcoord<F>> bpoints;
 
             // Estimate a good delta_phi based on the larger of a and b. Compute the delta_phi
             // required to travel a fraction of one hex-to-hex distance.
@@ -713,12 +721,12 @@ export namespace sm
 
             // Loop around phi, computing x and y of the elliptical boundary and filling up bpoints
             for (double phi = 0.0; phi < sm::mathconst<double>::two_pi; phi += delta_phi) {
-                sm::vec<float, 2> xy_pt = {
-                    static_cast<float>(a * std::cos (phi)),
-                    static_cast<float>(b * std::sin (phi))
+                sm::vec<F, 2> xy_pt = {
+                    static_cast<F>(a * std::cos (phi)),
+                    static_cast<F>(b * std::sin (phi))
                 };
                 xy_pt += c;
-                sm::bezcoord<float> b(xy_pt);
+                sm::bezcoord<F> b(xy_pt);
                 bpoints.push_back (b);
             }
 
@@ -728,7 +736,7 @@ export namespace sm
         /*!
          * calculate perimeter of ellipse with radii \a a and \a b
          */
-        float ellipse_perimeter (const float a, const float b)
+        F ellipse_perimeter (const F a, const F b)
         {
             double apb = static_cast<double>(a + b);
             double amb = static_cast<double>(a - b);
@@ -743,7 +751,7 @@ export namespace sm
             + (441.0 / 1048576.0) * h * h * h * h * h * h;
             double p = sm::mathconst<double>::pi * apb * sum;
 
-            return static_cast<float>(p);
+            return static_cast<F>(p);
         }
 
         /*!
@@ -753,10 +761,10 @@ export namespace sm
          * \param c allows the centre of the ellipse to be offset from the coordinate origin
          * \param offset determines if boundary is recentred or remains in place
          */
-        void set_elliptical_boundary (const float a, const float b,
-                                      const sm::vec<float, 2> c = {0.0f, 0.0f}, bool offset=true)
+        void set_elliptical_boundary (const F a, const F b,
+                                      const sm::vec<F, 2> c = {0.0f, 0.0f}, bool offset=true)
         {
-            std::vector<sm::bezcoord<float>> bpoints = ellipse_compute (a, b, c);
+            std::vector<sm::bezcoord<F>> bpoints = ellipse_compute (a, b, c);
             this->set_boundary (bpoints, offset);
         }
 
@@ -766,20 +774,20 @@ export namespace sm
          * \param c allows the centre of the circle to be offset from the coordinate origin
          * \param offset determines if boundary is recentred or remains in place
          */
-        void set_circular_boundary (const float a,
-                                    const sm::vec<float, 2> c = {0.0f, 0.0f}, bool offset=true)
+        void set_circular_boundary (const F a,
+                                    const sm::vec<F, 2> c = {0.0f, 0.0f}, bool offset=true)
         {
-            std::vector<sm::bezcoord<float>> bpoints = ellipse_compute (a, a, c);
+            std::vector<sm::bezcoord<F>> bpoints = ellipse_compute (a, a, c);
             this->set_boundary (bpoints, offset);
         }
 
         /*!
          * Set up a rectangular boundary of width x and height y.
          */
-        void set_rectangular_boundary (const float x, const float y,
-                                       const sm::vec<float, 2> c = {0.0f, 0.0f}, bool offset=true)
+        void set_rectangular_boundary (const F x, const F y,
+                                       const sm::vec<F, 2> c = {0.0f, 0.0f}, bool offset=true)
         {
-            std::vector<sm::bezcoord<float>> bpoints = rectangle_compute (x, y, c);
+            std::vector<sm::bezcoord<F>> bpoints = rectangle_compute (x, y, c);
             this->set_boundary (bpoints, offset);
         }
 
@@ -787,9 +795,9 @@ export namespace sm
          * Set up a parallelogram boundary extending r hexes to the E and g hexes to the NE
          */
         void set_parallelogram_boundary (const std::int32_t r, const std::int32_t g,
-                                         const sm::vec<float, 2> c = {0.0f, 0.0f}, bool offset=true)
+                                         const sm::vec<F, 2> c = {0.0f, 0.0f}, bool offset=true)
         {
-            std::vector<sm::bezcoord<float>> bpoints = parallelogram_compute (r, g, r, g, c);
+            std::vector<sm::bezcoord<F>> bpoints = parallelogram_compute (r, g, r, g, c);
             this->set_boundary (bpoints, offset);
         }
 
@@ -815,7 +823,7 @@ export namespace sm
             std::stringstream ss;
             ss << "hex grid with " << this->hexen.size() << " hexes.\n";
             auto i = this->hexen.begin();
-            float lasty = this->hexen.front().y;
+            F lasty = this->hexen.front().y;
             std::uint32_t rownum = 0;
             ss << "\nRow/Ring " << rownum++ << ":\n";
             while (i != this->hexen.end()) {
@@ -852,68 +860,68 @@ export namespace sm
         /*!
          * Returns the width of the hexgrid (from -x to +x)
          */
-        float width() const
+        F width() const
         {
             // {xmin, xmax, ymin, ymax, gi at xmin, gi at xmax}
             std::array<std::int32_t, 6> extents = this->find_boundary_extents();
-            float xmin = this->d * float(extents[0]);
-            float xmax = this->d * float(extents[1]);
+            F xmin = this->d * F(extents[0]);
+            F xmax = this->d * F(extents[1]);
             return (xmax - xmin);
         }
 
         /*!
          * Returns the 'depth' of the hexgrid (from -y to +y)
          */
-        float depth() const
+        F depth() const
         {
             std::array<std::int32_t, 6> extents = this->find_boundary_extents();
-            float ymin = this->v * float(extents[2]);
-            float ymax = this->v * float(extents[3]);
+            F ymin = this->v * F(extents[2]);
+            F ymax = this->v * F(extents[3]);
             return (ymax - ymin);
         }
 
         /*!
          * Getter for d.
          */
-        float get_d() const { return this->d; }
+        F get_d() const { return this->d; }
 
         /*!
          * Getter for v - vertical hex spacing.
          */
-        float get_v() const { return this->v; }
+        F get_v() const { return this->v; }
 
         /*!
          * Get the shortest distance from the centre to the perimeter. This is the
          * "short radius".
          */
-        float get_sr() const { return this->d / 2; }
+        F get_sr() const { return this->d / 2; }
 
         /*!
          * The distance from the centre of the hex to any of the vertices. This is the
          * "long radius".
          */
-        float get_lr() const { return (this->d / sm::mathconst<float>::root_3); }
+        F get_lr() const { return (this->d / sm::mathconst<F>::root_3); }
 
         /*!
          * The vertical distance from the centre of the hex to the "north east" vertex
          * of the hex.
          */
-        float get_v_to_ne() const { return (this->d / (2.0f * sm::mathconst<float>::root_3)); }
+        F get_v_to_ne() const { return (this->d / (2.0f * sm::mathconst<F>::root_3)); }
 
         /*!
          * Compute and return the area of one hex in the grid. The area is that of 6
          * triangles: (1/2 LR * d / 2) * 6 // or (d*d*3)/(2 * sqrt(3)) = d * d * sqrt(3)/2
          */
-        float get_hex_area() const { return (this->d * this->d * sm::mathconst<float>::root_3_over_2); }
+        F get_hex_area() const { return (this->d * this->d * sm::mathconst<F>::root_3_over_2); }
 
         /*!
          * Find the minimum value of x' on the hexgrid, where x' is the x axis rotated
          * by phi degrees.
          */
-        float get_x_min (float phi = 0.0f) const
+        F get_x_min (F phi = 0.0f) const
         {
-            float xmin = 0.0f;
-            float x_ = 0.0f;
+            F xmin = 0.0f;
+            F x_ = 0.0f;
             bool first = true;
             for (auto h : this->hexen) {
                 x_ = h.x * std::cos (phi) + h.y * std::sin (phi);
@@ -932,10 +940,10 @@ export namespace sm
          * Find the maximum value of x' on the hexgrid, where x' is the x axis rotated
          * by phi degrees.
          */
-        float get_x_max (float phi = 0.0f) const
+        F get_x_max (F phi = 0.0f) const
         {
-            float xmax = 0.0f;
-            float x_ = 0.0f;
+            F xmax = 0.0f;
+            F x_ = 0.0f;
             bool first = true;
             for (auto h : this->hexen) {
                 x_ = h.x * std::cos (phi) + h.y * std::sin (phi);
@@ -952,13 +960,13 @@ export namespace sm
 
         // If hexes have been transformed, then we have to store the transform matrix so that it can
         // be used by client code (such as mathplot's HexGridVisual)
-        sm::mat<float, 4> tfm = sm::mat<float, 4>::identity();
+        sm::mat<F, 4> tfm = sm::mat<F, 4>::identity();
 
         // Transform the positions of the hexes. After transforming, the domain vectors may have to be recomputed
-        void transform (const sm::mat<float, 4>& tf)
+        void transform (const sm::mat<F, 4>& tf)
         {
             this->tfm = tf;
-            std::list<sm::hex>::iterator h = this->hexen.begin();
+            typename std::list<sm::hex<F>>::iterator h = this->hexen.begin();
             while (h != this->hexen.end()) {
                 h->transform (this->tfm);
                 ++h;
@@ -973,7 +981,7 @@ export namespace sm
          */
         void compute_distance_to_boundary()
         {
-            std::list<sm::hex>::iterator h = this->hexen.begin();
+            typename std::list<sm::hex<F>>::iterator h = this->hexen.begin();
             while (h != this->hexen.end()) {
                 if (h->test_flags(sm::HEX_IS_BOUNDARY) == true) {
                     h->dist_to_boundary = 0.0f;
@@ -983,10 +991,10 @@ export namespace sm
                         h->dist_to_boundary = -100.0;
                     } else {
                         // Not a boundary hex, but inside boundary
-                        std::list<sm::hex>::iterator bh = this->hexen.begin();
+                        typename std::list<sm::hex<F>>::iterator bh = this->hexen.begin();
                         while (bh != this->hexen.end()) {
                             if (bh->test_flags(sm::HEX_IS_BOUNDARY) == true) {
-                                float delta = h->distance_from (*bh);
+                                F delta = h->distance_from (*bh);
                                 if (delta < h->dist_to_boundary || h->dist_to_boundary < 0.0f) {
                                     h->dist_to_boundary = delta;
                                 }
@@ -1005,7 +1013,7 @@ export namespace sm
         void populate_d_vectors()
         {
             // The starting hex is always the centre one.
-            std::list<sm::hex>::iterator hi = this->hexen.begin();
+            typename std::list<sm::hex<F>>::iterator hi = this->hexen.begin();
             // Clear the d_ vectors.
             this->d_clear();
             // Now raster through the hexes, building the d_ vectors.
@@ -1021,7 +1029,7 @@ export namespace sm
          * Get a vector of hex pointers for all hexes that are inside/on the path
          * defined by the bezcurvepath \a p, thus this gets a 'region of hexes'. The hex
          * flags "region" and "region_boundary" are used, temporarily to mark out the
-         * region. The idea is that client code will then use the vector of sm::hex* to work
+         * region. The idea is that client code will then use the vector of sm::hex<F>* to work
          * with the region however it needs to.
          *
          * The centroid of the region is placed in \a region_centroid (i.e. \a
@@ -1035,28 +1043,28 @@ export namespace sm
          *
          * \return a vector of iterators to the hexes that make up the region.
          */
-        std::vector<std::list<hex>::iterator> get_region (bezcurvepath<float>& p, sm::vec<float, 2>& region_centroid,
-                                                          bool apply_original_boundary_centroid = true)
+        std::vector<typename std::list<sm::hex<F>>::iterator> get_region (bezcurvepath<F>& p, sm::vec<F, 2>& region_centroid,
+                                                                          bool apply_original_boundary_centroid = true)
         {
-            p.compute_points (this->d / 2.0f, true);
-            std::vector<sm::bezcoord<float>> bpoints = p.get_points();
+            p.compute_points (this->d / 2.0f);
+            std::vector<sm::bezcoord<F>> bpoints = p.get_points();
             return this->get_region (bpoints, region_centroid, apply_original_boundary_centroid);
         }
 
         /*!
          * The overload of get_region that does all the work on a vector of coordinates
          */
-        std::vector<std::list<hex>::iterator> get_region (std::vector<bezcoord<float>>& bpoints, sm::vec<float, 2>& region_centroid,
-                                                          bool apply_original_boundary_centroid = true)
+        std::vector<typename std::list<sm::hex<F>>::iterator> get_region (std::vector<bezcoord<F>>& bpoints, sm::vec<F, 2>& region_centroid,
+                                                                          bool apply_original_boundary_centroid = true)
         {
             // First clear all region boundary flags, as we'll be defining a new region boundary
             this->clear_region_boundary_flags();
 
             // Compute region centroid from bpoints
-            region_centroid = sm::bezcurvepath<float>::get_centroid (bpoints);
+            region_centroid = sm::bezcurvepath<F>::get_centroid (bpoints);
 
             // A return object
-            std::vector<std::list<sm::hex>::iterator> the_region;
+            std::vector<typename std::list<sm::hex<F>>::iterator> the_region;
 
             if (apply_original_boundary_centroid) {
                 auto bpi = bpoints.begin();
@@ -1070,8 +1078,8 @@ export namespace sm
             }
 
             // Now find the hexes on the boundary of the region
-            std::list<sm::hex>::iterator nearby_region_boundary_point = this->hexen.begin(); // i.e the hex at 0,0
-            typename std::vector<sm::bezcoord<float>>::iterator bpi = bpoints.begin();
+            typename std::list<sm::hex<F>>::iterator nearby_region_boundary_point = this->hexen.begin(); // i.e the hex at 0,0
+            typename std::vector<sm::bezcoord<F>>::iterator bpi = bpoints.begin();
             while (bpi != bpoints.end()) {
                 nearby_region_boundary_point = this->set_region_boundary (*bpi++, nearby_region_boundary_point);
             }
@@ -1079,7 +1087,7 @@ export namespace sm
             // Check that the region boundary is contiguous.
             {
                 std::set<std::uint32_t> seen;
-                std::list<sm::hex>::iterator hi = nearby_region_boundary_point;
+                typename std::list<sm::hex<F>>::iterator hi = nearby_region_boundary_point;
                 if (this->region_boundary_contiguous (nearby_region_boundary_point, hi, seen) == false) {
                     std::stringstream ee;
                     ee << "The constructed region boundary is not a contiguous sequence of hexes.";
@@ -1088,11 +1096,11 @@ export namespace sm
             }
 
             // Mark hexes inside region. Use centroid of the region.
-            std::list<sm::hex>::iterator inside_regionhex = this->find_hex_nearest (region_centroid);
+            typename std::list<sm::hex<F>>::iterator inside_regionhex = this->find_hex_nearest (region_centroid);
             this->mark_hexes_inside (inside_regionhex, sm::HEX_IS_REGION_BOUNDARY, sm::HEX_INSIDE_REGION);
 
             // Populate the_region, then return it
-            std::list<sm::hex>::iterator hi = this->hexen.begin();
+            typename std::list<sm::hex<F>>::iterator hi = this->hexen.begin();
             while (hi != this->hexen.end()) {
                 if (hi->test_flags (sm::HEX_INSIDE_REGION) == true) {
                     the_region.push_back (hi);
@@ -1105,12 +1113,12 @@ export namespace sm
 
         //! Obtain a hexagonal region of hexes around a given central hex, marked by its
         //! d_ index. This is easier than getting a properly circular region of hexes.
-        std::vector<std::list<hex>::iterator> get_hexagonal_region (std::uint32_t centreindex, float radius)
+        std::vector<typename std::list<sm::hex<F>>::iterator> get_hexagonal_region (std::uint32_t centreindex, F radius)
         {
-            std::vector<std::list<sm::hex>::iterator> the_region;
+            std::vector<typename std::list<sm::hex<F>>::iterator> the_region;
 
             // Find the hex with index centreindex
-            std::list<hex>::iterator sh = this->hexen.begin(); // start hex
+            typename std::list<sm::hex<F>>::iterator sh = this->hexen.begin(); // start hex
             while (sh != this->hexen.end()) {
                 if (sh->vi == centreindex) { break; }
                 sh++;
@@ -1123,8 +1131,8 @@ export namespace sm
             // For each of 6 directions, step out to collect up the hexes on the disc
             // ring by ring. For rings 2 and above, also need to fill in hexes
             // (otherwise you end up with a snowflake shaped disc)
-            std::list<hex>::iterator h;
-            std::list<hex>::iterator h2; // for the tangent direction
+            typename std::list<sm::hex<F>>::iterator h;
+            typename std::list<sm::hex<F>>::iterator h2; // for the tangent direction
             for (std::uint16_t i = 0; i < 6; ++i) {
                 h = sh;
                 if (h->has_neighbour(i)) {
@@ -1187,12 +1195,12 @@ export namespace sm
             }
 
             // For each hex in this hexgrid, compute the convolution kernel
-            std::list<hex>::iterator hi = this->hexen.begin();
+            typename std::list<sm::hex<F>>::iterator hi = this->hexen.begin();
             for (; hi != this->hexen.end(); ++hi) {
                 T sum = T{0};
                 // For each kernel hex, sum up.
                 for (auto kh : kernelgrid.hexen) {
-                    std::list<hex>::iterator dhi = hi;
+                    typename std::list<sm::hex<F>>::iterator dhi = hi;
                     // Kernel hex coords r,g are: kh.ri, kh.gi, which may be (are EXPECTED to be) +ve or -ve
                     //
                     // Origin hex coords are h.ri, h.gi
@@ -1261,11 +1269,90 @@ export namespace sm
         }
 
         /*!
+         * Resampling function (monochrome) for _data with regularly spaced coordinates. g_sigma
+         * should be the characteristic distance between elements in _coords.
+         *
+         * Here, we assume that coords are regularly spaced. If the coords are not regularly spaced,
+         * then the result of this algorithm will be incorrect (with slight distortions).
+         *
+         * We also assume the _coords are centered wrt the hexgrid.
+         */
+        sm::vvec<F> resample_regular_data (const sm::vvec<F>& _data,
+                                           const sm::vvec<sm::vec<F, 2>>& _coords,
+                                           const F g_sigma)
+        {
+            std::uint32_t csz = _data.size();
+
+            // Return data object for the resampled result
+            sm::vvec<F> expr_resampled(this->num(), 0.0f);
+
+            // Before resampling, check if all the values in _data are identical. In this case,
+            // we can short-cut the resampling process.
+            F i0 = _data[0];
+            bool all_same = true;
+            for (auto id : _data) {
+                if (id != i0) {
+                    all_same = false;
+                    break;
+                }
+            }
+            if (all_same) {
+                // Short-cut - just set all values in the resampled data to the same as in the input data
+                expr_resampled.set_from (i0);
+                return expr_resampled;
+            }
+
+            sm::interval<F> drange = _data.range();
+
+            // Copy the data and normalize
+            sm::vvec<F> data = _data;
+            data -= drange.min; // Shift min to zero
+
+            auto shiftedrange = data.range();
+            data /= shiftedrange.max;
+
+            // Pass in a Gaussian for the sigma
+            sm::vec<F, 2> dist_per_pix = {g_sigma, g_sigma};
+            // Parameters for the Gaussian computation
+            sm::vec<F, 2> params = 1.0f / (2.0f * dist_per_pix * dist_per_pix);
+            sm::vec<F, 2> threesig = 3.0f * dist_per_pix;
+
+#pragma omp parallel for // parallel on this outer loop gives best result (5.8 s vs 7 s)
+            for (typename std::vector<F>::size_type xi = 0u; xi < this->d_x.size(); ++xi) {
+                F expr = 0.0f;
+                for (std::uint32_t i = 0; i < csz; ++i) {
+                    // Get x/y pixel coords:
+                    // sm::vec<std::uint32_t, 2> idx = {(i % image_pixelsz[0]), (i / image_pixelsz[0])};
+                    // Get the coordinates of the pixel at index i (in hexgrid units):
+                    // Distance from input pixel to output hex:
+                    const F _d_x = this->d_x[xi] - _coords[i][0];
+                    const F _d_y = this->d_y[xi] - _coords[i][1];
+                    // Compute contributions to each hex pixel, using 2D (elliptical) Gaussian
+                    if (_d_x < threesig[0] && _d_y < threesig[1]) { // Testing for distance gives slight speedup
+                        expr += std::exp ( - ( (params[0] * _d_x * _d_x) + (params[1] * _d_y * _d_y) ) ) * data[i];
+                    }
+                }
+                expr_resampled[xi] = expr;
+            }
+
+            // renormalise result
+            auto errange = expr_resampled.range();
+            expr_resampled -= errange.min;
+            expr_resampled /= errange.span();
+
+            // Shift back to match the range of input data
+            expr_resampled *= shiftedrange.max;
+            expr_resampled += drange.min;
+
+            return expr_resampled;
+        }
+
+        /*!
          * Resampling function (monochrome).
          *
-         * \param image_data (input) The monochrome image as a vvec of floats.  The
+         * \param image_data (input) The monochrome image as a vvec of Fs.  The
          * image is interpreted as running from bottom left to top right. Thus, the very
-         * first float in the vvec is at x=0, y=0.
+         * first F in the vvec is at x=0, y=0.
          *
          * \param image_pixelwidth (input) The number of pixels that the image is wide
          * \param image_scale (input) The size that the image should be resampled to (same units as hexgrid)
@@ -1273,20 +1360,20 @@ export namespace sm
          *
          * \return A new data vvec containing the resampled (and renormalised) hex pixel values
          */
-        sm::vvec<float> resample_image (const sm::vvec<float>& image_data,
-                                        const std::uint32_t image_pixelwidth,
-                                        const sm::vec<float, 2>& image_scale,
-                                        const sm::vec<float, 2>& image_offset)
+        sm::vvec<F> resample_image (const sm::vvec<F>& image_data,
+                                    const std::uint32_t image_pixelwidth,
+                                    const sm::vec<F, 2>& image_scale,
+                                    const sm::vec<F, 2>& image_offset)
         {
             std::uint32_t csz = image_data.size();
             sm::vec<std::uint32_t, 2> image_pixelsz = {image_pixelwidth, csz / image_pixelwidth};
 
             // Return data object for the resampled result
-            sm::vvec<float> expr_resampled(this->num(), 0.0f);
+            sm::vvec<F> expr_resampled(this->num(), 0.0f);
 
             // Before resampling, check if all the values in image_data are identical. In this case,
             // we can short-cut the resampling process.
-            float i0 = image_data[0];
+            F i0 = image_data[0];
             bool all_same = true;
             for (auto id : image_data) {
                 if (id != i0) {
@@ -1303,24 +1390,24 @@ export namespace sm
             // Distance per pixel in the image. This defines the Gaussian width (sigma) for the
             // resample. Assume that the unscaled image pixels are square. Use the image width to
             // set the distance per pixel (hence divide by image_scale by image_pixelsz[*0*]).
-            sm::vec<float, 2> dist_per_pix = image_scale / (image_pixelsz[0] - 1u);
+            sm::vec<F, 2> dist_per_pix = image_scale / (image_pixelsz[0] - 1u);
             // This is an offset to centre the image wrt to the hexgrid
-            sm::vec<float, 2> input_centering_offset = dist_per_pix * image_pixelsz * 0.5f;
+            sm::vec<F, 2> input_centering_offset = dist_per_pix * image_pixelsz * 0.5f;
             // Parameters for the Gaussian computation
-            sm::vec<float, 2> params = 1.0f / (2.0f * dist_per_pix * dist_per_pix);
-            sm::vec<float, 2> threesig = 3.0f * dist_per_pix;
+            sm::vec<F, 2> params = 1.0f / (2.0f * dist_per_pix * dist_per_pix);
+            sm::vec<F, 2> threesig = 3.0f * dist_per_pix;
 
 #pragma omp parallel for // parallel on this outer loop gives best result (5.8 s vs 7 s)
-            for (typename std::vector<float>::size_type xi = 0u; xi < this->d_x.size(); ++xi) {
-                float expr = 0.0f;
+            for (typename std::vector<F>::size_type xi = 0u; xi < this->d_x.size(); ++xi) {
+                F expr = 0.0f;
                 for (std::uint32_t i = 0; i < csz; ++i) {
                     // Get x/y pixel coords:
                     sm::vec<std::uint32_t, 2> idx = {(i % image_pixelsz[0]), (i / image_pixelsz[0])};
                     // Get the coordinates of the pixel at index i (in hexgrid units):
-                    sm::vec<float, 2> posn = (dist_per_pix * idx) - input_centering_offset + image_offset;
+                    sm::vec<F, 2> posn = (dist_per_pix * idx) - input_centering_offset + image_offset;
                     // Distance from input pixel to output hex:
-                    float _d_x = this->d_x[xi] - posn[0];
-                    float _d_y = this->d_y[xi] - posn[1];
+                    F _d_x = this->d_x[xi] - posn[0];
+                    F _d_y = this->d_y[xi] - posn[1];
                     // Compute contributions to each hex pixel, using 2D (elliptical) Gaussian
                     if (_d_x < threesig[0] && _d_y < threesig[1]) { // Testing for distance gives slight speedup
                         expr += std::exp ( - ( (params[0] * _d_x * _d_x) + (params[1] * _d_y * _d_y) ) ) * image_data[i];
@@ -1334,73 +1421,73 @@ export namespace sm
         }
 
         // Member attributes for visualising the compute_hex_overlap stuff. Put in class hex_overlap_geometry or something
-        vec<float, 2> sw_loc = {std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN()};
-        vec<float, 2> nw_loc = {std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN()};
-        vec<float, 2> ne_loc = {std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN()};
-        vec<float, 2> se_loc = {std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN()};
-        vec<float, 2> n_loc = {std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN()};
-        vec<float, 2> s_loc = {std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN()};
+        vec<F, 2> sw_loc = {std::numeric_limits<F>::quiet_NaN(), std::numeric_limits<F>::quiet_NaN()};
+        vec<F, 2> nw_loc = {std::numeric_limits<F>::quiet_NaN(), std::numeric_limits<F>::quiet_NaN()};
+        vec<F, 2> ne_loc = {std::numeric_limits<F>::quiet_NaN(), std::numeric_limits<F>::quiet_NaN()};
+        vec<F, 2> se_loc = {std::numeric_limits<F>::quiet_NaN(), std::numeric_limits<F>::quiet_NaN()};
+        vec<F, 2> n_loc = {std::numeric_limits<F>::quiet_NaN(), std::numeric_limits<F>::quiet_NaN()};
+        vec<F, 2> s_loc = {std::numeric_limits<F>::quiet_NaN(), std::numeric_limits<F>::quiet_NaN()};
         // Original location of the zero hex
-        vec<float, 2> sw_0 = {std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN()};
-        vec<float, 2> nw_0 = {std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN()};
-        vec<float, 2> ne_0 = {std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN()};
-        vec<float, 2> se_0 = {std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN()};
-        vec<float, 2> n_0 = {std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN()};
-        vec<float, 2> s_0 = {std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN()};
+        vec<F, 2> sw_0 = {std::numeric_limits<F>::quiet_NaN(), std::numeric_limits<F>::quiet_NaN()};
+        vec<F, 2> nw_0 = {std::numeric_limits<F>::quiet_NaN(), std::numeric_limits<F>::quiet_NaN()};
+        vec<F, 2> ne_0 = {std::numeric_limits<F>::quiet_NaN(), std::numeric_limits<F>::quiet_NaN()};
+        vec<F, 2> se_0 = {std::numeric_limits<F>::quiet_NaN(), std::numeric_limits<F>::quiet_NaN()};
+        vec<F, 2> n_0 = {std::numeric_limits<F>::quiet_NaN(), std::numeric_limits<F>::quiet_NaN()};
+        vec<F, 2> s_0 = {std::numeric_limits<F>::quiet_NaN(), std::numeric_limits<F>::quiet_NaN()};
         //
-        vec<float, 2> sw_sft = {std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN()};
-        vec<float, 2> nw_sft = {std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN()};
-        vec<float, 2> ne_sft = {std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN()};
-        vec<float, 2> se_sft = {std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN()};
-        vec<float, 2> n_sft = {std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN()};
-        vec<float, 2> s_sft = {std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN()};
+        vec<F, 2> sw_sft = {std::numeric_limits<F>::quiet_NaN(), std::numeric_limits<F>::quiet_NaN()};
+        vec<F, 2> nw_sft = {std::numeric_limits<F>::quiet_NaN(), std::numeric_limits<F>::quiet_NaN()};
+        vec<F, 2> ne_sft = {std::numeric_limits<F>::quiet_NaN(), std::numeric_limits<F>::quiet_NaN()};
+        vec<F, 2> se_sft = {std::numeric_limits<F>::quiet_NaN(), std::numeric_limits<F>::quiet_NaN()};
+        vec<F, 2> n_sft = {std::numeric_limits<F>::quiet_NaN(), std::numeric_limits<F>::quiet_NaN()};
+        vec<F, 2> s_sft = {std::numeric_limits<F>::quiet_NaN(), std::numeric_limits<F>::quiet_NaN()};
         //
-        vec<float, 2> p1 = {std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN()};
-        vec<float, 2> q1 = {std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN()};
-        vec<float, 2> p2 = {std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN()};
-        vec<float, 2> q2 = {std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN()};
-        vec<float, 2> p3 = {std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN()};
-        vec<float, 2> q3 = {std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN()};
-        vec<float, 2> p4 = {std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN()};
-        vec<float, 2> q4 = {std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN()};
-        vec<float, 2> p5 = {std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN()};
-        vec<float, 2> q5 = {std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN()};
-        vec<float, 2> p6 = {std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN()};
-        vec<float, 2> q6 = {std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN()};
-        vec<float, 2> q7 = {std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN()};
-        vec<float, 2> p8 = {std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN()};
-        vec<float, 2> q8 = {std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN()};
+        vec<F, 2> p1 = {std::numeric_limits<F>::quiet_NaN(), std::numeric_limits<F>::quiet_NaN()};
+        vec<F, 2> q1 = {std::numeric_limits<F>::quiet_NaN(), std::numeric_limits<F>::quiet_NaN()};
+        vec<F, 2> p2 = {std::numeric_limits<F>::quiet_NaN(), std::numeric_limits<F>::quiet_NaN()};
+        vec<F, 2> q2 = {std::numeric_limits<F>::quiet_NaN(), std::numeric_limits<F>::quiet_NaN()};
+        vec<F, 2> p3 = {std::numeric_limits<F>::quiet_NaN(), std::numeric_limits<F>::quiet_NaN()};
+        vec<F, 2> q3 = {std::numeric_limits<F>::quiet_NaN(), std::numeric_limits<F>::quiet_NaN()};
+        vec<F, 2> p4 = {std::numeric_limits<F>::quiet_NaN(), std::numeric_limits<F>::quiet_NaN()};
+        vec<F, 2> q4 = {std::numeric_limits<F>::quiet_NaN(), std::numeric_limits<F>::quiet_NaN()};
+        vec<F, 2> p5 = {std::numeric_limits<F>::quiet_NaN(), std::numeric_limits<F>::quiet_NaN()};
+        vec<F, 2> q5 = {std::numeric_limits<F>::quiet_NaN(), std::numeric_limits<F>::quiet_NaN()};
+        vec<F, 2> p6 = {std::numeric_limits<F>::quiet_NaN(), std::numeric_limits<F>::quiet_NaN()};
+        vec<F, 2> q6 = {std::numeric_limits<F>::quiet_NaN(), std::numeric_limits<F>::quiet_NaN()};
+        vec<F, 2> q7 = {std::numeric_limits<F>::quiet_NaN(), std::numeric_limits<F>::quiet_NaN()};
+        vec<F, 2> p8 = {std::numeric_limits<F>::quiet_NaN(), std::numeric_limits<F>::quiet_NaN()};
+        vec<F, 2> q8 = {std::numeric_limits<F>::quiet_NaN(), std::numeric_limits<F>::quiet_NaN()};
         //
         // Usually, top left of rectangle a1 is p2, but it may be q4 if i5 is to 'left' of i1
-        vec<float, 2> a1_tl = {std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN()};
-        vec<float, 2> a1_bl = {std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN()};
+        vec<F, 2> a1_tl = {std::numeric_limits<F>::quiet_NaN(), std::numeric_limits<F>::quiet_NaN()};
+        vec<F, 2> a1_bl = {std::numeric_limits<F>::quiet_NaN(), std::numeric_limits<F>::quiet_NaN()};
         //
-        vec<float, 2> i1 = {std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN()};
-        vec<float, 2> i2 = {std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN()};
-        vec<float, 2> i3 = {std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN()};
-        vec<float, 2> i4 = {std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN()};
-        vec<float, 2> i5 = {std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN()};
-        vec<float, 2> i6 = {std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN()};
+        vec<F, 2> i1 = {std::numeric_limits<F>::quiet_NaN(), std::numeric_limits<F>::quiet_NaN()};
+        vec<F, 2> i2 = {std::numeric_limits<F>::quiet_NaN(), std::numeric_limits<F>::quiet_NaN()};
+        vec<F, 2> i3 = {std::numeric_limits<F>::quiet_NaN(), std::numeric_limits<F>::quiet_NaN()};
+        vec<F, 2> i4 = {std::numeric_limits<F>::quiet_NaN(), std::numeric_limits<F>::quiet_NaN()};
+        vec<F, 2> i5 = {std::numeric_limits<F>::quiet_NaN(), std::numeric_limits<F>::quiet_NaN()};
+        vec<F, 2> i6 = {std::numeric_limits<F>::quiet_NaN(), std::numeric_limits<F>::quiet_NaN()};
 
         // More vectors for visualisation. The 60 and 300 degree unit vectors are used to compute area of parallelogram.
-        vec<float, 2> unit_60 = {std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN()};
-        vec<float, 2> unit_300 = {std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN()};
-        vec<float, 2> unit_120 = {std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN()};
-        vec<float, 2> unit_150 = {std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN()};
-        vec<float, 2> unit_240 = {std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN()};
-        vec<float, 2> unit_210 = {std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN()};
-        vec<float, 2> unit_30 = {std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN()};
+        vec<F, 2> unit_60 = {std::numeric_limits<F>::quiet_NaN(), std::numeric_limits<F>::quiet_NaN()};
+        vec<F, 2> unit_300 = {std::numeric_limits<F>::quiet_NaN(), std::numeric_limits<F>::quiet_NaN()};
+        vec<F, 2> unit_120 = {std::numeric_limits<F>::quiet_NaN(), std::numeric_limits<F>::quiet_NaN()};
+        vec<F, 2> unit_150 = {std::numeric_limits<F>::quiet_NaN(), std::numeric_limits<F>::quiet_NaN()};
+        vec<F, 2> unit_240 = {std::numeric_limits<F>::quiet_NaN(), std::numeric_limits<F>::quiet_NaN()};
+        vec<F, 2> unit_210 = {std::numeric_limits<F>::quiet_NaN(), std::numeric_limits<F>::quiet_NaN()};
+        vec<F, 2> unit_30 = {std::numeric_limits<F>::quiet_NaN(), std::numeric_limits<F>::quiet_NaN()};
 
-        vec<float, 2> pll1_top = {std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN()};
-        vec<float, 2> pll1_br = {std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN()};
-        vec<float, 2> pll2_bot = {std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN()};
-        vec<float, 2> pll2_tr = {std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN()};
+        vec<F, 2> pll1_top = {std::numeric_limits<F>::quiet_NaN(), std::numeric_limits<F>::quiet_NaN()};
+        vec<F, 2> pll1_br = {std::numeric_limits<F>::quiet_NaN(), std::numeric_limits<F>::quiet_NaN()};
+        vec<F, 2> pll2_bot = {std::numeric_limits<F>::quiet_NaN(), std::numeric_limits<F>::quiet_NaN()};
+        vec<F, 2> pll2_tr = {std::numeric_limits<F>::quiet_NaN(), std::numeric_limits<F>::quiet_NaN()};
 
         static constexpr bool debug_hexshift = false;
 
         // Shift data by dx, with wrapping if set for the hexgrid
         template <typename T>
-        bool shiftdata (sm::vvec<T>& image_data, const sm::vec<float, 2>& dx)
+        bool shiftdata (sm::vvec<T>& image_data, const sm::vec<F, 2>& dx)
         {
             std::uint32_t csz = image_data.size();
             sm::vvec<T> shifted(csz, T{0});
@@ -1413,38 +1500,38 @@ export namespace sm
 
             // How many 'r' steps and how many 'g' steps does the vector dx represent?
             if constexpr (debug_hexshift) { std::cout << "d = " << this->d << ", dx = " << dx << std::endl; }
-            vec<float, 2> rg = {
-                (1.0f/this->d) * (dx[0] - dx[1] * sm::mathconst<float>::one_over_root_3),
-                (1.0f/this->d) * (dx[1] * sm::mathconst<float>::two_over_root_3)
+            vec<F, 2> rg = {
+                (1.0f/this->d) * (dx[0] - dx[1] * sm::mathconst<F>::one_over_root_3),
+                (1.0f/this->d) * (dx[1] * sm::mathconst<F>::two_over_root_3)
             };
             if constexpr (debug_hexshift) { std::cout << "Movement expressed as r/g is rg=" << rg << std::endl; }
             // How many integral steps in r and g axes?
-            vec<float, 2> int_rg_f = rg.trunc();
+            vec<F, 2> int_rg_f = rg.trunc();
             // Convert to int
             vec<std::int32_t, 2> int_rg = { static_cast<std::int32_t>(std::round (int_rg_f[0])), static_cast<std::int32_t>(std::round (int_rg_f[1])) };
             if constexpr (debug_hexshift) { std::cout << "integral steps: " << int_rg << std::endl; }
-            vec<float, 2> int_xy = {
+            vec<F, 2> int_xy = {
                 (int_rg_f[0] * this->d + int_rg_f[1] * this->d * 0.5f),
                 (int_rg_f[1] * this->v)
             };
             // Compute remainder
-            vec<float, 2> rem_rg = rg - int_rg_f;
+            vec<F, 2> rem_rg = rg - int_rg_f;
 
             if constexpr (debug_hexshift) { std::cout << "Remainder r: " << rem_rg[0] << ", and remainder g: " << rem_rg[1] << std::endl; }
             // The remainder movement in Cartesian coordinates
-            vec<float, 2> rem_xy = {
+            vec<F, 2> rem_xy = {
                 (rem_rg[0] * this->d + rem_rg[1] * this->d * 0.5f),
                 (rem_rg[1] * this->v)
             };
             if constexpr (debug_hexshift) { std::cout << "Remainder x: " << rem_xy[0] << ", and remainder y: " << rem_xy[1] << std::endl; }
 
             // Corners of base hex 0
-            sw_loc = { (-d * 0.5f), (-d * sm::mathconst<float>::one_over_2_root_3) };
-            nw_loc = { (-d * 0.5f), ( d * sm::mathconst<float>::one_over_2_root_3) };
-            ne_loc = {  (d * 0.5f), ( d * sm::mathconst<float>::one_over_2_root_3) };
-            se_loc = {  (d * 0.5f), (-d * sm::mathconst<float>::one_over_2_root_3) };
-            n_loc =  {   0.0f     , ( d * sm::mathconst<float>::one_over_root_3)   };
-            s_loc =  {   0.0f     , (-d * sm::mathconst<float>::one_over_root_3)   };
+            sw_loc = { (-d * 0.5f), (-d * sm::mathconst<F>::one_over_2_root_3) };
+            nw_loc = { (-d * 0.5f), ( d * sm::mathconst<F>::one_over_2_root_3) };
+            ne_loc = {  (d * 0.5f), ( d * sm::mathconst<F>::one_over_2_root_3) };
+            se_loc = {  (d * 0.5f), (-d * sm::mathconst<F>::one_over_2_root_3) };
+            n_loc =  {   0.0f     , ( d * sm::mathconst<F>::one_over_root_3)   };
+            s_loc =  {   0.0f     , (-d * sm::mathconst<F>::one_over_root_3)   };
 
             // Origin hex
             sw_0 = sw_loc - int_xy;
@@ -1462,7 +1549,7 @@ export namespace sm
             n_sft = n_loc + rem_xy;
             s_sft = s_loc + rem_xy;
 
-            vec<float, 19> overlap = this->compute_hex_overlap (rem_xy);
+            vec<F, 19> overlap = this->compute_hex_overlap (rem_xy);
 
             if (overlap[0] == -100.0f) {
                 if constexpr (debug_hexshift) { std::cout << "overlap[0] is -100\n"; }
@@ -1471,14 +1558,14 @@ export namespace sm
 
             static constexpr bool debugdata = false;
 
-            std::list<hex>::iterator h = this->hexen.begin();
+            typename std::list<sm::hex<F>>::iterator h = this->hexen.begin();
             while (h != this->hexen.end()) {
                 // image_data[i] is the data to shift.
                 bool datatocopy = false;
                 if constexpr (debugdata) {
                     datatocopy = image_data[h->vi] > T{0} ? true : false;
                 }
-                std::list<hex>::iterator dest_hex = h;
+                typename std::list<sm::hex<F>>::iterator dest_hex = h;
                 if (datatocopy) std::cout << "Copying hex data at " << h->output_rg() << "...";
                 if (int_rg[1] > 0) {
                     for (std::int32_t j = 0; j < int_rg[1] && dest_hex->has_nne(); ++j) {
@@ -1594,34 +1681,34 @@ export namespace sm
         /*!
          * Find the intersection point between two line segments. The first segment runs
          * from position _p1 to _q1 and the second from position _p2 to _q2. If no
-         * intersect, return object should contain float's not-a-number value.
+         * intersect, return object should contain F's not-a-number value.
          *
          * See https://stackoverflow.com/questions/563198/how-do-you-detect-where-two-line-segments-intersect
          */
         // FIXME could be replaced with sm::geometry::segments_intersect()
-        vec<float, 2> intersection (const vec<float, 2> _p1, const vec<float, 2> _q1,
-                                    const vec<float, 2> _p2, const vec<float, 2> _q2)
+        vec<F, 2> intersection (const vec<F, 2> _p1, const vec<F, 2> _q1,
+                                const vec<F, 2> _p2, const vec<F, 2> _q2)
         {
-            vec<float, 2> isect;
-            isect.set_from (std::numeric_limits<float>::quiet_NaN());
+            vec<F, 2> isect;
+            isect.set_from (std::numeric_limits<F>::quiet_NaN());
 
             // _p1 = p; _q1 = p + r
             // _p2 = q; _q2 = q + s
-            float q_m_pxr = (_p2-_p1).cross(_q1-_p1);
-            float rxs = (_q1-_p1).cross(_q2-_p2);
-            float u = -1.0f;
-            float t = -1.0f;
+            F q_m_pxr = (_p2-_p1).cross(_q1-_p1);
+            F rxs = (_q1-_p1).cross(_q2-_p2);
+            F u = -1.0f;
+            F t = -1.0f;
             if (rxs != 0.0f) {
                 u = q_m_pxr / rxs; // u = (q-p) x r/(r x s)
-                float den = (_q1-_p1).cross(_q2-_p2);
+                F den = (_q1-_p1).cross(_q2-_p2);
                 if (den != 0.0f) {
                     t = (_p2-_p1).cross(_q2-_p2) / den;
                 }
             }
             if (rxs == 0.0f && q_m_pxr == 0.0f) {
                 // Colinear, figure out if overlapping
-                float t_0 = (_p2 - _p1).dot (_q1 - _p1) / (_q1 - _p1).dot (_q1 - _p1);
-                float t_1 = (_q2 - _p1).dot (_q1 - _p1) / (_q1 - _p1).dot (_q1 - _p1);
+                F t_0 = (_p2 - _p1).dot (_q1 - _p1) / (_q1 - _p1).dot (_q1 - _p1);
+                F t_1 = (_q2 - _p1).dot (_q1 - _p1) / (_q1 - _p1).dot (_q1 - _p1);
 
                 if ((t_0 > 0.0f && t_0 < 1.0f) || (t_1 > 0.0f && t_1 < 1.0f)) {
                     isect = _p1 + t_0 * (_q1-_p1);
@@ -1632,11 +1719,11 @@ export namespace sm
             } else if (rxs == 0.0f && q_m_pxr != 0.0f) {
                 // Parallel and non-intersecting. Place distance between lines into isect[0], leave other one NaN.
                 // Get normal to p2-q2
-                sm::mat<float, 2> rot90;
-                rot90.rotate (sm::mathconst<float>::pi_over_2);
-                vec<float, 2> nor = rot90 * (_q2-_p2);
+                sm::mat<F, 2> rot90;
+                rot90.rotate (sm::mathconst<F>::pi_over_2);
+                vec<F, 2> nor = rot90 * (_q2-_p2);
                 // Project p2-p1 onto normal
-                float d_p1 = (_p2-_p1).dot(nor);
+                F d_p1 = (_p2-_p1).dot(nor);
                 isect[0] = d_p1; // isect[1] remains nan
 
             } else if (rxs != 0.0f && t > 0.0f && t < 1.0f && u > 0.0f && u < 1.0f) {
@@ -1644,7 +1731,7 @@ export namespace sm
                 isect = _p2 + u * (_q2-_p2);
             } // else non intersecting
 
-            return isect.as_float();
+            return isect.as_F();
         }
 
         /*!
@@ -1654,87 +1741,87 @@ export namespace sm
          * centre; 1:ne, 2:nw, 3:w 4:sw 5:se 6:e 7:ene 8:nn 9:wnw 10:wsw 11:ss 12:ese An
          * assumption is that shift is small.
          */
-        vec<float, 19> compute_hex_overlap (vec<float, 2> shift)
+        vec<F, 19> compute_hex_overlap (vec<F, 2> shift)
         {
-            vec<float, 19> overlap;
+            vec<F, 19> overlap;
             overlap.zero();
-            float lr = this->get_lr();
+            F lr = this->get_lr();
 
             // hexvectors from centre to points:
-            sm::vec<float, 2> hv_ne = { sm::mathconst<float>::root_3_over_2 * lr, 0.5f * lr };
-            sm::vec<float, 2> hv_n =  { 0, lr };
-            sm::vec<float, 2> hv_nw = {-sm::mathconst<float>::root_3_over_2 * lr, 0.5f * lr};
-            sm::vec<float, 2> hv_sw = {-sm::mathconst<float>::root_3_over_2 * lr, -0.5f * lr};
-            sm::vec<float, 2> hv_s =  { 0, -lr };
-            sm::vec<float, 2> hv_se = { sm::mathconst<float>::root_3_over_2 * lr, -0.5f * lr};
+            sm::vec<F, 2> hv_ne = { sm::mathconst<F>::root_3_over_2 * lr, 0.5f * lr };
+            sm::vec<F, 2> hv_n =  { 0, lr };
+            sm::vec<F, 2> hv_nw = {-sm::mathconst<F>::root_3_over_2 * lr, 0.5f * lr};
+            sm::vec<F, 2> hv_sw = {-sm::mathconst<F>::root_3_over_2 * lr, -0.5f * lr};
+            sm::vec<F, 2> hv_s =  { 0, -lr };
+            sm::vec<F, 2> hv_se = { sm::mathconst<F>::root_3_over_2 * lr, -0.5f * lr};
 
             // Find intersections between sides of the base hex and the shifted
             // hex. This will inform which of the different area computation algorithms to
 
             // Intersection 1 is between n->ne of base and nw->n of shifted
-            vec<float, 2> isct1 = this->intersection (n_loc, ne_loc, nw_sft, n_sft);
-            vec<float, 2> isct2 = this->intersection (nw_loc, n_loc, sw_sft, nw_sft);
-            vec<float, 2> isct3 = this->intersection (sw_loc, nw_loc, s_sft, sw_sft);
-            vec<float, 2> isct4 = this->intersection (s_loc, sw_loc, se_sft, s_sft);
-            vec<float, 2> isct5 = this->intersection (se_loc, s_loc, ne_sft, se_sft);
-            vec<float, 2> isct6 = this->intersection (ne_loc, se_loc, n_sft, ne_sft);
+            vec<F, 2> isct1 = this->intersection (n_loc, ne_loc, nw_sft, n_sft);
+            vec<F, 2> isct2 = this->intersection (nw_loc, n_loc, sw_sft, nw_sft);
+            vec<F, 2> isct3 = this->intersection (sw_loc, nw_loc, s_sft, sw_sft);
+            vec<F, 2> isct4 = this->intersection (s_loc, sw_loc, se_sft, s_sft);
+            vec<F, 2> isct5 = this->intersection (se_loc, s_loc, ne_sft, se_sft);
+            vec<F, 2> isct6 = this->intersection (ne_loc, se_loc, n_sft, ne_sft);
             if constexpr (debug_hexshift) { std::cout << "isects: " << isct1 << ", " << isct2 << ", " << isct3 << ", "
                                                       << isct4 << ", " << isct5 << ", " << isct6 << "\n"; }
 
             // Parallel intersections
-            vec<float, 2> isct7 = this->intersection (nw_loc, n_loc, nw_sft, n_sft);
-            vec<float, 2> isct8 = this->intersection (sw_loc, nw_loc, sw_sft, nw_sft);
-            vec<float, 2> isct9 = this->intersection (s_loc, sw_loc, s_sft, sw_sft);
+            vec<F, 2> isct7 = this->intersection (nw_loc, n_loc, nw_sft, n_sft);
+            vec<F, 2> isct8 = this->intersection (sw_loc, nw_loc, sw_sft, nw_sft);
+            vec<F, 2> isct9 = this->intersection (s_loc, sw_loc, s_sft, sw_sft);
             if constexpr (debug_hexshift) { std::cout << "colinear isects: " << isct7 << ", " << isct8 << ", " << isct9 << std::endl; }
             // Note: the segments could be parallel but no longer intersecting and there
             // would STILL be the possiblity of an overlap. However, I think that the
             // scheme of choosing integer hex-jumps may avoid this case from occurring.
 
             // Colinear intersections with adjacent hexes
-            vec<float, 2> isct10 = this->intersection (n_loc, n_loc + hv_n, sw_sft, nw_sft);
-            vec<float, 2> isct11 = this->intersection (nw_loc, nw_loc + hv_nw, s_sft, sw_sft);
-            vec<float, 2> isct12 = this->intersection (sw_loc, sw_loc + hv_sw, se_sft, s_sft);
-            vec<float, 2> isct13 = this->intersection (s_loc, s_loc + hv_s, ne_sft, se_sft);
-            vec<float, 2> isct14 = this->intersection (se_loc, se_loc + hv_se, n_sft, ne_sft);
-            vec<float, 2> isct15 = this->intersection (ne_loc, ne_loc + hv_ne, nw_sft, n_sft);
+            vec<F, 2> isct10 = this->intersection (n_loc, n_loc + hv_n, sw_sft, nw_sft);
+            vec<F, 2> isct11 = this->intersection (nw_loc, nw_loc + hv_nw, s_sft, sw_sft);
+            vec<F, 2> isct12 = this->intersection (sw_loc, sw_loc + hv_sw, se_sft, s_sft);
+            vec<F, 2> isct13 = this->intersection (s_loc, s_loc + hv_s, ne_sft, se_sft);
+            vec<F, 2> isct14 = this->intersection (se_loc, se_loc + hv_se, n_sft, ne_sft);
+            vec<F, 2> isct15 = this->intersection (ne_loc, ne_loc + hv_ne, nw_sft, n_sft);
             if constexpr (debug_hexshift) { std::cout << "extra colinear isects1-3: " << isct10 << ", " << isct11 << ", " << isct12 << std::endl; }
             if constexpr (debug_hexshift) { std::cout << "extra colinear isects4-6: " << isct13 << ", " << isct14 << ", " << isct15 << std::endl; }
 
             // Nearly finally, intersects that occur when the hex is moved to the point at
             // which the moved hex has just one point inside the base hex
-            vec<float, 2> isct16 = this->intersection (n_loc, ne_loc, nw_sft, sw_sft);
-            vec<float, 2> isct17 = this->intersection (nw_loc, n_loc, sw_sft, s_sft);
-            vec<float, 2> isct18 = this->intersection (sw_loc, nw_loc, s_sft, se_sft);
-            vec<float, 2> isct19 = this->intersection (s_loc, sw_loc, se_sft, ne_sft);
-            vec<float, 2> isct20 = this->intersection (se_loc, s_loc, ne_sft, n_sft);
-            vec<float, 2> isct21 = this->intersection (ne_loc, se_loc, n_sft, nw_sft);
+            vec<F, 2> isct16 = this->intersection (n_loc, ne_loc, nw_sft, sw_sft);
+            vec<F, 2> isct17 = this->intersection (nw_loc, n_loc, sw_sft, s_sft);
+            vec<F, 2> isct18 = this->intersection (sw_loc, nw_loc, s_sft, se_sft);
+            vec<F, 2> isct19 = this->intersection (s_loc, sw_loc, se_sft, ne_sft);
+            vec<F, 2> isct20 = this->intersection (se_loc, s_loc, ne_sft, n_sft);
+            vec<F, 2> isct21 = this->intersection (ne_loc, se_loc, n_sft, nw_sft);
             if constexpr (debug_hexshift) { std::cout << "corner isects1-3: " << isct16 << ", " << isct17 << ", " << isct18 << std::endl; }
             if constexpr (debug_hexshift) { std::cout << "corner isects4-6: " << isct19 << ", " << isct20 << ", " << isct21 << std::endl; }
 
             // And intersects that may occur if the hex is moved slightly beyond the
             // original base hex (next to base hex NE edge in rotation=0 case)
-            vec<float, 2> isct22 = this->intersection (ne_loc, ne_loc+hv_ne, s_sft, sw_sft);
-            vec<float, 2> isct23 = this->intersection (n_loc, n_loc+hv_n, se_sft, s_sft);
-            vec<float, 2> isct24 = this->intersection (nw_loc, nw_loc+hv_nw, se_sft, ne_sft);
-            vec<float, 2> isct25 = this->intersection (sw_loc, sw_loc+hv_sw, n_sft, ne_sft);
-            vec<float, 2> isct26 = this->intersection (s_loc, s_loc+hv_s, nw_sft, n_sft);
-            vec<float, 2> isct27 = this->intersection (se_loc, se_loc+hv_se, sw_sft, nw_sft);
+            vec<F, 2> isct22 = this->intersection (ne_loc, ne_loc+hv_ne, s_sft, sw_sft);
+            vec<F, 2> isct23 = this->intersection (n_loc, n_loc+hv_n, se_sft, s_sft);
+            vec<F, 2> isct24 = this->intersection (nw_loc, nw_loc+hv_nw, se_sft, ne_sft);
+            vec<F, 2> isct25 = this->intersection (sw_loc, sw_loc+hv_sw, n_sft, ne_sft);
+            vec<F, 2> isct26 = this->intersection (s_loc, s_loc+hv_s, nw_sft, n_sft);
+            vec<F, 2> isct27 = this->intersection (se_loc, se_loc+hv_se, sw_sft, nw_sft);
             if constexpr (debug_hexshift) { std::cout << "far isects1-3: " << isct22 << ", " << isct23 << ", " << isct24 << std::endl; }
             if constexpr (debug_hexshift) { std::cout << "far isects4-6: " << isct25 << ", " << isct26 << ", " << isct27 << std::endl; }
 
             // And intersects that may occur if the hex is moved slightly beyond the
             // original base hex (next to base hex E edge in rotation=0 case)
-            vec<float, 2> isct28 = this->intersection (ne_loc, ne_loc+hv_ne, sw_sft, nw_sft);
-            vec<float, 2> isct29 = this->intersection (n_loc, n_loc+hv_n, s_sft, sw_sft);
-            vec<float, 2> isct30 = this->intersection (nw_loc, nw_loc+hv_nw, se_sft, s_sft);
-            vec<float, 2> isct31 = this->intersection (sw_loc, sw_loc+hv_sw, ne_sft, se_sft);
-            vec<float, 2> isct32 = this->intersection (s_loc, s_loc+hv_s, n_sft, ne_sft);
-            vec<float, 2> isct33 = this->intersection (se_loc, se_loc+hv_se, nw_sft, n_sft);
+            vec<F, 2> isct28 = this->intersection (ne_loc, ne_loc+hv_ne, sw_sft, nw_sft);
+            vec<F, 2> isct29 = this->intersection (n_loc, n_loc+hv_n, s_sft, sw_sft);
+            vec<F, 2> isct30 = this->intersection (nw_loc, nw_loc+hv_nw, se_sft, s_sft);
+            vec<F, 2> isct31 = this->intersection (sw_loc, sw_loc+hv_sw, ne_sft, se_sft);
+            vec<F, 2> isct32 = this->intersection (s_loc, s_loc+hv_s, n_sft, ne_sft);
+            vec<F, 2> isct33 = this->intersection (se_loc, se_loc+hv_se, nw_sft, n_sft);
             if constexpr (debug_hexshift) { std::cout << "far2 isects1-3: " << isct28 << ", " << isct29 << ", " << isct30 << std::endl; }
             if constexpr (debug_hexshift) { std::cout << "far2 isects4-6: " << isct31 << ", " << isct32 << ", " << isct33 << std::endl; }
 
             // If angle of shift is within this threshold of pi/6, 3pi/6, 5pi/6 etc, then we compute_overlap_colinear.
-            float anglethreshold = 2.0f * std::numeric_limits<float>::epsilon();
+            F anglethreshold = 2.0f * std::numeric_limits<F>::epsilon();
 
             // Depending on values in isct1-6, select a this->compute_overlap() overload
             // or pass a relevant rotation in.
@@ -1817,12 +1904,12 @@ export namespace sm
                 overlap = this->compute_overlap_colinear3 (5);
 
             } else if (!isct7.has_nan() || !isct8.has_nan() || !isct9.has_nan() // 1st three test for colinear edges
-                       || (std::abs(shift.angle()    -   sm::mathconst<float>::pi_over_6) <= anglethreshold) // rest test for shift angle
-                       || (std::abs(shift.angle()    +   sm::mathconst<float>::pi_over_6) <= anglethreshold) // rest test for shift angle
-                       || (std::abs(shift.angle() - 3.0f*sm::mathconst<float>::pi_over_6) <= anglethreshold)
-                       || (std::abs(shift.angle() + 3.0f*sm::mathconst<float>::pi_over_6) <= anglethreshold)
-                       || (std::abs(shift.angle() - 5.0f*sm::mathconst<float>::pi_over_6) <= anglethreshold)
-                       || (std::abs(shift.angle() + 5.0f*sm::mathconst<float>::pi_over_6) <= anglethreshold)) {
+                       || (std::abs(shift.angle()    -   sm::mathconst<F>::pi_over_6) <= anglethreshold) // rest test for shift angle
+                       || (std::abs(shift.angle()    +   sm::mathconst<F>::pi_over_6) <= anglethreshold) // rest test for shift angle
+                       || (std::abs(shift.angle() - 3.0f*sm::mathconst<F>::pi_over_6) <= anglethreshold)
+                       || (std::abs(shift.angle() + 3.0f*sm::mathconst<F>::pi_over_6) <= anglethreshold)
+                       || (std::abs(shift.angle() - 5.0f*sm::mathconst<F>::pi_over_6) <= anglethreshold)
+                       || (std::abs(shift.angle() + 5.0f*sm::mathconst<F>::pi_over_6) <= anglethreshold)) {
                 overlap = this->compute_overlap_colinear();
 
             } else {
@@ -1843,38 +1930,38 @@ export namespace sm
          * Simpler overlap computation for hexes sliding along parallel edges Call this
          * after you have determined that any of the hexagon sides are colinear
          */
-        vec<float, 19> compute_overlap_colinear()
+        vec<F, 19> compute_overlap_colinear()
         {
             if constexpr (debug_hexshift) { std::cout << __FUNCTION__ << " called\n"; }
 
             // Store the hex overlap proportions in the return object
-            vec<float, 19> rtn;
+            vec<F, 19> rtn;
             rtn.zero();
 
-            float hexarea = this->hexen.begin()->get_area();
+            F hexarea = this->hexen.begin()->get_area();
 
             // Pairs of corners. Assume they don't go beyond each other.
-            vec<float, 2> n_s = s_loc - n_sft;
-            vec<float, 2> s_n = n_loc - s_sft;
+            vec<F, 2> n_s = s_loc - n_sft;
+            vec<F, 2> s_n = n_loc - s_sft;
 
-            vec<float, 2> ne_sw = sw_loc - ne_sft;
-            vec<float, 2> sw_ne = ne_loc - sw_sft;
+            vec<F, 2> ne_sw = sw_loc - ne_sft;
+            vec<F, 2> sw_ne = ne_loc - sw_sft;
 
-            vec<float, 2> se_nw = nw_loc - se_sft;
-            vec<float, 2> nw_se = se_loc - nw_sft;
+            vec<F, 2> se_nw = nw_loc - se_sft;
+            vec<F, 2> nw_se = se_loc - nw_sft;
 
             // Find the one with the minimum distance and make sure this distance is less than 2 * get_lr()
-            vec<float, 6> pps; // point to point distances
+            vec<F, 6> pps; // point to point distances
             pps[0] = n_s.length();
             pps[1] = s_n.length();
             pps[2] = ne_sw.length();
             pps[3] = sw_ne.length();
             pps[4] = se_nw.length();
             pps[5] = nw_se.length();
-            float minpp = pps.min();
-            float a1 = 0.0f;
-            float t1 = 0.0f;
-            float lr = this->get_lr();
+            F minpp = pps.min();
+            F a1 = 0.0f;
+            F t1 = 0.0f;
+            F lr = this->get_lr();
 
             if (minpp < 2.0f*lr) {
                 // Ok, one of pps is less than the long distance across a hex
@@ -1884,7 +1971,7 @@ export namespace sm
                     t1 = 0.5f * this->d * lr ;
 
                     // The overlap on adjacent hexes is a parallelogram of side lr and end dimension 2 * lr - minpp
-                    float pw = (2.0f * lr - minpp) * sm::mathconst<float>::root_3_over_2;
+                    F pw = (2.0f * lr - minpp) * sm::mathconst<F>::root_3_over_2;
 
                     // use pps.argmin to find out which of the directions the shift is in
                     std::uint32_t hidx = pps.argmin();
@@ -1948,15 +2035,15 @@ export namespace sm
         }
 
         //! Deals with another kind of "colinear overlap".
-        vec<float, 19> compute_overlap_colinear2 (const std::uint32_t _rotation)
+        vec<F, 19> compute_overlap_colinear2 (const std::uint32_t _rotation)
         {
             if constexpr (debug_hexshift) {std::cout << __FUNCTION__ << " called with rotation " << _rotation << "\n"; }
-            vec<float, 19> rtn;
+            vec<F, 19> rtn;
             rtn.zero();
-            sm::mat<float, 2> rotn = this->setup_hexoverlap_geometry (_rotation);
-            unit_60 = rotn * sm::vec<float, 2>({ 0.5f, sm::mathconst<float>::root_3_over_2 });
+            sm::mat<F, 2> rotn = this->setup_hexoverlap_geometry (_rotation);
+            unit_60 = rotn * sm::vec<F, 2>({ 0.5f, sm::mathconst<F>::root_3_over_2 });
             // Main parallelogram is defined by points p1, q1, q4.
-            float ap1 = std::abs((p1-q4).dot(unit_60)) * this->get_lr() / this->hexen.begin()->get_area();
+            F ap1 = std::abs((p1-q4).dot(unit_60)) * this->get_lr() / this->hexen.begin()->get_area();
             if constexpr (debug_hexshift) {
                 std::cout << "Place ap1="<<ap1<<" into [0] and [" << 1+_rotation << "] with remainder = 1-2ap1 = "
                           << (1.0f - 2.0f * ap1) << " going in [" << ((2+_rotation)%6) << "]\n";
@@ -1967,15 +2054,15 @@ export namespace sm
             return rtn;
         }
         //! And the other 6 permutations of colinear overlap
-        vec<float, 19> compute_overlap_colinear3 (const std::uint32_t _rotation)
+        vec<F, 19> compute_overlap_colinear3 (const std::uint32_t _rotation)
         {
             if constexpr (debug_hexshift) { std::cout << __FUNCTION__ << " called with rotation " << _rotation << "\n"; }
-            vec<float, 19> rtn;
+            vec<F, 19> rtn;
             rtn.zero();
-            sm::mat<float, 2> rotn = this->setup_hexoverlap_geometry (_rotation);
-            unit_120 = rotn * sm::vec<float, 2>({ -0.5f, sm::mathconst<float>::root_3_over_2});
+            sm::mat<F, 2> rotn = this->setup_hexoverlap_geometry (_rotation);
+            unit_120 = rotn * sm::vec<F, 2>({ -0.5f, sm::mathconst<F>::root_3_over_2});
             // Main parallelogram is defined by points p2, q2 and q3.
-            float ap1 = std::abs((p2-q3).dot(unit_120)) * this->get_lr() / this->hexen.begin()->get_area();
+            F ap1 = std::abs((p2-q3).dot(unit_120)) * this->get_lr() / this->hexen.begin()->get_area();
             if constexpr (debug_hexshift) {
                 std::cout << "Place ap1="<<ap1<<" into [0] and [" << 1+_rotation << "] with remainder = 1-2ap1 = "
                           << (1.0f - 2.0f * ap1) << " going in [" << ((2+_rotation)%6) << "]\n";
@@ -1991,17 +2078,17 @@ export namespace sm
         //! east-ish of the base hex, or is it in one of the other 5 rotationally
         //! symmetric positions? Depending on rotatation, p1-6 and q1-6 are defined in
         //! differing (but rotationally symmetric) locations.
-        sm::mat<float, 2> setup_hexoverlap_geometry (const std::uint32_t _rotation)
+        sm::mat<F, 2> setup_hexoverlap_geometry (const std::uint32_t _rotation)
         {
-            float lr = this->get_lr();
-            sm::mat<float, 2> rotn;
+            F lr = this->get_lr();
+            sm::mat<F, 2> rotn;
             // hexvectors from centre to points:
-            sm::vec<float, 2> hv_ne = { sm::mathconst<float>::root_3_over_2 * lr, 0.5f * lr };
-            sm::vec<float, 2> hv_n =  { 0, lr };
-            sm::vec<float, 2> hv_nw = {-sm::mathconst<float>::root_3_over_2 * lr, 0.5f * lr};
-            sm::vec<float, 2> hv_sw = {-sm::mathconst<float>::root_3_over_2 * lr, -0.5f * lr};
-            sm::vec<float, 2> hv_s =  { 0, -lr };
-            sm::vec<float, 2> hv_se = { sm::mathconst<float>::root_3_over_2 * lr, -0.5f * lr};
+            sm::vec<F, 2> hv_ne = { sm::mathconst<F>::root_3_over_2 * lr, 0.5f * lr };
+            sm::vec<F, 2> hv_n =  { 0, lr };
+            sm::vec<F, 2> hv_nw = {-sm::mathconst<F>::root_3_over_2 * lr, 0.5f * lr};
+            sm::vec<F, 2> hv_sw = {-sm::mathconst<F>::root_3_over_2 * lr, -0.5f * lr};
+            sm::vec<F, 2> hv_s =  { 0, -lr };
+            sm::vec<F, 2> hv_se = { sm::mathconst<F>::root_3_over_2 * lr, -0.5f * lr};
 
             switch (_rotation) {
             case 0:
@@ -2023,7 +2110,7 @@ export namespace sm
             {
                 p1 = nw_loc; q1 = n_loc; p2 = sw_sft; q2 = nw_sft;
                 p3 = ne_loc; q3 = se_loc; p4 = se_sft; q4 = s_sft;
-                rotn.rotate (sm::mathconst<float>::pi_over_3);
+                rotn.rotate (sm::mathconst<F>::pi_over_3);
                 p5 = n_sft;
                 p6 = n_loc + hv_n + hv_nw;
                 q6 = n_loc + hv_n; q5 = nw_loc + hv_nw + hv_n;
@@ -2036,7 +2123,7 @@ export namespace sm
             {
                 p1 = sw_loc; q1 = nw_loc; p2 = s_sft; q2 = sw_sft;
                 p3 = n_loc; q3 = ne_loc; p4 = ne_sft; q4 = se_sft;
-                rotn.rotate (sm::mathconst<float>::two_pi_over_3);
+                rotn.rotate (sm::mathconst<F>::two_pi_over_3);
                 p5 = nw_sft;
                 p6 = nw_loc + hv_nw + hv_sw;
                 q6 = nw_loc + hv_nw; q5 = sw_loc + hv_sw + hv_nw;
@@ -2049,7 +2136,7 @@ export namespace sm
             {
                 p1 = s_loc; q1 = sw_loc; p2 = se_sft; q2 = s_sft;
                 p3 = nw_loc; q3 = n_loc; p4 = n_sft; q4 = ne_sft;
-                rotn.rotate (sm::mathconst<float>::pi);
+                rotn.rotate (sm::mathconst<F>::pi);
                 p5 = sw_sft;
                 p6 = sw_loc + hv_sw + hv_s;
                 q6 = sw_loc + hv_sw; q5 = s_loc + hv_s + hv_sw;
@@ -2062,7 +2149,7 @@ export namespace sm
             {
                 p1 = se_loc; q1 = s_loc; p2 = ne_sft; q2 = se_sft;
                 p3 = sw_loc; q3 = nw_loc; p4 = nw_sft; q4 = n_sft;
-                rotn.rotate (sm::mathconst<float>::four_pi_over_3);
+                rotn.rotate (sm::mathconst<F>::four_pi_over_3);
                 p5 = s_sft;
                 p6 = s_loc + hv_s + hv_se;
                 q6 = s_loc + hv_s; q5 = se_loc + hv_se + hv_s;
@@ -2075,7 +2162,7 @@ export namespace sm
             {
                 p1 = ne_loc; q1 = se_loc; p2 = n_sft; q2 = ne_sft;
                 p3 = s_loc; q3 = sw_loc; p4 = sw_sft; q4 = nw_sft;
-                rotn.rotate (sm::mathconst<float>::five_pi_over_3);
+                rotn.rotate (sm::mathconst<F>::five_pi_over_3);
                 p5 = se_sft;
                 p6 = se_loc + hv_se + hv_ne;
                 q6 = se_loc + hv_se; q5 = ne_loc + hv_ne + hv_se;
@@ -2091,32 +2178,32 @@ export namespace sm
 
         // Like compute_overlap_far, but with one edge parallel to the east edge of the
         // base hex.
-        vec<float, 19> compute_overlap_far2 (const std::uint32_t _rotation)
+        vec<F, 19> compute_overlap_far2 (const std::uint32_t _rotation)
         {
             if constexpr (debug_hexshift) { std::cout << __FUNCTION__ << " called\n"; }
 
-            sm::mat<float, 2> rotn = this->setup_hexoverlap_geometry (_rotation);
+            sm::mat<F, 2> rotn = this->setup_hexoverlap_geometry (_rotation);
 
             // basis vectors
-            unit_150 = { -sm::mathconst<float>::root_3_over_2, 0.5f };
-            unit_60 = { 0.5f, sm::mathconst<float>::root_3_over_2 };
-            vec<float, 2> uvh = {1.0f, 0.0f};
+            unit_150 = { -sm::mathconst<F>::root_3_over_2, 0.5f };
+            unit_60 = { 0.5f, sm::mathconst<F>::root_3_over_2 };
+            vec<F, 2> uvh = {1.0f, 0.0f};
 
             // Rotate 'em
             unit_60 = rotn * unit_60;
             unit_150 = rotn * unit_150;
             uvh = rotn * uvh;
 
-            float hex_area = this->hexen.begin()->get_area();
-            float lr = this->get_lr();
+            F hex_area = this->hexen.begin()->get_area();
+            F lr = this->get_lr();
 
             // Variables to hold the areas of rectangles a1 and a2 and triangles t1 and t2.
-            float a1 = 0.0f;
-            float t1 = 0.0f;
-            float t2 = 0.0f;
-            float a2 = 0.0f;
+            F a1 = 0.0f;
+            F t1 = 0.0f;
+            F t2 = 0.0f;
+            F a2 = 0.0f;
 
-            vec<float, 19> rtn;
+            vec<F, 19> rtn;
             rtn.zero();
 
             // Compute relevant intersections. After this, the computation is same as in
@@ -2132,11 +2219,11 @@ export namespace sm
             } // +ve means "to right". Leave true if not right or left.
 
             // Top parallelogram defined by i1, p2 and q6
-            float ap1 = std::abs((q6-i1).dot(uvh)) * (i1-p2).length() / hex_area;
+            F ap1 = std::abs((q6-i1).dot(uvh)) * (i1-p2).length() / hex_area;
             rtn[1+(1+_rotation)%6] = ap1; // [2 3 4 5 6 1]
 
             // Bottom right parallelogram is i5, p8 and q7
-            float ap2 = std::abs((q7-i5).dot(uvh)) * (i5-p8).length() / hex_area;
+            F ap2 = std::abs((q7-i5).dot(uvh)) * (i5-p8).length() / hex_area;
             rtn[(_rotation*2)+8] = ap2;
 
             // Now the 'two triangles and a rectangle.
@@ -2145,7 +2232,7 @@ export namespace sm
 
             if (i5_to_right == false) {
                 // different set of points. i5 is the new i1
-                sm::vec<float, 2> tmp = i1; i1 = i5; i5 = tmp;
+                sm::vec<F, 2> tmp = i1; i1 = i5; i5 = tmp;
                 a1_tl = p4;
                 a1_bl = q4;
                 // Also unit_150/unit_60 have to be swapped
@@ -2166,8 +2253,8 @@ export namespace sm
             i6 = i5 + unit_150 * (2.0f * (i1-a1_tl).dot(unit_150) + lr);
 
             // Rectangle a1 area
-            float vside = lr;
-            float hside = (i2 - a1_tl).length();
+            F vside = lr;
+            F hside = (i2 - a1_tl).length();
             a1 = vside * hside;
 
             // Area of top triangle is defined by the points i1, i2 and a1_tl
@@ -2185,7 +2272,7 @@ export namespace sm
                 a2 = (i1-i4).length() * std::abs((i5-i1).dot(unit_60));
             }
 
-            float ov_area_prop = ((a1 + t1 + t2) * 2.0f + a2) / hex_area;
+            F ov_area_prop = ((a1 + t1 + t2) * 2.0f + a2) / hex_area;
 
             rtn[1+_rotation] = ov_area_prop;
 
@@ -2200,19 +2287,19 @@ export namespace sm
         // edge case. If the shift goes beyond this, the base hex is shifted by another
         // full hex in the r or g directions. This has one edge parallel to the NE edge
         // of the base hex.
-        vec<float, 19> compute_overlap_far (const std::uint32_t _rotation)
+        vec<F, 19> compute_overlap_far (const std::uint32_t _rotation)
         {
             if constexpr (debug_hexshift) { std::cout << __FUNCTION__ << " called rotation " << _rotation << "\n"; }
 
             // We'll want a unit vector in the vertical direction that we can rotate
-            vec<float, 2> uvv = {0.0f, 1.0f};
-            vec<float, 2> uvh = {1.0f, 0.0f};
+            vec<F, 2> uvv = {0.0f, 1.0f};
+            vec<F, 2> uvh = {1.0f, 0.0f};
             // Unit vector in 60 degree direction
-            unit_60 = {0.5f, sm::mathconst<float>::root_3_over_2};
-            unit_300 = {0.5f, -sm::mathconst<float>::root_3_over_2};
+            unit_60 = {0.5f, sm::mathconst<F>::root_3_over_2};
+            unit_300 = {0.5f, -sm::mathconst<F>::root_3_over_2};
 
-            sm::mat<float, 2> rotn = this->setup_hexoverlap_geometry (_rotation);
-            float hex_area = this->hexen.begin()->get_area();
+            sm::mat<F, 2> rotn = this->setup_hexoverlap_geometry (_rotation);
+            F hex_area = this->hexen.begin()->get_area();
 
             // Rotate our basis vectors
             uvv = rotn * uvv;
@@ -2221,10 +2308,10 @@ export namespace sm
             unit_300 = rotn * unit_300;
 
             // Variables to hold the areas of rectangles a1 and a2 and triangles t1 and t2.
-            float a1 = 0.0f;
-            float t1 = 0.0f;
-            float t2 = 0.0f;
-            float a2 = 0.0f;
+            F a1 = 0.0f;
+            F t1 = 0.0f;
+            F t2 = 0.0f;
+            F a2 = 0.0f;
 
             // Compute relevant intersections. After this, the computation is same as in
             // compute_overlap(). Difference is the elements in the return vector into
@@ -2248,14 +2335,14 @@ export namespace sm
             // overlap with the hex to the NE, the one to the east and the one to the
             // south east. With rotations, these will cycle around.
             // NE. Parallelogram defined by i1 (red), pll1_br (q1) (green), pll1_top (q2) (blue).
-            float ap1 = std::abs((pll1_top-i1).dot(unit_60)) * (pll1_br-i1).length() / hex_area;
+            F ap1 = std::abs((pll1_top-i1).dot(unit_60)) * (pll1_br-i1).length() / hex_area;
 
             // SE. Parallelogram defined by i5 (black), p3 (blue) and p4 (green)
-            float ap2 = std::abs((pll2_bot-i5).dot(unit_300)) * (pll2_tr-i5).length() / hex_area;
+            F ap2 = std::abs((pll2_bot-i5).dot(unit_300)) * (pll2_tr-i5).length() / hex_area;
 
             if (i5_to_right == false) {
                 // different set of points. i5 is the new i1
-                sm::vec<float, 2> tmp = i1; i1 = i5; i5 = tmp;
+                sm::vec<F, 2> tmp = i1; i1 = i5; i5 = tmp;
                 // uvv now has to reverse direction
                 uvv = -uvv;
                 // q4 is the new p2
@@ -2276,8 +2363,8 @@ export namespace sm
             i6 = i5 + uvv * (2.0f * (i1-a1_tl).dot(uvv) + this->hexen.begin()->get_lr());
 
             // Rectangle a1 area
-            float vside = d * sm::mathconst<float>::one_over_root_3;
-            float hside = (i2 - a1_tl).length();
+            F vside = d * sm::mathconst<F>::one_over_root_3;
+            F hside = (i2 - a1_tl).length();
             a1 = vside * hside;
 
             // Area of top triangle is defined by the points i1, i2 and p2
@@ -2297,10 +2384,10 @@ export namespace sm
                 a2 = (i1-i4).length() * std::abs((i5-i1).dot(uvh));
             }
 
-            float ov_area_prop = ((a1 + t1 + t2) * 2.0f + a2) / hex_area;
+            F ov_area_prop = ((a1 + t1 + t2) * 2.0f + a2) / hex_area;
 
             // Store the overlap proportion in the return object
-            vec<float, 19> rtn;
+            vec<F, 19> rtn;
             rtn.zero();
             rtn[2+_rotation] = ov_area_prop;
 
@@ -2321,19 +2408,19 @@ export namespace sm
          * increment. _rotation=0 means 0 degrees; _rotation=1 means 60 degrees
          * anticlockwise, and so on.
          */
-        vec<float, 19> compute_overlap (const std::uint32_t _rotation)
+        vec<F, 19> compute_overlap (const std::uint32_t _rotation)
         {
             if constexpr (debug_hexshift) { std::cout << __FUNCTION__ << " called for rotation=" << _rotation << "\n"; }
 
             // We'll want a unit vector in the vertical direction that we can rotate
-            vec<float, 2> uvv = {0.0f, 1.0f};
-            vec<float, 2> uvh = {1.0f, 0.0f};
+            vec<F, 2> uvv = {0.0f, 1.0f};
+            vec<F, 2> uvh = {1.0f, 0.0f};
             // Unit vector in 60 degree direction
-            unit_60 = {0.5f, sm::mathconst<float>::root_3_over_2};
-            unit_300 = {0.5f, -sm::mathconst<float>::root_3_over_2};
+            unit_60 = {0.5f, sm::mathconst<F>::root_3_over_2};
+            unit_300 = {0.5f, -sm::mathconst<F>::root_3_over_2};
 
-            sm::mat<float, 2> rotn = this->setup_hexoverlap_geometry (_rotation);
-            float hex_area = this->hexen.begin()->get_area();
+            sm::mat<F, 2> rotn = this->setup_hexoverlap_geometry (_rotation);
+            F hex_area = this->hexen.begin()->get_area();
 
             // Rotate our basis vectors
             uvv = rotn * uvv;
@@ -2342,10 +2429,10 @@ export namespace sm
             unit_300 = rotn * unit_300;
 
             // Variables to hold the areas of rectangles a1 and a2 and triangles t1 and t2.
-            float a1 = 0.0f;
-            float t1 = 0.0f;
-            float t2 = 0.0f;
-            float a2 = 0.0f;
+            F a1 = 0.0f;
+            F t1 = 0.0f;
+            F t2 = 0.0f;
+            F a2 = 0.0f;
 
             // Compute the relevant intersections
             i1 = this->intersection (p1, q1, p2, q2);
@@ -2365,17 +2452,17 @@ export namespace sm
 
             // Does this go before or after the swapping stuff bit??
             // NE. Parallelogram defined by i1 (red), pll1_br (q1) (green), pll1_top (q2) (blue).
-            float ap1 = std::abs((pll1_top-i1).dot(unit_60)) * (pll1_br-i1).length() / hex_area;
+            F ap1 = std::abs((pll1_top-i1).dot(unit_60)) * (pll1_br-i1).length() / hex_area;
             if constexpr (debug_hexshift) { std::cout << "'NW' parallelogram ap1: " << ap1 << std::endl; }
 
             // SE. Parallelogram defined by i5 (black), p3 (blue) and p4 (green)
-            float ap2 = std::abs((pll2_bot-i5).dot(unit_300)) * (pll2_tr-i5).length() / hex_area;
+            F ap2 = std::abs((pll2_bot-i5).dot(unit_300)) * (pll2_tr-i5).length() / hex_area;
             if constexpr (debug_hexshift) { std::cout << "'SE' parallelogram ap2: " << ap2 << std::endl; }
 
             if (i5_to_right == false) {
                 if constexpr (debug_hexshift) { std::cout << "to right is false, swapping stuff...\n"; }
                 // different set of points. i5 is the new i1
-                sm::vec<float, 2> tmp = i1; i1 = i5; i5 = tmp;
+                sm::vec<F, 2> tmp = i1; i1 = i5; i5 = tmp;
                 // uvv/uvh now have to reverse direction
                 uvv = -uvv;
                 // q4 is the new p2
@@ -2387,7 +2474,7 @@ export namespace sm
                 unit_300 = tmp;
             }
 
-            float lr = this->get_lr();
+            F lr = this->get_lr();
             // Now reason out i2, i3 and i4.
             i2 = i1 - uvv * (i1-a1_tl).dot(uvv);
             i3 = i1 - uvv * ((i1-a1_tl).dot(uvv) + lr);
@@ -2397,8 +2484,8 @@ export namespace sm
             i6 = i5 + uvv * (2.0f * (i1-a1_tl).dot(uvv) + lr);
 
             // Rectangle a1 area
-            float vside = lr;
-            float hside = (i2-a1_tl).length();
+            F vside = lr;
+            F hside = (i2-a1_tl).length();
             a1 = vside * hside;
             // Area of top triangle is defined by the points i1, i2 and p2
             vside = (i1-i2).length();
@@ -2416,11 +2503,11 @@ export namespace sm
                 a2 = (i1-i4).length() * std::abs((i5-i1).dot(uvh));
             }
 
-            float ov_area_prop = ((a1 + t1 + t2) * 2.0f + a2) / hex_area;
+            F ov_area_prop = ((a1 + t1 + t2) * 2.0f + a2) / hex_area;
             //std::cout << "Triangles and rectangles: " << ov_area_prop << "\n";
 
             // Store the overlap proportion in the return object
-            vec<float, 19> rtn;
+            vec<F, 19> rtn;
             rtn.zero();
             rtn[0] = ov_area_prop;
 
@@ -2445,24 +2532,24 @@ export namespace sm
 
         // Similar to compute_overlap(), but slightly permuted. This is called when the
         // shifted hex overlaps on by 'one corner'.
-        vec<float, 19> compute_overlap_corner (const std::uint32_t _rotation)
+        vec<F, 19> compute_overlap_corner (const std::uint32_t _rotation)
         {
             if constexpr (debug_hexshift) { std::cout << __FUNCTION__ << " called rotation: " << _rotation << "\n"; }
 
-            vec<float, 19> rtn;
+            vec<F, 19> rtn;
             rtn.zero();
 
             // Unit vectors
-            vec<float, 2> uvv = {0.0f, 1.0f};
-            vec<float, 2> unit_240 = {-0.5f, -sm::mathconst<float>::root_3_over_2};
-            vec<float, 2> unit_120 = { -0.5f, sm::mathconst<float>::root_3_over_2};
-            vec<float, 2> unit_30 = { sm::mathconst<float>::root_3_over_2, 0.5f };
-            vec<float, 2> unit_210 = { -sm::mathconst<float>::root_3_over_2, -0.5f };
+            vec<F, 2> uvv = {0.0f, 1.0f};
+            vec<F, 2> unit_240 = {-0.5f, -sm::mathconst<F>::root_3_over_2};
+            vec<F, 2> unit_120 = { -0.5f, sm::mathconst<F>::root_3_over_2};
+            vec<F, 2> unit_30 = { sm::mathconst<F>::root_3_over_2, 0.5f };
+            vec<F, 2> unit_210 = { -sm::mathconst<F>::root_3_over_2, -0.5f };
 
             // hex long radius/edge length
-            float lr = this->get_lr();
+            F lr = this->get_lr();
 
-            sm::mat<float, 2> rotn = this->setup_hexoverlap_geometry (_rotation);
+            sm::mat<F, 2> rotn = this->setup_hexoverlap_geometry (_rotation);
 
             // Rotate our basis vector(s)
             uvv = rotn * uvv;
@@ -2472,12 +2559,12 @@ export namespace sm
             unit_210 = rotn * unit_210;
 
             // Variables to hold the areas of rectangles a1 and a2 and triangles t1 and t2.
-            float a1 = 0.0f;
-            float t1 = 0.0f;
-            float t2 = 0.0f;
-            float a2 = 0.0f;
+            F a1 = 0.0f;
+            F t1 = 0.0f;
+            F t2 = 0.0f;
+            F a2 = 0.0f;
 
-            float hex_area = this->hexen.begin()->get_area();
+            F hex_area = this->hexen.begin()->get_area();
 
             // Compute relevant intersections
             i5 = this->intersection (p1, q1, p2, q4);
@@ -2490,11 +2577,11 @@ export namespace sm
             }
 
             // Near Parallelogram defined by i5, q4 and q1.
-            float ap1 = std::abs((q4-i5).dot(unit_240)) * (i5-q1).length() / hex_area;
+            F ap1 = std::abs((q4-i5).dot(unit_240)) * (i5-q1).length() / hex_area;
             rtn[0] = ap1;
 
             // Far parallelogram defined by i1, p5 and q6.
-            float ap2 = std::abs((q6-i1).dot(unit_240)) * (i1-p5).length() / hex_area;
+            F ap2 = std::abs((q6-i1).dot(unit_240)) * (i1-p5).length() / hex_area;
             rtn[7+(2 * _rotation+2)%12] = ap2;
 
             // Usually, top left of rectangle a1 is q2
@@ -2503,7 +2590,7 @@ export namespace sm
 
             if (i5_to_left == true) {
                 // different set of points. i5 is the new i1
-                sm::vec<float, 2> tmp = i1; i1 = i5; i5 = tmp;
+                sm::vec<F, 2> tmp = i1; i1 = i5; i5 = tmp;
                 // uvv/uvh now have to reverse direction
                 // uvh = -uvh;  // uvv not reversed
                 // q4 is the new p2
@@ -2527,8 +2614,8 @@ export namespace sm
             i6 = i5 + unit_30 * (2.0f * (i1-a1_tl).dot(unit_30) + lr);
 
             // Rectangle a1 area
-            float vside = lr;
-            float hside = (i2 - a1_tl).length();
+            F vside = lr;
+            F hside = (i2 - a1_tl).length();
             a1 = vside * hside;
 
             // Area of top triangle is defined by the points i1, i2 and p2
@@ -2547,11 +2634,11 @@ export namespace sm
                 a2 = (i1-i4).length() * std::abs((i5-i1).dot(unit_120));
             }
 
-            float ov_area_prop = ((a1 + t1 + t2) * 2.0f + a2) / hex_area;
+            F ov_area_prop = ((a1 + t1 + t2) * 2.0f + a2) / hex_area;
             rtn[1+(1+_rotation)%6] = ov_area_prop; // [2 3 4 5 6 1]
 
             // The area remainder goes in [1 2 3 4 5 6]
-            float rem_prop = 1.0f - ov_area_prop - ap1 - ap2;
+            F rem_prop = 1.0f - ov_area_prop - ap1 - ap2;
             rtn[1+_rotation] = rem_prop;
 
             return rtn;
@@ -2566,9 +2653,9 @@ export namespace sm
 
             // Find furthest SW hex
             bool first = true;
-            std::array<float, 4> limits = {{0,0,0,0}};
+            std::array<F, 4> limits = {{0,0,0,0}};
             auto h = this->hexen.begin();
-            std::list<hex>::iterator bl_hex = this->hexen.begin();
+            typename std::list<sm::hex<F>>::iterator bl_hex = this->hexen.begin();
             while (h != this->hexen.end()) {
                 if (h->test_flags(sm::HEX_IS_BOUNDARY) == true) {
                     if (first) {
@@ -2586,12 +2673,12 @@ export namespace sm
             //std::cout << "Bottom left hex is " << bl_hex->output_cart() << std::endl;
 
             std::int32_t count = 0;
-            std::list<hex>::iterator row_start = bl_hex;
+            typename std::list<sm::hex<F>>::iterator row_start = bl_hex;
             if (on_r) {
                 // go to end of each row and wrap back to the start. This may only work
                 // for parallelograms, at least in an initial implementation.
                 // First row
-                std::list<hex>::iterator cur_hex = row_start;
+                typename std::list<sm::hex<F>>::iterator cur_hex = row_start;
                 while (cur_hex->has_ne()) { cur_hex = cur_hex->ne; }
                 cur_hex->set_ne(bl_hex);
                 bl_hex->set_nw(cur_hex);
@@ -2612,11 +2699,11 @@ export namespace sm
                 }
             }
 
-            std::list<hex>::iterator col_start = bl_hex;
+            typename std::list<sm::hex<F>>::iterator col_start = bl_hex;
             std::int32_t vcount = 0;
             if (on_g) { // scan up columns in the 'G' direction
                 // First col
-                std::list<hex>::iterator cur_hex = col_start;
+                typename std::list<sm::hex<F>>::iterator cur_hex = col_start;
                 while (cur_hex->has_nne()) { cur_hex = cur_hex->nne; ++vcount; }
                 cur_hex->set_nne (bl_hex);
                 bl_hex->set_nsw (cur_hex);
@@ -2650,7 +2737,7 @@ export namespace sm
             // Final scan across to set se neighbours of end rows and nw neighbours of start rows.
             row_start = bl_hex;
             if (on_r && on_g) {
-                std::list<hex>::iterator cur_hex = row_start;
+                typename std::list<sm::hex<F>>::iterator cur_hex = row_start;
                 // First row
                 for (std::int32_t i = 0; i < count; ++i) { cur_hex = cur_hex->ne; }
                 row_start->set_nnw(cur_hex->nne);
@@ -2669,19 +2756,19 @@ export namespace sm
         /*!
          * The list of hexes that make up this hexgrid.
          */
-        std::list<hex> hexen;
+        std::list<sm::hex<F>> hexen;
 
         /*!
          * Once boundary secured, fill this vector. Experimental - can I do parallel
          * loops with vectors of hexes? Ans: Not very well.
          */
-        std::vector<hex*> vhexen;
+        std::vector<sm::hex<F>*> vhexen;
 
         /*!
          * While determining if boundary is continuous, fill this maps container of
          * hexes.
          */
-        std::list<const hex*> bhexen; // Not better as a separate list<hex>?
+        std::list<const sm::hex<F>*> bhexen; // Not better as a separate list<sm::hex<F>>?
 
         /*!
          * Store the centroid of the boundary path. The centroid of a read-in
@@ -2690,13 +2777,13 @@ export namespace sm
          * is expressed in the hexgrid will have a (2D) centroid of roughly
          * (0,0). Hence, this is usually roughly (0,0).
          */
-        sm::vec<float, 2> boundary_centroid = {0.0f, 0.0f};
+        sm::vec<F, 2> boundary_centroid = {0.0f, 0.0f};
 
         /*!
          * Holds the centroid of the boundary before all points on the boundary were
          * translated so that the centroid of the boundary would be 0,0
          */
-        sm::vec<float, 2> original_boundary_centroid = {0.0f, 0.0f};
+        sm::vec<F, 2> original_boundary_centroid = {0.0f, 0.0f};
 
     private:
         /*!
@@ -2707,7 +2794,7 @@ export namespace sm
         void init()
         {
             // Use span_x to determine how many rings out to traverse.
-            float half_x = this->x_span / 2.0f;
+            F half_x = this->x_span / 2.0f;
             std::uint32_t max_ring = std::abs (std::ceil (half_x / this->d));
 
             // "Creating hexagonal hex grid with max_ring: " << max_ring
@@ -2718,12 +2805,12 @@ export namespace sm
             // Vectors of list-iterators to hexes in this->hexen. Used to keep a track of nearest
             // neighbours. I'm using vector, rather than a list as this allows fast random access of
             // elements and I'll not be inserting or erasing in the middle of the arrays.
-            std::vector<std::list<sm::hex>::iterator> prev_ring_even;
-            std::vector<std::list<sm::hex>::iterator> prev_ring_odd;
+            std::vector<typename std::list<sm::hex<F>>::iterator> prev_ring_even;
+            std::vector<typename std::list<sm::hex<F>>::iterator> prev_ring_odd;
 
             // Swap pointers between rings.
-            std::vector<std::list<sm::hex>::iterator>* prev_ring = &prev_ring_even;
-            std::vector<std::list<sm::hex>::iterator>* next_prev_ring = &prev_ring_odd;
+            std::vector<typename std::list<sm::hex<F>>::iterator>* prev_ring = &prev_ring_even;
+            std::vector<typename std::list<sm::hex<F>>::iterator>* next_prev_ring = &prev_ring_odd;
 
             // Direction iterators used in the loop for creating hexes
             std::int32_t ri = 0;
@@ -2734,7 +2821,7 @@ export namespace sm
 
             // Put central ring in the prev_ring vector:
             {
-                std::list<sm::hex>::iterator h = this->hexen.end(); --h;
+                typename std::list<sm::hex<F>>::iterator h = this->hexen.end(); --h;
                 prev_ring->push_back (h);
             }
 
@@ -3063,7 +3150,7 @@ export namespace sm
                 ring_side_len++;
 
                 // Swap prev_ring and next_prev_ring.
-                std::vector<std::list<sm::hex>::iterator>* tmp = prev_ring;
+                std::vector<typename std::list<sm::hex<F>>::iterator>* tmp = prev_ring;
                 prev_ring = next_prev_ring;
                 next_prev_ring = tmp;
             }
@@ -3077,28 +3164,28 @@ export namespace sm
          *
          * \return An iterator into hexgrid::hexen which refers to the closest hex to \a point.
          */
-        std::list<sm::hex>::iterator set_boundary (const sm::bezcoord<float>& point,
-                                                   std::list<sm::hex>::iterator start_from)
+        std::list<sm::hex<F>>::iterator set_boundary (const sm::bezcoord<F>& point,
+                                                      std::list<sm::hex<F>>::iterator start_from)
         {
-            std::list<sm::hex>::iterator h = this->find_hex_near_point (point, start_from);
+            typename std::list<sm::hex<F>>::iterator h = this->find_hex_near_point (point, start_from);
             h->set_flag (sm::HEX_IS_BOUNDARY | sm::HEX_INSIDE_BOUNDARY);
             return h;
         }
 
         /*!
          * Determine whether the boundary is contiguous. Whilst doing so, populate a
-         * list<hex> containing just the boundary hexes.
+         * list<sm::hex<F>> containing just the boundary hexes.
          */
         bool boundary_contiguous()
         {
             this->bhexen.clear();
-            std::list<sm::hex>::const_iterator bhi = this->hexen.begin();
+            typename std::list<sm::hex<F>>::const_iterator bhi = this->hexen.begin();
             if (this->find_boundaryhex (bhi) == false) {
                 // Found no boundary hex
                 return false;
             }
             std::set<std::uint32_t> seen;
-            std::list<sm::hex>::const_iterator hi = bhi;
+            typename std::list<sm::hex<F>>::const_iterator hi = bhi;
             return this->boundary_contiguous (bhi, hi, seen);
         }
 
@@ -3109,11 +3196,11 @@ export namespace sm
          * The overload with bhexes takes a list of hex pointers and populates it with
          * pointers to the hexes on the boundary.
          */
-        bool boundary_contiguous (std::list<hex>::const_iterator bhi,
-                                  std::list<hex>::const_iterator hi, std::set<std::uint32_t>& seen)
+        bool boundary_contiguous (std::list<sm::hex<F>>::const_iterator bhi,
+                                  std::list<sm::hex<F>>::const_iterator hi, std::set<std::uint32_t>& seen)
         {
             bool rtn = false;
-            std::list<sm::hex>::const_iterator hi_next;
+            typename std::list<sm::hex<F>>::const_iterator hi_next;
             seen.insert (hi->vi);
             // Insert into the std::list of hex pointers, too
             this->bhexen.push_back (&(*hi));
@@ -3160,9 +3247,9 @@ export namespace sm
          * region, extract the pointers to all the hexes in that region and store that
          * information for later use.
          */
-        std::list<hex>::iterator set_region_boundary (const bezcoord<float>& point, std::list<hex>::iterator start_from)
+        std::list<sm::hex<F>>::iterator set_region_boundary (const bezcoord<F>& point, std::list<sm::hex<F>>::iterator start_from)
         {
-            std::list<sm::hex>::iterator h = this->find_hex_near_point (point, start_from);
+            typename std::list<sm::hex<F>>::iterator h = this->find_hex_near_point (point, start_from);
             h->set_flag (sm::HEX_IS_REGION_BOUNDARY | sm::HEX_INSIDE_REGION);
             return h;
         }
@@ -3171,11 +3258,11 @@ export namespace sm
          * Determine whether the region boundary is contiguous, starting from the
          * boundary hex iterator #bhi.
          */
-        bool region_boundary_contiguous (std::list<hex>::const_iterator bhi,
-                                         std::list<hex>::const_iterator hi, std::set<std::uint32_t>& seen)
+        bool region_boundary_contiguous (std::list<sm::hex<F>>::const_iterator bhi,
+                                         std::list<sm::hex<F>>::const_iterator hi, std::set<std::uint32_t>& seen)
         {
             bool rtn = false;
-            std::list<sm::hex>::const_iterator hi_next;
+            typename std::list<sm::hex<F>>::const_iterator hi_next;
             seen.insert (hi->vi);
             // Insert into the list of hex pointers, too
             this->bhexen.push_back (&(*hi));
@@ -3218,7 +3305,7 @@ export namespace sm
          * assumes that set_boundary (const bezcurvepath&) has been called to mark the
          * hexes that lie on the boundary.
          */
-        bool find_boundaryhex (std::list<hex>::const_iterator& hi) const
+        bool find_boundaryhex (std::list<sm::hex<F>>::const_iterator& hi) const
         {
             if (hi->test_flags(sm::HEX_IS_BOUNDARY) == true) {
                 // No need to change the hex iterator
@@ -3226,42 +3313,42 @@ export namespace sm
             }
 
             if (hi->has_ne()) {
-                std::list<sm::hex>::const_iterator ci(hi->ne);
+                typename std::list<sm::hex<F>>::const_iterator ci(hi->ne);
                 if (this->find_boundaryhex (ci) == true) {
                     hi = ci;
                     return true;
                 }
             }
             if (hi->has_nne()) {
-                std::list<sm::hex>::const_iterator ci(hi->nne);
+                typename std::list<sm::hex<F>>::const_iterator ci(hi->nne);
                 if (this->find_boundaryhex (ci) == true) {
                     hi = ci;
                     return true;
                 }
             }
             if (hi->has_nnw()) {
-                std::list<sm::hex>::const_iterator ci(hi->nnw);
+                typename std::list<sm::hex<F>>::const_iterator ci(hi->nnw);
                 if (this->find_boundaryhex (ci) == true) {
                     hi = ci;
                     return true;
                 }
             }
             if (hi->has_nw()) {
-                std::list<sm::hex>::const_iterator ci(hi->nw);
+                typename std::list<sm::hex<F>>::const_iterator ci(hi->nw);
                 if (this->find_boundaryhex (ci) == true) {
                     hi = ci;
                     return true;
                 }
             }
             if (hi->has_nsw()) {
-                std::list<sm::hex>::const_iterator ci(hi->nsw);
+                typename std::list<sm::hex<F>>::const_iterator ci(hi->nsw);
                 if (this->find_boundaryhex (ci) == true) {
                     hi = ci;
                     return true;
                 }
             }
             if (hi->has_nse()) {
-                std::list<sm::hex>::const_iterator ci(hi->nse);
+                typename std::list<sm::hex<F>>::const_iterator ci(hi->nse);
                 if (this->find_boundaryhex (ci) == true) {
                     hi = ci;
                     return true;
@@ -3275,13 +3362,13 @@ export namespace sm
          * Find the hex near @point, starting from start_from, which should be as close
          * as possible to point in order to reduce computation time.
          */
-        std::list<hex>::iterator find_hex_near_point (const bezcoord<float>& point, std::list<hex>::iterator start_from)
+        std::list<sm::hex<F>>::iterator find_hex_near_point (const bezcoord<F>& point, std::list<sm::hex<F>>::iterator start_from)
         {
             bool neighbour_nearer = true;
 
-            std::list<sm::hex>::iterator h = start_from;
-            float dmin = h->distance_from (point);
-            float dcur = 0.0f;
+            typename std::list<sm::hex<F>>::iterator h = start_from;
+            F dmin = h->distance_from (point);
+            F dcur = 0.0f;
 
             while (neighbour_nearer == true) {
 
@@ -3332,7 +3419,7 @@ export namespace sm
          * By changing \a bdry_flag and \a inside_flag, it's possible to use this method
          * with region boundaries.
          */
-        void mark_from_boundary (std::list<hex>::iterator hi,
+        void mark_from_boundary (std::list<sm::hex<F>>::iterator hi,
                                  std::uint32_t bdry_flag = sm::HEX_IS_BOUNDARY,
                                  std::uint32_t inside_flag = sm::HEX_INSIDE_BOUNDARY)
         {
@@ -3350,7 +3437,7 @@ export namespace sm
          * By changing \a bdry_flag and \a inside_flag, it's possible to use this method
          * with region boundaries.
          */
-        void mark_from_boundary (std::list<hex*>::iterator hi,
+        void mark_from_boundary (std::list<sm::hex<F>*>::iterator hi,
                                  std::uint32_t bdry_flag = sm::HEX_IS_BOUNDARY,
                                  std::uint32_t inside_flag = sm::HEX_INSIDE_BOUNDARY)
         {
@@ -3368,13 +3455,13 @@ export namespace sm
          * By changing \a bdry_flag and \a inside_flag, it's possible to use this method
          * with region boundaries.
          */
-        void mark_from_boundary (sm::hex* hi,
+        void mark_from_boundary (sm::hex<F>* hi,
                                  std::uint32_t bdry_flag = sm::HEX_IS_BOUNDARY,
                                  std::uint32_t inside_flag = sm::HEX_INSIDE_BOUNDARY)
         {
             // Find a marked-inside hex next to this boundary hex. This will be the first direction to mark
             // a line of inside hexes in.
-            std::list<sm::hex>::iterator first_inside = this->hexen.begin();
+            typename std::list<sm::hex<F>>::iterator first_inside = this->hexen.begin();
             std::uint16_t firsti = 0;
             for (std::uint16_t i = 0; i < 6; ++i) {
                 if (hi->has_neighbour(i)
@@ -3413,13 +3500,13 @@ export namespace sm
         /*!
          * Common code used by mark_from_boundary()
          */
-        void mark_from_boundary_common (std::list<hex>::iterator first_inside, std::uint16_t firsti,
+        void mark_from_boundary_common (std::list<sm::hex<F>>::iterator first_inside, std::uint16_t firsti,
                                         std::uint32_t bdry_flag = sm::HEX_IS_BOUNDARY,
                                         std::uint32_t inside_flag = sm::HEX_INSIDE_BOUNDARY)
         {
             // From the "first inside the boundary hex" head in the direction specified by firsti until a
             // boundary hex is reached.
-            std::list<sm::hex>::iterator straight = first_inside;
+            typename std::list<sm::hex<F>>::iterator straight = first_inside;
 
             while (straight->test_flags(bdry_flag) == false) {
                 // Set inside_boundary true
@@ -3471,8 +3558,8 @@ export namespace sm
          *
          * \return true if a next boundary neighbour was found, false otherwise.
          */
-        bool find_next_boundary_neighbour (std::list<hex>::iterator& bhi,
-                                           std::deque<std::list<hex>::iterator>& recently_seen,
+        bool find_next_boundary_neighbour (std::list<sm::hex<F>>::iterator& bhi,
+                                           std::deque<typename std::list<sm::hex<F>>::iterator>& recently_seen,
                                            std::uint32_t n_recents = 2U,
                                            std::uint32_t bdry_flag = sm::HEX_IS_BOUNDARY,
                                            std::uint32_t inside_flag = sm::HEX_INSIDE_BOUNDARY) const
@@ -3486,7 +3573,7 @@ export namespace sm
                 if (bhi->has_neighbour(i) && bhi->get_neighbour(i)->test_flags(bdry_flag)) {
 
                     // cbhi is "candidate boundary hex iterator", now guaranteed to be a boundary hex
-                    std::list<sm::hex>::iterator cbhi = bhi->get_neighbour(i);
+                    typename std::list<sm::hex<F>>::iterator cbhi = bhi->get_neighbour(i);
 
                     // Test if the candidate boundary hex is in the 'recently seen' deque
                     bool hex_already_seen = false;
@@ -3504,7 +3591,7 @@ export namespace sm
                     for (std::uint16_t j = 0; j < 6; ++j) {
 
                         // Ignore the candidate boundary hex itself. if j==i_opp, then
-                        // i's neighbour in dirn sm::hex::neighbour_pos(j) is the
+                        // i's neighbour in dirn sm::hex<F>::neighbour_pos(j) is the
                         // candidate iself, continue to next i
                         if (j==i_opp) { continue; }
 
@@ -3533,23 +3620,23 @@ export namespace sm
          * \a hi which is assumed to already be known to refer to a hex lying inside the
          * boundary.
          */
-        void mark_hexes_inside (std::list<hex>::iterator hi,
+        void mark_hexes_inside (std::list<sm::hex<F>>::iterator hi,
                                 std::uint32_t bdry_flag = sm::HEX_IS_BOUNDARY,
                                 std::uint32_t inside_flag = sm::HEX_INSIDE_BOUNDARY)
         {
             // Run to boundary, marking as we go
-            std::list<sm::hex>::iterator bhi(hi);
+            typename std::list<sm::hex<F>>::iterator bhi(hi);
             while (bhi->test_flags (bdry_flag) == false && bhi->has_nne()) {
                 bhi->set_flag (inside_flag);
                 bhi = bhi->nne;
             }
-            std::list<sm::hex>::iterator bhi_start = bhi;
+            typename std::list<sm::hex<F>>::iterator bhi_start = bhi;
 
             // Mark from first boundary hex and across the region
             this->mark_from_boundary (bhi, bdry_flag, inside_flag);
 
             // a deque to hold the 'n_recents' most recently seen boundary hexes.
-            std::deque<std::list<sm::hex>::iterator> recently_seen;
+            std::deque<typename std::list<sm::hex<F>>::iterator> recently_seen;
             std::uint32_t n_recents = 16U; // 2 should be sufficient for boundaries with double thickness
             // sections. If problems occur, trying increasing this.
             bool gotnext = this->find_next_boundary_neighbour (bhi, recently_seen, n_recents, bdry_flag, inside_flag);
@@ -3571,9 +3658,9 @@ export namespace sm
 
             // Is the bottom row's gi even or odd?  extnts[2] is gi for the bottom row. If it's even, then
             // we add 0.5 to all rows with even gi. If it's odd then we add 0.5 to all rows with ODD gi.
-            float even_addn = 0.5f;
-            float odd_addn = 0.0f;
-            float addleft = 0;
+            F even_addn = 0.5f;
+            F odd_addn = 0.0f;
+            F addleft = 0;
             if (extnts[2]%2 == 0) {
                 // bottom row has EVEN gi (extnts[2])
                 even_addn = 0.0f;
@@ -3606,8 +3693,8 @@ export namespace sm
                 //
                 // plus a row-varying addition of a half (the row of hexes above is shifted right by 0.5 a
                 // hex width).
-                float hz = hi->ri + 0.5*(hi->gi); /*+ (hi->gi%2 ? odd_addn : even_addn)*/;
-                float parityhalf = (hi->gi%2 ? odd_addn : even_addn);
+                F hz = hi->ri + 0.5*(hi->gi); /*+ (hi->gi%2 ? odd_addn : even_addn)*/;
+                F parityhalf = (hi->gi%2 ? odd_addn : even_addn);
 
                 if (hz < (extnts[0] - addleft + parityhalf)) {
                     // outside
@@ -3652,7 +3739,7 @@ export namespace sm
          */
         void mark_all_hexes_inside_domain()
         {
-            std::list<sm::hex>::iterator hi = this->hexen.begin();
+            typename std::list<sm::hex<F>>::iterator hi = this->hexen.begin();
             while (hi != this->hexen.end()) {
                 hi->set_inside_domain();
                 hi++;
@@ -3665,7 +3752,7 @@ export namespace sm
         void discard_outside_boundary()
         {
             // Mark those hexes inside the boundary
-            std::list<sm::hex>::iterator centroidhex = this->find_hex_nearest (this->boundary_centroid);
+            typename std::list<sm::hex<F>>::iterator centroidhex = this->find_hex_nearest (this->boundary_centroid);
             this->mark_hexes_inside (centroidhex);
             // Run through and discard those hexes outside the boundary:
             auto hi = this->hexen.begin();
@@ -3731,7 +3818,7 @@ export namespace sm
             if (bhcount == 0) { return rtn; }
 
             // Find the furthest left and right hexes and the further up and down hexes.
-            std::array<float, 4> limits = {{0,0,0,0}};
+            std::array<F, 4> limits = {{0,0,0,0}};
             bool first = true;
             for (auto h : this->hexen) {
                 if (h.test_flags(sm::HEX_IS_BOUNDARY) == true) {
@@ -3759,8 +3846,8 @@ export namespace sm
             // Now compute the ri and gi values that these xmax/xmin/ymax/ymin correspond to. THIS, if
             // nothing else, should auto-vectorise!  d_ri is the distance moved in ri direction per x, d_gi
             // is distance
-            float d_ri = this->hexen.front().get_d();
-            float d_gi = this->hexen.front().get_v();
+            F d_ri = this->hexen.front().get_d();
+            F d_gi = this->hexen.front().get_v();
             rtn[0] = static_cast<std::int32_t>(limits[0] / d_ri);
             rtn[1] = static_cast<std::int32_t>(limits[1] / d_ri);
             rtn[2] = static_cast<std::int32_t>(limits[2] / d_gi);
@@ -3770,7 +3857,7 @@ export namespace sm
 
         /*!
          * Does what it says on the tin. Re-number the hex::vi vector index in each
-         * hex in the hexgrid, from the start of the list<hex> hexen until the end.
+         * hex in the hexgrid, from the start of the list<sm::hex<F>> hexen until the end.
          */
         void renumber_vector_indices()
         {
@@ -3788,30 +3875,30 @@ export namespace sm
         /*!
          * The centre to centre hex distance between adjacent members of the hex grid.
          */
-        float d = 1.0f;
+        F d = 1.0f;
 
         /*!
          * The centre to centre hex distance between hexes on adjacent rows - the
          * 'vertical' distance.
          */
-        float v = 1.0f * sm::mathconst<float>::root_3_over_2;
+        F v = 1.0f * sm::mathconst<F>::root_3_over_2;
 
         /*!
          * Give the hexagonal hex grid a diameter of approximately x_span in the
          * horizontal direction, which is perpendicular to one of the edges of the
          * member hexagons.
          */
-        float x_span = 10.0f;
+        F x_span = 10.0f;
 
         /*!
          * The z coordinate of this hex grid layer
          */
-        float z;
+        F z;
 
         /*!
          * A boundary to apply to the initial, rectangular grid.
          */
-        bezcurvepath<float> boundary;
+        bezcurvepath<F> boundary;
 
         /*
          * hex references to the hexes on the vertices of the hexagonal
@@ -3819,12 +3906,12 @@ export namespace sm
          * boundary is applied to the original hexagonal grid. When this occurs,
          * grid_reduced should be set false.
          */
-        std::list<hex>::iterator vertex_e;
-        std::list<hex>::iterator vertex_ne;
-        std::list<hex>::iterator vertex_nw;
-        std::list<hex>::iterator vertex_w;
-        std::list<hex>::iterator vertex_sw;
-        std::list<hex>::iterator vertex_se;
+        std::list<sm::hex<F>>::iterator vertex_e;
+        std::list<sm::hex<F>>::iterator vertex_ne;
+        std::list<sm::hex<F>>::iterator vertex_nw;
+        std::list<sm::hex<F>>::iterator vertex_w;
+        std::list<sm::hex<F>>::iterator vertex_sw;
+        std::list<sm::hex<F>>::iterator vertex_se;
 
         /*!
          * Set true when a new boundary has been applied. This means that
