@@ -399,6 +399,9 @@ add_test(hex_vertexpos1 hex_vertexpos1)
 add_executable(hex_userflags1 hex_userflags1.cpp)
 target_link_libraries(hex_userflags1 PRIVATE sm)
 
+add_executable(hex_iterators hex_iterators.cpp)
+target_link_libraries(hex_iterators PRIVATE sm)
+
 # An example program which is slow compiled on Visual Studio with the /MDd "Debug build" flag
 add_executable(hex_profile_list_hex_min_erase hex_profile_list_hex_min_erase.cpp)
 add_test(hex_profile_list_hex_min_erase hex_profile_list_hex_min_erase)
