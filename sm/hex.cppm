@@ -155,7 +155,7 @@ export namespace sm
         }
 
         //! Comparison operation to enable use of set<hex>
-        bool operator< (const hex& rhs) const
+        bool operator< (const hex<F>& rhs) const
         {
             // Compare position first.
             if (this->x < rhs.x) { return true; }
@@ -315,7 +315,7 @@ export namespace sm
         }
 
         //! Compute the distance from another hex to this one.
-        F distance_from (const hex& otherhex) const
+        F distance_from (const hex<F>& otherhex) const
         {
             F dx = otherhex.x - x;
             F dy = otherhex.y - y;
@@ -345,9 +345,9 @@ export namespace sm
          * hexgrid::d_nne, hexgrid::d_nnw, hexgrid::d_nsw and hexgrid::d_nse, etc.
          *
          * This indexes into the d_ vectors in the hexgrid object to which this hex belongs. The d_
-         * vectors are ordered differently from the list<hex> object in hexgrid::hexen and hence we
+         * vectors are ordered differently from the list<hex<F>> object in hexgrid::hexen and hence we
          * have this attribute di in addition to the vector index vi, which provides an index into
-         * list<hex> or vector<hex> objects which either are, or are arranged like, hexgrid::hexen
+         * list<hex<F>> or vector<hex<F>> objects which either are, or are arranged like, hexgrid::hexen
          */
         std::uint32_t di = 0;
 
@@ -529,37 +529,37 @@ export namespace sm
         }
 
         //! Set that \a it is the Neighbour to the East
-        void set_ne (std::list<hex>::iterator it)
+        void set_ne (std::list<hex<F>>::iterator it)
         {
             this->ne = it;
             this->flags |= HEX_HAS_NE;
         }
         //! Set that \a it is the Neighbour to the North East
-        void set_nne (std::list<hex>::iterator it)
+        void set_nne (std::list<hex<F>>::iterator it)
         {
             this->nne = it;
             this->flags |= HEX_HAS_NNE;
         }
         //! Set that \a it is the Neighbour to the North West
-        void set_nnw (std::list<hex>::iterator it)
+        void set_nnw (std::list<hex<F>>::iterator it)
         {
             this->nnw = it;
             this->flags |= HEX_HAS_NNW;
         }
         //! Set that \a it is the Neighbour to the West
-        void set_nw (std::list<hex>::iterator it)
+        void set_nw (std::list<hex<F>>::iterator it)
         {
             this->nw = it;
             this->flags |= HEX_HAS_NW;
         }
         //! Set that \a it is the Neighbour to the South West
-        void set_nsw (std::list<hex>::iterator it)
+        void set_nsw (std::list<hex<F>>::iterator it)
         {
             this->nsw = it;
             this->flags |= HEX_HAS_NSW;
         }
         //! Set that \a it is the Neighbour to the South East
-        void set_nse (std::list<hex>::iterator it)
+        void set_nse (std::list<hex<F>>::iterator it)
         {
             this->nse = it;
             this->flags |= HEX_HAS_NSE;
@@ -637,7 +637,7 @@ export namespace sm
         }
 
         /*!
-         * Get a list<hex>::iterator to the neighbour at position \a ni.
+         * Get a list<hex<F>>::iterator to the neighbour at position \a ni.
          * East: 0, North-East: 1, North-West: 2, West: 3, South-West: 4, South-East: 5
          */
         std::list<hex<F>>::iterator get_neighbour (std::uint32_t ni) const
@@ -859,17 +859,17 @@ export namespace sm
          */
 
         //! Nearest neighbour to the East; in the plus r direction.
-        std::list<hex>::iterator ne;
+        std::list<hex<F>>::iterator ne;
         //! Nearest neighbour to the North-East; in the plus g direction.
-        std::list<hex>::iterator nne;
+        std::list<hex<F>>::iterator nne;
         //! Nearest neighbour to the North-West; in the plus b direction.
-        std::list<hex>::iterator nnw;
+        std::list<hex<F>>::iterator nnw;
         //! Nearest neighbour to the West; in the minus r direction.
-        std::list<hex>::iterator nw;
+        std::list<hex<F>>::iterator nw;
         //! Nearest neighbour to the South-West; in the minus g direction.
-        std::list<hex>::iterator nsw;
+        std::list<hex<F>>::iterator nsw;
         //! Nearest neighbour to the South-East; in the minus b direction.
-        std::list<hex>::iterator nse;
+        std::list<hex<F>>::iterator nse;
 
         //! The flags for this hex.
         std::uint32_t flags = 0u;
