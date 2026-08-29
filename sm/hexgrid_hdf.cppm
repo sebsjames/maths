@@ -140,6 +140,9 @@ export namespace sm
         // vector<uint32_t>
         hgdata.add_contained_vals ("/d_flags", hg.d_flags);
 
+        // The transform matrix
+        hgdata.add_contained_vals ("/tfm", hg.tfm.arr);
+
         // list<hex> hexen
         // for i in list, save hex
         typename std::list<sm::hex<F>>::const_iterator h = hg.hexen.begin();
@@ -191,6 +194,8 @@ export namespace sm
         hgdata.read_contained_vals ("/d_nsw", hg.d_nsw);
         hgdata.read_contained_vals ("/d_nse", hg.d_nse);
         hgdata.read_contained_vals ("/d_flags", hg.d_flags);
+
+        hgdata.read_contained_vals ("/tfm", hg.tfm.arr);
 
         // Assume a boundary has been applied so set this true. Also, the hexgrid::save method doesn't
         // save hexgrid::vertex_e, etc
