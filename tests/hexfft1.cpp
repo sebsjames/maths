@@ -85,6 +85,31 @@ static bool bounding_box_matches_parallelogram()
     return ok;
 }
 
+// hex_data[vi] should equal X.data at the (a,r,c) position of that same hex.
+template<typename F>
+static bool hex_data_matches_data (sm::hexgrid<F>& hg, const char* label)
+{
+    sm::vvec<F> data = make_data<F> (hg.num());
+    sm::hexfft::spectrum<F> X = sm::hexfft::fft (hg, data);
+
+    if (X.hex_data.size() != hg.num()) {
+        std::cout << label << ": hex_data size mismatch" << std::endl;
+        return false;
+    }
+
+    F maxerr = F{0};
+    for (const auto& h : hg.hexen) {
+        std::uint32_t gr = static_cast<std::uint32_t> (h.gi - X.gi_min);
+        std::uint32_t c = static_cast<std::uint32_t> (h.ri - X.ri_min);
+        std::uint32_t r = gr / 2u;
+        std::uint32_t a = gr % 2u;
+        std::complex<F> expected = X.data[a * X.n * X.m + r * X.m + c];
+        maxerr = std::max (maxerr, std::abs (X.hex_data[h.vi] - expected));
+    }
+    std::cout << label << ": hex_data vs data max error: " << maxerr << std::endl;
+    return maxerr == F{0};
+}
+
 std::int32_t main()
 {
     std::int32_t rtn = 0;
@@ -96,6 +121,7 @@ std::int32_t main()
         hg.set_parallelogram_boundary (2, 3);
         if (!roundtrips<double> (hg, "parallelogram")) { --rtn; }
         if (!is_linear<double> (hg, "parallelogram")) { --rtn; }
+        if (!hex_data_matches_data<double> (hg, "parallelogram")) { --rtn; }
     }
 
     // An arbitrary (non-rectangular-in-ri,gi) boundary: a circle. This exercises the
@@ -105,6 +131,7 @@ std::int32_t main()
         hg.set_circular_boundary (6.0);
         if (!roundtrips<double> (hg, "circular")) { --rtn; }
         if (!is_linear<double> (hg, "circular")) { --rtn; }
+        if (!hex_data_matches_data<double> (hg, "circular")) { --rtn; }
     }
 
     // A second, differently-sized circular boundary, to exercise a different mix of

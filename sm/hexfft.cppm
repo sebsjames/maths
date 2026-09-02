@@ -435,6 +435,26 @@ namespace sm::hexfft::detail
         return { d0, d1 };
     }
 
+    //! Read back the one value per hex in hg from the padded rectangle (d0, d1) (whose
+    //! (a=0,r=0,c=0) corner sits at hex::ri==ri_min, hex::gi==gi_min), producing a vvec
+    //! indexed by hex::vi as usual for hexgrid client data.
+    template<typename F>
+    sm::vvec<std::complex<F>> extract_by_vi (const sm::hexgrid<F>& hg, const cmat<F>& d0, const cmat<F>& d1,
+                                             std::int32_t ri_min, std::int32_t gi_min)
+    {
+        sm::vvec<std::complex<F>> out (hg.num());
+        for (const auto& h : hg.hexen) {
+            std::uint32_t gr = static_cast<std::uint32_t> (h.gi - gi_min);
+            std::uint32_t c = static_cast<std::uint32_t> (h.ri - ri_min);
+            std::uint32_t r = gr / 2u;
+            if (r >= d0.rows || c >= d0.cols) {
+                throw std::runtime_error ("sm::hexfft: hg has a hex outside the given rectangle's bounds");
+            }
+            out[h.vi] = (gr % 2u) == 0u ? d0 (r, c) : d1 (r, c);
+        }
+        return out;
+    }
+
 } // sm::hexfft::detail
 
 export namespace sm::hexfft
@@ -464,6 +484,12 @@ export namespace sm::hexfft
         //! Flat data, indexed as data[a * n * m + r * m + c], with a in {0,1} selecting the
         //! even/odd hex::gi sub-array.
         sm::vvec<std::complex<F>> data;
+
+        //! A copy of data, restricted to the frequency bins at positions occupied by a hex in
+        //! the hexgrid the transform was computed from, and indexed by that hex's hex::vi (so
+        //! hex_data.size() == hg.num()). A convenience for inspecting or visualising the
+        //! spectrum on the original hexgrid.
+        sm::vvec<std::complex<F>> hex_data;
 
         //! The total number of samples in the padded rectangle (2 * n * m).
         std::uint32_t size() const { return 2u * this->n * this->m; }
@@ -497,6 +523,7 @@ export namespace sm::hexfft
 
         auto [X0, X1] = detail::hfft2 (d0, d1);
         result.data = detail::flatten (X0, X1);
+        result.hex_data = detail::extract_by_vi (hg, X0, X1, result.ri_min, result.gi_min);
         return result;
     }
 
@@ -520,18 +547,7 @@ export namespace sm::hexfft
     {
         auto [d0, d1] = detail::unflatten (X.data, X.n, X.m);
         auto [x0, x1] = detail::ihfft2 (d0, d1);
-
-        sm::vvec<std::complex<F>> out (hg.num());
-        for (const auto& h : hg.hexen) {
-            std::uint32_t gr = static_cast<std::uint32_t> (h.gi - X.gi_min);
-            std::uint32_t c = static_cast<std::uint32_t> (h.ri - X.ri_min);
-            std::uint32_t r = gr / 2u;
-            if (r >= X.n || c >= X.m) {
-                throw std::runtime_error ("sm::hexfft::ifft: hg has a hex outside the spectrum's bounding rectangle");
-            }
-            out[h.vi] = (gr % 2u) == 0u ? x0 (r, c) : x1 (r, c);
-        }
-        return out;
+        return detail::extract_by_vi (hg, x0, x1, X.ri_min, X.gi_min);
     }
 
 } // sm::hexfft
