@@ -1,6 +1,6 @@
 ---
 layout: page
-title: sm::cem::functions
+title: sm::cem (namespace)
 parent: Reference
 nav_order: 24
 permalink: /ref/constexprmath/

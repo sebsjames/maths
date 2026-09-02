@@ -1,6 +1,6 @@
 ---
 layout: page
-title: sm::evenspacing::functions
+title: sm::evenspacing (namespace)
 parent: Reference
 nav_order: 31
 permalink: /ref/evenspacing/
