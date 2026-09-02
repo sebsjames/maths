@@ -1,6 +1,6 @@
 ---
 layout: page
-title: sm::geometry::functions
+title: sm::geometry (namespace)
 parent: Reference
 nav_order: 36
 permalink: /ref/geometry/

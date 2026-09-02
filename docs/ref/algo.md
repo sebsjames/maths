@@ -1,6 +1,6 @@
 ---
 layout: page
-title: sm::algo::functions
+title: sm::algo (namespace)
 parent: Reference
 nav_order: 15
 permalink: /ref/algo/
