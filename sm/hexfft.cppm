@@ -16,10 +16,13 @@
  * of the two possible row-offsets that occur in a hex-packed row of samples)
  * and re-uses an ordinary 1D FFT to do the heavy lifting.
  *
- * sm::hexgrid is used to build the physical hex lattice and, in particular, to
- * supply the E/NE/NW hex-to-hex neighbour relationships that are followed to
- * lay the input samples out into the two rectangular arrays that the
- * algorithm requires.
+ * sm::hexgrid supplies the physical hex lattice, including its axial hex::ri, hex::gi
+ * addressing. hex::gi's parity picks out which of the two interleaved rectangular arrays a
+ * given hex belongs to; hex::ri and hex::gi/2 give that array's column and row. Since the
+ * hexgrid's boundary may be any shape at all, and need not form a rectangle in (ri, gi)
+ * space, the transform is actually computed over the smallest enclosing rectangle, with any
+ * (ri, gi) not present in the hexgrid treated as zero (an ordinary zero-padded/windowed FFT).
+ * See sm::hexfft::spectrum for how that rectangle relates back to the hexgrid.
  *
  * claude --resume c364f967-91ac-4ab9-9422-42b410ef007c
  *
@@ -32,7 +35,6 @@ module;
 #include <cstdint>
 #include <complex>
 #include <vector>
-#include <list>
 #include <utility>
 #include <stdexcept>
 #include <sstream>
@@ -368,181 +370,168 @@ namespace sm::hexfft::detail
         return { out0, out1 };
     }
 
+    //! Find the smallest rectangle in (hex::ri, hex::gi) index space that encloses every hex
+    //! in hg, and round its row count up so that n (the number of rows in each of the two
+    //! row-parity arrays) is even and at least 2, as required by fold_half.
+    template<typename F>
+    void bounding_box (const sm::hexgrid<F>& hg, std::int32_t& ri_min, std::int32_t& gi_min,
+                       std::uint32_t& n, std::uint32_t& m)
+    {
+        if (hg.hexen.empty()) {
+            throw std::runtime_error ("sm::hexfft: hexgrid has no hexes");
+        }
+        std::int32_t ri_max = 0;
+        std::int32_t gi_max = 0;
+        bool first = true;
+        for (const auto& h : hg.hexen) {
+            if (first) {
+                ri_min = ri_max = h.ri;
+                gi_min = gi_max = h.gi;
+                first = false;
+            } else {
+                ri_min = std::min (ri_min, h.ri);
+                ri_max = std::max (ri_max, h.ri);
+                gi_min = std::min (gi_min, h.gi);
+                gi_max = std::max (gi_max, h.gi);
+            }
+        }
+        m = static_cast<std::uint32_t> (ri_max - ri_min + 1);
+        std::uint32_t rows = static_cast<std::uint32_t> (gi_max - gi_min + 1);
+        n = (rows + 1u) / 2u;
+        if (n < 2u) {
+            n = 2u;
+        } else if ((n % 2u) != 0u) {
+            ++n;
+        }
+    }
+
+    //! Flatten a pair of (a=0, a=1) matrices into a single vvec, indexed as [a*n*m + r*m + c].
+    template<typename F>
+    sm::vvec<std::complex<F>> flatten (const cmat<F>& d0, const cmat<F>& d1)
+    {
+        std::size_t plane = d0.rows * d0.cols;
+        sm::vvec<std::complex<F>> out (2 * plane);
+        for (std::size_t i = 0; i < plane; ++i) {
+            out[i] = d0.data[i];
+            out[plane + i] = d1.data[i];
+        }
+        return out;
+    }
+
+    //! The inverse of flatten.
+    template<typename F>
+    std::pair<cmat<F>, cmat<F>> unflatten (const sm::vvec<std::complex<F>>& data, std::uint32_t n, std::uint32_t m)
+    {
+        std::size_t plane = static_cast<std::size_t> (n) * static_cast<std::size_t> (m);
+        if (data.size() != 2 * plane) {
+            throw std::runtime_error ("sm::hexfft: spectrum data size does not match its n, m");
+        }
+        cmat<F> d0 (n, m);
+        cmat<F> d1 (n, m);
+        for (std::size_t i = 0; i < plane; ++i) {
+            d0.data[i] = data[i];
+            d1.data[i] = data[plane + i];
+        }
+        return { d0, d1 };
+    }
+
 } // sm::hexfft::detail
 
 export namespace sm::hexfft
 {
     /*!
-     * A hexagonal grid, arranged for use with sm::hexfft::fft/ifft.
+     * The result of a forward hexagonal FFT (sm::hexfft::fft).
      *
-     * The samples form a parallelogram-shaped region of a hex lattice, spanning 2*n rows
-     * (hex::gi running from 0 to 2*n-1) and m columns (hex::ri running from 0 to m-1). This
-     * parallelogram is exactly the "two interleaved rectangular arrays" of Birdsong &
-     * Rummelt's Array Set Addressing scheme: hexes on even rows (gi even) form one m-wide
-     * rectangular array of n rows, and hexes on odd rows (gi odd) form the other.
-     *
-     * n must be even (and at least 2), since the algorithm recursively folds each of the two
-     * arrays in half along its row dimension; m may be any value of at least 1.
+     * A hexgrid's boundary can be any shape, and so need not form a rectangle in (hex::ri,
+     * hex::gi) index space, but Birdsong & Rummelt's algorithm requires one. sm::hexfft::fft
+     * therefore computes the transform over the smallest rectangle enclosing all of the
+     * hexgrid's hexes, treating any (ri, gi) that falls inside that rectangle but outside the
+     * hexgrid's boundary as a zero input sample (an ordinary zero-padded/windowed FFT). This
+     * spectrum covers that whole padded rectangle, and so is generally larger than the
+     * hexgrid it was computed from: use sm::hexfft::ifft, passing the same hexgrid, to invert
+     * it back down to one value per hex.
      */
     template<typename F = double>
-    struct grid
+    struct spectrum
     {
-        //! Number of rows in each of the two (even/odd row) sub-arrays. Must be even.
+        //! Rows in each of the two (even/odd hex::gi) sub-arrays of the padded rectangle.
         std::uint32_t n = 0;
-        //! Number of columns (the length of a row of hexes).
+        //! Columns in the padded rectangle (the hex::ri extent).
         std::uint32_t m = 0;
-        //! The underlying hex lattice, built large enough to contain the samples used by
-        //! this grid, along with their full set of hex-to-hex neighbour relationships.
-        sm::hexgrid<F> hg;
+        //! The hex::ri, hex::gi of the padded rectangle's (a=0, r=0, c=0) corner.
+        std::int32_t ri_min = 0;
+        std::int32_t gi_min = 0;
+        //! Flat data, indexed as data[a * n * m + r * m + c], with a in {0,1} selecting the
+        //! even/odd hex::gi sub-array.
+        sm::vvec<std::complex<F>> data;
 
-        /*!
-         * hexes_a[a][r][c] is the iterator into hg.hexen for the sample at array a (0 or 1,
-         * selecting the even or odd row set), row r (0..n-1) and column c (0..m-1).
-         */
-        std::vector<std::vector<typename std::list<sm::hex<F>>::iterator>> hexes0;
-        std::vector<std::vector<typename std::list<sm::hex<F>>::iterator>> hexes1;
-
-        grid (std::uint32_t n_, std::uint32_t m_, F d_ = F{1}) : n(n_), m(m_)
-        {
-            if (n < 2 || (n % 2) != 0) {
-                throw std::runtime_error ("sm::hexfft::grid: n (rows per row-parity array) must be even and at least 2");
-            }
-            if (m < 1) {
-                throw std::runtime_error ("sm::hexfft::grid: m (number of columns) must be at least 1");
-            }
-
-            // A generous span (radius, really, doubled to make a diameter) so that the
-            // hexgrid, built with no boundary applied, comfortably contains every hex out to
-            // ri == m-1, gi == 2*n-1 with all of its neighbour relations intact.
-            F span = d_ * static_cast<F> (2 * (this->m + 3 * this->n) + 20);
-            this->hg.init (d_, span);
-
-            this->build_index();
-        }
-
-        grid (const grid&) = delete;
-        grid& operator= (const grid&) = delete;
-        grid (grid&&) = default;
-        grid& operator= (grid&&) = default;
-
-        //! The total number of samples handled by this grid (2 * n * m).
+        //! The total number of samples in the padded rectangle (2 * n * m).
         std::uint32_t size() const { return 2u * this->n * this->m; }
-
-    private:
-        void build_index()
-        {
-            this->hexes0.assign (this->n, std::vector<typename std::list<sm::hex<F>>::iterator> (this->m));
-            this->hexes1.assign (this->n, std::vector<typename std::list<sm::hex<F>>::iterator> (this->m));
-
-            typename std::list<sm::hex<F>>::iterator h0 = this->hg.hexen.begin(); // hex at ri=0, gi=0
-
-            this->lay_out_rows (h0, this->hexes0);
-
-            if (!h0->has_nne()) {
-                throw std::runtime_error ("sm::hexfft::grid: internal hexgrid is too small (nne from origin)");
-            }
-            this->lay_out_rows (h0->nne, this->hexes1); // hex at ri=0, gi=1
-        }
-
-        //! Starting from rowstart (column 0 of row 0 of this sub-array), walk the E neighbour
-        //! to fill each row, and two successive NE neighbours (a net displacement of ri+=0,
-        //! gi+=2) to move up from one row to the next, storing iterators into dest.
-        void lay_out_rows (typename std::list<sm::hex<F>>::iterator rowstart,
-                           std::vector<std::vector<typename std::list<sm::hex<F>>::iterator>>& dest)
-        {
-            for (std::uint32_t r = 0; r < this->n; ++r) {
-                typename std::list<sm::hex<F>>::iterator h = rowstart;
-                for (std::uint32_t c = 0; c < this->m; ++c) {
-                    dest[r][c] = h;
-                    if (c + 1 < this->m) {
-                        if (!h->has_ne()) {
-                            throw std::runtime_error ("sm::hexfft::grid: internal hexgrid is too small (ne)");
-                        }
-                        h = h->ne;
-                    }
-                }
-                if (r + 1 < this->n) {
-                    if (!rowstart->has_nne() || !rowstart->nne->has_nne()) {
-                        throw std::runtime_error ("sm::hexfft::grid: internal hexgrid is too small (nne/nne)");
-                    }
-                    rowstart = rowstart->nne->nne;
-                }
-            }
-        }
     };
 
-    //! Copy data (indexed as data[a * g.n * g.m + r * g.m + c]) into the pair of matrices
-    //! used internally by the transform.
-    template<typename F>
-    std::pair<detail::cmat<F>, detail::cmat<F>> unpack (const grid<F>& g, const sm::vvec<std::complex<F>>& data)
-    {
-        if (data.size() != g.size()) {
-            std::stringstream ee;
-            ee << "sm::hexfft: data.size() (" << data.size() << ") does not match grid size (" << g.size() << ")";
-            throw std::runtime_error (ee.str());
-        }
-        detail::cmat<F> d0 (g.n, g.m);
-        detail::cmat<F> d1 (g.n, g.m);
-        std::size_t plane = static_cast<std::size_t>(g.n) * static_cast<std::size_t>(g.m);
-        for (std::size_t r = 0; r < g.n; ++r) {
-            for (std::size_t c = 0; c < g.m; ++c) {
-                d0(r, c) = data[r * g.m + c];
-                d1(r, c) = data[plane + r * g.m + c];
-            }
-        }
-        return { d0, d1 };
-    }
-
-    //! The inverse of unpack: flatten a pair of (a=0, a=1) matrices back into a single vvec.
-    template<typename F>
-    sm::vvec<std::complex<F>> pack (const grid<F>& g, const detail::cmat<F>& d0, const detail::cmat<F>& d1)
-    {
-        sm::vvec<std::complex<F>> out (g.size());
-        std::size_t plane = static_cast<std::size_t>(g.n) * static_cast<std::size_t>(g.m);
-        for (std::size_t r = 0; r < g.n; ++r) {
-            for (std::size_t c = 0; c < g.m; ++c) {
-                out[r * g.m + c] = d0(r, c);
-                out[plane + r * g.m + c] = d1(r, c);
-            }
-        }
-        return out;
-    }
-
     /*!
-     * Compute the hexagonal FFT of the complex-valued data on grid g.
-     *
-     * data must have g.size() elements, laid out as data[a * g.n * g.m + r * g.m + c], where
-     * a selects the even (0) or odd (1) row sub-array (see sm::hexfft::grid), r is the row
-     * (0..g.n-1) and c is the column (0..g.m-1); g.hexes0[r][c]/g.hexes1[r][c] give the
-     * corresponding hex (and hence its Cartesian x,y location) in g.hg.
-     *
-     * The result has the same layout and size as the input.
+     * Compute the hexagonal FFT of data, sampled on the (possibly arbitrarily bounded)
+     * hexgrid hg. data must be indexed by hex::vi, as usual for hexgrid client data (so
+     * data.size() == hg.num()).
      */
     template<typename F>
-    sm::vvec<std::complex<F>> fft (const grid<F>& g, const sm::vvec<std::complex<F>>& data)
+    spectrum<F> fft (const sm::hexgrid<F>& hg, const sm::vvec<std::complex<F>>& data)
     {
-        auto [d0, d1] = unpack (g, data);
+        if (data.size() != hg.num()) {
+            std::stringstream ee;
+            ee << "sm::hexfft::fft: data.size() (" << data.size() << ") does not match hg.num() (" << hg.num() << ")";
+            throw std::runtime_error (ee.str());
+        }
+
+        spectrum<F> result;
+        detail::bounding_box (hg, result.ri_min, result.gi_min, result.n, result.m);
+
+        detail::cmat<F> d0 (result.n, result.m);
+        detail::cmat<F> d1 (result.n, result.m);
+        for (const auto& h : hg.hexen) {
+            std::uint32_t gr = static_cast<std::uint32_t> (h.gi - result.gi_min);
+            std::uint32_t c = static_cast<std::uint32_t> (h.ri - result.ri_min);
+            std::uint32_t r = gr / 2u;
+            if ((gr % 2u) == 0u) { d0 (r, c) = data[h.vi]; } else { d1 (r, c) = data[h.vi]; }
+        }
+
         auto [X0, X1] = detail::hfft2 (d0, d1);
-        return pack (g, X0, X1);
+        result.data = detail::flatten (X0, X1);
+        return result;
     }
 
     //! As above, but for real-valued input data.
     template<typename F>
-    sm::vvec<std::complex<F>> fft (const grid<F>& g, const sm::vvec<F>& data)
+    spectrum<F> fft (const sm::hexgrid<F>& hg, const sm::vvec<F>& data)
     {
         sm::vvec<std::complex<F>> cdata (data.size());
         for (std::size_t i = 0; i < data.size(); ++i) { cdata[i] = std::complex<F> (data[i], F{0}); }
-        return sm::hexfft::fft (g, cdata);
+        return sm::hexfft::fft (hg, cdata);
     }
 
-    //! Compute the inverse hexagonal FFT, undoing sm::hexfft::fft. See sm::hexfft::fft for
-    //! the data layout.
+    /*!
+     * Compute the inverse hexagonal FFT, undoing sm::hexfft::fft. hg must be the same hexgrid
+     * (or one with the same hexes) that X was computed from. The result is indexed by
+     * hex::vi, as usual (data.size() == hg.num()); the part of X's padded rectangle that lies
+     * outside hg's boundary is simply discarded.
+     */
     template<typename F>
-    sm::vvec<std::complex<F>> ifft (const grid<F>& g, const sm::vvec<std::complex<F>>& data)
+    sm::vvec<std::complex<F>> ifft (const sm::hexgrid<F>& hg, const spectrum<F>& X)
     {
-        auto [X0, X1] = unpack (g, data);
-        auto [d0, d1] = detail::ihfft2 (X0, X1);
-        return pack (g, d0, d1);
+        auto [d0, d1] = detail::unflatten (X.data, X.n, X.m);
+        auto [x0, x1] = detail::ihfft2 (d0, d1);
+
+        sm::vvec<std::complex<F>> out (hg.num());
+        for (const auto& h : hg.hexen) {
+            std::uint32_t gr = static_cast<std::uint32_t> (h.gi - X.gi_min);
+            std::uint32_t c = static_cast<std::uint32_t> (h.ri - X.ri_min);
+            std::uint32_t r = gr / 2u;
+            if (r >= X.n || c >= X.m) {
+                throw std::runtime_error ("sm::hexfft::ifft: hg has a hex outside the spectrum's bounding rectangle");
+            }
+            out[h.vi] = (gr % 2u) == 0u ? x0 (r, c) : x1 (r, c);
+        }
+        return out;
     }
 
 } // sm::hexfft
