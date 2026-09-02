@@ -28,6 +28,7 @@ install(
   grid.cppm
   hdfdata.cppm
   hex.cppm
+  hexfft.cppm
   hexgrid.cppm
   hexgrid_hdf.cppm
   hexyhisto.cppm

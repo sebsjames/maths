@@ -264,6 +264,13 @@ macro(setup_module_variables_for_maths base_directory json_directory)
   )
   list(REMOVE_DUPLICATES SM_HEXYHISTO_MODULES)
 
+  set(SM_HEXFFT_MODULES
+    ${SM_HEXGRID_MODULES}
+    ${SM_VVEC_MODULES}
+    ${base_directory}/sm/hexfft.cppm
+  )
+  list(REMOVE_DUPLICATES SM_HEXFFT_MODULES)
+
   set(SM_CARTGRID_MODULES
     ${SM_BEZCURVEPATH_MODULES}
     ${SM_RECT_MODULES}
@@ -329,6 +336,7 @@ macro(setup_module_variables_for_maths base_directory json_directory)
     ${SM_BEZCURVEPATH_MODULES}
     ${SM_HEXGRID_MODULES}
     ${SM_HEXYHISTO_MODULES}
+    ${SM_HEXFFT_MODULES}
     ${SM_CARTGRID_MODULES}
     ${SM_BASE64_MODULES}
     ${SM_CRC32_MODULES}
