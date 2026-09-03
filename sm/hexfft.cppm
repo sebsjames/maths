@@ -558,10 +558,10 @@ export namespace sm::hexfft
         //! even/odd hex::gi sub-array.
         sm::vvec<std::complex<F>> data;
 
-        // Data in twin rectangular grids (ASA: array set addressing)
-        std::pair<cmat<F>, cmat<F>> ds;
-        // FFT in twin rectangular grids (ASA: array set addressing)
-        std::pair<cmat<F>, cmat<F>> Xs;
+        //! This holds the data in the twin rectangular grids (ASA: array set addressing grids)
+        std::pair<sm::hexfft::cmat<F>, sm::hexfft::cmat<F>> d_asa;
+        //! FFT in twin rectangular ASA grids. Saved to enable plotting/debugging
+        std::pair<sm::hexfft::cmat<F>, sm::hexfft::cmat<F>> X_asa;
 
         //! A copy of data, restricted to the frequency bins at positions occupied by a hex in
         //! the hexgrid the transform was computed from, and indexed by that hex's hex::vi (so
@@ -584,11 +584,13 @@ export namespace sm::hexfft
         spectrum<F> result;
         detail::bounding_box (hg, result.ri_min, result.gi_min, result.n, result.m);
 
-        result.ds = detail::populate_from_vi (hg, data, result.ri_min, result.gi_min, result.n, result.m);
+        // Save the input data after it has been extracted into ASA format
+        result.d_asa = detail::populate_from_vi (hg, data, result.ri_min, result.gi_min, result.n, result.m);
+        // Save the FFT'd data in ASA format
+        result.X_asa = detail::hfft2 (result.d_asa.first, result.d_asa.second);
 
-        result.Xs = detail::hfft2 (result.ds.first, result.ds.second);
-        result.data = detail::flatten (result.Xs.first, result.Xs.second);
-        result.hex_data = detail::extract_by_vi (hg, result.Xs.first, result.Xs.second, result.ri_min, result.gi_min);
+        result.data = detail::flatten (result.X_asa.first, result.X_asa.second);
+        result.hex_data = detail::extract_by_vi (hg, result.X_asa.first, result.X_asa.second, result.ri_min, result.gi_min);
         return result;
     }
 
