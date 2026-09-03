@@ -108,7 +108,12 @@ static bool asa_layout_is_rectangular (sm::hexgrid<F>& hg, const char* label)
     return maxerr < F{1e-8};
 }
 
-// hex_data[vi] should equal X.data at the (a,r,c) position of that same hex.
+// hex_data[vi] should equal X.data read at hex h's own (a,r,c) position AFTER fftshifting:
+// under fftshift (matching numpy/MATLAB's convention), the value originally at (r,c) in an
+// (n,m) array moves to ((r+n/2)%n, (c+m/2)%m), so *reading* the shifted array back at (r,c)
+// recovers the ORIGINAL value from ((r-n/2)%n, (c-m/2)%c) -- i.e. subtract the shift, not add
+// it. (For even sizes, +shift and -shift give the same answer mod N, which is why this only
+// shows up as an error for the odd dimension below.)
 template<typename F>
 static bool hex_data_matches_data (sm::hexgrid<F>& hg, const char* label)
 {
@@ -124,7 +129,9 @@ static bool hex_data_matches_data (sm::hexgrid<F>& hg, const char* label)
     for (const auto& h : hg.hexen) {
         std::uint32_t a, r, c;
         asa_position (h, X.ri_min, X.gi_min, a, r, c);
-        std::complex<F> expected = X.data[a * X.n * X.m + r * X.m + c];
+        std::uint32_t rs = (r + X.n - X.n / 2u) % X.n;
+        std::uint32_t cs = (c + X.m - X.m / 2u) % X.m;
+        std::complex<F> expected = X.data[a * X.n * X.m + rs * X.m + cs];
         maxerr = std::max (maxerr, std::abs (X.hex_data[h.vi] - expected));
     }
     std::cout << label << ": hex_data vs data max error: " << maxerr << std::endl;

@@ -232,6 +232,40 @@ namespace sm::hexfft::internal
         return out;
     }
 
+    //! Circularly shift in's rows by shift_r and columns by shift_c: the value at (r, c) in in
+    //! moves to ((r+shift_r) % in.rows, (c+shift_c) % in.cols) in the result.
+    template<typename F>
+    sm::hexfft::cmat<F> roll (const sm::hexfft::cmat<F>& in, std::uint32_t shift_r, std::uint32_t shift_c)
+    {
+        sm::hexfft::cmat<F> out (in.rows, in.cols);
+        for (std::uint32_t r = 0; r < in.rows; ++r) {
+            std::uint32_t sr = (r + shift_r) % in.rows;
+            for (std::uint32_t c = 0; c < in.cols; ++c) {
+                std::uint32_t sc = (c + shift_c) % in.cols;
+                out (sr, sc) = in (r, c);
+            }
+        }
+        return out;
+    }
+
+    //! Move the zero-frequency (DC) bin, at (0,0), to the middle of in, matching the
+    //! numpy/MATLAB fftshift convention. Because in.rows is always even here, this is its own
+    //! exact inverse in the row direction; in.cols need not be even, so use ifftshift, not
+    //! fftshift again, to invert this exactly when in.cols is odd.
+    template<typename F>
+    sm::hexfft::cmat<F> fftshift (const sm::hexfft::cmat<F>& in)
+    {
+        return roll (in, in.rows / 2u, in.cols / 2u);
+    }
+
+    //! The exact inverse of fftshift: moves the bin at the middle of in (where fftshift put
+    //! the DC bin) back to (0,0).
+    template<typename F>
+    sm::hexfft::cmat<F> ifftshift (const sm::hexfft::cmat<F>& in)
+    {
+        return roll (in, in.rows - in.rows / 2u, in.cols - in.cols / 2u);
+    }
+
     // The remaining functions follow the naming used by Birdsong & Rummelt (and by
     // gwater/HexFFT.jl, a reference implementation of the same algorithm). data has shape
     // (R, COLS), where R (== grid::n) MUST be even.
@@ -565,10 +599,14 @@ export namespace sm::hexfft
         //! FFT in twin rectangular ASA grids. Saved to enable plotting/debugging
         std::pair<sm::hexfft::cmat<F>, sm::hexfft::cmat<F>> X_asa;
 
-        //! A copy of data, restricted to the frequency bins at positions occupied by a hex in
-        //! the hexgrid the transform was computed from, and indexed by that hex's hex::vi (so
-        //! hex_data.size() == hg.num()). A convenience for inspecting or visualising the
-        //! spectrum on the original hexgrid.
+        //! An fftshifted copy of data (see internal::fftshift), restricted to the frequency
+        //! bins at positions occupied by a hex in the hexgrid the transform was computed from,
+        //! and indexed by that hex's hex::vi (so hex_data.size() == hg.num()). The fftshift
+        //! moves the zero-frequency (DC) bin to the middle of the padded rectangle instead of
+        //! its (0,0) corner, so that plotting hex_data on the hexgrid shows a centred spectrum
+        //! rather than one that wraps at the edges. A convenience for inspecting or
+        //! visualising the spectrum on the original hexgrid; pass it to the
+        //! sm::hexfft::ifft (hg, vvec<complex<F>>) overload, which undoes the shift, to invert.
         sm::vvec<std::complex<F>> hex_data;
 
         //! The total number of samples in the padded rectangle (2 * n * m).
@@ -592,7 +630,13 @@ export namespace sm::hexfft
         result.X_asa = internal::hfft2 (result.d_asa.first, result.d_asa.second);
 
         result.data = internal::flatten (result.X_asa.first, result.X_asa.second);
-        result.hex_data = internal::extract_by_vi (hg, result.X_asa.first, result.X_asa.second, result.ri_min, result.gi_min);
+
+        // hex_data is read off an fftshifted copy of X_asa, so that DC lands in the middle of
+        // the hexgrid rather than at a corner when it's plotted. result.data/X_asa themselves
+        // are left un-shifted, so sm::hexfft::ifft (hg, spectrum<F>) is unaffected.
+        sm::hexfft::cmat<F> X0_shifted = internal::fftshift (result.X_asa.first);
+        sm::hexfft::cmat<F> X1_shifted = internal::fftshift (result.X_asa.second);
+        result.hex_data = internal::extract_by_vi (hg, X0_shifted, X1_shifted, result.ri_min, result.gi_min);
         return result;
     }
 
@@ -625,7 +669,9 @@ export namespace sm::hexfft
      * value per hex, hg's bounding rectangle (see sm::hexfft::fft) is recomputed from hg, and
      * any entries of that rectangle that don't correspond to a hex in hg (i.e. the zero-padded
      * region added by sm::hexfft::fft, if hg's boundary doesn't already fill its own bounding
-     * rectangle) are treated as zero.
+     * rectangle) are treated as zero. X is then ifftshifted (see internal::ifftshift) to undo
+     * the fftshift that sm::hexfft::fft applies when it builds spectrum::hex_data, restoring
+     * the DC-at-(0,0) bin ordering that the inverse transform expects.
      *
      * Note that this makes this overload a true inverse of sm::hexfft::fft only when hg's
      * boundary exactly fills its bounding rectangle in (ri, gi) space (so that
@@ -646,6 +692,8 @@ export namespace sm::hexfft
         internal::bounding_box (hg, ri_min, gi_min, n, m);
 
         auto [d0, d1] = internal::populate_from_vi (hg, X, ri_min, gi_min, n, m);
+        d0 = internal::ifftshift (d0);
+        d1 = internal::ifftshift (d1);
         auto [x0, x1] = internal::ihfft2 (d0, d1);
         return internal::extract_by_vi (hg, x0, x1, ri_min, gi_min);
     }
