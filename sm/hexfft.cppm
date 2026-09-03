@@ -22,11 +22,14 @@
  * hexgrid's boundary may be any shape at all, and need not form a rectangle in (ri, gi)
  * space, the transform is actually computed over the smallest enclosing rectangle, with any
  * (ri, gi) not present in the hexgrid treated as zero (an ordinary zero-padded/windowed FFT).
+ *
  * See sm::hexfft::spectrum for how that rectangle relates back to the hexgrid.
  *
  * claude --resume c364f967-91ac-4ab9-9422-42b410ef007c
  *
- * \author: AI, based in part on work by Josua Grawitter in https://github.com/gwater/HexFFT.jl and on the Wikipedia page
+ * \author: AI, based in part on work by Josua Grawitter in https://github.com/gwater/HexFFT.jl and
+ * on the Wikipedia page. Data visualization and bug identification by Seb James.
+ *
  * \date: 2026
  */
 
@@ -46,11 +49,11 @@ export import sm.hexgrid;
 export import sm.vvec;
 import sm.mathconst;
 
-export  namespace sm::hexfft
+export namespace sm::hexfft
 {
     /*!
-     * A minimal row-major complex matrix, used only as scratch space while computing the
-     * hexagonal FFT. ??Not exported; sm::hexfft's public interface deals only in sm::vvec.
+     * A minimal row-major complex matrix. This is an intermediate data type that is used during the
+     * hexagonal FFT computation. it is exported so that the data can be inspected.
      */
     template<typename F>
     struct cmat
@@ -67,7 +70,7 @@ export  namespace sm::hexfft
     };
 }
 
-namespace sm::hexfft::detail
+namespace sm::hexfft::internal
 {
     //! In-place iterative radix-2 Cooley-Tukey FFT. invert selects the inverse transform
     //! (which includes the 1/N normalisation). a.size() MUST be a power of two (or 0/1).
@@ -528,7 +531,7 @@ namespace sm::hexfft::detail
         return out;
     }
 
-} // sm::hexfft::detail
+} // sm::hexfft::internal
 
 export namespace sm::hexfft
 {
@@ -582,15 +585,15 @@ export namespace sm::hexfft
     spectrum<F> fft (const sm::hexgrid<F>& hg, const sm::vvec<std::complex<F>>& data)
     {
         spectrum<F> result;
-        detail::bounding_box (hg, result.ri_min, result.gi_min, result.n, result.m);
+        internal::bounding_box (hg, result.ri_min, result.gi_min, result.n, result.m);
 
         // Save the input data after it has been extracted into ASA format
-        result.d_asa = detail::populate_from_vi (hg, data, result.ri_min, result.gi_min, result.n, result.m);
+        result.d_asa = internal::populate_from_vi (hg, data, result.ri_min, result.gi_min, result.n, result.m);
         // Save the FFT'd data in ASA format
-        result.X_asa = detail::hfft2 (result.d_asa.first, result.d_asa.second);
+        result.X_asa = internal::hfft2 (result.d_asa.first, result.d_asa.second);
 
-        result.data = detail::flatten (result.X_asa.first, result.X_asa.second);
-        result.hex_data = detail::extract_by_vi (hg, result.X_asa.first, result.X_asa.second, result.ri_min, result.gi_min);
+        result.data = internal::flatten (result.X_asa.first, result.X_asa.second);
+        result.hex_data = internal::extract_by_vi (hg, result.X_asa.first, result.X_asa.second, result.ri_min, result.gi_min);
         return result;
     }
 
@@ -612,9 +615,9 @@ export namespace sm::hexfft
     template<typename F>
     sm::vvec<std::complex<F>> ifft (const sm::hexgrid<F>& hg, const spectrum<F>& X)
     {
-        auto [d0, d1] = detail::unflatten (X.data, X.n, X.m);
-        auto [x0, x1] = detail::ihfft2 (d0, d1);
-        return detail::extract_by_vi (hg, x0, x1, X.ri_min, X.gi_min);
+        auto [d0, d1] = internal::unflatten (X.data, X.n, X.m);
+        auto [x0, x1] = internal::ihfft2 (d0, d1);
+        return internal::extract_by_vi (hg, x0, x1, X.ri_min, X.gi_min);
     }
 
     /*!
@@ -641,11 +644,11 @@ export namespace sm::hexfft
         std::int32_t gi_min = 0;
         std::uint32_t n = 0;
         std::uint32_t m = 0;
-        detail::bounding_box (hg, ri_min, gi_min, n, m);
+        internal::bounding_box (hg, ri_min, gi_min, n, m);
 
-        auto [d0, d1] = detail::populate_from_vi (hg, X, ri_min, gi_min, n, m);
-        auto [x0, x1] = detail::ihfft2 (d0, d1);
-        return detail::extract_by_vi (hg, x0, x1, ri_min, gi_min);
+        auto [d0, d1] = internal::populate_from_vi (hg, X, ri_min, gi_min, n, m);
+        auto [x0, x1] = internal::ihfft2 (d0, d1);
+        return internal::extract_by_vi (hg, x0, x1, ri_min, gi_min);
     }
 
 } // sm::hexfft
