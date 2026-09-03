@@ -110,11 +110,63 @@ static bool hex_data_matches_data (sm::hexgrid<F>& hg, const char* label)
     return maxerr == F{0};
 }
 
+// When hg's boundary exactly fills its bounding rectangle (no zero-padded region separates
+// hg.num() from the spectrum's size), spectrum::hex_data carries the same information as
+// spectrum::data, so ifft(hg, hex_data) is an exact inverse, just like ifft(hg, spectrum).
+static bool hex_data_ifft_lossless_when_no_padding()
+{
+    sm::hexgrid<double> hg (1.0, 40.0);
+    // ri in [-2,2] (m=5), gi in [-4,3] (rows=8, already a multiple of 4 -> n=4, no padding).
+    auto bpoints = hg.parallelogram_compute (2, 3, 2, 4);
+    hg.set_boundary (bpoints, false);
+
+    sm::vvec<double> data = make_data<double> (hg.num());
+    sm::hexfft::spectrum<double> X = sm::hexfft::fft (hg, data);
+
+    bool ok = (X.size() == hg.num()); // i.e. there is indeed no padding gap here
+    sm::vvec<std::complex<double>> back = sm::hexfft::ifft (hg, X.hex_data);
+    double maxerr = 0.0;
+    for (std::uint32_t i = 0; i < hg.num(); ++i) {
+        maxerr = std::max (maxerr, std::abs (back[i] - std::complex<double> (data[i], 0.0)));
+    }
+    std::cout << "hex_data_ifft_lossless_when_no_padding: hg.num()=" << hg.num() << " X.size()=" << X.size()
+               << " max error " << maxerr << (ok ? "" : " (unexpectedly padded!)") << std::endl;
+    return ok && maxerr < 1e-8;
+}
+
+// When hg's boundary does NOT fill its bounding rectangle (e.g. a circular boundary),
+// spectrum::hex_data has already discarded the padded region's frequency content, so
+// ifft(hg, hex_data) is only a filtered approximation of the original data, unlike
+// ifft(hg, spectrum), which is exact. This just checks the overload runs and returns the
+// right size; the (expected, documented) mismatch against the original data is printed for
+// information rather than asserted on.
+static bool hex_data_ifft_runs_when_padded()
+{
+    sm::hexgrid<double> hg (1.0, 30.0);
+    hg.set_circular_boundary (6.0);
+
+    sm::vvec<double> data = make_data<double> (hg.num());
+    sm::hexfft::spectrum<double> X = sm::hexfft::fft (hg, data);
+    sm::vvec<std::complex<double>> back = sm::hexfft::ifft (hg, X.hex_data);
+
+    bool ok = (back.size() == hg.num());
+    double maxerr = 0.0;
+    for (std::uint32_t i = 0; i < hg.num(); ++i) {
+        maxerr = std::max (maxerr, std::abs (back[i] - std::complex<double> (data[i], 0.0)));
+    }
+    std::cout << "hex_data_ifft_runs_when_padded: hg.num()=" << hg.num() << " X.size()=" << X.size()
+               << " max error vs original (expected well above zero): " << maxerr
+               << (ok ? " OK" : " FAIL") << std::endl;
+    return ok;
+}
+
 std::int32_t main()
 {
     std::int32_t rtn = 0;
 
     if (!bounding_box_matches_parallelogram()) { --rtn; }
+    if (!hex_data_ifft_lossless_when_no_padding()) { --rtn; }
+    if (!hex_data_ifft_runs_when_padded()) { --rtn; }
 
     {
         sm::hexgrid<double> hg (1.0, 40.0);

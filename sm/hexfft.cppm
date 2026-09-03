@@ -435,6 +435,30 @@ namespace sm::hexfft::detail
         return { d0, d1 };
     }
 
+    //! The inverse of extract_by_vi: scatter one value per hex in hg (indexed by hex::vi, as
+    //! usual for hexgrid client data) into a zero-filled padded rectangle of shape (n, m)
+    //! whose (a=0,r=0,c=0) corner sits at hex::ri==ri_min, hex::gi==gi_min.
+    template<typename F>
+    std::pair<cmat<F>, cmat<F>> populate_from_vi (const sm::hexgrid<F>& hg, const sm::vvec<std::complex<F>>& data,
+                                                  std::int32_t ri_min, std::int32_t gi_min,
+                                                  std::uint32_t n, std::uint32_t m)
+    {
+        if (data.size() != hg.num()) {
+            std::stringstream ee;
+            ee << "sm::hexfft: data.size() (" << data.size() << ") does not match hg.num() (" << hg.num() << ")";
+            throw std::runtime_error (ee.str());
+        }
+        cmat<F> d0 (n, m);
+        cmat<F> d1 (n, m);
+        for (const auto& h : hg.hexen) {
+            std::uint32_t gr = static_cast<std::uint32_t> (h.gi - gi_min);
+            std::uint32_t c = static_cast<std::uint32_t> (h.ri - ri_min);
+            std::uint32_t r = gr / 2u;
+            if ((gr % 2u) == 0u) { d0 (r, c) = data[h.vi]; } else { d1 (r, c) = data[h.vi]; }
+        }
+        return { d0, d1 };
+    }
+
     //! Read back the one value per hex in hg from the padded rectangle (d0, d1) (whose
     //! (a=0,r=0,c=0) corner sits at hex::ri==ri_min, hex::gi==gi_min), producing a vvec
     //! indexed by hex::vi as usual for hexgrid client data.
@@ -503,23 +527,10 @@ export namespace sm::hexfft
     template<typename F>
     spectrum<F> fft (const sm::hexgrid<F>& hg, const sm::vvec<std::complex<F>>& data)
     {
-        if (data.size() != hg.num()) {
-            std::stringstream ee;
-            ee << "sm::hexfft::fft: data.size() (" << data.size() << ") does not match hg.num() (" << hg.num() << ")";
-            throw std::runtime_error (ee.str());
-        }
-
         spectrum<F> result;
         detail::bounding_box (hg, result.ri_min, result.gi_min, result.n, result.m);
 
-        detail::cmat<F> d0 (result.n, result.m);
-        detail::cmat<F> d1 (result.n, result.m);
-        for (const auto& h : hg.hexen) {
-            std::uint32_t gr = static_cast<std::uint32_t> (h.gi - result.gi_min);
-            std::uint32_t c = static_cast<std::uint32_t> (h.ri - result.ri_min);
-            std::uint32_t r = gr / 2u;
-            if ((gr % 2u) == 0u) { d0 (r, c) = data[h.vi]; } else { d1 (r, c) = data[h.vi]; }
-        }
+        auto [d0, d1] = detail::populate_from_vi (hg, data, result.ri_min, result.gi_min, result.n, result.m);
 
         auto [X0, X1] = detail::hfft2 (d0, d1);
         result.data = detail::flatten (X0, X1);
@@ -548,6 +559,37 @@ export namespace sm::hexfft
         auto [d0, d1] = detail::unflatten (X.data, X.n, X.m);
         auto [x0, x1] = detail::ihfft2 (d0, d1);
         return detail::extract_by_vi (hg, x0, x1, X.ri_min, X.gi_min);
+    }
+
+    /*!
+     * As above, but taking X indexed by hex::vi (X.size() == hg.num()), such as
+     * spectrum::hex_data, rather than a full sm::hexfft::spectrum. Since X only carries one
+     * value per hex, hg's bounding rectangle (see sm::hexfft::fft) is recomputed from hg, and
+     * any entries of that rectangle that don't correspond to a hex in hg (i.e. the zero-padded
+     * region added by sm::hexfft::fft, if hg's boundary doesn't already fill its own bounding
+     * rectangle) are treated as zero.
+     *
+     * Note that this makes this overload a true inverse of sm::hexfft::fft only when hg's
+     * boundary exactly fills its bounding rectangle in (ri, gi) space (so that
+     * spectrum::hex_data and spectrum::data carry the same information, just laid out
+     * differently). For any other boundary shape, spectrum::hex_data has already discarded the
+     * frequency content in the padded region, so the result here is a filtered approximation
+     * to the original spatial data, not an exact reconstruction: use the
+     * sm::hexfft::ifft (hg, spectrum) overload, which keeps that padded region, when an exact
+     * inverse is required.
+     */
+    template<typename F>
+    sm::vvec<std::complex<F>> ifft (const sm::hexgrid<F>& hg, const sm::vvec<std::complex<F>>& X)
+    {
+        std::int32_t ri_min = 0;
+        std::int32_t gi_min = 0;
+        std::uint32_t n = 0;
+        std::uint32_t m = 0;
+        detail::bounding_box (hg, ri_min, gi_min, n, m);
+
+        auto [d0, d1] = detail::populate_from_vi (hg, X, ri_min, gi_min, n, m);
+        auto [x0, x1] = detail::ihfft2 (d0, d1);
+        return detail::extract_by_vi (hg, x0, x1, ri_min, gi_min);
     }
 
 } // sm::hexfft
