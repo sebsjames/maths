@@ -280,8 +280,7 @@ namespace sm::hexfft::internal
         return out;
     }
 
-    //! The forward transform. data0 and data1 hold the two interleaved rectangular arrays
-    //! (a=0 and a=1) each of shape (R, COLS), with R == grid::n and COLS == grid::m.
+    //! The forward transform. data0 and data1 hold the two interleaved rectangular arrays (a=0 and a=1).
     template<typename F>
     std::pair<sm::hexfft::cmat<F>, sm::hexfft::cmat<F>> hfft2 (const sm::hexfft::cmat<F>& data0, const sm::hexfft::cmat<F>& data1)
     {
