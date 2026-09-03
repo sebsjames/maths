@@ -370,9 +370,38 @@ namespace sm::hexfft::detail
         return { out0, out1 };
     }
 
-    //! Find the smallest rectangle in (hex::ri, hex::gi) index space that encloses every hex
-    //! in hg, and round its row count up so that n (the number of rows in each of the two
-    //! row-parity arrays) is even and at least 2, as required by fold_half.
+    /*!
+     * A hex's (a, r, c) position within the padded ASA rectangle whose (a=0,r=0,c=0) corner
+     * sits at hex::ri==ri_min, hex::gi==gi_min.
+     *
+     * hex::gi's parity and hex::gi/2 give a (the row-parity array) and r (the row within it)
+     * directly. The column is NOT simply hex::ri, though: from hex::compute_location,
+     * hex::x == d*hex::ri + (d/2)*hex::gi, so for a fixed a, successive rows (hex::gi
+     * increasing by 2, i.e. r increasing by 1) each start half a hex further right in x than
+     * the row below -- hex::ri on its own decreases by one per row just to (over)compensate.
+     * Substituting hex::gi = 2*r + a shows hex::x == d*(hex::ri + r) + (d/2)*a: the a-dependent
+     * offset aside, hex::x is a clean, row-independent function of (hex::ri + r) alone. That
+     * sum is exactly the c used here (this is the same value that, e.g., dividing (hex::x -
+     * a*d/2) by d and rounding would give -- this integer form is exact, and cheaper).
+     *
+     * Getting this wrong (using hex::ri directly as c, as this function used to) still gives
+     * an invertible, self-consistent transform, since it never leaves the algebra of the
+     * hfft2/ihfft2 kernel -- but the two "rectangles" it operates on are not actually
+     * rectangles in (hex::x, hex::y) space, they're parallelograms.
+     */
+    template<typename F>
+    void asa_position (const sm::hex<F>& h, std::int32_t ri_min, std::int32_t gi_min,
+                       std::uint32_t& a, std::uint32_t& r, std::uint32_t& c)
+    {
+        std::int32_t r_signed = (h.gi - gi_min) / 2; // h.gi - gi_min >= 0, so this is exact floor division
+        a = static_cast<std::uint32_t> ((h.gi - gi_min) - 2 * r_signed);
+        r = static_cast<std::uint32_t> (r_signed);
+        c = static_cast<std::uint32_t> (h.ri + r_signed - ri_min);
+    }
+
+    //! Find the smallest rectangle, in the (a, r, c) addressing of asa_position, that encloses
+    //! every hex in hg, and round its row count up so that n (the number of rows in each of
+    //! the two row-parity arrays) is even and at least 2, as required by fold_half.
     template<typename F>
     void bounding_box (const sm::hexgrid<F>& hg, std::int32_t& ri_min, std::int32_t& gi_min,
                        std::uint32_t& n, std::uint32_t& m)
@@ -380,22 +409,40 @@ namespace sm::hexfft::detail
         if (hg.hexen.empty()) {
             throw std::runtime_error ("sm::hexfft: hexgrid has no hexes");
         }
-        std::int32_t ri_max = 0;
+
+        // hex::gi's parity/2 addressing (a, r) is unaffected by the column shear discussed in
+        // asa_position, so gi_min, gi_max can be found directly.
         std::int32_t gi_max = 0;
         bool first = true;
         for (const auto& h : hg.hexen) {
             if (first) {
-                ri_min = ri_max = h.ri;
                 gi_min = gi_max = h.gi;
                 first = false;
             } else {
-                ri_min = std::min (ri_min, h.ri);
-                ri_max = std::max (ri_max, h.ri);
                 gi_min = std::min (gi_min, h.gi);
                 gi_max = std::max (gi_max, h.gi);
             }
         }
-        m = static_cast<std::uint32_t> (ri_max - ri_min + 1);
+
+        // The column, c = hex::ri + r (see asa_position), does depend on r, so it needs a
+        // second pass, now that gi_min (and hence every hex's r) is known.
+        std::int32_t c_min = 0;
+        std::int32_t c_max = 0;
+        first = true;
+        for (const auto& h : hg.hexen) {
+            std::int32_t r = (h.gi - gi_min) / 2;
+            std::int32_t c = h.ri + r;
+            if (first) {
+                c_min = c_max = c;
+                first = false;
+            } else {
+                c_min = std::min (c_min, c);
+                c_max = std::max (c_max, c);
+            }
+        }
+        ri_min = c_min;
+
+        m = static_cast<std::uint32_t> (c_max - c_min + 1);
         std::uint32_t rows = static_cast<std::uint32_t> (gi_max - gi_min + 1);
         n = (rows + 1u) / 2u;
         if (n < 2u) {
@@ -451,10 +498,9 @@ namespace sm::hexfft::detail
         cmat<F> d0 (n, m);
         cmat<F> d1 (n, m);
         for (const auto& h : hg.hexen) {
-            std::uint32_t gr = static_cast<std::uint32_t> (h.gi - gi_min);
-            std::uint32_t c = static_cast<std::uint32_t> (h.ri - ri_min);
-            std::uint32_t r = gr / 2u;
-            if ((gr % 2u) == 0u) { d0 (r, c) = data[h.vi]; } else { d1 (r, c) = data[h.vi]; }
+            std::uint32_t a, r, c;
+            asa_position (h, ri_min, gi_min, a, r, c);
+            if (a == 0u) { d0 (r, c) = data[h.vi]; } else { d1 (r, c) = data[h.vi]; }
         }
         return { d0, d1 };
     }
@@ -468,13 +514,12 @@ namespace sm::hexfft::detail
     {
         sm::vvec<std::complex<F>> out (hg.num());
         for (const auto& h : hg.hexen) {
-            std::uint32_t gr = static_cast<std::uint32_t> (h.gi - gi_min);
-            std::uint32_t c = static_cast<std::uint32_t> (h.ri - ri_min);
-            std::uint32_t r = gr / 2u;
+            std::uint32_t a, r, c;
+            asa_position (h, ri_min, gi_min, a, r, c);
             if (r >= d0.rows || c >= d0.cols) {
                 throw std::runtime_error ("sm::hexfft: hg has a hex outside the given rectangle's bounds");
             }
-            out[h.vi] = (gr % 2u) == 0u ? d0 (r, c) : d1 (r, c);
+            out[h.vi] = (a == 0u) ? d0 (r, c) : d1 (r, c);
         }
         return out;
     }
