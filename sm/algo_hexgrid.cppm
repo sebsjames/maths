@@ -1,6 +1,11 @@
 /*
- * HexGrid algorithms
+ * HexGrid algorithms. These are algorithms that require an sm::hexgrid to be used, such as
+ * convolving over a hexgrid or resampling over a hexgrid.
+ *
+ * \author Seb James
+ * \date Sept. 2026
  */
+
 module;
 
 #include <cstdint>

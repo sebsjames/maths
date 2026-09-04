@@ -23,7 +23,6 @@ module;
 #include <iostream>
 #include <sstream>
 #include <vector>
-#include <stdexcept>
 #include <limits>
 
 export module sm.hexgrid;
