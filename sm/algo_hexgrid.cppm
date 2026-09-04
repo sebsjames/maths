@@ -284,4 +284,20 @@ export namespace sm::algo::hexgrid
         expr_resampled /= expr_resampled.max(); // renormalise result
         return expr_resampled;
     }
+
+    /*
+     * Mask @data, assumed to be defined across @hg. Set any element whose corresponding hex in hg
+     * is greater than radius @r to @mvalue
+     */
+    template<typename F, typename T=F>
+    void mask_outside_radius (const sm::hexgrid<F>& hg, sm::vvec<T>& data, const F r, const T mvalue = T{0})
+    {
+        if (hg.num() != data.size()) {
+            throw std::runtime_error ("mask_outside_radius: hexgrid and data sizes do not match");
+        }
+        for (std::uint32_t i = 0; i < data.size(); ++i) {
+            F _r = std::sqrt (hg.d_x[i] * hg.d_x[i] +  hg.d_y[i] * hg.d_y[i]);
+            data[i] = _r > r ? mvalue : data[i];
+        }
+    }
 }
