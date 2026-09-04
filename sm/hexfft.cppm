@@ -43,6 +43,8 @@ module;
 #include <sstream>
 #include <cmath>
 
+#include <iostream>
+
 export module sm.hexfft;
 
 export import sm.hexgrid;
@@ -59,6 +61,7 @@ export namespace sm::fft
     template<typename F>
     struct cmat
     {
+        std::uint32_t size() const { return this->rows * this->cols; }
         std::uint32_t rows = 0;
         std::uint32_t cols = 0;
         sm::vvec<std::complex<F>> data;
@@ -183,7 +186,7 @@ export namespace sm::fft
     template<typename F>
     sm::fft::cmat<F> pad_zeros (const sm::fft::cmat<F>& in)
     {
-        sm::fft::cmat<F> out (in.rows, in.cols * 2);
+        sm::fft::cmat<F> out (in.rows, in.cols * 2); // constructor ensures out is filled with 0
         for (std::uint32_t r = 0; r < in.rows; ++r) {
             for (std::uint32_t c = 0; c < in.cols; ++c) { out(r, c) = in(r, c); }
         }
@@ -202,7 +205,7 @@ export namespace sm::fft
         return out;
     }
 
-    //! Add (add==true) or subtract the bottom half of in's rows from the top half.
+    //! Add or subtract the bottom half of in's rows from the top half.
     template<typename F>
     sm::fft::cmat<F> fold_half (const sm::fft::cmat<F>& in, bool add)
     {
@@ -271,8 +274,9 @@ namespace sm::hexfft::internal
     // gwater/HexFFT.jl, a reference implementation of the same algorithm). data has shape
     // (R, COLS), where R (== grid::n) MUST be even.
 
+    // Fourier transform row by row, then decimate_cols.
     template<typename F>
-    std::pair<sm::fft::cmat<F>, sm::fft::cmat<F>> dft_nst1 (const sm::fft::cmat<F>& data)
+    std::pair<sm::fft::cmat<F>, sm::fft::cmat<F>> nst1 (const sm::fft::cmat<F>& data)
     {
         sm::fft::cmat<F> padded = sm::fft::pad_zeros (data);
         sm::fft::dft_rows (padded, false);
@@ -302,13 +306,17 @@ namespace sm::hexfft::internal
     }
 
     template<typename F>
-    sm::fft::cmat<F> w_matrix (int b, std::uint32_t R, std::uint32_t COLS)
+    sm::fft::cmat<F> w_matrix (int b, std::uint32_t R, std::uint32_t C)
     {
-        sm::fft::cmat<F> out (R, COLS);
+        sm::fft::cmat<F> out (R, C);
+        const F _b = static_cast<F>(b);
+        const F _R = static_cast<F>(R);
+        const F _C = static_cast<F>(C);
         for (std::uint32_t s = 0; s < R; ++s) {
-            for (std::uint32_t d = 0; d < COLS; ++d) {
-                F ang = -sm::mathconst<F>::pi * ( (static_cast<F>(b) + F{2} * static_cast<F>(d)) / (F{2} * static_cast<F>(COLS))
-                                                 + (static_cast<F>(b) + F{2} * static_cast<F>(s)) / static_cast<F>(R) );
+            const F _s = static_cast<F>(s);
+            for (std::uint32_t d = 0; d < C; ++d) {
+                const F _d = static_cast<F>(d);
+                F ang = -sm::mathconst<F>::pi * ( (_b + F{2} * _d) / (F{2} * _C) + (_b + F{2} * _s) / _R );
                 out(s, d) = std::complex<F> (std::cos (ang), std::sin (ang));
             }
         }
@@ -320,22 +328,32 @@ namespace sm::hexfft::internal
     std::pair<sm::fft::cmat<F>, sm::fft::cmat<F>> hfft2 (const sm::fft::cmat<F>& data0, const sm::fft::cmat<F>& data1)
     {
         std::uint32_t R = data0.rows;
-        std::uint32_t COLS = data0.cols;
+        std::uint32_t C = data0.cols;
 
-        auto [g00, g01] = dft_nst1 (data0);
-        auto [g10, g11] = dft_nst1 (data1);
+        // std::pair<sm::fft::cmat<F>, sm::fft::cmat<F>>, so g00, g01, g10, g11 are all cmat<F>
+        auto [g00, g01] = nst1 (data0);
+        auto [g10, g11] = nst1 (data1);
+        std::cout << "data0 size " << data0.size() << " data1 size " << data1.size() << std::endl;
+        std::cout << "g00 size " << g00.size() << " g01 size " << g01.size() << std::endl;
+        std::cout << "g10 size " << g10.size() << " g11 size " << g11.size() << std::endl;
 
         sm::fft::cmat<F> X0 = nst2 (g00);
         sm::fft::cmat<F> t0 = nst2 (g10);
-        sm::fft::cmat<F> W0 = w_matrix<F> (0, R, COLS);
-        for (std::uint32_t i = 0; i < X0.data.size(); ++i) { X0.data[i] += W0.data[i] * t0.data[i]; }
+        sm::fft::cmat<F> W0 = w_matrix<F> (0, R, C);
+        for (std::uint32_t i = 0; i < X0.data.size(); ++i) {
+            X0.data[i] += W0.data[i] * t0.data[i];
+        }
 
         sm::fft::cmat<F> X1 = nst3 (g01);
         sm::fft::cmat<F> t1 = nst3 (g11);
-        sm::fft::cmat<F> W1 = w_matrix<F> (1, R, COLS);
-        for (std::uint32_t i = 0; i < X1.data.size(); ++i) { X1.data[i] += W1.data[i] * t1.data[i]; }
+        sm::fft::cmat<F> W1 = w_matrix<F> (1, R, C);
+        for (std::uint32_t i = 0; i < X1.data.size(); ++i) {
+            X1.data[i] += W1.data[i] * t1.data[i];
+        }
 
         return { X0, X1 };
+        //return { g00, g01 };
+        //return { g10, g11 };
     }
 
     template<typename F>
@@ -372,12 +390,12 @@ namespace sm::hexfft::internal
     }
 
     template<typename F>
-    sm::fft::cmat<F> iw_matrix (int a, std::uint32_t R, std::uint32_t COLS)
+    sm::fft::cmat<F> iw_matrix (int a, std::uint32_t R, std::uint32_t C)
     {
-        sm::fft::cmat<F> out (R, COLS);
+        sm::fft::cmat<F> out (R, C);
         for (std::uint32_t r = 0; r < R; ++r) {
-            for (std::uint32_t c = 0; c < COLS; ++c) {
-                F ang = sm::mathconst<F>::pi * ( (static_cast<F>(a) + F{2} * static_cast<F>(c)) / (F{2} * static_cast<F>(COLS))
+            for (std::uint32_t c = 0; c < C; ++c) {
+                F ang = sm::mathconst<F>::pi * ( (static_cast<F>(a) + F{2} * static_cast<F>(c)) / (F{2} * static_cast<F>(C))
                                                 + (static_cast<F>(a) + F{2} * static_cast<F>(r)) / static_cast<F>(R) );
                 out(r, c) = std::complex<F> (std::cos (ang), std::sin (ang));
             }
@@ -390,21 +408,21 @@ namespace sm::hexfft::internal
     std::pair<sm::fft::cmat<F>, sm::fft::cmat<F>> ihfft2 (const sm::fft::cmat<F>& X0, const sm::fft::cmat<F>& X1)
     {
         std::uint32_t R = X0.rows;
-        std::uint32_t COLS = X0.cols;
+        std::uint32_t C = X0.cols;
 
         auto [g00, g01] = idft_inst1 (X0);
         auto [g10, g11] = idft_inst1 (X1);
 
         sm::fft::cmat<F> a0 = inst2 (g00);
         sm::fft::cmat<F> t0 = inst2 (g10);
-        sm::fft::cmat<F> IW0 = iw_matrix<F> (0, R, COLS);
-        sm::fft::cmat<F> out0 (R, COLS);
+        sm::fft::cmat<F> IW0 = iw_matrix<F> (0, R, C);
+        sm::fft::cmat<F> out0 (R, C);
         for (std::uint32_t i = 0; i < out0.data.size(); ++i) { out0.data[i] = F{0.5} * (a0.data[i] + IW0.data[i] * t0.data[i]); }
 
         sm::fft::cmat<F> a1 = inst3 (g01);
         sm::fft::cmat<F> t1 = inst3 (g11);
-        sm::fft::cmat<F> IW1 = iw_matrix<F> (1, R, COLS);
-        sm::fft::cmat<F> out1 (R, COLS);
+        sm::fft::cmat<F> IW1 = iw_matrix<F> (1, R, C);
+        sm::fft::cmat<F> out1 (R, C);
         for (std::uint32_t i = 0; i < out1.data.size(); ++i) { out1.data[i] = F{0.5} * (a1.data[i] + IW1.data[i] * t1.data[i]); }
 
         return { out0, out1 };
@@ -528,8 +546,8 @@ namespace sm::hexfft::internal
     //! whose (a=0,r=0,c=0) corner sits at hex::ri==ri_min, hex::gi==gi_min.
     template<typename F>
     std::pair<sm::fft::cmat<F>, sm::fft::cmat<F>> populate_from_vi (const sm::hexgrid<F>& hg, const sm::vvec<std::complex<F>>& data,
-                                                                          std::int32_t ri_min, std::int32_t gi_min,
-                                                                          std::uint32_t n, std::uint32_t m)
+                                                                    std::int32_t ri_min, std::int32_t gi_min,
+                                                                    std::uint32_t n, std::uint32_t m)
     {
         if (data.size() != hg.num()) {
             std::stringstream ee;
@@ -538,10 +556,17 @@ namespace sm::hexfft::internal
         }
         sm::fft::cmat<F> d0 (n, m);
         sm::fft::cmat<F> d1 (n, m);
+        std::uint32_t a = 0u;
+        std::uint32_t r = 0u;
+        std::uint32_t c = 0u;
         for (const auto& h : hg.hexen) {
-            std::uint32_t a, r, c;
             asa_position (h, ri_min, gi_min, a, r, c);
-            if (a == 0u) { d0 (r, c) = data[h.vi]; } else { d1 (r, c) = data[h.vi]; }
+            // std::cout << h.output_cart() << " has (a,r,c) = (" << a << "," << r << "," << c << ")" << std::endl; // 46000 ish output lines!
+            if (a == 0u) {
+                d0 (r, c) = data[h.vi];
+            } else {
+                d1 (r, c) = data[h.vi];
+            }
         }
         return { d0, d1 };
     }
@@ -584,30 +609,23 @@ export namespace sm::hexfft
     template<typename F = double>
     struct spectrum
     {
-        //! Rows in each of the two (even/odd hex::gi) sub-arrays of the padded rectangle.
+        //! Rows in each of the two ASA grids.
         std::uint32_t n = 0;
-        //! Columns in the padded rectangle (the hex::ri extent).
+        //! Columns in the ASA grids.
         std::uint32_t m = 0;
         //! The hex::ri, hex::gi of the padded rectangle's (a=0, r=0, c=0) corner.
         std::int32_t ri_min = 0;
         std::int32_t gi_min = 0;
-        //! Flat data, indexed as data[a * n * m + r * m + c], with a in {0,1} selecting the
-        //! even/odd hex::gi sub-array.
-        sm::vvec<std::complex<F>> data;
 
         //! This holds the data in the twin rectangular grids (ASA: array set addressing grids)
-        std::pair<sm::fft::cmat<F>, sm::fft::cmat<F>> d_asa;
+        std::pair<sm::fft::cmat<F>, sm::fft::cmat<F>> d_asa; // first: even, second: odd
         //! FFT in twin rectangular ASA grids. Saved to enable plotting/debugging
         std::pair<sm::fft::cmat<F>, sm::fft::cmat<F>> X_asa;
 
-        //! An fftshifted copy of data (see internal::fftshift), restricted to the frequency
-        //! bins at positions occupied by a hex in the hexgrid the transform was computed from,
-        //! and indexed by that hex's hex::vi (so hex_data.size() == hg.num()). The fftshift
-        //! moves the zero-frequency (DC) bin to the middle of the padded rectangle instead of
-        //! its (0,0) corner, so that plotting hex_data on the hexgrid shows a centred spectrum
-        //! rather than one that wraps at the edges. A convenience for inspecting or
-        //! visualising the spectrum on the original hexgrid; pass it to the
-        //! sm::hexfft::ifft (hg, vvec<complex<F>>) overload, which undoes the shift, to invert.
+        //! Result. flat data. A copy of X_asa.first and X_asa.second in a single 1D vvec
+        sm::vvec<std::complex<F>> data;
+
+        //! Result, suitable to be visualized on the hexgrid
         sm::vvec<std::complex<F>> hex_data;
 
         //! The total number of samples in the padded rectangle (2 * n * m).
@@ -624,11 +642,13 @@ export namespace sm::hexfft
     {
         spectrum<F> result;
         internal::bounding_box (hg, result.ri_min, result.gi_min, result.n, result.m);
+        std::cout << "ri_min: " << result.ri_min << ", gi_min: " << result.gi_min
+                  << " nxm: " << result.n << " x " <<  result.m << std::endl;
 
         // Save the input data after it has been extracted into ASA format
         result.d_asa = internal::populate_from_vi (hg, data, result.ri_min, result.gi_min, result.n, result.m);
         // Save the FFT'd data in ASA format
-        result.X_asa = internal::hfft2 (result.d_asa.first, result.d_asa.second);
+        result.X_asa = internal::hfft2 (result.d_asa.first, result.d_asa.second); // must be an oddity in here
 
         result.data = internal::flatten (result.X_asa.first, result.X_asa.second);
 
