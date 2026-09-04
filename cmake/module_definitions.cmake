@@ -256,6 +256,12 @@ macro(setup_module_variables_for_maths base_directory json_directory)
   )
   list(REMOVE_DUPLICATES SM_HEXGRID_HDF_MODULES)
 
+  set(SM_ALGO_HEXGRID_MODULES
+    ${SM_HEXGRID_MODULES}
+    ${base_directory}/sm/algo_hexgrid.cppm
+  )
+  list(REMOVE_DUPLICATES SM_ALGO_HEXGRID_MODULES)
+
   set(SM_HEXYHISTO_MODULES
     ${SM_VEC_MODULES}
     ${SM_VVEC_MODULES}
