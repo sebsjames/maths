@@ -249,6 +249,7 @@ export namespace sm::fft
         return out;
     }
 
+#if 0 // Not right
     //! Move the zero-frequency (DC) bin, at (0,0), to the middle of in, matching the
     //! numpy/MATLAB fftshift convention. Because in.rows is always even here, this is its own
     //! exact inverse in the row direction; in.cols need not be even, so use ifftshift, not
@@ -266,6 +267,7 @@ export namespace sm::fft
     {
         return roll (in, in.rows - in.rows / 2u, in.cols - in.cols / 2u);
     }
+#endif
 }
 
 namespace sm::hexfft::internal
@@ -429,32 +431,16 @@ namespace sm::hexfft::internal
     }
 
     /*!
-     * A hex's (a, r, c) position within the padded ASA rectangle whose (a=0,r=0,c=0) corner
-     * sits at hex::ri==ri_min, hex::gi==gi_min.
-     *
-     * hex::gi's parity and hex::gi/2 give a (the row-parity array) and r (the row within it)
-     * directly. The column is NOT simply hex::ri, though: from hex::compute_location,
-     * hex::x == d*hex::ri + (d/2)*hex::gi, so for a fixed a, successive rows (hex::gi
-     * increasing by 2, i.e. r increasing by 1) each start half a hex further right in x than
-     * the row below -- hex::ri on its own decreases by one per row just to (over)compensate.
-     * Substituting hex::gi = 2*r + a shows hex::x == d*(hex::ri + r) + (d/2)*a: the a-dependent
-     * offset aside, hex::x is a clean, row-independent function of (hex::ri + r) alone. That
-     * sum is exactly the c used here (this is the same value that, e.g., dividing (hex::x -
-     * a*d/2) by d and rounding would give -- this integer form is exact, and cheaper).
-     *
-     * Getting this wrong (using hex::ri directly as c, as this function used to) still gives
-     * an invertible, self-consistent transform, since it never leaves the algebra of the
-     * hfft2/ihfft2 kernel -- but the two "rectangles" it operates on are not actually
-     * rectangles in (hex::x, hex::y) space, they're parallelograms.
+     * Convert an sm::hex's ri/gi position into its index on one of the ASA rectangles.
      */
     template<typename F>
     void asa_position (const sm::hex<F>& h, std::int32_t ri_min, std::int32_t gi_min,
                        std::uint32_t& a, std::uint32_t& r, std::uint32_t& c)
     {
-        std::int32_t r_signed = (h.gi - gi_min) / 2; // h.gi - gi_min >= 0, so this is exact floor division
-        a = static_cast<std::uint32_t> ((h.gi - gi_min) - 2 * r_signed);
-        r = static_cast<std::uint32_t> (r_signed);
-        c = static_cast<std::uint32_t> (h.ri + r_signed - ri_min);
+        const std::int32_t _gi = (h.gi - gi_min) / 2;
+        a = static_cast<std::uint32_t> ((2 + (h.gi % 2)) % 2);
+        r = static_cast<std::uint32_t> (_gi);                  // green axis only
+        c = static_cast<std::uint32_t> (h.ri - ri_min + _gi ); // combination of green axis and red axis
     }
 
     //! Find the smallest rectangle, in the (a, r, c) addressing of asa_position, that encloses
@@ -574,6 +560,8 @@ namespace sm::hexfft::internal
     //! Read back the one value per hex in hg from the padded rectangle (d0, d1) (whose
     //! (a=0,r=0,c=0) corner sits at hex::ri==ri_min, hex::gi==gi_min), producing a vvec
     //! indexed by hex::vi as usual for hexgrid client data.
+    //
+    // This is not useful. We actually need to express the fourier transform
     template<typename F>
     sm::vvec<std::complex<F>> extract_by_vi (const sm::hexgrid<F>& hg, const sm::fft::cmat<F>& d0, const sm::fft::cmat<F>& d1,
                                              std::int32_t ri_min, std::int32_t gi_min)
@@ -589,6 +577,15 @@ namespace sm::hexfft::internal
         }
         return out;
     }
+
+#if 0
+    // X0 is the array (0, s, d) and X1 is (1, s, d). Transfer these to a hexgrid in the freq. space.
+    template<typename F>
+    sm::vvec<std::complex<F>> X_b_s_d_to_hexgrid (const sm::hexgrid<F>& hgf, const sm::fft::cmat<F>& X0, const sm::fft::cmat<F>& X1,
+                                                  std::int32_t ri_min, std::int32_t gi_min)
+    {
+    }
+#endif
 
 } // sm::hexfft::internal
 
@@ -652,12 +649,15 @@ export namespace sm::hexfft
 
         result.data = internal::flatten (result.X_asa.first, result.X_asa.second);
 
+#if 0
         // hex_data is read off an fftshifted copy of X_asa, so that DC lands in the middle of
         // the hexgrid rather than at a corner when it's plotted. result.data/X_asa themselves
         // are left un-shifted, so sm::hexfft::ifft (hg, spectrum<F>) is unaffected.
-        sm::fft::cmat<F> X0_shifted = sm::fft::fftshift (result.X_asa.first);
-        sm::fft::cmat<F> X1_shifted = sm::fft::fftshift (result.X_asa.second);
-        result.hex_data = internal::extract_by_vi (hg, X0_shifted, X1_shifted, result.ri_min, result.gi_min);
+        //result.hex_data = internal::extract_by_vi (hg, result.X_asa.first, result.X_asa.second, result.ri_min, result.gi_min);
+        result.hex_data = internal::X_b_s_d_to_hexgrid (hg, result.X_asa.first, result.X_asa.second, result.ri_min, result.gi_min);
+#else
+        result.hex_data.resize (hg.num(), {});
+#endif
         return result;
     }
 
@@ -683,6 +683,9 @@ export namespace sm::hexfft
         auto [x0, x1] = internal::ihfft2 (d0, d1);
         return internal::extract_by_vi (hg, x0, x1, X.ri_min, X.gi_min);
     }
+
+#if 0
+    // All wrong!
 
     /*!
      * As above, but taking X indexed by hex::vi (X.size() == hg.num()), such as
@@ -718,5 +721,6 @@ export namespace sm::hexfft
         auto [x0, x1] = internal::ihfft2 (d0, d1);
         return internal::extract_by_vi (hg, x0, x1, ri_min, gi_min);
     }
+#endif
 
 } // sm::hexfft
