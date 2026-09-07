@@ -49,6 +49,7 @@ export module sm.hexfft;
 
 export import sm.hexgrid;
 export import sm.vvec;
+import sm.vec;
 import sm.mathconst;
 
 // Regular, non-hexagonal fft
@@ -433,17 +434,35 @@ namespace sm::hexfft::internal
     /*!
      * Convert an sm::hex's ri/gi position into its index on one of the ASA rectangles.
      */
-    template<typename F>
-    void asa_position (const sm::hex<F>& h, std::int32_t ri_min, std::int32_t gi_min,
-                       std::uint32_t& a, std::uint32_t& r, std::uint32_t& c)
+    sm::vec<std::uint32_t, 3> ri_gi_to_asa (const std::int32_t ri, const std::int32_t gi,
+                                            const std::int32_t ri_min, const std::int32_t gi_min)
     {
-        const std::int32_t _gi = (h.gi - gi_min) / 2;
-        a = static_cast<std::uint32_t> ((2 + (h.gi % 2)) % 2);
-        r = static_cast<std::uint32_t> (_gi);                  // green axis only
-        c = static_cast<std::uint32_t> (h.ri - ri_min + _gi ); // combination of green axis and red axis
+        const std::int32_t _gi = (gi - gi_min) / 2;
+
+        sm::vec<std::uint32_t, 3> arc = {};
+
+        if ((_gi < 0) || ((ri - ri_min + _gi) < 0)) {
+            arc.set_from (std::numeric_limits<std::uint32_t>::max());
+        } else {
+            arc = {
+                static_cast<std::uint32_t> ((2 + (gi % 2)) % 2), // a from oddness/evenness of gi
+                static_cast<std::uint32_t> (_gi),                // r is green axis only
+                static_cast<std::uint32_t> (ri - ri_min + _gi )  // c is a combination of green axis and red axis
+            };
+        }
+
+        return arc;
     }
 
-    //! Find the smallest rectangle, in the (a, r, c) addressing of asa_position, that encloses
+    sm::vec<std::int32_t, 2> asa_to_ri_gi (const std::uint32_t a, const std::uint32_t r, const std::uint32_t c,
+                                           const std::int32_t ri_min, const std::int32_t gi_min)
+    {
+        const std::int32_t gi = r * 2 + a; // r (row) gives gi
+        const std::int32_t ri = c - r;
+        return sm::vec<std::int32_t, 2> { ri + ri_min, gi + gi_min };
+    }
+
+    //! Find the smallest rectangle, in the (a, r, c) addressing of ri_gi_to_asa, that encloses
     //! every hex in hg, and round its row count up so that n (the number of rows in each of
     //! the two row-parity arrays) is even and at least 2, as required by fold_half.
     template<typename F>
@@ -455,7 +474,7 @@ namespace sm::hexfft::internal
         }
 
         // hex::gi's parity/2 addressing (a, r) is unaffected by the column shear discussed in
-        // asa_position, so gi_min, gi_max can be found directly.
+        // ri_gi_to_asa, so gi_min, gi_max can be found directly.
         std::int32_t gi_max = 0;
         bool first = true;
         for (const auto& h : hg.hexen) {
@@ -468,7 +487,7 @@ namespace sm::hexfft::internal
             }
         }
 
-        // The column, c = hex::ri + r (see asa_position), does depend on r, so it needs a
+        // The column, c = hex::ri + r (see ri_gi_to_asa), does depend on r, so it needs a
         // second pass, now that gi_min (and hence every hex's r) is known.
         std::int32_t c_min = 0;
         std::int32_t c_max = 0;
@@ -542,50 +561,59 @@ namespace sm::hexfft::internal
         }
         sm::fft::cmat<F> d0 (n, m);
         sm::fft::cmat<F> d1 (n, m);
-        std::uint32_t a = 0u;
-        std::uint32_t r = 0u;
-        std::uint32_t c = 0u;
+        sm::vec<std::uint32_t> arc = {};
         for (const auto& h : hg.hexen) {
-            asa_position (h, ri_min, gi_min, a, r, c);
-            // std::cout << h.output_cart() << " has (a,r,c) = (" << a << "," << r << "," << c << ")" << std::endl; // 46000 ish output lines!
-            if (a == 0u) {
-                d0 (r, c) = data[h.vi];
+            arc = ri_gi_to_asa (h.ri, h.gi, ri_min, gi_min);
+            if (arc[0] == 0u) {
+                d0 (arc[1], arc[2]) = data[h.vi];
             } else {
-                d1 (r, c) = data[h.vi];
+                d1 (arc[1], arc[2]) = data[h.vi];
             }
         }
         return { d0, d1 };
     }
 
-    //! Read back the one value per hex in hg from the padded rectangle (d0, d1) (whose
-    //! (a=0,r=0,c=0) corner sits at hex::ri==ri_min, hex::gi==gi_min), producing a vvec
-    //! indexed by hex::vi as usual for hexgrid client data.
-    //
-    // This is not useful. We actually need to express the fourier transform
-    template<typename F>
-    sm::vvec<std::complex<F>> extract_by_vi (const sm::hexgrid<F>& hg, const sm::fft::cmat<F>& d0, const sm::fft::cmat<F>& d1,
-                                             std::int32_t ri_min, std::int32_t gi_min)
-    {
-        sm::vvec<std::complex<F>> out (hg.num());
-        for (const auto& h : hg.hexen) {
-            std::uint32_t a, r, c;
-            asa_position (h, ri_min, gi_min, a, r, c);
-            if (r >= d0.rows || c >= d0.cols) {
-                throw std::runtime_error ("sm::hexfft: hg has a hex outside the given rectangle's bounds");
-            }
-            out[h.vi] = (a == 0u) ? d0 (r, c) : d1 (r, c);
-        }
-        return out;
-    }
-
-#if 0
     // X0 is the array (0, s, d) and X1 is (1, s, d). Transfer these to a hexgrid in the freq. space.
     template<typename F>
     sm::vvec<std::complex<F>> X_b_s_d_to_hexgrid (const sm::hexgrid<F>& hgf, const sm::fft::cmat<F>& X0, const sm::fft::cmat<F>& X1,
                                                   std::int32_t ri_min, std::int32_t gi_min)
     {
-    }
+        sm::vvec<std::complex<F>> out (hgf.num());
+
+        sm::vec<std::uint32_t> arc = {};
+        for (const auto& h : hgf.hexen) {
+            //const std::int32_t ri = hgf.d_ri[h.vi];
+            //const std::int32_t gi = hgf.d_gi[h.vi];
+            arc = ri_gi_to_asa (h.ri, h.gi, ri_min, gi_min); // numerics will go wrong...
+
+            if (arc[0] == std::numeric_limits<std::uint32_t>::max()) {
+                out[h.vi] = {};
+            } else if (arc[0]) {
+                // use X1
+                out[h.vi] = X1(arc[1], arc[2]);
+            } else {
+                // use X0
+                out[h.vi] = X0(arc[1], arc[2]);
+            }
+        }
+
+#if 0
+        // X0 is (0, s, d)
+        for (std::uint32_t i = 0; i < X0.size(); ++i) {
+            const std::uint32_t r = i / X0.cols;
+            const std::uint32_t c = i % X0.cols;
+            sm::vec<std::int32_t, 2> rigi = asa_to_ri_gi (0u, r, c, ri_min, gi_min);
+            out[hgf(rigi[0], rigi[1]).vi] = X0.data[i];
+        }
+        for (std::uint32_t i = 0; i < X1.size(); ++i) {
+            const std::uint32_t r = i / X1.cols;
+            const std::uint32_t c = i % X1.cols;
+            sm::vec<std::int32_t, 2> rigi = asa_to_ri_gi (1u, r, c, ri_min, gi_min);
+            out[hgf(rigi[0], rigi[1]).vi] = X1.data[i];
+        }
 #endif
+        return out;
+    }
 
 } // sm::hexfft::internal
 
@@ -598,10 +626,7 @@ export namespace sm::hexfft
      * hex::gi) index space, but Birdsong & Rummelt's algorithm requires one. sm::hexfft::fft
      * therefore computes the transform over the smallest rectangle enclosing all of the
      * hexgrid's hexes, treating any (ri, gi) that falls inside that rectangle but outside the
-     * hexgrid's boundary as a zero input sample (an ordinary zero-padded/windowed FFT). This
-     * spectrum covers that whole padded rectangle, and so is generally larger than the
-     * hexgrid it was computed from: use sm::hexfft::ifft, passing the same hexgrid, to invert
-     * it back down to one value per hex.
+     * hexgrid's boundary as a zero input sample (an ordinary zero-padded/windowed FFT).
      */
     template<typename F = double>
     struct spectrum
@@ -622,7 +647,7 @@ export namespace sm::hexfft
         //! Result. flat data. A copy of X_asa.first and X_asa.second in a single 1D vvec
         sm::vvec<std::complex<F>> data;
 
-        //! Result, suitable to be visualized on the hexgrid
+        //! Result, suitable for visualization on the frequency space hexgrid
         sm::vvec<std::complex<F>> hex_data;
 
         //! The total number of samples in the padded rectangle (2 * n * m).
@@ -635,7 +660,7 @@ export namespace sm::hexfft
      * data.size() == hg.num()).
      */
     template<typename F>
-    spectrum<F> fft (const sm::hexgrid<F>& hg, const sm::vvec<std::complex<F>>& data)
+    spectrum<F> fft (const sm::hexgrid<F>& hg, const sm::vvec<std::complex<F>>& data, [[maybe_unused]]sm::hexgrid<F>& hgf)
     {
         spectrum<F> result;
         internal::bounding_box (hg, result.ri_min, result.gi_min, result.n, result.m);
@@ -649,27 +674,27 @@ export namespace sm::hexfft
 
         result.data = internal::flatten (result.X_asa.first, result.X_asa.second);
 
+        result.hex_data = internal::X_b_s_d_to_hexgrid (hgf, result.X_asa.first, result.X_asa.second, result.ri_min, result.gi_min);
+        //result.hex_data.resize (hg.num());
 #if 0
         // hex_data is read off an fftshifted copy of X_asa, so that DC lands in the middle of
         // the hexgrid rather than at a corner when it's plotted. result.data/X_asa themselves
         // are left un-shifted, so sm::hexfft::ifft (hg, spectrum<F>) is unaffected.
-        //result.hex_data = internal::extract_by_vi (hg, result.X_asa.first, result.X_asa.second, result.ri_min, result.gi_min);
-        result.hex_data = internal::X_b_s_d_to_hexgrid (hg, result.X_asa.first, result.X_asa.second, result.ri_min, result.gi_min);
-#else
-        result.hex_data.resize (hg.num(), {});
+        result.hex_data = internal::extract_by_vi (hg, result.X_asa.first, result.X_asa.second, result.ri_min, result.gi_min);
 #endif
         return result;
     }
 
     //! As above, but for real-valued input data.
     template<typename F>
-    spectrum<F> fft (const sm::hexgrid<F>& hg, const sm::vvec<F>& data)
+    spectrum<F> fft (const sm::hexgrid<F>& hg, const sm::vvec<F>& data, sm::hexgrid<F>& hgf)
     {
         sm::vvec<std::complex<F>> cdata (data.size());
         for (std::uint32_t i = 0; i < data.size(); ++i) { cdata[i] = std::complex<F> (data[i], F{0}); }
-        return sm::hexfft::fft (hg, cdata);
+        return sm::hexfft::fft (hg, cdata, hgf);
     }
 
+#if 0
     /*!
      * Compute the inverse hexagonal FFT, undoing sm::hexfft::fft. hg must be the same hexgrid
      * (or one with the same hexes) that X was computed from. The result is indexed by
@@ -683,6 +708,7 @@ export namespace sm::hexfft
         auto [x0, x1] = internal::ihfft2 (d0, d1);
         return internal::extract_by_vi (hg, x0, x1, X.ri_min, X.gi_min);
     }
+#endif
 
 #if 0
     // All wrong!
