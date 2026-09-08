@@ -1,6 +1,6 @@
 ---
 layout: page
-title: sm::base64::functions
+title: sm::base64 (namespace)
 parent: Reference
 nav_order: 16
 permalink: /ref/base64/

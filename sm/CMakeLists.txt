@@ -6,6 +6,7 @@
 install(
   FILES
   algo.cppm
+  algo_hexgrid.cppm
   anneal.cppm
   base64.cppm
   bessel_i0.cppm

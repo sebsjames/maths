@@ -1,6 +1,6 @@
 ---
 layout: page
-title: sm::polysolve::functions
+title: sm::polysolve (namespace)
 parent: Reference
 nav_order: 14
 permalink: /ref/polysolve/

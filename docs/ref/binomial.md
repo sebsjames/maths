@@ -1,6 +1,6 @@
 ---
 layout: page
-title: sm::binomial::functions
+title: sm::binomial (namespace)
 parent: Reference
 nav_order: 28
 permalink: /ref/binomial/

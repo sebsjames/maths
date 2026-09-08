@@ -1,6 +1,6 @@
 ---
 layout: page
-title: sm::bootstrap::functions
+title: sm::bootstrap (namespace)
 parent: Reference
 nav_order: 29
 permalink: /ref/bootstrap/
