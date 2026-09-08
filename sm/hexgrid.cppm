@@ -24,6 +24,7 @@ module;
 #include <sstream>
 #include <vector>
 #include <limits>
+#include <type_traits>
 
 export module sm.hexgrid;
 
@@ -54,8 +55,10 @@ export namespace sm
      * may be used to index into external data structures (arrays or vectors) which
      * contain information about the 2D surface represented by the hexgrid which is to
      * be computed.
+     *
+     * \tparam F the type used for the coordinates of the hexes.
      */
-    template<typename F=float>
+    template<typename F> requires std::is_floating_point_v<F>
     struct alignas(8) hexgrid
     {
         /*!

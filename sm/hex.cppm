@@ -18,6 +18,7 @@ module;
 #include <list>
 #include <array>
 #include <cmath>
+#include <type_traits>
 
 export module sm.hex;
 
@@ -136,7 +137,7 @@ export namespace sm
      *
      * Edges/Sides: East: 0, North-East: 1, North-West: 2 West: 3, South-West: 4, South-East: 5
      */
-    template<typename F>
+    template<typename F> requires std::is_floating_point_v<F>
     class hex
     {
     public:
