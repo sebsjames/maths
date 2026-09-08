@@ -56,9 +56,8 @@ export namespace sm
      * be computed.
      */
     template<typename F=float>
-    class alignas(8) hexgrid
+    struct alignas(8) hexgrid
     {
-    public:
         /*!
          * Domain attributes
          * -----------------
@@ -130,6 +129,91 @@ export namespace sm
          */
         std::uint32_t d_growthbuffer_horz = 0;
         std::uint32_t d_growthbuffer_vert = 0;
+
+        /*!
+         * The centre to centre hex distance between adjacent members of the hex grid.
+         */
+        F d = 1.0f;
+
+        /*!
+         * The centre to centre hex distance between hexes on adjacent rows - the
+         * 'vertical' distance.
+         */
+        F v = 1.0f * sm::mathconst<F>::root_3_over_2;
+
+        /*!
+         * Give the hexagonal hex grid a diameter of approximately x_span in the
+         * horizontal direction, which is perpendicular to one of the edges of the
+         * member hexagons.
+         */
+        F x_span = 10.0f;
+
+        /*!
+         * The z coordinate of this hex grid layer
+         */
+        F z;
+
+        /*!
+         * A boundary to apply to the initial, rectangular grid.
+         */
+        bezcurvepath<F> boundary;
+
+        /*
+         * hex references to the hexes on the vertices of the hexagonal
+         * grid. Configured during init(). These will become invalid when a new
+         * boundary is applied to the original hexagonal grid. When this occurs,
+         * grid_reduced should be set false.
+         */
+        std::list<sm::hex<F>>::iterator vertex_e;
+        std::list<sm::hex<F>>::iterator vertex_ne;
+        std::list<sm::hex<F>>::iterator vertex_nw;
+        std::list<sm::hex<F>>::iterator vertex_w;
+        std::list<sm::hex<F>>::iterator vertex_sw;
+        std::list<sm::hex<F>>::iterator vertex_se;
+
+        /*!
+         * Set true when a new boundary has been applied. This means that
+         * the #vertex_e, #vertex_w, and similar iterators are no longer valid.
+         */
+        bool grid_reduced = false;
+
+        /*!
+         * If hexes have been transformed, then we have to store the transform matrix so that it can
+         * be used by client code (such as mathplot's HexGridVisual)
+         */
+        sm::mat<F, 4> tfm = sm::mat<F, 4>::identity();
+
+        /*!
+         * The list of hexes that make up this hexgrid.
+         */
+        std::list<sm::hex<F>> hexen;
+
+        /*!
+         * Once boundary secured, fill this vector. Experimental - can I do parallel
+         * loops with vectors of hexes? Ans: Not very well.
+         */
+        std::vector<sm::hex<F>*> vhexen;
+
+        /*!
+         * While determining if boundary is continuous, fill this maps container of
+         * hexes.
+         */
+        std::list<const sm::hex<F>*> bhexen; // Not better as a separate list<sm::hex<F>>?
+
+        /*!
+         * Store the centroid of the boundary path. The centroid of a read-in
+         * bezcurvepath [see void set_boundary (const bezcurvepath& p)] is subtracted
+         * from each generated point on the boundary path so that the boundary once it
+         * is expressed in the hexgrid will have a (2D) centroid of roughly
+         * (0,0). Hence, this is usually roughly (0,0).
+         */
+        sm::vec<F, 2> boundary_centroid = {0.0f, 0.0f};
+
+        /*!
+         * Holds the centroid of the boundary before all points on the boundary were
+         * translated so that the centroid of the boundary would be 0,0
+         */
+        sm::vec<F, 2> original_boundary_centroid = {0.0f, 0.0f};
 
         //! Add entries to all the d_ vectors for the hex pointed to by hi.
         void d_push_back (std::list<sm::hex<F>>::iterator hi)
@@ -957,10 +1041,6 @@ export namespace sm
             return xmax;
         }
 
-        // If hexes have been transformed, then we have to store the transform matrix so that it can
-        // be used by client code (such as mathplot's HexGridVisual)
-        sm::mat<F, 4> tfm = sm::mat<F, 4>::identity();
-
         // Transform the positions of the hexes. After transforming, the domain vectors may have to be recomputed
         void transform (const sm::mat<F, 4>& tf)
         {
@@ -1280,38 +1360,6 @@ export namespace sm
                 }
             }
         }
-
-        /*!
-         * The list of hexes that make up this hexgrid.
-         */
-        std::list<sm::hex<F>> hexen;
-
-        /*!
-         * Once boundary secured, fill this vector. Experimental - can I do parallel
-         * loops with vectors of hexes? Ans: Not very well.
-         */
-        std::vector<sm::hex<F>*> vhexen;
-
-        /*!
-         * While determining if boundary is continuous, fill this maps container of
-         * hexes.
-         */
-        std::list<const sm::hex<F>*> bhexen; // Not better as a separate list<sm::hex<F>>?
-
-        /*!
-         * Store the centroid of the boundary path. The centroid of a read-in
-         * bezcurvepath [see void set_boundary (const bezcurvepath& p)] is subtracted
-         * from each generated point on the boundary path so that the boundary once it
-         * is expressed in the hexgrid will have a (2D) centroid of roughly
-         * (0,0). Hence, this is usually roughly (0,0).
-         */
-        sm::vec<F, 2> boundary_centroid = {0.0f, 0.0f};
-
-        /*!
-         * Holds the centroid of the boundary before all points on the boundary were
-         * translated so that the centroid of the boundary would be 0,0
-         */
-        sm::vec<F, 2> original_boundary_centroid = {0.0f, 0.0f};
 
     private:
         /*!
@@ -2398,55 +2446,6 @@ export namespace sm
                 ++hi;
             }
         }
-
-    public:
-        /*!
-         * The centre to centre hex distance between adjacent members of the hex grid.
-         */
-        F d = 1.0f;
-
-        /*!
-         * The centre to centre hex distance between hexes on adjacent rows - the
-         * 'vertical' distance.
-         */
-        F v = 1.0f * sm::mathconst<F>::root_3_over_2;
-
-        /*!
-         * Give the hexagonal hex grid a diameter of approximately x_span in the
-         * horizontal direction, which is perpendicular to one of the edges of the
-         * member hexagons.
-         */
-        F x_span = 10.0f;
-
-        /*!
-         * The z coordinate of this hex grid layer
-         */
-        F z;
-
-        /*!
-         * A boundary to apply to the initial, rectangular grid.
-         */
-        bezcurvepath<F> boundary;
-
-        /*
-         * hex references to the hexes on the vertices of the hexagonal
-         * grid. Configured during init(). These will become invalid when a new
-         * boundary is applied to the original hexagonal grid. When this occurs,
-         * grid_reduced should be set false.
-         */
-        std::list<sm::hex<F>>::iterator vertex_e;
-        std::list<sm::hex<F>>::iterator vertex_ne;
-        std::list<sm::hex<F>>::iterator vertex_nw;
-        std::list<sm::hex<F>>::iterator vertex_w;
-        std::list<sm::hex<F>>::iterator vertex_sw;
-        std::list<sm::hex<F>>::iterator vertex_se;
-
-        /*!
-         * Set true when a new boundary has been applied. This means that
-         * the #vertex_e, #vertex_w, and similar iterators are no longer valid.
-         */
-        bool grid_reduced = false;
-
     };
 
 } // namespace sm
