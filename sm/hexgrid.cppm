@@ -89,12 +89,12 @@ export namespace sm
          * parallelogram and rectangular domain cases, if the domain is hexagonal or
          * arbitrary boundary, then even this is not true.
          */
-        alignas(8) std::vector<std::int32_t> d_ne;
-        alignas(8) std::vector<std::int32_t> d_nne;
-        alignas(8) std::vector<std::int32_t> d_nnw;
-        alignas(8) std::vector<std::int32_t> d_nw;
-        alignas(8) std::vector<std::int32_t> d_nsw;
-        alignas(8) std::vector<std::int32_t> d_nse;
+        alignas(8) std::vector<std::int32_t> d_ne;  // becomes d_n0
+        alignas(8) std::vector<std::int32_t> d_nne; // d_n1
+        alignas(8) std::vector<std::int32_t> d_nnw; // d_n2
+        alignas(8) std::vector<std::int32_t> d_nw;  // d_n3
+        alignas(8) std::vector<std::int32_t> d_nsw; // d_n4
+        alignas(8) std::vector<std::int32_t> d_nse; // d_n5
 
         /*!
          * _flags, such as "on boundary", "inside boundary", "outside boundary", "has
