@@ -20,6 +20,8 @@ module;
 #include <cmath>
 #include <type_traits>
 
+#include <iostream> // debug
+
 export module sm.hex;
 
 export import sm.mathconst;
@@ -29,6 +31,10 @@ import sm.mat;
 
 export namespace sm
 {
+    //! A tesselation of hexagons may be arranged so that a vertices 'point up (and down)' or so
+    //! that a 'flat is up' (and a vertex points to the right/left)
+    enum class hexalign { point_up, flat_up };
+
     /*!
      * Set true when ne has been set. Use of iterators (hex::ne etc) rather than pointers for
      * neighbouring hexes means we can't do any kind of check to see if the iterator is valid, so we
@@ -38,34 +44,34 @@ export namespace sm
     constexpr std::uint32_t HEX_HAS_NE              = 0x1;
     //! True when this hex has a Neighbour to the North East
     constexpr std::uint32_t HEX_HAS_NNE             = 0x2;
+    //! True when this hex has a Neighbour to the North
+    constexpr std::uint32_t HEX_HAS_NN              = 0x4;
     //! True when this hex has a Neighbour to the North West
-    constexpr std::uint32_t HEX_HAS_NNW             = 0x4;
+    constexpr std::uint32_t HEX_HAS_NNW             = 0x8;
     //! True when this hex has a Neighbour to the West
-    constexpr std::uint32_t HEX_HAS_NW              = 0x8;
+    constexpr std::uint32_t HEX_HAS_NW              = 0x10;
     //! True when this hex has a Neighbour to the South West
-    constexpr std::uint32_t HEX_HAS_NSW             = 0x10;
+    constexpr std::uint32_t HEX_HAS_NSW             = 0x20;
+    //! True when this hex has a Neighbour to the South
+    constexpr std::uint32_t HEX_HAS_NS              = 0x40;
     //! True when this hex has a Neighbour to the South East
-    constexpr std::uint32_t HEX_HAS_NSE             = 0x20;
-    //! A short cut for testing all the neighbour flags at once
-    constexpr std::uint32_t HEX_HAS_NEIGHB_ALL      = 0x3f; // HEX_HAS_NE | HEX_HAS_NNE | ...etc
+    constexpr std::uint32_t HEX_HAS_NSE             = 0x80;
 
     //! All hexes marked as boundary hexes, including some that are additional to requirements:
-    constexpr std::uint32_t HEX_IS_BOUNDARY         = 0x40;
+    constexpr std::uint32_t HEX_IS_BOUNDARY         = 0x100;
     //! All hexes inside boundary plus as much of the boundary as needed to make a contiguous boundary:
-    constexpr std::uint32_t HEX_INSIDE_BOUNDARY     = 0x80;
+    constexpr std::uint32_t HEX_INSIDE_BOUNDARY     = 0x200;
     //! All hexes inside the domain of computation:
-    constexpr std::uint32_t HEX_INSIDE_DOMAIN       = 0x100;
+    constexpr std::uint32_t HEX_INSIDE_DOMAIN       = 0x400;
     //! hex is a 'region boundary hex'. Regions are intended to be temporary to aid client code.
-    constexpr std::uint32_t HEX_IS_REGION_BOUNDARY  = 0x200;
+    constexpr std::uint32_t HEX_IS_REGION_BOUNDARY  = 0x800;
     //! hex is inside the region
-    constexpr std::uint32_t HEX_INSIDE_REGION       = 0x400;
+    constexpr std::uint32_t HEX_INSIDE_REGION       = 0x1000;
 
-    //! Five unused flags pad the 'hexgrid' flags and the user flags
-    constexpr std::uint32_t HEX_UNUSED_FLAG_0 = 0x800;
-    constexpr std::uint32_t HEX_UNUSED_FLAG_1 = 0x1000;
-    constexpr std::uint32_t HEX_UNUSED_FLAG_2 = 0x2000;
-    constexpr std::uint32_t HEX_UNUSED_FLAG_3 = 0x4000;
-    constexpr std::uint32_t HEX_UNUSED_FLAG_4 = 0x8000;
+    //! Unused flags pad the 'hexgrid' flags and the user flags
+    constexpr std::uint32_t HEX_UNUSED_FLAG_0 = 0x2000;
+    constexpr std::uint32_t HEX_UNUSED_FLAG_1 = 0x4000;
+    constexpr std::uint32_t HEX_UNUSED_FLAG_2 = 0x8000;
 
     //! Sixteen flags for client code to use for its own devices.
     constexpr std::uint32_t HEX_USER_FLAG_0   = 0x00010000;
@@ -89,23 +95,10 @@ export namespace sm
     //! Bitmask for all the flags that aren't the 16 user flags.
     constexpr std::uint32_t HEX_NON_USER      = 0x0000ffff;
 
-    //! Neighbour (or edge, or side) positions
-    constexpr std::uint32_t HEX_NEIGHBOUR_POS_E  = 0x0;
-    constexpr std::uint32_t HEX_NEIGHBOUR_POS_NE = 0x1;
-    constexpr std::uint32_t HEX_NEIGHBOUR_POS_NW = 0x2;
-    constexpr std::uint32_t HEX_NEIGHBOUR_POS_W  = 0x3;
-    constexpr std::uint32_t HEX_NEIGHBOUR_POS_SW = 0x4;
-    constexpr std::uint32_t HEX_NEIGHBOUR_POS_SE = 0x5;
-
-    //! Vertex positions
-    constexpr std::uint32_t HEX_VERTEX_POS_NE = 0x0;
-    constexpr std::uint32_t HEX_VERTEX_POS_N  = 0x1;
-    constexpr std::uint32_t HEX_VERTEX_POS_NW = 0x2;
-    constexpr std::uint32_t HEX_VERTEX_POS_SW = 0x3;
-    constexpr std::uint32_t HEX_VERTEX_POS_S  = 0x4;
-    constexpr std::uint32_t HEX_VERTEX_POS_SE = 0x5;
-
     /*!
+     *
+     * IF \tparam A is hexalign::point_up:
+     *
      * Describes a regular hexagon arranged with vertices pointing vertically and two flat sides
      * perpendicular to the horizontal axis:
      *\code{.unparsed}
@@ -136,8 +129,35 @@ export namespace sm
      * Vertices: NE: 0, N: 1, NW: 2, SW: 3, S: 4, SE: 5.
      *
      * Edges/Sides: East: 0, North-East: 1, North-West: 2 West: 3, South-West: 4, South-East: 5
+     *
+     * ELSE, we have 'flat_up', which (with the Cartesian right hand coordinate system unchanged) means:
+     *
+     *\code{.unparsed}
+     *    *   *
+     *   *     *
+     *    *   *
+     *\endcode
+     *
+     * Directions r, g and b are now 'North east', 'North' and 'North West'.
+     *
+     *\code{.unparsed}
+     *      g
+     *  b *   * r
+     *   *     *
+     * -r *   * -b
+     *     -g
+     *\endcode
+     *
+     * That is, r, g and 6 are rotated pi/6 wrt r, g and b in the point_up case.
+     *
+     * Vertex and edge/side numbers are different (these are mostly used internally):
+     *
+     * Vertices: NE: 0, NW: 1, W: 2, SW: 3, SE: 4, E: 5.
+     *
+     * Edges/Sides: North-East: 0, North: 1, North-West: 2 South-West: 3, South: 4, South-East: 5
+     *
      */
-    template<typename F> requires std::is_floating_point_v<F>
+    template<typename F, sm::hexalign A = sm::hexalign::point_up> requires std::is_floating_point_v<F>
     class hex
     {
     public:
@@ -156,7 +176,7 @@ export namespace sm
         }
 
         //! Comparison operation to enable use of set<hex>
-        bool operator< (const hex<F>& rhs) const
+        bool operator< (const hex<F, A>& rhs) const
         {
             // Compare position first.
             if (this->x < rhs.x) { return true; }
@@ -179,23 +199,44 @@ export namespace sm
             s += std::to_string(this->ri).substr(0,4) + ",";
             s += std::to_string(this->gi).substr(0,4) + "). ";
 
-            if (this->has_ne()) {
-                s += "E: (" + std::to_string(this->ne->ri).substr(0,4) + "," + std::to_string(this->ne->gi).substr(0,4) + ") " + (this->ne->boundary_hex() == true ? "OB":"") + " ";
-            }
-            if (this->has_nse()) {
-                s += "SE: (" + std::to_string(this->nse->ri).substr(0,4) + "," + std::to_string(this->nse->gi).substr(0,4) + ") " + (this->nse->boundary_hex() == true ? "OB":"") + " ";
-            }
-            if (this->has_nsw()) {
-                s += "SW: (" + std::to_string(this->nsw->ri).substr(0,4) + "," + std::to_string(this->nsw->gi).substr(0,4) + ") " + (this->nsw->boundary_hex() == true ? "OB":"") + " ";
-            }
-            if (this->has_nw()) {
-                s += "W: (" + std::to_string(this->nw->ri).substr(0,4) + "," + std::to_string(this->nw->gi).substr(0,4) + ") " + (this->nw->boundary_hex() == true ? "OB":"") + " ";
-            }
-            if (this->has_nnw()) {
-                s += "NW: (" + std::to_string(this->nnw->ri).substr(0,4) + "," + std::to_string(this->nnw->gi).substr(0,4) + ") " + (this->nnw->boundary_hex() == true ? "OB":"") + " ";
-            }
-            if (this->has_nne()) {
-                s += "NE: (" + std::to_string(this->nne->ri).substr(0,4) + "," + std::to_string(this->nne->gi).substr(0,4) + ") " + (this->nne->boundary_hex() == true ? "OB":"") + " ";
+            if constexpr (A == hexalign::point_up) {
+                if (this->has_ne()) {
+                    s += "E: (" + std::to_string(this->n0->ri).substr(0,4) + "," + std::to_string(this->n0->gi).substr(0,4) + ") " + (this->n0->boundary_hex() == true ? "OB":"") + " ";
+                }
+                if (this->has_nne()) {
+                    s += "NE: (" + std::to_string(this->n1->ri).substr(0,4) + "," + std::to_string(this->n1->gi).substr(0,4) + ") " + (this->n1->boundary_hex() == true ? "OB":"") + " ";
+                }
+                if (this->has_nnw()) {
+                    s += "NW: (" + std::to_string(this->n2->ri).substr(0,4) + "," + std::to_string(this->n2->gi).substr(0,4) + ") " + (this->n2->boundary_hex() == true ? "OB":"") + " ";
+                }
+                if (this->has_nw()) {
+                    s += "W: (" + std::to_string(this->n3->ri).substr(0,4) + "," + std::to_string(this->n3->gi).substr(0,4) + ") " + (this->n3->boundary_hex() == true ? "OB":"") + " ";
+                }
+                if (this->has_nsw()) {
+                    s += "SW: (" + std::to_string(this->n4->ri).substr(0,4) + "," + std::to_string(this->n4->gi).substr(0,4) + ") " + (this->n4->boundary_hex() == true ? "OB":"") + " ";
+                }
+                if (this->has_nse()) {
+                    s += "SE: (" + std::to_string(this->n5->ri).substr(0,4) + "," + std::to_string(this->n5->gi).substr(0,4) + ") " + (this->n5->boundary_hex() == true ? "OB":"") + " ";
+                }
+            } else {
+                if (this->has_nne()) {
+                    s += "NE: (" + std::to_string(this->n0->ri).substr(0,4) + "," + std::to_string(this->n0->gi).substr(0,4) + ") " + (this->n0->boundary_hex() == true ? "OB":"") + " ";
+                }
+                if (this->has_nn()) {
+                    s += "N: (" + std::to_string(this->n1->ri).substr(0,4) + "," + std::to_string(this->n1->gi).substr(0,4) + ") " + (this->n1->boundary_hex() == true ? "OB":"") + " ";
+                }
+                if (this->has_nnw()) {
+                    s += "NW: (" + std::to_string(this->n2->ri).substr(0,4) + "," + std::to_string(this->n2->gi).substr(0,4) + ") " + (this->n2->boundary_hex() == true ? "OB":"") + " ";
+                }
+                if (this->has_nsw()) {
+                    s += "SW: (" + std::to_string(this->n3->ri).substr(0,4) + "," + std::to_string(this->n3->gi).substr(0,4) + ") " + (this->n3->boundary_hex() == true ? "OB":"") + " ";
+                }
+                if (this->has_ns()) {
+                    s += "S: (" + std::to_string(this->n4->ri).substr(0,4) + "," + std::to_string(this->n5->gi).substr(0,4) + ") " + (this->n4->boundary_hex() == true ? "OB":"") + " ";
+                }
+                if (this->has_nse()) {
+                    s += "SE: (" + std::to_string(this->n5->ri).substr(0,4) + "," + std::to_string(this->n5->gi).substr(0,4) + ") " + (this->n5->boundary_hex() == true ? "OB":"") + " ";
+                }
             }
             if (this->boundary_hex()) {
                 s += "(ON boundary)";
@@ -236,6 +277,60 @@ export namespace sm
             return s;
         }
 
+        // The index (from 0 to 5) for neighbour positions depends on hexalign A.
+        static constexpr std::uint32_t neighbour_idx_e()
+        {
+            if constexpr (A == hexalign::point_up) { return 0u; } else { return std::numeric_limits<std::uint32_t>::max(); }
+        }
+        static constexpr std::uint32_t neighbour_idx_ne()
+        {
+            if constexpr (A == hexalign::point_up) { return 1u; } else { return 0u; }
+        }
+        static constexpr std::uint32_t neighbour_idx_n()
+        {
+            if constexpr (A == hexalign::flat_up) { return 1u; } else { return std::numeric_limits<std::uint32_t>::max(); }
+        }
+        static constexpr std::uint32_t neighbour_idx_nw() { return 2u; }
+        static constexpr std::uint32_t neighbour_idx_w()
+        {
+            if constexpr (A == hexalign::point_up) { return 3u; } else { return std::numeric_limits<std::uint32_t>::max(); }
+        }
+        static constexpr std::uint32_t neighbour_idx_sw()
+        {
+            if constexpr (A == hexalign::point_up) { return 4u; } else { return 3u; }
+        }
+        static constexpr std::uint32_t neighbour_idx_s()
+        {
+            if constexpr (A == hexalign::flat_up) { return 4u; } else { return std::numeric_limits<std::uint32_t>::max(); }
+        }
+        static constexpr std::uint32_t neighbour_idx_se() { return 5u; }
+
+        // Vertex position indices also depend on hexalign A
+        static constexpr std::uint32_t vertex_idx_e()
+        {
+            if constexpr (A == hexalign::flat_up) { return 5u; } else { return std::numeric_limits<std::uint32_t>::max(); }
+        }
+        static constexpr std::uint32_t vertex_idx_ne() { return 0u; }
+        static constexpr std::uint32_t vertex_idx_n()
+        {
+            if constexpr (A == hexalign::point_up) { return 1u; } else { return std::numeric_limits<std::uint32_t>::max(); }
+        }
+        static constexpr std::uint32_t vertex_idx_nw() {
+            if constexpr (A == hexalign::point_up) { return 2u; } else { return 1u; }
+        }
+        static constexpr std::uint32_t vertex_idx_w()
+        {
+            if constexpr (A == hexalign::flat_up) { return 2u; } else { return std::numeric_limits<std::uint32_t>::max(); }
+        }
+        static constexpr std::uint32_t vertex_idx_sw() { return 3u; }
+        static constexpr std::uint32_t vertex_idx_s()
+        {
+            if constexpr (A == hexalign::point_up) { return 4u; } else { return std::numeric_limits<std::uint32_t>::max(); }
+        }
+        static constexpr std::uint32_t vertex_idx_se() {
+            if constexpr (A == hexalign::point_up) { return 5u; } else { return 4u; }
+        }
+
         /*!
          * Convert the neighbour position number into a short string representing the
          * direction/position of the neighbour.
@@ -244,32 +339,32 @@ export namespace sm
         {
             std::string s("");
             switch (dir) {
-            case HEX_NEIGHBOUR_POS_E:
+            case 0u:
             {
-                s = "E";
+                if constexpr (A == hexalign::point_up) { s = "E"; } else { s = "NE"; }
                 break;
             }
-            case HEX_NEIGHBOUR_POS_NE:
+            case 1u:
             {
-                s = "NE";
+                if constexpr (A == hexalign::point_up) { s = "NE"; } else { s = "N"; }
                 break;
             }
-            case HEX_NEIGHBOUR_POS_NW:
+            case 2u:
             {
                 s = "NW";
                 break;
             }
-            case HEX_NEIGHBOUR_POS_W:
+            case 3u:
             {
-                s = "W";
+                if constexpr (A == hexalign::point_up) { s = "W"; } else { s = "SW"; }
                 break;
             }
-            case HEX_NEIGHBOUR_POS_SW:
+            case 4u:
             {
-                s = "SW";
+                if constexpr (A == hexalign::point_up) { s = "SW"; } else { s = "S"; }
                 break;
             }
-            case HEX_NEIGHBOUR_POS_SE:
+            case 5u:
             {
                 s = "SE";
                 break;
@@ -284,10 +379,15 @@ export namespace sm
          */
         void compute_location()
         {
-            // Compute Cartesian location
-            this->x = this->d * this->ri + (d / F{2}) * this->gi - (d / F{2}) * this->bi;
-            F v = this->get_v();
-            this->y = v * this->gi + v * this->bi;
+            const F v = this->get_v();
+            if constexpr (A == hexalign::point_up) {
+                // Compute Cartesian location
+                this->x = this->d * (this->ri + F{0.5} * (this->gi - this->bi));
+                this->y = v * (this->gi + this->bi);
+            } else {
+                this->x = v * (this->ri - this->bi);
+                this->y = this->d * (this->gi + F{0.5} * (this->ri + this->bi));
+            }
             // And location in the Polar coordinate system
             this->r = std::sqrt (x * x + y * y);
             this->phi = std::atan2 (y, x);
@@ -316,7 +416,7 @@ export namespace sm
         }
 
         //! Compute the distance from another hex to this one.
-        F distance_from (const hex<F>& otherhex) const
+        F distance_from (const hex<F, A>& otherhex) const
         {
             F dx = otherhex.x - x;
             F dy = otherhex.y - y;
@@ -346,9 +446,9 @@ export namespace sm
          * hexgrid::d_nne, hexgrid::d_nnw, hexgrid::d_nsw and hexgrid::d_nse, etc.
          *
          * This indexes into the d_ vectors in the hexgrid object to which this hex belongs. The d_
-         * vectors are ordered differently from the list<hex<F>> object in hexgrid::hexen and hence we
+         * vectors are ordered differently from the list<hex<F, A>> object in hexgrid::hexen and hence we
          * have this attribute di in addition to the vector index vi, which provides an index into
-         * list<hex<F>> or vector<hex<F>> objects which either are, or are arranged like, hexgrid::hexen
+         * list<hex<F, A>> or vector<hex<F, A>> objects which either are, or are arranged like, hexgrid::hexen
          */
         std::uint32_t di = 0;
 
@@ -401,8 +501,9 @@ export namespace sm
             return v;
         }
 
-        //! The vertical distance from the centre of the hex to the "north east" vertex of the hex.
-        F get_v_to_ne() const
+        //! hexalign::point_up: The vertical distance from the centre of the hex to the "north east" vertex of the hex.
+        //! hexalign::flat_up: The *horizontal* distance from the centre of the hex to the "north east" vertex of the hex.
+        F get_d_to_ne() const
         {
             F v = this->d * sm::mathconst<F>::one_over_2_root_3;
             return v;
@@ -519,6 +620,18 @@ export namespace sm
          */
         F dist_to_boundary = F{-1};
 
+        //! A short cut for testing all the neighbour flags at once
+        static constexpr std::uint32_t hex_has_neighb_all()
+        {
+            std::uint32_t HEX_HAS_NEIGHB_ALL = 0x0;
+            if constexpr (A == hexalign::point_up) {
+                HEX_HAS_NEIGHB_ALL = HEX_HAS_NE | HEX_HAS_NNE | HEX_HAS_NNW | HEX_HAS_NW | HEX_HAS_NSW | HEX_HAS_NSE;
+            } else {
+                HEX_HAS_NEIGHB_ALL = HEX_HAS_NNE | HEX_HAS_NN | HEX_HAS_NNW | HEX_HAS_NSW | HEX_HAS_NS | HEX_HAS_NSE;
+            }
+            return HEX_HAS_NEIGHB_ALL;
+        }
+
         /*!
          * Return true if this is a boundary hex - one on the outside edge of a hex grid. The result
          * is based on testing neihgbour relations, rather than examining the value of the
@@ -526,56 +639,118 @@ export namespace sm
          */
         bool on_boundary() const
         {
+            constexpr std::uint32_t HEX_HAS_NEIGHB_ALL = hex_has_neighb_all();
             return ((this->flags & HEX_HAS_NEIGHB_ALL) == HEX_HAS_NEIGHB_ALL) ? false : true;
         }
 
         //! Set that \a it is the Neighbour to the East
-        void set_ne (std::list<hex<F>>::iterator it)
+        void set_ne (std::list<hex<F, A>>::iterator it)
         {
-            this->ne = it;
-            this->flags |= HEX_HAS_NE;
+            if constexpr (A == hexalign::point_up) {
+                this->n0 = it;
+                this->flags |= HEX_HAS_NE;
+            } // else no-op for hexalign::flat_up
         }
         //! Set that \a it is the Neighbour to the North East
-        void set_nne (std::list<hex<F>>::iterator it)
+        void set_nne (std::list<hex<F, A>>::iterator it)
         {
-            this->nne = it;
+            if constexpr (A == hexalign::point_up) {
+                this->n1 = it;
+            } else {
+                this->n0 = it;
+            }
             this->flags |= HEX_HAS_NNE;
         }
-        //! Set that \a it is the Neighbour to the North West
-        void set_nnw (std::list<hex<F>>::iterator it)
+        //! Set that \a it is the Neighbour to the North
+        void set_nn (std::list<hex<F, A>>::iterator it)
         {
-            this->nnw = it;
+            if constexpr (A == hexalign::flat_up) {
+                this->n1 = it;
+                this->flags |= HEX_HAS_NN;
+            } // else no-op
+        }
+        //! Set that \a it is the Neighbour to the North West
+        void set_nnw (std::list<hex<F, A>>::iterator it)
+        {
+            this->n2 = it;
             this->flags |= HEX_HAS_NNW;
         }
         //! Set that \a it is the Neighbour to the West
-        void set_nw (std::list<hex<F>>::iterator it)
+        void set_nw (std::list<hex<F, A>>::iterator it)
         {
-            this->nw = it;
-            this->flags |= HEX_HAS_NW;
+            if constexpr (A == hexalign::point_up) {
+                this->n3 = it;
+                this->flags |= HEX_HAS_NW;
+            } // else no-op
         }
         //! Set that \a it is the Neighbour to the South West
-        void set_nsw (std::list<hex<F>>::iterator it)
+        void set_nsw (std::list<hex<F, A>>::iterator it)
         {
-            this->nsw = it;
+            if constexpr (A == hexalign::point_up) {
+                this->n4 = it;
+            } else {
+                this->n3 = it;
+            }
             this->flags |= HEX_HAS_NSW;
         }
-        //! Set that \a it is the Neighbour to the South East
-        void set_nse (std::list<hex<F>>::iterator it)
+        //! Set that \a it is the Neighbour to the North
+        void set_ns (std::list<hex<F, A>>::iterator it)
         {
-            this->nse = it;
+            if constexpr (A == hexalign::flat_up) {
+                this->n4 = it;
+                this->flags |= HEX_HAS_NS;
+            } // else no-op
+        }
+        //! Set that \a it is the Neighbour to the South East
+        void set_nse (std::list<hex<F, A>>::iterator it)
+        {
+            this->n5 = it;
             this->flags |= HEX_HAS_NSE;
         }
 
         //! Return true if this hex has a Neighbour to the East
-        bool has_ne() const { return ((this->flags & HEX_HAS_NE) == HEX_HAS_NE); }
+        bool has_ne() const
+        {
+            if constexpr (A == hexalign::point_up) {
+                return ((this->flags & HEX_HAS_NE) == HEX_HAS_NE);
+            } else {
+                return false;
+            }
+        }
         //! Return true if this hex has a Neighbour to the North East
         bool has_nne() const { return ((this->flags & HEX_HAS_NNE) == HEX_HAS_NNE); }
+        //! Return true if this hex has a Neighbour to the North East
+        bool has_nn() const
+        {
+            if constexpr (A == hexalign::flat_up) {
+                return ((this->flags & HEX_HAS_NN) == HEX_HAS_NN);
+            } else {
+                return false;
+            }
+        }
         //! Return true if this hex has a Neighbour to the North West
         bool has_nnw() const { return ((this->flags & HEX_HAS_NNW) == HEX_HAS_NNW); }
         //! Return true if this hex has a Neighbour to the West
-        bool has_nw() const { return ((this->flags & HEX_HAS_NW) == HEX_HAS_NW); }
+        bool has_nw() const
+        {
+            if constexpr (A == hexalign::point_up) {
+                return ((this->flags & HEX_HAS_NW) == HEX_HAS_NW);
+            } else {
+                return false;
+            }
+        }
         //! Return true if this hex has a Neighbour to the South West
         bool has_nsw() const { return ((this->flags & HEX_HAS_NSW) == HEX_HAS_NSW); }
+        //! Return true if this hex has a Neighbour to the North East
+        bool has_ns() const
+        {
+            if constexpr (A == hexalign::flat_up) {
+                return ((this->flags & HEX_HAS_NS) == HEX_HAS_NS);
+            } else {
+                return false;
+            }
+        }
+
         //! Return true if this hex has a Neighbour to the South East
         bool has_nse() const { return ((this->flags & HEX_HAS_NSE) == HEX_HAS_NSE); }
 
@@ -583,103 +758,161 @@ export namespace sm
         void unset_ne() { this->flags ^= HEX_HAS_NE; }
         //! Set flags to say that this hex has NO neighbour to North East
         void unset_nne() { this->flags ^= HEX_HAS_NNE; }
+        //! Set flags to say that this hex has NO neighbour to North
+        void unset_nn() { this->flags ^= HEX_HAS_NN; }
         //! Set flags to say that this hex has NO neighbour to North West
         void unset_nnw() { this->flags ^= HEX_HAS_NNW; }
         //! Set flags to say that this hex has NO neighbour to West
         void unset_nw() { this->flags ^= HEX_HAS_NW; }
         //! Set flags to say that this hex has NO neighbour to South West
         void unset_nsw() { this->flags ^= HEX_HAS_NSW; }
+        //! Set flags to say that this hex has NO neighbour to South
+        void unset_ns() { this->flags ^= HEX_HAS_NS; }
         //! Set flags to say that this hex has NO neighbour to South East
         void unset_nse() { this->flags ^= HEX_HAS_NSE; }
+
+        void unset_neighbour (const std::uint32_t ni)
+        {
+            if constexpr (A == hexalign::point_up) {
+                switch (ni) {
+                case 0u:
+                { this->flags ^= HEX_HAS_NE; }
+                case 1u:
+                { this->flags ^= HEX_HAS_NNE; }
+                case 2u:
+                { this->flags ^= HEX_HAS_NNW; }
+                case 3u:
+                { this->flags ^= HEX_HAS_NW; }
+                case 4u:
+                { this->flags ^= HEX_HAS_NSW; }
+                case 5u:
+                { this->flags ^= HEX_HAS_NSE; }
+                default: {}
+                }
+            } else {
+                switch (ni) {
+                case 0u:
+                { this->flags ^= HEX_HAS_NNE; }
+                case 1u:
+                { this->flags ^= HEX_HAS_NN; }
+                case 2u:
+                { this->flags ^= HEX_HAS_NNW; }
+                case 3u:
+                { this->flags ^= HEX_HAS_NSW; }
+                case 4u:
+                { this->flags ^= HEX_HAS_NS; }
+                case 5u:
+                { this->flags ^= HEX_HAS_NSE; }
+                default: {}
+                }
+            }
+        }
 
         /*!
          * Test if have neighbour at position \a ni.
          * East: 0, North-East: 1, North-West: 2, West: 3, South-West: 4, South-East: 5
          */
-        bool has_neighbour (std::uint32_t ni) const
+        bool has_neighbour (const std::uint32_t ni) const
         {
-            switch (ni) {
-            case HEX_NEIGHBOUR_POS_E:
-            {
-                return (this->flags & HEX_HAS_NE) ? true : false;
-                break;
-            }
-            case HEX_NEIGHBOUR_POS_NE:
-            {
-                return (this->flags & HEX_HAS_NNE) ? true : false;
-                break;
-            }
-            case HEX_NEIGHBOUR_POS_NW:
-            {
-                return (this->flags & HEX_HAS_NNW) ? true : false;
-                break;
-            }
-            case HEX_NEIGHBOUR_POS_W:
-            {
-                return (this->flags & HEX_HAS_NW) ? true : false;
-                break;
-            }
-            case HEX_NEIGHBOUR_POS_SW:
-            {
-                return (this->flags & HEX_HAS_NSW) ? true : false;
-                break;
-            }
-            case HEX_NEIGHBOUR_POS_SE:
-            {
-                return (this->flags & HEX_HAS_NSE) ? true : false;
-                break;
-            }
-            default:
-            {
-                break;
-            }
+            if constexpr (A == hexalign::point_up) {
+                switch (ni) {
+                case 0u:
+                {
+                    return (this->flags & HEX_HAS_NE) ? true : false;
+                    break;
+                }
+                case 1u:
+                {
+                    return (this->flags & HEX_HAS_NNE) ? true : false;
+                    break;
+                }
+                case 2u:
+                {
+                    return (this->flags & HEX_HAS_NNW) ? true : false;
+                    break;
+                }
+                case 3u:
+                {
+                    return (this->flags & HEX_HAS_NW) ? true : false;
+                    break;
+                }
+                case 4u:
+                {
+                    return (this->flags & HEX_HAS_NSW) ? true : false;
+                    break;
+                }
+                case 5u:
+                {
+                    return (this->flags & HEX_HAS_NSE) ? true : false;
+                    break;
+                }
+                default:
+                {
+                    break;
+                }
+                }
+            } else { // hexalign flat_up
+                switch (ni) {
+                case 0u:
+                {
+                    return (this->flags & HEX_HAS_NNE) ? true : false;
+                    break;
+                }
+                case 1u:
+                {
+                    return (this->flags & HEX_HAS_NN) ? true : false;
+                    break;
+                }
+                case 2u:
+                {
+                    return (this->flags & HEX_HAS_NNW) ? true : false;
+                    break;
+                }
+                case 3u:
+                {
+                    return (this->flags & HEX_HAS_NSW) ? true : false;
+                    break;
+                }
+                case 4u:
+                {
+                    return (this->flags & HEX_HAS_NS) ? true : false;
+                    break;
+                }
+                case 5u:
+                {
+                    return (this->flags & HEX_HAS_NSE) ? true : false;
+                    break;
+                }
+                default:
+                {
+                    break;
+                }
+                }
             }
             return false;
         }
 
         /*!
-         * Get a list<hex<F>>::iterator to the neighbour at position \a ni.
+         * Get a list<hex<F, A>>::iterator to the neighbour at position \a ni.
          * East: 0, North-East: 1, North-West: 2, West: 3, South-West: 4, South-East: 5
          */
-        std::list<hex<F>>::iterator get_neighbour (std::uint32_t ni) const
+        std::list<hex<F, A>>::iterator get_neighbour (const std::uint32_t ni) const
         {
-            typename std::list<sm::hex<F>>::iterator hi;
-            switch (ni) {
-            case HEX_NEIGHBOUR_POS_E:
-            {
-                hi = this->ne;
-                break;
+            if (ni == 0u) {
+                return this->n0;
+            } else if (ni == 1u) {
+                return this->n1;
+            } else if (ni == 2u) {
+                return this->n2;
+            } else if (ni == 3u) {
+                return this->n3;
+            } else if (ni == 4u) {
+                return this->n4;
+            } else if (ni == 5u) {
+                return this->n5;
             }
-            case HEX_NEIGHBOUR_POS_NE:
-            {
-                hi = this->nne;
-                break;
-            }
-            case HEX_NEIGHBOUR_POS_NW:
-            {
-                hi = this->nnw;
-                break;
-            }
-            case HEX_NEIGHBOUR_POS_W:
-            {
-                hi = this->nw;
-                break;
-            }
-            case HEX_NEIGHBOUR_POS_SW:
-            {
-                hi = this->nsw;
-                break;
-            }
-            case HEX_NEIGHBOUR_POS_SE:
-            {
-                hi = this->nse;
-                break;
-            }
-            default:
-            {
-                break;
-            }
-            }
+            std::cout << "Uh oh, fall through for ni = " << ni << std::endl;
+            typename std::list<sm::hex<F, A>>::iterator hi;
             return hi;
         }
 
@@ -688,34 +921,34 @@ export namespace sm
         {
             std::string s("");
             switch (ni) {
-            case HEX_VERTEX_POS_NE:
+            case 0:
             {
-                s = "NE";
+                if constexpr (A == hexalign::point_up) { s = "NE"; } else {  s = "NE"; }
                 break;
             }
-            case HEX_VERTEX_POS_N:
+            case 1:
             {
-                s = "N";
+                if constexpr (A == hexalign::point_up) { s = "N"; } else {  s = "NW"; }
                 break;
             }
-            case HEX_VERTEX_POS_NW:
+            case 2:
             {
-                s = "NW";
+                if constexpr (A == hexalign::point_up) { s = "NW"; } else {  s = "W"; }
                 break;
             }
-            case HEX_VERTEX_POS_SW:
+            case 3:
             {
-                s = "SW";
+                if constexpr (A == hexalign::point_up) { s = "SW"; } else {  s = "SW"; }
                 break;
             }
-            case HEX_VERTEX_POS_S:
+            case 4:
             {
-                s = "S";
+                if constexpr (A == hexalign::point_up) { s = "S"; } else {  s = "SE"; }
                 break;
             }
-            case HEX_VERTEX_POS_SE:
+            case 5:
             {
-                s = "SE";
+                if constexpr (A == hexalign::point_up) { s = "SE"; } else {  s = "E"; }
                 break;
             }
             default:
@@ -729,55 +962,102 @@ export namespace sm
         /*!
          * Get the Cartesian coordinates of the given vertex of the hex. The hex has a north vertex,
          * a north east vertex and vertices for SE, S, SW and NW. The single argument @ni specifies
-         * which vertex to return the coordinate for. Use the definitions HEX_VERTEX_POS_N, etc to
+         * which vertex to return the coordinate for. Use the constexpr fn definitions vertex_idx_n(), etc to
          * pass in a human-readable label for the vertex.
          */
         sm::vec<F, 2> get_vertex_coord (std::uint32_t ni) const
         {
             sm::vec<F, 2> rtn = { F{0}, F{0} };
-            switch (ni) {
-            case HEX_VERTEX_POS_NE:
-            {
-                rtn[0] = this->x + this->get_sr();
-                rtn[1] = this->y + this->get_v_to_ne();
-                break;
-            }
-            case HEX_VERTEX_POS_N:
-            {
-                rtn[0] = this->x;
-                rtn[1] = this->y + this->get_lr();
-                break;
-            }
-            case HEX_VERTEX_POS_NW:
-            {
-                rtn[0] = this->x - this->get_sr();
-                rtn[1] = this->y + this->get_v_to_ne();
-                break;
-            }
-            case HEX_VERTEX_POS_SW:
-            {
-                rtn[0] = this->x - this->get_sr();
-                rtn[1] = this->y - this->get_v_to_ne();
-                break;
-            }
-            case HEX_VERTEX_POS_S:
-            {
-                rtn[0] = this->x;
-                rtn[1] = this->y - this->get_lr();
-                break;
-            }
-            case HEX_VERTEX_POS_SE:
-            {
-                rtn[0] = this->x + this->get_sr();
-                rtn[1] = this->y - this->get_v_to_ne();
-                break;
-            }
-            default:
-            {
-                rtn[0] = F{-1};
-                rtn[1] = F{-1};
-                break;
-            }
+            if constexpr (A == hexalign::point_up) {
+                switch (ni) {
+                case 0u:
+                {
+                    rtn[0] = this->x + this->get_sr();
+                    rtn[1] = this->y + this->get_d_to_ne();
+                    break;
+                }
+                case 1u:
+                {
+                    rtn[0] = this->x;
+                    rtn[1] = this->y + this->get_lr();
+                    break;
+                }
+                case 2u:
+                {
+                    rtn[0] = this->x - this->get_sr();
+                    rtn[1] = this->y + this->get_d_to_ne();
+                    break;
+                }
+                case 3u:
+                {
+                    rtn[0] = this->x - this->get_sr();
+                    rtn[1] = this->y - this->get_d_to_ne();
+                    break;
+                }
+                case 4u:
+                {
+                    rtn[0] = this->x;
+                    rtn[1] = this->y - this->get_lr();
+                    break;
+                }
+                case 5u:
+                {
+                    rtn[0] = this->x + this->get_sr();
+                    rtn[1] = this->y - this->get_d_to_ne();
+                    break;
+                }
+                default:
+                {
+                    rtn[0] = F{-1};
+                    rtn[1] = F{-1};
+                    break;
+                }
+                }
+            } else { // hexalign::flat_up
+                switch (ni) {
+                case 0u:
+                {
+                    rtn[0] = this->x + this->get_d_to_ne();
+                    rtn[1] = this->y + this->get_sr();
+                    break;
+                }
+                case 1u:
+                {
+                    rtn[0] = this->x - this->get_d_to_ne();
+                    rtn[1] = this->y + this->get_sr();
+                    break;
+                }
+                case 2u:
+                {
+                    rtn[0] = this->x - this->get_lr();
+                    rtn[1] = this->y;
+                    break;
+                }
+                case 3u:
+                {
+                    rtn[0] = this->x - this->get_d_to_ne();
+                    rtn[1] = this->y - this->get_sr();
+                    break;
+                }
+                case 4u:
+                {
+                    rtn[0] = this->x + this->get_d_to_ne();
+                    rtn[1] = this->y - this->get_sr();
+                    break;
+                }
+                case 5u:
+                {
+                    rtn[0] = this->x + this->get_lr();
+                    rtn[1] = this->y;
+                    break;
+                }
+                default:
+                {
+                    rtn[0] = F{-1};
+                    rtn[1] = F{-1};
+                    break;
+                }
+                }
             }
             return rtn;
         }
@@ -847,12 +1127,19 @@ export namespace sm
         //! Un-set the pointers on all my neighbours so that THEY no longer point to ME.
         void disconnect_neighbours()
         {
-            if (this->has_ne())  { if (this->ne->has_nw())   { this->ne->unset_nw(); } }
-            if (this->has_nne()) { if (this->nne->has_nsw()) { this->nne->unset_nsw(); } }
-            if (this->has_nnw()) { if (this->nnw->has_nse()) { this->nnw->unset_nse(); } }
-            if (this->has_nw())  { if (this->nw->has_ne())   { this->nw->unset_ne(); } }
-            if (this->has_nsw()) { if (this->nsw->has_nne()) { this->nsw->unset_nne(); } }
-            if (this->has_nse()) { if (this->nse->has_nnw()) { this->nse->unset_nnw(); } }
+            for (std::uint32_t i = 0; i < 6; ++i) {
+                if (this->has_neighbour(i)) {
+                    typename std::list<hex<F, A>>::iterator nbr = this->get_neighbour(i);
+                    const std::uint32_t i_opp = (i + 3u) % 6u;
+                    std::cout << "Neighbour " << i << " has opposite number: " << i_opp << std::endl;
+                    std::cout << "Again, has_neighbour(i="<<i<<") = " << this->has_neighbour(i) << std::endl;
+                    if (nbr->has_neighbour (i_opp)) {
+                        nbr->unset_neighbour (i_opp);
+                    }
+                } else {
+                    std::cout << "No neighbour("<<i<<")\n";
+                }
+            }
         }
 
         /*
@@ -860,17 +1147,17 @@ export namespace sm
          */
 
         //! Nearest neighbour to the East; in the plus r direction.
-        std::list<hex<F>>::iterator ne;
+        std::list<hex<F, A>>::iterator n0;
         //! Nearest neighbour to the North-East; in the plus g direction.
-        std::list<hex<F>>::iterator nne;
+        std::list<hex<F, A>>::iterator n1;
         //! Nearest neighbour to the North-West; in the plus b direction.
-        std::list<hex<F>>::iterator nnw;
+        std::list<hex<F, A>>::iterator n2;
         //! Nearest neighbour to the West; in the minus r direction.
-        std::list<hex<F>>::iterator nw;
+        std::list<hex<F, A>>::iterator n3;
         //! Nearest neighbour to the South-West; in the minus g direction.
-        std::list<hex<F>>::iterator nsw;
+        std::list<hex<F, A>>::iterator n4;
         //! Nearest neighbour to the South-East; in the minus b direction.
-        std::list<hex<F>>::iterator nse;
+        std::list<hex<F, A>>::iterator n5;
 
         //! The flags for this hex.
         std::uint32_t flags = 0u;
