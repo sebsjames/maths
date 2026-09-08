@@ -774,37 +774,19 @@ export namespace sm
         void unset_neighbour (const std::uint32_t ni)
         {
             if constexpr (A == hexalign::point_up) {
-                switch (ni) {
-                case 0u:
-                { this->flags ^= HEX_HAS_NE; }
-                case 1u:
-                { this->flags ^= HEX_HAS_NNE; }
-                case 2u:
-                { this->flags ^= HEX_HAS_NNW; }
-                case 3u:
-                { this->flags ^= HEX_HAS_NW; }
-                case 4u:
-                { this->flags ^= HEX_HAS_NSW; }
-                case 5u:
-                { this->flags ^= HEX_HAS_NSE; }
-                default: {}
-                }
+                if (ni == 0u) { this->flags ^= HEX_HAS_NE; }
+                else if (ni == 1u) { this->flags ^= HEX_HAS_NNE; }
+                else if (ni == 2u) { this->flags ^= HEX_HAS_NNW; }
+                else if (ni == 3u) { this->flags ^= HEX_HAS_NW; }
+                else if (ni == 4u) { this->flags ^= HEX_HAS_NSW; }
+                else if (ni == 5u) { this->flags ^= HEX_HAS_NSE; }
             } else {
-                switch (ni) {
-                case 0u:
-                { this->flags ^= HEX_HAS_NNE; }
-                case 1u:
-                { this->flags ^= HEX_HAS_NN; }
-                case 2u:
-                { this->flags ^= HEX_HAS_NNW; }
-                case 3u:
-                { this->flags ^= HEX_HAS_NSW; }
-                case 4u:
-                { this->flags ^= HEX_HAS_NS; }
-                case 5u:
-                { this->flags ^= HEX_HAS_NSE; }
-                default: {}
-                }
+                if (ni == 0u) { this->flags ^= HEX_HAS_NNE; }
+                else if (ni == 1u) { this->flags ^= HEX_HAS_NN; }
+                else if (ni == 2u) { this->flags ^= HEX_HAS_NNW; }
+                else if (ni == 3u) { this->flags ^= HEX_HAS_NSW; }
+                else if (ni == 4u) { this->flags ^= HEX_HAS_NS; }
+                else if (ni == 5u) { this->flags ^= HEX_HAS_NSE; }
             }
         }
 
@@ -1131,13 +1113,7 @@ export namespace sm
                 if (this->has_neighbour(i)) {
                     typename std::list<hex<F, A>>::iterator nbr = this->get_neighbour(i);
                     const std::uint32_t i_opp = (i + 3u) % 6u;
-                    std::cout << "Neighbour " << i << " has opposite number: " << i_opp << std::endl;
-                    std::cout << "Again, has_neighbour(i="<<i<<") = " << this->has_neighbour(i) << std::endl;
-                    if (nbr->has_neighbour (i_opp)) {
-                        nbr->unset_neighbour (i_opp);
-                    }
-                } else {
-                    std::cout << "No neighbour("<<i<<")\n";
+                    if (nbr->has_neighbour (i_opp)) { nbr->unset_neighbour (i_opp); }
                 }
             }
         }
