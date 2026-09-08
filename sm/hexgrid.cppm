@@ -1383,7 +1383,7 @@ export namespace sm
             F half_x = this->x_span / 2.0f;
             std::uint32_t max_ring = std::abs (std::ceil (half_x / this->d));
 
-            // "Creating hexagonal hex grid with max_ring: " << max_ring
+            std::cout << "Creating hexagonal hex grid with max_ring: " << max_ring << std::endl;
 
             // The "vector iterator" - this is an identity iterator that is added to each hex in the grid.
             std::uint32_t vi = 0;
@@ -1449,9 +1449,9 @@ export namespace sm
 
                     // 1. Set my W neighbour to be the previous hex in THIS ring, if possible
                     if (i > 0) {
-                        hi->set_nw (lasthi);
+                        hi->set_n3 (lasthi);
                         // Set me (hi) as E neighbour to previous hex in the ring (lasthi):
-                        lasthi->set_ne (hi);
+                        lasthi->set_n0 (hi);
                     }
                     // else i must be 0 in this case, we would set the SW neighbour now,
                     // but as this won't have been added to the ring, we have to leave it
@@ -1460,17 +1460,17 @@ export namespace sm
                     std::int32_t j = walkstart + static_cast<std::int32_t>(i) - 1;
                     if (j > walkmin && j < walkmax) {
                         // Set my SW neighbour:
-                        hi->set_nsw ((*prev_ring)[j]);
+                        hi->set_n4 ((*prev_ring)[j]);
                         // Set me as NE neighbour to those in prev_ring:
-                        (*prev_ring)[j]->set_nne (hi);
+                        (*prev_ring)[j]->set_n1 (hi);
                     }
                     ++j;
 
                     // 3. Set my SE neighbour:
                     if (j <= walkmax) {
-                        hi->set_nse ((*prev_ring)[j]);
+                        hi->set_n5 ((*prev_ring)[j]);
                         // Set me as NW neighbour:
-                        (*prev_ring)[j]->set_nnw (hi);
+                        (*prev_ring)[j]->set_n2 (hi);
                     }
 
                     // Put in me next_prev_ring:
@@ -1492,31 +1492,31 @@ export namespace sm
 
                     // 1. Set my NW neighbour to be the previous hex in THIS ring, if possible
                     if (i > 0) {
-                        hi->set_nnw (lasthi);
+                        hi->set_n2 (lasthi);
                         // Set me as SE neighbour to previous hex in the ring:
-                        lasthi->set_nse (hi);
+                        lasthi->set_n5 (hi);
                     } else {
                         // Set my W neighbour for the first hex in the row.
-                        hi->set_nw (lasthi);
+                        hi->set_n3 (lasthi);
                         // Set me as E neighbour to previous hex in the ring:
-                        lasthi->set_ne (hi);
+                        lasthi->set_n0 (hi);
                     }
 
                     // 2. W neighbour
                     std::int32_t j = walkstart + static_cast<std::int32_t>(i) - 1;
                     if (j > walkmin && j < walkmax) {
                         // Set my W neighbour:
-                        hi->set_nw ((*prev_ring)[j]);
+                        hi->set_n3 ((*prev_ring)[j]);
                         // Set me as E neighbour to those in prev_ring:
-                        (*prev_ring)[j]->set_ne (hi);
+                        (*prev_ring)[j]->set_n0 (hi);
                     }
                     ++j;
 
                     // 3. Set my SW neighbour:
                     if (j <= walkmax) {
-                        hi->set_nsw ((*prev_ring)[j]);
+                        hi->set_n4 ((*prev_ring)[j]);
                         // Set me as NE neighbour:
-                        (*prev_ring)[j]->set_nne (hi);
+                        (*prev_ring)[j]->set_n1 (hi);
                     }
 
                     next_prev_ring->push_back (hi);
@@ -1538,31 +1538,31 @@ export namespace sm
 
                     // 1. Set my NE neighbour to be the previous hex in THIS ring, if possible
                     if (i > 0) {
-                        hi->set_nne (lasthi);
+                        hi->set_n1 (lasthi);
                         // Set me as SW neighbour to previous hex in the ring:
-                        lasthi->set_nsw (hi);
+                        lasthi->set_n4 (hi);
                     } else {
                         // Set my NW neighbour for the first hex in the row.
-                        hi->set_nnw (lasthi);
+                        hi->set_n2 (lasthi);
                         // Set me as SE neighbour to previous hex in the ring:
-                        lasthi->set_nse (hi);
+                        lasthi->set_n5 (hi);
                     }
 
                     // 2. NW neighbour
                     std::int32_t j = walkstart + static_cast<std::int32_t>(i) - 1;
                     if (j > walkmin && j < walkmax) {
                         // Set my NW neighbour:
-                        hi->set_nnw ((*prev_ring)[j]);
+                        hi->set_n2 ((*prev_ring)[j]);
                         // Set me as SE neighbour to those in prev_ring:
-                        (*prev_ring)[j]->set_nse (hi);
+                        (*prev_ring)[j]->set_n5 (hi);
                     }
                     ++j;
 
                     // 3. Set my W neighbour:
                     if (j <= walkmax) {
-                        hi->set_nw ((*prev_ring)[j]);
+                        hi->set_n3 ((*prev_ring)[j]);
                         // Set me as E neighbour:
-                        (*prev_ring)[j]->set_ne (hi);
+                        (*prev_ring)[j]->set_n0 (hi);
                     }
 
                     // Put in me next_prev_ring:
@@ -1585,31 +1585,31 @@ export namespace sm
 
                     // 1. Set my E neighbour to be the previous hex in THIS ring, if possible
                     if (i > 0) {
-                        hi->set_ne (lasthi);
+                        hi->set_n0 (lasthi);
                         // Set me as W neighbour to previous hex in the ring:
-                        lasthi->set_nw (hi);
+                        lasthi->set_n3 (hi);
                     } else {
                         // Set my NE neighbour for the first hex in the row.
-                        hi->set_nne (lasthi);
+                        hi->set_n1 (lasthi);
                         // Set me as SW neighbour to previous hex in the ring:
-                        lasthi->set_nsw (hi);
+                        lasthi->set_n4 (hi);
                     }
 
                     // 2. NE neighbour:
                     std::int32_t j = walkstart + static_cast<std::int32_t>(i) - 1;
                     if (j > walkmin && j < walkmax) {
                         // Set my NE neighbour:
-                        hi->set_nne ((*prev_ring)[j]);
+                        hi->set_n1 ((*prev_ring)[j]);
                         // Set me as SW neighbour to those in prev_ring:
-                        (*prev_ring)[j]->set_nsw (hi);
+                        (*prev_ring)[j]->set_n4 (hi);
                     }
                     ++j;
 
                     // 3. Set my NW neighbour:
                     if (j <= walkmax) {
-                        hi->set_nnw ((*prev_ring)[j]);
+                        hi->set_n2 ((*prev_ring)[j]);
                         // Set me as SE neighbour:
-                        (*prev_ring)[j]->set_nse (hi);
+                        (*prev_ring)[j]->set_n5 (hi);
                     }
 
                     next_prev_ring->push_back (hi);
@@ -1630,31 +1630,31 @@ export namespace sm
 
                     // 1. Set my SE neighbour to be the previous hex in THIS ring, if possible
                     if (i > 0) {
-                        hi->set_nse (lasthi);
+                        hi->set_n5 (lasthi);
                         // Set me as NW neighbour to previous hex in the ring:
-                        lasthi->set_nnw (hi);
+                        lasthi->set_n2 (hi);
                     } else { // i == 0
                         // Set my E neighbour for the first hex in the row.
-                        hi->set_ne (lasthi);
+                        hi->set_n0 (lasthi);
                         // Set me as W neighbour to previous hex in the ring:
-                        lasthi->set_nw (hi);
+                        lasthi->set_n3 (hi);
                     }
 
                     // 2. E neighbour:
                     std::int32_t j = walkstart + static_cast<std::int32_t>(i) - 1;
                     if (j > walkmin && j < walkmax) {
                         // Set my E neighbour:
-                        hi->set_ne ((*prev_ring)[j]);
+                        hi->set_n0 ((*prev_ring)[j]);
                         // Set me as W neighbour to those in prev_ring:
-                        (*prev_ring)[j]->set_nw (hi);
+                        (*prev_ring)[j]->set_n3 (hi);
                     }
                     ++j;
 
                     // 3. Set my NE neighbour:
                     if (j <= walkmax) {
-                        hi->set_nne ((*prev_ring)[j]);
+                        hi->set_n1 ((*prev_ring)[j]);
                         // Set me as SW neighbour:
-                        (*prev_ring)[j]->set_nsw (hi);
+                        (*prev_ring)[j]->set_n4 (hi);
                     }
 
                     next_prev_ring->push_back (hi);
@@ -1678,42 +1678,42 @@ export namespace sm
                     if (i == (ring_side_len - 1)) {
                         // Special case at end; on last g walk hex, set the NE neighbour Set my NE neighbour
                         // for the first hex in the row.
-                        hi->set_nne ((*next_prev_ring)[0]); // (*next_prev_ring)[0] is an iterator to the first hex
+                        hi->set_n1 ((*next_prev_ring)[0]); // (*next_prev_ring)[0] is an iterator to the first hex
                         // Set me as NW neighbour to previous hex in the ring:
-                        (*next_prev_ring)[0]->set_nsw (hi);
+                        (*next_prev_ring)[0]->set_n4 (hi);
                     }
                     if (i > 0) {
-                        hi->set_nsw (lasthi);
+                        hi->set_n4 (lasthi);
                         // Set me as NE neighbour to previous hex in the ring:
-                        lasthi->set_nne (hi);
+                        lasthi->set_n1 (hi);
                     } else {
                         // Set my SE neighbour for the first hex in the row.
-                        hi->set_nse (lasthi);
+                        hi->set_n5 (lasthi);
                         // Set me as NW neighbour to previous hex in the ring:
-                        lasthi->set_nnw (hi);
+                        lasthi->set_n2 (hi);
                     }
 
                     // 2. E neighbour:
                     std::int32_t j = walkstart + static_cast<std::int32_t>(i) - 1;
                     if (j > walkmin && j < walkmax) {
                         // Set my SE neighbour:
-                        hi->set_nse ((*prev_ring)[j]);
+                        hi->set_n5 ((*prev_ring)[j]);
                         // Set me as NW neighbour to those in prev_ring:
-                        (*prev_ring)[j]->set_nnw (hi);
+                        (*prev_ring)[j]->set_n2 (hi);
                     }
                     ++j;
 
                     // 3. Set my E neighbour:
                     if (j == walkmax) { // We're on the last square and need to set the East neighbour of the
                         // first hex in the last ring.
-                        hi->set_ne ((*prev_ring)[0]);
+                        hi->set_n0 ((*prev_ring)[0]);
                         // Set me as W neighbour:
-                        (*prev_ring)[0]->set_nw (hi);
+                        (*prev_ring)[0]->set_n3 (hi);
 
                     } else if (j < walkmax) {
-                        hi->set_ne ((*prev_ring)[j]);
+                        hi->set_n0 ((*prev_ring)[j]);
                         // Set me as W neighbour:
-                        (*prev_ring)[j]->set_nw (hi);
+                        (*prev_ring)[j]->set_n3 (hi);
                     }
 
                     // Put in me next_prev_ring:

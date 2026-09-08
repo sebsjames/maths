@@ -20,8 +20,6 @@ module;
 #include <cmath>
 #include <type_traits>
 
-#include <iostream> // debug
-
 export module sm.hex;
 
 export import sm.mathconst;
@@ -643,6 +641,53 @@ export namespace sm
             return ((this->flags & HEX_HAS_NEIGHB_ALL) == HEX_HAS_NEIGHB_ALL) ? false : true;
         }
 
+        void set_n0 (std::list<hex<F, A>>::iterator it)
+        {
+            this->n0 = it;
+            if constexpr (A == hexalign::point_up) {
+                this->flags |= HEX_HAS_NE;
+            } else {
+                this->flags |= HEX_HAS_NNE;
+            }
+        }
+        void set_n1 (std::list<hex<F, A>>::iterator it)
+        {
+            this->n1 = it;
+            if constexpr (A == hexalign::point_up) {
+                this->flags |= HEX_HAS_NNE;
+            } else {
+                this->flags |= HEX_HAS_NN;
+            }
+        }
+        void set_n2 (std::list<hex<F, A>>::iterator it)
+        {
+            this->n2 = it;
+            this->flags |= HEX_HAS_NNW;
+        }
+        void set_n3 (std::list<hex<F, A>>::iterator it)
+        {
+            this->n3 = it;
+            if constexpr (A == hexalign::point_up) {
+                this->flags |= HEX_HAS_NW;
+            } else {
+                this->flags |= HEX_HAS_NSW;
+            }
+        }
+        void set_n4 (std::list<hex<F, A>>::iterator it)
+        {
+            this->n4 = it;
+            if constexpr (A == hexalign::point_up) {
+                this->flags |= HEX_HAS_NSW;
+            } else {
+                this->flags |= HEX_HAS_NS;
+            }
+        }
+        void set_n5 (std::list<hex<F, A>>::iterator it)
+        {
+            this->n5 = it;
+            this->flags |= HEX_HAS_NSE;
+        }
+
         //! Set that \a it is the Neighbour to the East
         void set_ne (std::list<hex<F, A>>::iterator it)
         {
@@ -893,7 +938,6 @@ export namespace sm
             } else if (ni == 5u) {
                 return this->n5;
             }
-            std::cout << "Uh oh, fall through for ni = " << ni << std::endl;
             typename std::list<sm::hex<F, A>>::iterator hi;
             return hi;
         }
