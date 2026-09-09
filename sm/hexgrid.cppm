@@ -368,16 +368,16 @@ export namespace sm
 
         std::int32_t n0 (const std::uint32_t hi) const { return this->d_n0[hi]; }
         std::int32_t has_n0 (const std::uint32_t hi) const { return this->d_n0[hi] == -1 ? false : true; }
-        std::int32_t n1 (const std::uint32_t hi) const { return this->d_n0[hi]; }
-        std::int32_t has_n1 (const std::uint32_t hi) const { return this->d_n0[hi] == -1 ? false : true; }
-        std::int32_t n2 (const std::uint32_t hi) const { return this->d_n0[hi]; }
-        std::int32_t has_n2 (const std::uint32_t hi) const { return this->d_n0[hi] == -1 ? false : true; }
-        std::int32_t n3 (const std::uint32_t hi) const { return this->d_n0[hi]; }
-        std::int32_t has_n3 (const std::uint32_t hi) const { return this->d_n0[hi] == -1 ? false : true; }
-        std::int32_t n4 (const std::uint32_t hi) const { return this->d_n0[hi]; }
-        std::int32_t has_n4 (const std::uint32_t hi) const { return this->d_n0[hi] == -1 ? false : true; }
-        std::int32_t n5 (const std::uint32_t hi) const { return this->d_n0[hi]; }
-        std::int32_t has_n5 (const std::uint32_t hi) const { return this->d_n0[hi] == -1 ? false : true; }
+        std::int32_t n1 (const std::uint32_t hi) const { return this->d_n1[hi]; }
+        std::int32_t has_n1 (const std::uint32_t hi) const { return this->d_n1[hi] == -1 ? false : true; }
+        std::int32_t n2 (const std::uint32_t hi) const { return this->d_n2[hi]; }
+        std::int32_t has_n2 (const std::uint32_t hi) const { return this->d_n2[hi] == -1 ? false : true; }
+        std::int32_t n3 (const std::uint32_t hi) const { return this->d_n3[hi]; }
+        std::int32_t has_n3 (const std::uint32_t hi) const { return this->d_n3[hi] == -1 ? false : true; }
+        std::int32_t n4 (const std::uint32_t hi) const { return this->d_n4[hi]; }
+        std::int32_t has_n4 (const std::uint32_t hi) const { return this->d_n4[hi] == -1 ? false : true; }
+        std::int32_t n5 (const std::uint32_t hi) const { return this->d_n5[hi]; }
+        std::int32_t has_n5 (const std::uint32_t hi) const { return this->d_n5[hi] == -1 ? false : true; }
 
         /*!
          * Default constructor
@@ -678,34 +678,34 @@ export namespace sm
             // From centre head to boundary, then mark boundary and walk
             // around the edge.
             typename std::list<sm::hex<F, A>>::iterator bpi = this->hexen.begin();
-            while (bpi->has_nne()) { bpi = bpi->nne; }
+            while (bpi->has_n1()) { bpi = bpi->n1; }
             bpi->set_flag (sm::HEX_IS_BOUNDARY | sm::HEX_INSIDE_BOUNDARY);
-            while (bpi->has_ne()) {
-                bpi = bpi->ne;
+            while (bpi->has_n0()) {
+                bpi = bpi->n0;
                 bpi->set_flag (sm::HEX_IS_BOUNDARY | sm::HEX_INSIDE_BOUNDARY);
             }
-            while (bpi->has_nse()) {
-                bpi = bpi->nse;
+            while (bpi->has_n5()) {
+                bpi = bpi->n5;
                 bpi->set_flag (sm::HEX_IS_BOUNDARY | sm::HEX_INSIDE_BOUNDARY);
             }
-            while (bpi->has_nsw()) {
-                bpi = bpi->nsw;
+            while (bpi->has_n4()) {
+                bpi = bpi->n4;
                 bpi->set_flag (sm::HEX_IS_BOUNDARY | sm::HEX_INSIDE_BOUNDARY);
             }
-            while (bpi->has_nw()) {
-                bpi = bpi->nw;
+            while (bpi->has_n3()) {
+                bpi = bpi->n3;
                 bpi->set_flag (sm::HEX_IS_BOUNDARY | sm::HEX_INSIDE_BOUNDARY);
             }
-            while (bpi->has_nnw()) {
-                bpi = bpi->nnw;
+            while (bpi->has_n2()) {
+                bpi = bpi->n2;
                 bpi->set_flag (sm::HEX_IS_BOUNDARY | sm::HEX_INSIDE_BOUNDARY);
             }
-            while (bpi->has_nne()) {
-                bpi = bpi->nne;
+            while (bpi->has_n1()) {
+                bpi = bpi->n1;
                 bpi->set_flag (sm::HEX_IS_BOUNDARY | sm::HEX_INSIDE_BOUNDARY);
             }
-            while (bpi->has_ne() && bpi->ne->test_flags(sm::HEX_IS_BOUNDARY) == false) {
-                bpi = bpi->ne;
+            while (bpi->has_n0() && bpi->n0->test_flags(sm::HEX_IS_BOUNDARY) == false) {
+                bpi = bpi->n0;
                 bpi->set_flag (sm::HEX_IS_BOUNDARY | sm::HEX_INSIDE_BOUNDARY);
             }
             // Check that the boundary is contiguous.
@@ -1797,7 +1797,7 @@ export namespace sm
          * \return An iterator into hexgrid::hexen which refers to the closest hex to \a point.
          */
         std::list<sm::hex<F, A>>::iterator set_boundary (const sm::bezcoord<F>& point,
-                                                      std::list<sm::hex<F, A>>::iterator start_from)
+                                                         std::list<sm::hex<F, A>>::iterator start_from)
         {
             typename std::list<sm::hex<F, A>>::iterator h = this->find_hex_near_point (point, start_from);
             h->set_flag (sm::HEX_IS_BOUNDARY | sm::HEX_INSIDE_BOUNDARY);
