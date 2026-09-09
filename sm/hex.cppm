@@ -753,6 +753,41 @@ export namespace sm
             this->flags |= HEX_HAS_NSE;
         }
 
+        bool has_n0() const
+        {
+            if constexpr (A == hexalign::point_up) {
+                return ((this->flags & HEX_HAS_NE) == HEX_HAS_NE);
+            } else {
+                return ((this->flags & HEX_HAS_NNE) == HEX_HAS_NNE);
+            }
+        }
+        bool has_n1() const
+        {
+            if constexpr (A == hexalign::point_up) {
+                return ((this->flags & HEX_HAS_NNE) == HEX_HAS_NNE);
+            } else {
+                return ((this->flags & HEX_HAS_NN) == HEX_HAS_NN);
+            }
+        }
+        bool has_n2() const { return ((this->flags & HEX_HAS_NNW) == HEX_HAS_NNW); }
+        bool has_n3() const
+        {
+            if constexpr (A == hexalign::point_up) {
+                return ((this->flags & HEX_HAS_NW) == HEX_HAS_NW);
+            } else {
+                return ((this->flags & HEX_HAS_NSW) == HEX_HAS_NSW);
+            }
+        }
+        bool has_n4() const
+        {
+            if constexpr (A == hexalign::point_up) {
+                return ((this->flags & HEX_HAS_NSW) == HEX_HAS_NSW);
+            } else {
+                return ((this->flags & HEX_HAS_NS) == HEX_HAS_NS);
+            }
+        }
+        bool has_n5() const { return ((this->flags & HEX_HAS_NSE) == HEX_HAS_NSE); }
+
         //! Return true if this hex has a Neighbour to the East
         bool has_ne() const
         {
