@@ -82,19 +82,17 @@ export namespace sm
         alignas(8) std::vector<std::int32_t> d_bi;
 
         /*
-         * Neighbour iterators. For use when the stride to the neighbour ne or nw is
-         * not constant. i.e. for use when the domain of computation is not a
-         * parallelogram. Note that d_ne and d_nw ARE required, because even though
-         * the neighbour east or west is always +/- 1 in memory address space in the
-         * parallelogram and rectangular domain cases, if the domain is hexagonal or
-         * arbitrary boundary, then even this is not true.
+         * Neighbour iterators. Although there are schemes to compute neighbour relations (such as
+         * the HIP hexagonal indexing scheme described in Hexagonal Image Processing, A Practical
+         * Approach by Middleton & Sivaswamy) here, we pre-compute the relations and store them in
+         * memory, within these 6 vectors.
          */
-        alignas(8) std::vector<std::int32_t> d_ne;  // becomes d_n0
-        alignas(8) std::vector<std::int32_t> d_nne; // d_n1
-        alignas(8) std::vector<std::int32_t> d_nnw; // d_n2
-        alignas(8) std::vector<std::int32_t> d_nw;  // d_n3
-        alignas(8) std::vector<std::int32_t> d_nsw; // d_n4
-        alignas(8) std::vector<std::int32_t> d_nse; // d_n5
+        alignas(8) std::vector<std::int32_t> d_n0;
+        alignas(8) std::vector<std::int32_t> d_n1;
+        alignas(8) std::vector<std::int32_t> d_n2;
+        alignas(8) std::vector<std::int32_t> d_n3;
+        alignas(8) std::vector<std::int32_t> d_n4;
+        alignas(8) std::vector<std::int32_t> d_n5;
 
         /*!
          * _flags, such as "on boundary", "inside boundary", "outside boundary", "has
@@ -167,16 +165,16 @@ export namespace sm
          * boundary is applied to the original hexagonal grid. When this occurs,
          * grid_reduced should be set false.
          */
-        std::list<sm::hex<F, A>>::iterator vertex_e;
-        std::list<sm::hex<F, A>>::iterator vertex_ne;
-        std::list<sm::hex<F, A>>::iterator vertex_nw;
-        std::list<sm::hex<F, A>>::iterator vertex_w;
-        std::list<sm::hex<F, A>>::iterator vertex_sw;
-        std::list<sm::hex<F, A>>::iterator vertex_se;
+        std::list<sm::hex<F, A>>::iterator hex_0;
+        std::list<sm::hex<F, A>>::iterator hex_1;
+        std::list<sm::hex<F, A>>::iterator hex_2;
+        std::list<sm::hex<F, A>>::iterator hex_3;
+        std::list<sm::hex<F, A>>::iterator hex_4;
+        std::list<sm::hex<F, A>>::iterator hex_5;
 
         /*!
          * Set true when a new boundary has been applied. This means that
-         * the #vertex_e, #vertex_w, and similar iterators are no longer valid.
+         * the #hex_0, #hex_3, and similar iterators are no longer valid.
          */
         bool grid_reduced = false;
 
@@ -229,20 +227,20 @@ export namespace sm
             d_flags.push_back (hi->get_flags());
             d_dist_to_boundary.push_back (hi->dist_to_boundary);
 
-            // record in the hex the iterator in the d_ vectors so that d_nne and friends can be set up later.
+            // record in the hex the iterator in the d_ vectors so that d_n1 and friends can be set up later.
             hi->di = d_x.size()-1;
         }
 
-        //! Once hex::di attributes have been set, populate d_nne and friends.
+        //! Once hex::di attributes have been set, populate d_n1 and friends.
         void populate_d_neighbours()
         {
-            // Resize d_nne and friends
-            this->d_nne.resize (this->d_x.size(), 0);
-            this->d_ne.resize (this->d_x.size(), 0);
-            this->d_nnw.resize (this->d_x.size(), 0);
-            this->d_nw.resize (this->d_x.size(), 0);
-            this->d_nsw.resize (this->d_x.size(), 0);
-            this->d_nse.resize (this->d_x.size(), 0);
+            // Resize d_n1 and friends
+            this->d_n1.resize (this->d_x.size(), 0);
+            this->d_n0.resize (this->d_x.size(), 0);
+            this->d_n2.resize (this->d_x.size(), 0);
+            this->d_n3.resize (this->d_x.size(), 0);
+            this->d_n4.resize (this->d_x.size(), 0);
+            this->d_n5.resize (this->d_x.size(), 0);
 
             typename std::list<sm::hex<F, A>>::iterator hi = this->hexen.begin();
             std::uint32_t nidx = std::numeric_limits<std::uint32_t>::max();
@@ -250,44 +248,44 @@ export namespace sm
 
                 nidx = sm::hex<F, A>::neighbour_idx_e();
                 if (hi->has_neighbour(nidx) == true) {
-                    this->d_ne[hi->di] = hi->get_neighbour(nidx)->di;
+                    this->d_n0[hi->di] = hi->get_neighbour(nidx)->di;
                 } else {
-                    this->d_ne[hi->di] = -1;
+                    this->d_n0[hi->di] = -1;
                 }
 
                 nidx = sm::hex<F, A>::neighbour_idx_ne();
                 if (hi->has_nne() == true) {
-                    this->d_nne[hi->di] = hi->get_neighbour(nidx)->di;
+                    this->d_n1[hi->di] = hi->get_neighbour(nidx)->di;
                 } else {
-                    this->d_nne[hi->di] = -1;
+                    this->d_n1[hi->di] = -1;
                 }
 
                 nidx = sm::hex<F, A>::neighbour_idx_nw();
                 if (hi->has_nnw() == true) {
-                    this->d_nnw[hi->di] = hi->get_neighbour(nidx)->di;
+                    this->d_n2[hi->di] = hi->get_neighbour(nidx)->di;
                 } else {
-                    this->d_nnw[hi->di] = -1;
+                    this->d_n2[hi->di] = -1;
                 }
 
                 nidx = sm::hex<F, A>::neighbour_idx_w();
                 if (hi->has_nw() == true) {
-                    this->d_nw[hi->di] = hi->get_neighbour(nidx)->di;
+                    this->d_n3[hi->di] = hi->get_neighbour(nidx)->di;
                 } else {
-                    this->d_nw[hi->di] = -1;
+                    this->d_n3[hi->di] = -1;
                 }
 
                 nidx = sm::hex<F, A>::neighbour_idx_sw();
                 if (hi->has_nsw() == true) {
-                    this->d_nsw[hi->di] = hi->get_neighbour(nidx)->di;
+                    this->d_n4[hi->di] = hi->get_neighbour(nidx)->di;
                 } else {
-                    this->d_nsw[hi->di] = -1;
+                    this->d_n4[hi->di] = -1;
                 }
 
                 nidx = sm::hex<F, A>::neighbour_idx_se();
                 if (hi->has_nse() == true) {
-                    this->d_nse[hi->di] = hi->get_neighbour(nidx)->di;
+                    this->d_n5[hi->di] = hi->get_neighbour(nidx)->di;
                 } else {
-                    this->d_nse[hi->di] = -1;
+                    this->d_n5[hi->di] = -1;
                 }
 
                 ++hi;
@@ -306,33 +304,80 @@ export namespace sm
         }
 
         /*
-         * Convenience accessors for testing neighbours. The step along for neighbours on the
-         * rows above/below is given by:
-         *
-         * Dest  | step
-         * ----------------------
-         * NNE   | +rowlen
-         * NNW   | +rowlen - 1
-         * NSW   | -rowlen
-         * NSE   | -rowlen + 1
+         * Convenience accessors for testing neighbours, via the d_n[0-5] vectors.
          */
-        std::int32_t ne (const std::uint32_t hi) const { return this->d_ne[hi]; }
-        std::int32_t has_ne (const std::uint32_t hi) const { return this->d_ne[hi] == -1 ? false : true; }
+        template<typename> requires (A == sm::hexalign::point_up)
+        std::int32_t ne (const std::uint32_t hi) const { return this->d_n0[hi]; }
+        template<typename> requires (A == sm::hexalign::point_up)
+        std::int32_t has_ne (const std::uint32_t hi) const { return this->d_n0[hi] == -1 ? false : true; }
 
-        std::int32_t nw (const std::uint32_t hi) const { return this->d_nw[hi]; }
-        std::int32_t has_nw (const std::uint32_t hi) const { return this->d_nw[hi] == -1 ? false : true; }
+        template<typename> requires (A == sm::hexalign::point_up)
+        std::int32_t nw (const std::uint32_t hi) const { return this->d_n3[hi]; }
+        template<typename> requires (A == sm::hexalign::point_up)
+        std::int32_t has_nw (const std::uint32_t hi) const { return this->d_n3[hi] == -1 ? false : true; }
 
-        std::int32_t nne (const std::uint32_t hi) const { return this->d_nne[hi]; }
-        std::int32_t has_nne (const std::uint32_t hi) const { return this->d_nne[hi] == -1 ? false : true; }
+        template<typename> requires (A == sm::hexalign::flat_up)
+        std::int32_t nn (const std::uint32_t hi) const { return this->d_n1[hi]; }
+        template<typename> requires (A == sm::hexalign::flat_up)
+        std::int32_t has_nn (const std::uint32_t hi) const { return this->d_n1[hi] == -1 ? false : true; }
 
-        std::int32_t nnw (const std::uint32_t hi) const { return this->d_nnw[hi]; }
-        std::int32_t has_nnw (const std::uint32_t hi) const { return this->d_nnw[hi] == -1 ? false : true; }
+        template<typename> requires (A == sm::hexalign::flat_up)
+        std::int32_t ns (const std::uint32_t hi) const { return this->d_n4[hi]; }
+        template<typename> requires (A == sm::hexalign::flat_up)
+        std::int32_t has_ns (const std::uint32_t hi) const { return this->d_n4[hi] == -1 ? false : true; }
 
-        std::int32_t nse (const std::uint32_t hi) const { return this->d_nse[hi]; }
-        std::int32_t has_nse (const std::uint32_t hi) const { return this->d_nse[hi] == -1 ? false : true; }
+        std::int32_t nne (const std::uint32_t hi) const
+        {
+            if constexpr (A == sm::hexalign::point_up) {
+                return this->d_n1[hi];
+            } else {
+                return this->d_n0[hi];
+            }
+        }
+        std::int32_t has_nne (const std::uint32_t hi) const
+        {
+            if constexpr (A == sm::hexalign::point_up) {
+                return this->d_n1[hi] == -1 ? false : true;
+            } else {
+                return this->d_n0[hi] == -1 ? false : true;
+            }
+        }
 
-        std::int32_t nsw (const std::uint32_t hi) const { return this->d_nsw[hi]; }
-        std::int32_t has_nsw (const std::uint32_t hi) const { return this->d_nsw[hi] == -1 ? false : true; }
+        std::int32_t nnw (const std::uint32_t hi) const { return this->d_n2[hi]; }
+        std::int32_t has_nnw (const std::uint32_t hi) const { return this->d_n2[hi] == -1 ? false : true; }
+
+        std::int32_t nse (const std::uint32_t hi) const { return this->d_n5[hi]; }
+        std::int32_t has_nse (const std::uint32_t hi) const { return this->d_n5[hi] == -1 ? false : true; }
+
+        std::int32_t nsw (const std::uint32_t hi) const
+        {
+            if constexpr (A == sm::hexalign::point_up) {
+                return this->d_n4[hi];
+            } else {
+                return this->d_n3[hi];
+            }
+        }
+        std::int32_t has_nsw (const std::uint32_t hi) const
+        {
+            if constexpr (A == sm::hexalign::point_up) {
+                return this->d_n4[hi] == -1 ? false : true;
+            } else {
+                return this->d_n3[hi] == -1 ? false : true;
+            }
+        }
+
+        std::int32_t n0 (const std::uint32_t hi) const { return this->d_n0[hi]; }
+        std::int32_t has_n0 (const std::uint32_t hi) const { return this->d_n0[hi] == -1 ? false : true; }
+        std::int32_t n1 (const std::uint32_t hi) const { return this->d_n0[hi]; }
+        std::int32_t has_n1 (const std::uint32_t hi) const { return this->d_n0[hi] == -1 ? false : true; }
+        std::int32_t n2 (const std::uint32_t hi) const { return this->d_n0[hi]; }
+        std::int32_t has_n2 (const std::uint32_t hi) const { return this->d_n0[hi] == -1 ? false : true; }
+        std::int32_t n3 (const std::uint32_t hi) const { return this->d_n0[hi]; }
+        std::int32_t has_n3 (const std::uint32_t hi) const { return this->d_n0[hi] == -1 ? false : true; }
+        std::int32_t n4 (const std::uint32_t hi) const { return this->d_n0[hi]; }
+        std::int32_t has_n4 (const std::uint32_t hi) const { return this->d_n0[hi] == -1 ? false : true; }
+        std::int32_t n5 (const std::uint32_t hi) const { return this->d_n0[hi]; }
+        std::int32_t has_n5 (const std::uint32_t hi) const { return this->d_n0[hi] == -1 ? false : true; }
 
         /*!
          * Default constructor
@@ -916,13 +961,13 @@ export namespace sm
             std::stringstream ss;
             ss << "hex grid with " << this->hexen.size() << " hexes.\n";
             auto i = this->hexen.begin();
-            F lasty = this->hexen.front().y;
+            F lastr = this->hexen.front().r;
             std::uint32_t rownum = 0;
             ss << "\nRow/Ring " << rownum++ << ":\n";
             while (i != this->hexen.end()) {
-                if (i->y > lasty) {
+                if (i->r > lastr) {
                     ss << "\nRow/Ring " << rownum++ << ":\n";
-                    lasty = i->y;
+                    lastr = i->r;
                 }
                 ss << i->output() << std::endl;
                 ++i;
@@ -938,12 +983,12 @@ export namespace sm
             std::stringstream ss;
             if (grid_reduced == false) {
                 ss << "Grid vertices: \n"
-                   << "           NW: (" << this->vertex_nw->x << "," << this->vertex_nw->y << ") "
-                   << "      NE: (" << this->vertex_ne->x << "," << this->vertex_ne->y << ")\n"
-                   << "     W: (" << this->vertex_w->x << "," << this->vertex_w->y << ") "
-                   << "                              E: (" << this->vertex_e->x << "," << this->vertex_e->y << ")\n"
-                   << "           SW: (" << this->vertex_sw->x << "," << this->vertex_sw->y << ") "
-                   << "      SE: (" << this->vertex_se->x << "," << this->vertex_se->y << ")";
+                   << "           NW: (" << this->hex_2->x << "," << this->hex_2->y << ") "
+                   << "      NE: (" << this->hex_1->x << "," << this->hex_1->y << ")\n"
+                   << "     W: (" << this->hex_3->x << "," << this->hex_3->y << ") "
+                   << "                              E: (" << this->hex_0->x << "," << this->hex_0->y << ")\n"
+                   << "           SW: (" << this->hex_4->x << "," << this->hex_4->y << ") "
+                   << "      SE: (" << this->hex_5->x << "," << this->hex_5->y << ")";
             } else {
                 ss << "Initial grid vertices are no longer valid.";
             }
@@ -1376,6 +1421,12 @@ export namespace sm
          * Initialise a grid of hexes in a hex spiral, setting neighbours as the grid
          * spirals out. This method populates hexen based on the grid parameters set
          * in d and x_span.
+         *
+         * Note on references to neighbours. When this algorithm was written, there were only
+         * hexalign::point_up hexgrids. At this time, I only thought of
+         * neighbour-to-the-east/north-east/north-west/west/south-west/south-east. I've left
+         * comments like "Set my W neighbour" even though that is now a comment for set_n3() instead
+         * of set_nw()
          */
         void init()
         {
@@ -1444,8 +1495,8 @@ export namespace sm
                     auto lasthi = hi;
                     --lasthi;
 
-                    // Set vertex
-                    if (i == 0) { vertex_nw = hi; }
+                    // Set our vertex-of-the-hexgrid hex
+                    if (i == 0) { hex_2 = hi; }
 
                     // 1. Set my W neighbour to be the previous hex in THIS ring, if possible
                     if (i > 0) {
@@ -1487,8 +1538,7 @@ export namespace sm
                     auto lasthi = hi;
                     --lasthi;
 
-                    // Set vertex
-                    if (i == 0) { vertex_ne = hi; }
+                    if (i == 0) { hex_1 = hi; }
 
                     // 1. Set my NW neighbour to be the previous hex in THIS ring, if possible
                     if (i > 0) {
@@ -1533,8 +1583,7 @@ export namespace sm
                     auto lasthi = hi;
                     --lasthi;
 
-                    // Set vertex
-                    if (i == 0) { vertex_e = hi; }
+                    if (i == 0) { hex_0 = hi; }
 
                     // 1. Set my NE neighbour to be the previous hex in THIS ring, if possible
                     if (i > 0) {
@@ -1580,8 +1629,7 @@ export namespace sm
                     auto lasthi = hi;
                     --lasthi;
 
-                    // Set vertex
-                    if (i == 0) { vertex_se = hi; }
+                    if (i == 0) { hex_5 = hi; }
 
                     // 1. Set my E neighbour to be the previous hex in THIS ring, if possible
                     if (i > 0) {
@@ -1625,8 +1673,7 @@ export namespace sm
                     auto lasthi = hi;
                     --lasthi;
 
-                    // Set vertex
-                    if (i == 0) { vertex_sw = hi; }
+                    if (i == 0) { hex_4 = hi; }
 
                     // 1. Set my SE neighbour to be the previous hex in THIS ring, if possible
                     if (i > 0) {
@@ -1671,8 +1718,7 @@ export namespace sm
                     auto lasthi = hi;
                     --lasthi;
 
-                    // Set vertex
-                    if (i == 0) { vertex_w = hi; }
+                    if (i == 0) { hex_3 = hi; }
 
                     // 1. Set my SW neighbour to be the previous hex in THIS ring, if possible
                     if (i == (ring_side_len - 1)) {
