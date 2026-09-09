@@ -130,12 +130,12 @@ export namespace sm
         hgdata.add_contained_vals ("/d_gi", hg.d_gi);
         hgdata.add_contained_vals ("/d_bi", hg.d_bi);
 
-        hgdata.add_contained_vals ("/d_ne", hg.d_ne);
-        hgdata.add_contained_vals ("/d_nne", hg.d_nne);
-        hgdata.add_contained_vals ("/d_nnw", hg.d_nnw);
-        hgdata.add_contained_vals ("/d_nw", hg.d_nw);
-        hgdata.add_contained_vals ("/d_nsw", hg.d_nsw);
-        hgdata.add_contained_vals ("/d_nse", hg.d_nse);
+        hgdata.add_contained_vals ("/d_n0", hg.d_n0);
+        hgdata.add_contained_vals ("/d_n1", hg.d_n1);
+        hgdata.add_contained_vals ("/d_n2", hg.d_n2);
+        hgdata.add_contained_vals ("/d_n3", hg.d_n3);
+        hgdata.add_contained_vals ("/d_n4", hg.d_n4);
+        hgdata.add_contained_vals ("/d_n5", hg.d_n5);
 
         // vector<uint32_t>
         hgdata.add_contained_vals ("/d_flags", hg.d_flags);
@@ -187,12 +187,12 @@ export namespace sm
         hgdata.read_contained_vals ("/d_ri", hg.d_ri);
         hgdata.read_contained_vals ("/d_gi", hg.d_gi);
         hgdata.read_contained_vals ("/d_bi", hg.d_bi);
-        hgdata.read_contained_vals ("/d_ne", hg.d_ne);
-        hgdata.read_contained_vals ("/d_nne", hg.d_nne);
-        hgdata.read_contained_vals ("/d_nnw", hg.d_nnw);
-        hgdata.read_contained_vals ("/d_nw", hg.d_nw);
-        hgdata.read_contained_vals ("/d_nsw", hg.d_nsw);
-        hgdata.read_contained_vals ("/d_nse", hg.d_nse);
+        hgdata.read_contained_vals ("/d_n0", hg.d_n0);
+        hgdata.read_contained_vals ("/d_n1", hg.d_n1);
+        hgdata.read_contained_vals ("/d_n2", hg.d_n2);
+        hgdata.read_contained_vals ("/d_n3", hg.d_n3);
+        hgdata.read_contained_vals ("/d_n4", hg.d_n4);
+        hgdata.read_contained_vals ("/d_n5", hg.d_n5);
         hgdata.read_contained_vals ("/d_flags", hg.d_flags);
 
         hgdata.read_contained_vals ("/tfm", hg.tfm.arr);
@@ -214,105 +214,105 @@ export namespace sm
         // etc.
         for (sm::hex<F>& _h : hg.hexen) {
             // For each hex, six loops through hexen:
-            if (_h.has_ne() == true) {
+            if (_h.has_n0() == true) {
                 bool matched = false;
-                std::uint32_t neighb_it = (std::uint32_t) hg.d_ne[_h.vi];
+                std::uint32_t neighb_it = (std::uint32_t) hg.d_n0[_h.vi];
                 typename std::list<sm::hex<F>>::iterator hi = hg.hexen.begin();
                 while (hi != hg.hexen.end()) {
                     if (hi->vi == neighb_it) {
                         matched = true;
-                        _h.ne = hi;
+                        _h.n0 = hi;
                         break;
                     }
                     ++hi;
                 }
                 if (!matched) {
-                    throw std::runtime_error ("Failed to match hexen neighbour E relation...");
+                    throw std::runtime_error ("Failed to match hexen neighbour 0 relation...");
                 }
             }
 
-            if (_h.has_nne() == true) {
+            if (_h.has_n1() == true) {
                 bool matched = false;
-                std::uint32_t neighb_it = (std::uint32_t) hg.d_nne[_h.vi];
+                std::uint32_t neighb_it = (std::uint32_t) hg.d_n1[_h.vi];
                 typename std::list<sm::hex<F>>::iterator hi = hg.hexen.begin();
                 while (hi != hg.hexen.end()) {
                     if (hi->vi == neighb_it) {
                         matched = true;
-                        _h.nne = hi;
+                        _h.n1 = hi;
                         break;
                     }
                     ++hi;
                 }
                 if (!matched) {
-                    throw std::runtime_error ("Failed to match hexen neighbour NE relation...");
+                    throw std::runtime_error ("Failed to match hexen neighbour 1 relation...");
                 }
             }
 
-            if (_h.has_nnw() == true) {
+            if (_h.has_n2() == true) {
                 bool matched = false;
-                std::uint32_t neighb_it = (std::uint32_t) hg.d_nnw[_h.vi];
+                std::uint32_t neighb_it = (std::uint32_t) hg.d_n2[_h.vi];
                 typename std::list<sm::hex<F>>::iterator hi = hg.hexen.begin();
                 while (hi != hg.hexen.end()) {
                     if (hi->vi == neighb_it) {
                         matched = true;
-                        _h.nnw = hi;
+                        _h.n2 = hi;
                         break;
                     }
                     ++hi;
                 }
                 if (!matched) {
-                    throw std::runtime_error ("Failed to match hexen neighbour NW relation...");
+                    throw std::runtime_error ("Failed to match hexen neighbour 2 relation...");
                 }
             }
 
-            if (_h.has_nw() == true) {
+            if (_h.has_n3() == true) {
                 bool matched = false;
-                std::uint32_t neighb_it = (std::uint32_t) hg.d_nw[_h.vi];
+                std::uint32_t neighb_it = (std::uint32_t) hg.d_n3[_h.vi];
                 typename std::list<sm::hex<F>>::iterator hi = hg.hexen.begin();
                 while (hi != hg.hexen.end()) {
                     if (hi->vi == neighb_it) {
                         matched = true;
-                        _h.nw = hi;
+                        _h.n3 = hi;
                         break;
                     }
                     ++hi;
                 }
                 if (!matched) {
-                    throw std::runtime_error ("Failed to match hexen neighbour W relation...");
+                    throw std::runtime_error ("Failed to match hexen neighbour 3 relation...");
                 }
             }
 
-            if (_h.has_nsw() == true) {
+            if (_h.has_n4() == true) {
                 bool matched = false;
-                std::uint32_t neighb_it = (std::uint32_t) hg.d_nsw[_h.vi];
+                std::uint32_t neighb_it = (std::uint32_t) hg.d_n4[_h.vi];
                 typename std::list<sm::hex<F>>::iterator hi = hg.hexen.begin();
                 while (hi != hg.hexen.end()) {
                     if (hi->vi == neighb_it) {
                         matched = true;
-                        _h.nsw = hi;
+                        _h.n4 = hi;
                         break;
                     }
                     ++hi;
                 }
                 if (!matched) {
-                    throw std::runtime_error ("Failed to match hexen neighbour SW relation...");
+                    throw std::runtime_error ("Failed to match hexen neighbour 4 relation...");
                 }
             }
 
-            if (_h.has_nse() == true) {
+            if (_h.has_n5() == true) {
                 bool matched = false;
-                std::uint32_t neighb_it = (std::uint32_t) hg.d_nse[_h.vi];
+                std::uint32_t neighb_it = (std::uint32_t) hg.d_n5[_h.vi];
                 typename std::list<sm::hex<F>>::iterator hi = hg.hexen.begin();
                 while (hi != hg.hexen.end()) {
                     if (hi->vi == neighb_it) {
                         matched = true;
-                        _h.nse = hi;
+                        _h.n5 = hi;
                         break;
                     }
                     ++hi;
                 }
                 if (!matched) {
-                    throw std::runtime_error ("Failed to match hexen neighbour SE relation...");
+                    throw std::runtime_error ("Failed to match hexen neighbour 5 relation...");
                 }
             }
         }

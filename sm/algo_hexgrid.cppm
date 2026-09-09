@@ -76,28 +76,28 @@ export namespace sm::algo::hexgrid
                     bool moved = false;
                     // Try to move in r direction
                     if (rr > 0) {
-                        if (dhi->has_ne()) {
-                            dhi = dhi->ne;
+                        if (dhi->has_n0()) {
+                            dhi = dhi->n0;
                             --rr;
                             moved = true;
                         } // Didn't move in +r direction
                     } else if (rr < 0) {
-                        if (dhi->has_nw()) {
-                            dhi = dhi->nw;
+                        if (dhi->has_n3()) {
+                            dhi = dhi->n3;
                             ++rr;
                             moved = true;
                         } // Didn't move in -r direction
                     }
                     // Try to move in g direction
                     if (gg > 0) {
-                        if (dhi->has_nne()) {
-                            dhi = dhi->nne;
+                        if (dhi->has_n1()) {
+                            dhi = dhi->n1;
                             --gg;
                             moved = true;
                         } // Didn't move in +g direction
                     } else if (gg < 0) {
-                        if (dhi->has_nsw()) {
-                            dhi = dhi->nsw;
+                        if (dhi->has_n4()) {
+                            dhi = dhi->n4;
                             ++gg;
                             moved = true;
                         } // Didn't move in -g direction
