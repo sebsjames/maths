@@ -1041,10 +1041,10 @@ export namespace sm
         F get_lr() const { return (this->d / sm::mathconst<F>::root_3); }
 
         /*!
-         * The vertical distance from the centre of the hex to the "north east" vertex
-         * of the hex.
+         * hexalign::point_up: The vertical distance from the centre of the hex to the "north east" vertex of the hex.
+         * hexalign::flat_up: The *horizontal* distance from the centre of the hex to the "north east" vertex of the hex.
          */
-        F get_v_to_ne() const { return (this->d / (2.0f * sm::mathconst<F>::root_3)); }
+        F get_d_to_ne() const { return (this->d / (2.0f * sm::mathconst<F>::root_3)); }
 
         /*!
          * Compute and return the area of one hex in the grid. The area is that of 6
