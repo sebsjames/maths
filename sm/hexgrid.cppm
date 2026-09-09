@@ -243,47 +243,41 @@ export namespace sm
             this->d_n5.resize (this->d_x.size(), 0);
 
             typename std::list<sm::hex<F, A>>::iterator hi = this->hexen.begin();
-            std::uint32_t nidx = std::numeric_limits<std::uint32_t>::max();
+
             while (hi != this->hexen.end()) {
 
-                nidx = sm::hex<F, A>::neighbour_idx_e();
-                if (hi->has_neighbour(nidx) == true) {
-                    this->d_n0[hi->di] = hi->get_neighbour(nidx)->di;
+                if (hi->has_n0() == true) {
+                    this->d_n0[hi->di] = hi->n0->di;
                 } else {
                     this->d_n0[hi->di] = -1;
                 }
 
-                nidx = sm::hex<F, A>::neighbour_idx_ne();
-                if (hi->has_nne() == true) {
-                    this->d_n1[hi->di] = hi->get_neighbour(nidx)->di;
+                if (hi->has_n1() == true) {
+                    this->d_n1[hi->di] = hi->n1->di;
                 } else {
                     this->d_n1[hi->di] = -1;
                 }
 
-                nidx = sm::hex<F, A>::neighbour_idx_nw();
-                if (hi->has_nnw() == true) {
-                    this->d_n2[hi->di] = hi->get_neighbour(nidx)->di;
+                if (hi->has_n2() == true) {
+                    this->d_n2[hi->di] = hi->n2->di;
                 } else {
                     this->d_n2[hi->di] = -1;
                 }
 
-                nidx = sm::hex<F, A>::neighbour_idx_w();
-                if (hi->has_nw() == true) {
-                    this->d_n3[hi->di] = hi->get_neighbour(nidx)->di;
+                if (hi->has_n3() == true) {
+                    this->d_n3[hi->di] = hi->n3->di;
                 } else {
                     this->d_n3[hi->di] = -1;
                 }
 
-                nidx = sm::hex<F, A>::neighbour_idx_sw();
-                if (hi->has_nsw() == true) {
-                    this->d_n4[hi->di] = hi->get_neighbour(nidx)->di;
+                if (hi->has_n4() == true) {
+                    this->d_n4[hi->di] = hi->n4->di;
                 } else {
                     this->d_n4[hi->di] = -1;
                 }
 
-                nidx = sm::hex<F, A>::neighbour_idx_se();
-                if (hi->has_nse() == true) {
-                    this->d_n5[hi->di] = hi->get_neighbour(nidx)->di;
+                if (hi->has_n5() == true) {
+                    this->d_n5[hi->di] = hi->n5->di;
                 } else {
                     this->d_n5[hi->di] = -1;
                 }
