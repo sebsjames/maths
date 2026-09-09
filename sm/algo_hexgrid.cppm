@@ -32,10 +32,11 @@ export namespace sm::algo::hexgrid
      *
      * \tparam F the floating point type for the hexgrid coords
      * \tparam t the type for the data
+     * \tparam A Alignment for the hexgrid
      */
-    template<typename F, typename T>
-    void convolve (const sm::hexgrid<F>& hg,
-                   const sm::hexgrid<F>& kernelgrid, const std::vector<T>& kerneldata,
+    template<typename F, typename T, sm::hexalign A = sm::hexalign::point_up>
+    void convolve (const sm::hexgrid<F, A>& hg,
+                   const sm::hexgrid<F, A>& kernelgrid, const std::vector<T>& kerneldata,
                    const std::vector<T>& data, std::vector<T>& result)
     {
         if (result.size() != hg.hexen.size()) {
@@ -52,12 +53,12 @@ export namespace sm::algo::hexgrid
         }
 
         // For each hex in this hexgrid, compute the convolution kernel
-        typename std::list<sm::hex<F>>::const_iterator hi = hg.hexen.begin();
+        typename std::list<sm::hex<F, A>>::const_iterator hi = hg.hexen.begin();
         for (; hi != hg.hexen.end(); ++hi) {
             T sum = T{0};
             // For each kernel hex, sum up.
             for (auto kh : kernelgrid.hexen) {
-                typename std::list<sm::hex<F>>::const_iterator dhi = hi;
+                typename std::list<sm::hex<F, A>>::const_iterator dhi = hi;
                 // Kernel hex coords r,g are: kh.ri, kh.gi, which may be (are EXPECTED to be) +ve or -ve
                 //
                 // Origin hex coords are h.ri, h.gi
@@ -135,9 +136,10 @@ export namespace sm::algo::hexgrid
      * We also assume the _coords are centered wrt the hexgrid.
      *
      * \tparam F the floating point type for the hexgrid coords and data
+     * \tparam A Alignment for the hexgrid
      */
-    template <typename F>
-    sm::vvec<F> resample_regular_data (const sm::hexgrid<F>& hg,
+    template <typename F, sm::hexalign A = sm::hexalign::point_up>
+    sm::vvec<F> resample_regular_data (const sm::hexgrid<F, A>& hg,
                                        const sm::vvec<F>& _data,
                                        const sm::vvec<sm::vec<F, 2>>& _coords,
                                        const F g_sigma)
@@ -222,9 +224,10 @@ export namespace sm::algo::hexgrid
      * \return A new data vvec containing the resampled (and renormalised) hex pixel values
      *
      * \tparam F the floating point type for the hexgrid coords and data
+     * \tparam A Alignment for the hexgrid
      */
-    template<typename F>
-    sm::vvec<F> resample_image (const sm::hexgrid<F>& hg,
+    template<typename F, sm::hexalign A = sm::hexalign::point_up>
+    sm::vvec<F> resample_image (const sm::hexgrid<F, A>& hg,
                                 const sm::vvec<F>& image_data,
                                 const std::uint32_t image_pixelwidth,
                                 const sm::vec<F, 2>& image_scale,
