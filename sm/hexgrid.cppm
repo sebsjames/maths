@@ -65,15 +65,13 @@ export namespace sm
          * Domain attributes
          * -----------------
          *
-         * Vectors containing the "domain" info extracted from the list of hexes. The
-         * "domain" is the set of hexes left over after the boundary has been applied
-         * and the original, outer hexes have been reduced down to those that will be
-         * used in the computation.
+         * Vectors containing the "domain" info extracted from the list of hexes. The "domain" is
+         * the set of hexes left over after the boundary has been applied and the original, outer
+         * hexes have been reduced down to those that will be used in the computation.
          *
          * Each of these is prefixed d_ and is carefully aligned.
          *
-         * The order in which these are populated is raster-style, from top left to
-         * bottom right.
+         * The order in which these are populated is raster-style, from top left to bottom right.
          */
         alignas(alignof(std::vector<F>)) std::vector<F> d_x;
         alignas(alignof(std::vector<F>)) std::vector<F> d_y;
@@ -95,8 +93,8 @@ export namespace sm
         alignas(8) std::vector<std::int32_t> d_n5;
 
         /*!
-         * _flags, such as "on boundary", "inside boundary", "outside boundary", "has
-         * neighbour east", etc.
+         * _flags, such as "on boundary", "inside boundary", "outside boundary", "has neighbour
+         * east", etc.
          */
         alignas(8) std::vector<std::uint32_t> d_flags;
 
@@ -106,8 +104,8 @@ export namespace sm
         alignas(8) std::vector<F> d_dist_to_boundary;
 
         /*!
-         * The length of a row in the domain. The first hex in the first row will
-         * overhang to the left.
+         * The length of a row in the domain. The first hex in the first row will overhang to the
+         * left.
          */
         std::uint32_t d_rowlen = 0;
 
@@ -117,16 +115,14 @@ export namespace sm
         std::uint32_t d_numrows = 0;
 
         /*!
-         * d_rowlen * d_numrows is the domain size in number of hexes. Client code
-         * will create vectors of length d_size and hold the variables pertaining to
-         * the hex domain therein.
+         * d_rowlen * d_numrows is the domain size in number of hexes. Client code will create
+         * vectors of length d_size and hold the variables pertaining to the hex domain therein.
          */
         std::uint32_t d_size = 0;
 
         /*!
-         * How many additional hexes to grow out to the left and right; top and
-         * bottom? Set this to a larger number if the boundary is expected to grow
-         * during a simulation.
+         * How many additional hexes to grow out to the left and right; top and bottom? Set this to
+         * a larger number if the boundary is expected to grow during a simulation.
          */
         std::uint32_t d_growthbuffer_horz = 0;
         std::uint32_t d_growthbuffer_vert = 0;
@@ -137,15 +133,14 @@ export namespace sm
         F d = 1.0f;
 
         /*!
-         * The centre to centre hex distance between hexes on adjacent rows - the
-         * 'vertical' distance.
+         * The centre to centre hex distance between hexes on adjacent rows - the 'vertical'
+         * distance.
          */
         F v = 1.0f * sm::mathconst<F>::root_3_over_2;
 
         /*!
-         * Give the hexagonal hex grid a diameter of approximately x_span in the
-         * horizontal direction, which is perpendicular to one of the edges of the
-         * member hexagons.
+         * Give the hexagonal hex grid a diameter of approximately x_span in the horizontal
+         * direction, which is perpendicular to one of the edges of the member hexagons.
          */
         F x_span = 10.0f;
 
@@ -160,10 +155,9 @@ export namespace sm
         sm::bezcurvepath<F> boundary;
 
         /*
-         * hex references to the hexes on the vertices of the hexagonal
-         * grid. Configured during init(). These will become invalid when a new
-         * boundary is applied to the original hexagonal grid. When this occurs,
-         * grid_reduced should be set false.
+         * hex references to the hexes on the vertices of the hexagonal grid. Configured during
+         * init(). These will become invalid when a new boundary is applied to the original
+         * hexagonal grid. When this occurs, grid_reduced should be set false.
          */
         std::list<sm::hex<F, A>>::iterator hex_0;
         std::list<sm::hex<F, A>>::iterator hex_1;
@@ -173,8 +167,8 @@ export namespace sm
         std::list<sm::hex<F, A>>::iterator hex_5;
 
         /*!
-         * Set true when a new boundary has been applied. This means that
-         * the #hex_0, #hex_3, and similar iterators are no longer valid.
+         * Set true when a new boundary has been applied. This means that the #hex_0, #hex_3, and
+         * similar iterators are no longer valid.
          */
         bool grid_reduced = false;
 
@@ -190,29 +184,27 @@ export namespace sm
         std::list<sm::hex<F, A>> hexen;
 
         /*!
-         * Once boundary secured, fill this vector. Experimental - can I do parallel
-         * loops with vectors of hexes? Ans: Not very well.
+         * Once boundary secured, fill this vector. Experimental - can I do parallel loops with
+         * vectors of hexes? Ans: Not very well.
          */
         std::vector<sm::hex<F, A>*> vhexen;
 
         /*!
-         * While determining if boundary is continuous, fill this maps container of
-         * hexes.
+         * While determining if boundary is continuous, fill this maps container of hexes.
          */
         std::list<const sm::hex<F, A>*> bhexen; // Not better as a separate list<sm::hex<F, A>>?
 
         /*!
-         * Store the centroid of the boundary path. The centroid of a read-in
-         * bezcurvepath [see void set_boundary (const bezcurvepath& p)] is subtracted
-         * from each generated point on the boundary path so that the boundary once it
-         * is expressed in the hexgrid will have a (2D) centroid of roughly
-         * (0,0). Hence, this is usually roughly (0,0).
+         * Store the centroid of the boundary path. The centroid of a read-in bezcurvepath [see void
+         * set_boundary (const bezcurvepath& p)] is subtracted from each generated point on the
+         * boundary path so that the boundary once it is expressed in the hexgrid will have a (2D)
+         * centroid of roughly (0,0). Hence, this is usually roughly (0,0).
          */
         sm::vec<F, 2> boundary_centroid = {0.0f, 0.0f};
 
         /*!
-         * Holds the centroid of the boundary before all points on the boundary were
-         * translated so that the centroid of the boundary would be 0,0
+         * Holds the centroid of the boundary before all points on the boundary were translated so
+         * that the centroid of the boundary would be 0,0
          */
         sm::vec<F, 2> original_boundary_centroid = {0.0f, 0.0f};
 
@@ -379,10 +371,10 @@ export namespace sm
         hexgrid(): d(1.0f), x_span(1.0f), z(0.0f) {}
 
         /*!
-         * Construct the hexagonal hex grid with a hex to hex distance of @a d_
-         * (centre to centre) and approximate diameter of @a x_span_. Set z to @a z_
-         * which may be useful as an identifier if several hexgrids are being managed
-         * by client code, but is not otherwise made use of.
+         * Construct the hexagonal hex grid with a hex to hex distance of @a d_ (centre to centre)
+         * and approximate diameter of @a x_span_. Set z to @a z_ which may be useful as an
+         * identifier if several hexgrids are being managed by client code, but is not otherwise
+         * made use of.
          */
         hexgrid (F d_, F x_span_, F z_ = 0.0f) : d(d_), x_span(x_span_), z(z_)
         {
@@ -391,10 +383,10 @@ export namespace sm
         }
 
         /*!
-         * Initialise with the passed-in parameters; a hex to hex distance of @a d_
-         * (centre to centre) and approximate diameter of @a x_span_. Set z to @a z_
-         * which may be useful as an identifier if several hexgrids are being managed
-         * by client code, but it not otherwise made use of.
+         * Initialise with the passed-in parameters; a hex to hex distance of @a d_ (centre to
+         * centre) and approximate diameter of @a x_span_. Set z to @a z_ which may be useful as an
+         * identifier if several hexgrids are being managed by client code, but it not otherwise
+         * made use of.
          */
         void init (F d_, F x_span_, F z_ = 0.0f)
         {
@@ -420,8 +412,7 @@ export namespace sm
         }
 
         /*!
-         * Find the hex in the hex grid which is closest to the x,y position given by
-         * pos.
+         * Find the hex in the hex grid which is closest to the x,y position given by pos.
          */
         std::list<sm::hex<F, A>>::iterator find_hex_nearest (const sm::vec<F, 2>& pos)
         {
@@ -442,37 +433,29 @@ export namespace sm
         }
 
         // If possible, get the hex at the given rgb position
-        std::list<sm::hex<F, A>>::iterator find_hex_at (const sm::vec<std::int32_t, 3>& rgbpos)
+        std::list<sm::hex<F, A>>::const_iterator find_hex_at (const sm::vec<std::int32_t, 3>& rgbpos) const
         {
-            typename std::list<sm::hex<F, A>>::iterator hi = this->hexen.begin(); // First hex in hexen is always 0,0,0
+            sm::vec<std::int32_t, 2> rgpos = { rgbpos[0] - rgbpos[2], rgbpos[1] + rgbpos[2] };
 
-            // +ri is East
-            std::int32_t inc = rgbpos[0] > 0 ? 1 : -1;
-            for (std::int32_t ri = 0; ri != rgbpos[0] && hi != this->hexen.end(); ri+=inc) {
+            typename std::list<sm::hex<F, A>>::const_iterator hi = this->hexen.begin(); // First hex in hexen is always 0,0,0
+
+            // +ri is East for point_up or dirn 0.
+            std::int32_t inc = rgpos[0] > 0 ? 1 : -1;
+            for (std::int32_t ri = 0; ri != rgpos[0] && hi != this->hexen.end(); ri += inc) {
                 if (inc > 0) {
-                    hi = hi->has_ne() ? hi->ne : this->hexen.end();
+                    hi = hi->has_n0() ? hi->n0 : this->hexen.end();
                 } else {
-                    hi = hi->has_nw() ? hi->nw : this->hexen.end();
+                    hi = hi->has_n3() ? hi->n3 : this->hexen.end();
                 }
             }
 
-            // gi is north-east
-            inc = rgbpos[1] > 0 ? 1 : -1;
-            for (std::int32_t ri = 0; ri != rgbpos[1] && hi != this->hexen.end(); ri+=inc) {
+            // gi is north-east for point_up or dirn 1
+            inc = rgpos[1] > 0 ? 1 : -1;
+            for (std::int32_t ri = 0; ri != rgpos[1] && hi != this->hexen.end(); ri += inc) {
                 if (inc > 0) {
-                    hi = hi->has_nne() ? hi->nne : this->hexen.end();
+                    hi = hi->has_n1() ? hi->n1 : this->hexen.end();
                 } else {
-                    hi = hi->has_nsw() ? hi->nsw : this->hexen.end();
-                }
-            }
-
-            // bi is north-west
-            inc = rgbpos[2] > 0 ? 1 : -1;
-            for (std::int32_t ri = 0; ri != rgbpos[2] && hi != this->hexen.end(); ri+=inc) {
-                if (inc > 0) {
-                    hi = hi->has_nnw() ? hi->nnw : this->hexen.end();
-                } else {
-                    hi = hi->has_nse() ? hi->nse : this->hexen.end();
+                    hi = hi->has_n4() ? hi->n4 : this->hexen.end();
                 }
             }
 
@@ -482,9 +465,9 @@ export namespace sm
         static constexpr bool debug_boundary = false;
 
         /*!
-         * Sets boundary to match the list of hexes passed in as @a phexes. Note, that
-         * unlike void set_boundary (const bezcurvepath& p), this method does not apply
-         * any offset to the positions of the hexes in @a phexes.
+         * Sets boundary to match the list of hexes passed in as @a phexes. Note, that unlike void
+         * set_boundary (const bezcurvepath& p), this method does not apply any offset to the
+         * positions of the hexes in @a phexes.
          */
         void set_boundary (const std::list<sm::hex<F, A>>& phexes)
         {
@@ -523,12 +506,11 @@ export namespace sm
         }
 
         /*!
-         * Sets boundary to \a p, then runs the code to discard hexes lying outside
-         * this boundary. Finishes up by calling sm::hexgrid::discard_outside.
-         * The bezcurvepath's centroid may not be 0,0. If loffset has its default value
-         * of true, then this method offsets the boundary so that when it is applied to
-         * the hexgrid, the centroid IS (0,0). If \a loffset is false, then \a p is not
-         * translated in this way.
+         * Sets boundary to \a p, then runs the code to discard hexes lying outside this
+         * boundary. Finishes up by calling sm::hexgrid::discard_outside.  The bezcurvepath's
+         * centroid may not be 0,0. If loffset has its default value of true, then this method
+         * offsets the boundary so that when it is applied to the hexgrid, the centroid IS (0,0). If
+         * \a loffset is false, then \a p is not translated in this way.
          */
         void set_boundary (const bezcurvepath<F, 3>& p, bool loffset = true)
         {
@@ -545,11 +527,10 @@ export namespace sm
         }
 
         /*!
-         * This sets a boundary, just as sm::hexgrid::set_boundary(const
-         * sm::bezcurvepath<F> p, bool offset) does but WITHOUT discarding hexes
-         * outside the boundary. Also, it first clears the previous boundary flags so
-         * the new ones are the only ones marked on the boundary. It does this because
-         * it does not discard hexes outside the boundary or repopulate the hexgrid but
+         * This sets a boundary, just as sm::hexgrid::set_boundary(const sm::bezcurvepath<F> p, bool
+         * offset) does but WITHOUT discarding hexes outside the boundary. Also, it first clears the
+         * previous boundary flags so the new ones are the only ones marked on the boundary. It does
+         * this because it does not discard hexes outside the boundary or repopulate the hexgrid but
          * it draws a new boundary that can be used by client code
          */
         void set_boundary_only (const bezcurvepath<F>& p, bool loffset = true)
@@ -563,12 +544,11 @@ export namespace sm
         }
 
         /*!
-         * Sets the boundary of the hexgrid to \a bpoints, then runs the code to discard
-         * hexes lying outside this boundary. Finishes up by calling
-         * hexgrid::discard_outside. By default, this method translates \a bpoints so
-         * that when the boundary is applied to the hexgrid, its centroid is (0,0). If
-         * the default value of \a loffset is changed to false, \a bpoints is NOT
-         * translated.
+         * Sets the boundary of the hexgrid to \a bpoints, then runs the code to discard hexes lying
+         * outside this boundary. Finishes up by calling hexgrid::discard_outside. By default, this
+         * method translates \a bpoints so that when the boundary is applied to the hexgrid, its
+         * centroid is (0,0). If the default value of \a loffset is changed to false, \a bpoints is
+         * NOT translated.
          */
         void set_boundary (std::vector<bezcoord<F>>& bpoints, bool loffset = true)
         {
@@ -613,13 +593,11 @@ export namespace sm
         }
 
         /*!
-         * This sets a boundary, just as
-         * sm::hexgrid::set_boundary(vector<sm::bezcoord<F>& bpoints, bool offset)
-         * does but WITHOUT discarding hexes outside the boundary. Also, it first clears
-         * the previous boundary flags so the new ones are the only ones marked on the
-         * boundary. It does this because it does not discard hexes outside the boundary
-         * or repopulate the hexgrid but it draws a new boundary that can be used by
-         * client code
+         * This sets a boundary, just as sm::hexgrid::set_boundary(vector<sm::bezcoord<F>& bpoints,
+         * bool offset) does but WITHOUT discarding hexes outside the boundary. Also, it first
+         * clears the previous boundary flags so the new ones are the only ones marked on the
+         * boundary. It does this because it does not discard hexes outside the boundary or
+         * repopulate the hexgrid but it draws a new boundary that can be used by client code
          */
         void set_boundary_only (std::vector<bezcoord<F>>& bpoints, bool loffset)
         {
@@ -661,9 +639,8 @@ export namespace sm
         }
 
         /*!
-         * Set all the outer hexes as being "boundary" hexes. This makes it possible
-         * to create the default hexagon of hexes, then mark the outer hexes as being
-         * the boundary.
+         * Set all the outer hexes as being "boundary" hexes. This makes it possible to create the
+         * default hexagon of hexes, then mark the outer hexes as being the boundary.
          *
          * Works only on the initial hexagonal layout of hexes.
          */
@@ -717,11 +694,10 @@ export namespace sm
         }
 
         /*!
-         * Get all the boundary hexes in a list. This assumes that a boundary has
-         * already been set with one of the set_boundary() methods and so there is
-         * therefore a set of hexes which are already marked as being on the boundary
-         * (with the attribute hex::boundaryhex == true) Do this by going around the
-         * boundary neighbour to neighbour?
+         * Get all the boundary hexes in a list. This assumes that a boundary has already been set
+         * with one of the set_boundary() methods and so there is therefore a set of hexes which are
+         * already marked as being on the boundary (with the attribute hex::boundaryhex == true) Do
+         * this by going around the boundary neighbour to neighbour?
          *
          * Now a getter for this->bhexen.
          */
@@ -1035,8 +1011,11 @@ export namespace sm
         F get_lr() const { return (this->d / sm::mathconst<F>::root_3); }
 
         /*!
-         * hexalign::point_up: The vertical distance from the centre of the hex to the "north east" vertex of the hex.
-         * hexalign::flat_up: The *horizontal* distance from the centre of the hex to the "north east" vertex of the hex.
+         * hexalign::point_up: The vertical distance from the centre of the hex to the "north east"
+         * vertex of the hex.
+         *
+         * hexalign::flat_up: The *horizontal* distance from the centre of the hex to the "north
+         * east" vertex of the hex.
          */
         F get_d_to_ne() const { return (this->d / (2.0f * sm::mathconst<F>::root_3)); }
 
@@ -1090,7 +1069,8 @@ export namespace sm
             return xmax;
         }
 
-        // Transform the positions of the hexes. After transforming, the domain vectors may have to be recomputed
+        // Transform the positions of the hexes. After transforming, the domain vectors may have to
+        // be recomputed
         void transform (const sm::mat<F, 4>& tf)
         {
             this->tfm = tf;
@@ -1104,8 +1084,7 @@ export namespace sm
         }
 
         /*!
-         * Run through all the hexes and compute the distance to the nearest boundary
-         * hex.
+         * Run through all the hexes and compute the distance to the nearest boundary hex.
          */
         void compute_distance_to_boundary()
         {
@@ -1154,20 +1133,20 @@ export namespace sm
         }
 
         /*!
-         * Get a vector of hex pointers for all hexes that are inside/on the path
-         * defined by the bezcurvepath \a p, thus this gets a 'region of hexes'. The hex
-         * flags "region" and "region_boundary" are used, temporarily to mark out the
-         * region. The idea is that client code will then use the vector of sm::hex<F, A>* to work
-         * with the region however it needs to.
+         * Get a vector of hex pointers for all hexes that are inside/on the path defined by the
+         * bezcurvepath \a p, thus this gets a 'region of hexes'. The hex flags "region" and
+         * "region_boundary" are used, temporarily to mark out the region. The idea is that client
+         * code will then use the vector of sm::hex<F, A>* to work with the region however it needs
+         * to.
          *
-         * The centroid of the region is placed in \a region_centroid (i.e. \a
-         * region_centroid is a return argument)
+         * The centroid of the region is placed in \a region_centroid (i.e. \a region_centroid is a
+         * return argument)
          *
          * It's assumed that the bezcurvepath defines a closed region.
          *
-         * If \a apply_original_boundary_centroid is true, then the region is translated by
-         * the same amount that the overall boundary was translated to ensure that the
-         * boundary's centroid is at 0,0.
+         * If \a apply_original_boundary_centroid is true, then the region is translated by the same
+         * amount that the overall boundary was translated to ensure that the boundary's centroid is
+         * at 0,0.
          *
          * \return a vector of iterators to the hexes that make up the region.
          */
@@ -1239,8 +1218,8 @@ export namespace sm
             return the_region;
         }
 
-        //! Obtain a hexagonal region of hexes around a given central hex, marked by its
-        //! d_ index. This is easier than getting a properly circular region of hexes.
+        //! Obtain a hexagonal region of hexes around a given central hex, marked by its d_
+        //! index. This is easier than getting a properly circular region of hexes.
         std::vector<typename std::list<sm::hex<F, A>>::iterator> get_hexagonal_region (std::uint32_t centreindex, F radius)
         {
             std::vector<typename std::list<sm::hex<F, A>>::iterator> the_region;
@@ -1412,9 +1391,8 @@ export namespace sm
 
     private:
         /*!
-         * Initialise a grid of hexes in a hex spiral, setting neighbours as the grid
-         * spirals out. This method populates hexen based on the grid parameters set
-         * in d and x_span.
+         * Initialise a grid of hexes in a hex spiral, setting neighbours as the grid spirals
+         * out. This method populates hexen based on the grid parameters set in d and x_span.
          *
          * Note on references to neighbours. When this algorithm was written, there were only
          * hexalign::point_up hexgrids. At this time, I only thought of
@@ -1784,9 +1762,9 @@ export namespace sm
         }
 
         /*!
-         * Starting from \a start_from, and following nearest-neighbour relations, find
-         * the closest hex in hexen to the coordinate point \a point, and set its
-         * hex::on_boundary attribute to true.
+         * Starting from \a start_from, and following nearest-neighbour relations, find the closest
+         * hex in hexen to the coordinate point \a point, and set its hex::on_boundary attribute to
+         * true.
          *
          * \return An iterator into hexgrid::hexen which refers to the closest hex to \a point.
          */
@@ -1799,8 +1777,8 @@ export namespace sm
         }
 
         /*!
-         * Determine whether the boundary is contiguous. Whilst doing so, populate a
-         * list<sm::hex<F, A>> containing just the boundary hexes.
+         * Determine whether the boundary is contiguous. Whilst doing so, populate a list<sm::hex<F,
+         * A>> containing just the boundary hexes.
          */
         bool boundary_contiguous()
         {
@@ -1816,11 +1794,11 @@ export namespace sm
         }
 
         /*!
-         * Determine whether the boundary is contiguous, starting from the boundary
-         * hex iterator \a bhi.
+         * Determine whether the boundary is contiguous, starting from the boundary hex iterator \a
+         * bhi.
          *
-         * The overload with bhexes takes a list of hex pointers and populates it with
-         * pointers to the hexes on the boundary.
+         * The overload with bhexes takes a list of hex pointers and populates it with pointers to
+         * the hexes on the boundary.
          */
         bool boundary_contiguous (std::list<sm::hex<F, A>>::const_iterator bhi,
                                   std::list<sm::hex<F, A>>::const_iterator hi, std::set<std::uint32_t>& seen)
@@ -1853,10 +1831,9 @@ export namespace sm
         }
 
         /*!
-         * Set the hex closest to point as being on the region boundary. Region
-         * boundaries are supposed to be temporary, so that client code can find a
-         * region, extract the pointers to all the hexes in that region and store that
-         * information for later use.
+         * Set the hex closest to point as being on the region boundary. Region boundaries are
+         * supposed to be temporary, so that client code can find a region, extract the pointers to
+         * all the hexes in that region and store that information for later use.
          */
         std::list<sm::hex<F, A>>::iterator set_region_boundary (const bezcoord<F>& point, std::list<sm::hex<F, A>>::iterator start_from)
         {
@@ -1866,8 +1843,8 @@ export namespace sm
         }
 
         /*!
-         * Determine whether the region boundary is contiguous, starting from the
-         * boundary hex iterator #bhi.
+         * Determine whether the region boundary is contiguous, starting from the boundary hex
+         * iterator #bhi.
          */
         bool region_boundary_contiguous (std::list<sm::hex<F, A>>::const_iterator bhi,
                                          std::list<sm::hex<F, A>>::const_iterator hi, std::set<std::uint32_t>& seen)
@@ -1912,9 +1889,9 @@ export namespace sm
         }
 
         /*!
-         * Find a hex, any hex, that's on the boundary specified by #boundary. This
-         * assumes that set_boundary (const bezcurvepath&) has been called to mark the
-         * hexes that lie on the boundary.
+         * Find a hex, any hex, that's on the boundary specified by #boundary. This assumes that
+         * set_boundary (const bezcurvepath&) has been called to mark the hexes that lie on the
+         * boundary.
          */
         bool find_boundaryhex (std::list<sm::hex<F, A>>::const_iterator& hi) const
         {
@@ -1970,8 +1947,8 @@ export namespace sm
         }
 
         /*!
-         * Find the hex near @point, starting from start_from, which should be as close
-         * as possible to point in order to reduce computation time.
+         * Find the hex near @point, starting from start_from, which should be as close as possible
+         * to point in order to reduce computation time.
          */
         std::list<sm::hex<F, A>>::iterator find_hex_near_point (const bezcoord<F>& point, std::list<sm::hex<F, A>>::iterator start_from)
         {
@@ -1996,15 +1973,14 @@ export namespace sm
         }
 
         /*!
-         * Mark hexes as being inside the boundary given that \a hi refers to a boundary
-         * hex and at least one adjacent hex to \a hi has already been marked as inside
-         * the boundary (thus allowing the algorithm to know which side of the boundary
-         * hex is the inside)
+         * Mark hexes as being inside the boundary given that \a hi refers to a boundary hex and at
+         * least one adjacent hex to \a hi has already been marked as inside the boundary (thus
+         * allowing the algorithm to know which side of the boundary hex is the inside)
          *
          * \param hi list iterator to starting hex.
          *
-         * By changing \a bdry_flag and \a inside_flag, it's possible to use this method
-         * with region boundaries.
+         * By changing \a bdry_flag and \a inside_flag, it's possible to use this method with region
+         * boundaries.
          */
         void mark_from_boundary (std::list<sm::hex<F, A>>::iterator hi,
                                  std::uint32_t bdry_flag = sm::HEX_IS_BOUNDARY,
@@ -2014,15 +1990,14 @@ export namespace sm
         }
 
         /*!
-         * Mark hexes as being inside the boundary given that \a hi refers to a boundary
-         * hex and at least one adjacent hex to \a hi has already been marked as inside
-         * the boundary (thus allowing the algorithm to know which side of the boundary
-         * hex is the inside)
+         * Mark hexes as being inside the boundary given that \a hi refers to a boundary hex and at
+         * least one adjacent hex to \a hi has already been marked as inside the boundary (thus
+         * allowing the algorithm to know which side of the boundary hex is the inside)
          *
          * \param hi list iterator to a pointer to the starting hex.
          *
-         * By changing \a bdry_flag and \a inside_flag, it's possible to use this method
-         * with region boundaries.
+         * By changing \a bdry_flag and \a inside_flag, it's possible to use this method with region
+         * boundaries.
          */
         void mark_from_boundary (std::list<sm::hex<F, A>*>::iterator hi,
                                  std::uint32_t bdry_flag = sm::HEX_IS_BOUNDARY,
@@ -2032,15 +2007,14 @@ export namespace sm
         }
 
         /*!
-         * Mark hexes as being inside the boundary given that \a hi refers to a boundary
-         * hex and at least one adjacent hex to \a hi has already been marked as inside
-         * the boundary (thus allowing the algorithm to know which side of the boundary
-         * hex is the inside)
+         * Mark hexes as being inside the boundary given that \a hi refers to a boundary hex and at
+         * least one adjacent hex to \a hi has already been marked as inside the boundary (thus
+         * allowing the algorithm to know which side of the boundary hex is the inside)
          *
          * \param hi pointer to the starting hex.
          *
-         * By changing \a bdry_flag and \a inside_flag, it's possible to use this method
-         * with region boundaries.
+         * By changing \a bdry_flag and \a inside_flag, it's possible to use this method with region
+         * boundaries.
          */
         void mark_from_boundary (sm::hex<F, A>* hi,
                                  std::uint32_t bdry_flag = sm::HEX_IS_BOUNDARY,
@@ -2108,40 +2082,36 @@ export namespace sm
         }
 
         /*!
-         * Given the current boundary hex iterator, bhi and the n_recents last boundary
-         * hexes in recently_seen, and assuming that bhi has had all its adjacent inside
-         * hexes marked as inside_boundary, find the next boundary hex.
+         * Given the current boundary hex iterator, bhi and the n_recents last boundary hexes in
+         * recently_seen, and assuming that bhi has had all its adjacent inside hexes marked as
+         * inside_boundary, find the next boundary hex.
          *
          * \param bhi The boundary hex iterator. From this hex, find the next boundary
          * hex.
          *
-         * \param recently_seen a deque containing the recently processed boundary
-         * hexes. for a boundary which is always exactly one hex thick, you only need a
-         * memory of the last boundary hex to keep you going in the right direction
-         * around the boundary BUT if your boundary has some "double thickness"
-         * sections, then you need to know a few more recent hexes to avoid looping
-         * around and returning to the start!
+         * \param recently_seen a deque containing the recently processed boundary hexes. for a
+         * boundary which is always exactly one hex thick, you only need a memory of the last
+         * boundary hex to keep you going in the right direction around the boundary BUT if your
+         * boundary has some "double thickness" sections, then you need to know a few more recent
+         * hexes to avoid looping around and returning to the start!
          *
-         * \param n_recents The number of hexes to record in \a recently_seen. The
-         * actual number you will need depends on the "thickness" of your boundary -
-         * does it have sections that are two hexes thick, or sections that are six
-         * hexes thick? It also depends on the length along which the boundary may be
-         * two hexes thick. In theory, if you have a boundary section two hexes thick
-         * for 5 pairs, then you need to store 10 previous hexes. However, due to the
-         * way that this algorithm tests hexes (always testing direction '0' which is
-         * East first, then going anti-clockwise to the next direction; North-East and
-         * so on), n_recents=2 appears to be sufficient for a thickness 2 boundary,
-         * which is what can occur when setting a boundary using the method
-         * hexgrid::set_elliptical_boundary. Boundaries that are more than thickness 2
-         * shouldn't really occur, whereas a boundary with a short section of thickness
-         * 2 can quite easily occur, as in set_elliptical_boundary, where insisting that
-         * the boundary was strictly always only 1 hex thick would make that algorithm
-         * more complex.
+         * \param n_recents The number of hexes to record in \a recently_seen. The actual number you
+         * will need depends on the "thickness" of your boundary - does it have sections that are
+         * two hexes thick, or sections that are six hexes thick? It also depends on the length
+         * along which the boundary may be two hexes thick. In theory, if you have a boundary
+         * section two hexes thick for 5 pairs, then you need to store 10 previous hexes. However,
+         * due to the way that this algorithm tests hexes (always testing direction '0' which is
+         * East first, then going anti-clockwise to the next direction; North-East and so on),
+         * n_recents=2 appears to be sufficient for a thickness 2 boundary, which is what can occur
+         * when setting a boundary using the method hexgrid::set_elliptical_boundary. Boundaries
+         * that are more than thickness 2 shouldn't really occur, whereas a boundary with a short
+         * section of thickness 2 can quite easily occur, as in set_elliptical_boundary, where
+         * insisting that the boundary was strictly always only 1 hex thick would make that
+         * algorithm more complex.
          *
          * \param bdry_flag The flag used to recognise a boundary hex.
          *
-         * \param inside_flag The flag used to recognise a hex that is inside the
-         * boundary.
+         * \param inside_flag The flag used to recognise a hex that is inside the boundary.
          *
          * \return true if a next boundary neighbour was found, false otherwise.
          */
@@ -2203,9 +2173,8 @@ export namespace sm
         }
 
         /*!
-         * Mark hexes as inside_boundary if they are inside the boundary. Starts from
-         * \a hi which is assumed to already be known to refer to a hex lying inside the
-         * boundary.
+         * Mark hexes as inside_boundary if they are inside the boundary. Starts from \a hi which is
+         * assumed to already be known to refer to a hex lying inside the boundary.
          */
         void mark_hexes_inside (std::list<sm::hex<F, A>>::iterator hi,
                                 std::uint32_t bdry_flag = sm::HEX_IS_BOUNDARY,
@@ -2235,8 +2204,7 @@ export namespace sm
         }
 
         /*!
-         * Recursively mark hexes to be kept if they are inside the rectangular hex
-         * domain.
+         * Recursively mark hexes to be kept if they are inside the rectangular hex domain.
          */
         void mark_hexes_inside_rectangular_domain (const std::array<std::int32_t, 6>& extnts)
         {
@@ -2380,18 +2348,17 @@ export namespace sm
         }
 
         /*!
-         * Find the extents of the boundary hexes. Find the ri for the left-most hex and
-         * the ri for the right-most hex (elements 0 and 1 of the return array). Find
-         * the gi for the top most hex and the gi for the bottom most hex. Assumes bi is
-         * 0.
+         * Find the extents of the boundary hexes. Find the ri for the left-most hex and the ri for
+         * the right-most hex (elements 0 and 1 of the return array). Find the gi for the top most
+         * hex and the gi for the bottom most hex. Assumes bi is 0.
          *
-         * Return object contains: {ri-left, ri-right, gi-bottom, gi-top, gi at ri-left,
-         * gi at ri-right}
+         * Return object contains: {ri-left, ri-right, gi-bottom, gi-top, gi at ri-left, gi at
+         * ri-right}
          *
-         * gi at ri-left, gi at ri-right are returned so that the bottom left hex can be
-         * set correctly and the entire boundary is enclosed - it's important to know if
-         * the bottom line is parity-matched with the line on which the left and right
-         * most boundary hexes are found.
+         * gi at ri-left, gi at ri-right are returned so that the bottom left hex can be set
+         * correctly and the entire boundary is enclosed - it's important to know if the bottom line
+         * is parity-matched with the line on which the left and right most boundary hexes are
+         * found.
          */
         std::array<std::int32_t, 6> find_boundary_extents() const
         {
@@ -2443,8 +2410,8 @@ export namespace sm
         }
 
         /*!
-         * Does what it says on the tin. Re-number the hex::vi vector index in each
-         * hex in the hexgrid, from the start of the list<sm::hex<F, A>> hexen until the end.
+         * Does what it says on the tin. Re-number the hex::vi vector index in each hex in the
+         * hexgrid, from the start of the list<sm::hex<F, A>> hexen until the end.
          */
         void renumber_vector_indices()
         {

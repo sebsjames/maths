@@ -35,6 +35,7 @@
 
 module;
 
+#include <memory>
 #include <cstdint>
 #include <complex>
 #include <vector>
@@ -42,6 +43,7 @@ module;
 #include <stdexcept>
 #include <sstream>
 #include <cmath>
+#include <list>
 
 #include <iostream>
 
@@ -51,10 +53,14 @@ export import sm.hexgrid;
 export import sm.vvec;
 import sm.vec;
 import sm.mathconst;
+import sm.mat;
 
 // Regular, non-hexagonal fft
 export namespace sm::fft
 {
+    // What alignment for the frequency space fft?
+    constexpr sm::hexalign hgf_align = sm::hexalign::flat_up;
+
     /*!
      * A minimal row-major complex matrix. This is an intermediate data type that is used during the
      * hexagonal FFT computation. it is exported so that the data can be inspected.
@@ -73,6 +79,37 @@ export namespace sm::fft
         std::complex<F>& operator() (std::uint32_t r, std::uint32_t c) { return this->data[r * this->cols + c]; }
         const std::complex<F>& operator() (std::uint32_t r, std::uint32_t c) const { return this->data[r * this->cols + c]; }
     };
+
+    template<typename F>
+    constexpr sm::mat<F, 2, 2> make_V()
+    {
+        sm::mat<F, 2, 2> V;
+        V.set_col(0, { F{1}, F{0} });
+        V.set_col(1, { F{0.5}, sm::mathconst<F>::root_3_over_2 });
+        return V;
+    }
+
+    template<typename F>
+    constexpr sm::mat<F, 2, 2> make_U (const sm::mat<F, 2, 2>& V)
+    {
+        sm::mat<F, 2, 2> U = V.transpose().inverse();
+
+        // Swap cols of U (but why? Because freq space would end up being left-handed?)
+        auto tmp0 = U.col(0);
+        U.set_col(0, U.col(1));
+        U.set_col(1, tmp0);
+
+        return U;
+    }
+
+    template<typename F>
+    constexpr sm::mat<F, 2, 2> make_U()
+    {
+        // Unit vectors in image space combined into a matrix
+        constexpr sm::mat<F, 2, 2> V = make_V<F>();
+        return make_U (V);
+    }
+
 
     //! In-place iterative radix-2 Cooley-Tukey FFT. invert selects the inverse transform
     //! (which includes the 1/N normalisation). a.size() MUST be a power of two (or 0/1).
@@ -336,9 +373,6 @@ namespace sm::hexfft::internal
         // std::pair<sm::fft::cmat<F>, sm::fft::cmat<F>>, so g00, g01, g10, g11 are all cmat<F>
         auto [g00, g01] = nst1 (data0);
         auto [g10, g11] = nst1 (data1);
-        std::cout << "data0 size " << data0.size() << " data1 size " << data1.size() << std::endl;
-        std::cout << "g00 size " << g00.size() << " g01 size " << g01.size() << std::endl;
-        std::cout << "g10 size " << g10.size() << " g11 size " << g11.size() << std::endl;
 
         sm::fft::cmat<F> X0 = nst2 (g00);
         sm::fft::cmat<F> t0 = nst2 (g10);
@@ -355,8 +389,6 @@ namespace sm::hexfft::internal
         }
 
         return { X0, X1 };
-        //return { g00, g01 };
-        //return { g10, g11 };
     }
 
     template<typename F>
@@ -431,29 +463,6 @@ namespace sm::hexfft::internal
         return { out0, out1 };
     }
 
-    /*!
-     * Convert an sm::hex's ri/gi position into its index on one of the ASA rectangles.
-     */
-    sm::vec<std::uint32_t, 3> ri_gi_to_asa (const std::int32_t ri, const std::int32_t gi,
-                                            const std::int32_t ri_min, const std::int32_t gi_min)
-    {
-        const std::int32_t _gi = (gi - gi_min) / 2;
-
-        sm::vec<std::uint32_t, 3> arc = {};
-
-        if ((_gi < 0) || ((ri - ri_min + _gi) < 0)) {
-            arc.set_from (std::numeric_limits<std::uint32_t>::max());
-        } else {
-            arc = {
-                static_cast<std::uint32_t> ((2 + (gi % 2)) % 2), // a from oddness/evenness of gi
-                static_cast<std::uint32_t> (_gi),                // r is green axis only
-                static_cast<std::uint32_t> (ri - ri_min + _gi )  // c is a combination of green axis and red axis
-            };
-        }
-
-        return arc;
-    }
-
     sm::vec<std::int32_t, 2> asa_to_ri_gi (const std::uint32_t a, const std::uint32_t r, const std::uint32_t c,
                                            const std::int32_t ri_min, const std::int32_t gi_min)
     {
@@ -466,7 +475,7 @@ namespace sm::hexfft::internal
     //! every hex in hg, and round its row count up so that n (the number of rows in each of
     //! the two row-parity arrays) is even and at least 2, as required by fold_half.
     template<typename F>
-    void bounding_box (const sm::hexgrid<F>& hg, std::int32_t& ri_min, std::int32_t& gi_min,
+    void bounding_box (const sm::hexgrid<F, sm::hexalign::point_up>& hg, std::int32_t& ri_min, std::int32_t& gi_min,
                        std::uint32_t& n, std::uint32_t& m)
     {
         if (hg.hexen.empty()) {
@@ -546,13 +555,33 @@ namespace sm::hexfft::internal
         return { d0, d1 };
     }
 
-    //! The inverse of extract_by_vi: scatter one value per hex in hg (indexed by hex::vi, as
-    //! usual for hexgrid client data) into a zero-filled padded rectangle of shape (n, m)
-    //! whose (a=0,r=0,c=0) corner sits at hex::ri==ri_min, hex::gi==gi_min.
+    /*!
+     * Convert an sm::hex's ri/gi position *in the image/input* space into its index on one of the ASA rectangles.
+     */
+    sm::vec<std::uint32_t, 3> ri_gi_to_asa (const std::int32_t ri, const std::int32_t gi,
+                                            const std::int32_t ri_min, const std::int32_t gi_min)
+    {
+        const std::int32_t _gi = (gi - gi_min) / 2;
+
+        sm::vec<std::uint32_t, 3> arc = {};
+
+        if ((_gi < 0) || ((ri - ri_min + _gi) < 0)) {
+            arc.set_from (std::numeric_limits<std::uint32_t>::max());
+        } else {
+            arc = {
+                static_cast<std::uint32_t> ((2 + (gi % 2)) % 2), // a from oddness/evenness of gi
+                static_cast<std::uint32_t> (_gi),                // r is green axis only
+                static_cast<std::uint32_t> (ri - ri_min + _gi )  // c is a combination of green axis and red axis
+            };
+        }
+
+        return arc;
+    }
+
     template<typename F>
-    std::pair<sm::fft::cmat<F>, sm::fft::cmat<F>> populate_from_vi (const sm::hexgrid<F>& hg, const sm::vvec<std::complex<F>>& data,
-                                                                    std::int32_t ri_min, std::int32_t gi_min,
-                                                                    std::uint32_t n, std::uint32_t m)
+    std::pair<sm::fft::cmat<F>, sm::fft::cmat<F>> image_hexgrid_to_asa (const sm::hexgrid<F>& hg, const sm::vvec<std::complex<F>>& data,
+                                                                        std::int32_t ri_min, std::int32_t gi_min,
+                                                                        std::uint32_t n, std::uint32_t m)
     {
         if (data.size() != hg.num()) {
             std::stringstream ee;
@@ -573,45 +602,52 @@ namespace sm::hexfft::internal
         return { d0, d1 };
     }
 
+    // Take the k1, k2 tile coordinates from freq space and make it into rgb coordinates for the hexgrid
+    sm::vec<std::int32_t, 3> ks_to_rgb (const std::uint32_t k1, const std::uint32_t k2,
+                                        const std::int32_t rows, const std::int32_t cols)
+    {
+        std::int32_t ri_offs = -rows / 2;
+        std::int32_t bi_offs = rows / 2;
+        std::int32_t gi_offs = -cols / 2;
+        sm::vec<std::int32_t, 3> rgb = { ri_offs, gi_offs + static_cast<std::int32_t>(k1), bi_offs - static_cast<std::int32_t>(k2) };
+        return rgb;
+    }
+
     // X0 is the array (0, s, d) and X1 is (1, s, d). Transfer these to a hexgrid in the freq. space.
     template<typename F>
-    sm::vvec<std::complex<F>> X_b_s_d_to_hexgrid (const sm::hexgrid<F>& hgf, const sm::fft::cmat<F>& X0, const sm::fft::cmat<F>& X1,
-                                                  std::int32_t ri_min, std::int32_t gi_min)
+    sm::vvec<std::complex<F>> X_asa_to_frequency_hexgrid (const sm::hexgrid<F, sm::fft::hgf_align>* hgf,
+                                                          const sm::fft::cmat<F>& X0, const sm::fft::cmat<F>& X1,
+                                                          std::int32_t ri_min, std::int32_t gi_min)
     {
-        sm::vvec<std::complex<F>> out (hgf.num());
+        sm::vvec<std::complex<F>> out (hgf->num(), std::complex<F>{0,0});
 
-        sm::vec<std::uint32_t> arc = {};
-        for (const auto& h : hgf.hexen) {
-            //const std::int32_t ri = hgf.d_ri[h.vi];
-            //const std::int32_t gi = hgf.d_gi[h.vi];
-            arc = ri_gi_to_asa (h.ri, h.gi, ri_min, gi_min); // numerics will go wrong...
-
-            if (arc[0] == std::numeric_limits<std::uint32_t>::max()) {
-                out[h.vi] = {};
-            } else if (arc[0]) {
-                // use X1
-                out[h.vi] = X1(arc[1], arc[2]);
-            } else {
-                // use X0
-                out[h.vi] = X0(arc[1], arc[2]);
-            }
-        }
-
-#if 0
+        std::cout << ri_min << ", " << gi_min << std::endl;
         // X0 is (0, s, d)
         for (std::uint32_t i = 0; i < X0.size(); ++i) {
             const std::uint32_t r = i / X0.cols;
             const std::uint32_t c = i % X0.cols;
-            sm::vec<std::int32_t, 2> rigi = asa_to_ri_gi (0u, r, c, ri_min, gi_min);
-            out[hgf(rigi[0], rigi[1]).vi] = X0.data[i];
+
+            auto k1 = 0 + r + c;
+            auto k2 = 0 + 2 * r;
+            sm::vec<std::int32_t, 3> rgb = ks_to_rgb (k1, k2, X0.rows, X1.cols);
+            // Find the vi index for k1, k2
+            auto hi = hgf->find_hex_at (rgb);
+            if (hi->vi < out.size()) { out[hi->vi] = X0.data[i]; }
         }
+        // X1 is (1, s, d)
         for (std::uint32_t i = 0; i < X1.size(); ++i) {
             const std::uint32_t r = i / X1.cols;
             const std::uint32_t c = i % X1.cols;
-            sm::vec<std::int32_t, 2> rigi = asa_to_ri_gi (1u, r, c, ri_min, gi_min);
-            out[hgf(rigi[0], rigi[1]).vi] = X1.data[i];
+
+            auto k1 = 1 + r + c;
+            auto k2 = 1 + 2 * r;
+            sm::vec<std::int32_t, 3> rgb = ks_to_rgb (k1, k2, X1.rows, X1.cols);
+
+            // Find the vi index for k1, k2
+            auto hi = hgf->find_hex_at (rgb);
+            if (hi->vi < out.size()) { out[hi->vi] = X1.data[i]; }
         }
-#endif
+
         return out;
     }
 
@@ -644,9 +680,130 @@ export namespace sm::hexfft
         //! FFT in twin rectangular ASA grids. Saved to enable plotting/debugging
         std::pair<sm::fft::cmat<F>, sm::fft::cmat<F>> X_asa;
 
+        void re_quadrant()
+        {
+            // cmat has rows, cols and vvec<> data
+            if (X_asa.second.cols % 2) {
+                std::cout << "cols not divisible by 2\n";
+                return;
+            }
+            if (X_asa.second.rows % 2) {
+                std::cout << "rows not divisible by 2\n";
+                return;
+            }
+
+            if ((X_asa.first.rows != X_asa.second.rows) || (X_asa.first.cols != X_asa.second.cols)) {
+                std::cerr << "re_quadrant: Size mismatch, returning without changing anything\n";
+                return;
+            }
+
+            sm::fft::cmat<F> X0 (X_asa.first.rows, X_asa.first.cols);
+            sm::fft::cmat<F> X1 (X_asa.second.rows, X_asa.second.cols);
+
+            std::uint32_t hcols = X_asa.second.cols / 2;
+            std::uint32_t hrows = X_asa.second.rows / 2;
+
+            sm::vvec<std::complex<F>> quad (hcols * hrows);
+            std::uint32_t sidx = 0;
+            std::uint32_t didx = 0;
+            for (std::uint32_t i = 0; i < hcols; i++) {
+                for (std::uint32_t j = 0; j < hrows; j++) {
+                    sidx = i + (j * X_asa.second.cols);
+                    didx = (i + hcols) + ((j + hrows) * X_asa.second.cols);
+                    if (didx < X1.size() && sidx < X1.size()) {
+                        X0.data[didx] = X_asa.first.data[sidx];
+                        X1.data[didx] = X_asa.second.data[sidx];
+                    }
+                    didx = sidx;
+                    sidx = (i + hcols) + ((j) * X_asa.second.cols);
+                    if (didx < X1.size() && sidx < X1.size()) {
+                        X0.data[didx] = X_asa.first.data[sidx];
+                        X1.data[didx] = X_asa.second.data[sidx];
+                    }
+                    sidx += hrows * X_asa.second.cols;
+                    didx += hrows * X_asa.second.cols;
+                    if (didx < X1.size() && sidx < X1.size()) {
+                        X0.data[didx] = X_asa.first.data[sidx];
+                        X1.data[didx] = X_asa.second.data[sidx];
+                    }
+                    sidx = i + ((j + hrows) * X_asa.second.cols);
+                    didx = (i + hcols) + ((j) * X_asa.second.cols);
+                    if (didx < X1.size() && sidx < X1.size()) {
+                        X0.data[didx] = X_asa.first.data[sidx];
+                        X1.data[didx] = X_asa.second.data[sidx];
+                    }
+                }
+            }
+            X_asa.first = X0;
+            X_asa.second = X1;
+        }
+
+        // Reverse of re_quadrant
+        void de_quadrant()
+        {
+            if (X_asa.second.cols % 2) {
+                std::cout << "cols not divisible by 2\n";
+                return;
+            }
+            if (X_asa.second.rows % 2) {
+                std::cout << "rows not divisible by 2\n";
+                return;
+            }
+
+            if ((X_asa.first.rows != X_asa.second.rows) || (X_asa.first.cols != X_asa.second.cols)) {
+                std::cerr << "re_quadrant: Size mismatch, returning without changing anything\n";
+                return;
+            }
+
+            sm::fft::cmat<F> X0 (X_asa.first.rows, X_asa.first.cols);
+            sm::fft::cmat<F> X1 (X_asa.second.rows, X_asa.second.cols);
+
+            std::uint32_t hcols = X_asa.second.cols / 2;
+            std::uint32_t hrows = X_asa.second.rows / 2;
+
+            sm::vvec<std::complex<F>> quad (hcols * hrows);
+            std::uint32_t sidx = 0;
+            std::uint32_t didx = 0;
+            // Comparing with re_quadrant, I just swapped didx and sidx. Easy.
+            for (std::uint32_t i = 0; i < hcols; i++) {
+                for (std::uint32_t j = 0; j < hrows; j++) {
+                    didx = i + (j * X_asa.second.cols);
+                    sidx = (i + hcols) + ((j + hrows) * X_asa.second.cols);
+                    if (didx < X1.size() && sidx < X1.size()) {
+                        X0.data[didx] = X_asa.first.data[sidx];
+                        X1.data[didx] = X_asa.second.data[sidx];
+                    }
+                    sidx = didx;
+                    didx = (i + hcols) + ((j) * X_asa.second.cols);
+                    if (didx < X1.size() && sidx < X1.size()) {
+                        X0.data[didx] = X_asa.first.data[sidx];
+                        X1.data[didx] = X_asa.second.data[sidx];
+                    }
+                    didx += hrows * X_asa.second.cols;
+                    sidx += hrows * X_asa.second.cols;
+                    if (didx < X1.size() && sidx < X1.size()) {
+                        X0.data[didx] = X_asa.first.data[sidx];
+                        X1.data[didx] = X_asa.second.data[sidx];
+                    }
+                    didx = i + ((j + hrows) * X_asa.second.cols);
+                    sidx = (i + hcols) + ((j) * X_asa.second.cols);
+                    if (didx < X1.size() && sidx < X1.size()) {
+                        X0.data[didx] = X_asa.first.data[sidx];
+                        X1.data[didx] = X_asa.second.data[sidx];
+                    }
+                }
+            }
+            X_asa.first = X0;
+            X_asa.second = X1;
+        }
+
         //! Result. flat data. A copy of X_asa.first and X_asa.second in a single 1D vvec
         sm::vvec<std::complex<F>> data;
 
+        //! We construct a frequency hexgrid from the image hexgrid.
+        std::unique_ptr<sm::hexgrid<F, sm::fft::hgf_align>> hgf;
+        //! Scaling factor (obtained from image data hexgrid spacing)
+        F Uscale = F{1};
         //! Result, suitable for visualization on the frequency space hexgrid
         sm::vvec<std::complex<F>> hex_data;
 
@@ -660,38 +817,44 @@ export namespace sm::hexfft
      * data.size() == hg.num()).
      */
     template<typename F>
-    spectrum<F> fft (const sm::hexgrid<F>& hg, const sm::vvec<std::complex<F>>& data, [[maybe_unused]]sm::hexgrid<F>& hgf)
+    spectrum<F> fft (const sm::hexgrid<F>& hg, const sm::vvec<std::complex<F>>& data)
     {
         spectrum<F> result;
         internal::bounding_box (hg, result.ri_min, result.gi_min, result.n, result.m);
         std::cout << "ri_min: " << result.ri_min << ", gi_min: " << result.gi_min
-                  << " nxm: " << result.n << " x " <<  result.m << std::endl;
+                  << " n x m: " << result.n << " x " <<  result.m << std::endl;
 
         // Save the input data after it has been extracted into ASA format
-        result.d_asa = internal::populate_from_vi (hg, data, result.ri_min, result.gi_min, result.n, result.m);
-        // Save the FFT'd data in ASA format
-        result.X_asa = internal::hfft2 (result.d_asa.first, result.d_asa.second); // must be an oddity in here
-
+        result.d_asa = internal::image_hexgrid_to_asa (hg, data, result.ri_min, result.gi_min, result.n, result.m);
+        // Fourier transform the ASA formatted data into an ASA formatted result (result.X_asa)
+        result.X_asa = internal::hfft2 (result.d_asa.first, result.d_asa.second);
+        // Make concatenated version of X_asa.
         result.data = internal::flatten (result.X_asa.first, result.X_asa.second);
+        // Re-quadrant X_asa before putting it on hexgrid
+        result.re_quadrant();
+        result.de_quadrant();
 
-        result.hex_data = internal::X_b_s_d_to_hexgrid (hgf, result.X_asa.first, result.X_asa.second, result.ri_min, result.gi_min);
-        //result.hex_data.resize (hg.num());
-#if 0
-        // hex_data is read off an fftshifted copy of X_asa, so that DC lands in the middle of
-        // the hexgrid rather than at a corner when it's plotted. result.data/X_asa themselves
-        // are left un-shifted, so sm::hexfft::ifft (hg, spectrum<F>) is unaffected.
-        result.hex_data = internal::extract_by_vi (hg, result.X_asa.first, result.X_asa.second, result.ri_min, result.gi_min);
-#endif
+        // Construct a hexgrid
+        auto V = sm::fft::make_V<float>();
+        V *= hg.d;
+        const sm::mat<F, 2, 2> U = sm::fft::make_U<F>(V);
+        result.Uscale = V.col(0).length() * V.col(0).length(); // a suitable scaling (zoom factor) for the frequency hexgrid
+        result.hgf = std::make_unique<sm::hexgrid<F, sm::fft::hgf_align>>(U.col(0).length(), result.m * 2 * U.col(0).length(), 0.0f);
+        result.hgf->set_rectangular_boundary (result.m * U.col(0).length(), result.m * U.col(0).length());
+
+        // Populated a frequency space hexgrid with result.X_asa
+        result.hex_data = internal::X_asa_to_frequency_hexgrid (result.hgf.get(), result.X_asa.first, result.X_asa.second, result.ri_min, result.gi_min);
+
         return result;
     }
 
     //! As above, but for real-valued input data.
     template<typename F>
-    spectrum<F> fft (const sm::hexgrid<F>& hg, const sm::vvec<F>& data, sm::hexgrid<F>& hgf)
+    spectrum<F> fft (const sm::hexgrid<F>& hg, const sm::vvec<F>& data)
     {
         sm::vvec<std::complex<F>> cdata (data.size());
         for (std::uint32_t i = 0; i < data.size(); ++i) { cdata[i] = std::complex<F> (data[i], F{0}); }
-        return sm::hexfft::fft (hg, cdata, hgf);
+        return sm::hexfft::fft (hg, cdata);
     }
 
 #if 0
@@ -741,7 +904,7 @@ export namespace sm::hexfft
         std::uint32_t m = 0;
         internal::bounding_box (hg, ri_min, gi_min, n, m);
 
-        auto [d0, d1] = internal::populate_from_vi (hg, X, ri_min, gi_min, n, m);
+        auto [d0, d1] = internal::image_hexgrid_to_asa (hg, X, ri_min, gi_min, n, m);
         d0 = sm::fft::ifftshift (d0);
         d1 = sm::fft::ifftshift (d1);
         auto [x0, x1] = internal::ihfft2 (d0, d1);
