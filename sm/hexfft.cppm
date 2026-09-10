@@ -832,7 +832,7 @@ export namespace sm::hexfft
         result.data = internal::flatten (result.X_asa.first, result.X_asa.second);
         // Re-quadrant X_asa before putting it on hexgrid
         result.re_quadrant();
-        result.de_quadrant();
+        // Can also reverse: result.de_quadrant();
 
         // Construct a hexgrid
         auto V = sm::fft::make_V<float>();
