@@ -42,40 +42,6 @@ export import sm.vmat;
 // Non-hexagonal Fast Fourier Transform code
 export namespace sm::fft
 {
-    // The frequency space grid is aligned like this (was for debug, can hard code it later)
-    constexpr sm::hexalign hgf_align = sm::hexalign::flat_up;
-
-    template<typename F>
-    constexpr sm::mat<F, 2, 2> make_V()
-    {
-        sm::mat<F, 2, 2> V;
-        V.set_col(0, { F{1}, F{0} });
-        V.set_col(1, { F{0.5}, sm::mathconst<F>::root_3_over_2 });
-        return V;
-    }
-
-    template<typename F>
-    constexpr sm::mat<F, 2, 2> make_U (const sm::mat<F, 2, 2>& V)
-    {
-        sm::mat<F, 2, 2> U = V.transpose().inverse();
-
-        // Swap cols of U (but why? Because freq space would end up being left-handed?)
-        auto tmp0 = U.col(0);
-        U.set_col(0, U.col(1));
-        U.set_col(1, tmp0);
-
-        return U;
-    }
-
-    template<typename F>
-    constexpr sm::mat<F, 2, 2> make_U()
-    {
-        // Unit vectors in image space combined into a matrix
-        constexpr sm::mat<F, 2, 2> V = make_V<F>();
-        return make_U (V);
-    }
-
-
     //! In-place iterative radix-2 Cooley-Tukey FFT. invert selects the inverse transform
     //! (which includes the 1/N normalisation). a.size() MUST be a power of two (or 0/1).
     template<typename F>
@@ -96,7 +62,7 @@ export namespace sm::fft
             std::complex<F> wlen (std::cos (ang), std::sin (ang));
             for (std::uint32_t i = 0; i < n; i += len) {
                 std::complex<F> w (F{1}, F{0});
-                std::uint32_t half = len / 2;
+                std::uint32_t half = len / 2u;
                 for (std::uint32_t j = 0; j < half; ++j) {
                     std::complex<F> u = a[i + j];
                     std::complex<F> v = a[i + j + half] * w;
@@ -580,7 +546,7 @@ namespace sm::hexfft::internal
 
     // X0 is the array (0, s, d) and X1 is (1, s, d). Transfer these to a hexgrid in the freq. space.
     template<typename F>
-    sm::vvec<std::complex<F>> X_asa_to_frequency_hexgrid (const sm::hexgrid<F, sm::fft::hgf_align>* hgf,
+    sm::vvec<std::complex<F>> X_asa_to_frequency_hexgrid (const sm::hexgrid<F, sm::hexalign::flat_up>* hgf,
                                                           const sm::vmat<std::complex<F>>& X0, const sm::vmat<std::complex<F>>& X1,
                                                           std::int32_t ri_min, std::int32_t gi_min)
     {
@@ -620,6 +586,36 @@ namespace sm::hexfft::internal
 
 export namespace sm::hexfft
 {
+    template<typename F>
+    constexpr sm::mat<F, 2, 2> make_V()
+    {
+        sm::mat<F, 2, 2> V;
+        V.set_col(0, { F{1}, F{0} });
+        V.set_col(1, { F{0.5}, sm::mathconst<F>::root_3_over_2 });
+        return V;
+    }
+
+    template<typename F>
+    constexpr sm::mat<F, 2, 2> make_U (const sm::mat<F, 2, 2>& V)
+    {
+        sm::mat<F, 2, 2> U = V.transpose().inverse();
+
+        // Swap cols of U (but why? Because freq space would end up being left-handed?)
+        auto tmp0 = U.col(0);
+        U.set_col(0, U.col(1));
+        U.set_col(1, tmp0);
+
+        return U;
+    }
+
+    template<typename F>
+    constexpr sm::mat<F, 2, 2> make_U()
+    {
+        // Unit vectors in image space combined into a matrix
+        constexpr sm::mat<F, 2, 2> V = make_V<F>();
+        return make_U (V);
+    }
+
     /*!
      * The result of a forward hexagonal FFT (sm::hexfft::fft).
      *
@@ -766,7 +762,7 @@ export namespace sm::hexfft
         sm::vvec<std::complex<F>> data;
 
         //! We construct a frequency hexgrid from the image hexgrid.
-        std::unique_ptr<sm::hexgrid<F, sm::fft::hgf_align>> hgf;
+        std::unique_ptr<sm::hexgrid<F, sm::hexalign::flat_up>> hgf;
         //! Scaling factor (obtained from image data hexgrid spacing)
         F Uscale = F{1};
         //! Result, suitable for visualization on the frequency space hexgrid
@@ -800,11 +796,11 @@ export namespace sm::hexfft
         // Can also reverse: result.de_quadrant();
 
         // Construct a hexgrid
-        auto V = sm::fft::make_V<float>();
+        auto V = sm::hexfft::make_V<float>();
         V *= hg.d;
-        const sm::mat<F, 2, 2> U = sm::fft::make_U<F>(V);
+        const sm::mat<F, 2, 2> U = sm::hexfft::make_U<F>(V);
         result.Uscale = V.col(0).length() * V.col(0).length(); // a suitable scaling (zoom factor) for the frequency hexgrid
-        result.hgf = std::make_unique<sm::hexgrid<F, sm::fft::hgf_align>>(U.col(0).length(), result.m * 2 * U.col(0).length(), 0.0f);
+        result.hgf = std::make_unique<sm::hexgrid<F, sm::hexalign::flat_up>>(U.col(0).length(), result.m * 2 * U.col(0).length(), 0.0f);
         result.hgf->set_rectangular_boundary (result.m * U.col(0).length(), result.m * U.col(0).length());
 
         // Populated a frequency space hexgrid with result.X_asa
