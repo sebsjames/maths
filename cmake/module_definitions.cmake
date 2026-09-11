@@ -55,6 +55,13 @@ macro(setup_module_variables_for_maths base_directory json_directory)
   )
   list(REMOVE_DUPLICATES SM_VVEC_MODULES)
 
+  set(SM_VMAT_MODULES
+    ${SM_VEC_MODULES}
+    ${SM_VVEC_MODULES}
+    ${base_directory}/sm/vmat.cppm
+  )
+  list(REMOVE_DUPLICATES SM_VMAT_MODULES)
+
   set(SM_EVENSPACING_MODULES
     ${SM_VEC_MODULES}
     ${SM_VVEC_MODULES}
@@ -273,6 +280,7 @@ macro(setup_module_variables_for_maths base_directory json_directory)
   set(SM_HEXFFT_MODULES
     ${SM_HEXGRID_MODULES}
     ${SM_VVEC_MODULES}
+    ${SM_VMAT_MODULES}
     ${base_directory}/sm/hexfft.cppm
   )
   list(REMOVE_DUPLICATES SM_HEXFFT_MODULES)
@@ -324,6 +332,7 @@ macro(setup_module_variables_for_maths base_directory json_directory)
     ${SM_UTIL_MODULES}
     ${SM_QUATERNION_MODULES}
     ${SM_MAT_MODULES}
+    ${SM_VMAT_MODULES}
     ${SM_SPLINE_MODULES}
     ${SM_RANDOM_WALK_MODULES}
     ${SM_RUNGEKUTTA4_MODULES}

@@ -52,6 +52,7 @@ install(
   trait_tests.cppm
   util.cppm
   vec.cppm
+  vmat.cppm
   vvec.cppm
   winder.cppm
 
