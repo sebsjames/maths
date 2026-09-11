@@ -57,8 +57,8 @@ export namespace sm
         }
 
         // Access
-        F& operator() (std::uint32_t r, std::uint32_t c) { return this->arr[r * this->Nc + c]; }
-        const F& operator() (std::uint32_t r, std::uint32_t c) const { return this->arr[r * this->Nc + c]; }
+        F& operator() (std::uint32_t r, std::uint32_t c) { return this->arr[r + (c * this->Nr)]; }
+        const F& operator() (std::uint32_t r, std::uint32_t c) const { return this->arr[r + (c * this->Nr)]; }
 
         //! Access elements of the matrix (returns ref, so not const)
         F& operator[] (const std::uint32_t idx) { return this->arr[idx]; }
