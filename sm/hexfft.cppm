@@ -362,6 +362,29 @@ namespace sm::hexfft::internal
         return sm::vec<std::int32_t, 2> { ri + ri_min, gi + gi_min };
     }
 
+    /*!
+     * Convert an sm::hex's ri/gi position *in the image/input* space into its index on one of the ASA rectangles.
+     */
+    sm::vec<std::uint32_t, 3> ri_gi_to_asa (const std::int32_t ri, const std::int32_t gi,
+                                            const std::int32_t ri_min, const std::int32_t gi_min)
+    {
+        const std::int32_t _gi = (gi - gi_min) / 2;
+
+        sm::vec<std::uint32_t, 3> arc = {};
+
+        if ((_gi < 0) || ((ri - ri_min + _gi) < 0)) {
+            arc.set_from (std::numeric_limits<std::uint32_t>::max());
+        } else {
+            arc = {
+                static_cast<std::uint32_t> ((2 + (gi % 2)) % 2), // a from oddness/evenness of gi
+                static_cast<std::uint32_t> (_gi),                // r is green axis only
+                static_cast<std::uint32_t> (ri - ri_min + _gi )  // c is a combination of green axis and red axis
+            };
+        }
+
+        return arc;
+    }
+
     //! Find the smallest rectangle, in the (a, r, c) addressing of ri_gi_to_asa, that encloses
     //! every hex in hg, and round its row count up so that n (the number of rows in each of
     //! the two row-parity arrays) is even and at least 2, as required by fold_half.
@@ -416,41 +439,18 @@ namespace sm::hexfft::internal
         }
     }
 
-    /*!
-     * Convert an sm::hex's ri/gi position *in the image/input* space into its index on one of the ASA rectangles.
-     */
-    sm::vec<std::uint32_t, 3> ri_gi_to_asa (const std::int32_t ri, const std::int32_t gi,
-                                            const std::int32_t ri_min, const std::int32_t gi_min)
-    {
-        const std::int32_t _gi = (gi - gi_min) / 2;
-
-        sm::vec<std::uint32_t, 3> arc = {};
-
-        if ((_gi < 0) || ((ri - ri_min + _gi) < 0)) {
-            arc.set_from (std::numeric_limits<std::uint32_t>::max());
-        } else {
-            arc = {
-                static_cast<std::uint32_t> ((2 + (gi % 2)) % 2), // a from oddness/evenness of gi
-                static_cast<std::uint32_t> (_gi),                // r is green axis only
-                static_cast<std::uint32_t> (ri - ri_min + _gi )  // c is a combination of green axis and red axis
-            };
-        }
-
-        return arc;
-    }
-
     template<typename F>
     std::pair<sm::vmat<std::complex<F>>, sm::vmat<std::complex<F>>> image_hexgrid_to_asa (const sm::hexgrid<F, sm::hexalign::point_up>& hg, const sm::vvec<std::complex<F>>& data,
                                                                                           std::int32_t ri_min, std::int32_t gi_min,
-                                                                                          std::uint32_t n, std::uint32_t m)
+                                                                                          std::uint32_t rows, std::uint32_t cols)
     {
         if (data.size() != hg.num()) {
             std::stringstream ee;
             ee << "sm::hexfft: data.size() (" << data.size() << ") does not match hg.num() (" << hg.num() << ")";
             throw std::runtime_error (ee.str());
         }
-        sm::vmat<std::complex<F>> d0 (n, m);
-        sm::vmat<std::complex<F>> d1 (n, m);
+        sm::vmat<std::complex<F>> d0 (rows, cols);
+        sm::vmat<std::complex<F>> d1 (rows, cols);
         sm::vec<std::uint32_t> arc = {};
         for (const auto& h : hg.hexen) {
             arc = ri_gi_to_asa (h.ri, h.gi, ri_min, gi_min);
@@ -512,23 +512,36 @@ namespace sm::hexfft::internal
     sm::vec<std::int32_t, 3> ks_to_rgb (const std::uint32_t k1, const std::uint32_t k2,
                                         const std::int32_t rows, const std::int32_t cols)
     {
+        //std::cout << __func__ << " called for ks: " << k1 << ", " << k2;
         std::int32_t ri_offs = -rows / 2;
         std::int32_t gi_offs = -cols / 2;
         std::int32_t bi_offs = rows / 2;
         sm::vec<std::int32_t, 3> rgb = { ri_offs, gi_offs + static_cast<std::int32_t>(k1), bi_offs - static_cast<std::int32_t>(k2) };
+        //std::cout << " generates rgb = " << rgb << std::endl;
         return rgb;
     }
 
     // Convert from rgb coords on the frequency hexgrid to k1, k2 tile coordinates
-    sm::vec<std::uint32_t, 2> rgb_to_ks (const std::int32_t r, const std::int32_t g, const std::int32_t b,
-                                         const std::int32_t ri_offs, const std::int32_t gi_offs, const std::int32_t bi_offs)
+    sm::vec<std::uint32_t, 3> rgb_to_ks ([[maybe_unused]] const std::int32_t r, const std::int32_t g, const std::int32_t b,
+                                         const std::int32_t rows, const std::int32_t cols)
     {
-        sm::vec<std::uint32_t, 2> ks = { std::numeric_limits<std::int32_t>::max() };
+        //std::cout << __func__ << " called for rgb: " << r << ", " << g << ", " << b;
+        const std::int32_t gi_offs = -cols / 2;
+        const std::int32_t bi_offs = rows / 2;
+        sm::vec<std::uint32_t, 3> ks = { std::numeric_limits<std::int32_t>::max() };
         std::int32_t _g = g - gi_offs;
-        std::int32_t _b = b - bi_offs;
-        // r - ri_offs should be 0
-        if (r - ri_offs != 0 || _g < 0 || _b < 0) { return ks; }
-        ks = { static_cast<std::uint32_t>(_g) , static_cast<std::uint32_t>(_b) };
+        std::int32_t _b = bi_offs - b;
+        if (_g < 0) { _g = 0; }
+        if (_b < 0) { _b = 0; }
+
+        std::uint32_t arr = 0u;
+        if ((2 + (g % 2)) % 2 == 0) {
+            arr = 1u;
+        } // else arr remains 1
+
+        ks = { static_cast<std::uint32_t>(_g) , static_cast<std::uint32_t>(_b), arr };
+        //std::cout << " generating ks = " << ks << std::endl;
+
         return ks;
     }
 
@@ -570,16 +583,32 @@ namespace sm::hexfft::internal
 
     template<typename F>
     std::pair<sm::vmat<std::complex<F>>, sm::vmat<std::complex<F>>> frequency_hexgrid_to_X_asa (const sm::hexgrid<F, sm::hexalign::flat_up>* hgf,
-                                                                                                [[maybe_unused]] const sm::vvec<std::complex<F>>& hex_data)
+                                                                                                const sm::vvec<std::complex<F>>& hex_data,
+                                                                                                std::uint32_t rows, std::uint32_t cols)
     {
-        std::pair<sm::vmat<std::complex<F>>, sm::vmat<std::complex<F>>> X_asa;
-
-        for (const auto& h : hgf->hexen) {
-            //ks = rgb_to_ks (h.r, h.g, h.b);
-            std::cout << "h: " << h.output_rgb() << std::endl;
+        if (hex_data.size() != hgf->num()) {
+            std::stringstream ee;
+            ee << "sm::hexfft: hex_data.size() (" << hex_data.size() << ") does not match hgf->num() (" << hgf->num() << ")";
+            throw std::runtime_error (ee.str());
         }
+        sm::vmat<std::complex<F>> X0 (rows, cols);
+        sm::vmat<std::complex<F>> X1 (rows, cols);
+        sm::vec<std::uint32_t> arc = {};
+        for (const auto& h : hgf->hexen) {
+            sm::vec<std::uint32_t, 3> ks = rgb_to_ks (h.ri, h.gi, h.bi, rows, cols);
 
-        return X_asa;
+            std::uint32_t a = ks[2]; // how to determine?
+            arc[0] = a;
+            arc[1] = (ks[1] - a) / 2;
+            arc[2] = ks[0] - (ks[1] - a) / 2;
+            std::cout << "(arc[1], arc[2]) = " << arc[1] << ", " << arc[2] << std::endl;
+            if (arc[0] == 0u) {
+                X0 (arc[1], arc[2]) = hex_data[h.vi];
+            } else {
+                X1 (arc[1], arc[2]) = hex_data[h.vi];
+            }
+        }
+        return { X0, X1 };
     }
 
 } // sm::hexfft::internal
@@ -764,7 +793,7 @@ export namespace sm::hexfft
         // Populated a frequency space hexgrid with result.X_asa
         result.hex_data = internal::X_asa_to_frequency_hexgrid (result.hgf.get(), result.X_asa.first, result.X_asa.second);
 
-        return result;
+        return result; // std::move?
     }
 
     //! As above, but for real-valued input data.
@@ -787,11 +816,11 @@ export namespace sm::hexfft
         X.d_asa.second.set_zero();
 
         // 1. From X.hex_data, construct X.data or x0 and x1.
-        X.X_asa = internal::frequency_hexgrid_to_X_asa (X.hgf.get(), X.hex_data);
+        X.X_asa = internal::frequency_hexgrid_to_X_asa (X.hgf.get(), X.hex_data, X.rows, X.cols);
         std::cout << "ifft: X.X_asa.first.size: " << X.X_asa.first.size() << std::endl;
 
         // Switch X into the quadranted data that the hfft2/ihfft2 functions work in
-        X.de_quadrant();
+        //X.de_quadrant();
 
         // 2.
         X.d_asa = internal::ihfft2 (X.X_asa.first, X.X_asa.second);

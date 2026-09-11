@@ -889,6 +889,17 @@ export namespace sm
             this->set_boundary (bpoints, offset);
         }
 
+
+        /*!
+         * Set up a rectangular boundary of width x and height y, arranged so that we are slightly
+         * offset from the centre, 0,0,0 hex
+         */
+        void set_even_rectangular_boundary (const F x, const F y)
+        {
+            sm::vec<float, 2> centre = { this->d / 4.0f, this->d * std::sin(sm::mathconst<float>::deg2rad * 60) * 0.5f };
+            this->set_rectangular_boundary (x, y, centre, false);
+        }
+
         /*!
          * Set up a rectangular boundary of width x and height y.
          */
