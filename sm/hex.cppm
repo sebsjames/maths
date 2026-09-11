@@ -275,6 +275,16 @@ export namespace sm
             return s;
         }
 
+        //! Full rgb output
+        std::string output_rgb() const
+        {
+            std::string s("RGB(");
+            s += std::to_string(this->ri).substr(0,4) + ",";
+            s += std::to_string(this->gi).substr(0,4) + ",";
+            s += std::to_string(this->bi).substr(0,4) + ")";
+            return s;
+        }
+
         // The index (from 0 to 5) for neighbour positions depends on hexalign A.
         static constexpr std::uint32_t neighbour_idx_e()
         {

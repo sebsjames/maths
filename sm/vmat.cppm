@@ -56,6 +56,8 @@ export namespace sm
             this->Nr = r;
         }
 
+        void set_zero() { this->arr.zero(); }
+
         // Access
         F& operator() (std::uint32_t r, std::uint32_t c) { return this->arr[r + (c * this->Nr)]; }
         const F& operator() (std::uint32_t r, std::uint32_t c) const { return this->arr[r + (c * this->Nr)]; }
