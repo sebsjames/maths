@@ -787,8 +787,8 @@ export namespace sm::hexfft
         V *= hg.d;
         const sm::mat<F, 2, 2> U = sm::hexfft::make_U<F>(V);
         result.Uscale = V.col(0).length() * V.col(0).length(); // a suitable scaling (zoom factor) for the frequency hexgrid
-        result.hgf = std::make_unique<sm::hexgrid<F, sm::hexalign::flat_up>>(U.col(0).length(), result.cols * 2 * U.col(0).length(), 0.0f);
-        result.hgf->set_rectangular_boundary (result.cols * U.col(0).length(), result.cols * U.col(0).length());
+        result.hgf = std::make_unique<sm::hexgrid<F, sm::hexalign::flat_up>>(U.col(0).length(), result.cols * 4 * U.col(0).length(), 0.0f);
+        result.hgf->set_rectangular_boundary (result.rows, result.cols);
 
         // Populated a frequency space hexgrid with result.X_asa
         result.hex_data = internal::X_asa_to_frequency_hexgrid (result.hgf.get(), result.X_asa.first, result.X_asa.second);
