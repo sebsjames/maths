@@ -593,10 +593,12 @@ export namespace sm::hexfft
         sm::vvec<F> data_asa_imag;
 
         //! This holds the input (image/spatial) data in the twin rectangular grids (ASA: array set addressing grids)
-        std::pair<sm::vmat<std::complex<F>>, sm::vmat<std::complex<F>>> d_asa; // first: even, second: odd
+        sm::vmat<std::complex<F>> d0; // even rows
+        sm::vmat<std::complex<F>> d1; // odd rows
 
         //! FFT in twin rectangular ASA grids. Saved to enable plotting/debugging
-        std::pair<sm::vmat<std::complex<F>>, sm::vmat<std::complex<F>>> X_asa;
+        sm::vmat<std::complex<F>> X0; // even rows
+        sm::vmat<std::complex<F>> X1; // odd rows
 
         //! We construct a frequency hexgrid from the ASA compliant hexgrid.
         std::unique_ptr<sm::hexgrid<F, sm::hexalign::flat_up>> hgf;
@@ -626,6 +628,10 @@ export namespace sm::hexfft
                 // Make the equivalent hexgrid for the ASA.
                 this->hg_asa = std::make_unique<sm::hexgrid<F, sm::hexalign::point_up>>(this->hg->d, this->asa_cols * 4 * this->hg->d, 0.0f);
                 this->hg_asa->set_rectangular_boundary (this->asa_cols, this->asa_rows * 2u);
+                if (this->hg_asa->num() != this->asa_cols * this->asa_rows * 2u) {
+                    throw std::runtime_error ("hg_asa fuckup");
+                }
+                std::cout << "After set rect boundary, hg_asa size is " << this->hg_asa->num() << " = " << this->asa_cols * this->asa_rows * 2u << std::endl;
             }
 
             // Construct a frequency hexgrid
@@ -634,9 +640,11 @@ export namespace sm::hexfft
             const sm::mat<F, 2, 2> U = sm::hexfft::make_U<F>(V);
             this->Uscale = V.col(0).length() * V.col(0).length(); // a suitable scaling (zoom factor) for the frequency hexgrid
             if (this->hgf) { this->hgf.release(); }
-            this->hgf = std::make_unique<sm::hexgrid<F, sm::hexalign::flat_up>>(U.col(0).length(), this->asa_cols * 4 * U.col(0).length(), 0.0f);
-            this->hgf->set_rectangular_boundary (this->asa_rows, this->asa_cols);
 
+            this->hgf = std::make_unique<sm::hexgrid<F, sm::hexalign::flat_up>>(U.col(0).length(),
+                                                                                this->asa_cols * 4 * U.col(0).length(),
+                                                                                0.0f);
+            this->hgf->set_rectangular_boundary (this->asa_rows * 2u, this->asa_cols);
         }
 
         /*!
@@ -644,21 +652,20 @@ export namespace sm::hexfft
          * hexgrid hg. data must be indexed by hex::vi, as usual for hexgrid client data (so
          * data.size() == hg.num()).
          */
-        void forward (const sm::vvec<std::complex<F>>& data)
+        void forward ([[maybe_unused]] const sm::vvec<std::complex<F>>& data)
         {
             if (this->hg == nullptr) { throw std::runtime_error ("fft: Uninitialized"); }
 
             // Save the input data after it has been extracted into ASA format
-
             this->image_hexgrid_to_asa (data);
 
             // Fourier transform the ASA formatted data into an ASA formatted result (this->X_asa)
-            this->X_asa = internal::hfft2 (this->d_asa.first, this->d_asa.second);
+            std::tie(this->X0, this->X1) = internal::hfft2 (this->d0, this->d1);
             // Re-quadrant X_asa before putting it on hexgrid
-            this->re_quadrant();
+            //this->re_quadrant();
 
             // Populated a frequency space hexgrid with this->X_asa
-            this->hex_data = internal::X_asa_to_frequency_hexgrid (this->hgf.get(), this->X_asa.first, this->X_asa.second);
+            //this->hex_data = internal::X_asa_to_frequency_hexgrid (this->hgf.get(), this->X_asa.first, this->X_asa.second);
         }
 
         //! As above, but for real-valued input data.
@@ -673,20 +680,20 @@ export namespace sm::hexfft
         void inverse()
         {
             std::cout << "Setting zero in FFT/space...\n";
-            this->X_asa.first.set_zero();
-            this->X_asa.second.set_zero();
-            this->d_asa.first.set_zero();
-            this->d_asa.second.set_zero();
+            this->X0.set_zero();
+            this->X1.set_zero();
+            this->d0.set_zero();
+            this->d1.set_zero();
 
             // 1. From this->hex_data, construct this->data or x0 and x1.
-            this->X_asa = internal::frequency_hexgrid_to_X_asa (this->hgf.get(), this->hex_data, this->asa_rows, this->asa_cols);
-            std::cout << "ifft: this->X_asa.first.size: " << this->X_asa.first.size() << std::endl;
+            // this->X_asa = internal::frequency_hexgrid_to_X_asa (this->hgf.get(), this->hex_data, this->asa_rows, this->asa_cols);
+            //std::cout << "ifft: this->X_asa.first.size: " << this->X_asa.first.size() << std::endl;
 
             // Switch X into the quadranted data that the hfft2/ihfft2 functions work in
             //this->de_quadrant();
 
             // 2.
-            this->d_asa = internal::ihfft2 (this->X_asa.first, this->X_asa.second);
+            std::tie(this->d0, this->d1) = internal::ihfft2 (this->X0, this->X1);
 
             // Last job - convert from d_asa to image hexgrid
             // return internal::d_asa_to_image_hexgrid<F> (hg, X.d_asa.first, X.d_asa.second);
@@ -732,32 +739,43 @@ export namespace sm::hexfft
             }
         }
 
+        // Copy the data, defined over the input image hexgrid, hg, into d_asa. d_asa may be larger
+        // than the image hexgrid; elements for which there is no input value on hg are set to 0.
         void image_hexgrid_to_asa (const sm::vvec<std::complex<F>>& data)
         {
             if (this->hg == nullptr) { throw std::runtime_error ("Initialize fft first"); }
+
             if (data.size() != this->hg->num()) {
                 std::stringstream ee;
                 ee << "sm::hexfft: data.size() (" << data.size() << ") does not match hg->num() (" << this->hg->num() << ")";
                 throw std::runtime_error (ee.str());
             }
-            this->d_asa.first.resize (this->asa_rows, this->asa_cols);
-            this->d_asa.second.resize (this->asa_rows, this->asa_cols);
+            this->d0.resize (this->asa_rows, this->asa_cols);
+            this->d1.resize (this->asa_rows, this->asa_cols);
             sm::vec<std::uint32_t> arc = {};
             for (const auto& h : this->hg->hexen) {
                 arc = internal::ri_gi_to_asa (h.ri, h.gi, this->ri_min, this->gi_min);
                 if (arc[0] == 0u) {
-                    this->d_asa.first (arc[1], arc[2]) = data[h.vi];
+                    if (h.vi < data.size()) {
+                        this->d0 (arc[1], arc[2]) = data[h.vi];
+                    } else {
+                        std::cout << "NOT Setting d0 (" << arc[1] << ", " << arc[2] << ")" << std::endl;
+                    }
                 } else {
-                    this->d_asa.second (arc[1], arc[2]) = data[h.vi];
+                    if (h.vi < data.size()) {
+                        this->d1 (arc[1], arc[2]) = data[h.vi];
+                    } else {
+                        std::cout << "NOT Setting d1 (" << arc[1] << ", " << arc[2] << ")" << std::endl;
+                    }
                 }
             }
 
-            // What's the mapping back?
+            // If we are working with hg_asa, also write the data into data_asa_real:
             if constexpr (construct_hg_asa) {
                 this->data_asa_real.resize (this->asa_rows * this->asa_cols * 2u, F{0});
-                //this->data_asa_imag.resize (this->asa_rows * this->asa_cols * 2u);
+                //this->data_asa_imag.resize (this->asa_rows * this->asa_cols * 2u, F{0});
                 for (std::uint32_t r = 0u; r < this->asa_rows; ++r) {
-                    //const std::uint32_t rs = r * this->asa_cols; // row start
+
                     for (std::uint32_t c = 0u; c < this->asa_cols; ++c) {
                         auto ri = static_cast<std::int32_t>(c) - static_cast<std::int32_t>(r);
                         auto gi = static_cast<std::int32_t>(r * 2u);
@@ -765,11 +783,16 @@ export namespace sm::hexfft
                         sm::vec<std::int32_t, 3> rgb = { ri, gi, bi };
                         auto hi = this->hg_asa->find_hex_at (rgb);
                         if (hi == this->hg_asa->hexen.end()) {
-                            std::cout << "find_hex_at failed to find\n";
+                            std::cout << "hexgrid::find_hex_at failed to find " << rgb << "\n";
                         } else {
-                            this->data_asa_real[hi->vi] = std::real (this->d_asa.first(r, c));
+                            if (hi->vi < this->data_asa_real.size()) {
+                                this->data_asa_real[hi->vi] = std::real (this->d0(r, c));
+                            } else {
+                                std::cout << "hi->vi = "<< hi->vi << " is out of range for data_asa_real (size " << data_asa_real.size() << ")\n";
+                            }
                         }
                     }
+
                     for (std::uint32_t c = 0u; c < this->asa_cols; ++c) {
                         auto ri = static_cast<std::int32_t>(c) - static_cast<std::int32_t>(r);
                         auto gi = static_cast<std::int32_t>(r * 2u + 1u);
@@ -777,93 +800,130 @@ export namespace sm::hexfft
                         sm::vec<std::int32_t, 3> rgb = { ri, gi, bi };
                         auto hi = this->hg_asa->find_hex_at (rgb);
                         if (hi == this->hg_asa->hexen.end()) {
-                            std::cout << "find_hex_at failed to find\n";
+                            std::cout << "hexgrid::find_hex_at failed to find " << rgb << "\n";
                         } else {
-                            this->data_asa_real[hi->vi] = std::real (this->d_asa.second(r, c));
+                            if (hi->vi < this->data_asa_real.size()) {
+                                this->data_asa_real[hi->vi] = std::real (this->d1(r, c));
+                            } else {
+                                std::cout << "hi->vi = "<< hi->vi << " is out of range for data_asa_real (size " << data_asa_real.size() << ")\n";
+                            }
                         }
                     }
                 }
             }
         }
 
+#if 0
+        void X_asa_to_frequency_hexgrid()
+        {
+            auto sz = this->hgf->num();
+            this->hex_data.resize (sz, std::complex<F>{0,0});
+
+            // X0 is (0, s, d)
+            for (std::uint32_t i = 0; i < this->X0.size(); ++i) {
+                const std::uint32_t r = i % this->X0.rows();
+                const std::uint32_t c = i / this->X0.rows();
+
+                auto k1 = 0 + r + c;
+                auto k2 = 0 + 2 * r;
+                sm::vec<std::int32_t, 3> rgb = ks_to_rgb (k1, k2, this->X0.rows(), this->X0.cols());
+                // Find the vi index for k1, k2
+                auto hi = hgf->find_hex_at (rgb);
+                if (hi->vi < sz) { this->hex_data[hi->vi] = this->X0.arr[i]; } // Huh? X0 is col wise
+            }
+            // X1 is (1, s, d)
+            for (std::uint32_t i = 0; i < this->X1.size(); ++i) {
+                const std::uint32_t r = i % this->X0.rows();
+                const std::uint32_t c = i / this->X0.rows();
+
+                auto k1 = 1 + r + c;
+                auto k2 = 1 + 2 * r;
+                sm::vec<std::int32_t, 3> rgb = ks_to_rgb (k1, k2, this->X1.rows(), this->X1.cols());
+
+                // Find the vi index for k1, k2
+                auto hi = hgf->find_hex_at (rgb);
+                if (hi->vi < sz) { this->hex_data[hi->vi] = this->X1.arr[i]; }
+            }
+        }
+#endif
         // Re-arrange X_asa so that it is in a human-readable arrangement
         void re_quadrant()
         {
             // cmat has rows, cols and vvec<> data
-            if (X_asa.second.cols() % 2) {
+            if (X1.cols() % 2) {
                 std::cout << "cols not divisible by 2\n";
                 return;
             }
-            if (X_asa.second.rows() % 2) {
+            if (X1.rows() % 2) {
                 std::cout << "rows not divisible by 2\n";
                 return;
             }
 
-            if ((X_asa.first.rows() != X_asa.second.rows()) || (X_asa.first.cols() != X_asa.second.cols())) {
+            if ((X0.rows() != X1.rows()) || (X0.cols() != X1.cols())) {
                 std::cerr << "re_quadrant: Size mismatch, returning without changing anything\n";
                 return;
             }
 
-            sm::vmat<std::complex<F>> X0 (X_asa.first.rows(), X_asa.first.cols());
-            sm::vmat<std::complex<F>> X1 (X_asa.second.rows(), X_asa.second.cols());
+            sm::vmat<std::complex<F>> _X0 (X0.rows(), X0.cols());
+            sm::vmat<std::complex<F>> _X1 (X1.rows(), X1.cols());
 
-            std::uint32_t hcols = X_asa.second.cols() / 2;
-            std::uint32_t hrows = X_asa.second.rows() / 2;
+            std::uint32_t hcols = X1.cols() / 2;
+            std::uint32_t hrows = X1.rows() / 2;
 
             for (std::uint32_t c = 0; c < hcols; c++) {
                 for (std::uint32_t r = 0; r < hrows; r++) {
-                    X0(r + hrows, c + hcols) = X_asa.first(r, c);
-                    X1(r + hrows, c + hcols) = X_asa.second(r, c);
-                    X0(r, c) = X_asa.first(r, c + hcols);
-                    X1(r, c) = X_asa.second(r, c + hcols);
-                    X0(r + hrows, c) = X_asa.first(r + hrows, c + hcols);
-                    X1(r + hrows, c) = X_asa.second(r + hrows, c + hcols);
-                    X0(r, c + hcols) = X_asa.first(r + hrows, c);
-                    X1(r, c + hcols) = X_asa.second(r + hrows, c);
+                    _X0(r + hrows, c + hcols) = X0(r, c);
+                    _X1(r + hrows, c + hcols) = X1(r, c);
+                    _X0(r, c) = X0(r, c + hcols);
+                    _X1(r, c) = X1(r, c + hcols);
+                    _X0(r + hrows, c) = X0(r + hrows, c + hcols);
+                    _X1(r + hrows, c) = X1(r + hrows, c + hcols);
+                    _X0(r, c + hcols) = X0(r + hrows, c);
+                    _X1(r, c + hcols) = X1(r + hrows, c);
                 }
             }
-            X_asa.first = X0;
-            X_asa.second = X1;
+            this->X0 = _X0;
+            this->X1 = _X1;
         }
 
         // Reverse of re_quadrant
         // Comparing with re_quadrant, I just swapped didx and sidx. Easy.
         void de_quadrant()
         {
-            if (X_asa.second.cols() % 2) {
+            if (X1.cols() % 2) {
                 std::cout << "cols not divisible by 2\n";
                 return;
             }
-            if (X_asa.second.rows() % 2) {
+            if (X1.rows() % 2) {
                 std::cout << "rows not divisible by 2\n";
                 return;
             }
 
-            if ((X_asa.first.rows() != X_asa.second.rows()) || (X_asa.first.cols() != X_asa.second.cols())) {
+            if ((X0.rows() != X1.rows()) || (X0.cols() != X1.cols())) {
                 std::cerr << "de_quadrant: Size mismatch, returning without changing anything\n";
                 return;
             }
 
-            sm::vmat<std::complex<F>> X0 (X_asa.first.rows(), X_asa.first.cols());
-            sm::vmat<std::complex<F>> X1 (X_asa.second.rows(), X_asa.second.cols());
+            sm::vmat<std::complex<F>> _X0 (X0.rows(), X0.cols());
+            sm::vmat<std::complex<F>> _X1 (X1.rows(), X1.cols());
 
-            std::uint32_t hcols = X_asa.second.cols() / 2;
-            std::uint32_t hrows = X_asa.second.rows() / 2;
+            std::uint32_t hcols = X1.cols() / 2;
+            std::uint32_t hrows = X1.rows() / 2;
 
             for (std::uint32_t c = 0; c < hcols; c++) {
                 for (std::uint32_t r = 0; r < hrows; r++) {
-                    X0(r, c) = X_asa.first(r + hrows, c + hcols);
-                    X1(r, c) = X_asa.second(r + hrows, c + hcols);
-                    X0(r, c + hcols) = X_asa.first(r, c);
-                    X1(r, c + hcols) = X_asa.second(r, c);
-                    X0(r + hrows, c + hcols) = X_asa.first(r + hrows, c);
-                    X1(r + hrows, c + hcols) = X_asa.second(r + hrows, c);
-                    X0(r + hrows, c) = X_asa.first(r, c + hcols);
-                    X1(r + hrows, c) = X_asa.second(r, c + hcols);
+                    _X0(r, c) = X0(r + hrows, c + hcols);
+                    _X1(r, c) = X1(r + hrows, c + hcols);
+                    _X0(r, c + hcols) = X0(r, c);
+                    _X1(r, c + hcols) = X1(r, c);
+                    _X0(r + hrows, c + hcols) = X0(r + hrows, c);
+                    _X1(r + hrows, c + hcols) = X1(r + hrows, c);
+                    _X0(r + hrows, c) = X0(r, c + hcols);
+                    _X1(r + hrows, c) = X1(r, c + hcols);
                 }
             }
-            X_asa.first = X0;
-            X_asa.second = X1;
+            this->X0 = _X0;
+            this->X1 = _X1;
         }
     };
 
