@@ -915,8 +915,11 @@ export namespace sm
          * around the boundary.
          *
          * Note that if n_y == n_y, your rectangular boundary will NOT be a square.
+         *
+         * Pass x0 and y0 to shift the location of hex (0,0,0) towards the centre of the rectangle.
          */
-        void set_rectangular_boundary (const std::uint32_t n_x, const std::uint32_t n_y)
+        void set_rectangular_boundary (const std::uint32_t n_x, const std::uint32_t n_y,
+                                       const std::uint32_t x0 = 0u, const std::uint32_t y0 = 0u)
         {
             if (n_x % 2u != 0u || n_y % 2u != 0u) {
                 throw std::runtime_error ("This algorithm is designed for even n_x/n_y");
@@ -924,6 +927,44 @@ export namespace sm
             std::string emsg = "set_rectangular_boundary (uint32_t, uint32_t): the base hexgrid was not large enough.";
             // Count...
             typename std::list<sm::hex<F, A>>::iterator bpi = this->hexen.begin();
+
+            // First walk our 'bottom left' hex (bpi) according to x0 and y0.
+            for (std::uint32_t i = 0; i < x0; ++i) {
+                if constexpr (A ==  sm::hexalign::point_up) {
+                    if (bpi->has_n3()) {
+                        bpi = bpi->n3;
+                    } else { throw std::runtime_error (emsg); }
+                } else { // flat_up
+                    if (i % 2u == 0u) {
+                        if (bpi->has_n2()) {
+                            bpi = bpi->n2;
+                        } else { throw std::runtime_error (emsg); }
+                    } else {
+                        if (bpi->has_n3()) {
+                            bpi = bpi->n3;
+                        } else { throw std::runtime_error (emsg); }
+                    }
+                }
+            }
+
+            for (std::uint32_t i = 0; i < y0; ++i) {
+                if constexpr (A ==  sm::hexalign::point_up) {
+                    if (i % 2u == 0u) {
+                        if (bpi->has_n4()) {
+                            bpi = bpi->n4;
+                        } else { throw std::runtime_error (emsg); }
+                    } else {
+                        if (bpi->has_n5()) {
+                            bpi = bpi->n5;
+                        } else { throw std::runtime_error (emsg); }
+                    }
+                } else {
+                    if (bpi->has_n4()) {
+                        bpi = bpi->n4;
+                    } else { throw std::runtime_error (emsg); }
+                }
+            }
+
             typename std::list<sm::hex<F, A>>::iterator hi = bpi;
             sm::vec<F, 2> bcentroid = {};
             if constexpr (A ==  sm::hexalign::point_up) {
@@ -991,12 +1032,12 @@ export namespace sm
                 for (std::uint32_t i = 0; i < n_x - 1; ++i) {
                     hi->set_flag (sm::HEX_IS_BOUNDARY | sm::HEX_INSIDE_BOUNDARY);
                     if (i % 2u == 0u) {
-                        if (hi->has_n0()) {
-                            hi = hi->n0;
-                        } else { throw std::runtime_error (emsg); }
-                    } else {
                         if (hi->has_n5()) {
                             hi = hi->n5;
+                        } else { throw std::runtime_error (emsg); }
+                    } else {
+                        if (hi->has_n0()) {
+                            hi = hi->n0;
                         } else { throw std::runtime_error (emsg); }
                     }
                 }
@@ -1015,12 +1056,12 @@ export namespace sm
                 for (std::uint32_t i = 0; i < n_x - 1; ++i) {
                     hi->set_flag (sm::HEX_IS_BOUNDARY | sm::HEX_INSIDE_BOUNDARY);
                     if (i % 2u == 0u) {
-                        if (hi->has_n3()) {
-                            hi = hi->n3;
-                        } else { throw std::runtime_error (emsg); }
-                    } else {
                         if (hi->has_n2()) {
                             hi = hi->n2;
+                        } else { throw std::runtime_error (emsg); }
+                    } else {
+                        if (hi->has_n3()) {
+                            hi = hi->n3;
                         } else { throw std::runtime_error (emsg); }
                     }
                 }
