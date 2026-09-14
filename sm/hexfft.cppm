@@ -644,7 +644,7 @@ export namespace sm::hexfft
             this->hgf = std::make_unique<sm::hexgrid<F, sm::hexalign::flat_up>>(U.col(0).length(),
                                                                                 this->asa_cols * 4 * U.col(0).length(),
                                                                                 0.0f);
-            this->hgf->set_rectangular_boundary (this->asa_rows * 2u, this->asa_cols);
+            this->hgf->set_rectangular_boundary (this->asa_rows * 2u, this->asa_cols, this->asa_rows, this->asa_cols / 2u);
         }
 
         /*!
@@ -662,10 +662,11 @@ export namespace sm::hexfft
             // Fourier transform the ASA formatted data into an ASA formatted result (this->X_asa)
             std::tie(this->X0, this->X1) = internal::hfft2 (this->d0, this->d1);
             // Re-quadrant X_asa before putting it on hexgrid
-            //this->re_quadrant();
+            this->re_quadrant();
 
             // Populated a frequency space hexgrid with this->X_asa
             //this->hex_data = internal::X_asa_to_frequency_hexgrid (this->hgf.get(), this->X_asa.first, this->X_asa.second);
+            this->X_asa_to_frequency_hexgrid();
         }
 
         //! As above, but for real-valued input data.
@@ -813,7 +814,7 @@ export namespace sm::hexfft
             }
         }
 
-#if 0
+        // Not right? Probably not.
         void X_asa_to_frequency_hexgrid()
         {
             auto sz = this->hgf->num();
@@ -826,7 +827,7 @@ export namespace sm::hexfft
 
                 auto k1 = 0 + r + c;
                 auto k2 = 0 + 2 * r;
-                sm::vec<std::int32_t, 3> rgb = ks_to_rgb (k1, k2, this->X0.rows(), this->X0.cols());
+                sm::vec<std::int32_t, 3> rgb = internal::ks_to_rgb (k1, k2, this->X0.rows(), this->X0.cols());
                 // Find the vi index for k1, k2
                 auto hi = hgf->find_hex_at (rgb);
                 if (hi->vi < sz) { this->hex_data[hi->vi] = this->X0.arr[i]; } // Huh? X0 is col wise
@@ -838,14 +839,14 @@ export namespace sm::hexfft
 
                 auto k1 = 1 + r + c;
                 auto k2 = 1 + 2 * r;
-                sm::vec<std::int32_t, 3> rgb = ks_to_rgb (k1, k2, this->X1.rows(), this->X1.cols());
+                sm::vec<std::int32_t, 3> rgb = internal::ks_to_rgb (k1, k2, this->X1.rows(), this->X1.cols());
 
                 // Find the vi index for k1, k2
                 auto hi = hgf->find_hex_at (rgb);
                 if (hi->vi < sz) { this->hex_data[hi->vi] = this->X1.arr[i]; }
             }
         }
-#endif
+
         // Re-arrange X_asa so that it is in a human-readable arrangement
         void re_quadrant()
         {
