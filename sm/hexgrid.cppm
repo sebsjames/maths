@@ -977,6 +977,7 @@ export namespace sm
 
             } else {
                 // On flat_up, we march straight in the up/down dirns
+                // +y
                 bcentroid += sm::vec<F, 2>{ hi->x, hi->y };
                 for (std::uint32_t i = 0; i < n_y - 1; ++i) {
                     hi->set_flag (sm::HEX_IS_BOUNDARY | sm::HEX_INSIDE_BOUNDARY);
@@ -990,12 +991,12 @@ export namespace sm
                 for (std::uint32_t i = 0; i < n_x - 1; ++i) {
                     hi->set_flag (sm::HEX_IS_BOUNDARY | sm::HEX_INSIDE_BOUNDARY);
                     if (i % 2u == 0u) {
-                        if (hi->has_n1()) {
-                            hi = hi->n1;
-                        } else { throw std::runtime_error (emsg); }
-                    } else {
                         if (hi->has_n0()) {
                             hi = hi->n0;
+                        } else { throw std::runtime_error (emsg); }
+                    } else {
+                        if (hi->has_n5()) {
+                            hi = hi->n5;
                         } else { throw std::runtime_error (emsg); }
                     }
                 }
@@ -1011,15 +1012,15 @@ export namespace sm
 
                 // -x
                 bcentroid += sm::vec<F, 2>{ hi->x, hi->y };
-                for (std::uint32_t i = 0; i < n_y - 1; ++i) {
+                for (std::uint32_t i = 0; i < n_x - 1; ++i) {
                     hi->set_flag (sm::HEX_IS_BOUNDARY | sm::HEX_INSIDE_BOUNDARY);
                     if (i % 2u == 0u) {
-                        if (hi->has_n4()) {
-                            hi = hi->n4;
-                        } else { throw std::runtime_error (emsg); }
-                    } else {
                         if (hi->has_n3()) {
                             hi = hi->n3;
+                        } else { throw std::runtime_error (emsg); }
+                    } else {
+                        if (hi->has_n2()) {
+                            hi = hi->n2;
                         } else { throw std::runtime_error (emsg); }
                     }
                 }
