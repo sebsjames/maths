@@ -434,27 +434,31 @@ namespace sm::hexfft::internal
     sm::vec<std::int32_t, 3> ks_to_rgb (const std::uint32_t k1, const std::uint32_t k2,
                                         const std::int32_t rows, const std::int32_t cols)
     {
-        //std::cout << __func__ << " called for ks: " << k1 << ", " << k2;
+        std::cout << __func__ << " called for ks: " << k1 << ", " << k2;
         std::int32_t ri_offs = -rows / 2;
         std::int32_t gi_offs = -cols / 2;
         std::int32_t bi_offs = rows / 2;
         sm::vec<std::int32_t, 3> rgb = { ri_offs, gi_offs + static_cast<std::int32_t>(k1), bi_offs - static_cast<std::int32_t>(k2) };
-        //std::cout << " generates rgb = " << rgb << std::endl;
+        std::cout << " generates rgb = " << rgb << std::endl;
         return rgb;
     }
 
     // Convert from rgb coords on the frequency hexgrid to k1, k2 tile coordinates
-    sm::vec<std::uint32_t, 3> rgb_to_ks ([[maybe_unused]] const std::int32_t r, const std::int32_t g, const std::int32_t b,
+    sm::vec<std::uint32_t, 3> rgb_to_ks (const std::int32_t r, const std::int32_t g, const std::int32_t b,
                                          const std::int32_t rows, const std::int32_t cols)
     {
-        //std::cout << __func__ << " called for rgb: " << r << ", " << g << ", " << b;
+        std::cout << __func__ << " called for rgb: " << r << ", " << g << ", " << b << std::endl;
+
+        // Convert rgb to gb, only
+        sm::vec<std::int32_t, 2> gb = { g + r, b - r };
+
         const std::int32_t gi_offs = -cols / 2;
         const std::int32_t bi_offs = rows / 2;
         sm::vec<std::uint32_t, 3> ks = { std::numeric_limits<std::int32_t>::max() };
-        std::int32_t _g = g - gi_offs;
-        std::int32_t _b = bi_offs - b;
-        if (_g < 0) { _g = 0; }
-        if (_b < 0) { _b = 0; }
+        std::int32_t _g = gb[0] - gi_offs;
+        std::int32_t _b = bi_offs - gb[1];
+        if (_g < 0) { _g = 0; std::cout << "g underflow!\n"; }
+        if (_b < 0) { _b = 0; std::cout << "b underflow!\n"; }
 
         std::uint32_t arr = 0u;
         if ((2 + (g % 2)) % 2 == 0) {
@@ -465,72 +469,6 @@ namespace sm::hexfft::internal
         //std::cout << " generating ks = " << ks << std::endl;
 
         return ks;
-    }
-
-    // X0 is the array (0, s, d) and X1 is (1, s, d). Transfer these to a hexgrid in the freq. space.
-    template<typename F>
-    sm::vvec<std::complex<F>> X_asa_to_frequency_hexgrid (const sm::hexgrid<F, sm::hexalign::flat_up>* hgf,
-                                                          const sm::vmat<std::complex<F>>& X0, const sm::vmat<std::complex<F>>& X1)
-    {
-        sm::vvec<std::complex<F>> out (hgf->num(), std::complex<F>{0,0});
-
-        // X0 is (0, s, d)
-        for (std::uint32_t i = 0; i < X0.size(); ++i) {
-            const std::uint32_t r = i % X0.rows();
-            const std::uint32_t c = i / X0.rows();
-
-            auto k1 = 0 + r + c;
-            auto k2 = 0 + 2 * r;
-            sm::vec<std::int32_t, 3> rgb = ks_to_rgb (k1, k2, X0.rows(), X0.cols());
-            // Find the vi index for k1, k2
-            auto hi = hgf->find_hex_at (rgb);
-            if (hi->vi < out.size()) { out[hi->vi] = X0.arr[i]; }
-        }
-        // X1 is (1, s, d)
-        for (std::uint32_t i = 0; i < X1.size(); ++i) {
-            const std::uint32_t r = i % X0.rows();
-            const std::uint32_t c = i / X0.rows();
-
-            auto k1 = 1 + r + c;
-            auto k2 = 1 + 2 * r;
-            sm::vec<std::int32_t, 3> rgb = ks_to_rgb (k1, k2, X1.rows(), X1.cols());
-
-            // Find the vi index for k1, k2
-            auto hi = hgf->find_hex_at (rgb);
-            if (hi->vi < out.size()) { out[hi->vi] = X1.arr[i]; }
-        }
-
-        return out;
-    }
-
-    template<typename F>
-    std::pair<sm::vmat<std::complex<F>>, sm::vmat<std::complex<F>>> frequency_hexgrid_to_X_asa (const sm::hexgrid<F, sm::hexalign::flat_up>* hgf,
-                                                                                                const sm::vvec<std::complex<F>>& hex_data,
-                                                                                                std::uint32_t rows, std::uint32_t cols)
-    {
-        if (hex_data.size() != hgf->num()) {
-            std::stringstream ee;
-            ee << "sm::hexfft: hex_data.size() (" << hex_data.size() << ") does not match hgf->num() (" << hgf->num() << ")";
-            throw std::runtime_error (ee.str());
-        }
-        sm::vmat<std::complex<F>> X0 (rows, cols);
-        sm::vmat<std::complex<F>> X1 (rows, cols);
-        sm::vec<std::uint32_t> arc = {};
-        for (const auto& h : hgf->hexen) {
-            sm::vec<std::uint32_t, 3> ks = rgb_to_ks (h.ri, h.gi, h.bi, rows, cols);
-
-            std::uint32_t a = ks[2]; // how to determine?
-            arc[0] = a;
-            arc[1] = (ks[1] - a) / 2;
-            arc[2] = ks[0] - (ks[1] - a) / 2;
-            std::cout << "(arc[1], arc[2]) = " << arc[1] << ", " << arc[2] << std::endl;
-            if (arc[0] == 0u) {
-                X0 (arc[1], arc[2]) = hex_data[h.vi];
-            } else {
-                X1 (arc[1], arc[2]) = hex_data[h.vi];
-            }
-        }
-        return { X0, X1 };
     }
 
 } // sm::hexfft::internal
@@ -688,7 +626,7 @@ export namespace sm::hexfft
 
             // 1. From this->hex_data, construct this->data or x0 and x1.
             // this->X_asa = internal::frequency_hexgrid_to_X_asa (this->hgf.get(), this->hex_data, this->asa_rows, this->asa_cols);
-            //std::cout << "ifft: this->X_asa.first.size: " << this->X_asa.first.size() << std::endl;
+            this->frequency_hexgrid_to_X_asa();
 
             // Switch X into the quadranted data that the hfft2/ihfft2 functions work in
             //this->de_quadrant();
@@ -730,6 +668,9 @@ export namespace sm::hexfft
             ri_min = c_min;
 
             this->asa_cols = static_cast<std::uint32_t> (c_max - c_min + 1);
+            if (this->asa_cols % 2 != 0) {
+                ++this->asa_cols;
+            }
 
             auto rows = static_cast<std::uint32_t> (gi_max - gi_min + 1);
             this->asa_rows = (rows + 1u) / 2u;
@@ -814,7 +755,7 @@ export namespace sm::hexfft
             }
         }
 
-        // Not right? Probably not.
+        // Copy ASA laid-out frequency data into hex_data (over the hexgrid hgf).
         void X_asa_to_frequency_hexgrid()
         {
             auto sz = this->hgf->num();
@@ -844,6 +785,37 @@ export namespace sm::hexfft
                 // Find the vi index for k1, k2
                 auto hi = hgf->find_hex_at (rgb);
                 if (hi->vi < sz) { this->hex_data[hi->vi] = this->X1.arr[i]; }
+            }
+        }
+
+        void frequency_hexgrid_to_X_asa()
+        {
+            if (this->hex_data.size() != this->hgf->num()) {
+                std::stringstream ee;
+                ee << "sm::hexfft: hex_data.size() (" << this->hex_data.size() << ") does not match hgf->num() (" << this->hgf->num() << ")";
+                throw std::runtime_error (ee.str());
+            }
+
+            // X0, X1 sizes should be ok
+            sm::vec<std::uint32_t> arc = {};
+            for (const auto& h : this->hgf->hexen) {
+                sm::vec<std::uint32_t, 3> ks = internal::rgb_to_ks (h.ri, h.gi, h.bi, this->asa_rows, this->asa_cols);
+
+                std::cout << "rgb(" << h.ri << "," << h.gi << "," << h.bi << ") = (k1,k2,arr): " << ks << " = ";
+                std::uint32_t a = ks[2];
+                arc[0] = a;
+                arc[1] = (ks[1] - a) / 2; // row
+                arc[2] = ks[0] - (ks[1] - a) / 2;
+                if (arc[1] < 1000000 && arc[2] < 1000000) {
+                    std::cout << "(arc) = " << arc << std::endl;
+                    if (arc[0] == 0u) {
+                        this->X0 (arc[1], arc[2]) = this->hex_data[h.vi];
+                    } else {
+                        this->X1 (arc[1], arc[2]) = this->hex_data[h.vi];
+                    }
+                } else {
+                    std::cout << "out of range (fixme)\n";
+                }
             }
         }
 
