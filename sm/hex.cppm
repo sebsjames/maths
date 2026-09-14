@@ -230,7 +230,7 @@ export namespace sm
                     s += "SW: (" + std::to_string(this->n3->ri).substr(0,4) + "," + std::to_string(this->n3->gi).substr(0,4) + ") " + (this->n3->boundary_hex() == true ? "OB":"") + " ";
                 }
                 if (this->has_ns()) {
-                    s += "S: (" + std::to_string(this->n4->ri).substr(0,4) + "," + std::to_string(this->n5->gi).substr(0,4) + ") " + (this->n4->boundary_hex() == true ? "OB":"") + " ";
+                    s += "S: (" + std::to_string(this->n4->ri).substr(0,4) + "," + std::to_string(this->n4->gi).substr(0,4) + ") " + (this->n4->boundary_hex() == true ? "OB":"") + " ";
                 }
                 if (this->has_nse()) {
                     s += "SE: (" + std::to_string(this->n5->ri).substr(0,4) + "," + std::to_string(this->n5->gi).substr(0,4) + ") " + (this->n5->boundary_hex() == true ? "OB":"") + " ";
