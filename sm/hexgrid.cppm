@@ -439,6 +439,8 @@ export namespace sm
 
             typename std::list<sm::hex<F, A>>::const_iterator hi = this->hexen.begin(); // First hex in hexen is always 0,0,0
 
+            bool doing_green_then_red = false;
+
             // +ri is East for point_up or dirn 0.
             std::int32_t inc = rgpos[0] > 0 ? 1 : -1;
             for (std::int32_t ri = 0; ri != rgpos[0] && hi != this->hexen.end(); ri += inc) {
@@ -448,6 +450,11 @@ export namespace sm
                     hi = hi->has_n3() ? hi->n3 : this->hexen.end();
                 }
             }
+            // Did your initial step fail to find? If so, we'll need to do green, then red again.
+            if (hi == this->hexen.end()) {
+                doing_green_then_red = true;
+                hi = this->hexen.begin();
+            }
 
             // gi is north-east for point_up or dirn 1
             inc = rgpos[1] > 0 ? 1 : -1;
@@ -456,6 +463,17 @@ export namespace sm
                     hi = hi->has_n1() ? hi->n1 : this->hexen.end();
                 } else {
                     hi = hi->has_n4() ? hi->n4 : this->hexen.end();
+                }
+            }
+
+            if (doing_green_then_red) {
+                inc = rgpos[0] > 0 ? 1 : -1;
+                for (std::int32_t ri = 0; ri != rgpos[0] && hi != this->hexen.end(); ri += inc) {
+                    if (inc > 0) {
+                        hi = hi->has_n0() ? hi->n0 : this->hexen.end();
+                    } else {
+                        hi = hi->has_n3() ? hi->n3 : this->hexen.end();
+                    }
                 }
             }
 
