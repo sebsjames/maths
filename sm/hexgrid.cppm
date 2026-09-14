@@ -889,15 +889,138 @@ export namespace sm
             this->set_boundary (bpoints, offset);
         }
 
-
         /*!
-         * Set up a rectangular boundary of width x and height y, arranged so that we are slightly
-         * offset from the centre, 0,0,0 hex
+         * Set up a rectangular boundary of width n_x hexagons and height n_y staggared hexagons
+         * arranged with bottom left at the centre, 0,0,0 hex.
+         *
+         * This code does not create a path and set the points, instead, it counts in a specific way
+         * around the boundary.
+         *
+         * Note that if n_y == n_y, your rectangular boundary will NOT be a square.
          */
-        void set_even_rectangular_boundary (const F x, const F y)
+        void set_rectangular_boundary (const std::uint32_t n_x, const std::uint32_t n_y)
         {
-            sm::vec<float, 2> centre = { this->d / 4.0f, this->d * std::sin(sm::mathconst<float>::deg2rad * 60) * 0.5f };
-            this->set_rectangular_boundary (x, y, centre, false);
+            if (n_x % 2u != 0u || n_y % 2u != 0u) {
+                throw std::runtime_error ("This algorithm is designed for even n_x/n_y");
+            }
+            std::string emsg = "set_rectangular_boundary (uint32_t, uint32_t): the base hexgrid was not large enough.";
+            // Count...
+            typename std::list<sm::hex<F, A>>::iterator bpi = this->hexen.begin();
+            typename std::list<sm::hex<F, A>>::iterator hi = bpi;
+            sm::vec<F, 2> bcentroid = {};
+            if constexpr (A ==  sm::hexalign::point_up) {
+                // Starting at 0, mark boundary along +x dirn
+                bcentroid += sm::vec<F, 2>{ hi->x, hi->y };
+                for (std::uint32_t i = 0; i < n_x - 1; ++i) {
+                    hi->set_flag (sm::HEX_IS_BOUNDARY | sm::HEX_INSIDE_BOUNDARY);
+                    if (hi->has_n0()) {
+                        hi = hi->n0;
+                    } else { throw std::runtime_error (emsg); }
+                }
+
+                // +y
+                bcentroid += sm::vec<F, 2>{ hi->x, hi->y };
+                for (std::uint32_t i = 0; i < n_y - 1; ++i) {
+                    hi->set_flag (sm::HEX_IS_BOUNDARY | sm::HEX_INSIDE_BOUNDARY);
+                    if (i % 2u == 0u) {
+                        if (hi->has_n1()) {
+                            hi = hi->n1;
+                        } else { throw std::runtime_error (emsg); }
+                    } else {
+                        if (hi->has_n2()) {
+                            hi = hi->n2;
+                        } else { throw std::runtime_error (emsg); }
+                    }
+                }
+
+                // -x
+                bcentroid += sm::vec<F, 2>{ hi->x, hi->y };
+                for (std::uint32_t i = 0; i < n_x - 1; ++i) {
+                    hi->set_flag (sm::HEX_IS_BOUNDARY | sm::HEX_INSIDE_BOUNDARY);
+                    if (hi->has_n3()) {
+                        hi = hi->n3;
+                    } else { throw std::runtime_error (emsg); }
+                }
+
+                // -y
+                bcentroid += sm::vec<F, 2>{ hi->x, hi->y };
+                for (std::uint32_t i = 0; i < n_y - 1; ++i) {
+                    hi->set_flag (sm::HEX_IS_BOUNDARY | sm::HEX_INSIDE_BOUNDARY);
+                    if (i % 2u == 0u) {
+                        if (hi->has_n4()) {
+                            hi = hi->n4;
+                        } else { throw std::runtime_error (emsg); }
+                    } else {
+                        if (hi->has_n5()) {
+                            hi = hi->n5;
+                        } else { throw std::runtime_error (emsg); }
+                    }
+                }
+
+            } else {
+                // On flat_up, we march straight in the up/down dirns
+                bcentroid += sm::vec<F, 2>{ hi->x, hi->y };
+                for (std::uint32_t i = 0; i < n_y - 1; ++i) {
+                    hi->set_flag (sm::HEX_IS_BOUNDARY | sm::HEX_INSIDE_BOUNDARY);
+                    if (hi->has_n1()) {
+                        hi = hi->n1;
+                    } else { throw std::runtime_error (emsg); }
+                }
+
+                // +x
+                bcentroid += sm::vec<F, 2>{ hi->x, hi->y };
+                for (std::uint32_t i = 0; i < n_x - 1; ++i) {
+                    hi->set_flag (sm::HEX_IS_BOUNDARY | sm::HEX_INSIDE_BOUNDARY);
+                    if (i % 2u == 0u) {
+                        if (hi->has_n1()) {
+                            hi = hi->n1;
+                        } else { throw std::runtime_error (emsg); }
+                    } else {
+                        if (hi->has_n0()) {
+                            hi = hi->n0;
+                        } else { throw std::runtime_error (emsg); }
+                    }
+                }
+
+                // -y
+                bcentroid += sm::vec<F, 2>{ hi->x, hi->y };
+                for (std::uint32_t i = 0; i < n_y - 1; ++i) {
+                    hi->set_flag (sm::HEX_IS_BOUNDARY | sm::HEX_INSIDE_BOUNDARY);
+                    if (hi->has_n4()) {
+                        hi = hi->n4;
+                    } else { throw std::runtime_error (emsg); }
+                }
+
+                // -x
+                bcentroid += sm::vec<F, 2>{ hi->x, hi->y };
+                for (std::uint32_t i = 0; i < n_y - 1; ++i) {
+                    hi->set_flag (sm::HEX_IS_BOUNDARY | sm::HEX_INSIDE_BOUNDARY);
+                    if (i % 2u == 0u) {
+                        if (hi->has_n4()) {
+                            hi = hi->n4;
+                        } else { throw std::runtime_error (emsg); }
+                    } else {
+                        if (hi->has_n3()) {
+                            hi = hi->n3;
+                        } else { throw std::runtime_error (emsg); }
+                    }
+                }
+            }
+
+            this->boundary_centroid = bcentroid / F{4};
+
+            // Check that the boundary is contiguous.
+            std::set<std::uint32_t> seen;
+            hi = bpi;
+            if (this->boundary_contiguous (bpi, hi, seen) == false) {
+                std::stringstream ee;
+                ee << "The boundary is not a contiguous sequence of hexes.";
+                throw std::runtime_error (ee.str());
+            }
+
+            // _boundary IS contiguous, discard hexes outside the boundary.
+            this->discard_outside_boundary();
+            this->populate_d_vectors();
         }
 
         /*!
