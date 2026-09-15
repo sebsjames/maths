@@ -321,7 +321,7 @@ export namespace sm::hexfft
                 this->hg_asa = std::make_unique<sm::hexgrid<F, sm::hexalign::point_up>>(this->hg->d, this->asa_cols * 4 * this->hg->d, 0.0f);
                 this->hg_asa->set_rectangular_boundary (this->asa_cols, this->asa_rows * 2u);
                 if (this->hg_asa->num() != this->asa_cols * this->asa_rows * 2u) {
-                    throw std::runtime_error ("hg_asa fuckup");
+                    throw std::runtime_error ("hg_asa has wrong number of elements");
                 }
                 std::cout << "After set rect boundary, hg_asa size is " << this->hg_asa->num() << " = " << this->asa_cols * this->asa_rows * 2u << std::endl;
             }
@@ -695,7 +695,7 @@ export namespace sm::hexfft
             }
         }
 
-        // Re-arrange X_asa so that it is in a human-readable arrangement
+        // Re-arrange ASA data in X0/X1 so that it is in a human-readable quadrant arrangement
         void re_quadrant()
         {
             // cmat has rows, cols and vvec<> data
@@ -736,7 +736,6 @@ export namespace sm::hexfft
         }
 
         // Reverse of re_quadrant
-        // Comparing with re_quadrant, I just swapped didx and sidx. Easy.
         void de_quadrant()
         {
             if (X1.cols() % 2) {
