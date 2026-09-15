@@ -385,51 +385,6 @@ namespace sm::hexfft::internal
         return arc;
     }
 
-    sm::vec<std::int32_t, 3> ns_to_rgb (const std::uint32_t n1, const std::uint32_t n2,
-                                        const std::int32_t rows, const std::int32_t cols)
-    {
-        // FIXME based on actual transform!
-        std::int32_t ri_offs = -cols / 2;
-        std::int32_t gi_offs = -rows / 2;
-        sm::vec<std::int32_t, 3> rgb = { ri_offs + static_cast<std::int32_t>(n1), gi_offs + static_cast<std::int32_t>(n2), 0 };
-        return rgb;
-    }
-
-    template<typename F>
-    sm::vvec<std::complex<F>> d_asa_to_image_hexgrid (const sm::hexgrid<F, sm::hexalign::point_up>& hg,
-                                                      const sm::vmat<std::complex<F>>& d0, const sm::vmat<std::complex<F>>& d1)
-    {
-        sm::vvec<std::complex<F>> out (hg.num(), std::complex<F>{0,0});
-
-        // d0 is (0, r, c)
-        for (std::uint32_t i = 0; i < d0.size(); ++i) {
-            const std::uint32_t r = i % d0.rows();
-            const std::uint32_t c = i / d0.rows();
-
-            auto n1 = 0 + r + c;
-            auto n2 = 0 + 2 * r;
-            sm::vec<std::int32_t, 3> rgb = ns_to_rgb (n1, n2, d0.rows(), d0.cols()); // replace with ri_gi_to_rgb?
-            // Find the vi index for n1, n2
-            auto hi = hg.find_hex_at (rgb);
-            if (hi->vi < out.size()) { out[hi->vi] = d0.arr[i]; }
-        }
-        // d1 is (1, r, c)
-        for (std::uint32_t i = 0; i < d1.size(); ++i) {
-            const std::uint32_t r = i % d1.rows();
-            const std::uint32_t c = i / d1.rows();
-
-            auto n1 = 1 + r + c;
-            auto n2 = 1 + 2 * r;
-            sm::vec<std::int32_t, 3> rgb = ns_to_rgb (n1, n2, d1.rows(), d1.cols());
-
-            // Find the vi index for k1, k2
-            auto hi = hg.find_hex_at (rgb);
-            if (hi->vi < out.size()) { out[hi->vi] = d1.arr[i]; }
-        }
-
-        return out;
-    }
-
 } // sm::hexfft::internal
 
 export namespace sm::hexfft
@@ -493,7 +448,7 @@ export namespace sm::hexfft
         sm::vmat<std::complex<F>> d0; // even rows
         sm::vmat<std::complex<F>> d1; // odd rows
 
-        //! FFT in twin rectangular ASA grids. Saved to enable plotting/debugging
+        //! FFT in twin rectangular ASA grids. Could be temporary, but saved to enable plotting/debugging
         sm::vmat<std::complex<F>> X0; // even rows
         sm::vmat<std::complex<F>> X1; // odd rows
 
@@ -503,8 +458,8 @@ export namespace sm::hexfft
         //! Scaling factor (obtained from image data hexgrid spacing) for the frequency hexgrid, hgf
         F Uscale = F{1};
 
-        //! Result, suitable for visualization on the frequency space hexgrid
-        sm::vvec<std::complex<F>> hex_data;
+        //! FFT result, suitable for visualization on the frequency space hexgrid, hgf
+        sm::vvec<std::complex<F>> X_hexgrid;
 
         //! The total number of samples in the padded rectangle (2 * r * c). same as hgs->num()
         std::uint32_t size() const { return 2u * this->asa_rows * this->asa_cols; }
@@ -542,6 +497,8 @@ export namespace sm::hexfft
                                                                                 this->asa_cols * 4 * U.col(0).length(),
                                                                                 0.0f);
             this->hgf->set_rectangular_boundary (this->asa_rows * 2u, this->asa_cols, this->asa_rows, this->asa_cols / 2u);
+
+            std::cout << "Frequency hexgrid has width " << this->hgf->width() << " [units 1/L]" << std::endl;
         }
 
         /*!
@@ -556,19 +513,13 @@ export namespace sm::hexfft
             // Save the input data after it has been extracted into ASA format
             this->image_hexgrid_to_asa (data);
 
+            // If we are working with hg_asa, also write the data into data_asa_real:
+            if constexpr (construct_hg_asa) { this->image_asa_to_hg_asa(); }
+
             // Fourier transform the ASA formatted data into an ASA formatted result (this->X_asa)
             std::tie(this->X0, this->X1) = internal::hfft2 (this->d0, this->d1);
             // Re-quadrant X_asa before putting it on hexgrid
             this->re_quadrant();
-
-#if 0
-            // Debug hack. make sequential values in X0/X1
-            F v = F{0};
-            F vinc = F{1} / this->X0.size();
-            for (auto& el : this->X0.arr) { el = v; v += vinc; }
-            v = 0;
-            for (auto& el : this->X1.arr) { el = v; v += vinc; }
-#endif
 
             // Populated a frequency space hexgrid with this->X_asa
             this->frequency_asa_to_hexgrid();
@@ -590,7 +541,7 @@ export namespace sm::hexfft
             this->d0.set_zero();
             this->d1.set_zero();
 
-            // 1. Copy values from this->hex_data into X0 and X1 (the ASA grids)
+            // 1. Copy values from this->X_hexgrid into X0 and X1 (the ASA grids)
             this->frequency_hexgrid_to_asa();
 
             // Switch X into the quadranted data that the hfft2/ihfft2 functions work in
@@ -599,9 +550,10 @@ export namespace sm::hexfft
             // 2. Inverse hexagonal FFT
             std::tie(this->d0, this->d1) = internal::ihfft2 (this->X0, this->X1);
 
-            // Last job - convert from d_asa to image hexgrid
-            // return internal::d_asa_to_image_hexgrid<F> (hg, X.d_asa.first, X.d_asa.second);
+            // Optional hg_asa representation
+            if constexpr (construct_hg_asa) { this->image_asa_to_hg_asa(); }
 
+            // Last job - convert from d_asa to image hexgrid
             return this->image_asa_to_hexgrid();
         }
 
@@ -671,7 +623,6 @@ export namespace sm::hexfft
             return hi;
         }
 
-
         void image_asa_to_hg_asa()
         {
             this->data_asa_real.resize (this->asa_rows * this->asa_cols * 2u, F{0});
@@ -682,15 +633,16 @@ export namespace sm::hexfft
             bool done = false;
             while (!done) {
                 if (r % 2u == 0u) {
+
                     while (hi->has_n0()) {
-                        if (hi->vi < this->hex_data.size()) {
-                            this->data_asa_real[hi->vi] = std::real(this->d0 (r / 2, c));
+                        if (hi->vi < this->data_asa_real.size()) {
+                            this->data_asa_real[hi->vi] = std::real (this->d0(r / 2, c));
                         }
                         c++;
                         hi = hi->n0;
                     }
-                    if (hi->vi < this->hex_data.size()) {
-                        this->data_asa_real[hi->vi] = std::real(this->d0 (r / 2, c));
+                    if (hi->vi < this->data_asa_real.size()) {
+                        this->data_asa_real[hi->vi] = std::real (this->d0(r / 2, c));
                     }
                     c++;
 
@@ -705,14 +657,14 @@ export namespace sm::hexfft
                     // Walk back along a col
                     while (hi->has_n3()) {
                         --c;
-                        if (hi->vi < this->hex_data.size()) {
-                            this->data_asa_real[hi->vi] = std::real(this->d1 (r / 2, c));
+                        if (hi->vi < this->data_asa_real.size()) {
+                            this->data_asa_real[hi->vi] = std::real (this->d1(r / 2, c));
                         }
                         hi = hi->n3;
                     }
                     --c;
-                    if (hi->vi < this->hex_data.size()) {
-                        this->data_asa_real[hi->vi] = std::real(this->d1 (r / 2, c));
+                    if (hi->vi < this->data_asa_real.size()) {
+                        this->data_asa_real[hi->vi] = std::real (this->d1(r / 2, c));
                     }
 
                     if (hi->has_n2()) {
@@ -728,11 +680,27 @@ export namespace sm::hexfft
         // Copy data in d0/d1 ASA grids into the output data and return it
         sm::vvec<std::complex<F>> image_asa_to_hexgrid()
         {
-            if constexpr (construct_hg_asa) {
-                this->image_asa_to_hg_asa();
+            if (this->hg == nullptr) { throw std::runtime_error ("Initialize fft first"); }
+
+            sm::vvec<std::complex<F>> himg (this->hg->num());
+
+            for (std::uint32_t r = 0; r < this->asa_rows; ++r) {
+                for (std::uint32_t c = 0; c < this->asa_cols; ++c) {
+                    sm::vec<std::int32_t, 2> rigi = internal::asa_to_ri_gi (0u, r, c, this->ri_min, this->gi_min);
+
+                    auto hi = this->hg->find_hex_at (rigi.plus_one_dim());
+                    if (hi != this->hg->hexen.end()) {
+                        if (hi->vi < himg.size()) { himg[hi->vi] = this->d0(r, c); }
+                    }
+
+                    rigi = internal::asa_to_ri_gi (1u, r, c, this->ri_min, this->gi_min);
+                    hi = this->hg->find_hex_at (rigi.plus_one_dim());
+                    if (hi != this->hg->hexen.end()) {
+                        if (hi->vi < himg.size()) { himg[hi->vi] = this->d1(r, c); }
+                    }
+                }
             }
 
-            sm::vvec<std::complex<F>> himg;
             return himg;
         }
 
@@ -751,8 +719,10 @@ export namespace sm::hexfft
             this->d0.resize (this->asa_rows, this->asa_cols);
             this->d1.resize (this->asa_rows, this->asa_cols);
             sm::vec<std::uint32_t> arc = {};
+            //std::cout << "For each hex, do ri_gi_to_asa with ri_min = " << ri_min << " and gi_min = " << gi_min << std::endl;
             for (const auto& h : this->hg->hexen) {
                 arc = internal::ri_gi_to_asa (h.ri, h.gi, this->ri_min, this->gi_min);
+                //std::cout << "rg(" << h.ri << "," << h.gi << ") maps to arc " << arc << std::endl;
                 if (arc[0] == 0u) {
                     if (h.vi < data.size()) {
                         this->d0 (arc[1], arc[2]) = data[h.vi];
@@ -767,55 +737,13 @@ export namespace sm::hexfft
                     }
                 }
             }
-
-            // If we are working with hg_asa, also write the data into data_asa_real:
-            if constexpr (construct_hg_asa) {
-                this->data_asa_real.resize (this->asa_rows * this->asa_cols * 2u, F{0});
-                //this->data_asa_imag.resize (this->asa_rows * this->asa_cols * 2u, F{0});
-                for (std::uint32_t r = 0u; r < this->asa_rows; ++r) {
-
-                    for (std::uint32_t c = 0u; c < this->asa_cols; ++c) {
-                        auto ri = static_cast<std::int32_t>(c) - static_cast<std::int32_t>(r);
-                        auto gi = static_cast<std::int32_t>(r * 2u);
-                        auto bi = static_cast<std::int32_t>(0u);
-                        sm::vec<std::int32_t, 3> rgb = { ri, gi, bi };
-                        auto hi = this->hg_asa->find_hex_at (rgb);
-                        if (hi == this->hg_asa->hexen.end()) {
-                            std::cout << "hexgrid::find_hex_at failed to find " << rgb << "\n";
-                        } else {
-                            if (hi->vi < this->data_asa_real.size()) {
-                                this->data_asa_real[hi->vi] = std::real (this->d0(r, c));
-                            } else {
-                                std::cout << "hi->vi = "<< hi->vi << " is out of range for data_asa_real (size " << data_asa_real.size() << ")\n";
-                            }
-                        }
-                    }
-
-                    for (std::uint32_t c = 0u; c < this->asa_cols; ++c) {
-                        auto ri = static_cast<std::int32_t>(c) - static_cast<std::int32_t>(r);
-                        auto gi = static_cast<std::int32_t>(r * 2u + 1u);
-                        auto bi = static_cast<std::int32_t>(0u);
-                        sm::vec<std::int32_t, 3> rgb = { ri, gi, bi };
-                        auto hi = this->hg_asa->find_hex_at (rgb);
-                        if (hi == this->hg_asa->hexen.end()) {
-                            std::cout << "hexgrid::find_hex_at failed to find " << rgb << "\n";
-                        } else {
-                            if (hi->vi < this->data_asa_real.size()) {
-                                this->data_asa_real[hi->vi] = std::real (this->d1(r, c));
-                            } else {
-                                std::cout << "hi->vi = "<< hi->vi << " is out of range for data_asa_real (size " << data_asa_real.size() << ")\n";
-                            }
-                        }
-                    }
-                }
-            }
         }
 
-        // Copy ASA laid-out frequency data into hex_data (over the hexgrid hgf).
+        // Copy ASA laid-out frequency data into X_hexgrid (over the hexgrid hgf).
         void frequency_asa_to_hexgrid()
         {
             auto sz = this->hgf->num();
-            this->hex_data.resize (sz, std::complex<F>{0,0});
+            this->X_hexgrid.resize (sz, std::complex<F>{0,0});
 
             // We use neighbour info: Find bottom-left hex and then raster up/down each row, filling X0/X1 in turn.
             auto hi = this->find_frequency_hexgrid_start();
@@ -826,14 +754,14 @@ export namespace sm::hexfft
                 if (r % 2u == 0u) {
                     // Walk up a hex col
                     while (hi->has_n1()) {
-                        if (hi->vi < this->hex_data.size()) {
-                            this->hex_data[hi->vi] = this->X0 (r / 2, c);
+                        if (hi->vi < this->X_hexgrid.size()) {
+                            this->X_hexgrid[hi->vi] = this->X0 (r / 2, c);
                         }
                         c++;
                         hi = hi->n1;
                     }
-                    if (hi->vi < this->hex_data.size()) {
-                        this->hex_data[hi->vi] = this->X0 (r / 2, c);
+                    if (hi->vi < this->X_hexgrid.size()) {
+                        this->X_hexgrid[hi->vi] = this->X0 (r / 2, c);
                     }
                     c++;
 
@@ -848,14 +776,14 @@ export namespace sm::hexfft
                     // Walk down a col
                     while (hi->has_n4()) {
                         --c;
-                        if (hi->vi < this->hex_data.size()) {
-                            this->hex_data[hi->vi] = this->X1 (r / 2, c);
+                        if (hi->vi < this->X_hexgrid.size()) {
+                            this->X_hexgrid[hi->vi] = this->X1 (r / 2, c);
                         }
                         hi = hi->n4;
                     }
                     --c;
-                    if (hi->vi < this->hex_data.size()) {
-                        this->hex_data[hi->vi] = this->X1 (r / 2, c);
+                    if (hi->vi < this->X_hexgrid.size()) {
+                        this->X_hexgrid[hi->vi] = this->X1 (r / 2, c);
                     }
 
                     if (hi->has_n0()) {
@@ -870,9 +798,9 @@ export namespace sm::hexfft
 
         void frequency_hexgrid_to_asa()
         {
-            if (this->hex_data.size() != this->hgf->num()) {
+            if (this->X_hexgrid.size() != this->hgf->num()) {
                 std::stringstream ee;
-                ee << "sm::hexfft: hex_data.size() (" << this->hex_data.size() << ") does not match hgf->num() (" << this->hgf->num() << ")";
+                ee << "sm::hexfft: X_hexgrid.size() (" << this->X_hexgrid.size() << ") does not match hgf->num() (" << this->hgf->num() << ")";
                 throw std::runtime_error (ee.str());
             }
 
@@ -885,14 +813,14 @@ export namespace sm::hexfft
                 if (r % 2u == 0u) {
                     // Walk up a hex col
                     while (hi->has_n1()) {
-                        if (hi->vi < this->hex_data.size()) {
-                            this->X0(r / 2, c) = this->hex_data[hi->vi];
+                        if (hi->vi < this->X_hexgrid.size()) {
+                            this->X0(r / 2, c) = this->X_hexgrid[hi->vi];
                         }
                         c++;
                         hi = hi->n1;
                     }
-                    if (hi->vi < this->hex_data.size()) {
-                        this->X0(r / 2, c) = this->hex_data[hi->vi];
+                    if (hi->vi < this->X_hexgrid.size()) {
+                        this->X0(r / 2, c) = this->X_hexgrid[hi->vi];
                     }
                     c++;
 
@@ -907,14 +835,14 @@ export namespace sm::hexfft
                     // Walk down a col
                     while (hi->has_n4()) {
                         --c;
-                        if (hi->vi < this->hex_data.size()) {
-                            this->X1(r / 2, c) = this->hex_data[hi->vi];
+                        if (hi->vi < this->X_hexgrid.size()) {
+                            this->X1(r / 2, c) = this->X_hexgrid[hi->vi];
                         }
                         hi = hi->n4;
                     }
                     --c;
-                    if (hi->vi < this->hex_data.size()) {
-                        this->X1(r / 2, c) = this->hex_data[hi->vi];
+                    if (hi->vi < this->X_hexgrid.size()) {
+                        this->X1(r / 2, c) = this->X_hexgrid[hi->vi];
                     }
 
                     if (hi->has_n0()) {
