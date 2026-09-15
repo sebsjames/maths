@@ -430,48 +430,6 @@ namespace sm::hexfft::internal
         return out;
     }
 
-    // Take the k1, k2 tile coordinates from freq space and make it into rgb coordinates for the hexgrid
-    sm::vec<std::int32_t, 3> ks_to_rgb (const std::uint32_t k1, const std::uint32_t k2,
-                                        const std::int32_t rows, const std::int32_t cols)
-    {
-        std::cout << __func__ << " called for ks: " << k1 << ", " << k2;
-        std::int32_t ri_offs = -rows / 2;
-        std::int32_t gi_offs = -cols / 2;
-        std::int32_t bi_offs = rows / 2;
-        sm::vec<std::int32_t, 3> rgb = { ri_offs, gi_offs + static_cast<std::int32_t>(k1), bi_offs - static_cast<std::int32_t>(k2) };
-        sm::vec<std::int32_t, 2> rg = { rgb[0] - rgb[1], rgb[1] + rgb[2] };
-        std::cout << " generates rgb " << rgb <<  " = rg " << rg <<  std::endl;
-        return rgb;
-    }
-
-    // Convert from rgb coords on the frequency hexgrid to k1, k2 tile coordinates
-    sm::vec<std::uint32_t, 3> rgb_to_ks (const std::int32_t r, const std::int32_t g, const std::int32_t b,
-                                         const std::int32_t rows, const std::int32_t cols)
-    {
-        std::cout << __func__ << " called for rgb: " << r << ", " << g << ", " << b << std::endl;
-
-        // Convert rgb to gb, only
-        sm::vec<std::int32_t, 2> gb = { g + r, b - r };
-
-        const std::int32_t gi_offs = -cols / 2;
-        const std::int32_t bi_offs = rows / 2;
-        sm::vec<std::uint32_t, 3> ks = { std::numeric_limits<std::int32_t>::max() };
-        std::int32_t _g = gb[0] - gi_offs;
-        std::int32_t _b = bi_offs - gb[1];
-        if (_g < 0) { _g = 0; std::cout << "g underflow!\n"; }
-        if (_b < 0) { _b = 0; std::cout << "b underflow!\n"; }
-
-        std::uint32_t arr = 0u;
-        if ((2 + (g % 2)) % 2 == 0) {
-            arr = 1u;
-        } // else arr remains 1
-
-        ks = { static_cast<std::uint32_t>(_g) , static_cast<std::uint32_t>(_b), arr };
-        //std::cout << " generating ks = " << ks << std::endl;
-
-        return ks;
-    }
-
 } // sm::hexfft::internal
 
 export namespace sm::hexfft
@@ -607,16 +565,11 @@ export namespace sm::hexfft
             // Debug hack. make sequential values in X0/X1
             F v = F{0};
             F vinc = F{1} / this->X0.size();
-            for (auto& el : this->X0.arr) {
-                el = v;
-                v += vinc;
-            }
+            for (auto& el : this->X0.arr) { el = v; v += vinc; }
             v = 0;
-            for (auto& el : this->X1.arr) {
-                el = v;
-                v += vinc;
-            }
+            for (auto& el : this->X1.arr) { el = v; v += vinc; }
 #endif
+
             // Populated a frequency space hexgrid with this->X_asa
             this->X_asa_to_frequency_hexgrid();
         }
@@ -769,19 +722,26 @@ export namespace sm::hexfft
             }
         }
 
+        typename std::list<sm::hex<F, sm::hexalign::flat_up>>::iterator
+        find_frequency_hexgrid_start()
+        {
+            // Begin at the start of hexen, which will be somewhere near the middle of the hexgrid.
+            typename std::list<sm::hex<F, sm::hexalign::flat_up>>::iterator hi = this->hgf->hexen.begin();
+            // Now move in the -red direction until not able, then in the -g direction until not
+            // able. This should be the bottom left of a flat_up grid.
+            while (hi->has_n3()) { hi = hi->n3; }
+            while (hi->has_n4()) { hi = hi->n4; }
+            return hi;
+        }
+
         // Copy ASA laid-out frequency data into hex_data (over the hexgrid hgf).
         void X_asa_to_frequency_hexgrid()
         {
             auto sz = this->hgf->num();
             this->hex_data.resize (sz, std::complex<F>{0,0});
 
-            // Alt approach using neighbour info: Find bottom-left (or right) hex and then raster
-            // along each row, filling X0/X1 in turn.
-            typename std::list<sm::hex<F, sm::hexalign::flat_up>>::iterator hi = this->hgf->hexen.begin();
-            // Now move in the -red direction until not able, then in the -g direction until not
-            // able. This should be the bottom left of a flat_up grid.
-            while (hi->has_n3()) { hi = hi->n3; }
-            while (hi->has_n4()) { hi = hi->n4; }
+            // We use neighbour info: Find bottom-left hex and then raster up/down each row, filling X0/X1 in turn.
+            auto hi = this->find_frequency_hexgrid_start();
 
             // Row by row.
             std::uint32_t r = 0u; // row on hex grid. row on ASA is r / 2.
@@ -789,19 +749,15 @@ export namespace sm::hexfft
 
             bool done = false;
             while (!done) {
-                if (hi == this->hgf->hexen.end()) { std::cout << "Uh oh" << std::endl; }
-
                 if (r % 2u == 0u) {
                     // Up left hex col, filling in X1 row.
                     while (hi->has_n1()) {
-                        std::cout << "setting X0 (" << r << ", " << c << ") into hex " << hi->output() << "\n";
                         if (hi->vi < this->hex_data.size()) {
                             this->hex_data[hi->vi] = this->X0 (r / 2, c);
                         }
                         c++;
                         hi = hi->n1;
                     }
-                    std::cout << "last one. X0 (" << r << ", " << c << ") into hex " << hi->output() << "\n";
                     if (hi->vi < this->hex_data.size()) {
                         this->hex_data[hi->vi] = this->X0 (r / 2, c);
                     }
@@ -817,14 +773,12 @@ export namespace sm::hexfft
                 } else {
                     // Walk down a col
                     while (hi->has_n4()) {
-                        std::cout << "setting X1 (" << r << ", " << (c - 1) << ") into hex " << hi->output() << "\n";
                         --c;
                         if (hi->vi < this->hex_data.size()) {
                             this->hex_data[hi->vi] = this->X1 (r / 2, c);
                         }
                         hi = hi->n4;
                     }
-                    std::cout << "last one. X1 (" << r << ", " << (c - 1) << ") into hex " << hi->output() << "\n";
                     --c;
                     if (hi->vi < this->hex_data.size()) {
                         this->hex_data[hi->vi] = this->X1 (r / 2, c);
@@ -838,34 +792,6 @@ export namespace sm::hexfft
                     }
                 }
             }
-
-#if 0
-            // X0 is (0, s, d)
-            for (std::uint32_t i = 0; i < this->X0.size(); ++i) {
-                const std::uint32_t r = i % this->X0.rows();
-                const std::uint32_t c = i / this->X0.rows();
-
-                auto k1 = 0 + r + c;
-                auto k2 = 0 + 2 * r;
-                sm::vec<std::int32_t, 3> rgb = internal::ks_to_rgb (k1, k2, this->X0.rows(), this->X0.cols());
-                // Find the vi index for k1, k2
-                auto hi = hgf->find_hex_at (rgb);
-                if (hi->vi < sz) { this->hex_data[hi->vi] = this->X0.arr[i]; }
-            }
-            // X1 is (1, s, d)
-            for (std::uint32_t i = 0; i < this->X1.size(); ++i) {
-                const std::uint32_t r = i % this->X0.rows();
-                const std::uint32_t c = i / this->X0.rows();
-
-                auto k1 = 1 + r + c;
-                auto k2 = 1 + 2 * r;
-                sm::vec<std::int32_t, 3> rgb = internal::ks_to_rgb (k1, k2, this->X1.rows(), this->X1.cols());
-
-                // Find the vi index for k1, k2
-                auto hi = hgf->find_hex_at (rgb);
-                if (hi->vi < sz) { this->hex_data[hi->vi] = this->X1.arr[i]; }
-            }
-#endif
         }
 
         void frequency_hexgrid_to_X_asa()
@@ -875,14 +801,9 @@ export namespace sm::hexfft
                 ee << "sm::hexfft: hex_data.size() (" << this->hex_data.size() << ") does not match hgf->num() (" << this->hgf->num() << ")";
                 throw std::runtime_error (ee.str());
             }
-#if 1
-            // Alt approach using neighbour info: Find bottom-left (or right) hex and then raster
-            // along each row, filling X0/X1 in turn.
-            typename std::list<sm::hex<F, sm::hexalign::flat_up>>::iterator hi = this->hgf->hexen.begin();
-            // Now move in the -red direction until not able, then in the -g direction until not
-            // able. This should be the bottom left of a flat_up grid.
-            while (hi->has_n3()) { hi = hi->n3; }
-            while (hi->has_n4()) { hi = hi->n4; }
+
+            // We use neighbour info: Find bottom-left hex and then raster up/down each row, filling X0/X1 in turn.
+            auto hi = this->find_frequency_hexgrid_start();
 
             // Row by row.
             std::uint32_t r = 0u; // row on hex grid. row on ASA is r / 2.
@@ -890,19 +811,15 @@ export namespace sm::hexfft
 
             bool done = false;
             while (!done) {
-                if (hi == this->hgf->hexen.end()) { std::cout << "Uh oh" << std::endl; }
-
                 if (r % 2u == 0u) {
                     // Up left hex col, filling in X1 row.
                     while (hi->has_n1()) {
-                        //std::cout << "setting X0 (" << r << ", " << c << ") with hex " << hi->output() << "\n";
                         if (hi->vi < this->hex_data.size()) {
                             this->X0(r / 2, c) = this->hex_data[hi->vi];
                         }
                         c++;
                         hi = hi->n1;
                     }
-                    //std::cout << "last one. X0 (" << r << ", " << c << ") with hex " << hi->output() << "\n";
                     if (hi->vi < this->hex_data.size()) {
                         this->X0(r / 2, c) = this->hex_data[hi->vi];
                     }
@@ -918,14 +835,12 @@ export namespace sm::hexfft
                 } else {
                     // Walk down a col
                     while (hi->has_n4()) {
-                        //std::cout << "setting X1 (" << r << ", " << (c - 1) << ") with hex " << hi->output() << "\n";
                         --c;
                         if (hi->vi < this->hex_data.size()) {
                             this->X1(r / 2, c) = this->hex_data[hi->vi];
                         }
                         hi = hi->n4;
                     }
-                    //std::cout << "last one. X1 (" << r << ", " << (c - 1) << ") with hex " << hi->output() << "\n";
                     --c;
                     if (hi->vi < this->hex_data.size()) {
                         this->X1(r / 2, c) = this->hex_data[hi->vi];
@@ -939,29 +854,6 @@ export namespace sm::hexfft
                     }
                 }
             }
-#endif
-#if 0
-            // X0, X1 sizes should be ok
-            sm::vec<std::uint32_t> arc = {};
-            for (const auto& h : this->hgf->hexen) {
-                sm::vec<std::uint32_t, 3> ks = internal::rgb_to_ks (h.ri, h.gi, h.bi, this->asa_rows, this->asa_cols);
-                std::cout << "rgb(" << h.ri << "," << h.gi << "," << h.bi << ") = (k1,k2,arr): " << ks << " = ";
-                std::uint32_t a = ks[2];
-                arc[0] = a;
-                arc[1] = (ks[1] - a) / 2; // row
-                arc[2] = ks[0] - (ks[1] - a) / 2;
-                if (arc[1] < 1000000 && arc[2] < 1000000) {
-                    std::cout << "(arc) = " << arc << std::endl;
-                    if (arc[0] == 0u) {
-                        this->X0 (arc[1], arc[2]) = this->hex_data[h.vi];
-                    } else {
-                        this->X1 (arc[1], arc[2]) = this->hex_data[h.vi];
-                    }
-                } else {
-                    std::cout << "out of range (fixme)\n";
-                }
-            }
-#endif
         }
 
         // Re-arrange X_asa so that it is in a human-readable arrangement
