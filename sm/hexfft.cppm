@@ -216,7 +216,7 @@ namespace sm::hexfft::internal
             arc.set_from (std::numeric_limits<std::uint32_t>::max());
         } else {
             arc = {
-                static_cast<std::uint32_t> ((2 + (gi % 2)) % 2), // a from oddness/evenness of gi
+                static_cast<std::uint32_t> ((2 + (gi % 2)) % 2 == 0), // a from oddness/evenness of gi
                 static_cast<std::uint32_t> (_gi),                // r is green axis only
                 static_cast<std::uint32_t> (ri - ri_min + _gi )  // c is a combination of green axis and red axis
             };
