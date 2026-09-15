@@ -58,8 +58,24 @@ export namespace sm
 
         void set_zero() { this->arr.zero(); }
 
-        // Access
-        F& operator() (std::uint32_t r, std::uint32_t c) { return this->arr[r + (c * this->Nr)]; }
+        void set (const std::uint32_t r, const std::uint32_t c, const F& val)
+        {
+            if (r + (c * this->Nr) < this->size()) { this->arr[r + (c * this->Nr)] = val; }
+        }
+
+        // Access with operator returning reference can easily lead to memory bugs. Here, we return
+        // ref to last element if r, c are out of range. In the special case that arr is empty, we
+        // resize it and return reference to that value.
+        F& operator() (std::uint32_t r, std::uint32_t c)
+        {
+            if (this->arr.size() == 0u) { this->arr.resize (1, F{0}); }
+            std::uint64_t idx = r + (c * this->Nr);
+            if (idx < this->arr.size()) {
+                return this->arr[idx];
+            } else {
+                return this->arr[this->arr.size() - 1];
+            }
+        }
         const F& operator() (std::uint32_t r, std::uint32_t c) const { return this->arr[r + (c * this->Nr)]; }
 
         //! Access elements of the matrix (returns ref, so not const)
@@ -71,7 +87,7 @@ export namespace sm
             constexpr F badrtn = std::numeric_limits<F>::has_quiet_NaN ? std::numeric_limits<F>::quiet_NaN() : std::numeric_limits<F>::max();
             return idx < this->arr.size() ? this->arr[idx] : badrtn;
         }
-
+        bool checksize() const { return this->size() == this->arr.size(); }
         std::uint32_t size() const { return this->Nr * this->Nc; }
         sm::vec<std::uint32_t, 2> shape() const { return sm::vec<std::uint32_t, 2>{ this->Nr, this->Nc }; }
         std::uint32_t rows() const { return this->Nr; }
