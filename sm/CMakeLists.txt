@@ -23,6 +23,7 @@ install(
   crc32.cppm
   edgeconv.cppm
   evenspacing.cppm
+  fft.cppm
   flags.cppm
   geometry.cppm
   geometry_polyhedra.cppm

@@ -277,10 +277,16 @@ macro(setup_module_variables_for_maths base_directory json_directory)
   )
   list(REMOVE_DUPLICATES SM_HEXYHISTO_MODULES)
 
+  set(SM_FFT_MODULES
+    ${SM_VMAT_MODULES}
+    ${base_directory}/sm/fft.cppm
+  )
+  list(REMOVE_DUPLICATES SM_FFT_MODULES)
+
   set(SM_HEXFFT_MODULES
     ${SM_HEXGRID_MODULES}
     ${SM_VVEC_MODULES}
-    ${SM_VMAT_MODULES}
+    ${SM_FFT_MODULES}
     ${base_directory}/sm/hexfft.cppm
   )
   list(REMOVE_DUPLICATES SM_HEXFFT_MODULES)
