@@ -750,7 +750,7 @@ export namespace sm::hexfft
             bool done = false;
             while (!done) {
                 if (r % 2u == 0u) {
-                    // Up left hex col, filling in X1 row.
+                    // Walk up a hex col
                     while (hi->has_n1()) {
                         if (hi->vi < this->hex_data.size()) {
                             this->hex_data[hi->vi] = this->X0 (r / 2, c);
@@ -812,7 +812,7 @@ export namespace sm::hexfft
             bool done = false;
             while (!done) {
                 if (r % 2u == 0u) {
-                    // Up left hex col, filling in X1 row.
+                    // Walk up a hex col
                     while (hi->has_n1()) {
                         if (hi->vi < this->hex_data.size()) {
                             this->X0(r / 2, c) = this->hex_data[hi->vi];
