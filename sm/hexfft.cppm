@@ -408,7 +408,7 @@ namespace sm::hexfft::internal
 
             auto n1 = 0 + r + c;
             auto n2 = 0 + 2 * r;
-            sm::vec<std::int32_t, 3> rgb = ns_to_rgb (n1, n2, d0.rows(), d0.cols());
+            sm::vec<std::int32_t, 3> rgb = ns_to_rgb (n1, n2, d0.rows(), d0.cols()); // replace with ri_gi_to_rgb?
             // Find the vi index for n1, n2
             auto hi = hg.find_hex_at (rgb);
             if (hi->vi < out.size()) { out[hi->vi] = d0.arr[i]; }
@@ -549,7 +549,7 @@ export namespace sm::hexfft
          * hexgrid hg. data must be indexed by hex::vi, as usual for hexgrid client data (so
          * data.size() == hg.num()).
          */
-        void forward ([[maybe_unused]] const sm::vvec<std::complex<F>>& data)
+        void forward (const sm::vvec<std::complex<F>>& data)
         {
             if (this->hg == nullptr) { throw std::runtime_error ("fft: Uninitialized"); }
 
@@ -571,7 +571,7 @@ export namespace sm::hexfft
 #endif
 
             // Populated a frequency space hexgrid with this->X_asa
-            this->X_asa_to_frequency_hexgrid();
+            this->frequency_asa_to_hexgrid();
         }
 
         //! As above, but for real-valued input data.
@@ -582,27 +582,27 @@ export namespace sm::hexfft
             this->forward (cdata);
         }
 
-        // Inverse FFT
-        void inverse()
+        // Inverse FFT returns image data defined over the original hexgrid hg.
+        sm::vvec<std::complex<F>> inverse()
         {
-            std::cout << "Setting zero in FFT/space...\n";
             this->X0.set_zero();
             this->X1.set_zero();
             this->d0.set_zero();
             this->d1.set_zero();
 
-            // 1. From this->hex_data, construct this->data or x0 and x1.
-            // this->X_asa = internal::frequency_hexgrid_to_X_asa (this->hgf.get(), this->hex_data, this->asa_rows, this->asa_cols);
-            this->frequency_hexgrid_to_X_asa();
+            // 1. Copy values from this->hex_data into X0 and X1 (the ASA grids)
+            this->frequency_hexgrid_to_asa();
 
             // Switch X into the quadranted data that the hfft2/ihfft2 functions work in
-            //this->de_quadrant();
+            this->de_quadrant();
 
-            // 2.
+            // 2. Inverse hexagonal FFT
             std::tie(this->d0, this->d1) = internal::ihfft2 (this->X0, this->X1);
 
             // Last job - convert from d_asa to image hexgrid
             // return internal::d_asa_to_image_hexgrid<F> (hg, X.d_asa.first, X.d_asa.second);
+
+            return this->image_asa_to_hexgrid();
         }
 
     private:
@@ -648,8 +648,97 @@ export namespace sm::hexfft
             }
         }
 
-        // Copy the data, defined over the input image hexgrid, hg, into d_asa. d_asa may be larger
-        // than the image hexgrid; elements for which there is no input value on hg are set to 0.
+        typename std::list<sm::hex<F, sm::hexalign::flat_up>>::iterator
+        find_frequency_hexgrid_start()
+        {
+            // Begin at the start of hexen, which will be somewhere near the middle of the hexgrid.
+            typename std::list<sm::hex<F, sm::hexalign::flat_up>>::iterator hi = this->hgf->hexen.begin();
+            // Now move in the -red direction until not able, then in the -g direction until not
+            // able. This should be the bottom left of a flat_up grid.
+            while (hi->has_n3()) { hi = hi->n3; }
+            while (hi->has_n2()) { hi = hi->n2; } // in case we hit the bottom of the grid before the left
+            while (hi->has_n4()) { hi = hi->n4; }
+            return hi;
+        }
+
+        typename std::list<sm::hex<F, sm::hexalign::point_up>>::iterator
+        find_image_hexgrid_start()
+        {
+            typename std::list<sm::hex<F, sm::hexalign::point_up>>::iterator hi = this->hg_asa->hexen.begin();
+            while (hi->has_n5()) { hi = hi->n5; } // -b
+            while (hi->has_n4()) { hi = hi->n4; } // -g
+            while (hi->has_n3()) { hi = hi->n3; } // -r
+            return hi;
+        }
+
+
+        void image_asa_to_hg_asa()
+        {
+            this->data_asa_real.resize (this->asa_rows * this->asa_cols * 2u, F{0});
+
+            auto hi = this->find_image_hexgrid_start();
+            std::uint32_t r = 0u; // row on hex grid. row on ASA is r / 2.
+            std::uint32_t c = 0u;
+            bool done = false;
+            while (!done) {
+                if (r % 2u == 0u) {
+                    while (hi->has_n0()) {
+                        if (hi->vi < this->hex_data.size()) {
+                            this->data_asa_real[hi->vi] = std::real(this->d0 (r / 2, c));
+                        }
+                        c++;
+                        hi = hi->n0;
+                    }
+                    if (hi->vi < this->hex_data.size()) {
+                        this->data_asa_real[hi->vi] = std::real(this->d0 (r / 2, c));
+                    }
+                    c++;
+
+                    if (hi->has_n1()) {
+                        hi = hi->n1;
+                        r++;
+                    } else {
+                        done = true;
+                    }
+
+                } else {
+                    // Walk back along a col
+                    while (hi->has_n3()) {
+                        --c;
+                        if (hi->vi < this->hex_data.size()) {
+                            this->data_asa_real[hi->vi] = std::real(this->d1 (r / 2, c));
+                        }
+                        hi = hi->n3;
+                    }
+                    --c;
+                    if (hi->vi < this->hex_data.size()) {
+                        this->data_asa_real[hi->vi] = std::real(this->d1 (r / 2, c));
+                    }
+
+                    if (hi->has_n2()) {
+                        hi = hi->n2;
+                        r++;
+                    } else {
+                        done = true;
+                    }
+                }
+            }
+        }
+
+        // Copy data in d0/d1 ASA grids into the output data and return it
+        sm::vvec<std::complex<F>> image_asa_to_hexgrid()
+        {
+            if constexpr (construct_hg_asa) {
+                this->image_asa_to_hg_asa();
+            }
+
+            sm::vvec<std::complex<F>> himg;
+            return himg;
+        }
+
+        // Copy the data, defined over the input image hexgrid, hg, into d0/d1. The ASA grid may be
+        // larger than the image hexgrid; elements for which there is no input value on hg are set
+        // to 0.
         void image_hexgrid_to_asa (const sm::vvec<std::complex<F>>& data)
         {
             if (this->hg == nullptr) { throw std::runtime_error ("Initialize fft first"); }
@@ -722,31 +811,16 @@ export namespace sm::hexfft
             }
         }
 
-        typename std::list<sm::hex<F, sm::hexalign::flat_up>>::iterator
-        find_frequency_hexgrid_start()
-        {
-            // Begin at the start of hexen, which will be somewhere near the middle of the hexgrid.
-            typename std::list<sm::hex<F, sm::hexalign::flat_up>>::iterator hi = this->hgf->hexen.begin();
-            // Now move in the -red direction until not able, then in the -g direction until not
-            // able. This should be the bottom left of a flat_up grid.
-            while (hi->has_n3()) { hi = hi->n3; }
-            while (hi->has_n4()) { hi = hi->n4; }
-            return hi;
-        }
-
         // Copy ASA laid-out frequency data into hex_data (over the hexgrid hgf).
-        void X_asa_to_frequency_hexgrid()
+        void frequency_asa_to_hexgrid()
         {
             auto sz = this->hgf->num();
             this->hex_data.resize (sz, std::complex<F>{0,0});
 
             // We use neighbour info: Find bottom-left hex and then raster up/down each row, filling X0/X1 in turn.
             auto hi = this->find_frequency_hexgrid_start();
-
-            // Row by row.
             std::uint32_t r = 0u; // row on hex grid. row on ASA is r / 2.
             std::uint32_t c = 0u;
-
             bool done = false;
             while (!done) {
                 if (r % 2u == 0u) {
@@ -794,7 +868,7 @@ export namespace sm::hexfft
             }
         }
 
-        void frequency_hexgrid_to_X_asa()
+        void frequency_hexgrid_to_asa()
         {
             if (this->hex_data.size() != this->hgf->num()) {
                 std::stringstream ee;
@@ -804,11 +878,8 @@ export namespace sm::hexfft
 
             // We use neighbour info: Find bottom-left hex and then raster up/down each row, filling X0/X1 in turn.
             auto hi = this->find_frequency_hexgrid_start();
-
-            // Row by row.
             std::uint32_t r = 0u; // row on hex grid. row on ASA is r / 2.
             std::uint32_t c = 0u;
-
             bool done = false;
             while (!done) {
                 if (r % 2u == 0u) {
