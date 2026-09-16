@@ -26,8 +26,10 @@ export import sm.vmat;
 
 export namespace sm::fft
 {
-    //! In-place iterative radix-2 Cooley-Tukey FFT. invert selects the inverse transform
-    //! (which includes the 1/N normalisation). a.size() MUST be a power of two (or 0/1).
+    /*!
+     * In-place iterative radix-2 Cooley-Tukey FFT. invert selects the inverse transform
+     * (which includes the 1/N normalisation). a.size() MUST be a power of two (or 0/1).
+     */
     template<typename F>
     void fft_pow2 (std::vector<std::complex<F>>& a, bool invert)
     {
@@ -60,8 +62,10 @@ export namespace sm::fft
         if (invert) { for (auto& x : a) { x /= static_cast<F>(n); } }
     }
 
-    //! Bluestein's algorithm: a DFT/IDFT of arbitrary length, implemented via a power-of-two
-    //! FFT-based convolution. Used for any a.size() that is not itself a power of two.
+    /*!
+     * Bluestein's algorithm: a DFT/IDFT of arbitrary length, implemented via a power-of-two
+     * FFT-based convolution. Used for any a.size() that is not itself a power of two.
+     */
     template<typename F>
     void fft_bluestein (std::vector<std::complex<F>>& a, bool invert)
     {
