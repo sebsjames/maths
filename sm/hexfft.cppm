@@ -307,6 +307,8 @@ export namespace sm::hexfft
         //! The total number of samples in the padded rectangle (2 * r * c). same as hgs->num()
         std::uint32_t size() const { return 2u * this->asa_rows * this->asa_cols; }
 
+        fft() = default;
+
         //! If hexgrid is passed to constructor, initialize
         fft (sm::hexgrid<F, sm::hexalign::point_up>* _hg) { this->init (_hg); }
 
