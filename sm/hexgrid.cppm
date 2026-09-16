@@ -437,7 +437,7 @@ export namespace sm
         {
             sm::vec<std::int32_t, 2> rgpos = { rgbpos[0] - rgbpos[2], rgbpos[1] + rgbpos[2] };
 
-            typename std::list<sm::hex<F, A>>::const_iterator hi = this->hexen.begin(); // First hex in hexen is always 0,0,0
+            auto hi = this->hexen.begin(); // First hex in hexen is always 0,0,0
 
             bool doing_green_then_red = false;
 
