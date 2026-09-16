@@ -324,7 +324,7 @@ export namespace sm::hexfft
         fft (sm::hexgrid<F, sm::hexalign::point_up>* _hg) { this->init (_hg); }
 
         //! If hexgrid and data are passed to constructor, do the forward transform immediately.
-        template<typename T>
+        template<typename T=F>
         fft (sm::hexgrid<F, sm::hexalign::point_up>* _hg, const sm::vvec<T>& _data)
         {
             this->init (_hg);
@@ -351,7 +351,7 @@ export namespace sm::hexfft
             }
 
             // Construct a frequency hexgrid
-            auto V = sm::hexfft::make_V<float>();
+            auto V = sm::hexfft::make_V<F>();
             V *= this->hg->d;
             const sm::mat<F, 2, 2> U = sm::hexfft::make_U<F>(V);
             this->Uscale = V.col(0).length() * V.col(0).length(); // a suitable scaling (zoom factor) for the frequency hexgrid
