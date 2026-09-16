@@ -5,7 +5,6 @@
 #include <chrono>
 
 import sm.bezcurve;
-import sm.hexgrid;
 
 int main()
 {

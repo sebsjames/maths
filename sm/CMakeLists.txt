@@ -23,12 +23,14 @@ install(
   crc32.cppm
   edgeconv.cppm
   evenspacing.cppm
+  fft.cppm
   flags.cppm
   geometry.cppm
   geometry_polyhedra.cppm
   grid.cppm
   hdfdata.cppm
   hex.cppm
+  hexfft.cppm
   hexgrid.cppm
   hexgrid_hdf.cppm
   hexyhisto.cppm
@@ -51,6 +53,7 @@ install(
   trait_tests.cppm
   util.cppm
   vec.cppm
+  vmat.cppm
   vvec.cppm
   winder.cppm
 

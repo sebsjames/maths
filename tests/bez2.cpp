@@ -31,7 +31,6 @@ int main()
     bound.add_curve(c4);
 
     auto hgrid = std::make_unique<sm::hexgrid<float>>(0.02f, 4.0f, 0.0f);
-    std::cout << "setBoundary..." << std::endl;
     hgrid->set_boundary (bound);
     std::cout << "Number of hexes is: " << hgrid->num() << std::endl;
 
@@ -39,6 +38,12 @@ int main()
         // Success
         rtn = 0;
     }
+
+    auto hgrid2 = std::make_unique<sm::hexgrid<float, sm::hexalign::flat_up>>(0.02f, 4.0f, 0.0f);
+    hgrid2->set_boundary (bound);
+    std::cout << "Number of hexes in 'flat_up' grid is: " << hgrid2->num() << std::endl;
+
+    if (hgrid2->num() != 775) { --rtn; }
 
     return rtn;
 }

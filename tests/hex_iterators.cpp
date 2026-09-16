@@ -25,12 +25,12 @@ std::int32_t main()
     std::list<sm::hex<float>> hexlist;
     hexlist.push_back (h0);
     hexlist.push_back (h1);
-    h1.nw = hexlist.begin();
+    h1.n3 = hexlist.begin();
 
     std::cout << "h1: " << h1.output() << std::endl;
-    std::cout << "h1's west neighbour: " << h1.nw->output() << std::endl;
+    std::cout << "h1's west neighbour: " << h1.n3->output() << std::endl;
 
-    if (h1.nw->x != 0 || h1.nw->y  != 0) {
+    if (h1.n3->x != 0 || h1.n3->y  != 0) {
         --rtn;
     }
 
