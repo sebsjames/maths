@@ -292,24 +292,24 @@ export namespace sm
         /*
          * Convenience accessors for testing neighbours, via the d_n[0-5] vectors.
          */
-        template<typename> requires (A == sm::hexalign::point_up)
+        template<typename T=int> requires (A == sm::hexalign::point_up)
         std::int32_t ne (const std::uint32_t hi) const { return this->d_n0[hi]; }
-        template<typename> requires (A == sm::hexalign::point_up)
+        template<typename T=int> requires (A == sm::hexalign::point_up)
         std::int32_t has_ne (const std::uint32_t hi) const { return this->d_n0[hi] == -1 ? false : true; }
 
-        template<typename> requires (A == sm::hexalign::point_up)
+        template<typename T=int> requires (A == sm::hexalign::point_up)
         std::int32_t nw (const std::uint32_t hi) const { return this->d_n3[hi]; }
-        template<typename> requires (A == sm::hexalign::point_up)
+        template<typename T=int> requires (A == sm::hexalign::point_up)
         std::int32_t has_nw (const std::uint32_t hi) const { return this->d_n3[hi] == -1 ? false : true; }
 
-        template<typename> requires (A == sm::hexalign::flat_up)
+        template<typename T=int> requires (A == sm::hexalign::flat_up)
         std::int32_t nn (const std::uint32_t hi) const { return this->d_n1[hi]; }
-        template<typename> requires (A == sm::hexalign::flat_up)
+        template<typename T=int> requires (A == sm::hexalign::flat_up)
         std::int32_t has_nn (const std::uint32_t hi) const { return this->d_n1[hi] == -1 ? false : true; }
 
-        template<typename> requires (A == sm::hexalign::flat_up)
+        template<typename T=int> requires (A == sm::hexalign::flat_up)
         std::int32_t ns (const std::uint32_t hi) const { return this->d_n4[hi]; }
-        template<typename> requires (A == sm::hexalign::flat_up)
+        template<typename T=int> requires (A == sm::hexalign::flat_up)
         std::int32_t has_ns (const std::uint32_t hi) const { return this->d_n4[hi] == -1 ? false : true; }
 
         std::int32_t nne (const std::uint32_t hi) const
