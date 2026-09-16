@@ -54,7 +54,8 @@ jobs:
     - name: Install latest CMake
       uses: ssrobins/install-cmake@v1
       with:
-        release-candidate: true
+        release-candidate: false
+        version: 4.4.3
 
     - name: Configure CMake
       run: |
