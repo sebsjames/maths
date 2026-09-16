@@ -403,9 +403,9 @@ add_executable(hex_iterators hex_iterators.cpp)
 target_link_libraries(hex_iterators PRIVATE sm)
 
 # Disabled during dev
-#add_executable(hexfft1 hexfft1.cpp)
-#target_link_libraries(hexfft1 PRIVATE sm)
-#add_test(hexfft1 hexfft1)
+add_executable(hexfft1 hexfft1.cpp)
+target_link_libraries(hexfft1 PRIVATE sm)
+add_test(hexfft1 hexfft1)
 
 # An example program which is slow compiled on Visual Studio with the /MDd "Debug build" flag
 add_executable(hex_profile_list_hex_min_erase hex_profile_list_hex_min_erase.cpp)
