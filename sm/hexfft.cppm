@@ -307,6 +307,17 @@ export namespace sm::hexfft
         //! The total number of samples in the padded rectangle (2 * r * c). same as hgs->num()
         std::uint32_t size() const { return 2u * this->asa_rows * this->asa_cols; }
 
+        //! If hexgrid is passed to constructor, initialize
+        fft (sm::hexgrid<F, sm::hexalign::point_up>* _hg) { this->init (_hg); }
+
+        //! If hexgrid and data are passed to constructor, do the forward transform immediately.
+        template<typename T>
+        fft (sm::hexgrid<F, sm::hexalign::point_up>* _hg, const sm::vvec<T>& _data)
+        {
+            this->init (_hg);
+            this->forward (_data);
+        }
+
         //! Initialize hexgrids ready to compute the forward FFT for data on the grid _hg.
         void init (sm::hexgrid<F, sm::hexalign::point_up>* _hg)
         {
