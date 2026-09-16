@@ -56,16 +56,20 @@ export namespace sm
             this->Nr = r;
         }
 
+        //! Reset the whole matrix to zero
         void set_zero() { this->arr.zero(); }
 
+        //! Set element at row r, column c to value val
         void set (const std::uint32_t r, const std::uint32_t c, const F& val)
         {
             if (r + (c * this->Nr) < this->size()) { this->arr[r + (c * this->Nr)] = val; }
         }
 
-        // Access with operator returning reference can easily lead to memory bugs. Here, we return
-        // ref to last element if r, c are out of range. In the special case that arr is empty, we
-        // resize it and return reference to that value.
+        /*!
+         * Access with operator returning reference can easily lead to memory bugs. Here, we return
+         * ref to last element if r, c are out of range. In the special case that arr is empty, we
+         * resize it and return reference to that value.
+         */
         F& operator() (std::uint32_t r, std::uint32_t c)
         {
             if (this->arr.size() == 0u) { this->arr.resize (1, F{0}); }
