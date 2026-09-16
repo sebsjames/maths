@@ -1583,6 +1583,68 @@ export namespace sm
             }
         }
 
+        /*!
+         * Find the extents of the boundary hexes. Find the ri for the left-most hex and the ri for
+         * the right-most hex (elements 0 and 1 of the return array). Find the gi for the top most
+         * hex and the gi for the bottom most hex. Assumes bi is 0.
+         *
+         * Return object contains: {ri-left, ri-right, gi-bottom, gi-top, gi at ri-left, gi at
+         * ri-right}
+         *
+         * gi at ri-left, gi at ri-right are returned so that the bottom left hex can be set
+         * correctly and the entire boundary is enclosed - it's important to know if the bottom line
+         * is parity-matched with the line on which the left and right most boundary hexes are
+         * found.
+         */
+        std::array<std::int32_t, 6> find_boundary_extents() const
+        {
+            // Return object contains {ri-left, ri-right, gi-bottom, gi-top, gi at ri-left, gi at ri-right}
+            // i.e. {xmin, xmax, ymin, ymax, gi at xmin, gi at xmax}
+            std::array<std::int32_t, 6> rtn = {{0,0,0,0,0,0}};
+
+            // Check to see if there are any boundary hexes at all.
+            std::uint32_t bhcount = 0;
+            for (auto h : this->hexen) { bhcount += h.test_flags(sm::HEX_IS_BOUNDARY) == true ? 1 : 0; }
+            if (bhcount == 0) { return rtn; }
+
+            // Find the furthest left and right hexes and the further up and down hexes.
+            std::array<F, 4> limits = {{0,0,0,0}};
+            bool first = true;
+            for (auto h : this->hexen) {
+                if (h.test_flags(sm::HEX_IS_BOUNDARY) == true) {
+                    if (first) {
+                        limits = {{h.x, h.x, h.y, h.y}};
+                        first = false;
+                    }
+                    if (h.x < limits[0]) {
+                        limits[0] = h.x;
+                        rtn[4] = h.gi;
+                    }
+                    if (h.x > limits[1]) {
+                        limits[1] = h.x;
+                        rtn[5] = h.gi;
+                    }
+                    if (h.y < limits[2]) {
+                        limits[2] = h.y;
+                    }
+                    if (h.y > limits[3]) {
+                        limits[3] = h.y;
+                    }
+                }
+            }
+
+            // Now compute the ri and gi values that these xmax/xmin/ymax/ymin correspond to. THIS, if
+            // nothing else, should auto-vectorise!  d_ri is the distance moved in ri direction per x, d_gi
+            // is distance
+            F d_ri = this->hexen.front().get_d();
+            F d_gi = this->hexen.front().get_v();
+            rtn[0] = static_cast<std::int32_t>(limits[0] / d_ri);
+            rtn[1] = static_cast<std::int32_t>(limits[1] / d_ri);
+            rtn[2] = static_cast<std::int32_t>(limits[2] / d_gi);
+            rtn[3] = static_cast<std::int32_t>(limits[3] / d_gi);
+            return rtn;
+        }
+
     private:
         /*!
          * Initialise a grid of hexes in a hex spiral, setting neighbours as the grid spirals
@@ -2539,68 +2601,6 @@ export namespace sm
             }
             this->renumber_vector_indices();
             this->grid_reduced = true;
-        }
-
-        /*!
-         * Find the extents of the boundary hexes. Find the ri for the left-most hex and the ri for
-         * the right-most hex (elements 0 and 1 of the return array). Find the gi for the top most
-         * hex and the gi for the bottom most hex. Assumes bi is 0.
-         *
-         * Return object contains: {ri-left, ri-right, gi-bottom, gi-top, gi at ri-left, gi at
-         * ri-right}
-         *
-         * gi at ri-left, gi at ri-right are returned so that the bottom left hex can be set
-         * correctly and the entire boundary is enclosed - it's important to know if the bottom line
-         * is parity-matched with the line on which the left and right most boundary hexes are
-         * found.
-         */
-        std::array<std::int32_t, 6> find_boundary_extents() const
-        {
-            // Return object contains {ri-left, ri-right, gi-bottom, gi-top, gi at ri-left, gi at ri-right}
-            // i.e. {xmin, xmax, ymin, ymax, gi at xmin, gi at xmax}
-            std::array<std::int32_t, 6> rtn = {{0,0,0,0,0,0}};
-
-            // Check to see if there are any boundary hexes at all.
-            std::uint32_t bhcount = 0;
-            for (auto h : this->hexen) { bhcount += h.test_flags(sm::HEX_IS_BOUNDARY) == true ? 1 : 0; }
-            if (bhcount == 0) { return rtn; }
-
-            // Find the furthest left and right hexes and the further up and down hexes.
-            std::array<F, 4> limits = {{0,0,0,0}};
-            bool first = true;
-            for (auto h : this->hexen) {
-                if (h.test_flags(sm::HEX_IS_BOUNDARY) == true) {
-                    if (first) {
-                        limits = {{h.x, h.x, h.y, h.y}};
-                        first = false;
-                    }
-                    if (h.x < limits[0]) {
-                        limits[0] = h.x;
-                        rtn[4] = h.gi;
-                    }
-                    if (h.x > limits[1]) {
-                        limits[1] = h.x;
-                        rtn[5] = h.gi;
-                    }
-                    if (h.y < limits[2]) {
-                        limits[2] = h.y;
-                    }
-                    if (h.y > limits[3]) {
-                        limits[3] = h.y;
-                    }
-                }
-            }
-
-            // Now compute the ri and gi values that these xmax/xmin/ymax/ymin correspond to. THIS, if
-            // nothing else, should auto-vectorise!  d_ri is the distance moved in ri direction per x, d_gi
-            // is distance
-            F d_ri = this->hexen.front().get_d();
-            F d_gi = this->hexen.front().get_v();
-            rtn[0] = static_cast<std::int32_t>(limits[0] / d_ri);
-            rtn[1] = static_cast<std::int32_t>(limits[1] / d_ri);
-            rtn[2] = static_cast<std::int32_t>(limits[2] / d_gi);
-            rtn[3] = static_cast<std::int32_t>(limits[3] / d_gi);
-            return rtn;
         }
 
         /*!
