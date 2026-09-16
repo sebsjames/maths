@@ -433,7 +433,7 @@ export namespace sm
         }
 
         // If possible, get the hex at the given rgb position
-        std::list<sm::hex<F, A>>::const_iterator find_hex_at (const sm::vec<std::int32_t, 3>& rgbpos)
+        std::list<sm::hex<F, A>>::iterator find_hex_at (const sm::vec<std::int32_t, 3>& rgbpos)
         {
             sm::vec<std::int32_t, 2> rgpos = { rgbpos[0] - rgbpos[2], rgbpos[1] + rgbpos[2] };
 
