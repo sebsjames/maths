@@ -433,11 +433,11 @@ export namespace sm
         }
 
         // If possible, get the hex at the given rgb position
-        std::list<sm::hex<F, A>>::const_iterator find_hex_at (const sm::vec<std::int32_t, 3>& rgbpos) const
+        std::list<sm::hex<F, A>>::const_iterator find_hex_at (const sm::vec<std::int32_t, 3>& rgbpos)
         {
             sm::vec<std::int32_t, 2> rgpos = { rgbpos[0] - rgbpos[2], rgbpos[1] + rgbpos[2] };
 
-            auto hi = this->hexen.begin(); // First hex in hexen is always 0,0,0
+            typename std::list<hex<F, A>>::iterator hi = this->hexen.begin(); // First hex in hexen is always 0,0,0
 
             bool doing_green_then_red = false;
 
