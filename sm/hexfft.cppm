@@ -212,11 +212,14 @@ namespace sm::hexfft::internal
 
         sm::vec<std::uint32_t, 3> arc = {};
 
+        // Is gi_min odd or even? This helps determine whether the value of gi implies membership of d0 or d1.
+        const std::int32_t gi_min_even = (2 + (gi_min % 2)) % 2 == 0;
+
         if ((_gi < 0) || ((ri - ri_min + _gi) < 0)) {
             arc.set_from (std::numeric_limits<std::uint32_t>::max());
         } else {
             arc = {
-                static_cast<std::uint32_t> ((2 + (gi % 2)) % 2 == 0), // a from oddness/evenness of gi
+                static_cast<std::uint32_t> ((2 + (gi % 2)) % 2 == gi_min_even), // a from oddness/evenness of gi and gi_min
                 static_cast<std::uint32_t> (_gi),                // r is green axis only
                 static_cast<std::uint32_t> (ri - ri_min + _gi )  // c is a combination of green axis and red axis
             };
@@ -334,8 +337,7 @@ export namespace sm::hexfft
             if (this->hgf) { this->hgf.release(); }
 
             this->hgf = std::make_unique<sm::hexgrid<F, sm::hexalign::flat_up>>(U.col(0).length(),
-                                                                                this->asa_cols * 4 * U.col(0).length(),
-                                                                                0.0f);
+                                                                                this->asa_cols * 4 * U.col(0).length(), 0.0f);
             this->hgf->set_rectangular_boundary (this->asa_rows * 2u, this->asa_cols, this->asa_rows, this->asa_cols / 2u);
 
             std::cout << "Frequency hexgrid has width " << this->hgf->width() << " [units 1/L]" << std::endl;
