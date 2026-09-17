@@ -19,6 +19,8 @@ module;
 #include <list>
 #include <stdexcept>
 
+#include <iostream>
+
 export module sm.hexgrid.hdf;
 
 export import sm.hexgrid;
@@ -170,6 +172,7 @@ export namespace sm
     void hexgrid_load (sm::hexgrid<F>& hg, const std::string& path)
     {
         sm::hdfdata hgdata (path, std::ios::in);
+        hgdata.on_read_error_action = read_error_action::exception;
         hgdata.read_val ("/d", hg.d);
         hgdata.read_val ("/v", hg.v);
         hgdata.read_val ("/x_span", hg.x_span);
@@ -187,14 +190,32 @@ export namespace sm
         hgdata.read_contained_vals ("/d_ri", hg.d_ri);
         hgdata.read_contained_vals ("/d_gi", hg.d_gi);
         hgdata.read_contained_vals ("/d_bi", hg.d_bi);
-        hgdata.read_contained_vals ("/d_n0", hg.d_n0);
-        hgdata.read_contained_vals ("/d_n1", hg.d_n1);
-        hgdata.read_contained_vals ("/d_n2", hg.d_n2);
-        hgdata.read_contained_vals ("/d_n3", hg.d_n3);
-        hgdata.read_contained_vals ("/d_n4", hg.d_n4);
-        hgdata.read_contained_vals ("/d_n5", hg.d_n5);
-        hgdata.read_contained_vals ("/d_flags", hg.d_flags);
 
+        try {
+            hgdata.read_contained_vals ("/d_n0", hg.d_n0);
+            hgdata.read_contained_vals ("/d_n1", hg.d_n1);
+            hgdata.read_contained_vals ("/d_n2", hg.d_n2);
+            hgdata.read_contained_vals ("/d_n3", hg.d_n3);
+            hgdata.read_contained_vals ("/d_n4", hg.d_n4);
+            hgdata.read_contained_vals ("/d_n5", hg.d_n5);
+        } catch (const std::exception& e) {
+            // Fall back to old style d_ne, etc.
+            std::cout << "reading d_ne, etc...\n";
+            hgdata.read_contained_vals ("/d_ne", hg.d_n0);
+            std::cout << "hg.d_n0 size " << hg.d_n0.size() << std::endl;
+            hgdata.read_contained_vals ("/d_nne", hg.d_n1);
+            std::cout << "hg.d_n1 size " << hg.d_n1.size() << std::endl;
+            hgdata.read_contained_vals ("/d_nnw", hg.d_n2);
+            std::cout << "hg.d_n2 size " << hg.d_n2.size() << std::endl;
+            hgdata.read_contained_vals ("/d_nw", hg.d_n3);
+            std::cout << "hg.d_n3 size " << hg.d_n3.size() << std::endl;
+            hgdata.read_contained_vals ("/d_nsw", hg.d_n4);
+            std::cout << "hg.d_n4 size " << hg.d_n4.size() << std::endl;
+            hgdata.read_contained_vals ("/d_nse", hg.d_n5);
+            std::cout << "hg.d_n5 size " << hg.d_n5.size() << std::endl;
+        }
+
+        hgdata.read_contained_vals ("/d_flags", hg.d_flags);
         hgdata.read_contained_vals ("/tfm", hg.tfm.arr);
 
         // Assume a boundary has been applied so set this true. Also, the hexgrid::save method doesn't
