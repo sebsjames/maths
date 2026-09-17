@@ -26,6 +26,28 @@ export module sm.hexgrid.hdf;
 export import sm.hexgrid;
 import sm.hdfdata;
 
+namespace sept26
+{
+    // Convert flags from the pre-Sept26 format (i.e. before I added flat_up hexgrids) to the newer
+    // format in which some flags have changed position.
+    void flags_conversion (std::uint32_t& fl)
+    {
+        std::uint32_t f16 = fl & 0xffff;
+        fl = fl & 0xffff0000;
+        if ((f16 & 0x1) == 0x1) { fl |= 0x1; }
+        if ((f16 & 0x2) == 0x2) { fl |= 0x2; }
+        if ((f16 & 0x4) == 0x4) { fl |= 0x8; }
+        if ((f16 & 0x8) == 0x8) { fl |= 0x10; }
+        if ((f16 & 0x10) == 0x10) { fl |= 0x20; }
+        if ((f16 & 0x20) == 0x20) { fl |= 0x80; }
+        if ((f16 & 0x40) == 0x40) { fl |= 0x100; }
+        if ((f16 & 0x80) == 0x80) { fl |= 0x200; }
+        if ((f16 & 0x100) == 0x100) { fl |= 0x400; }
+        if ((f16 & 0x200) == 0x200) { fl |= 0x800; }
+        if ((f16 & 0x400) == 0x400) { fl |= 0x1000; }
+    }
+}
+
 export namespace sm
 {
     /*!
@@ -65,7 +87,7 @@ export namespace sm
 
     //! Load the data for this hex from a sm::hdfdata file
     template<typename F>
-    void hex_load (sm::hex<F>& hx, hdfdata& h5data, const std::string& h5path)
+    void hex_load (sm::hex<F>& hx, hdfdata& h5data, const std::string& h5path, const bool oldformat = false)
     {
         std::string dpath = h5path + "/vi";
         h5data.read_val (dpath.c_str(), hx.vi);
@@ -94,6 +116,7 @@ export namespace sm
         std::uint32_t flgs = 0;
         dpath = h5path + "/flags";
         h5data.read_val (dpath.c_str(), flgs);
+        if (oldformat) { sept26::flags_conversion (flgs); }
         hx.flags = flgs;
     }
     /*!
@@ -191,6 +214,7 @@ export namespace sm
         hgdata.read_contained_vals ("/d_gi", hg.d_gi);
         hgdata.read_contained_vals ("/d_bi", hg.d_bi);
 
+        bool oldformat = false;
         try {
             hgdata.read_contained_vals ("/d_n0", hg.d_n0);
             hgdata.read_contained_vals ("/d_n1", hg.d_n1);
@@ -198,24 +222,22 @@ export namespace sm
             hgdata.read_contained_vals ("/d_n3", hg.d_n3);
             hgdata.read_contained_vals ("/d_n4", hg.d_n4);
             hgdata.read_contained_vals ("/d_n5", hg.d_n5);
+            hgdata.read_contained_vals ("/d_flags", hg.d_flags);
+
         } catch (const std::exception& e) {
             // Fall back to old style d_ne, etc.
-            std::cout << "reading d_ne, etc...\n";
             hgdata.read_contained_vals ("/d_ne", hg.d_n0);
-            std::cout << "hg.d_n0 size " << hg.d_n0.size() << std::endl;
             hgdata.read_contained_vals ("/d_nne", hg.d_n1);
-            std::cout << "hg.d_n1 size " << hg.d_n1.size() << std::endl;
             hgdata.read_contained_vals ("/d_nnw", hg.d_n2);
-            std::cout << "hg.d_n2 size " << hg.d_n2.size() << std::endl;
             hgdata.read_contained_vals ("/d_nw", hg.d_n3);
-            std::cout << "hg.d_n3 size " << hg.d_n3.size() << std::endl;
             hgdata.read_contained_vals ("/d_nsw", hg.d_n4);
-            std::cout << "hg.d_n4 size " << hg.d_n4.size() << std::endl;
             hgdata.read_contained_vals ("/d_nse", hg.d_n5);
-            std::cout << "hg.d_n5 size " << hg.d_n5.size() << std::endl;
+            hgdata.read_contained_vals ("/d_flags", hg.d_flags);
+            // Now have to convert d_flags to new format, because I went and changed things. Gah.
+            for (auto& fl : hg.d_flags) { sept26::flags_conversion (fl); }
+            oldformat = true;
         }
 
-        hgdata.read_contained_vals ("/d_flags", hg.d_flags);
         hgdata.read_contained_vals ("/tfm", hg.tfm.arr);
 
         // Assume a boundary has been applied so set this true. Also, the hexgrid::save method doesn't
@@ -227,7 +249,7 @@ export namespace sm
         for (std::uint32_t i = 0; i < hcount; ++i) {
             std::string h5path = "/hexen/" + std::to_string(i);
             sm::hex<F> h;
-            sm::hex_load<F> (h, hgdata, h5path);
+            sm::hex_load<F> (h, hgdata, h5path, oldformat);
             hg.hexen.push_back (h);
         }
 
