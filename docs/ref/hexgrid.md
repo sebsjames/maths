@@ -24,22 +24,27 @@ Module file: [sm/hexgrid.cppm](https://github.com/sebsjames/maths/blob/main/sm/h
 
 ## Summary
 
-`sm::hexgrid` is a hexagonal-tiling counterpart to [`sm::grid`](/maths/ref/grid/): rather than using rectangular elements, it lays out a grid of hexagons (each an `sm::hex`) to manage spatial information for an associated computation.
-It was designed for a study of [reaction-diffusion systems across two dimensional domains](https://elifesciences.org/articles/55588). `std::vector` arrays held the system state variables, and the spatial information for each element was managed in the hexgrid. Here, it was useful to use a hexagonal grid, because this made the [computation of the Laplacian easy](https://elifesciences.org/articles/55588#s4).
+`sm::hexgrid` is a counterpart to the Cartesian [`sm::grid`](/maths/ref/grid/). It lays out a grid of hexagons (each an `sm::hex`) to manage spatial information for an associated computation.
+It was originally designed for a study of [reaction-diffusion systems across two dimensional domains](https://elifesciences.org/articles/55588). `std::vector` arrays held the system state variables, and the spatial information for each element was managed in the hexgrid. Use of a hexagonal grid was motivated by the ease of [computation of the Laplacian easy](https://elifesciences.org/articles/55588#s4).
 
-The design of `hexgrid` differs from that of `sm::grid`, being more similar to [`sm::cartgrid`](/maths/ref/cartgrid/). `sm::hexgrid` defines an initial hexagonal grid of hexagons which you can then clip to an arbitrary boundary in exactly the same spirit as `cartgrid` clips its rectangular lattice.
-Where `cartgrid` and `sm::grid` share three boundary/wrap-related enums, `hexgrid` predates that enum-based design; its boundary shape is chosen by which `set_*_boundary` method you call, rather than by setting a `domain_shape` member. `hexgrid` was written before `cartgrid`, which predated `grid`.
+`sm::hexgrid` defines an initial hexagonal grid of hexagons, built outwards ring-by-ring from a single centre hex until it reaches a requested diameter.
+You can use the grid with this default hexagonal shape, or clip it down to have another boundary shape (such as a circle, ellipse, rectangle or parallelogram). You can also set a boundary you supply yourself as a closed [`sm::bezcurvepath`](https://github.com/sebsjames/maths/blob/main/sm/bezcurvepath.cppm) or list of points.
+Clipping discards every hex outside the boundary and re-links the neighbour relationships of those that remain.
 
+`sm::hexgrid` is a templated class with a coordinate type `F` (a floating point type) and a `sm::hexalign` template parameter `A` which defines whether the hexagonal lattice is arrange in an orientation with the 'points up' or with the 'flats up'.
 
-`sm::hexgrid` always starts out as a  filled hexagon of hexagonal elements, built outwards ring-by-ring from a single centre hex until it reaches a requested diameter. As with `cartgrid`, you can leave the grid as this default hexagonal shape, or clip it down to an arbitrary boundary; a circle, ellipse, rectangle, parallelogram, or a boundary you supply yourself as a closed [`sm::bezcurvepath`](https://github.com/sebsjames/maths/blob/main/sm/bezcurvepath.cppm) or list of points. Clipping discards every hex outside the boundary and re-links the neighbour relationships of what remains.
+Picture here.
 
-`sm::hexgrid` is a non-templated class with coordinates of type `float` and indices of type `std::uint32_t` (sometimes cast to `std::int32_t`). It does not derive from, or share any types with, `sm::grid`; it does, however, share a very similar design and method-naming convention with `sm::cartgrid`. `hexgrid` was designed first, then `cartgrid` was coded up using the same ideas. (The `set_boundary`/`set_boundary_only`/`set_boundary_on_outer_edge`/`get_region` family, and the flat `d_*` cache-vector convention, are essentially the same functions applied to hexes instead of rects.)
+Indices have type `std::uint32_t` (sometimes cast to `std::int32_t`).
+
+It does not derive from, or share any types with, `sm::grid`; it does, however, share a very similar design and method-naming convention with `sm::cartgrid`.
 
 Defined as:
 ```c++
 export namespace sm
 {
-    class alignas(8) hexgrid
+    template<typename F, sm::hexalign A = sm::hexalign::point_up> requires std::is_floating_point_v<F>
+    struct alignas(8) hexgrid
     {
         // ...
         std::list<hex> hexen;
