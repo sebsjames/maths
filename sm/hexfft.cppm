@@ -28,7 +28,6 @@ module;
 #include <sstream>
 #include <cmath>
 #include <list>
-#include <iostream>
 
 export module sm.hexfft;
 
@@ -337,8 +336,6 @@ export namespace sm::hexfft
             if (this->hg == _hg) { return; }
             this->hg = _hg;
             this->bounding_box();
-            std::cout << "internal::bounding_box computes: ri_min: " << this->ri_min << ", gi_min: " << this->gi_min
-                      << " rows: " << this->asa_rows << ", cols: " << this->asa_cols << std::endl;
 
             if constexpr (construct_hg_asa) {
                 // Make the equivalent hexgrid for the ASA.
@@ -347,7 +344,6 @@ export namespace sm::hexfft
                 if (this->hg_asa->num() != this->asa_cols * this->asa_rows * 2u) {
                     throw std::runtime_error ("hg_asa has wrong number of elements");
                 }
-                std::cout << "After set rect boundary, hg_asa size is " << this->hg_asa->num() << " = " << this->asa_cols * this->asa_rows * 2u << std::endl;
             }
 
             // Construct a frequency hexgrid
@@ -361,7 +357,8 @@ export namespace sm::hexfft
                                                                                 this->asa_cols * 4 * U.col(0).length(), 0.0f);
             this->hgf->set_rectangular_boundary (this->asa_rows * 2u, this->asa_cols, this->asa_rows, this->asa_cols / 2u);
 
-            std::cout << "Frequency hexgrid has width " << this->hgf->width() << " [units 1/L]" << std::endl;
+            // Resize X_hexgrid
+            this->X_hexgrid.resize (this->hgf->num(), std::complex<F>{ F{0}, F{0} });
         }
 
         /*!
@@ -580,21 +577,15 @@ export namespace sm::hexfft
             this->d0.resize (this->asa_rows, this->asa_cols);
             this->d1.resize (this->asa_rows, this->asa_cols);
             sm::vec<std::uint32_t> arc = {};
-            //std::cout << "For each hex, do ri_gi_to_asa with ri_min = " << ri_min << " and gi_min = " << gi_min << std::endl;
             for (const auto& h : this->hg->hexen) {
                 arc = internal::ri_gi_to_asa (h.ri, h.gi, this->ri_min, this->gi_min);
-                //std::cout << "rg(" << h.ri << "," << h.gi << ") maps to arc " << arc << std::endl;
                 if (arc[0] == 0u) {
                     if (h.vi < data.size()) {
                         this->d0 (arc[1], arc[2]) = data[h.vi];
-                    } else {
-                        std::cout << "NOT Setting d0 (" << arc[1] << ", " << arc[2] << ")" << std::endl;
                     }
                 } else {
                     if (h.vi < data.size()) {
                         this->d1 (arc[1], arc[2]) = data[h.vi];
-                    } else {
-                        std::cout << "NOT Setting d1 (" << arc[1] << ", " << arc[2] << ")" << std::endl;
                     }
                 }
             }
