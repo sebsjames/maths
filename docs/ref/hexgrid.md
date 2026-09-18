@@ -31,9 +31,10 @@ It was originally designed for a study of [reaction-diffusion systems across two
 You can use the grid with this default hexagonal shape, or clip it down to have another boundary shape (such as a circle, ellipse, rectangle or parallelogram). You can also set a boundary you supply yourself as a closed [`sm::bezcurvepath`](https://github.com/sebsjames/maths/blob/main/sm/bezcurvepath.cppm) or list of points.
 Clipping discards every hex outside the boundary and re-links the neighbour relationships of those that remain.
 
-`sm::hexgrid` is a templated class with a coordinate type `F` (a floating point type) and a `sm::hexalign` template parameter `A` which defines whether the hexagonal lattice is arrange in an orientation with the 'points up' or with the 'flats up'.
+`sm::hexgrid` is a templated class with a coordinate type `F` (a floating point type) and a `sm::hexalign` template parameter `A` which defines whether the hexagonal lattice is arranged in an orientation for which individual hexes have their 'points up' or their 'flats up'.
 
-Picture here.
+![Two hexagonal grids](https://github.com/sebsjames/maths/blob/main/docs/images/hexgrids.png?raw=true)
+*point_up and flat_up hexgrids. The hex elements of the point_up grid have their points up; the overall hexagonal shape is opposite.*
 
 Indices have type `std::uint32_t` (sometimes cast to `std::int32_t`).
 
@@ -52,12 +53,12 @@ export namespace sm
 
 ### Hex coordinates
 
-Each `sm::hex` (defined in `sm/hex.cppm`, and re-exported by `sm.hexgrid`, so `import sm.hexgrid;` is enough to use it) stores an axial coordinate `{ri, gi, bi}` alongside its Cartesian `{x, y, z}` position, a 32-bit `flags` word (`HEX_IS_BOUNDARY`, `HEX_INSIDE_BOUNDARY`, `HEX_INSIDE_DOMAIN`, `HEX_IS_REGION_BOUNDARY`, `HEX_INSIDE_REGION`, plus 16 bits reserved for your own use as `HEX_USER_FLAG_0`..`HEX_USER_FLAG_15`), and six neighbour iterators (`ne`, `nne`, `nnw`, `nw`, `nsw`, `nse`; see [Neighbours](#neighbours-in-the-six-hex-directions)). The hexes are 'point-up', spaced `d` apart within a row and `v = d * sqrt(3)/2` apart between rows.
+Each `sm::hex` (defined in `sm/hex.cppm`, and re-exported by `sm.hexgrid`, so `import sm.hexgrid;` is enough to use it) stores an axial coordinate `{ri, gi, bi}` alongside its Cartesian `{x, y, z}` position, a 32-bit `flags` word (`HEX_IS_BOUNDARY`, `HEX_INSIDE_BOUNDARY`, `HEX_INSIDE_DOMAIN`, `HEX_IS_REGION_BOUNDARY`, `HEX_INSIDE_REGION`, plus 16 bits reserved for your own use as `HEX_USER_FLAG_0`..`HEX_USER_FLAG_15`), and six neighbour iterators (`n0`, `n1`, `n2`, `n3`, `n4`, `n5`; see [Neighbours](#neighbours-in-the-six-hex-directions)). The hexes are 'point-up' by default, spaced `d` apart within a row and `v = d * sqrt(3)/2` apart between rows.
 
 ## Create a hexgrid
 
 ```c++
-sm::hexgrid hg (0.01f, 3.0f, 0.0f); // d (hex spacing), x_span (diameter), z (layer)
+sm::hexgrid<float> hg (0.01f, 3.0f, 0.0f); // d (hex spacing), x_span (diameter), z (layer)
 ```
 This builds a full hexagon of hexes with hex-to-hex spacing `d` and a horizontal diameter of approximately `x_span`. `init (d_, x_span_, z_)` re-runs the same construction on an existing `hexgrid`, and the default constructor `hexgrid()` leaves `d = x_span = 1.0f` but, like `cartgrid`'s default constructor, does not build the grid for you.
 
@@ -65,14 +66,14 @@ This builds a full hexagon of hexes with hex-to-hex spacing `d` and a horizontal
 
 The convenience methods compute the boundary points for a given shape and clip the grid to them in one call:
 ```c++
-sm::hexgrid hg (0.01f, 3.0f, 0.0f);
+sm::hexgrid<float> hg (0.01f, 3.0f, 0.0f);
 hg.set_circular_boundary (0.6f);         // radius 0.6, centred at the origin by default
 std::cout << "Number of hexes in grid: " << hg.num() << std::endl;
 ```
 `set_elliptical_boundary`, `set_rectangular_boundary` and `set_parallelogram_boundary` work the same way for their respective shapes. For an arbitrary shape, supply a closed Bezier path:
 ```c++
 sm::bezcurvepath<float, 3> bound = /* ... four curve segments forming a closed loop ... */;
-auto hgrid = std::make_unique<sm::hexgrid> (0.02f, 4.0f, 0.0f);
+auto hgrid = std::make_unique<sm::hexgrid<float>> (0.02f, 4.0f, 0.0f);
 hgrid->set_boundary (bound);
 std::cout << "Number of hexes is: " << hgrid->num() << std::endl;
 ```
@@ -85,6 +86,13 @@ hg.set_boundary_on_outer_edge();
 And if you just want to *mark* a boundary for inspection without discarding any hexes, use one of the `set_boundary_only` overloads instead of `set_boundary`.
 
 `get_boundary()` returns a copy of the current boundary hexes, and `compute_distance_to_boundary()` fills each hex's `dist_to_boundary` (`0` on the boundary itself, `-100.0f` for any hex outside the boundary, otherwise the distance to the nearest boundary hex).
+
+There is a special `set_rectangular_boundary` function for making Array Set Addressing (ASA) compatible grids:
+```c++
+void set_rectangular_boundary (const std::uint32_t n_x, const std::uint32_t n_y,
+                               const std::uint32_t x0 = 0u, const std::uint32_t y0 = 0u)
+```
+This takes integer arguments for the number of rows and columns, and carefully arranges the rows so that the resulting grids for `point_up` and `flat_up` hexgrids can be used, respectively, as the image lattice and corresponding frequency lattice in a hexagonal FFT computation.
 
 ### Temporary regions
 
@@ -108,24 +116,28 @@ auto at_axial = hg.find_hex_at ({ 2, -1, 0 }); // {ri, gi, bi}
 
 ## Neighbours in the six hex directions
 
-Each hex has up to six neighbours; East, North-East, North-West, West, South-West and South-East; reachable either through the hex object's own iterators, or via a flat domain index:
+Each hex has up to six neighbours, referred to with iterators `hex<>::n0` to `hex<>::n5`.
+
+In a `point_up` lattice, these are East, North-East, North-West, West, South-West and South-East neighbours.
+
+In a `flat_up` lattice they are North-East, North, North-West, South-West, South and South-East neigbours.
+
+Nieghbour existence can be tested with `has_n0` to `has_n5` methods, and accessed via hex iterators or `hexgrid::n0()` to `hexgrid::n5()` methods.
+
 ```c++
 auto hi = hg.hexen.begin();
-if (hi->has_ne()) {
-    auto east_neighbour = hi->ne; // std::list<hex>::iterator
+if (hi->has_n0()) {
+    auto east_neighbour = hi->n0; // std::list<hex>::iterator
 }
 // or, given a flat domain index `di` (hex::di):
-if (hg.has_ne (di)) {
-    std::int32_t east_di = hg.ne (di); // -1 if there's no such neighbour
+if (hg.has_n0 (di)) {
+    std::int32_t east_di = hg.n0 (di); // -1 if there's no such neighbour
 }
 ```
-**Note:** the domain-index `has_ne`/`has_nw`/`has_nne`/`has_nnw`/`has_nse`/`has_nsw` functions return `std::int32_t`, not `bool`, even though they behave as a boolean presence check (they evaluate to `0` or `1`).
-
-## Wrapping
-
-There's no general wrap enum for `hexgrid`; the only wrapping support is `set_parallelogram_wrap (bool on_r, bool on_g)`, which re-wires the neighbour links at the edges of a parallelogram-shaped domain to point at the opposite edge. **At present it only supports wrapping both axes together**; it throws `std::runtime_error` unless both `on_r` and `on_g` are `true`.
 
 ## Convolution, resampling and shifting data
+
+Methods in the namespace `sm::algo::hexgrid` (module file [algo_hexgrid.cppm](https://github.com/sebsjames/maths/blob/main/sm/algo_hexgrid.cppm)) provide hexgrid-compatible algorithms.
 
 `convolve` performs a 2D convolution of per-hex data against a kernel defined on a second `hexgrid` (which must share the same `d`), walking neighbour links rather than assuming a fixed array stride, so it works correctly on boundary-clipped domains. `resample_image` Gaussian-resamples a rectangular pixel image onto the hex centres, much like the equivalent methods in `sm::grid` and `sm::cartgrid`.
 
@@ -135,6 +147,8 @@ sm::vvec<float> image_data (hg.num(), 0.0f);
 bool ok = hg.shiftdata (image_data, sm::vec<float, 2>{ 0.003f, -0.001f });
 ```
 It returns `false` (leaving `image_data` unmodified) if the overlap geometry couldn't be resolved for the given shift. The `compute_hex_overlap`/`compute_overlap_*`/`setup_hexoverlap_geometry` methods it relies on are public, but are internal machinery for `shiftdata`; you shouldn't normally need to call them directly.
+
+There are also some masking functions in algo_hexgrid.cppm.
 
 ## Geometry
 
@@ -151,7 +165,7 @@ float area = hg.get_hex_area(); // area of one hex
 
 ## Saving and loading
 
-HDF5 persistence lives in a separate module, `sm.hexgrid.hdf` (which re-exports `sm.hexgrid`, so importing it gives you everything above too):
+HDF5 persistence lives in a separate module, `sm.hexgrid.hdf`.
 ```c++
 import sm.hexgrid.hdf;
 
@@ -160,6 +174,6 @@ sm::hexgrid_save (hg, "myhexgrid.h5");
 sm::hexgrid hg2;
 sm::hexgrid_load (hg2, "myhexgrid.h5");
 ```
-Loading reconstructs each hex's six neighbour relationships by matching saved indices against the freshly-loaded hex list; an O(n²) operation for large grids; and throws `std::runtime_error` if any expected neighbour can't be matched. The boundary curve itself (as a `bezcurvepath`) is not saved; only the resulting hex positions, flags and neighbour relationships are.
+Loading a hexgrid reconstructs each hex's six neighbour relationships by matching saved indices against the freshly-loaded hex list; an O(n²) operation for large grids.  It throws `std::runtime_error` if any expected neighbour can't be matched. The boundary curve itself (as a `bezcurvepath`) is not saved; only the resulting hex positions, flags and neighbour relationships are.
 
 *This page was authored with AI, based on human written code in hexgrid.cppm and reviewed by Seb James.*
