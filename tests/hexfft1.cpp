@@ -27,10 +27,14 @@ static bool roundtrips (sm::hexgrid<F>& hg, const char* label)
     sm::hexfft::fft<F> hfft (&hg, data);
     sm::vvec<std::complex<F>> back = hfft.inverse();
 
+    sm::vvec<F> back_real = hfft.inverse_real();
+
     F maxerr = F{0};
     for (std::uint32_t i = 0; i < hg.num(); ++i) {
         F err = std::abs (back[i] - std::complex<F> (data[i], F{0}));
+        F err_real = std::abs (back_real[i] - data[i]);
         maxerr = std::max (maxerr, err);
+        maxerr = std::max (maxerr, err_real);
     }
     std::cout << label << ": hg.num()=" << hg.num() << " spectrum rows=" << hfft.asa_rows << " cols=" << hfft.asa_cols
                << " (size " << hfft.size() << ") max roundtrip error: " << maxerr << std::endl;

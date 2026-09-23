@@ -408,6 +408,17 @@ export namespace sm::hexfft
             return this->image_asa_to_hexgrid();
         }
 
+        //! Return the real component of the inverse FFT.
+        sm::vvec<F> inverse_real()
+        {
+            sm::vvec<std::complex<F>> inv_cplx = this->inverse();
+            sm::vvec<F> inv_real (inv_cplx.size(), F{0});
+            for (std::uint32_t i = 0; i < inv_cplx.size(); ++i) {
+                inv_real[i] = std::real (inv_cplx[i]);
+            }
+            return inv_real;
+        }
+
     private:
 
         //! Find parameters for the enclosing hexgrid (used to populate d0/d1 and create hg_asa)
