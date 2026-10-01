@@ -222,9 +222,20 @@ macro(setup_module_variables_for_maths base_directory json_directory)
   set(SM_GEOMETRY_MODULES
     ${SM_ALGO_MODULES}
     ${SM_VVEC_MODULES}
+    ${SM_MAT_MODULES}
     ${base_directory}/sm/geometry.cppm
   )
   list(REMOVE_DUPLICATES SM_GEOMETRY_MODULES)
+
+  set(SM_GEOMETRY_POLYHEDRA_MODULES
+    ${SM_MATHCONST_MODULES}
+    ${SM_VEC_MODULES}
+    ${SM_QUATERNION_MODULES}
+    ${SM_VVEC_MODULES}
+    ${SM_CONSTEXPR_MATH_MODULES}
+    ${base_directory}/sm/geometry_polyhedra.cppm
+  )
+  list(REMOVE_DUPLICATES SM_GEOMETRY_POLYHEDRA_MODULES)
 
   set(SM_JCV_MODULES
     ${SM_MATHCONST_MODULES}
