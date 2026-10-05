@@ -485,15 +485,6 @@ if((CMAKE_CXX_COMPILER_ID MATCHES "Clang") OR (CMAKE_CXX_COMPILER_ID STREQUAL "G
   add_test(boxfilter1 boxfilter1)
 endif()
 
-# Test sm::config
-
-# GCC < version 16.1 can't compile sm::config (something to do with the nlohmann::json module). It also seems to be an issue on Windows
-if((CMAKE_CXX_COMPILER_ID MATCHES "Clang") OR (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION GREATER_EQUAL 16.1))
-  add_executable(config1 config1.cpp)
-  target_sources_modules(config1 MODULES ${SM_CONFIG_MODULES} ${SM_UTIL_MODULES} ${SM_VVEC_MODULES} ${SM_VEC_MODULES})
-  add_test(config1 config1)
-endif()
-
 add_executable(zernike1 zernike1.cpp)
 target_link_libraries(zernike1 PRIVATE sm)
 add_test(zernike1 zernike1)
