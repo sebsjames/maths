@@ -10,9 +10,9 @@ permalink: /ref/config
 ## Parameter management via JSON
 {: .no_toc}
 ```c++
-import sm.config;
+import sm.config; // NB: From https://github.com/sebsjames/maths_config
 ```
-Module file: [sm/config.cppm](https://github.com/sebsjames/maths/blob/main/sm/config.cppm).
+Module file: [sm/config.cppm](https://github.com/sebsjames/maths_config/blob/main/sm/config.cppm).
 
 **Table of Contents**
 
@@ -23,9 +23,9 @@ Module file: [sm/config.cppm](https://github.com/sebsjames/maths/blob/main/sm/co
 
 `sm::config` is a class for reading and writing program parameters that are
 stored in a JSON file. It's intended for the kind of use case where you have
-a simulation or other program with a fair number of numerical (or string, or
-Boolean) parameters that you want to be able to set from a file rather than
-hard-coding, along with a record of exactly what parameters were used for a
+a simulation or other program with a number of numerical (or string, or
+Boolean) parameters that you want to be able to set from a file (rather than
+hard-coding them). It can also provide a record of exactly what parameters were used for a
 given run. `sm::config` uses [nlohmann::json](https://github.com/nlohmann/json)
 internally to parse and hold the JSON.
 
@@ -33,6 +33,12 @@ internally to parse and hold the JSON.
 command line, which is useful when you want to run many instances of a
 program, sweeping one or two parameters, without editing the JSON file or
 maintaining many near-identical copies of it.
+
+Note that this module is provided by a separate repostory:
+[sebsjames/maths_config](https://github.com/sebsjames/maths_config).
+
+The reason for separating the code for `sm::config` is to avoid the
+need for a JSON submodule within sebsjames/maths.
 
 ## Constructing a config object
 
