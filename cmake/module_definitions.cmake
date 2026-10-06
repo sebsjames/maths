@@ -19,13 +19,13 @@ macro(setup_module_variables_for_maths base_directory)
     ${SM_CONSTEXPR_MATH_MODULES}
     ${base_directory}/sm/polysolve.cppm
   )
-  list(REMOVE_DUPLICATES SM__MODULES)
+  list(REMOVE_DUPLICATES SM_POLYSOLVE_MODULES)
 
   set(SM_BESSEL_I0_MODULES
     ${SM_POLYSOLVE_MODULES}
     ${base_directory}/sm/bessel_i0.cppm
   )
-  list(REMOVE_DUPLICATES SM__MODULES)
+  list(REMOVE_DUPLICATES SM_BESSEL_I0_MODULES)
 
   set(SM_INTERVAL_MODULES
     ${SM_CONSTEXPR_MATH_MODULES}
@@ -308,7 +308,7 @@ macro(setup_module_variables_for_maths base_directory)
     ${SM_GRID_MODULES}
     ${base_directory}/sm/cartgrid.cppm
   )
-  list(REMOVE_DUPLICATES SM_CARGRID_MODULES)
+  list(REMOVE_DUPLICATES SM_CARTGRID_MODULES)
 
   set(SM_BASE64_MODULES
     ${base_directory}/sm/base64.cppm
