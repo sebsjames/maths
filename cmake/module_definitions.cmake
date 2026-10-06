@@ -2,7 +2,7 @@
 # Define variables of module groups for use by the sebsjames/maths
 # build process itself, and by client projects.
 #
-macro(setup_module_variables_for_maths base_directory json_directory)
+macro(setup_module_variables_for_maths base_directory)
 
   set(SM_MATHCONST_MODULES
     ${base_directory}/sm/mathconst.cppm
@@ -310,15 +310,6 @@ macro(setup_module_variables_for_maths base_directory json_directory)
   )
   list(REMOVE_DUPLICATES SM_CARGRID_MODULES)
 
-  set(SM_CONFIG_MODULES
-    ${SM_VEC_MODULES}
-    ${SM_VVEC_MODULES}
-    ${SM_UTIL_MODULES}
-    ${base_directory}/sm/config.cppm
-    ${json_directory}/src/modules/json.cppm
-  )
-  list(REMOVE_DUPLICATES SM_CONFIG_MODULES)
-
   set(SM_BASE64_MODULES
     ${base_directory}/sm/base64.cppm
   )
@@ -334,7 +325,7 @@ macro(setup_module_variables_for_maths base_directory json_directory)
   )
   list(REMOVE_DUPLICATES SM_FLAGS_MODULES)
 
-  # All except SM_CONFIG_MODULES, SM_HDFDATA_MODULES, SM_ANNEAL_MODULES (avoiding need for library linking)
+  # All except SM_HDFDATA_MODULES, SM_ANNEAL_MODULES (avoiding need for library linking)
   set(SM_ALL_MODULES
     ${SM_MATHCONST_MODULES}
     ${SM_CONSTEXPR_MATH_MODULES}

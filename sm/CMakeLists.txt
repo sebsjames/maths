@@ -18,7 +18,6 @@ install(
   boxfilter.cppm
   cartgrid.cppm
   centroid.cppm
-  config.cppm
   constexpr_math.cppm
   crc32.cppm
   edgeconv.cppm

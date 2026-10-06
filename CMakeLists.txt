@@ -109,9 +109,6 @@ if(HDF5_FOUND)
   include_directories(${HDF5_INCLUDE_DIR})
 endif()
 
-# nlohmann::json module json.cppm is submoduled for use with sm::config
-include_directories("${PROJECT_SOURCE_DIR}/json/include")
-
 # Eigen is only used for a test/comparison program
 find_package(Eigen3 NO_MODULE)
 
@@ -128,7 +125,7 @@ endfunction()
 #
 # Module groups. see module_definitions.cmake
 #
-setup_module_variables_for_maths (${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/json)
+setup_module_variables_for_maths (${PROJECT_SOURCE_DIR})
 
 # All the modules are here
 add_subdirectory(sm)
