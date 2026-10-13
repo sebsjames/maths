@@ -444,17 +444,6 @@ export namespace sm
             this->compute_polar();
         }
 
-#if 0
-        void transform (const sm::mat<F, 4>& tf)
-        {
-            sm::vec<F, 3> posn = { this->x, this->y };
-            posn = (tf * posn).less_one_dim();
-            this->x = posn[0];
-            this->y = posn[1];
-            // Re-compute location in the Polar coordinate system
-            this->compute_polar();
-        }
-#endif
         /*!
          * Vector index. This is the index into those data vectors which hold the relevant data
          * pertaining to this hex. This is a scheme which allows me to keep the data in separate
