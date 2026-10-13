@@ -381,6 +381,12 @@ export namespace sm
             return s;
         }
 
+        void compute_polar()
+        {
+            this->r = std::sqrt (x * x + y * y);
+            this->phi = std::atan2 (y, x);
+        }
+
         /*!
          * Convert ri, gi and bi indices into x and y coordinates and also r and phi coordinates,
          * based on the hex-to-hex distance d.
@@ -397,8 +403,7 @@ export namespace sm
                 this->y = this->d * (this->gi + F{0.5} * (this->ri + this->bi));
             }
             // And location in the Polar coordinate system
-            this->r = std::sqrt (x * x + y * y);
-            this->phi = std::atan2 (y, x);
+            this->compute_polar();
         }
 
         /*!
@@ -431,14 +436,25 @@ export namespace sm
             return std::sqrt (dx * dx + dy * dy);
         }
 
+        void transform (const sm::mat<F, 2>& tf)
+        {
+            sm::vec<F, 2> posn = tf * sm::vec<F, 2>{ this->x, this->y };
+            this->x = posn[0];
+            this->y = posn[1];
+            this->compute_polar();
+        }
+
+#if 0
         void transform (const sm::mat<F, 4>& tf)
         {
             sm::vec<F, 3> posn = { this->x, this->y };
             posn = (tf * posn).less_one_dim();
             this->x = posn[0];
             this->y = posn[1];
+            // Re-compute location in the Polar coordinate system
+            this->compute_polar();
         }
-
+#endif
         /*!
          * Vector index. This is the index into those data vectors which hold the relevant data
          * pertaining to this hex. This is a scheme which allows me to keep the data in separate
