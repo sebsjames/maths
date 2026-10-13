@@ -366,6 +366,55 @@ export namespace sm
         std::int32_t has_n5 (const std::uint32_t hi) const { return this->d_n5[hi] == -1 ? false : true; }
 
         /*!
+         * What's the red direction 'step' vector? (same as dirn to neighbour(0), and size of the
+         * step to the next hex)
+         */
+        sm::vec<float, 3> dirn_r() const
+        {
+            if constexpr (A == sm::hexalign::point_up) {
+                return (tfm * sm::vec<>{ this->d, 0.0f, 0.0f }).less_one_dim();
+            } else {
+                return (tfm * sm::vec<>{ 1.5f * this->get_lr(), this->get_sr(), 0.0f }).less_one_dim();
+            }
+        }
+
+        /*!
+         * Green direction/step vector
+         */
+        sm::vec<float, 3> dirn_g() const
+        {
+            if constexpr (A == sm::hexalign::point_up) {
+                return (tfm * sm::vec<>{ this->get_sr(), 1.5f * this->get_lr(), 0.0f }).less_one_dim();
+            } else {
+                return (tfm * sm::vec<>{ 0.0f, this->d, 0.0f }).less_one_dim();
+            }
+        }
+
+        /*!
+         * Blue direction/step vector
+         */
+        sm::vec<float, 3> dirn_b() const
+        {
+            if constexpr (A == sm::hexalign::point_up) {
+                return (tfm * sm::vec<>{ -this->get_sr(), 1.5f * this->get_lr(), 0.0f }).less_one_dim();
+            } else {
+                return (tfm * sm::vec<>{ -1.5f * this->get_lr(), this->get_sr(), 0.0f  }).less_one_dim();
+            }
+        }
+
+        /*!
+         * These vectors tell you which direction each neighbour direction is. They are affected by
+         * the transform in hexgrid::tfm.
+         */
+        sm::vec<float, 3> dirn_n0() const { return this->dirn_r(); }
+        sm::vec<float, 3> dirn_n1() const { return this->dirn_g(); }
+        sm::vec<float, 3> dirn_n2() const { return this->dirn_b(); }
+        sm::vec<float, 3> dirn_n3() const { return -this->dirn_r(); }
+        sm::vec<float, 3> dirn_n4() const { return -this->dirn_g(); }
+        sm::vec<float, 3> dirn_n5() const { return -this->dirn_b(); }
+
+
+        /*!
          * Default constructor
          */
         hexgrid(): d(1.0f), x_span(1.0f), z(0.0f) {}

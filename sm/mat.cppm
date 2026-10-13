@@ -1147,6 +1147,7 @@ export namespace sm
             return pairs;
         }
 
+        // Compute the reflection across the origin-cutting-plane defined by the unit normal n.
         template <typename T> requires std::is_arithmetic_v<T> && (Nr == 3) && (Nc == 3)
         static constexpr mat<F, 3> reflection (const sm::vec<T, 3>& n) noexcept
         {
