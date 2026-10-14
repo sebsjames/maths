@@ -176,7 +176,7 @@ export namespace sm
          * If hexes have been transformed, then we have to store the transform matrix so that it can
          * be used by client code (such as mathplot's HexGridVisual)
          */
-        sm::mat<F, 4> tfm = sm::mat<F, 4>::identity();
+        sm::mat<F, 2> tfm = sm::mat<F, 2>::identity();
 
         /*!
          * The list of hexes that make up this hexgrid.
@@ -364,6 +364,55 @@ export namespace sm
         std::int32_t has_n4 (const std::uint32_t hi) const { return this->d_n4[hi] == -1 ? false : true; }
         std::int32_t n5 (const std::uint32_t hi) const { return this->d_n5[hi]; }
         std::int32_t has_n5 (const std::uint32_t hi) const { return this->d_n5[hi] == -1 ? false : true; }
+
+        /*!
+         * What's the red direction 'step' vector? (same as dirn to neighbour(0), and size of the
+         * step to the next hex)
+         */
+        sm::vec<F, 2> dirn_r() const
+        {
+            if constexpr (A == sm::hexalign::point_up) {
+                return tfm * sm::vec<F, 2>{ this->d, 0.0f };
+            } else {
+                return tfm * sm::vec<F, 2>{ 1.5f * this->get_lr(), this->get_sr() };
+            }
+        }
+
+        /*!
+         * Green direction/step vector
+         */
+        sm::vec<F, 2> dirn_g() const
+        {
+            if constexpr (A == sm::hexalign::point_up) {
+                return tfm * sm::vec<F, 2>{ this->get_sr(), 1.5f * this->get_lr() };
+            } else {
+                return tfm * sm::vec<F, 2>{ 0.0f, this->d };
+            }
+        }
+
+        /*!
+         * Blue direction/step vector
+         */
+        sm::vec<F, 2> dirn_b() const
+        {
+            if constexpr (A == sm::hexalign::point_up) {
+                return tfm * sm::vec<F, 2>{ -this->get_sr(), 1.5f * this->get_lr() };
+            } else {
+                return tfm * sm::vec<F, 2>{ -1.5f * this->get_lr(), this->get_sr()  };
+            }
+        }
+
+        /*!
+         * These vectors tell you which direction each neighbour direction is. They are affected by
+         * the transform in hexgrid::tfm.
+         */
+        sm::vec<F, 2> dirn_n0() const { return this->dirn_r(); }
+        sm::vec<F, 2> dirn_n1() const { return this->dirn_g(); }
+        sm::vec<F, 2> dirn_n2() const { return this->dirn_b(); }
+        sm::vec<F, 2> dirn_n3() const { return -this->dirn_r(); }
+        sm::vec<F, 2> dirn_n4() const { return -this->dirn_g(); }
+        sm::vec<F, 2> dirn_n5() const { return -this->dirn_b(); }
+
 
         /*!
          * Default constructor
@@ -1263,18 +1312,36 @@ export namespace sm
             return xmax;
         }
 
-        // Transform the positions of the hexes. After transforming, the domain vectors may have to
-        // be recomputed
-        void transform (const sm::mat<F, 4>& tf)
+    private:
+        // Transform the positions of the hexes according to this->tfm. After transforming, the
+        // domain vectors may have to be recomputed
+        void transform()
         {
-            this->tfm = tf;
             typename std::list<sm::hex<F, A>>::iterator h = this->hexen.begin();
             while (h != this->hexen.end()) {
                 h->transform (this->tfm);
                 ++h;
             }
-
             if (this->d_x.empty() == false) { this->populate_d_vectors(); }
+        }
+    public:
+        // Linear 2D transform
+        void transform (const sm::mat<F, 2>& tf)
+        {
+            this->tfm = tf;
+            this->transform();
+        }
+
+        void transform (const sm::mat<F, 3>& tf)
+        {
+            this->tfm = tf.linear();
+            this->transform();
+        }
+
+        void transform (const sm::mat<F, 4>& tf)
+        {
+            this->tfm = tf.linear().linear();
+            this->transform();
         }
 
         /*!

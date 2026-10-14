@@ -92,6 +92,22 @@ export namespace sm
             this->set_identity();
             this->rotate (q);
         }
+        //! Construct a 3x3 transform matrix from a 2x2 transform matrix
+        template<typename Fy = F> requires (Nr == 3) && (Nc == 3)
+        constexpr mat (const mat<Fy, 2>& other) noexcept
+        {
+            this->arr[0] = other[0];
+            this->arr[1] = other[1];
+            this->arr[2] = F{0};
+
+            this->arr[3] = other[2];
+            this->arr[4] = other[3];
+            this->arr[5] = F{0};
+
+            this->arr[6] = F{0};
+            this->arr[7] = F{0};
+            this->arr[8] = F{1};
+        }
         //! Initializer list construction
         constexpr mat (std::initializer_list<F> other) noexcept
         {
@@ -1147,6 +1163,7 @@ export namespace sm
             return pairs;
         }
 
+        // Compute the reflection across the origin-cutting-plane defined by the unit normal n.
         template <typename T> requires std::is_arithmetic_v<T> && (Nr == 3) && (Nc == 3)
         static constexpr mat<F, 3> reflection (const sm::vec<T, 3>& n) noexcept
         {
@@ -1188,7 +1205,7 @@ export namespace sm
          * seems so. See also https://www.songho.ca/opengl/gl_quaternion.html#overview
          * and https://danceswithcode.net/engineeringnotes/quaternions/quaternions.html)
          */
-        template <typename T> requires std::is_arithmetic_v<T> && (Nr == 4) && (Nc == 4)
+        template <typename T> requires std::is_arithmetic_v<T> && (Nr == Nc) && (Nr == 3 || Nr == 4)
         static constexpr mat<F, Nr> pure_rotation (const sm::quaternion<T>& q) noexcept
         {
             const F qx = static_cast<F>(q.x);
@@ -1209,23 +1226,34 @@ export namespace sm
             const F f2zz = f2z * qz;
 
             mat<F, Nr> m;
-            m[0]  = F{1} - (f2yy + f2zz);
-            m[1]  =         f2xy + f2zw;
-            m[2]  =         f2xz - f2yw;
-            m[3]  = F{0};
-            m[4]  =         f2xy - f2zw;
-            m[5]  = F{1} - (f2xx + f2zz);
-            m[6]  =         f2yz + f2xw;
-            m[7]  = F{0};
-            m[8]  =         f2xz + f2yw;
-            m[9]  =         f2yz - f2xw;
-            m[10] = F{1} - (f2xx + f2yy);
-            m[11] = F{0};
-            m[12] = F{0};
-            m[13] = F{0};
-            m[14] = F{0};
-            m[15] = F{1};
-
+            if constexpr (Nr == 4) {
+                m[0]  = F{1} - (f2yy + f2zz);
+                m[1]  =         f2xy + f2zw;
+                m[2]  =         f2xz - f2yw;
+                m[3]  = F{0};
+                m[4]  =         f2xy - f2zw;
+                m[5]  = F{1} - (f2xx + f2zz);
+                m[6]  =         f2yz + f2xw;
+                m[7]  = F{0};
+                m[8]  =         f2xz + f2yw;
+                m[9]  =         f2yz - f2xw;
+                m[10] = F{1} - (f2xx + f2yy);
+                m[11] = F{0};
+                m[12] = F{0};
+                m[13] = F{0};
+                m[14] = F{0};
+                m[15] = F{1};
+            } else if constexpr (Nr == 3) {
+                m[0] = F{1} - (f2yy + f2zz);
+                m[1] =         f2xy + f2zw;
+                m[2] =         f2xz - f2yw;
+                m[3] =         f2xy - f2zw;
+                m[4] = F{1} - (f2xx + f2zz);
+                m[5] =         f2yz + f2xw;
+                m[6] =         f2xz + f2yw;
+                m[7] =         f2yz - f2xw;
+                m[8] = F{1} - (f2xx + f2yy);
+            }
             return m;
         }
 
@@ -1278,7 +1306,7 @@ export namespace sm
         }
 
         //! Rotation by post-multiplication of a pure rotation matrix: this = this * R
-        template <typename T> requires std::is_arithmetic_v<T> && (Nr == 4) && (Nc == 4)
+        template <typename T> requires std::is_arithmetic_v<T> && (Nr == Nc) && (Nr == 3 || Nr == 4)
         constexpr void rotate (const sm::quaternion<T>& q) noexcept { *this *= this->pure_rotation (q); }
 
         /*!
@@ -1317,7 +1345,8 @@ export namespace sm
          * \tparam N Number of elements in the axis vector, compiler-detected from axis. Allows
          * passing of 3D and (3+1)D vectors
          */
-        template <bool renorm = true, typename T = F, std::size_t N = 3> requires std::is_arithmetic_v<T> && (N == 3 || N == 4) && (Nr == 4) && (Nc == 4)
+        template <bool renorm = true, typename T = F, std::size_t N = 3>
+        requires std::is_arithmetic_v<T> && (N == 3 || N == 4) && (Nr == Nc) && (Nr == 3 || Nr == 4)
         constexpr void rotate (const sm::vec<T, N>& axis, const T& theta) noexcept
         {
             sm::quaternion<T> q;
@@ -1335,22 +1364,31 @@ export namespace sm
             this->arr[3] = this->arr[0];
         }
 
-        //! Returns the linear part of the 4x4 matrix (the top left 3x3 matrix)
-        constexpr sm::mat<F, 3> linear() const noexcept
+        //! Returns the linear part of the 4x4 or 3x3 matrix (the top left 3x3 or 2x2 matrix)
+        constexpr sm::mat<F, Nr - 1> linear() const noexcept
         {
-            if constexpr (Nr != Nc || Nr != 4) { []<bool flag = false>() { static_assert(flag, "valid only for 4x4 matrices"); }(); }
+            if constexpr (Nr != Nc || (Nr != 4 && Nr != 3) ) { []<bool flag = false>() { static_assert(flag, "valid only for 3x3/4x4 matrices"); }(); }
 
-            sm::mat<F, 3> m;
+            sm::mat<F, Nr - 1> m;
 
-            m[0] = this->arr[0];
-            m[1] = this->arr[1];
-            m[2] = this->arr[2];
-            m[3] = this->arr[4];
-            m[4] = this->arr[5];
-            m[5] = this->arr[6];
-            m[6] = this->arr[8];
-            m[7] = this->arr[9];
-            m[8] = this->arr[10];
+            if constexpr (Nr == 4) {
+                m[0] = this->arr[0];
+                m[1] = this->arr[1];
+                m[2] = this->arr[2];
+                m[3] = this->arr[4];
+                m[4] = this->arr[5];
+                m[5] = this->arr[6];
+                m[6] = this->arr[8];
+                m[7] = this->arr[9];
+                m[8] = this->arr[10];
+            } else if constexpr (Nr == 3) {
+                m[0] = this->arr[0];
+                m[1] = this->arr[1];
+                m[2] = this->arr[3];
+                m[3] = this->arr[4];
+            } else {
+                []<bool flag = false>() { static_assert(flag, "valid only for 3x3/4x4 matrices"); }();
+            }
 
             return m;
         }
