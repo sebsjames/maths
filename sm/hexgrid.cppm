@@ -1312,37 +1312,24 @@ export namespace sm
             return xmax;
         }
 
-    private:
-        // Transform the positions of the hexes according to this->tfm. After transforming, the
-        // domain vectors may have to be recomputed
-        void transform()
+        // Linear 2D transform
+        void transform (const sm::mat<F, 2>& tf)
         {
+            this->tfm = tf * this->tfm;
+
+            // Transform the positions of the hexes according to the additional transform tf. After
+            // transforming, the domain vectors may have to be recomputed
             typename std::list<sm::hex<F, A>>::iterator h = this->hexen.begin();
             while (h != this->hexen.end()) {
-                h->transform (this->tfm);
+                h->transform (tf);
                 ++h;
             }
             if (this->d_x.empty() == false) { this->populate_d_vectors(); }
         }
-    public:
-        // Linear 2D transform
-        void transform (const sm::mat<F, 2>& tf)
-        {
-            this->tfm = tf;
-            this->transform();
-        }
-
-        void transform (const sm::mat<F, 3>& tf)
-        {
-            this->tfm = tf.linear();
-            this->transform();
-        }
-
-        void transform (const sm::mat<F, 4>& tf)
-        {
-            this->tfm = tf.linear().linear();
-            this->transform();
-        }
+        // Apply 2D transform from a 3x3 transform matrix
+        void transform (const sm::mat<F, 3>& tf) { this->transform (tf.linear()); }
+        // Apply 2D transform from a 4x4 transform matrix
+        void transform (const sm::mat<F, 4>& tf) { this->transform (tf.linear().linear()); }
 
         /*!
          * Run through all the hexes and compute the distance to the nearest boundary hex.
