@@ -1037,7 +1037,7 @@ export namespace sm
 
         // Gets the vertex vector for vertex index ni
         template<typename I> requires std::is_integral_v<I>
-        sm::vec<F, 2> get_vertex (I ni) const
+        sm::vec<F, 2> get_vertex (const I ni) const
         {
             sm::vec<F, 2> rtn = { F{0}, F{0} };
             if constexpr (A == hexalign::point_up) {
@@ -1140,42 +1140,43 @@ export namespace sm
          * which vertex to return the coordinate for. Use the constexpr fn definitions vertex_idx_n(), etc to
          * pass in a human-readable label for the vertex.
          */
-        sm::vec<F, 2> get_vertex_coord (std::uint32_t ni) const
+        template<typename I> requires std::is_integral_v<I>
+        sm::vec<F, 2> get_vertex_coord (const I ni) const
         {
             sm::vec<F, 2> rtn = { F{0}, F{0} };
             if constexpr (A == hexalign::point_up) {
                 switch (ni) {
-                case 0u:
+                case I{0}:
                 {
                     rtn[0] = this->x + this->get_sr();
                     rtn[1] = this->y + this->get_d_to_ne();
                     break;
                 }
-                case 1u:
+                case I{1}:
                 {
                     rtn[0] = this->x;
                     rtn[1] = this->y + this->get_lr();
                     break;
                 }
-                case 2u:
+                case I{2}:
                 {
                     rtn[0] = this->x - this->get_sr();
                     rtn[1] = this->y + this->get_d_to_ne();
                     break;
                 }
-                case 3u:
+                case I{3}:
                 {
                     rtn[0] = this->x - this->get_sr();
                     rtn[1] = this->y - this->get_d_to_ne();
                     break;
                 }
-                case 4u:
+                case I{4}:
                 {
                     rtn[0] = this->x;
                     rtn[1] = this->y - this->get_lr();
                     break;
                 }
-                case 5u:
+                case I{5}:
                 {
                     rtn[0] = this->x + this->get_sr();
                     rtn[1] = this->y - this->get_d_to_ne();
@@ -1190,37 +1191,37 @@ export namespace sm
                 }
             } else { // hexalign::flat_up
                 switch (ni) {
-                case 0u:
+                case I{0}:
                 {
                     rtn[0] = this->x + this->get_d_to_ne();
                     rtn[1] = this->y + this->get_sr();
                     break;
                 }
-                case 1u:
+                case I{1}:
                 {
                     rtn[0] = this->x - this->get_d_to_ne();
                     rtn[1] = this->y + this->get_sr();
                     break;
                 }
-                case 2u:
+                case I{2}:
                 {
                     rtn[0] = this->x - this->get_lr();
                     rtn[1] = this->y;
                     break;
                 }
-                case 3u:
+                case I{3}:
                 {
                     rtn[0] = this->x - this->get_d_to_ne();
                     rtn[1] = this->y - this->get_sr();
                     break;
                 }
-                case 4u:
+                case I{4}:
                 {
                     rtn[0] = this->x + this->get_d_to_ne();
                     rtn[1] = this->y - this->get_sr();
                     break;
                 }
-                case 5u:
+                case I{5}:
                 {
                     rtn[0] = this->x + this->get_lr();
                     rtn[1] = this->y;
@@ -1234,25 +1235,6 @@ export namespace sm
                 }
                 }
             }
-            return rtn;
-        }
-
-        /*!
-         * Get the Cartesian coordinates of the given vertex of the hex. This sub-calls the overload
-         * of get_vertex_coord which accepts a single, unsigned argument.
-         */
-        sm::vec<F, 2> get_vertex_coord (std::int32_t ni) const
-        {
-            sm::vec<F, 2> rtn = { F{-3}, F{-3} };
-            if (ni > 5) {
-                rtn[0] = F{-4};
-                return rtn;
-            }
-            if (ni < 0) {
-                rtn[1] = F{-4};
-                return rtn;
-            }
-            rtn = this->get_vertex_coord (ni);
             return rtn;
         }
 
