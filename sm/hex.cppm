@@ -1035,6 +1035,105 @@ export namespace sm
             return s;
         }
 
+        // Gets the vertex vector for vertex index ni
+        template<typename I> requires std::is_integral_v<I>
+        sm::vec<F, 2> get_vertex (I ni) const
+        {
+            sm::vec<F, 2> rtn = { F{0}, F{0} };
+            if constexpr (A == hexalign::point_up) {
+                switch (ni) {
+                case I{0}:
+                {
+                    rtn[0] = this->get_sr();
+                    rtn[1] = this->get_d_to_ne();
+                    break;
+                }
+                case I{1}:
+                {
+                    rtn[0] = F{0};
+                    rtn[1] = this->get_lr();
+                    break;
+                }
+                case I{2}:
+                {
+                    rtn[0] = -this->get_sr();
+                    rtn[1] = this->get_d_to_ne();
+                    break;
+                }
+                case I{3}:
+                {
+                    rtn[0] = -this->get_sr();
+                    rtn[1] = -this->get_d_to_ne();
+                    break;
+                }
+                case I{4}:
+                {
+                    rtn[0] = F{0};
+                    rtn[1] = -this->get_lr();
+                    break;
+                }
+                case I{5}:
+                {
+                    rtn[0] = this->get_sr();
+                    rtn[1] = -this->get_d_to_ne();
+                    break;
+                }
+                default:
+                {
+                    rtn[0] = F{-1};
+                    rtn[1] = F{-1};
+                    break;
+                }
+                }
+            } else { // hexalign::flat_up
+                switch (ni) {
+                case I{0}:
+                {
+                    rtn[0] = this->get_d_to_ne();
+                    rtn[1] = this->get_sr();
+                    break;
+                }
+                case I{1}:
+                {
+                    rtn[0] = -this->get_d_to_ne();
+                    rtn[1] = this->get_sr();
+                    break;
+                }
+                case I{2}:
+                {
+                    rtn[0] = -this->get_lr();
+                    rtn[1] = F{0};
+                    break;
+                }
+                case I{3}:
+                {
+                    rtn[0] = -this->get_d_to_ne();
+                    rtn[1] = -this->get_sr();
+                    break;
+                }
+                case I{4}:
+                {
+                    rtn[0] = this->get_d_to_ne();
+                    rtn[1] = -this->get_sr();
+                    break;
+                }
+                case I{5}:
+                {
+                    rtn[0] = this->get_lr();
+                    rtn[1] = F{0};
+                    break;
+                }
+                default:
+                {
+                    rtn[0] = F{-1};
+                    rtn[1] = F{-1};
+                    break;
+                }
+                }
+            }
+            return rtn;
+        }
+
         /*!
          * Get the Cartesian coordinates of the given vertex of the hex. The hex has a north vertex,
          * a north east vertex and vertices for SE, S, SW and NW. The single argument @ni specifies
