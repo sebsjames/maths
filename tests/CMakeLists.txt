@@ -411,11 +411,14 @@ add_test(hexfft1 hexfft1)
 add_executable(hex_profile_list_hex_min_erase hex_profile_list_hex_min_erase.cpp)
 add_test(hex_profile_list_hex_min_erase hex_profile_list_hex_min_erase)
 
-# Compile with stdc++ lib debug mode (but don't run as a test, as it's
-# very slow) This is equivalent to the default debug compilation that
-# Visual Studio uses (/MDd or /MTd).
-add_executable(hex_profile_list_hex_min_erase_dbg hex_profile_list_hex_min_erase.cpp)
-target_compile_definitions(hex_profile_list_hex_min_erase_dbg PUBLIC _GLIBCXX_DEBUG)
+if(0)
+  # You can compile with the stdc++ lib debug mode by adding
+  # _GLIBCXX_DEBUG flag.  This is equivalent to the default debug
+  # compilation that Visual Studio uses (/MDd or /MTd). It will run
+  # very slowly.
+  add_executable(hex_profile_list_hex_min_erase_dbg hex_profile_list_hex_min_erase.cpp)
+  target_compile_definitions(hex_profile_list_hex_min_erase_dbg PUBLIC _GLIBCXX_DEBUG)
+endif(0)
 
 add_executable(winder1 winder1.cpp)
 target_link_libraries(winder1 PRIVATE sm)
