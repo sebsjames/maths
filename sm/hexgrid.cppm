@@ -208,11 +208,13 @@ export namespace sm
          */
         sm::vec<F, 2> original_boundary_centroid = {0.0f, 0.0f};
 
-        //! Add entries to all the d_ vectors for the hex pointed to by hi.
+        //! Add entries to all the d_ vectors for the hex pointed to by hi. The hexgrid transform is
+        //! applied to the position before d_x and d_y are populated.
         void d_push_back (std::list<sm::hex<F, A>>::iterator hi)
         {
-            d_x.push_back (hi->x);
-            d_y.push_back (hi->y);
+            sm::vec<F, 2> p = this->tfm * sm::vec<F, 2>{hi->x, hi->y};
+            d_x.push_back (p[0]);
+            d_y.push_back (p[1]);
             d_ri.push_back (hi->ri);
             d_gi.push_back (hi->gi);
             d_bi.push_back (hi->bi);
@@ -350,6 +352,18 @@ export namespace sm
             } else {
                 return this->d_n3[hi] == -1 ? false : true;
             }
+        }
+
+        // Does hex at index hi have a neighbour in direction ni?
+        std::int32_t has_neighbour (const std::uint32_t hi, const std::uint32_t ni) const
+        {
+            if (ni == 0) { return has_n0 (hi); }
+            else if (ni == 1) { return has_n1 (hi); }
+            else if (ni == 2) { return has_n2 (hi); }
+            else if (ni == 3) { return has_n3 (hi); }
+            else if (ni == 4) { return has_n4 (hi); }
+            else if (ni == 5) { return has_n5 (hi); }
+            return false;
         }
 
         std::int32_t n0 (const std::uint32_t hi) const { return this->d_n0[hi]; }
@@ -1312,18 +1326,10 @@ export namespace sm
             return xmax;
         }
 
-        // Linear 2D transform
+        // Linear 2D transform. Transforms are applied to the d_x/d_y vectors, not to the hex positions.
         void transform (const sm::mat<F, 2>& tf)
         {
             this->tfm = tf * this->tfm;
-
-            // Transform the positions of the hexes according to the additional transform tf. After
-            // transforming, the domain vectors may have to be recomputed
-            typename std::list<sm::hex<F, A>>::iterator h = this->hexen.begin();
-            while (h != this->hexen.end()) {
-                h->transform (tf);
-                ++h;
-            }
             if (this->d_x.empty() == false) { this->populate_d_vectors(); }
         }
         // Apply 2D transform from a 3x3 transform matrix
@@ -2265,16 +2271,21 @@ export namespace sm
             bool neighbour_nearer = true;
 
             typename std::list<sm::hex<F, A>>::iterator h = start_from;
-            F dmin = h->distance_from (point);
+            // Note: transform hex x/y before comparing with point.
+            sm::vec<F, 2> p = this->tfm * sm::vec<F, 2>{ h->x, h->y };
+            F dmin = (p - point.coord).length();
             F dcur = 0.0f;
 
             while (neighbour_nearer == true) {
                 neighbour_nearer = false;
                 for (std::uint32_t i = 0; i < 6; ++i) {
-                    if (h->has_neighbour(i) && (dcur = h->get_neighbour(i)->distance_from (point)) < dmin) {
-                        dmin = dcur;
-                        h = h->get_neighbour(i);
-                        neighbour_nearer = true;
+                    if (h->has_neighbour(i)) {
+                        p = this->tfm * sm::vec<F, 2>{ h->get_neighbour(i)->x,  h->get_neighbour(i)->y };
+                        if ((dcur = (p - point.coord).length()) < dmin) {
+                            dmin = dcur;
+                            h = h->get_neighbour(i);
+                            neighbour_nearer = true;
+                        }
                     }
                 }
             }

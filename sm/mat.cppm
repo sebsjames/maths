@@ -1164,6 +1164,21 @@ export namespace sm
         }
 
         // Compute the reflection across the origin-cutting-plane defined by the unit normal n.
+        template <typename T> requires std::is_arithmetic_v<T> && (Nr == 2) && (Nc == 2)
+        static constexpr mat<F, 2> reflection (const sm::vec<T, 2>& n) noexcept
+        {
+            sm::mat<F, 2> r;
+            // Reflection matrix = I - 2 * N * N^T
+            r[0] = F{1} - n[0] * n[0] * F{2};
+            r[1] =        n[1] * n[0] * F{2};
+
+            r[2] =        n[0] * n[1] * F{2};
+            r[3] = F{1} - n[1] * n[1] * F{2};
+
+            return r;
+        }
+
+        // Compute the reflection across the origin-cutting-plane defined by the unit normal n.
         template <typename T> requires std::is_arithmetic_v<T> && (Nr == 3) && (Nc == 3)
         static constexpr mat<F, 3> reflection (const sm::vec<T, 3>& n) noexcept
         {
@@ -1323,7 +1338,8 @@ export namespace sm
          * \tparam N Number of elements in the axis vector, compiler-detected from axis. Allows
          * passing of 3D and (3+1)D vectors
          */
-        template <bool renorm = true, typename T = F, std::size_t N = 3> requires std::is_arithmetic_v<T> && (N == 3 || N == 4) && (Nr == 4) && (Nc == 4)
+        template <bool renorm = true, typename T = F, std::size_t N = 3>
+        requires std::is_arithmetic_v<T> && (N == 3 || N == 4) && (Nr == Nc) && (Nr == 3 || Nr == 4)
         constexpr void rotate (const std::array<T, N>& axis, const T& theta) noexcept
         {
             sm::quaternion<T> q;

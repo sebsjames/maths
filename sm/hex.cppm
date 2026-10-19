@@ -436,14 +436,6 @@ export namespace sm
             return std::sqrt (dx * dx + dy * dy);
         }
 
-        void transform (const sm::mat<F, 2>& tf)
-        {
-            sm::vec<F, 2> posn = tf * sm::vec<F, 2>{ this->x, this->y };
-            this->x = posn[0];
-            this->y = posn[1];
-            this->compute_polar();
-        }
-
         /*!
          * Vector index. This is the index into those data vectors which hold the relevant data
          * pertaining to this hex. This is a scheme which allows me to keep the data in separate
@@ -1035,51 +1027,47 @@ export namespace sm
             return s;
         }
 
-        /*!
-         * Get the Cartesian coordinates of the given vertex of the hex. The hex has a north vertex,
-         * a north east vertex and vertices for SE, S, SW and NW. The single argument @ni specifies
-         * which vertex to return the coordinate for. Use the constexpr fn definitions vertex_idx_n(), etc to
-         * pass in a human-readable label for the vertex.
-         */
-        sm::vec<F, 2> get_vertex_coord (std::uint32_t ni) const
+        // Gets the vertex vector for vertex index ni
+        template<typename I> requires std::is_integral_v<I>
+        sm::vec<F, 2> get_vertex (const I ni) const
         {
             sm::vec<F, 2> rtn = { F{0}, F{0} };
             if constexpr (A == hexalign::point_up) {
                 switch (ni) {
-                case 0u:
+                case I{0}:
                 {
-                    rtn[0] = this->x + this->get_sr();
-                    rtn[1] = this->y + this->get_d_to_ne();
+                    rtn[0] = this->get_sr();
+                    rtn[1] = this->get_d_to_ne();
                     break;
                 }
-                case 1u:
+                case I{1}:
                 {
-                    rtn[0] = this->x;
-                    rtn[1] = this->y + this->get_lr();
+                    rtn[0] = F{0};
+                    rtn[1] = this->get_lr();
                     break;
                 }
-                case 2u:
+                case I{2}:
                 {
-                    rtn[0] = this->x - this->get_sr();
-                    rtn[1] = this->y + this->get_d_to_ne();
+                    rtn[0] = -this->get_sr();
+                    rtn[1] = this->get_d_to_ne();
                     break;
                 }
-                case 3u:
+                case I{3}:
                 {
-                    rtn[0] = this->x - this->get_sr();
-                    rtn[1] = this->y - this->get_d_to_ne();
+                    rtn[0] = -this->get_sr();
+                    rtn[1] = -this->get_d_to_ne();
                     break;
                 }
-                case 4u:
+                case I{4}:
                 {
-                    rtn[0] = this->x;
-                    rtn[1] = this->y - this->get_lr();
+                    rtn[0] = F{0};
+                    rtn[1] = -this->get_lr();
                     break;
                 }
-                case 5u:
+                case I{5}:
                 {
-                    rtn[0] = this->x + this->get_sr();
-                    rtn[1] = this->y - this->get_d_to_ne();
+                    rtn[0] = this->get_sr();
+                    rtn[1] = -this->get_d_to_ne();
                     break;
                 }
                 default:
@@ -1091,40 +1079,40 @@ export namespace sm
                 }
             } else { // hexalign::flat_up
                 switch (ni) {
-                case 0u:
+                case I{0}:
                 {
-                    rtn[0] = this->x + this->get_d_to_ne();
-                    rtn[1] = this->y + this->get_sr();
+                    rtn[0] = this->get_d_to_ne();
+                    rtn[1] = this->get_sr();
                     break;
                 }
-                case 1u:
+                case I{1}:
                 {
-                    rtn[0] = this->x - this->get_d_to_ne();
-                    rtn[1] = this->y + this->get_sr();
+                    rtn[0] = -this->get_d_to_ne();
+                    rtn[1] = this->get_sr();
                     break;
                 }
-                case 2u:
+                case I{2}:
                 {
-                    rtn[0] = this->x - this->get_lr();
-                    rtn[1] = this->y;
+                    rtn[0] = -this->get_lr();
+                    rtn[1] = F{0};
                     break;
                 }
-                case 3u:
+                case I{3}:
                 {
-                    rtn[0] = this->x - this->get_d_to_ne();
-                    rtn[1] = this->y - this->get_sr();
+                    rtn[0] = -this->get_d_to_ne();
+                    rtn[1] = -this->get_sr();
                     break;
                 }
-                case 4u:
+                case I{4}:
                 {
-                    rtn[0] = this->x + this->get_d_to_ne();
-                    rtn[1] = this->y - this->get_sr();
+                    rtn[0] = this->get_d_to_ne();
+                    rtn[1] = -this->get_sr();
                     break;
                 }
-                case 5u:
+                case I{5}:
                 {
-                    rtn[0] = this->x + this->get_lr();
-                    rtn[1] = this->y;
+                    rtn[0] = this->get_lr();
+                    rtn[1] = F{0};
                     break;
                 }
                 default:
@@ -1139,21 +1127,106 @@ export namespace sm
         }
 
         /*!
-         * Get the Cartesian coordinates of the given vertex of the hex. This sub-calls the overload
-         * of get_vertex_coord which accepts a single, unsigned argument.
+         * Get the Cartesian coordinates of the given vertex of the hex. The hex has a north vertex,
+         * a north east vertex and vertices for SE, S, SW and NW. The single argument @ni specifies
+         * which vertex to return the coordinate for. Use the constexpr fn definitions vertex_idx_n(), etc to
+         * pass in a human-readable label for the vertex.
          */
-        sm::vec<F, 2> get_vertex_coord (std::int32_t ni) const
+        template<typename I> requires std::is_integral_v<I>
+        sm::vec<F, 2> get_vertex_coord (const I ni) const
         {
-            sm::vec<F, 2> rtn = { F{-3}, F{-3} };
-            if (ni > 5) {
-                rtn[0] = F{-4};
-                return rtn;
+            sm::vec<F, 2> rtn = { F{0}, F{0} };
+            if constexpr (A == hexalign::point_up) {
+                switch (ni) {
+                case I{0}:
+                {
+                    rtn[0] = this->x + this->get_sr();
+                    rtn[1] = this->y + this->get_d_to_ne();
+                    break;
+                }
+                case I{1}:
+                {
+                    rtn[0] = this->x;
+                    rtn[1] = this->y + this->get_lr();
+                    break;
+                }
+                case I{2}:
+                {
+                    rtn[0] = this->x - this->get_sr();
+                    rtn[1] = this->y + this->get_d_to_ne();
+                    break;
+                }
+                case I{3}:
+                {
+                    rtn[0] = this->x - this->get_sr();
+                    rtn[1] = this->y - this->get_d_to_ne();
+                    break;
+                }
+                case I{4}:
+                {
+                    rtn[0] = this->x;
+                    rtn[1] = this->y - this->get_lr();
+                    break;
+                }
+                case I{5}:
+                {
+                    rtn[0] = this->x + this->get_sr();
+                    rtn[1] = this->y - this->get_d_to_ne();
+                    break;
+                }
+                default:
+                {
+                    rtn[0] = F{-1};
+                    rtn[1] = F{-1};
+                    break;
+                }
+                }
+            } else { // hexalign::flat_up
+                switch (ni) {
+                case I{0}:
+                {
+                    rtn[0] = this->x + this->get_d_to_ne();
+                    rtn[1] = this->y + this->get_sr();
+                    break;
+                }
+                case I{1}:
+                {
+                    rtn[0] = this->x - this->get_d_to_ne();
+                    rtn[1] = this->y + this->get_sr();
+                    break;
+                }
+                case I{2}:
+                {
+                    rtn[0] = this->x - this->get_lr();
+                    rtn[1] = this->y;
+                    break;
+                }
+                case I{3}:
+                {
+                    rtn[0] = this->x - this->get_d_to_ne();
+                    rtn[1] = this->y - this->get_sr();
+                    break;
+                }
+                case I{4}:
+                {
+                    rtn[0] = this->x + this->get_d_to_ne();
+                    rtn[1] = this->y - this->get_sr();
+                    break;
+                }
+                case I{5}:
+                {
+                    rtn[0] = this->x + this->get_lr();
+                    rtn[1] = this->y;
+                    break;
+                }
+                default:
+                {
+                    rtn[0] = F{-1};
+                    rtn[1] = F{-1};
+                    break;
+                }
+                }
             }
-            if (ni < 0) {
-                rtn[1] = F{-4};
-                return rtn;
-            }
-            rtn = this->get_vertex_coord (ni);
             return rtn;
         }
 
