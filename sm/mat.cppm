@@ -1338,7 +1338,8 @@ export namespace sm
          * \tparam N Number of elements in the axis vector, compiler-detected from axis. Allows
          * passing of 3D and (3+1)D vectors
          */
-        template <bool renorm = true, typename T = F, std::size_t N = 3> requires std::is_arithmetic_v<T> && (N == 3 || N == 4) && (Nr == 4) && (Nc == 4)
+        template <bool renorm = true, typename T = F, std::size_t N = 3>
+        requires std::is_arithmetic_v<T> && (N == 3 || N == 4) && (Nr == Nc) && (Nr == 3 || Nr == 4)
         constexpr void rotate (const std::array<T, N>& axis, const T& theta) noexcept
         {
             sm::quaternion<T> q;
