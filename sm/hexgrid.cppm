@@ -2271,16 +2271,21 @@ export namespace sm
             bool neighbour_nearer = true;
 
             typename std::list<sm::hex<F, A>>::iterator h = start_from;
-            F dmin = h->distance_from (point);
+            // Note: transform hex x/y before comparing with point.
+            sm::vec<F, 2> p = this->tfm * sm::vec<F, 2>{ h->x, h->y };
+            F dmin = (p - point.coord).length();
             F dcur = 0.0f;
 
             while (neighbour_nearer == true) {
                 neighbour_nearer = false;
                 for (std::uint32_t i = 0; i < 6; ++i) {
-                    if (h->has_neighbour(i) && (dcur = h->get_neighbour(i)->distance_from (point)) < dmin) {
-                        dmin = dcur;
-                        h = h->get_neighbour(i);
-                        neighbour_nearer = true;
+                    if (h->has_neighbour(i)) {
+                        p = this->tfm * sm::vec<F, 2>{ h->get_neighbour(i)->x,  h->get_neighbour(i)->y };
+                        if ((dcur = (p - point.coord).length()) < dmin) {
+                            dmin = dcur;
+                            h = h->get_neighbour(i);
+                            neighbour_nearer = true;
+                        }
                     }
                 }
             }
