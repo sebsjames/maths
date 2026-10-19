@@ -114,6 +114,45 @@ auto at_axial = hg.find_hex_at ({ 2, -1, 0 }); // {ri, gi, bi}
 ```
 `output()` renders every hex, grouped by ring, as a human-readable string, and `extent()` prints the Cartesian corners of the *original* hexagon (this becomes meaningless once the grid has been clipped down, at which point `extent()` says so instead).
 
+## The hexgrid transform
+
+A hexgrid holds a two-dimensional transform matrix `hexgrid<>::tfm` which is initialized as the identity matrix.
+This transform is applied to the positions of the hexes in the hexgrid and allows you to mirror or rotate a hexgrid without affecting its neighbour relations.
+
+Note that the transform is applied to the 'rgb' directions as well as to the hex (centre) positions.
+In a `point_up` grid, the red direction is `sm::vec<>::ux()` = (1,0,0).
+After a 2D rotation of the hexgrid through 45 degrees (about z), the red direction will now be (.707, .707, 0).
+All the 'neighbour directions' are also transformed.
+
+### Applying a transform
+
+```c++
+// Example hexgrid
+sm::hexgrid<float, sm::hexalign::point_up> hg(0.01f, 0.205f, 0.0f);
+hg.set_circular_boundary (0.1f);
+
+// Create a 2x2 rotation matrix
+sm::mat<float, 2> rotn;
+rotn.rotate (sm::mathconst<float>::pi_over_4);
+
+// Applying the transform applies rotn to the existing hexgrid::tfm matrix and re-generates the domain vectors, d_x, d_y, etc.
+hg.transform (rotn);
+```
+
+
+Note that (for convenience) you can pass a 3D transform matrix (either as a 3x3 or 4x4 matrix) to hexgrid::transform.
+The 3D matrix is reduced to a 2D transform (possibly losing information) and applied to the hexgrid.
+
+```c++
+// Create a 3D rotation matrix
+sm::mat<float, 3> rotn;
+auto axis = sm::vec<float, 3>::uz();
+rotn.rotate (axis, sm::mathconst<float>::pi_over_4);
+
+// This will sub-call hg.transform (rotn.linear()):
+hg.transform (rotn);
+```
+
 ## Neighbours in the six hex directions
 
 Each hex has up to six neighbours, referred to with iterators `hex<>::n0` to `hex<>::n5`.
@@ -122,7 +161,7 @@ In a `point_up` lattice, these are East, North-East, North-West, West, South-Wes
 
 In a `flat_up` lattice they are North-East, North, North-West, South-West, South and South-East neigbours.
 
-Nieghbour existence can be tested with `has_n0` to `has_n5` methods, and accessed via hex iterators or `hexgrid::n0()` to `hexgrid::n5()` methods.
+Neighbour existence can be tested with `has_n0` to `has_n5` methods, and accessed via hex iterators or `hexgrid::n0()` to `hexgrid::n5()` methods.
 
 ```c++
 auto hi = hg.hexen.begin();
