@@ -208,11 +208,13 @@ export namespace sm
          */
         sm::vec<F, 2> original_boundary_centroid = {0.0f, 0.0f};
 
-        //! Add entries to all the d_ vectors for the hex pointed to by hi.
+        //! Add entries to all the d_ vectors for the hex pointed to by hi. The hexgrid transform is
+        //! applied to the position before d_x and d_y are populated.
         void d_push_back (std::list<sm::hex<F, A>>::iterator hi)
         {
-            d_x.push_back (hi->x);
-            d_y.push_back (hi->y);
+            sm::vec<F, 2> p = this->tfm * sm::vec<F, 2>{hi->x, hi->y};
+            d_x.push_back (p[0]);
+            d_y.push_back (p[1]);
             d_ri.push_back (hi->ri);
             d_gi.push_back (hi->gi);
             d_bi.push_back (hi->bi);
@@ -1324,18 +1326,10 @@ export namespace sm
             return xmax;
         }
 
-        // Linear 2D transform
+        // Linear 2D transform. Transforms are applied to the d_x/d_y vectors, not to the hex positions.
         void transform (const sm::mat<F, 2>& tf)
         {
             this->tfm = tf * this->tfm;
-
-            // Transform the positions of the hexes according to the additional transform tf. After
-            // transforming, the domain vectors may have to be recomputed
-            typename std::list<sm::hex<F, A>>::iterator h = this->hexen.begin();
-            while (h != this->hexen.end()) {
-                h->transform (tf);
-                ++h;
-            }
             if (this->d_x.empty() == false) { this->populate_d_vectors(); }
         }
         // Apply 2D transform from a 3x3 transform matrix

@@ -436,14 +436,6 @@ export namespace sm
             return std::sqrt (dx * dx + dy * dy);
         }
 
-        void transform (const sm::mat<F, 2>& tf)
-        {
-            sm::vec<F, 2> posn = tf * sm::vec<F, 2>{ this->x, this->y };
-            this->x = posn[0];
-            this->y = posn[1];
-            this->compute_polar();
-        }
-
         /*!
          * Vector index. This is the index into those data vectors which hold the relevant data
          * pertaining to this hex. This is a scheme which allows me to keep the data in separate
