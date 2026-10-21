@@ -14,6 +14,8 @@ module;
 #include <stdexcept>
 #include <cmath>
 
+#include <iostream> // debug
+
 export module sm.algo.hexgrid;
 
 import sm.hex;
@@ -314,5 +316,70 @@ export namespace sm::algo::hexgrid
             F _r = std::sqrt (hg.d_x[i] * hg.d_x[i] +  hg.d_y[i] * hg.d_y[i]);
             data[i] = _r < r ? mvalue : data[i];
         }
+    }
+
+    // Return the one-step coarsened hexgrid which has fewer hexes in it
+    template<typename F, sm::hexalign A> requires std::is_floating_point_v<F> && (A == sm::hexalign::point_up)
+    sm::hexgrid<F, A> reduced_hexgrid (const sm::hexgrid<F, A>& hg)
+    {
+        // Initialize a hexgrid with the right parameters which will be large enough
+        sm::hexgrid<F, A> hgr (hg.d * F{2}, hg.x_span, hg.z);
+        // Copy in any transform
+        hgr.transform (hg.tfm);
+
+        // For each boundary hex in hg, set the corresponding boundary hex(es) on hgr
+        typename std::list<sm::hex<F, A>>::iterator bhr = hgr.hexen.begin();
+        for (auto& bh : hg.bhexen) {
+            // Each boundary hex has ri,gi and we expect bi to be 0.
+            if (bh->bi != 0) {
+                throw std::runtime_error ("algo::hexgrid::reduced_hexgrid: Expecting all ri,gi,bi values to have bi=0");
+            }
+            std::cout << "bh: ri/gi = " << bh->ri << ", " << bh->gi << std::endl;
+            sm::vec<std::int32_t, 3> rgb = { bh->ri / 2, bh->gi / 2, 0 };
+            sm::vec<std::int32_t, 3> rgb_rem = { bh->ri % 2, bh->gi % 2, 0 };
+
+            if (rgb_rem[0] == 0 && rgb_rem[1] == 0) {
+                // small hex is entirely within big hex
+                std::cout << "Setting boundary hex on rgb: " << rgb << std::endl;
+                bhr = hgr.find_hex_at (rgb);
+                if (bhr == hgr.hexen.end()) { throw std::runtime_error ("algo::hexgrid::reduced_hexgrid: find_hex_at() did not find."); }
+                bhr->set_boundary_hex();
+
+            } else if ((rgb_rem[0] == 1 && rgb_rem[1] == 1) || (rgb_rem[0] == -1 && rgb_rem[1] == -1)) {
+                if (rgb_rem[0] == 1) {
+                    std::cout << "BOTH +1\n";
+                } else {
+                    std::cout << "BOTH -1\n";
+                }
+                rgb[0] += rgb_rem[0];
+                std::cout << "Setting one boundary hex on rgb: " << rgb << std::endl;
+                bhr = hgr.find_hex_at (rgb); // returns hgr.hexen.end() if nothing found
+                if (bhr == hgr.hexen.end()) { throw std::runtime_error ("algo::hexgrid::reduced_hexgrid: find_hex_at() did not find."); }
+                bhr->set_boundary_hex();
+                rgb[0] -= rgb_rem[0];
+                rgb[1] += rgb_rem[1];
+                std::cout << "Setting other boundary hex on rgb: " << rgb << std::endl;
+                bhr = hgr.find_hex_at (rgb);
+                if (bhr == hgr.hexen.end()) { throw std::runtime_error ("algo::hexgrid::reduced_hexgrid: find_hex_at() did not find."); }
+                bhr->set_boundary_hex();
+
+            } else {
+                std::cout << "Setting boundary hex on rgb: " << rgb << std::endl;
+                bhr = hgr.find_hex_at (rgb);
+                if (bhr == hgr.hexen.end()) { throw std::runtime_error ("algo::hexgrid::reduced_hexgrid: find_hex_at() did not find."); }
+                bhr->set_boundary_hex();
+                std::cout << "Setting boundary hex on rgb + rgb_rem: " << rgb << " + " << rgb_rem << " = " << (rgb + rgb_rem) << std::endl;
+                rgb += rgb_rem;
+                bhr = hgr.find_hex_at (rgb); // Can maybe use neighbour relationships to save this additional compute
+                if (bhr == hgr.hexen.end()) { throw std::runtime_error ("algo::hexgrid::reduced_hexgrid: find_hex_at() did not find."); }
+                bhr->set_boundary_hex();
+            }
+        }
+
+        // discard outside boundary for hgr to complete the transfer of the boundary
+        std::cout << "Checking contiguous...\n";
+        hgr.check_contiguous_and_discard (bhr);
+
+        return hgr;
     }
 }
