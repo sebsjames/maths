@@ -13,6 +13,8 @@ module;
 #include <list>
 #include <stdexcept>
 #include <cmath>
+#include <map>
+#include <limits>
 
 export module sm.algo.hexgrid;
 
@@ -316,6 +318,66 @@ export namespace sm::algo::hexgrid
         }
     }
 
+    // Mapping indices for hexes on a finer hexgrid to those on the coarser companion hexgrid
+    template<typename F, sm::hexalign A> requires std::is_floating_point_v<F>
+    std::map<std::uint32_t, sm::vec<std::uint32_t, 2>> reduced_hexgrid_mapping (const sm::hexgrid<F, A>& hg, const sm::hexgrid<F, A>& hgr)
+    {
+        // Each hex in hg maps to 1 or two hexes in hgr
+        std::map<std::uint32_t, sm::vec<std::uint32_t, 2>> mapping;
+
+        // For each hex in hg add to the map
+        typename std::list<sm::hex<F, A>>::const_iterator hexred = hgr.hexen.begin();
+
+        // Check hexred hasn't dropped off the end of hgr.hexen
+        auto check_hexred = [hexred, hgr]() {
+            if (hexred == hgr.hexen.end()) {
+                throw std::runtime_error ("algo::hexgrid::reduced_hexgrid: find_hex_at_const() did not find a hex.");
+            }
+        };
+
+        for (auto hexfine : hg.hexen) {
+            // Each hex has ri,gi and we expect bi to be 0.
+            if (hexfine.bi != 0) {
+                throw std::runtime_error ("algo::hexgrid::reduced_hexgrid: Expecting all ri,gi,bi values to have bi=0");
+            }
+
+            // Copy red and green indices of the fine (small) hex and their evenness into two int vectors
+            sm::vec<std::int32_t, 3> rgb = { hexfine.ri / 2, hexfine.gi / 2, 0 };
+            sm::vec<std::int32_t, 3> rgb_rem = { hexfine.ri % 2, hexfine.gi % 2, 0 };
+
+            if (rgb_rem[0] == 0 && rgb_rem[1] == 0) {
+                // small hex is entirely within big hex
+                hexred = hgr.find_hex_at_const (rgb);
+                check_hexred();
+                mapping[hexfine.vi] = { hexred->vi, std::numeric_limits<std::uint32_t>::max() };
+
+            } else if ((rgb_rem[0] == 1 && rgb_rem[1] == 1) || (rgb_rem[0] == -1 && rgb_rem[1] == -1)) {
+                // Small hex is a non-integral number of big hexes in both red and green directions
+                rgb[0] += rgb_rem[0];
+                hexred = hgr.find_hex_at_const (rgb);
+                check_hexred();
+                std::uint32_t idx1 = hexred->vi;
+                rgb[0] -= rgb_rem[0];
+                rgb[1] += rgb_rem[1];
+                hexred = hgr.find_hex_at_const (rgb);
+                check_hexred();
+                mapping[hexfine.vi] = { idx1, hexred->vi };
+
+            } else {
+                // Small hex is a non-integral number of big hexes in either red or green direction
+                hexred = hgr.find_hex_at_const (rgb);
+                check_hexred();
+                std::uint32_t idx1 = hexred->vi;
+                rgb += rgb_rem;
+                hexred = hgr.find_hex_at_const (rgb);
+                check_hexred();
+                mapping[hexfine.vi] = { idx1, hexred->vi };
+            }
+        }
+
+        return mapping;
+    }
+
     // Return the one-step coarsened hexgrid which has fewer hexes in it
     template<typename F, sm::hexalign A> requires std::is_floating_point_v<F>
     sm::hexgrid<F, A> reduced_hexgrid (const sm::hexgrid<F, A>& hg)
@@ -335,7 +397,7 @@ export namespace sm::algo::hexgrid
             }
         };
 
-        for (auto& bh : hg.bhexen) {
+        for (auto bh : hg.bhexen) {
             // Each boundary hex has ri,gi and we expect bi to be 0.
             if (bh->bi != 0) {
                 throw std::runtime_error ("algo::hexgrid::reduced_hexgrid: Expecting all ri,gi,bi values to have bi=0");
