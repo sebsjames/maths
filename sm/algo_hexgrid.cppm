@@ -15,6 +15,7 @@ module;
 #include <cmath>
 #include <map>
 #include <limits>
+#include <tuple>
 
 export module sm.algo.hexgrid;
 
@@ -318,12 +319,51 @@ export namespace sm::algo::hexgrid
         }
     }
 
-    // Mapping indices for hexes on a finer hexgrid to those on the coarser companion hexgrid
-    template<typename F, sm::hexalign A> requires std::is_floating_point_v<F>
-    std::map<std::uint32_t, sm::vec<std::uint32_t, 2>> reduced_hexgrid_mapping (const sm::hexgrid<F, A>& hg, const sm::hexgrid<F, A>& hgr)
+    /*
+     * Using the mapping computed with reduced_hexgrid_mapping, map data from a fine grid (data_fine) to a coarse grid (data_mapped)
+     */
+    template<typename F>
+    void map_to_reduced_hexgrid (std::tuple<std::map<std::uint32_t, sm::vec<std::uint32_t, 2>>, sm::vvec<std::uint32_t>>& mapping,
+                                 const sm::vvec<F>& data_fine, sm::vvec<F>& data_mapped)
     {
+        auto[themap, contributions] = mapping;
+
+        if (data_mapped.size() == themap.size()) {
+            data_mapped.zero();
+        } else {
+            data_mapped.resize (themap.size(), 0.0f);
+        }
+
+        std::uint32_t sz = data_fine.size();
+        for (auto me : themap) {
+            if (me.first < sz) {
+                if (me.second[1] == std::numeric_limits<std::uint32_t>::max()) {
+                    // Small hex is fully inside large hex and contributes 1/4
+                    data_mapped[me.second[0]] += data_fine[me.first] * 2.0f / contributions[me.second[0]];
+                } else {
+                    // Small hex contributes 1/8 to one coarse hex and 1/8 to another
+                    data_mapped[me.second[0]] += data_fine[me.first] / contributions[me.second[0]];
+                    data_mapped[me.second[1]] += data_fine[me.first] / contributions[me.second[1]];
+                }
+            }
+        }
+    }
+
+    /*
+     * Mapping indices for hexes on a finer hexgrid to those on the coarser companion hexgrid. Also
+     * counts up the number of small hexes contributing to each big hex, to allow for boundary
+     * corrections to be made when mapping data from the fine to the coarse grid.
+     */
+    template<typename F, sm::hexalign A> requires std::is_floating_point_v<F>
+    std::tuple<std::map<std::uint32_t, sm::vec<std::uint32_t, 2>>, sm::vvec<std::uint32_t>>
+    reduced_hexgrid_mapping (const sm::hexgrid<F, A>& hg, const sm::hexgrid<F, A>& hgr)
+    {
+        // hg.d should be hgr.d / F{2}
+
         // Each hex in hg maps to 1 or two hexes in hgr
-        std::map<std::uint32_t, sm::vec<std::uint32_t, 2>> mapping;
+        std::map<std::uint32_t, sm::vec<std::uint32_t, 2>> mapping; // Size: hg.num()
+        // Small hex contributions (units of 1/8 of a big hex) to each big hex on the reduced grid
+        sm::vvec<std::uint32_t> contributions (hgr.num(), 0u);
 
         // For each hex in hg add to the map
         typename std::list<sm::hex<F, A>>::const_iterator hexred = hgr.hexen.begin();
@@ -350,6 +390,7 @@ export namespace sm::algo::hexgrid
                 hexred = hgr.find_hex_at_const (rgb);
                 check_hexred();
                 mapping[hexfine.vi] = { hexred->vi, std::numeric_limits<std::uint32_t>::max() };
+                contributions[hexred->vi] += 2;
 
             } else if ((rgb_rem[0] == 1 && rgb_rem[1] == 1) || (rgb_rem[0] == -1 && rgb_rem[1] == -1)) {
                 // Small hex is a non-integral number of big hexes in both red and green directions
@@ -362,6 +403,8 @@ export namespace sm::algo::hexgrid
                 hexred = hgr.find_hex_at_const (rgb);
                 check_hexred();
                 mapping[hexfine.vi] = { idx1, hexred->vi };
+                contributions[idx1] += 1;
+                contributions[hexred->vi] += 1;
 
             } else {
                 // Small hex is a non-integral number of big hexes in either red or green direction
@@ -372,10 +415,12 @@ export namespace sm::algo::hexgrid
                 hexred = hgr.find_hex_at_const (rgb);
                 check_hexred();
                 mapping[hexfine.vi] = { idx1, hexred->vi };
+                contributions[idx1] += 1;
+                contributions[hexred->vi] += 1;
             }
         }
 
-        return mapping;
+        return { mapping, contributions };
     }
 
     // Return the one-step coarsened hexgrid which has fewer hexes in it
