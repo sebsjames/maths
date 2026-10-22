@@ -543,6 +543,54 @@ export namespace sm
             return hi;
         }
 
+        // If possible, get the hex at the given rgb position. Fully const version that returns const_iterator
+        std::list<sm::hex<F, A>>::const_iterator find_hex_at_const (const sm::vec<std::int32_t, 3>& rgbpos) const
+        {
+            sm::vec<std::int32_t, 2> rgpos = { rgbpos[0] - rgbpos[2], rgbpos[1] + rgbpos[2] };
+
+            typename std::list<hex<F, A>>::const_iterator hi = this->hexen.cbegin(); // First hex in hexen is always 0,0,0
+
+            bool doing_green_then_red = false;
+
+            // +ri is East for point_up or dirn 0.
+            std::int32_t inc = rgpos[0] > 0 ? 1 : -1;
+            for (std::int32_t ri = 0; ri != rgpos[0] && hi != this->hexen.cend(); ri += inc) {
+                if (inc > 0) {
+                    hi = hi->has_n0() ? hi->n0 : this->hexen.cend();
+                } else {
+                    hi = hi->has_n3() ? hi->n3 : this->hexen.cend();
+                }
+            }
+            // Did your initial step fail to find? If so, we'll need to do green, then red again.
+            if (hi == this->hexen.end()) {
+                doing_green_then_red = true;
+                hi = this->hexen.cbegin();
+            }
+
+            // gi is north-east for point_up or dirn 1
+            inc = rgpos[1] > 0 ? 1 : -1;
+            for (std::int32_t ri = 0; ri != rgpos[1] && hi != this->hexen.cend(); ri += inc) {
+                if (inc > 0) {
+                    hi = hi->has_n1() ? hi->n1 : this->hexen.cend();
+                } else {
+                    hi = hi->has_n4() ? hi->n4 : this->hexen.cend();
+                }
+            }
+
+            if (doing_green_then_red) {
+                inc = rgpos[0] > 0 ? 1 : -1;
+                for (std::int32_t ri = 0; ri != rgpos[0] && hi != this->hexen.cend(); ri += inc) {
+                    if (inc > 0) {
+                        hi = hi->has_n0() ? hi->n0 : this->hexen.cend();
+                    } else {
+                        hi = hi->has_n3() ? hi->n3 : this->hexen.cend();
+                    }
+                }
+            }
+
+            return hi;
+        }
+
         static constexpr bool debug_boundary = false;
 
         /*!
