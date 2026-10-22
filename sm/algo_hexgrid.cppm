@@ -317,7 +317,7 @@ export namespace sm::algo::hexgrid
     }
 
     // Return the one-step coarsened hexgrid which has fewer hexes in it
-    template<typename F, sm::hexalign A> requires std::is_floating_point_v<F> && (A == sm::hexalign::point_up)
+    template<typename F, sm::hexalign A> requires std::is_floating_point_v<F>
     sm::hexgrid<F, A> reduced_hexgrid (const sm::hexgrid<F, A>& hg)
     {
         // Initialize a hexgrid with the right parameters which will be large enough
