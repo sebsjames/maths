@@ -13,6 +13,9 @@ module;
 #include <list>
 #include <stdexcept>
 #include <cmath>
+#include <map>
+#include <limits>
+#include <tuple>
 
 export module sm.algo.hexgrid;
 
@@ -314,5 +317,172 @@ export namespace sm::algo::hexgrid
             F _r = std::sqrt (hg.d_x[i] * hg.d_x[i] +  hg.d_y[i] * hg.d_y[i]);
             data[i] = _r < r ? mvalue : data[i];
         }
+    }
+
+    /*
+     * Using the mapping computed with reduced_hexgrid_mapping, map data from a fine grid (data_fine) to a coarse grid (data_mapped)
+     */
+    template<typename F>
+    void map_to_reduced_hexgrid (std::tuple<std::map<std::uint32_t, sm::vec<std::uint32_t, 2>>, sm::vvec<std::uint32_t>>& mapping,
+                                 const sm::vvec<F>& data_fine, sm::vvec<F>& data_mapped)
+    {
+        auto[themap, contributions] = mapping;
+
+        if (data_mapped.size() == themap.size()) {
+            data_mapped.zero();
+        } else {
+            data_mapped.resize (themap.size(), 0.0f);
+        }
+
+        std::uint32_t sz = data_fine.size();
+        for (auto me : themap) {
+            if (me.first < sz) {
+                if (me.second[1] == std::numeric_limits<std::uint32_t>::max()) {
+                    // Small hex is fully inside large hex and contributes 1/4
+                    data_mapped[me.second[0]] += data_fine[me.first] * 2.0f / contributions[me.second[0]];
+                } else {
+                    // Small hex contributes 1/8 to one coarse hex and 1/8 to another
+                    data_mapped[me.second[0]] += data_fine[me.first] / contributions[me.second[0]];
+                    data_mapped[me.second[1]] += data_fine[me.first] / contributions[me.second[1]];
+                }
+            }
+        }
+    }
+
+    /*
+     * Mapping indices for hexes on a finer hexgrid to those on the coarser companion hexgrid. Also
+     * counts up the number of small hexes contributing to each big hex, to allow for boundary
+     * corrections to be made when mapping data from the fine to the coarse grid.
+     */
+    template<typename F, sm::hexalign A> requires std::is_floating_point_v<F>
+    std::tuple<std::map<std::uint32_t, sm::vec<std::uint32_t, 2>>, sm::vvec<std::uint32_t>>
+    reduced_hexgrid_mapping (const sm::hexgrid<F, A>& hg, const sm::hexgrid<F, A>& hgr)
+    {
+        // hg.d should be hgr.d / F{2}
+
+        // Each hex in hg maps to 1 or two hexes in hgr
+        std::map<std::uint32_t, sm::vec<std::uint32_t, 2>> mapping; // Size: hg.num()
+        // Small hex contributions (units of 1/8 of a big hex) to each big hex on the reduced grid
+        sm::vvec<std::uint32_t> contributions (hgr.num(), 0u);
+
+        // For each hex in hg add to the map
+        typename std::list<sm::hex<F, A>>::const_iterator hexred = hgr.hexen.begin();
+
+        // Check hexred hasn't dropped off the end of hgr.hexen
+        auto check_hexred = [hexred, hgr]() {
+            if (hexred == hgr.hexen.end()) {
+                throw std::runtime_error ("algo::hexgrid::reduced_hexgrid: find_hex_at_const() did not find a hex.");
+            }
+        };
+
+        for (auto hexfine : hg.hexen) {
+            // Each hex has ri,gi and we expect bi to be 0.
+            if (hexfine.bi != 0) {
+                throw std::runtime_error ("algo::hexgrid::reduced_hexgrid: Expecting all ri,gi,bi values to have bi=0");
+            }
+
+            // Copy red and green indices of the fine (small) hex and their evenness into two int vectors
+            sm::vec<std::int32_t, 3> rgb = { hexfine.ri / 2, hexfine.gi / 2, 0 };
+            sm::vec<std::int32_t, 3> rgb_rem = { hexfine.ri % 2, hexfine.gi % 2, 0 };
+
+            if (rgb_rem[0] == 0 && rgb_rem[1] == 0) {
+                // small hex is entirely within big hex
+                hexred = hgr.find_hex_at_const (rgb);
+                check_hexred();
+                mapping[hexfine.vi] = { hexred->vi, std::numeric_limits<std::uint32_t>::max() };
+                contributions[hexred->vi] += 2;
+
+            } else if ((rgb_rem[0] == 1 && rgb_rem[1] == 1) || (rgb_rem[0] == -1 && rgb_rem[1] == -1)) {
+                // Small hex is a non-integral number of big hexes in both red and green directions
+                rgb[0] += rgb_rem[0];
+                hexred = hgr.find_hex_at_const (rgb);
+                check_hexred();
+                std::uint32_t idx1 = hexred->vi;
+                rgb[0] -= rgb_rem[0];
+                rgb[1] += rgb_rem[1];
+                hexred = hgr.find_hex_at_const (rgb);
+                check_hexred();
+                mapping[hexfine.vi] = { idx1, hexred->vi };
+                contributions[idx1] += 1;
+                contributions[hexred->vi] += 1;
+
+            } else {
+                // Small hex is a non-integral number of big hexes in either red or green direction
+                hexred = hgr.find_hex_at_const (rgb);
+                check_hexred();
+                std::uint32_t idx1 = hexred->vi;
+                rgb += rgb_rem;
+                hexred = hgr.find_hex_at_const (rgb);
+                check_hexred();
+                mapping[hexfine.vi] = { idx1, hexred->vi };
+                contributions[idx1] += 1;
+                contributions[hexred->vi] += 1;
+            }
+        }
+
+        return { mapping, contributions };
+    }
+
+    // Return the one-step coarsened hexgrid which has fewer hexes in it
+    template<typename F, sm::hexalign A> requires std::is_floating_point_v<F>
+    sm::hexgrid<F, A> reduced_hexgrid (const sm::hexgrid<F, A>& hg)
+    {
+        // Initialize a hexgrid with the right parameters which will be large enough
+        sm::hexgrid<F, A> hgr (hg.d * F{2}, hg.x_span, hg.z);
+        // Copy in any transform
+        hgr.transform (hg.tfm);
+
+        // For each boundary hex in hg, set the corresponding boundary hex(es) on hgr
+        typename std::list<sm::hex<F, A>>::iterator bhr = hgr.hexen.begin();
+
+        // Check bhr hasn't dropped off the end of hgr.hexen
+        auto check_bhr = [bhr, hgr]() {
+            if (bhr == hgr.hexen.end()) {
+                throw std::runtime_error ("algo::hexgrid::reduced_hexgrid: find_hex_at() did not find a hex.");
+            }
+        };
+
+        for (auto bh : hg.bhexen) {
+            // Each boundary hex has ri,gi and we expect bi to be 0.
+            if (bh->bi != 0) {
+                throw std::runtime_error ("algo::hexgrid::reduced_hexgrid: Expecting all ri,gi,bi values to have bi=0");
+            }
+
+            // Copy red and green indices of the boundary hex and their evenness into two int vectors
+            sm::vec<std::int32_t, 3> rgb = { bh->ri / 2, bh->gi / 2, 0 };
+            sm::vec<std::int32_t, 3> rgb_rem = { bh->ri % 2, bh->gi % 2, 0 };
+
+            if (rgb_rem[0] == 0 && rgb_rem[1] == 0) {
+                // small hex is entirely within big hex
+                bhr = hgr.find_hex_at (rgb);
+                check_bhr();
+                bhr->set_boundary_hex();
+            } else if ((rgb_rem[0] == 1 && rgb_rem[1] == 1) || (rgb_rem[0] == -1 && rgb_rem[1] == -1)) {
+                // Small hex is a non-integral number of big hexes in both red and green directions
+                rgb[0] += rgb_rem[0];
+                bhr = hgr.find_hex_at (rgb); // returns hgr.hexen.end() if nothing found
+                check_bhr();
+                bhr->set_boundary_hex();
+                rgb[0] -= rgb_rem[0];
+                rgb[1] += rgb_rem[1];
+                bhr = hgr.find_hex_at (rgb);
+                check_bhr();
+                bhr->set_boundary_hex();
+            } else {
+                // Small hex is a non-integral number of big hexes in either red or green direction
+                bhr = hgr.find_hex_at (rgb);
+                check_bhr();
+                bhr->set_boundary_hex();
+                rgb += rgb_rem;
+                bhr = hgr.find_hex_at (rgb); // Can maybe use neighbour relationships to save this additional compute
+                check_bhr();
+                bhr->set_boundary_hex();
+            }
+        }
+
+        // discard hexes outside the boundary on the reduced hexgrid to complete the transfer of the boundary
+        hgr.check_contiguous_and_discard (bhr);
+
+        return hgr;
     }
 }

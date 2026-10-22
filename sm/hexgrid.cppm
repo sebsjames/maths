@@ -543,6 +543,54 @@ export namespace sm
             return hi;
         }
 
+        // If possible, get the hex at the given rgb position. Fully const version that returns const_iterator
+        std::list<sm::hex<F, A>>::const_iterator find_hex_at_const (const sm::vec<std::int32_t, 3>& rgbpos) const
+        {
+            sm::vec<std::int32_t, 2> rgpos = { rgbpos[0] - rgbpos[2], rgbpos[1] + rgbpos[2] };
+
+            typename std::list<hex<F, A>>::const_iterator hi = this->hexen.cbegin(); // First hex in hexen is always 0,0,0
+
+            bool doing_green_then_red = false;
+
+            // +ri is East for point_up or dirn 0.
+            std::int32_t inc = rgpos[0] > 0 ? 1 : -1;
+            for (std::int32_t ri = 0; ri != rgpos[0] && hi != this->hexen.cend(); ri += inc) {
+                if (inc > 0) {
+                    hi = hi->has_n0() ? hi->n0 : this->hexen.cend();
+                } else {
+                    hi = hi->has_n3() ? hi->n3 : this->hexen.cend();
+                }
+            }
+            // Did your initial step fail to find? If so, we'll need to do green, then red again.
+            if (hi == this->hexen.end()) {
+                doing_green_then_red = true;
+                hi = this->hexen.cbegin();
+            }
+
+            // gi is north-east for point_up or dirn 1
+            inc = rgpos[1] > 0 ? 1 : -1;
+            for (std::int32_t ri = 0; ri != rgpos[1] && hi != this->hexen.cend(); ri += inc) {
+                if (inc > 0) {
+                    hi = hi->has_n1() ? hi->n1 : this->hexen.cend();
+                } else {
+                    hi = hi->has_n4() ? hi->n4 : this->hexen.cend();
+                }
+            }
+
+            if (doing_green_then_red) {
+                inc = rgpos[0] > 0 ? 1 : -1;
+                for (std::int32_t ri = 0; ri != rgpos[0] && hi != this->hexen.cend(); ri += inc) {
+                    if (inc > 0) {
+                        hi = hi->has_n0() ? hi->n0 : this->hexen.cend();
+                    } else {
+                        hi = hi->has_n3() ? hi->n3 : this->hexen.cend();
+                    }
+                }
+            }
+
+            return hi;
+        }
+
         static constexpr bool debug_boundary = false;
 
         /*!
@@ -573,17 +621,7 @@ export namespace sm
                 ++bpi;
             }
 
-            // Check that the boundary is contiguous.
-            std::set<std::uint32_t> seen;
-            typename std::list<sm::hex<F, A>>::iterator hi = bpoint;
-            if (this->boundary_contiguous (bpoint, hi, seen) == false) {
-                std::stringstream ee;
-                ee << "The boundary is not a contiguous sequence of hexes.";
-                throw std::runtime_error (ee.str());
-            }
-
-            this->discard_outside_boundary();
-            this->populate_d_vectors();
+            this->check_contiguous_and_discard (bpoint);
         }
 
         /*!
@@ -658,19 +696,7 @@ export namespace sm
                 nearby_boundary_point = this->set_boundary (*bpi++, nearby_boundary_point);
             }
 
-            // Check that the boundary is contiguous.
-            {
-                std::set<std::uint32_t> seen;
-                typename std::list<sm::hex<F, A>>::iterator hi = nearby_boundary_point;
-                if (this->boundary_contiguous (nearby_boundary_point, hi, seen) == false) {
-                    std::stringstream ee;
-                    ee << "The constructed boundary is not a contiguous sequence of hexes.";
-                    throw std::runtime_error (ee.str());
-                }
-            }
-
-            this->discard_outside_boundary();
-            this->populate_d_vectors();
+            this->check_contiguous_and_discard (nearby_boundary_point);
         }
 
         /*!
@@ -708,15 +734,7 @@ export namespace sm
             }
 
             // Check that the boundary is contiguous.
-            {
-                std::set<std::uint32_t> seen;
-                typename std::list<sm::hex<F, A>>::iterator hi = nearby_boundary_point;
-                if (this->boundary_contiguous (nearby_boundary_point, hi, seen) == false) {
-                    std::stringstream ee;
-                    ee << "The constructed boundary is not a contiguous sequence of hexes.";
-                    throw std::runtime_error (ee.str());
-                }
-            }
+            this->check_contiguous (nearby_boundary_point);
         }
 
         /*!
@@ -760,15 +778,28 @@ export namespace sm
                 bpi = bpi->n0;
                 bpi->set_flag (sm::HEX_IS_BOUNDARY | sm::HEX_INSIDE_BOUNDARY);
             }
+
+            this->check_contiguous_and_discard (bpi);
+        }
+
+        // Check that the boundary is contiguous. If not, throw exception.
+        void check_contiguous (std::list<sm::hex<F, A>>::const_iterator bpi)
+        {
             // Check that the boundary is contiguous.
             std::set<std::uint32_t> seen;
-            typename std::list<sm::hex<F, A>>::iterator hi = bpi;
+            typename std::list<sm::hex<F, A>>::const_iterator hi = bpi;
             if (this->boundary_contiguous (bpi, hi, seen) == false) {
                 std::stringstream ee;
                 ee << "The boundary is not a contiguous sequence of hexes.";
                 throw std::runtime_error (ee.str());
             }
+        }
 
+        // Check that the boundary is contiguous and then discard hexes outside the boundary with
+        // bpi an iterator to a hex known to be on the boundary.
+        void check_contiguous_and_discard (std::list<sm::hex<F, A>>::const_iterator bpi)
+        {
+            this->check_contiguous (bpi);
             // _boundary IS contiguous, discard hexes outside the boundary.
             this->discard_outside_boundary();
             this->populate_d_vectors();
@@ -1132,18 +1163,7 @@ export namespace sm
 
             this->boundary_centroid = bcentroid / F{4};
 
-            // Check that the boundary is contiguous.
-            std::set<std::uint32_t> seen;
-            hi = bpi;
-            if (this->boundary_contiguous (bpi, hi, seen) == false) {
-                std::stringstream ee;
-                ee << "The boundary is not a contiguous sequence of hexes.";
-                throw std::runtime_error (ee.str());
-            }
-
-            // _boundary IS contiguous, discard hexes outside the boundary.
-            this->discard_outside_boundary();
-            this->populate_d_vectors();
+            this->check_contiguous_and_discard (bpi);
         }
 
         /*!
@@ -1446,15 +1466,7 @@ export namespace sm
             }
 
             // Check that the region boundary is contiguous.
-            {
-                std::set<std::uint32_t> seen;
-                typename std::list<sm::hex<F, A>>::iterator hi = nearby_region_boundary_point;
-                if (this->region_boundary_contiguous (nearby_region_boundary_point, hi, seen) == false) {
-                    std::stringstream ee;
-                    ee << "The constructed region boundary is not a contiguous sequence of hexes.";
-                    return the_region;
-                }
-            }
+            this->check_contiguous (nearby_region_boundary_point);
 
             // Mark hexes inside region. Use centroid of the region.
             typename std::list<sm::hex<F, A>>::iterator inside_regionhex = this->find_hex_nearest (region_centroid);
