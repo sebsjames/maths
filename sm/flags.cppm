@@ -246,6 +246,11 @@ export namespace sm
         // Note: there is no flags::all() to match std::bitset::all() because it is not currently
         // possible in C++ to know how many enumerated values there are in the enum class E.
 
+        // Comparing equality of two instances of sm::flags<>
+        constexpr bool operator== (const flags<E>& rhs) const noexcept { return this->bits == rhs.bits; }
+        // Comparing equality of this sm::flats<> and an integer
+        constexpr bool operator== (const I& rhs) const noexcept { return this->bits == rhs; }
+
         // cast operators
         explicit constexpr operator bool() const noexcept { return !!this->bits; }
         explicit constexpr operator I() const noexcept { return this->bits; }
