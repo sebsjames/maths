@@ -331,7 +331,7 @@ export namespace sm::algo::hexgrid
         if (data_mapped.size() == themap.size()) {
             data_mapped.zero();
         } else {
-            data_mapped.resize (themap.size(), 0.0f);
+            data_mapped.resize (themap.size(), F{});
         }
 
         std::uint32_t sz = data_fine.size();
@@ -339,7 +339,7 @@ export namespace sm::algo::hexgrid
             if (me.first < sz) {
                 if (me.second[1] == std::numeric_limits<std::uint32_t>::max()) {
                     // Small hex is fully inside large hex and contributes 1/4
-                    data_mapped[me.second[0]] += data_fine[me.first] * 2.0f / contributions[me.second[0]];
+                    data_mapped[me.second[0]] += (data_fine[me.first] * 2) / contributions[me.second[0]];
                 } else {
                     // Small hex contributes 1/8 to one coarse hex and 1/8 to another
                     data_mapped[me.second[0]] += data_fine[me.first] / contributions[me.second[0]];
