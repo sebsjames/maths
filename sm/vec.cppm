@@ -433,9 +433,19 @@ namespace sm
         {
             sm::interval<Sy> r = this->range();
             Sy m = r.max - r.min;
-            Sy g = r.min;
-            auto rescale_op = [m, g](Sy f) { return (f - g)/m; };
-            std::transform (this->begin(), this->end(), this->begin(), rescale_op);
+            if (m != Sy{0}) {
+                Sy g = r.min;
+                auto rescale_op = [m, g](Sy f) { return (f - g) / m; };
+                std::transform (this->begin(), this->end(), this->begin(), rescale_op);
+            } else {
+                // max and min are the same, so all values must be same. If necessary change to all
+                // 0 or all 1, but if values already in range 0 to 1, leave them unmodified
+                if (r.min > Sy{1}) {
+                    this->set_from (S{1});
+                } else if (r.min < Sy{0}) {
+                    this->set_from (S{0});
+                } // else no change
+            }
         }
 
         //! Rescale the vector elements so that they all lie in the range -1 to 0.
@@ -444,9 +454,19 @@ namespace sm
         {
             sm::interval<Sy> r = this->range();
             Sy m = r.max - r.min;
-            Sy g = r.max;
-            auto rescale_op = [m, g](Sy f) { return (f - g)/m; };
-            std::transform (this->begin(), this->end(), this->begin(), rescale_op);
+            if (m != Sy{0}) {
+                Sy g = r.max;
+                auto rescale_op = [m, g](Sy f) { return (f - g) / m; };
+                std::transform (this->begin(), this->end(), this->begin(), rescale_op);
+            } else {
+                // max and min are the same, so all values must be same. If necessary change to all
+                // -1 or all 0, but if values already in range -1 to 0, leave them unmodified
+                if (r.min > Sy{0}) {
+                    this->set_from (S{0});
+                } else if (r.min < Sy{-1}) {
+                    this->set_from (S{-1});
+                } // else no change
+            }
         }
 
         //! Rescale the vector elements symetrically about 0 so that they all lie in the range -1 to 1.
@@ -455,9 +475,17 @@ namespace sm
         {
             sm::interval<Sy> r = this->range();
             Sy m = (r.max - r.min) / Sy{2};
-            Sy g = (r.max + r.min) / Sy{2};
-            auto rescale_op = [m, g](Sy f) { return (f - g)/m; };
-            std::transform (this->begin(), this->end(), this->begin(), rescale_op);
+            if (m != Sy{0}) {
+                Sy g = (r.max + r.min) / Sy{2};
+                auto rescale_op = [m, g](Sy f) { return (f - g) / m; };
+                std::transform (this->begin(), this->end(), this->begin(), rescale_op);
+            } else {
+                if (r.min > Sy{1}) {
+                    this->set_from (S{1});
+                } else if (r.min < Sy{-1}) {
+                    this->set_from (S{-1});
+                } // else no change
+            }
         }
 
         /*!
