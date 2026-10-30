@@ -44,7 +44,7 @@ export namespace sm::pca
         sm::mat<T, N, N> covariance;
         // The principal component unit vectors
         sm::vec<sm::vec<T, N>, N> pc_vectors;
-        // Principal component magnitudes (like the SD of the data in each dimension)
+        // Principal component magnitudes (the variance of the data in each dimension - in arma it's called 'latency')
         sm::vec<T, N> pc_magnitudes = {};
         // Principal component proportions (of the variability each component accounts for)
         sm::vec<T, N> pc_proportions = {};

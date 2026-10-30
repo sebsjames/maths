@@ -325,6 +325,13 @@ macro(setup_module_variables_for_maths base_directory)
   )
   list(REMOVE_DUPLICATES SM_FLAGS_MODULES)
 
+  set(SM_PCA_MODULES
+    ${SM_VVEC_MODULES}
+    ${SM_MAT_MODULES}
+    ${base_directory}/sm/pca.cppm
+  )
+  list(REMOVE_DUPLICATES SM_PCA_MODULES)
+  
   # All except SM_HDFDATA_MODULES, SM_ANNEAL_MODULES (avoiding need for library linking)
   set(SM_ALL_MODULES
     ${SM_MATHCONST_MODULES}
@@ -364,6 +371,7 @@ macro(setup_module_variables_for_maths base_directory)
     ${SM_BASE64_MODULES}
     ${SM_CRC32_MODULES}
     ${SM_FLAGS_MODULES}
+    ${SM_PCA_MODULES}    
   )
   list(REMOVE_DUPLICATES SM_ALL_MODULES)
 
