@@ -1426,6 +1426,15 @@ export namespace sm
             for (auto& i : *this) { if (std::isnan(i) || std::isinf(i)) { i = replacement; } }
         }
 
+        /*!
+         * An equality operation that returns true if all elements match rhs
+         */
+        bool all_elements_equal (const S& rhs)
+        {
+            for (std::size_t i = 0u; i < this->size(); ++i) { if ((*this)[i] != rhs) { return false; } }
+            return true;
+        }
+
         void search_replace (const S searchee, const S replacement) noexcept
         {
             for (auto& i : *this) { if (i == searchee) { i = replacement; } }
