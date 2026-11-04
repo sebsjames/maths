@@ -1,69 +1,23 @@
 // Can you use a sm::vec as a key to an std::unordered_map?
 //
-#include <functional> // std::equal_to
 #include <string>
 #include <unordered_map>
 #include <iostream>
 
 import sm.vec;
 
-// To make std::hash<sm::vec<int, 2>> work you have to define how to create the hash of
-// sm::vec<int, 2>.
-template<>
-struct std::hash<sm::vec<int, 2>>
-{
-    std::size_t operator()(const sm::vec<int, 2>& v) const noexcept
-    {
-        std::size_t h1 = std::hash<int>{}(v[0]);
-        std::size_t h2 = std::hash<int>{}(v[1]);
-        return h1 ^ (h2 << 1);
-    }
-};
-
-#if 0 // sm::vec<float, 3> examples
-template<>
-struct std::hash<sm::vec<float, 3>>
-{
-    std::size_t operator()(const sm::vec<float, 3>& v) const noexcept
-    {
-        // Note: Tiny precision differences make a different hash.
-        std::size_t h1 = std::hash<float>{}(v[0]);
-        std::size_t h2 = std::hash<float>{}(v[1]);
-        std::size_t h3 = std::hash<float>{}(v[2]);
-        return h1 ^ (h2 << 1) ^ (h3 << 2);
-    }
-};
-
-// Writing an equal_to operator()
-template<>
-struct std::equal_to<sm::vec<float, 3>>
-{
-    constexpr bool operator()(const sm::vec<float, 3>& lhs, const sm::vec<float, 3>& rhs) const
-    {
-        constexpr auto eps = std::numeric_limits<float>::epsilon();
-        float d0 = std::abs(lhs[0] - rhs[0]);
-        float d1 = std::abs(lhs[1] - rhs[1]);
-        float d2 = std::abs(lhs[2] - rhs[2]);
-        bool same = (d0 < eps) && (d1 < eps) && (d2 < eps);
-        return same;
-    }
-};
-#endif
-
 int main()
 {
-    namespace m = sm;
-
     int rtn = 0;
 
     // Some keys
-    m::vec<int, 2> k1 = {1,2};
-    m::vec<int, 2> k2 = {1,3};
-    m::vec<int, 2> k3 = {2,3};
-    m::vec<int, 2> k4 = {2,4};
+    sm::vec<int, 2> k1 = {1,2};
+    sm::vec<int, 2> k2 = {1,3};
+    sm::vec<int, 2> k3 = {2,3};
+    sm::vec<int, 2> k4 = {2,4};
 
-    // unordered_map uses std::hash. See above for making std::hash<m::vec<int, 2>> possible.
-    std::unordered_map<m::vec<int, 2>, std::string> themap;
+    // With unordered_map, you use vec's hash function as the third argument:
+    std::unordered_map<sm::vec<int, 2>, std::string, sm::vec<int, 2>::hash> themap;
 
     themap[k1] = std::string("value1");
     themap[k2] = std::string("value2");
