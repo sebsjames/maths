@@ -1607,8 +1607,11 @@ namespace sm
             std::size_t operator()(const vec<S, N>& v) const
             {
                 if constexpr (N > 0u) {
+                    // Combine the hash of each element of the vec:
                     std::size_t h = std::hash<S>{}(v[0]);
-                    for (std::size_t n = 1u; n < N; ++n) { h ^= std::hash<S>{}(v[n]); }
+                    for (std::size_t n = 1u; n < N; ++n) {
+                        h = h ^ (std::hash<S>{}(v[n]) << 1);
+                    }
                     return h;
                 } else {
                     return 0u;

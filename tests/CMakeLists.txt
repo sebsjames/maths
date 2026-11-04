@@ -92,6 +92,10 @@ add_executable(vec_all_elements_equal vec_all_elements_equal.cpp)
 target_link_libraries(vec_all_elements_equal PRIVATE sm)
 add_test(vec_all_elements_equal vec_all_elements_equal)
 
+add_executable(vec_hash1 vec_hash1.cpp)
+target_link_libraries(vec_hash1 PRIVATE sm)
+add_test(vec_hash1 vec_hash1)
+
 # test sm::vec elemental operations
 add_executable(vec_elementops1 vec_elementops1.cpp)
 target_link_libraries(vec_elementops1 PRIVATE sm)
