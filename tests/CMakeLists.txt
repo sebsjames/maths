@@ -174,6 +174,10 @@ add_executable(vvec_arange vvec_arange.cpp)
 target_link_libraries(vvec_arange PRIVATE sm)
 add_test(vvec_arange vvec_arange)
 
+add_executable(vvec_all_elements_equal vvec_all_elements_equal.cpp)
+target_link_libraries(vvec_all_elements_equal PRIVATE sm)
+add_test(vvec_all_elements_equal vvec_all_elements_equal)
+
 # Test the scaling code
 add_executable(scale1 scale1.cpp)
 target_link_libraries(scale1 PRIVATE sm)

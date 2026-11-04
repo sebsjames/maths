@@ -1,7 +1,6 @@
 #include <limits>
 
 import sm.vec;
-import sm.vvec;
 
 int main()
 {
@@ -20,13 +19,6 @@ int main()
     // If we add 2 epsilons to one of the elements of fv2, we should cause all_elements_equal() to return false:
     fv2[4] += 2 * std::numeric_limits<float>::epsilon();
     if (fv2.all_elements_equal (2.0f) == true) { --rtn; }
-
-    // Quick test of the vvec one here, too:
-    sm::vvec<float> fvv1 = { 1.0f, 2.0f, 3.0f, 4.0f, 5.0f };
-    sm::vvec<float> fvv2 = { 2.0f, 2.0f, 2.0f, 2.0f, 2.0f };
-
-    if (fvv1.all_elements_equal (1.0f) == true) { --rtn; }
-    if (fvv2.all_elements_equal (2.0f) == false) { --rtn; }
 
     return rtn;
 }
