@@ -88,6 +88,10 @@ add_executable(array_asmapkey1 array_asmapkey1.cpp)
 target_link_libraries(array_asmapkey1 PRIVATE sm)
 add_test(array_asmapkey1 array_asmapkey1)
 
+add_executable(vec_all_elements_equal vec_all_elements_equal.cpp)
+target_link_libraries(vec_all_elements_equal PRIVATE sm)
+add_test(vec_all_elements_equal vec_all_elements_equal)
+
 # test sm::vec elemental operations
 add_executable(vec_elementops1 vec_elementops1.cpp)
 target_link_libraries(vec_elementops1 PRIVATE sm)
