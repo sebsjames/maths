@@ -859,6 +859,15 @@ namespace sm
         }
 
         /*!
+         * An equality operation that returns true if all elements match rhs
+         */
+        constexpr bool all_elements_equal (const S& rhs)
+        {
+            for (std::size_t i = 0u; i < N; ++i) { if ((*this)[i] != rhs) { return false; } }
+            return true;
+        }
+
+        /*!
          * Considering the 3 element vec as RGB pixels, convert to greyscale using the
          * technique described in
          * https://docs.opencv.org/3.4/de/d25/imgproc_color_conversions.html
