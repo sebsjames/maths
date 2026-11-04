@@ -491,7 +491,7 @@ export namespace sm::algo::hexgrid
      * two elliptical radii a and b. The ellipse is centered at c.
      */
     template<typename F, sm::hexalign A>
-    sm::vvec<std::uint32_t> ellipse_indices (const sm::hexgrid<F, A>& hg,
+    sm::vvec<std::uint32_t> ellipse_indices (sm::hexgrid<F, A>& hg,
                                              const F a, const F b, const F r, const sm::vec<F, 2> c = {})
     {
         sm::vvec<std::uint32_t> ei = {};
@@ -501,15 +501,31 @@ export namespace sm::algo::hexgrid
         double dfraction = hg.get_d() / 2.0;
         double delta_phi = std::atan2 (dfraction, (a > b ? a : b));
 
+        sm::mat<F, 2> tfm = sm::mat<F, 2>::identity();
+        tfm.rotate (r);
+
+        sm::vvec<sm::vec<F, 2>> bpoints;
+
         // Loop around phi, computing x and y of the elliptical boundary
         for (double phi = 0.0; phi < sm::mathconst<double>::two_pi; phi += delta_phi) {
             sm::vec<F, 2> xy_pt = {
                 static_cast<F>(a * std::cos (phi)),
                 static_cast<F>(b * std::sin (phi))
             };
-            xy_pt += c;
+            xy_pt = (tfm * xy_pt) + c;
+            bpoints.push_back (xy_pt);
         }
 
+        auto bpi = bpoints.begin();
+        // Now have a set of points on the boundary
+        typename std::list<sm::hex<F, A>>::iterator nearby_boundary_point = hg.hexen.begin(); // i.e the hex at 0,0
+        while (bpi != bpoints.end()) {
+            typename std::list<sm::hex<F, A>>::iterator h = hg.find_hex_near_point (*bpi++, nearby_boundary_point);
+            ei.push_back (h->vi);
+            nearby_boundary_point = h;
+        }
+
+        // To do: Fill in.
 
         return ei;
     }
