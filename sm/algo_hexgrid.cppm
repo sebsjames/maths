@@ -485,4 +485,32 @@ export namespace sm::algo::hexgrid
 
         return hgr;
     }
+
+    /*
+     * Get the indices of an ellipse, 'drawn' on the hexgrid hg, with a given rotation r and
+     * two elliptical radii a and b. The ellipse is centered at c.
+     */
+    template<typename F, sm::hexalign A>
+    sm::vvec<std::uint32_t> ellipse_indices (const sm::hexgrid<F, A>& hg,
+                                             const F a, const F b, const F r, const sm::vec<F, 2> c = {})
+    {
+        sm::vvec<std::uint32_t> ei = {};
+
+        // Estimate a good delta_phi based on the larger of a and b. Compute the delta_phi
+        // required to travel a fraction of one hex-to-hex distance.
+        double dfraction = hg.get_d() / 2.0;
+        double delta_phi = std::atan2 (dfraction, (a > b ? a : b));
+
+        // Loop around phi, computing x and y of the elliptical boundary
+        for (double phi = 0.0; phi < sm::mathconst<double>::two_pi; phi += delta_phi) {
+            sm::vec<F, 2> xy_pt = {
+                static_cast<F>(a * std::cos (phi)),
+                static_cast<F>(b * std::sin (phi))
+            };
+            xy_pt += c;
+        }
+
+
+        return ei;
+    }
 }
