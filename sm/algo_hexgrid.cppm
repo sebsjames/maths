@@ -489,8 +489,8 @@ export namespace sm::algo::hexgrid
 
     /*
      * Get the indices of an ellipse, 'drawn' on the hexgrid hg, with a given rotation r and two
-     * elliptical radii a and b. The ellipse is centered at c. I wrote this to help me with defining
-     * convolution kernel hexgrids.
+     * elliptical radii a (x dirn) and b (y dirn). The ellipse is centered at c. I wrote this to
+     * help me with defining convolution kernel hexgrids.
      *
      * Throws an exception if the shape fails to fit on the underlying hexgrid.
      */
@@ -499,6 +499,10 @@ export namespace sm::algo::hexgrid
                                              const F a, const F b, const F r, const sm::vec<F, 2> c = {})
     {
         std::set<std::uint32_t> indices = {};
+
+        if (a <= F{0.5} * hg.d || b <= F{0.5} * hg.d) {
+            throw std::runtime_error ("algo::hexgrid::ellipse_indices: choose ellipse radii (a and b) > 0.5 * hg.d");
+        }
 
         // Estimate a good delta_phi based on the larger of a and b. Compute the delta_phi
         // required to travel a fraction of one hex-to-hex distance.
