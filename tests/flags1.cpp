@@ -203,6 +203,17 @@ int main()
     std::cout << "fl5 = " << fl5.get() << " !fl5 = " << !fl5 << std::endl;
     std::cout << "fl5 = " << fl5.get() << " !fl5 = " << !fl5 << std::endl;
 
+    std::cout << "fl7: " << fl7 << std::endl;
+    if (fl7.any_of (std::uint16_t{5u}) == false) {
+        --rtn;
+    }
+    if (fl7.all_of (std::uint16_t{4u}) == false) {
+        --rtn;
+    }
+    if (fl7.all_of (std::uint16_t{5u}) == true) {
+        --rtn;
+    }
+
     enum class myflagsC : uint8_t { one, two, three, four };
     std::cout << sm::flags<myflagsC>{myflagsC::one} << std::endl;
     std::cout << sm::flags<myflagsC>{myflagsC::three} << std::endl;

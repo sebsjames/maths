@@ -222,6 +222,12 @@ export namespace sm
             return (this->bits & tbits) != I{0};
         }
 
+        // True if all of the bits set in tbits are set in this->bits
+        constexpr bool all_of (const I& tbits) const noexcept { return (this->bits & tbits) == tbits; }
+
+        // True if any of the bits set in tbits are set in this->bits
+        constexpr bool any_of (const I& tbits) const noexcept { return (this->bits & tbits) != I{0}; }
+
         // Get the underlying bits
         constexpr I get() const noexcept { return this->bits; }
 
