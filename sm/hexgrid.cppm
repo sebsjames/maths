@@ -34,6 +34,7 @@ export import sm.vec;
 export import sm.hex;
 import sm.vvec;
 import sm.mat;
+import sm.winder;
 
 export namespace sm
 {
@@ -2541,6 +2542,16 @@ export namespace sm
             while (gotnext && bhi != bhi_start) {
                 this->mark_from_boundary (bhi, bdry_flag, inside_flag);
                 gotnext = this->find_next_boundary_neighbour (bhi, recently_seen, n_recents, bdry_flag, inside_flag);
+            }
+        }
+
+        // Mark hexes inside using the winding number algorithm for the boundary bhexpoints
+        void mark_hexes_inside_winding (sm::vvec<sm::vec<F, 2>>& boundary, std::uint32_t inside_flag = sm::HEX_INSIDE_BOUNDARY)
+        {
+            sm::winder w(boundary);
+            for (auto& hi : this->hexen) {
+                int wn = w.wind (hi.x_y());
+                if (wn != 0) { hi.set_flag (inside_flag); }
             }
         }
 
