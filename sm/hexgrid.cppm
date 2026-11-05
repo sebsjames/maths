@@ -2483,7 +2483,7 @@ export namespace sm
 
                     std::uint16_t i_opp = ((i + 3) % 6);
 
-                    // Go round each of the candidate boundary hex's neighbours (but j!=i)
+                    // Go round each of the candidate boundary hex's neighbours (but j != i_opp)
                     for (std::uint16_t j = 0; j < 6; ++j) {
 
                         // Ignore the candidate boundary hex itself. if j==i_opp, then
