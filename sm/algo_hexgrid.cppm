@@ -488,57 +488,76 @@ export namespace sm::algo::hexgrid
     }
 
     /*
-     * Get the indices of an ellipse, 'drawn' on the hexgrid hg, with a given rotation r and
-     * two elliptical radii a and b. The ellipse is centered at c.
+     * Get the indices of an ellipse, 'drawn' on the hexgrid hg, with a given rotation r and two
+     * elliptical radii a and b. The ellipse is centered at c. I wrote this to help me with defining
+     * convolution kernel hexgrids.
+     *
+     * Throws an exception if the shape fails to fit on the underlying hexgrid.
      */
     template<typename F, sm::hexalign A>
     std::set<std::uint32_t> ellipse_indices (sm::hexgrid<F, A>& hg,
                                              const F a, const F b, const F r, const sm::vec<F, 2> c = {})
     {
-        std::set<std::uint32_t> ei = {};
+        std::set<std::uint32_t> indices = {};
 
         // Estimate a good delta_phi based on the larger of a and b. Compute the delta_phi
         // required to travel a fraction of one hex-to-hex distance.
         double dfraction = hg.get_d() / 2.0;
         double delta_phi = std::atan2 (dfraction, (a > b ? a : b));
 
+        // The rotational transform for the ellipse
         sm::mat<F, 2> tfm = sm::mat<F, 2>::identity();
         tfm.rotate (r);
 
         sm::vvec<sm::vec<F, 2>> bpoints;
 
-        // Loop around phi, computing x and y of the elliptical boundary
+        // Loop around phi, computing coordinates that lie on the elliptical boundary
         for (double phi = 0.0; phi < sm::mathconst<double>::two_pi; phi += delta_phi) {
             sm::vec<F, 2> xy_pt = {
                 static_cast<F>(a * std::cos (phi)),
                 static_cast<F>(b * std::sin (phi))
             };
+            // Apply rotational transform, tfm and translation, c
             xy_pt = (tfm * xy_pt) + c;
             bpoints.push_back (xy_pt);
         }
 
+        // Now have a set of coordinates on the boundary (bpoints). This allows us to mark the hexes
+        // that those points fall into.
         auto bpi = bpoints.begin();
-        // Now have a set of points on the boundary
-        typename std::list<sm::hex<F, A>>::iterator nearby_boundary_point = hg.hexen.begin(); // i.e the hex at 0,0
+        typename std::list<sm::hex<F, A>>::iterator nearby_boundary_point = hg.hexen.begin(); // the hex at 0,0
         while (bpi != bpoints.end()) {
-            typename std::list<sm::hex<F, A>>::iterator h = hg.find_hex_near_point (*bpi++, nearby_boundary_point);
-            h->set_user_flags (HEX_USER_FLAG_0); // Use USER_FLAG_0 to define the boundary of our shape
-            ei.insert (h->vi);
+
+            // Need this to be able to return .end() if no hex is very near *bpi
+            typename std::list<sm::hex<F, A>>::iterator h = hg.find_hex_near_point (*bpi, nearby_boundary_point);
+
+            if ((h->x_y() - *bpi).length() > hg.d) {
+                // distance between nearest hex (h) and the ellipse boundary point (bpi) exceeds hg.d, which means:
+                throw std::runtime_error ("algo::hexgrid::ellipse_indices: ellipse boundary not contained by hexgrid");
+            }
+
+            // We're using USER_FLAG_0 to mark the boundary of our shape. Set it for each hex on the boundary
+            h->set_user_flags (sm::HEX_USER_FLAG_0);
+
+            // Add the index of each boundary hex to the return object, indices
+            indices.insert (h->vi);
             nearby_boundary_point = h;
+            bpi++;
         }
 
         // Find an inside hex (the one at location c)
         typename std::list<sm::hex<F, A>>::iterator inner_hex = hg.find_hex_nearest (c);
+
         // Use hexgrid's mark_hexes_inside method to set HEX_USER_FLAG_1 for all those hexes that
         // are in side the elliptic boundary for which sm::HEX_USER_FLAG_0 is set.
         hg.mark_hexes_inside (inner_hex, sm::HEX_USER_FLAG_0, sm::HEX_USER_FLAG_1);
-        // Now loop through hexes, and if USER_FLAG_1 is set, add the hex index (vi) to ei.
-        for (auto h : hg.hexen) {
-            if (h.test_flag (HEX_USER_FLAG_1)) { ei.insert (h.vi); }
-            // Now clear the flags
+
+        // Loop through hexes, and if USER_FLAG_1 is set, add the hex index (vi) to indices, then clear flags
+        for (auto& h : hg.hexen) {
+            if (h.test_flag (sm::HEX_USER_FLAG_1)) { indices.insert (h.vi); }
             h.reset_user_flags();
         }
 
-        return ei;
+        return indices;
     }
 }
