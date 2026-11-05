@@ -78,13 +78,29 @@ export namespace sm
 
             this->pt_last = this->shiftpt (px, this->boundary.back());
 
+            sm::vec<T_el, 2> pt_first = this->shiftpt (px, this->boundary.front());
+            if constexpr (debug_mode == true) { std::cout << "pt_first: " << pt_first << " pt_last: " << pt_last << std::endl; }
+            if (pt_first == pt_last) {
+                // Oh no, this is an error.
+                std::cerr << "The first and last point in the boundary may not be the same!\n";
+                return 0;
+            }
+
             auto biter = this->boundary.begin();
             while (biter != this->boundary.end()) {
 
                 sm::vec<T_el, 2> pt = this->shiftpt (px, *biter);
+                if constexpr (debug_extra == true) { std::cout << "shifted boundary point: " << pt << " and pt_last: " << pt_last << "\n"; }
                 if (pt[1] * pt_last[1] < T_el{0}) {
                     // We cross the x axis
+                    if constexpr (debug_mode == true) { std::cout << "we cross\n"; }
+
                     r = pt_last[0] + pt_last[1] * (pt[0] - pt_last[0]) / (pt_last[1] - pt[1]); // x coord of intersection
+
+                    if constexpr (debug_mode == true) {
+                        std::cout << "r = " << r << ", pt_last[1] = " << pt_last[1] << ", pt_last[0] = " << pt_last[0]
+                                  << ", pt[1] = " << pt[1] << ", pt[0] = " << pt[0] << std::endl;
+                    }
                     if (r > T_el{0}) { // crosses positive x axis
                         if (pt_last[1] < T_el{0}) {
                             if constexpr (debug_mode == true) { std::cout << "+x,"; }
@@ -109,6 +125,8 @@ export namespace sm
                             if constexpr (debug_mode == true) { std::cout << "PT-.5,"; }
                             wd -= 0.5;
                         }
+                    } else {
+                        if constexpr (debug_mode == true) { std::cout << "HOW did we cross ?!?\n"; }
                     }
                 }
                 pt_last = pt;
@@ -123,7 +141,7 @@ export namespace sm
         // Returns (bp - px) (for just the first two elements) in a vec<T_el, 2>
         sm::vec<T_el, 2> shiftpt (const T& px, const T& bp)
         {
-            if constexpr (debug_mode == true) { std::cout << "Shifting boundary point " << bp << std::endl; }
+            if constexpr (debug_extra == true) { std::cout << "Shifting boundary point " << bp << std::endl; }
             // Get angle from px to bp. First create pt, the vector pointing from px to
             // bp whose angle we will calculate.
             sm::vec<T_el, 2> pt;
