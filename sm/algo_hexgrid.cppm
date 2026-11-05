@@ -17,6 +17,7 @@ module;
 #include <set>
 #include <limits>
 #include <tuple>
+#include <iostream> // debug
 
 export module sm.algo.hexgrid;
 
@@ -26,6 +27,8 @@ import sm.interval;
 export import sm.hexgrid;
 export import sm.vec;
 export import sm.vvec;
+
+import sm.winder;
 
 export namespace sm::algo::hexgrid
 {
@@ -514,6 +517,7 @@ export namespace sm::algo::hexgrid
         tfm.rotate (r);
 
         sm::vvec<sm::vec<F, 2>> bpoints;
+        sm::vvec<sm::vec<F, 2>> bhexpoints;
 
         // Loop around phi, computing coordinates that lie on the elliptical boundary
         for (double phi = 0.0; phi < sm::mathconst<double>::two_pi; phi += delta_phi) {
@@ -542,20 +546,35 @@ export namespace sm::algo::hexgrid
 
             // We're using USER_FLAG_0 to mark the boundary of our shape. Set it for each hex on the boundary
             h->set_user_flags (sm::HEX_USER_FLAG_0);
+            std::cout << "Add " << h->output_rg() << " to bhexpoints\n";
+            if (indices.count (h->vi) == 0) {
+                bhexpoints.push_back (h->x_y());
+                // Add the index of each boundary hex to the return object, indices
+                indices.insert (h->vi);
+            }
 
-            // Add the index of each boundary hex to the return object, indices
-            indices.insert (h->vi);
             nearby_boundary_point = h;
             bpi++;
         }
 
+        sm::winder w(bpoints);
+        std::cout << "Winding number for bpoints and c: " << w.wind (c) << std::endl;
+        sm::winder w2(bhexpoints);
+        std::cout << "Winding number for bhexpoints and c: " << w2.wind (c) << std::endl;
+
+#if 0
         // Find an inside hex (the one at location c)
         typename std::list<sm::hex<F, A>>::iterator inner_hex = hg.find_hex_nearest (c);
-
         // Use hexgrid's mark_hexes_inside method to set HEX_USER_FLAG_1 for all those hexes that
         // are in side the elliptic boundary for which sm::HEX_USER_FLAG_0 is set.
         hg.mark_hexes_inside (inner_hex, sm::HEX_USER_FLAG_0, sm::HEX_USER_FLAG_1);
+#endif
 
+#if 0
+        // There's an edge case if the boundary on either size of a long thin ellipse touches at 1
+        // or more locations. In this case, we may have failed to fill in all the hexes. Use winding numbers!
+        hg.mark_hexes_inside_winding (bhexpoints, sm::HEX_USER_FLAG_1);
+#endif
         // Loop through hexes, and if USER_FLAG_1 is set, add the hex index (vi) to indices, then clear flags
         for (auto& h : hg.hexen) {
             if (h.test_flag (sm::HEX_USER_FLAG_1)) { indices.insert (h.vi); }
