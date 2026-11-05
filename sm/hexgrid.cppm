@@ -2447,7 +2447,8 @@ export namespace sm
          * insisting that the boundary was strictly always only 1 hex thick would make that
          * algorithm more complex.
          *
-         * \param bdry_flag The flag used to recognise a boundary hex.
+         * \param bdry_flag The flag used to recognise a boundary hex. To fill custom shapes, you
+         * can use a HEX_USER_FLAG_N
          *
          * \param inside_flag The flag used to recognise a hex that is inside the boundary.
          *
@@ -2480,7 +2481,7 @@ export namespace sm
                     }
                     if (hex_already_seen) { continue; }
 
-                    std::uint16_t i_opp = ((i+3)%6);
+                    std::uint16_t i_opp = ((i + 3) % 6);
 
                     // Go round each of the candidate boundary hex's neighbours (but j!=i)
                     for (std::uint16_t j = 0; j < 6; ++j) {
@@ -2488,15 +2489,15 @@ export namespace sm
                         // Ignore the candidate boundary hex itself. if j==i_opp, then
                         // i's neighbour in dirn sm::hex<F, A>::neighbour_idx(j) is the
                         // candidate iself, continue to next i
-                        if (j==i_opp) { continue; }
+                        if (j == i_opp) { continue; }
 
                         // What is this logic. If the candidate boundary hex (which is already
                         // known to be on the boundary) has a neighbour which is inside the
                         // boundary and not itself a boundary hex, then cbhi IS the next
                         // boundary hex.
                         if (cbhi->has_neighbour(j)
-                            && cbhi->get_neighbour(j)->test_flags(inside_flag)==true
-                            && cbhi->get_neighbour(j)->test_flags(bdry_flag)==false) {
+                            && cbhi->get_neighbour(j)->test_flags(inside_flag) == true
+                            && cbhi->get_neighbour(j)->test_flags(bdry_flag) == false) {
                             recently_seen.push_back (bhi);
                             if (recently_seen.size() > n_recents) { recently_seen.pop_front(); }
                             bhi = cbhi;
@@ -2510,9 +2511,11 @@ export namespace sm
             return (gotnextneighbour);
         }
 
+    public:
         /*!
-         * Mark hexes as inside_boundary if they are inside the boundary. Starts from \a hi which is
-         * assumed to already be known to refer to a hex lying inside the boundary.
+         * Mark hexes as 'inside a boundary' (by setting inside_flag) if they are inside the
+         * boundary defined as a contiguous ring of hexes with bdry_flag set. Starts from \a hi
+         * which is assumed to already be known to refer to a hex lying inside the boundary.
          */
         void mark_hexes_inside (std::list<sm::hex<F, A>>::iterator hi,
                                 std::uint32_t bdry_flag = sm::HEX_IS_BOUNDARY,
@@ -2541,6 +2544,7 @@ export namespace sm
             }
         }
 
+    private:
         /*!
          * Recursively mark hexes to be kept if they are inside the rectangular hex domain.
          */

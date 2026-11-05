@@ -14,6 +14,7 @@ module;
 #include <stdexcept>
 #include <cmath>
 #include <map>
+#include <set>
 #include <limits>
 #include <tuple>
 
@@ -491,10 +492,10 @@ export namespace sm::algo::hexgrid
      * two elliptical radii a and b. The ellipse is centered at c.
      */
     template<typename F, sm::hexalign A>
-    sm::vvec<std::uint32_t> ellipse_indices (sm::hexgrid<F, A>& hg,
+    std::set<std::uint32_t> ellipse_indices (sm::hexgrid<F, A>& hg,
                                              const F a, const F b, const F r, const sm::vec<F, 2> c = {})
     {
-        sm::vvec<std::uint32_t> ei = {};
+        std::set<std::uint32_t> ei = {};
 
         // Estimate a good delta_phi based on the larger of a and b. Compute the delta_phi
         // required to travel a fraction of one hex-to-hex distance.
@@ -521,11 +522,22 @@ export namespace sm::algo::hexgrid
         typename std::list<sm::hex<F, A>>::iterator nearby_boundary_point = hg.hexen.begin(); // i.e the hex at 0,0
         while (bpi != bpoints.end()) {
             typename std::list<sm::hex<F, A>>::iterator h = hg.find_hex_near_point (*bpi++, nearby_boundary_point);
-            ei.push_back (h->vi);
+            h->set_user_flags (HEX_USER_FLAG_0); // Use USER_FLAG_0 to define the boundary of our shape
+            ei.insert (h->vi);
             nearby_boundary_point = h;
         }
 
-        // To do: Fill in.
+        // Find an inside hex (the one at location c)
+        typename std::list<sm::hex<F, A>>::iterator inner_hex = hg.find_hex_nearest (c);
+        // Use hexgrid's mark_hexes_inside method to set HEX_USER_FLAG_1 for all those hexes that
+        // are in side the elliptic boundary for which sm::HEX_USER_FLAG_0 is set.
+        hg.mark_hexes_inside (inner_hex, sm::HEX_USER_FLAG_0, sm::HEX_USER_FLAG_1);
+        // Now loop through hexes, and if USER_FLAG_1 is set, add the hex index (vi) to ei.
+        for (auto h : hg.hexen) {
+            if (h.test_flag (HEX_USER_FLAG_1)) { ei.insert (h.vi); }
+            // Now clear the flags
+            h.reset_user_flags();
+        }
 
         return ei;
     }
