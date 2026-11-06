@@ -14,6 +14,7 @@
  */
 module;
 
+#include <cstdint>
 #include <iostream>
 #include <memory>
 #include <cmath>
@@ -44,7 +45,7 @@ export namespace sm
      *  // Code which populates path goes here
      *  sm::winder w(path);
      *  sm::vec<float, 2> pixel = {0.7, 0.6};
-     *  int winding_number = w.wind (pixel);
+     *  std::int32_t winding_number = w.wind (pixel);
      *\endcode
      *
      * \tparam T the (2D) coordinate type (this might be cv::Point, sm::bezcoord,
@@ -71,7 +72,7 @@ export namespace sm
         winder (const C& _boundary) : boundary(_boundary) {}
 
         //! Compute the winding number of the coordinate px with respect to the boundary.
-        int wind (const T& px)
+        std::int32_t wind (const T& px)
         {
             double wd = 0.0;
             T_el r = T_el{0};
@@ -115,8 +116,7 @@ export namespace sm
                 pt_last = pt;
                 ++biter;
             }
-            int w = static_cast<int>(std::round (wd));
-            return w;
+            return static_cast<std::int32_t>(std::round (wd));
         }
 
     private:

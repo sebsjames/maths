@@ -2553,7 +2553,7 @@ export namespace sm
             sm::winder w(boundary);
             for (auto& hi : this->hexen) {
                 if (hi.test_flag (bdry_flag) == false) {
-                    int wn = w.wind (hi.x_y());
+                    std::int32_t wn = w.wind (hi.x_y());
                     if (wn != 0) { hi.set_flag (inside_flag); }
                 } // else don't wind for the boundary hexes
             }
