@@ -1,9 +1,8 @@
 #include <iostream>
+#include <limits>
 
-import sm.vec;
 import sm.scale;
-//import sm.vvec;  // for clang (scale export imports vvec)
-//import sm.interval; // for clang (vec, vvec export imports vvec)
+import sm.vvec;
 
 int main ()
 {
@@ -23,6 +22,7 @@ int main ()
     }
     std::cout << std::endl;
 
+    if (result[0] != 0.0f || result[7] != 1.0f) { --rtn; }
 
     std::cout << "Test " << (rtn == 0 ? "Passed" : "Failed") << std::endl;
     return rtn;
