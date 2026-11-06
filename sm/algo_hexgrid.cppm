@@ -17,7 +17,6 @@ module;
 #include <set>
 #include <limits>
 #include <tuple>
-#include <iostream> // debug
 
 export module sm.algo.hexgrid;
 
@@ -27,8 +26,6 @@ import sm.interval;
 export import sm.hexgrid;
 export import sm.vec;
 export import sm.vvec;
-
-import sm.winder;
 
 export namespace sm::algo::hexgrid
 {
@@ -555,11 +552,6 @@ export namespace sm::algo::hexgrid
             nearby_boundary_point = h;
             bpi++;
         }
-
-        sm::winder w(bpoints);
-        std::cout << "Winding number for bpoints and c: " << w.wind (c) << std::endl;
-        sm::winder w2(bhexpoints);
-        std::cout << "Winding number for bhexpoints and c: " << w2.wind (c) << std::endl;
 
 #if 0
         // Find an inside hex (the one at location c)
