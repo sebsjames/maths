@@ -180,5 +180,14 @@ int main()
     std::cout << "Winding number 2 = " << wn2 << std::endl;
     if (wn2 != 1) { --rtn; }
 
+    px0 = { -0.02750f, 0.00433f };
+    int wn = w2.wind (px0);
+    std::cout << "Winding number 3 = " << wn << std::endl;
+    if (wn != 0) { --rtn; }
+
+    px0 = { -0.10500f, -0.03464f };
+    wn = w2.wind (px0);
+    std::cout << "Winding number 4 = " << wn << std::endl;
+    if (wn != 0) { --rtn; }
     return rtn;
 }
