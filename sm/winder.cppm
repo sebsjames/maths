@@ -78,32 +78,26 @@ export namespace sm
 
             this->pt_last = this->shiftpt (px, this->boundary.back());
 
-            sm::vec<T_el, 2> pt_first = this->shiftpt (px, this->boundary.front());
-            if constexpr (debug_mode == true) { std::cout << "pt_first: " << pt_first << " pt_last: " << pt_last << std::endl; }
-            if (pt_first == pt_last) {
-                // Oh no, this is an error.
-                std::cerr << "The first and last point in the boundary may not be the same!\n";
-                return 0;
-            }
-
             auto biter = this->boundary.begin();
             while (biter != this->boundary.end()) {
 
                 sm::vec<T_el, 2> pt = this->shiftpt (px, *biter);
-                if constexpr (debug_extra == true) { std::cout << "shifted boundary point: " << pt << " and pt_last: " << pt_last << "\n"; }
+
+                if constexpr (debug_extra == true) { std::cout << "(shifted) last point: " << pt_last << " and current: " << pt << "\n"; }
+
                 if (pt[1] * pt_last[1] < T_el{0}) {
                     // We cross the x axis
-                    if constexpr (debug_mode == true) { std::cout << "we cross\n"; }
+                    if constexpr (debug_extra == true) { std::cout << "we cross\n"; }
 
                     r = pt_last[0] + pt_last[1] * (pt[0] - pt_last[0]) / (pt_last[1] - pt[1]); // x coord of intersection
 
-                    if constexpr (debug_mode == true) {
+                    if constexpr (debug_extra == true) {
                         std::cout << "r = " << r << ", pt_last[1] = " << pt_last[1] << ", pt_last[0] = " << pt_last[0]
                                   << ", pt[1] = " << pt[1] << ", pt[0] = " << pt[0] << std::endl;
                     }
                     if (r > T_el{0}) { // crosses positive x axis
                         if (pt_last[1] < T_el{0}) {
-                            if constexpr (debug_mode == true) { std::cout << "+x,"; }
+                            if constexpr (debug_mode == true) { std::cout << "+x,"; } // '+x' crossing is from -y to +y
                             wd += 1;
                         } else {
                             if constexpr (debug_mode == true) { std::cout << "-x,"; }
@@ -125,10 +119,30 @@ export namespace sm
                             if constexpr (debug_mode == true) { std::cout << "PT-.5,"; }
                             wd -= 0.5;
                         }
-                    } else {
-                        if constexpr (debug_mode == true) { std::cout << "HOW did we cross ?!?\n"; }
-                    }
-                }
+                    } // else may be on -ve x axis (for which we do not count)
+
+                } else if (pt[1] * pt_last[1] == T_el{0}) {
+
+                    if (pt_last[1] == T_el{0} && pt_last[0] > T_el{0}) { // pt_last is on positive axis
+                        if (pt[1] > T_el{0}) {
+                            if constexpr (debug_mode == true) { std::cout << "PL+.5,"; }
+                            wd += 0.5;
+                        } else {
+                            if constexpr (debug_mode == true) { std::cout << "PL-.5,"; }
+                            wd -= 0.5;
+                        }
+                    } else if (pt[1] == T_el{0} && pt[0] > T_el{0}) { // pt is on the positive x axis
+                        if (pt_last[1] < T_el{0}) {
+                            if constexpr (debug_mode == true) { std::cout << "PT+.5,"; }
+                            wd += 0.5;
+                        } else {
+                            if constexpr (debug_mode == true) { std::cout << "PT-.5,"; }
+                            wd -= 0.5;
+                        }
+                    } // probably on -x axis (for which we do not count crossings)
+
+                } // else no crossings
+
                 pt_last = pt;
                 ++biter;
             }
