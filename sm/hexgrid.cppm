@@ -1727,13 +1727,19 @@ export namespace sm
             return this->find_hex_near_point (point.coord, start_from);
         }
 
+        template<bool ignore_tfm = false>
         std::list<sm::hex<F, A>>::iterator find_hex_near_point (const sm::vec<F, 2>& point, std::list<sm::hex<F, A>>::iterator start_from)
         {
             bool neighbour_nearer = true;
 
             typename std::list<sm::hex<F, A>>::iterator h = start_from;
             // Note: transform hex x/y before comparing with point.
-            sm::vec<F, 2> p = this->tfm * sm::vec<F, 2>{ h->x, h->y };
+            sm::vec<F, 2> p = {};
+            if constexpr (ignore_tfm) {
+                p = sm::vec<F, 2>{ h->x, h->y };
+            } else {
+                p = this->tfm * sm::vec<F, 2>{ h->x, h->y };
+            }
             F dmin = (p - point).length();
             F dcur = 0.0f;
 
@@ -1741,7 +1747,11 @@ export namespace sm
                 neighbour_nearer = false;
                 for (std::uint32_t i = 0; i < 6; ++i) {
                     if (h->has_neighbour(i)) {
-                        p = this->tfm * sm::vec<F, 2>{ h->get_neighbour(i)->x,  h->get_neighbour(i)->y };
+                        if constexpr (ignore_tfm) {
+                            p = sm::vec<F, 2>{ h->get_neighbour(i)->x,  h->get_neighbour(i)->y };
+                        } else {
+                            p = this->tfm * sm::vec<F, 2>{ h->get_neighbour(i)->x,  h->get_neighbour(i)->y };
+                        }
                         if ((dcur = (p - point).length()) < dmin) {
                             dmin = dcur;
                             h = h->get_neighbour(i);
