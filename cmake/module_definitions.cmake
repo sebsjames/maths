@@ -263,6 +263,7 @@ macro(setup_module_variables_for_maths base_directory)
   set(SM_HEXGRID_MODULES
     ${SM_BEZCURVEPATH_MODULES}
     ${SM_HEX_MODULES}
+    ${SM_WINDER_MODULES}
     ${base_directory}/sm/hexgrid.cppm
   )
   list(REMOVE_DUPLICATES SM_HEXGRID_MODULES)

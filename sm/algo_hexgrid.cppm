@@ -14,6 +14,7 @@ module;
 #include <stdexcept>
 #include <cmath>
 #include <map>
+#include <set>
 #include <limits>
 #include <tuple>
 
@@ -484,5 +485,89 @@ export namespace sm::algo::hexgrid
         hgr.check_contiguous_and_discard (bhr);
 
         return hgr;
+    }
+
+    /*
+     * Get the indices of an ellipse, 'drawn' on the hexgrid hg, with a given rotation r and two
+     * elliptical radii a (x dirn) and b (y dirn). The ellipse is centered at c. I wrote this to
+     * help me with defining convolution kernel hexgrids.
+     *
+     * Throws an exception if the shape fails to fit on the underlying hexgrid.
+     */
+    template<typename F, sm::hexalign A>
+    std::set<std::uint32_t> ellipse_indices (sm::hexgrid<F, A>& hg,
+                                             const F a, const F b, const F r, const sm::vec<F, 2> c = {})
+    {
+        std::set<std::uint32_t> indices = {};
+
+        if (a <= F{0.5} * hg.d || b <= F{0.5} * hg.d) {
+            throw std::runtime_error ("algo::hexgrid::ellipse_indices: choose ellipse radii (a and b) > 0.5 * hg.d");
+        }
+
+        // Estimate a good delta_phi based on the larger of a and b. Compute the delta_phi
+        // required to travel a fraction of one hex-to-hex distance.
+        double dfraction = hg.get_d() / 2.0;
+        double delta_phi = std::atan2 (dfraction, (a > b ? a : b));
+
+        // The rotational transform for the ellipse
+        sm::mat<F, 2> rotn = sm::mat<F, 2>::identity();
+        rotn.rotate (r);
+
+        sm::vvec<sm::vec<F, 2>> bpoints;
+        sm::vvec<sm::vec<F, 2>> bhexpoints;
+
+        // Loop around phi, computing coordinates that lie on the elliptical boundary
+        for (double phi = 0.0; phi < sm::mathconst<double>::two_pi; phi += delta_phi) {
+            sm::vec<F, 2> xy_pt = {
+                static_cast<F>(a * std::cos (phi)),
+                static_cast<F>(b * std::sin (phi))
+            };
+            // Apply rotational transform, rot, and translation, c
+            xy_pt = (rotn * (xy_pt)) + c;
+            bpoints.push_back (xy_pt);
+        }
+
+        // We ignore the hexgrid's transform in find_hex_near_point.
+        constexpr bool ignore_xform = true;
+
+        // Now have a set of coordinates on the boundary (bpoints). This allows us to mark the hexes
+        // that those points fall into.
+        auto bpi = bpoints.begin();
+        typename std::list<sm::hex<F, A>>::iterator nearby_boundary_point = hg.hexen.begin(); // the hex at 0,0
+        while (bpi != bpoints.end()) {
+
+            // Need this to be able to return .end() if no hex is very near *bpi
+            typename std::list<sm::hex<F, A>>::iterator h = hg.template find_hex_near_point<ignore_xform> (*bpi, nearby_boundary_point);
+
+            if ((h->x_y() - *bpi).length() > hg.d) {
+                // distance between nearest hex (h) and the ellipse boundary point (bpi) exceeds hg.d, which means:
+                throw std::runtime_error ("algo::hexgrid::ellipse_indices: ellipse boundary not contained by hexgrid");
+            }
+
+            // We're using USER_FLAG_0 to mark the boundary of our shape. Set it for each hex on the boundary
+            h->set_user_flags (sm::HEX_USER_FLAG_0);
+            if (indices.count (h->vi) == 0) {
+                bhexpoints.push_back (h->x_y());
+                // Add the index of each boundary hex to the return object, indices
+                indices.insert (h->vi);
+            }
+
+            nearby_boundary_point = h;
+            bpi++;
+        }
+
+        // Initially, I tried hexgrid::mark_hexes_inside(). This works for most boundaries, but
+        // there's an edge case if the boundary on either size of a long thin ellipse touches at 1
+        // or more locations. In this case, we may have failed to fill in all the hexes. This led me
+        // to use an alternative algorithm that makes use of the winding number:
+        hg.mark_hexes_inside_winding (bhexpoints, sm::HEX_USER_FLAG_0, sm::HEX_USER_FLAG_1);
+
+        // Loop through hexes, and if USER_FLAG_1 is set, add the hex index (vi) to indices, then clear flags
+        for (auto& h : hg.hexen) {
+            if (h.test_flag (sm::HEX_USER_FLAG_1)) { indices.insert (h.vi); }
+            h.reset_user_flags();
+        }
+
+        return indices;
     }
 }

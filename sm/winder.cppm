@@ -14,6 +14,7 @@
  */
 module;
 
+#include <cstdint>
 #include <iostream>
 #include <memory>
 #include <cmath>
@@ -44,7 +45,7 @@ export namespace sm
      *  // Code which populates path goes here
      *  sm::winder w(path);
      *  sm::vec<float, 2> pixel = {0.7, 0.6};
-     *  int winding_number = w.wind (pixel);
+     *  std::int32_t winding_number = w.wind (pixel);
      *\endcode
      *
      * \tparam T the (2D) coordinate type (this might be cv::Point, sm::bezcoord,
@@ -71,7 +72,7 @@ export namespace sm
         winder (const C& _boundary) : boundary(_boundary) {}
 
         //! Compute the winding number of the coordinate px with respect to the boundary.
-        int wind (const T& px)
+        std::int32_t wind (const T& px)
         {
             double wd = 0.0;
             T_el r = T_el{0};
@@ -82,12 +83,13 @@ export namespace sm
             while (biter != this->boundary.end()) {
 
                 sm::vec<T_el, 2> pt = this->shiftpt (px, *biter);
-                if (pt[1] * pt_last[1] < T_el{0}) {
+                const T_el pt1product = pt[1] * pt_last[1];
+                if (pt1product < T_el{0} || (pt1product == T_el{0} && std::signbit (pt1product) == true)) { // <0 or -0
                     // We cross the x axis
                     r = pt_last[0] + pt_last[1] * (pt[0] - pt_last[0]) / (pt_last[1] - pt[1]); // x coord of intersection
                     if (r > T_el{0}) { // crosses positive x axis
                         if (pt_last[1] < T_el{0}) {
-                            if constexpr (debug_mode == true) { std::cout << "+x,"; }
+                            if constexpr (debug_mode == true) { std::cout << "+x,"; } // '+x' crossing is from -y to +y
                             wd += 1;
                         } else {
                             if constexpr (debug_mode == true) { std::cout << "-x,"; }
@@ -109,13 +111,12 @@ export namespace sm
                             if constexpr (debug_mode == true) { std::cout << "PT-.5,"; }
                             wd -= 0.5;
                         }
-                    }
-                }
+                    } // else may be on -ve x axis (for which we do not count)
+                } // else no crossings
                 pt_last = pt;
                 ++biter;
             }
-            int w = static_cast<int>(std::round (wd));
-            return w;
+            return static_cast<std::int32_t>(std::round (wd));
         }
 
     private:

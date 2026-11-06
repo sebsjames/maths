@@ -34,6 +34,7 @@ export import sm.vec;
 export import sm.hex;
 import sm.vvec;
 import sm.mat;
+import sm.winder;
 
 export namespace sm
 {
@@ -1717,6 +1718,52 @@ export namespace sm
             return rtn;
         }
 
+        /*!
+         * Find the hex near @point, starting from start_from, which should be as close as possible
+         * to point in order to reduce computation time.
+         */
+        std::list<sm::hex<F, A>>::iterator find_hex_near_point (const bezcoord<F>& point, std::list<sm::hex<F, A>>::iterator start_from)
+        {
+            return this->find_hex_near_point (point.coord, start_from);
+        }
+
+        template<bool ignore_tfm = false>
+        std::list<sm::hex<F, A>>::iterator find_hex_near_point (const sm::vec<F, 2>& point, std::list<sm::hex<F, A>>::iterator start_from)
+        {
+            bool neighbour_nearer = true;
+
+            typename std::list<sm::hex<F, A>>::iterator h = start_from;
+            // Note: transform hex x/y before comparing with point.
+            sm::vec<F, 2> p = {};
+            if constexpr (ignore_tfm) {
+                p = sm::vec<F, 2>{ h->x, h->y };
+            } else {
+                p = this->tfm * sm::vec<F, 2>{ h->x, h->y };
+            }
+            F dmin = (p - point).length();
+            F dcur = 0.0f;
+
+            while (neighbour_nearer == true) {
+                neighbour_nearer = false;
+                for (std::uint32_t i = 0; i < 6; ++i) {
+                    if (h->has_neighbour(i)) {
+                        if constexpr (ignore_tfm) {
+                            p = sm::vec<F, 2>{ h->get_neighbour(i)->x,  h->get_neighbour(i)->y };
+                        } else {
+                            p = this->tfm * sm::vec<F, 2>{ h->get_neighbour(i)->x,  h->get_neighbour(i)->y };
+                        }
+                        if ((dcur = (p - point).length()) < dmin) {
+                            dmin = dcur;
+                            h = h->get_neighbour(i);
+                            neighbour_nearer = true;
+                        }
+                    }
+                }
+            }
+
+            return h;
+        }
+
     private:
         /*!
          * Initialise a grid of hexes in a hex spiral, setting neighbours as the grid spirals
@@ -2275,37 +2322,6 @@ export namespace sm
         }
 
         /*!
-         * Find the hex near @point, starting from start_from, which should be as close as possible
-         * to point in order to reduce computation time.
-         */
-        std::list<sm::hex<F, A>>::iterator find_hex_near_point (const bezcoord<F>& point, std::list<sm::hex<F, A>>::iterator start_from)
-        {
-            bool neighbour_nearer = true;
-
-            typename std::list<sm::hex<F, A>>::iterator h = start_from;
-            // Note: transform hex x/y before comparing with point.
-            sm::vec<F, 2> p = this->tfm * sm::vec<F, 2>{ h->x, h->y };
-            F dmin = (p - point.coord).length();
-            F dcur = 0.0f;
-
-            while (neighbour_nearer == true) {
-                neighbour_nearer = false;
-                for (std::uint32_t i = 0; i < 6; ++i) {
-                    if (h->has_neighbour(i)) {
-                        p = this->tfm * sm::vec<F, 2>{ h->get_neighbour(i)->x,  h->get_neighbour(i)->y };
-                        if ((dcur = (p - point.coord).length()) < dmin) {
-                            dmin = dcur;
-                            h = h->get_neighbour(i);
-                            neighbour_nearer = true;
-                        }
-                    }
-                }
-            }
-
-            return h;
-        }
-
-        /*!
          * Mark hexes as being inside the boundary given that \a hi refers to a boundary hex and at
          * least one adjacent hex to \a hi has already been marked as inside the boundary (thus
          * allowing the algorithm to know which side of the boundary hex is the inside)
@@ -2442,7 +2458,8 @@ export namespace sm
          * insisting that the boundary was strictly always only 1 hex thick would make that
          * algorithm more complex.
          *
-         * \param bdry_flag The flag used to recognise a boundary hex.
+         * \param bdry_flag The flag used to recognise a boundary hex. To fill custom shapes, you
+         * can use a HEX_USER_FLAG_N
          *
          * \param inside_flag The flag used to recognise a hex that is inside the boundary.
          *
@@ -2475,23 +2492,23 @@ export namespace sm
                     }
                     if (hex_already_seen) { continue; }
 
-                    std::uint16_t i_opp = ((i+3)%6);
+                    std::uint16_t i_opp = ((i + 3) % 6);
 
-                    // Go round each of the candidate boundary hex's neighbours (but j!=i)
+                    // Go round each of the candidate boundary hex's neighbours (but j != i_opp)
                     for (std::uint16_t j = 0; j < 6; ++j) {
 
                         // Ignore the candidate boundary hex itself. if j==i_opp, then
                         // i's neighbour in dirn sm::hex<F, A>::neighbour_idx(j) is the
                         // candidate iself, continue to next i
-                        if (j==i_opp) { continue; }
+                        if (j == i_opp) { continue; }
 
                         // What is this logic. If the candidate boundary hex (which is already
                         // known to be on the boundary) has a neighbour which is inside the
                         // boundary and not itself a boundary hex, then cbhi IS the next
                         // boundary hex.
                         if (cbhi->has_neighbour(j)
-                            && cbhi->get_neighbour(j)->test_flags(inside_flag)==true
-                            && cbhi->get_neighbour(j)->test_flags(bdry_flag)==false) {
+                            && cbhi->get_neighbour(j)->test_flags(inside_flag) == true
+                            && cbhi->get_neighbour(j)->test_flags(bdry_flag) == false) {
                             recently_seen.push_back (bhi);
                             if (recently_seen.size() > n_recents) { recently_seen.pop_front(); }
                             bhi = cbhi;
@@ -2505,9 +2522,11 @@ export namespace sm
             return (gotnextneighbour);
         }
 
+    public:
         /*!
-         * Mark hexes as inside_boundary if they are inside the boundary. Starts from \a hi which is
-         * assumed to already be known to refer to a hex lying inside the boundary.
+         * Mark hexes as 'inside a boundary' (by setting inside_flag) if they are inside the
+         * boundary defined as a contiguous ring of hexes with bdry_flag set. Starts from \a hi
+         * which is assumed to already be known to refer to a hex lying inside the boundary.
          */
         void mark_hexes_inside (std::list<sm::hex<F, A>>::iterator hi,
                                 std::uint32_t bdry_flag = sm::HEX_IS_BOUNDARY,
@@ -2536,6 +2555,21 @@ export namespace sm
             }
         }
 
+        // Mark hexes inside using the winding number algorithm for the given boundary
+        void mark_hexes_inside_winding (sm::vvec<sm::vec<F, 2>>& boundary,
+                                        std::uint32_t bdry_flag = sm::HEX_IS_BOUNDARY,
+                                        std::uint32_t inside_flag = sm::HEX_INSIDE_BOUNDARY)
+        {
+            sm::winder w(boundary);
+            for (auto& hi : this->hexen) {
+                if (hi.test_flag (bdry_flag) == false) {
+                    std::int32_t wn = w.wind (hi.x_y());
+                    if (wn != 0) { hi.set_flag (inside_flag); }
+                } // else don't wind for the boundary hexes
+            }
+        }
+
+    private:
         /*!
          * Recursively mark hexes to be kept if they are inside the rectangular hex domain.
          */
