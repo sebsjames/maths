@@ -83,19 +83,11 @@ export namespace sm
 
                 sm::vec<T_el, 2> pt = this->shiftpt (px, *biter);
 
-                if constexpr (debug_extra == true) { std::cout << "(shifted) last point: " << pt_last << " and current: " << pt << "\n"; }
-
                 const T_el pt1product = pt[1] * pt_last[1];
                 if (pt1product < T_el{0} || (pt1product == T_el{0} && std::signbit (pt1product) == true)) { // <0 or -0
                     // We cross the x axis
-                    if constexpr (debug_extra == true) { std::cout << "we cross\n"; }
-
                     r = pt_last[0] + pt_last[1] * (pt[0] - pt_last[0]) / (pt_last[1] - pt[1]); // x coord of intersection
 
-                    if constexpr (debug_extra == true) {
-                        std::cout << "r = " << r << ", pt_last[1] = " << pt_last[1] << ", pt_last[0] = " << pt_last[0]
-                                  << ", pt[1] = " << pt[1] << ", pt[0] = " << pt[0] << std::endl;
-                    }
                     if (r > T_el{0}) { // crosses positive x axis
                         if (pt_last[1] < T_el{0}) {
                             if constexpr (debug_mode == true) { std::cout << "+x,"; } // '+x' crossing is from -y to +y
@@ -121,7 +113,6 @@ export namespace sm
                             wd -= 0.5;
                         }
                     } // else may be on -ve x axis (for which we do not count)
-
                 } // else no crossings
 
                 pt_last = pt;
@@ -136,7 +127,7 @@ export namespace sm
         // Returns (bp - px) (for just the first two elements) in a vec<T_el, 2>
         sm::vec<T_el, 2> shiftpt (const T& px, const T& bp)
         {
-            if constexpr (debug_extra == true) { std::cout << "Shifting boundary point " << bp << std::endl; }
+            if constexpr (debug_mode == true) { std::cout << "Shifting boundary point " << bp << std::endl; }
             // Get angle from px to bp. First create pt, the vector pointing from px to
             // bp whose angle we will calculate.
             sm::vec<T_el, 2> pt;
