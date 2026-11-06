@@ -546,7 +546,6 @@ export namespace sm::algo::hexgrid
 
             // We're using USER_FLAG_0 to mark the boundary of our shape. Set it for each hex on the boundary
             h->set_user_flags (sm::HEX_USER_FLAG_0);
-            std::cout << "Add " << h->output_rg() << " to bhexpoints\n";
             if (indices.count (h->vi) == 0) {
                 bhexpoints.push_back (h->x_y());
                 // Add the index of each boundary hex to the return object, indices
@@ -570,11 +569,11 @@ export namespace sm::algo::hexgrid
         hg.mark_hexes_inside (inner_hex, sm::HEX_USER_FLAG_0, sm::HEX_USER_FLAG_1);
 #endif
 
-#if 0
-        // There's an edge case if the boundary on either size of a long thin ellipse touches at 1
-        // or more locations. In this case, we may have failed to fill in all the hexes. Use winding numbers!
-        hg.mark_hexes_inside_winding (bhexpoints, sm::HEX_USER_FLAG_1);
-#endif
+        // In mark_hexes_insider(), there's an edge case if the boundary on either size of a long
+        // thin ellipse touches at 1 or more locations. In this case, we may have failed to fill in
+        // all the hexes. Use an alternative algorithm that makes use of the winding number.
+        hg.mark_hexes_inside_winding (bhexpoints, sm::HEX_USER_FLAG_0, sm::HEX_USER_FLAG_1);
+
         // Loop through hexes, and if USER_FLAG_1 is set, add the hex index (vi) to indices, then clear flags
         for (auto& h : hg.hexen) {
             if (h.test_flag (sm::HEX_USER_FLAG_1)) { indices.insert (h.vi); }
