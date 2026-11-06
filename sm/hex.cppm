@@ -19,6 +19,7 @@ module;
 #include <array>
 #include <cmath>
 #include <type_traits>
+#include <format>
 
 export module sm.hex;
 
@@ -192,55 +193,47 @@ export namespace sm
          */
         std::string output() const
         {
-            std::string s("hex ");
-            s += std::to_string(this->vi) + " (";
-            s += std::to_string(this->ri).substr(0,4) + ",";
-            s += std::to_string(this->gi).substr(0,4) + "). ";
-
+            std::string s = std::format ("hex {} ({},{}). ", this->vi, this->ri, this->gi);
             if constexpr (A == hexalign::point_up) {
                 if (this->has_ne()) {
-                    s += "E: (" + std::to_string(this->n0->ri).substr(0,4) + "," + std::to_string(this->n0->gi).substr(0,4) + ") " + (this->n0->boundary_hex() == true ? "OB":"") + " ";
+                    s += std::format ("E: ({},{}) {} ", this->n0->ri, this->n0->gi, (this->n0->boundary_hex() ? "OB" : ""));
                 }
                 if (this->has_nne()) {
-                    s += "NE: (" + std::to_string(this->n1->ri).substr(0,4) + "," + std::to_string(this->n1->gi).substr(0,4) + ") " + (this->n1->boundary_hex() == true ? "OB":"") + " ";
+                    s += std::format ("NE: ({},{}) {} ", this->n1->ri, this->n1->gi, (this->n1->boundary_hex() ? "OB" : ""));
                 }
                 if (this->has_nnw()) {
-                    s += "NW: (" + std::to_string(this->n2->ri).substr(0,4) + "," + std::to_string(this->n2->gi).substr(0,4) + ") " + (this->n2->boundary_hex() == true ? "OB":"") + " ";
+                    s += std::format ("NW: ({},{}) {} ", this->n2->ri, this->n2->gi, (this->n2->boundary_hex() ? "OB" : ""));
                 }
                 if (this->has_nw()) {
-                    s += "W: (" + std::to_string(this->n3->ri).substr(0,4) + "," + std::to_string(this->n3->gi).substr(0,4) + ") " + (this->n3->boundary_hex() == true ? "OB":"") + " ";
+                    s += std::format ("W: ({},{}) {} ", this->n3->ri, this->n3->gi, (this->n3->boundary_hex() ? "OB" : ""));
                 }
                 if (this->has_nsw()) {
-                    s += "SW: (" + std::to_string(this->n4->ri).substr(0,4) + "," + std::to_string(this->n4->gi).substr(0,4) + ") " + (this->n4->boundary_hex() == true ? "OB":"") + " ";
+                    s += std::format ("SW: ({},{}) {} ", this->n4->ri, this->n4->gi, (this->n4->boundary_hex() ? "OB" : ""));
                 }
                 if (this->has_nse()) {
-                    s += "SE: (" + std::to_string(this->n5->ri).substr(0,4) + "," + std::to_string(this->n5->gi).substr(0,4) + ") " + (this->n5->boundary_hex() == true ? "OB":"") + " ";
+                    s += std::format ("SE: ({},{}) {} ", this->n5->ri, this->n5->gi, (this->n5->boundary_hex() ? "OB" : ""));
                 }
             } else {
                 if (this->has_nne()) {
-                    s += "NE: (" + std::to_string(this->n0->ri).substr(0,4) + "," + std::to_string(this->n0->gi).substr(0,4) + ") " + (this->n0->boundary_hex() == true ? "OB":"") + " ";
+                    s += std::format ("NE: ({},{}) {} ", this->n0->ri, this->n0->gi, (this->n0->boundary_hex() ? "OB" : ""));
                 }
                 if (this->has_nn()) {
-                    s += "N: (" + std::to_string(this->n1->ri).substr(0,4) + "," + std::to_string(this->n1->gi).substr(0,4) + ") " + (this->n1->boundary_hex() == true ? "OB":"") + " ";
+                    s += std::format ("N: ({},{}) {} ", this->n1->ri, this->n1->gi, (this->n1->boundary_hex() ? "OB" : ""));
                 }
                 if (this->has_nnw()) {
-                    s += "NW: (" + std::to_string(this->n2->ri).substr(0,4) + "," + std::to_string(this->n2->gi).substr(0,4) + ") " + (this->n2->boundary_hex() == true ? "OB":"") + " ";
+                    s += std::format ("NW: ({},{}) {} ", this->n2->ri, this->n2->gi, (this->n2->boundary_hex() ? "OB" : ""));
                 }
                 if (this->has_nsw()) {
-                    s += "SW: (" + std::to_string(this->n3->ri).substr(0,4) + "," + std::to_string(this->n3->gi).substr(0,4) + ") " + (this->n3->boundary_hex() == true ? "OB":"") + " ";
+                    s += std::format ("SW: ({},{}) {} ", this->n3->ri, this->n3->gi, (this->n3->boundary_hex() ? "OB" : ""));
                 }
                 if (this->has_ns()) {
-                    s += "S: (" + std::to_string(this->n4->ri).substr(0,4) + "," + std::to_string(this->n4->gi).substr(0,4) + ") " + (this->n4->boundary_hex() == true ? "OB":"") + " ";
+                    s += std::format ("S: ({},{}) {} ", this->n4->ri, this->n4->gi, (this->n4->boundary_hex() ? "OB" : ""));
                 }
                 if (this->has_nse()) {
-                    s += "SE: (" + std::to_string(this->n5->ri).substr(0,4) + "," + std::to_string(this->n5->gi).substr(0,4) + ") " + (this->n5->boundary_hex() == true ? "OB":"") + " ";
+                    s += std::format ("SE: ({},{}) {} ", this->n5->ri, this->n5->gi, (this->n5->boundary_hex() ? "OB" : ""));
                 }
             }
-            if (this->boundary_hex()) {
-                s += "(ON boundary)";
-            } else  {
-                s += "(not boundary)";
-            }
+            s += std::format ("({} boundary)", (this->boundary_hex() ? "ON" : "not"));
             return s;
         }
 
@@ -250,40 +243,17 @@ export namespace sm
          */
         std::string output_cart() const
         {
-            std::string s("hex ");
-            s += std::to_string(this->vi).substr(0,2) + " (";
-            s += std::to_string(this->ri).substr(0,4) + ",";
-            s += std::to_string(this->gi).substr(0,4) + ") is at (x,y) = ("
-            + std::to_string(this->x).substr(0,4) + "," + std::to_string(this->y).substr(0,4) + ")";
-            return s;
+            return std::format ("hex {} ({},{}) is at (x,y) = ({:.5f},{:.5f})", this->vi, this->ri, this->gi, this->x, this->y);
         }
 
         //! Output "(x,y)" coordinate string
-        std::string output_xy() const
-        {
-            std::string s("(");
-            s += std::to_string(this->x).substr(0,4) + "," + std::to_string(this->y).substr(0,4) + ")";
-            return s;
-        }
+        std::string output_xy() const { return std::format ("({:.5f},{:.5f})", this->x, this->y); }
 
-        //! Output a string containing just "RG(ri, gi)"
-        std::string output_rg() const
-        {
-            std::string s("RG(");
-            s += std::to_string(this->ri).substr(0,4) + ",";
-            s += std::to_string(this->gi).substr(0,4) + ")";
-            return s;
-        }
+        //! Output a string containing just "RG(ri,gi)"
+        std::string output_rg() const { return std::format ("RG({},{})", this->ri, this->gi); }
 
         //! Full rgb output
-        std::string output_rgb() const
-        {
-            std::string s("RGB(");
-            s += std::to_string(this->ri).substr(0,4) + ",";
-            s += std::to_string(this->gi).substr(0,4) + ",";
-            s += std::to_string(this->bi).substr(0,4) + ")";
-            return s;
-        }
+        std::string output_rgb() const { return std::format ("RGB({},{},{})", this->ri, this->gi, this->bi); }
 
         // The index (from 0 to 5) for neighbour positions depends on hexalign A.
         static constexpr std::uint32_t neighbour_idx_e()
