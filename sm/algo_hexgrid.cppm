@@ -553,17 +553,10 @@ export namespace sm::algo::hexgrid
             bpi++;
         }
 
-#if 0
-        // Find an inside hex (the one at location c)
-        typename std::list<sm::hex<F, A>>::iterator inner_hex = hg.find_hex_nearest (c);
-        // Use hexgrid's mark_hexes_inside method to set HEX_USER_FLAG_1 for all those hexes that
-        // are in side the elliptic boundary for which sm::HEX_USER_FLAG_0 is set.
-        hg.mark_hexes_inside (inner_hex, sm::HEX_USER_FLAG_0, sm::HEX_USER_FLAG_1);
-#endif
-
-        // In mark_hexes_insider(), there's an edge case if the boundary on either size of a long
-        // thin ellipse touches at 1 or more locations. In this case, we may have failed to fill in
-        // all the hexes. Use an alternative algorithm that makes use of the winding number.
+        // Initially, I tried hexgrid::mark_hexes_inside(). This works for most boundaries, but
+        // there's an edge case if the boundary on either size of a long thin ellipse touches at 1
+        // or more locations. In this case, we may have failed to fill in all the hexes. This led me
+        // to use an alternative algorithm that makes use of the winding number:
         hg.mark_hexes_inside_winding (bhexpoints, sm::HEX_USER_FLAG_0, sm::HEX_USER_FLAG_1);
 
         // Loop through hexes, and if USER_FLAG_1 is set, add the hex index (vi) to indices, then clear flags
