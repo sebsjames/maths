@@ -85,7 +85,8 @@ export namespace sm
 
                 if constexpr (debug_extra == true) { std::cout << "(shifted) last point: " << pt_last << " and current: " << pt << "\n"; }
 
-                if (pt[1] * pt_last[1] < T_el{0}) {
+                const T_el pt1product = pt[1] * pt_last[1];
+                if (pt1product < T_el{0} || (pt1product == T_el{0} && std::signbit (pt1product) == true)) { // <0 or -0
                     // We cross the x axis
                     if constexpr (debug_extra == true) { std::cout << "we cross\n"; }
 
@@ -120,26 +121,6 @@ export namespace sm
                             wd -= 0.5;
                         }
                     } // else may be on -ve x axis (for which we do not count)
-
-                } else if (pt[1] * pt_last[1] == T_el{0}) {
-
-                    if (pt_last[1] == T_el{0} && pt_last[0] > T_el{0}) { // pt_last is on positive axis
-                        if (pt[1] > T_el{0}) {
-                            if constexpr (debug_mode == true) { std::cout << "PL+.5,"; }
-                            wd += 0.5;
-                        } else {
-                            if constexpr (debug_mode == true) { std::cout << "PL-.5,"; }
-                            wd -= 0.5;
-                        }
-                    } else if (pt[1] == T_el{0} && pt[0] > T_el{0}) { // pt is on the positive x axis
-                        if (pt_last[1] < T_el{0}) {
-                            if constexpr (debug_mode == true) { std::cout << "PT+.5,"; }
-                            wd += 0.5;
-                        } else {
-                            if constexpr (debug_mode == true) { std::cout << "PT-.5,"; }
-                            wd -= 0.5;
-                        }
-                    } // probably on -x axis (for which we do not count crossings)
 
                 } // else no crossings
 
