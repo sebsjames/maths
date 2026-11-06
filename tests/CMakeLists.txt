@@ -444,6 +444,10 @@ add_executable(winder3 winder3.cpp)
 target_link_libraries(winder3 PRIVATE sm)
 add_test(winder3 winder3)
 
+add_executable(winder4 winder4.cpp)
+target_link_libraries(winder4 PRIVATE sm)
+add_test(winder4 winder4)
+
 # Test bootstrapping
 add_executable(bootstrap1 bootstrap1.cpp)
 target_link_libraries(bootstrap1 PRIVATE sm)
