@@ -825,7 +825,7 @@ export namespace sm
             return m;
         }
 
-        constexpr void flipud_inplace() const noexcept
+        constexpr void flipud_inplace() noexcept
         {
             mat<F, Nr, Nc> m = this->flipud();
             (*this) = m;
@@ -839,7 +839,7 @@ export namespace sm
             return m;
         }
 
-        constexpr void fliplr_inplace() const noexcept
+        constexpr void fliplr_inplace() noexcept
         {
             mat<F, Nr, Nc> m = this->fliplr();
             (*this) = m;
