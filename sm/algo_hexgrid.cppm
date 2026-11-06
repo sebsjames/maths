@@ -510,8 +510,8 @@ export namespace sm::algo::hexgrid
         double delta_phi = std::atan2 (dfraction, (a > b ? a : b));
 
         // The rotational transform for the ellipse
-        sm::mat<F, 2> tfm = sm::mat<F, 2>::identity();
-        tfm.rotate (r);
+        sm::mat<F, 2> rotn = sm::mat<F, 2>::identity();
+        rotn.rotate (r);
 
         sm::vvec<sm::vec<F, 2>> bpoints;
         sm::vvec<sm::vec<F, 2>> bhexpoints;
@@ -522,10 +522,13 @@ export namespace sm::algo::hexgrid
                 static_cast<F>(a * std::cos (phi)),
                 static_cast<F>(b * std::sin (phi))
             };
-            // Apply rotational transform, tfm and translation, c
-            xy_pt = (tfm * xy_pt) + c;
+            // Apply rotational transform, rot, and translation, c
+            xy_pt = (rotn * (xy_pt)) + c;
             bpoints.push_back (xy_pt);
         }
+
+        // We ignore the hexgrid's transform in find_hex_near_point.
+        constexpr bool ignore_xform = true;
 
         // Now have a set of coordinates on the boundary (bpoints). This allows us to mark the hexes
         // that those points fall into.
@@ -534,7 +537,7 @@ export namespace sm::algo::hexgrid
         while (bpi != bpoints.end()) {
 
             // Need this to be able to return .end() if no hex is very near *bpi
-            typename std::list<sm::hex<F, A>>::iterator h = hg.find_hex_near_point (*bpi, nearby_boundary_point);
+            typename std::list<sm::hex<F, A>>::iterator h = hg.template find_hex_near_point<ignore_xform> (*bpi, nearby_boundary_point);
 
             if ((h->x_y() - *bpi).length() > hg.d) {
                 // distance between nearest hex (h) and the ellipse boundary point (bpi) exceeds hg.d, which means:
