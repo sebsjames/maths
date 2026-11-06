@@ -82,12 +82,10 @@ export namespace sm
             while (biter != this->boundary.end()) {
 
                 sm::vec<T_el, 2> pt = this->shiftpt (px, *biter);
-
                 const T_el pt1product = pt[1] * pt_last[1];
                 if (pt1product < T_el{0} || (pt1product == T_el{0} && std::signbit (pt1product) == true)) { // <0 or -0
                     // We cross the x axis
                     r = pt_last[0] + pt_last[1] * (pt[0] - pt_last[0]) / (pt_last[1] - pt[1]); // x coord of intersection
-
                     if (r > T_el{0}) { // crosses positive x axis
                         if (pt_last[1] < T_el{0}) {
                             if constexpr (debug_mode == true) { std::cout << "+x,"; } // '+x' crossing is from -y to +y
@@ -114,7 +112,6 @@ export namespace sm
                         }
                     } // else may be on -ve x axis (for which we do not count)
                 } // else no crossings
-
                 pt_last = pt;
                 ++biter;
             }
