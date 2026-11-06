@@ -172,11 +172,13 @@ int main()
     sm::vec<float, 2> px0 = { 0.0f, 0.0f };
     int wn1 = w1.wind (px0);
     std::cout << "Winding number 1 = " << wn1 << std::endl;
+    if (wn1 != 1) { --rtn; }
 
     sm::winder w2(data::bhexpoints);
 
     int wn2 = w2.wind (px0);
     std::cout << "Winding number 2 = " << wn2 << std::endl;
+    if (wn2 != 1) { --rtn; }
 
     return rtn;
 }
