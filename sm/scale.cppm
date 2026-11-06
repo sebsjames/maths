@@ -321,13 +321,15 @@ export namespace sm
         void compute_scaling_from_data (const Container& data)
         {
             using Tc = typename Container::value_type;
-            sm::interval<Tc> mm = sm::interval<Tc>::get_from (data);
+            constexpr bool ignore_infinities_in_data = true;
+            sm::interval<Tc> mm = sm::interval<Tc>::template get_from<Container, ignore_infinities_in_data> (data);
             this->compute_scaling (mm.min, mm.max);
         }
 
         void compute_scaling_from_data (const std::span<T> data)
         {
-            sm::interval<T> mm = sm::interval<T>::get_from (data);
+            constexpr bool ignore_infinities_in_data = true;
+            sm::interval<T> mm = sm::interval<T>::template get_from<ignore_infinities_in_data> (data);
             this->compute_scaling (mm.min, mm.max);
         }
 
