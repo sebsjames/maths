@@ -2545,13 +2545,17 @@ export namespace sm
             }
         }
 
-        // Mark hexes inside using the winding number algorithm for the boundary bhexpoints
-        void mark_hexes_inside_winding (sm::vvec<sm::vec<F, 2>>& boundary, std::uint32_t inside_flag = sm::HEX_INSIDE_BOUNDARY)
+        // Mark hexes inside using the winding number algorithm for the given boundary
+        void mark_hexes_inside_winding (sm::vvec<sm::vec<F, 2>>& boundary,
+                                        std::uint32_t bdry_flag = sm::HEX_IS_BOUNDARY,
+                                        std::uint32_t inside_flag = sm::HEX_INSIDE_BOUNDARY)
         {
             sm::winder w(boundary);
             for (auto& hi : this->hexen) {
-                int wn = w.wind (hi.x_y());
-                if (wn != 0) { hi.set_flag (inside_flag); }
+                if (hi.test_flag (bdry_flag) == false) {
+                    int wn = w.wind (hi.x_y());
+                    if (wn != 0) { hi.set_flag (inside_flag); }
+                } // else don't wind for the boundary hexes
             }
         }
 
