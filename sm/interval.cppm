@@ -517,6 +517,11 @@ export namespace sm
             // The container element type must match T
             if constexpr (std::is_same_v<T, Tc>) {
                 if constexpr (sm::number_type<T>::value == 0) { // vector elements
+
+                    if constexpr (ignore_infinities == true) {
+                        []<bool flag = false>() { static_assert(flag, "sm::interval does not ignore infinities with vector types"); }();
+                    }
+
                     // Example to get the type of the container T.
                     // See https://stackoverflow.com/questions/44521991/type-trait-to-get-element-type-of-stdarray-or-c-style-array
                     using T_el = std::remove_reference_t<decltype(*std::begin(std::declval<T&>()))>;
@@ -545,7 +550,9 @@ export namespace sm
                     // Note that there's no specialization of numeric_limits for std::complex, so set it up manually
                     sm::interval<T> r ({std::numeric_limits<T_el>::max(), std::numeric_limits<T_el>::max() }, T{0, 0});
                     for (auto v : values) {
-                        if (sm::cem::isinf (std::real(v)) || sm::cem::isinf (std::imag(v))) { continue; }
+                        if constexpr (ignore_infinities == true) {
+                            if (sm::cem::isinf (std::real(v)) || sm::cem::isinf (std::imag(v))) { continue; }
+                        }
                         // comparison operations on complex numbers commonly consider their
                         // modulus - how far the number is from the origin.
                         r.max = std::abs(v) > std::abs(r.max) ? v : r.max;
@@ -556,7 +563,7 @@ export namespace sm
                 } else if constexpr (sm::number_type<T>::value == 1) { // scalar elements
                     sm::interval<T> r (std::numeric_limits<T>::max(), std::numeric_limits<T>::lowest());
                     for (auto v : values) {
-                        if (sm::cem::isinf (v)) { continue; }
+                        if constexpr (ignore_infinities == true) { if (sm::cem::isinf (v)) { continue; } }
                         r.max = v > r.max ? v : r.max;
                         r.min = v < r.min ? v : r.min;
                     }
@@ -574,6 +581,11 @@ export namespace sm
         static sm::interval<T> get_from (const std::span<T> values)
         {
             if constexpr (sm::number_type<T>::value == 0) { // vector elements
+
+                if constexpr (ignore_infinities == true) {
+                    []<bool flag = false>() { static_assert(flag, "sm::interval does not ignore infinities with vector types"); }();
+                }
+
                 // Example to get the type of the container T.
                 // See https://stackoverflow.com/questions/44521991/type-trait-to-get-element-type-of-stdarray-or-c-style-array
                 using T_el = std::remove_reference_t<decltype(*std::begin(std::declval<T&>()))>;
@@ -602,7 +614,9 @@ export namespace sm
                 // Note that there's no specialization of numeric_limits for std::complex, so set it up manually
                 sm::interval<T> r ({std::numeric_limits<T_el>::max(), std::numeric_limits<T_el>::max() }, T{0, 0});
                 for (auto v : values) {
-                    if (sm::cem::isinf (std::real(v)) || sm::cem::isinf (std::imag(v))) { continue; }
+                    if constexpr (ignore_infinities == true) {
+                        if (sm::cem::isinf (std::real(v)) || sm::cem::isinf (std::imag(v))) { continue; }
+                    }
                     // comparison operations on complex numbers commonly consider their
                     // modulus - how far the number is from the origin.
                     r.max = std::abs(v) > std::abs(r.max) ? v : r.max;
@@ -613,7 +627,7 @@ export namespace sm
             } else if constexpr (sm::number_type<T>::value == 1) { // scalar elements
                 sm::interval<T> r (std::numeric_limits<T>::max(), std::numeric_limits<T>::lowest());
                 for (auto v : values) {
-                    if (sm::cem::isinf (v)) { continue; }
+                    if constexpr (ignore_infinities == true) { if (sm::cem::isinf (v)) { continue; } }
                     r.max = v > r.max ? v : r.max;
                     r.min = v < r.min ? v : r.min;
                 }
