@@ -1354,6 +1354,18 @@ export namespace sm
         }
         void signum_inplace() noexcept { for (auto& i : *this) { i = (i > S{0} ? S{1} : (i == S{0} ? S{0} : S{-1})); } }
 
+        //! Multiply and accumumate. Return a vvec containing (this * a) + b
+        template<typename Sy=S>
+        vvec<S> macc (const Sy& a, const Sy& b) const noexcept
+        {
+            vvec<S> rtn(this->size());
+            auto _macc = [a, b](S el) { return el * a + b; };
+            std::transform (this->begin(), this->end(), rtn.begin(), _macc);
+            return rtn;
+        }
+        template<typename Sy=S>
+        void macc_inplace (const Sy& a, const Sy& b) noexcept { for (auto& el : *this) { el = el * a + b; } }
+
         //! \return a vvec which is a copy of *this for which positive, non-zero elements have been removed
         vvec<S> prune_positive() const
         {
