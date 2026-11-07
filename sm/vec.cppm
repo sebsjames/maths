@@ -972,6 +972,18 @@ namespace sm
         }
         constexpr void signum_inplace() noexcept { for (auto& i : *this) { i = (i > S{0} ? S{1} : (i == S{0} ? S{0} : S{-1})); } }
 
+        //! Multiply and accumumate. Return a vvec containing (this * a) + b
+        template<typename Sy=S>
+        constexpr vec<S, N> macc (const Sy& a, const Sy& b) const noexcept
+        {
+            vec<S, N> rtn{};
+            auto _macc = [a, b](S el) { return el * a + b; };
+            std::transform (this->begin(), this->end(), rtn.begin(), _macc);
+            return rtn;
+        }
+        template<typename Sy=S>
+        void macc_inplace (const Sy& a, const Sy& b) noexcept { for (auto& el : *this) { el = el * a + b; } }
+
         //! Return the floor of the vec
         constexpr vec<S, N> floor() const noexcept
         {
