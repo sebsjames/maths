@@ -197,6 +197,10 @@ add_executable(scale_complex1 scale_complex1.cpp)
 target_link_libraries(scale_complex1 PRIVATE sm)
 add_test(scale_complex1 scale_complex1)
 
+add_executable(scale_with_infs scale_with_infs.cpp)
+target_link_libraries(scale_with_infs PRIVATE sm)
+add_test(scale_with_infs scale_with_infs)
+
 add_executable(evenspacing1 evenspacing1.cpp)
 target_link_libraries(evenspacing1 PRIVATE sm)
 add_test(evenspacing1 evenspacing1)
