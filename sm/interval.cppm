@@ -519,7 +519,7 @@ export namespace sm
                 if constexpr (sm::number_type<T>::value == 0) { // vector elements
 
                     if constexpr (ignore_infinities == true) {
-                        []<bool flag = false>() { static_assert(flag, "sm::interval does not ignore infinities with vector types"); }();
+                        []<bool flag = false>() { static_assert(flag, "sm::interval<T> does not ignore infinities for vector T"); }();
                     }
 
                     // Example to get the type of the container T.
@@ -583,7 +583,7 @@ export namespace sm
             if constexpr (sm::number_type<T>::value == 0) { // vector elements
 
                 if constexpr (ignore_infinities == true) {
-                    []<bool flag = false>() { static_assert(flag, "sm::interval does not ignore infinities with vector types"); }();
+                    []<bool flag = false>() { static_assert(flag, "sm::interval<T> does not ignore infinities for vector T"); }();
                 }
 
                 // Example to get the type of the container T.

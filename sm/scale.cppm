@@ -322,14 +322,25 @@ export namespace sm
         {
             using Tc = typename Container::value_type;
             constexpr bool ignore_infinities_in_data = true;
-            sm::interval<Tc> mm = sm::interval<Tc>::template get_from<Container, ignore_infinities_in_data> (data);
+            sm::interval<Tc> mm;
+            if constexpr (sm::number_type<Tc>::value == 0) { // vector elements
+                mm = sm::interval<Tc>::template get_from<Container> (data);
+            } else {
+                // For scalar or complex elements, we ignore infinities when getting the interval from the data
+                mm = sm::interval<Tc>::template get_from<Container, ignore_infinities_in_data> (data);
+            }
             this->compute_scaling (mm.min, mm.max);
         }
 
         void compute_scaling_from_data (const std::span<T> data)
         {
             constexpr bool ignore_infinities_in_data = true;
-            sm::interval<T> mm = sm::interval<T>::template get_from<ignore_infinities_in_data> (data);
+            sm::interval<T> mm;
+            if constexpr (sm::number_type<T>::value == 0) { // vector elements
+                mm = sm::interval<T>::template get_from<> (data);
+            } else { // non-vector (scalar or complex)
+                mm = sm::interval<T>::template get_from<ignore_infinities_in_data> (data);
+            }
             this->compute_scaling (mm.min, mm.max);
         }
 
