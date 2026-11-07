@@ -105,6 +105,10 @@ add_executable(vec_set_from1 vec_set_from1.cpp)
 target_link_libraries(vec_set_from1 PRIVATE sm)
 add_test(vec_set_from1 vec_set_from1)
 
+add_executable(vec_macc vec_macc.cpp)
+target_link_libraries(vec_macc PRIVATE sm)
+add_test(vec_macc vec_macc)
+
 # Test the "mathematic vector made from an std::vector" code (this vvec is better for neural networks)
 add_executable(vvec1 vvec1.cpp)
 target_link_libraries(vvec1 PRIVATE sm)
@@ -181,6 +185,10 @@ add_test(vvec_arange vvec_arange)
 add_executable(vvec_all_elements_equal vvec_all_elements_equal.cpp)
 target_link_libraries(vvec_all_elements_equal PRIVATE sm)
 add_test(vvec_all_elements_equal vvec_all_elements_equal)
+
+add_executable(vvec_macc vvec_macc.cpp)
+target_link_libraries(vvec_macc PRIVATE sm)
+add_test(vvec_macc vvec_macc)
 
 # Test the scaling code
 add_executable(scale1 scale1.cpp)
