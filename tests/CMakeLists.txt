@@ -26,7 +26,6 @@ add_test(interval_adding interval_adding)
 
 # sm::interval
 add_executable(interval1 interval1.cpp)
-target_compile_features(interval1 PUBLIC cxx_std_23)
 target_link_libraries(interval1 PRIVATE sm)
 add_test(interval1 interval1)
 
