@@ -152,7 +152,22 @@ export namespace sm
         }
 
         // Return true if the interval contains infinity (at either end)
-        constexpr bool has_inf() const noexcept { return (sm::cem::isinf (this->min) || sm::cem::isinf (this->max)); }
+        constexpr bool has_inf() const noexcept
+        {
+            if constexpr (sm::number_type<T>::value == 0) { // vector elements
+                // is any element inf?
+                using T_el = std::remove_reference_t<decltype(*std::begin(std::declval<T&>()))>;
+                constexpr std::size_t sz = sizeof (T) / sizeof (T_el);
+                for (std::size_t i = 0; i < sz; ++i) {
+                    if (sm::cem::isinf (this->min[i]) || sm::cem::isinf (this->max[i])) {
+                        return true;
+                    }
+                }
+                return false;
+            } else {
+                return (sm::cem::isinf (this->min) || sm::cem::isinf (this->max));
+            }
+        }
 
         // Output a string representation of the min and max. Rewrite with <format> at some point.
         std::string str() const

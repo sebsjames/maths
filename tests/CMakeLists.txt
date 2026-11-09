@@ -41,6 +41,11 @@ target_link_libraries(interval_complex1 PRIVATE sm)
 add_test(interval_complex1 interval_complex1)
 
 # sm::interval
+add_executable(interval_infs1 interval_infs1.cpp)
+target_link_libraries(interval_infs1 PRIVATE sm)
+add_test(interval_infs1 interval_infs1)
+
+# sm::interval
 add_executable(interval_vector1 interval_vector1.cpp)
 target_link_libraries(interval_vector1 PRIVATE sm)
 add_test(interval_vector1 interval_vector1)
