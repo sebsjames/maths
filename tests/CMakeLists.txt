@@ -40,6 +40,11 @@ target_link_libraries(interval_complex1 PRIVATE sm)
 add_test(interval_complex1 interval_complex1)
 
 # sm::interval
+add_executable(interval_infs1 interval_infs1.cpp)
+target_link_libraries(interval_infs1 PRIVATE sm)
+add_test(interval_infs1 interval_infs1)
+
+# sm::interval
 add_executable(interval_vector1 interval_vector1.cpp)
 target_link_libraries(interval_vector1 PRIVATE sm)
 add_test(interval_vector1 interval_vector1)
@@ -203,6 +208,10 @@ add_test(scale_vector1 scale_vector1)
 add_executable(scale_complex1 scale_complex1.cpp)
 target_link_libraries(scale_complex1 PRIVATE sm)
 add_test(scale_complex1 scale_complex1)
+
+add_executable(scale_with_infs scale_with_infs.cpp)
+target_link_libraries(scale_with_infs PRIVATE sm)
+add_test(scale_with_infs scale_with_infs)
 
 add_executable(evenspacing1 evenspacing1.cpp)
 target_link_libraries(evenspacing1 PRIVATE sm)

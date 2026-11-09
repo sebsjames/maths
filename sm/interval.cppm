@@ -151,6 +151,24 @@ export namespace sm
             }
         }
 
+        // Return true if the interval contains infinity (at either end)
+        constexpr bool has_inf() const noexcept
+        {
+            if constexpr (sm::number_type<T>::value == 0) { // vector elements
+                // is any element inf?
+                using T_el = std::remove_reference_t<decltype(*std::begin(std::declval<T&>()))>;
+                constexpr std::size_t sz = sizeof (T) / sizeof (T_el);
+                for (std::size_t i = 0; i < sz; ++i) {
+                    if (sm::cem::isinf (this->min[i]) || sm::cem::isinf (this->max[i])) {
+                        return true;
+                    }
+                }
+                return false;
+            } else {
+                return (sm::cem::isinf (this->min) || sm::cem::isinf (this->max));
+            }
+        }
+
         // Output a string representation of the min and max. Rewrite with <format> at some point.
         std::string str() const
         {
@@ -506,7 +524,7 @@ export namespace sm
         }
 
         // Static member to get a closed interval from any old container of values.
-        template <typename C> requires sm::is_copyable_container<C>::value
+        template <typename C, bool ignore_infinities = false> requires sm::is_copyable_container<C>::value
         static sm::interval<T> get_from (const C& values)
         {
             using Tc = typename C::value_type;
@@ -525,6 +543,9 @@ export namespace sm
                         // (Vector version compares sqrt (v[0]*v[0] + v[1]*v[1] +...))
                         T_el vlen = 0;
                         for (auto vi : v) { vlen += vi*vi; }
+                        if constexpr (ignore_infinities == true) {
+                            if (vlen == std::numeric_limits<T_el>::infinity()) { continue; }
+                        }
                         vlen = std::sqrt (vlen);
                         if (vlen > maxlen) {
                             maxlen = vlen;
@@ -542,6 +563,9 @@ export namespace sm
                     // Note that there's no specialization of numeric_limits for std::complex, so set it up manually
                     sm::interval<T> r ({std::numeric_limits<T_el>::max(), std::numeric_limits<T_el>::max() }, T{0, 0});
                     for (auto v : values) {
+                        if constexpr (ignore_infinities == true) {
+                            if (sm::cem::isinf (std::real(v)) || sm::cem::isinf (std::imag(v))) { continue; }
+                        }
                         // comparison operations on complex numbers commonly consider their
                         // modulus - how far the number is from the origin.
                         r.max = std::abs(v) > std::abs(r.max) ? v : r.max;
@@ -552,6 +576,7 @@ export namespace sm
                 } else if constexpr (sm::number_type<T>::value == 1) { // scalar elements
                     sm::interval<T> r (std::numeric_limits<T>::max(), std::numeric_limits<T>::lowest());
                     for (auto v : values) {
+                        if constexpr (ignore_infinities == true) { if (sm::cem::isinf (v)) { continue; } }
                         r.max = v > r.max ? v : r.max;
                         r.min = v < r.min ? v : r.min;
                     }
@@ -565,9 +590,15 @@ export namespace sm
         }
 
         // Static member to get a closed interval from a span of values
+        template<bool ignore_infinities = false>
         static sm::interval<T> get_from (const std::span<T> values)
         {
             if constexpr (sm::number_type<T>::value == 0) { // vector elements
+
+                if constexpr (ignore_infinities == true) {
+                    []<bool flag = false>() { static_assert(flag, "sm::interval<T> does not ignore infinities for vector T"); }();
+                }
+
                 // Example to get the type of the container T.
                 // See https://stackoverflow.com/questions/44521991/type-trait-to-get-element-type-of-stdarray-or-c-style-array
                 using T_el = std::remove_reference_t<decltype(*std::begin(std::declval<T&>()))>;
@@ -596,6 +627,9 @@ export namespace sm
                 // Note that there's no specialization of numeric_limits for std::complex, so set it up manually
                 sm::interval<T> r ({std::numeric_limits<T_el>::max(), std::numeric_limits<T_el>::max() }, T{0, 0});
                 for (auto v : values) {
+                    if constexpr (ignore_infinities == true) {
+                        if (sm::cem::isinf (std::real(v)) || sm::cem::isinf (std::imag(v))) { continue; }
+                    }
                     // comparison operations on complex numbers commonly consider their
                     // modulus - how far the number is from the origin.
                     r.max = std::abs(v) > std::abs(r.max) ? v : r.max;
@@ -606,6 +640,7 @@ export namespace sm
             } else if constexpr (sm::number_type<T>::value == 1) { // scalar elements
                 sm::interval<T> r (std::numeric_limits<T>::max(), std::numeric_limits<T>::lowest());
                 for (auto v : values) {
+                    if constexpr (ignore_infinities == true) { if (sm::cem::isinf (v)) { continue; } }
                     r.max = v > r.max ? v : r.max;
                     r.min = v < r.min ? v : r.min;
                 }
