@@ -137,6 +137,11 @@ std::cout << "range " << r1 << (r1.contains(r2) ? " contains " : " doesn't conta
 std::cout << "range " << r1 << (r1.contains(r3) ? " contains " : " doesn't contain ") << r3 << std::endl;
 ```
 
+### Contains infinities?
+
+`interval<T>::has_inf()` returns `true` if either end of the interval contains `std::numeric_limits<T>::infinity()`.
+For vector intervals, this is true if any element of the vector is infinite. 
+
 ### Intersection
 
 ```c++
@@ -188,3 +193,12 @@ data.randomize();
 auto r = sm::interval<double>::search_initialized();
 for (auto d : data) { r.update (d); }
 ```
+### static functions to get an interval from data
+
+You can also use the static function `get_from` to determine an interval of a range of data:
+
+```c++
+std::vector<int> v = { 1, 2, 4, 4, 5 };
+sm::interval<int> rs = sm::interval<int>::get_from (v);
+```
+You can use `get_from` passing STL containers such as `std::vector`, `std::array` and `std::list`, and also with `std::span`.
