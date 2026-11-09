@@ -518,10 +518,6 @@ export namespace sm
             if constexpr (std::is_same_v<T, Tc>) {
                 if constexpr (sm::number_type<T>::value == 0) { // vector elements
 
-                    if constexpr (ignore_infinities == true) {
-                        []<bool flag = false>() { static_assert(flag, "sm::interval<T> does not ignore infinities for vector T"); }();
-                    }
-
                     // Example to get the type of the container T.
                     // See https://stackoverflow.com/questions/44521991/type-trait-to-get-element-type-of-stdarray-or-c-style-array
                     using T_el = std::remove_reference_t<decltype(*std::begin(std::declval<T&>()))>;
@@ -533,6 +529,9 @@ export namespace sm
                         // (Vector version compares sqrt (v[0]*v[0] + v[1]*v[1] +...))
                         T_el vlen = 0;
                         for (auto vi : v) { vlen += vi*vi; }
+                        if constexpr (ignore_infinities == true) {
+                            if (vlen == std::numeric_limits<T>::infinity()) { continue; }
+                        }
                         vlen = std::sqrt (vlen);
                         if (vlen > maxlen) {
                             maxlen = vlen;

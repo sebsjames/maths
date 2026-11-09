@@ -310,11 +310,11 @@ export namespace sm
          * which take two arguments for construction. This includes std::vector, std::list but
          * excludes std::map.
          *
-         * \tparam scale_infinities By default, sm::scale will ignore infinities in scalar and
-         * complex datasets, scaling on the non-infinite members. It does this by asking
-         * sm::interval for the min and max non-infinite values in the data. Pass true to this
-         * template param to AVOID ignoring infinities. Your scaling params will likely end up being
-         * (0, 0).
+         * \tparam scale_infinities By default, sm::scale will ignore infinities in scalar, vector
+         * (ignoring infinite length vectors) and complex datasets, scaling on the non-infinite
+         * members. It does this by asking sm::interval for the min and max non-infinite values in
+         * the data. Pass true to this template param to AVOID ignoring infinities. Your scaling
+         * params will likely end up being (0, 0).
          *
          * \param data The data from which to determine the scaling parameters. In practice, this
          * will be something like \c std::vector<float> or \c std::list<sm::vec<double,2>>
@@ -322,28 +322,17 @@ export namespace sm
         template <typename Container, bool scale_infinities = false> requires sm::is_copyable_container<Container>::value
         void compute_scaling_from_data (const Container& data)
         {
-            constexpr bool ignore_infinities_in_data = true;
+            constexpr bool ignore_infinities_in_data = (scale_infinities == false);
             using Tc = typename Container::value_type;
-            sm::interval<Tc> mm;
-            if constexpr (sm::number_type<Tc>::value == 0 || scale_infinities == true) { // vector elements
-                mm = sm::interval<Tc>::template get_from<Container> (data);
-            } else {
-                // By default, for scalar or complex elements, we ignore infinities when getting the interval from the data
-                mm = sm::interval<Tc>::template get_from<Container, ignore_infinities_in_data> (data);
-            }
+            sm::interval<Tc> mm = sm::interval<Tc>::template get_from<Container, ignore_infinities_in_data> (data);
             this->compute_scaling (mm.min, mm.max);
         }
 
         template<bool scale_infinities = false>
         void compute_scaling_from_data (const std::span<T> data)
         {
-            constexpr bool ignore_infinities_in_data = true;
-            sm::interval<T> mm;
-            if constexpr (sm::number_type<T>::value == 0 || scale_infinities == true) { // vector elements
-                mm = sm::interval<T>::template get_from<> (data);
-            } else { // non-vector (scalar or complex)
-                mm = sm::interval<T>::template get_from<ignore_infinities_in_data> (data);
-            }
+            constexpr bool ignore_infinities_in_data = (scale_infinities == false);
+            sm::interval<T> mm = sm::interval<T>::template get_from<ignore_infinities_in_data> (data);
             this->compute_scaling (mm.min, mm.max);
         }
 
