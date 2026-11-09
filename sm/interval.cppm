@@ -517,7 +517,6 @@ export namespace sm
             // The container element type must match T
             if constexpr (std::is_same_v<T, Tc>) {
                 if constexpr (sm::number_type<T>::value == 0) { // vector elements
-
                     // Example to get the type of the container T.
                     // See https://stackoverflow.com/questions/44521991/type-trait-to-get-element-type-of-stdarray-or-c-style-array
                     using T_el = std::remove_reference_t<decltype(*std::begin(std::declval<T&>()))>;
