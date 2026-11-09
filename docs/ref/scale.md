@@ -131,6 +131,31 @@ s.reset();                  // Reset so that autoscaling will be re-computed
 s.transform (vi2, result);  // Autoscales second data set
 ```
 
+#### Data containing infinities
+
+If you data contains any infinities, then by default, `sm::scale` will *ignore* the infinities when trying to find the sccaling parameters from your dataset.
+This means that you can scale the finite values in your dataset, and any infinite values will remain infinite after scaling.
+If you prefer to find the scaling parameters *without* ignoring infinities, then you can call `scale::compute_scaling_from_data<>` with an extra template parameter.
+
+```c++
+sm::scale<float> s1;
+sm::scale<float> s2;
+std::vector<float> input_data = { 1.0f, 2.0f, 3.0f, 6.0f, std::numeric_limits<float>::infinity() };
+s1.compute_scaling_from_data (input_data);
+// equivalent: s1.compute_scaling_from_data<std::vector<float>, false> (input_data);
+s2.compute_scaling_from_data<std::vector<float>, true> (input_data);
+std::cout << "scaled ignoring infinities:\n   " << s1 << std::endl;
+std::cout << "scaled without ignoring infinities:\n   " << s2 << std::endl;
+```
+gives output:
+```
+scaled ignoring infinities:
+   linear scaling f to f as: y = 0.2 * x + -0.2. ready()=true, do_autoscale=false, params=(0.200000003,-0.200000003), output range: [0, 1]
+scaled without ignoring infinities:
+   linear scaling f to f as: y = 0 * x + 0. ready()=true, do_autoscale=false, params=(0,0), output range: [0, 1]
+```
+You can see that it's not all that useful to include the infinities when computing a scaling function!
+
 ### Changing the output range
 
 You may not always wish to scale your input data to the range [0,1]. To modify this, set the `output_range` for the scale object, which is an object of type `sm::range<S>` if `S` is a scalar type and of type `sm::range<S_el>` if `S` is a vector type. `S_el` is defined in scale.h to be the element type of `S`. To configure the `range` object, set its `min` and `max` attributes:
