@@ -529,7 +529,7 @@ export namespace sm
                         T_el vlen = 0;
                         for (auto vi : v) { vlen += vi*vi; }
                         if constexpr (ignore_infinities == true) {
-                            if (vlen == std::numeric_limits<T>::infinity()) { continue; }
+                            if (vlen == std::numeric_limits<T_el>::infinity()) { continue; }
                         }
                         vlen = std::sqrt (vlen);
                         if (vlen > maxlen) {
