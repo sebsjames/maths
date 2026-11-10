@@ -501,6 +501,13 @@ Sy product() const;       // The product of the elements
 
 ### Maths functions
 
+**Multiply and accumulate**
+Combines a multiply and an addition within one loop, for easy compiler optimization.
+```c++
+vec<S, N> macc (const S& a, const S& b) const;    // return vec which maps each element x to (a * x + b)
+void macc_inplace (const S& a, const S& b) const; // for each element x in *this, replace with (a * x + b)
+```
+
 Raising elements to a **power**.
 ```c++
 vec<S, N> pow (const S& p) const;          // raise all elements to the power p, returning result in new vec

@@ -536,9 +536,16 @@ double themean = nums.mean<true, double>();
 
 ### Maths functions
 
+**Multiply and accumulate**
+Combines a multiply and an addition within one loop, for easy compiler optimization.
+```c++
+vvec<S> macc (const S& a, const S& b) const;      // return vvec which maps each element x to (a * x + b)
+void macc_inplace (const S& a, const S& b) const; // for each element x in *this, replace with (a * x + b)
+```
+
 Raising elements to a **power**.
 ```c++
-vvec<S> pow (const S& p) const;          // raise all elements to the power p, returning result in new vec
+vvec<S> pow (const S& p) const;          // raise all elements to the power p, returning result in new vvec
 void pow_inplace (const S& p);           // in-place version which operates on the existing data in *this
 template<typename Sy=S>
 vec<S, N> pow (const vvec<Sy>& p) const; // Raise each element in *this to the power of the matching element in p (which must be same size)
