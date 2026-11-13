@@ -1,4 +1,5 @@
 #include <iostream>
+#include <deque>
 
 import sm.vvec;
 
@@ -45,6 +46,9 @@ int main()
     r7.macc_inplace (3.0f, vv_2);
     r8.macc_inplace (vv_2, 10.0f);
     r9.macc_inplace (vv_2, vv_2);
+
+    std::deque<float> d1 = { 1.0f, 1.0f, 2.0f, 1.0f };
+    r9.macc_inplace (vv_2, d1);
 
     if (rtn == 0) { std::cout << "Success\n"; }
     return rtn;
