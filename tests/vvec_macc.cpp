@@ -27,7 +27,6 @@ int main()
     sm::vvec<double> vv_2 = { 0.1, 0.2, 0.3, 0.2 };
     sm::vvec<double> vv_3 = { 2, 2, 3, 4 };
 
-    std::cout << "Here we go\n";
     sm::vvec<float> r3 = vv.macc (vv_2, vv_3);
     std::cout << vv << " * " << vv_2 << " + " << vv_3 <<"=\n   " << r3 << std::endl;
 
