@@ -1366,6 +1366,35 @@ export namespace sm
         template<typename Sy=S>
         void macc_inplace (const Sy& a, const Sy& b) noexcept { for (auto& el : *this) { el = el * a + b; } }
 
+        //! Multiply and accumumate. Return a vvec containing (this * a_i) + b_i.
+        //! Size of a, b and *this must match. If not, you get an empty vvec as result.
+        template<typename Sy=S>
+        vvec<S> macc (const vvec<Sy>& a, const vvec<Sy>& b) const noexcept
+        {
+            vvec<S> rtn = {};
+            if (a.size() != b.size() || a.size() != this->size()) { return rtn; } // empty
+            rtn.resize (this->size(), S{0});
+            std::size_t i = 0u;
+            auto _macc = [a, b, &i](S el) {
+                auto x = el * a[i] + b[i];
+                i++;
+                return x;
+            };
+            std::transform (this->begin(), this->end(), rtn.begin(), _macc);
+            return rtn;
+        }
+        //! macc in place with vvec args. Size of a, b and *this must match. If not, no operation occurs.
+        template<typename Sy=S>
+        void macc_inplace (const vvec<Sy>& a, const vvec<Sy>& b) noexcept
+        {
+            if (a.size() != b.size() || a.size() != this->size()) { return; } // no change
+            std::size_t i = 0u;
+            for (auto& el : *this) {
+                el = el * a[i] + b[i];
+                i++;
+            }
+        }
+
         //! \return a vvec which is a copy of *this for which positive, non-zero elements have been removed
         vvec<S> prune_positive() const
         {
