@@ -37,3 +37,6 @@ target_sources_modules(vonmises MODULES ${SM_VVEC_MODULES})
 
 add_executable(nelder_mead nelder_mead.cpp)
 target_sources_modules(nelder_mead MODULES ${SM_NM_SIMPLEX_MODULES} ${SM_VVEC_MODULES})
+
+add_executable(vvec_macc_profile vvec_macc_profile.cpp)
+target_sources_modules(vvec_macc_profile MODULES ${SM_VVEC_MODULES})

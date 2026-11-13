@@ -1354,36 +1354,33 @@ export namespace sm
         }
         void signum_inplace() noexcept { for (auto& i : *this) { i = (i > S{0} ? S{1} : (i == S{0} ? S{0} : S{-1})); } }
 
-        //! macc 1. a and b both arithemetic type
+        //! macc 1. a and b both arithmetic type.
         template <typename Sy1=S, typename Sy2=S>
         requires (std::is_arithmetic_v<Sy1> && std::is_arithmetic_v<Sy2>)
         vvec<S> macc (const Sy1& a, const Sy2& b) const noexcept
         {
             vvec<S> rtn (this->size());
-            auto _macc = [a, b](S el) { return el * a + b; };
-            std::transform (this->begin(), this->end(), rtn.begin(), _macc);
+            for (std::size_t i = 0u; i < this->size(); ++i) {
+                rtn[i] = (*this)[i] * a + b;
+            }
             return rtn;
         }
 
-        //! macc 2. a is arithmetic, b is container
+        //! macc 2. a is arithmetic, b is container.
         template <typename Sy1=S, typename Sy2=S>
         requires (std::is_arithmetic_v<Sy1> && sm::is_copyable_container<Sy2>::value)
         vvec<S> macc (const Sy1& a, const Sy2& b) const noexcept
         {
-            vvec<S> rtn (this->size());
+            vvec<S> rtn = {};
             if (b.size() != this->size()) { return rtn; } // empty
             rtn.resize (this->size(), S{0});
-            std::size_t i = 0u;
-            auto _macc = [a, b, &i](S el) {
-                auto x = el * a + b[i];
-                i++;
-                return x;
-            };
-            std::transform (this->begin(), this->end(), rtn.begin(), _macc);
+            for (std::size_t i = 0u; i < this->size(); ++i) {
+                rtn[i] = (*this)[i] * a + b[i];
+            }
             return rtn;
         }
 
-        //! macc 3. a is container, b is arithmetic
+        //! macc 3. a is container, b is arithmetic.
         template <typename Sy1=S, typename Sy2=S>
         requires (sm::is_copyable_container<Sy1>::value && std::is_arithmetic_v<Sy2>)
         vvec<S> macc (const Sy1& a, const Sy2& b) const noexcept
@@ -1391,17 +1388,13 @@ export namespace sm
             vvec<S> rtn = {};
             if (a.size() != this->size()) { return rtn; } // empty
             rtn.resize (this->size(), S{0});
-            std::size_t i = 0u;
-            auto _macc = [a, b, &i](S el) {
-                auto x = el * a[i] + b;
-                i++;
-                return x;
-            };
-            std::transform (this->begin(), this->end(), rtn.begin(), _macc);
+            for (std::size_t i = 0u; i < this->size(); ++i) {
+                rtn[i] = (*this)[i] * a[i] + b;
+            }
             return rtn;
         }
 
-        //! macc 4. both are containers
+        //! macc 4. both are containers.
         template <typename Sy1=S, typename Sy2=S>
         requires (sm::is_copyable_container<Sy1>::value && sm::is_copyable_container<Sy2>::value)
         vvec<S> macc (const Sy1& a, const Sy2& b) const noexcept
@@ -1409,17 +1402,13 @@ export namespace sm
             vvec<S> rtn = {};
             if (a.size() != this->size()) { return rtn; } // empty
             rtn.resize (this->size(), S{0});
-            std::size_t i = 0u;
-            auto _macc = [a, b, &i](S el) {
-                auto x = el * a[i] + b[i];
-                i++;
-                return x;
-            };
-            std::transform (this->begin(), this->end(), rtn.begin(), _macc);
+            for (std::size_t i = 0u; i < this->size(); ++i) {
+                rtn[i] = (*this)[i] * a[i] + b[i];
+            }
             return rtn;
         }
 
-        //! macc_inplace 1. multiply/accumulate in place. a and b both arithmetic type
+        //! macc_inplace 1. multiply/accumulate in place. a and b both arithmetic type.
         template <typename Sy1=S, typename Sy2=S>
         requires (std::is_arithmetic_v<Sy1> && std::is_arithmetic_v<Sy2>)
         void macc_inplace (const Sy1& a, const Sy2& b) noexcept
@@ -1427,33 +1416,30 @@ export namespace sm
             for (auto& el : *this) { el = el * a + b; }
         }
 
-        //! macc_inplace 2. a is arithmetic, b is container
+        //! macc_inplace 2. a is arithmetic, b is container. Generally faster than separate
+        //! functions.
         template <typename Sy1=S, typename Sy2=S>
         requires (std::is_arithmetic_v<Sy1> && sm::is_copyable_container<Sy2>::value)
         void macc_inplace (const Sy1& a, const Sy2& b) noexcept
         {
             std::size_t i = 0u;
             if (b.size() != this->size()) { return; } // no change
-            for (auto& el : *this) {
-                el = el * a + b[i];
-                i++;
-            }
+            for (auto& el : *this) { el = el * a + b[i++]; }
         }
 
-        //! macc_inplace 3. a is container, b is arithmetic
+        //! macc_inplace 3. a is container, b is arithmetic. Generally faster than separate
+        //! functions.
         template <typename Sy1=S, typename Sy2=S>
         requires (sm::is_copyable_container<Sy1>::value && std::is_arithmetic_v<Sy2>)
         void macc_inplace (const Sy1& a, const Sy2& b) noexcept
         {
             std::size_t i = 0u;
             if (a.size() != this->size()) { return; } // no change
-            for (auto& el : *this) {
-                el = el * a[i] + b;
-                i++;
-            }
+            for (auto& el : *this) { el = el * a[i++] + b; }
         }
 
-        //! macc_inplace 4. Multiply and accumumate in place. a and b are both container types
+        //! macc_inplace 4. Multiply and accumumate in place. a and b are both container
+        //! types. Generally faster than separate functions.
         template <typename Sy1=S, typename Sy2=S>
         requires (sm::is_copyable_container<Sy1>::value && sm::is_copyable_container<Sy2>::value)
         void macc_inplace (const Sy1& a, const Sy2& b) noexcept
