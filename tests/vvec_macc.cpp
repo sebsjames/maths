@@ -28,8 +28,23 @@ int main()
 
     std::cout << "Here we go\n";
     sm::vvec<float> r3 = vv.macc (vv_2, vv_3);
-
     std::cout << vv << " * " << vv_2 << " + " << vv_3 <<"=\n   " << r3 << std::endl;
+
+    sm::vvec<float> r4 = vv.macc (vv_2, 10.0f);
+    std::cout << vv << " * " << vv_2 << " + " << 10.0f <<"=\n   " << r4 << std::endl;
+
+    sm::vvec<float> r5 = vv.macc (10.0f, vv_2);
+    std::cout << vv << " * " << 10.0f << " + " << vv_2 <<"=\n   " << r5 << std::endl;
+
+    sm::vvec<float> r6 = vv;
+    sm::vvec<float> r7 = vv;
+    sm::vvec<float> r8 = vv;
+    sm::vvec<float> r9 = vv;
+
+    r6.macc_inplace (3.0f, 10.0f);
+    r7.macc_inplace (3.0f, vv_2);
+    r8.macc_inplace (vv_2, 10.0f);
+    r9.macc_inplace (vv_2, vv_2);
 
     if (rtn == 0) { std::cout << "Success\n"; }
     return rtn;
