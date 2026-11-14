@@ -170,6 +170,10 @@ add_executable(vvec_rescale1 vvec_rescale1.cpp)
 target_link_libraries(vvec_rescale1 PRIVATE sm)
 add_test(vvec_rescale1 vvec_rescale1)
 
+add_executable(vvec_renormalize1 vvec_renormalize1.cpp)
+target_link_libraries(vvec_renormalize1 PRIVATE sm)
+add_test(vvec_renormalize1 vvec_renormalize1)
+
 add_executable(vvec_set_from1 vvec_set_from1.cpp)
 target_link_libraries(vvec_set_from1 PRIVATE sm)
 add_test(vvec_set_from1 vvec_set_from1)
