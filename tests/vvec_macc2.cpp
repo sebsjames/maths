@@ -57,6 +57,15 @@ std::int32_t test()
         if (r1[i] != expect1[i] || r2[i] != expect2[i] || r3[i] != expect3[i]) {
             --rtn;
             std::cerr << "Failed on arith/arith test\n";
+            if (r1[i] != expect1[i]) {
+                std::cerr << "  r1[i] != expect1[i] --- " << r1[i] << " != " << expect1[i] << std::endl;
+            }
+            if (r2[i] != expect2[i]) {
+                std::cerr << "  r2[i] != expect2[i] --- " << r2[i] << " != " << expect2[i] << std::endl;
+            }
+            if (r3[i] != expect3[i]) {
+                std::cerr << "  r3[i] != expect3[i] --- " << r3[i] << " != " << expect3[i] << std::endl;
+            }
             break;
         }
     }
@@ -139,7 +148,7 @@ std::int32_t test()
     for (std::uint32_t i = 0; i < vv.size(); ++i) {
         if (r1[i] != expect1[i] || r2[i] != expect2[i] || r3[i] != expect3[i]) {
             --rtn;
-            std::cerr << "Failed on container/arith test\n";
+            std::cerr << "Failed on arith/container test\n";
             break;
         }
     }
@@ -179,7 +188,7 @@ std::int32_t test()
     for (std::uint32_t i = 0; i < vv.size(); ++i) {
         if (r1[i] != expect1[i] || r2[i] != expect2[i] || r3[i] != expect3[i]) {
             --rtn;
-            std::cerr << "Failed on container/arith test\n";
+            std::cerr << "Failed on container/container test\n";
             break;
         }
     }
