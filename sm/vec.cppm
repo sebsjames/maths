@@ -1056,7 +1056,7 @@ namespace sm
             }
         }
 
-        //! macc_inplace 4. Multiply and accumumate in place. a and b are both container types
+        //! macc_inplace 4. Multiply and accumulate in place. a and b are both container types
         template <typename Sy1=S, typename Sy2=S>
         requires (sm::is_copyable_container<Sy1>::value && sm::is_copyable_container<Sy2>::value)
         void macc_inplace (const Sy1& a, const Sy2& b) noexcept
