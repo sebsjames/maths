@@ -113,6 +113,10 @@ add_executable(vec_macc vec_macc.cpp)
 target_link_libraries(vec_macc PRIVATE sm)
 add_test(vec_macc vec_macc)
 
+add_executable(vec_macc2 vec_macc2.cpp)
+target_link_libraries(vec_macc2 PRIVATE sm)
+add_test(vec_macc2 vec_macc2)
+
 # Test the "mathematic vector made from an std::vector" code (this vvec is better for neural networks)
 add_executable(vvec1 vvec1.cpp)
 target_link_libraries(vvec1 PRIVATE sm)
