@@ -109,9 +109,9 @@ add_executable(vec_set_from1 vec_set_from1.cpp)
 target_link_libraries(vec_set_from1 PRIVATE sm)
 add_test(vec_set_from1 vec_set_from1)
 
-add_executable(vec_macc vec_macc.cpp)
-target_link_libraries(vec_macc PRIVATE sm)
-add_test(vec_macc vec_macc)
+add_executable(vec_macc1 vec_macc1.cpp)
+target_link_libraries(vec_macc1 PRIVATE sm)
+add_test(vec_macc1 vec_macc1)
 
 add_executable(vec_macc2 vec_macc2.cpp)
 target_link_libraries(vec_macc2 PRIVATE sm)
