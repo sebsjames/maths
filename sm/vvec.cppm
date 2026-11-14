@@ -1438,7 +1438,7 @@ export namespace sm
             for (auto& el : *this) { el = el * a[i++] + b; }
         }
 
-        //! macc_inplace 4. Multiply and accumumate in place. a and b are both container
+        //! macc_inplace 4. Multiply and accumulate in place. a and b are both container
         //! types. Generally faster than separate functions.
         template <typename Sy1=S, typename Sy2=S>
         requires (sm::is_copyable_container<Sy1>::value && sm::is_copyable_container<Sy2>::value)
