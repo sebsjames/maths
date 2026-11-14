@@ -54,7 +54,7 @@ std::int32_t test()
 
     // Test values
     for (std::uint32_t i = 0; i < vv.size(); ++i) {
-        if (r2[i] != expect1[i] || r2[i] != expect2[i] || r3[i] != expect3[i]) {
+        if (r1[i] != expect1[i] || r2[i] != expect2[i] || r3[i] != expect3[i]) {
             --rtn;
             std::cerr << "Failed on arith/arith test\n";
             break;
@@ -96,7 +96,7 @@ std::int32_t test()
 
     // Test values
     for (std::uint32_t i = 0; i < vv.size(); ++i) {
-        if (r2[i] != expect1[i] || r2[i] != expect2[i] || r3[i] != expect3[i]) {
+        if (r1[i] != expect1[i] || r2[i] != expect2[i] || r3[i] != expect3[i]) {
             --rtn;
             std::cerr << "Failed on container/arith test\n";
             break;
@@ -137,7 +137,7 @@ std::int32_t test()
 
     // Test values
     for (std::uint32_t i = 0; i < vv.size(); ++i) {
-        if (r2[i] != expect1[i] || r2[i] != expect2[i] || r3[i] != expect3[i]) {
+        if (r1[i] != expect1[i] || r2[i] != expect2[i] || r3[i] != expect3[i]) {
             --rtn;
             std::cerr << "Failed on container/arith test\n";
             break;
@@ -177,7 +177,7 @@ std::int32_t test()
 
     // Test values
     for (std::uint32_t i = 0; i < vv.size(); ++i) {
-        if (r2[i] != expect1[i] || r2[i] != expect2[i] || r3[i] != expect3[i]) {
+        if (r1[i] != expect1[i] || r2[i] != expect2[i] || r3[i] != expect3[i]) {
             --rtn;
             std::cerr << "Failed on container/arith test\n";
             break;
