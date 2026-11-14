@@ -236,11 +236,27 @@ std::int32_t main()
 
     std::cout << "Single precision float\n";
     std::cout << "----------------------\n";
-    rtn += test<float>();
+    std::int32_t rtn1 = test<float>();
+    if (rtn1 == 0) {
+        std::cout << "Success with perfect numerical matches\n";
+    } else if (rtn1 > 0) {
+        std::cout << "Success within " << rtn << " epsilons of machine precision\n";
+    } else { // (rtn1 < 0)
+        std::cout << "Failed\n";
+        rtn--;
+    }
 
     std::cout << "Double precision float\n";
     std::cout << "----------------------\n";
-    rtn += test<double>();
+    std::int32_t rtn2 = test<double>();
+    if (rtn2 == 0) {
+        std::cout << "Success with perfect numerical matches\n";
+    } else if (rtn2 > 0) {
+        std::cout << "Success within " << rtn << " epsilons of machine precision\n";
+    } else { // (rtn2 < 0)
+        std::cout << "Failed\n";
+        rtn--;
+    }
 
     if (rtn == 0) { std::cout << "Success\n"; } else { std::cout << "Test failed\n"; }
 
