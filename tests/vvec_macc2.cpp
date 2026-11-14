@@ -240,7 +240,7 @@ std::int32_t main()
     if (rtn1 == 0) {
         std::cout << "Success with perfect numerical matches\n";
     } else if (rtn1 > 0) {
-        std::cout << "Success within " << rtn << " epsilons of machine precision\n";
+        std::cout << "Success within " << rtn1 << " epsilons of machine precision\n";
     } else { // (rtn1 < 0)
         std::cout << "Failed\n";
         rtn--;
@@ -252,7 +252,7 @@ std::int32_t main()
     if (rtn2 == 0) {
         std::cout << "Success with perfect numerical matches\n";
     } else if (rtn2 > 0) {
-        std::cout << "Success within " << rtn << " epsilons of machine precision\n";
+        std::cout << "Success within " << rtn2 << " epsilons of machine precision\n";
     } else { // (rtn2 < 0)
         std::cout << "Failed\n";
         rtn--;
