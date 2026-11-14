@@ -1,8 +1,50 @@
 #include <iostream>
 #include <chrono>
 #include <cstdint>
+#include <cmath>
 
 import sm.vvec;
+
+template<typename F>
+std::int32_t test_values (const sm::vvec<F>& r1, const sm::vvec<F>& r2, const sm::vvec<F>& r3,
+                          const sm::vvec<F>& expect1, const sm::vvec<F>& expect2, const sm::vvec<F>& expect3)
+{
+    // return 0 for exact match, >0 for match within that many epsilons (up to limit), -1 fail.
+    std::int32_t rtn = 0;
+
+    constexpr F thresh = F{10};
+
+    for (std::uint32_t i = 0; i < r1.size(); ++i) {
+        if (r1[i] != expect1[i] || r2[i] != expect2[i] || r3[i] != expect3[i]) {
+            // Not *exact* match, but we may allow machine precision errors.
+            F e1 = std::abs(r1[i] - expect1[i]) / std::numeric_limits<F>::epsilon();
+            F e2 = std::abs(r2[i] - expect2[i]) / std::numeric_limits<F>::epsilon();
+            F e3 = std::abs(r3[i] - expect3[i]) / std::numeric_limits<F>::epsilon();
+
+            if (e1 <= thresh && e2 <= thresh && e3 <= thresh) {
+                // Ok, return size of e1/e2/e3
+                F e = std::max (e1, e2);
+                e = std::max (e, e3);
+                rtn = std::max (rtn, static_cast<std::int32_t>(std::round (e)));
+
+            } else {
+                rtn = -1;
+                std::cerr << "Failed on arith/arith test\n";
+                if (r1[i] != expect1[i]) {
+                    std::cerr << "  r1[i] != expect1[i] --- " << r1[i] << " != " << expect1[i] << std::endl;
+                }
+                if (r2[i] != expect2[i]) {
+                    std::cerr << "  r2[i] != expect2[i] --- " << r2[i] << " != " << expect2[i] << std::endl;
+                }
+                if (r3[i] != expect3[i]) {
+                    std::cerr << "  r3[i] != expect3[i] --- " << r3[i] << " != " << expect3[i] << std::endl;
+                }
+                break;
+            }
+        }
+    }
+    return rtn;
+}
 
 template<typename F>
 std::int32_t test()
@@ -53,22 +95,12 @@ std::int32_t test()
     t3 = sc::now();
 
     // Test values
-    for (std::uint32_t i = 0; i < vv.size(); ++i) {
-        if (r1[i] != expect1[i] || r2[i] != expect2[i] || r3[i] != expect3[i]) {
-            --rtn;
-            std::cerr << "Failed on arith/arith test\n";
-            if (r1[i] != expect1[i]) {
-                std::cerr << "  r1[i] != expect1[i] --- " << r1[i] << " != " << expect1[i] << std::endl;
-            }
-            if (r2[i] != expect2[i]) {
-                std::cerr << "  r2[i] != expect2[i] --- " << r2[i] << " != " << expect2[i] << std::endl;
-            }
-            if (r3[i] != expect3[i]) {
-                std::cerr << "  r3[i] != expect3[i] --- " << r3[i] << " != " << expect3[i] << std::endl;
-            }
-            break;
-        }
+    std::int32_t code = test_values<F> (r1, r2, r3, expect1, expect2, expect3);
+    if (code < 0) {
+        std::cerr << "Failed on arith/arith test\n";
+        return code;
     }
+    rtn = std::max (rtn, code);
 
     std::cout << "\n1000000 random numbers * 5 + 2\n";
     std::cout << "macc     " << duration_cast<microseconds>((t1 - t0)).count() << " us\n";
@@ -104,13 +136,12 @@ std::int32_t test()
     t3 = sc::now();
 
     // Test values
-    for (std::uint32_t i = 0; i < vv.size(); ++i) {
-        if (r1[i] != expect1[i] || r2[i] != expect2[i] || r3[i] != expect3[i]) {
-            --rtn;
-            std::cerr << "Failed on container/arith test\n";
-            break;
-        }
+    code = test_values<F> (r1, r2, r3, expect1, expect2, expect3);
+    if (code < 0) {
+        std::cerr << "Failed on container/arith test\n";
+        return code;
     }
+    rtn = std::max (rtn, code);
 
     std::cout << "\n1000000 random numbers * 1000000 rns + 2\n";
     std::cout << "macc     " << duration_cast<microseconds>((t1 - t0)).count() << " us\n";
@@ -145,13 +176,12 @@ std::int32_t test()
     t3 = sc::now();
 
     // Test values
-    for (std::uint32_t i = 0; i < vv.size(); ++i) {
-        if (r1[i] != expect1[i] || r2[i] != expect2[i] || r3[i] != expect3[i]) {
-            --rtn;
-            std::cerr << "Failed on arith/container test\n";
-            break;
-        }
+    code = test_values<F> (r1, r2, r3, expect1, expect2, expect3);
+    if (code < 0) {
+        std::cerr << "Failed on arith/container test\n";
+        return code;
     }
+    rtn = std::max (rtn, code);
 
     std::cout << "\n1000000 random numbers * 5 + 1000000 rns\n";
     std::cout << "macc     " << duration_cast<microseconds>((t1 - t0)).count() << " us\n";
@@ -185,13 +215,12 @@ std::int32_t test()
     t3 = sc::now();
 
     // Test values
-    for (std::uint32_t i = 0; i < vv.size(); ++i) {
-        if (r1[i] != expect1[i] || r2[i] != expect2[i] || r3[i] != expect3[i]) {
-            --rtn;
-            std::cerr << "Failed on container/container test\n";
-            break;
-        }
+    code = test_values<F> (r1, r2, r3, expect1, expect2, expect3);
+    if (code < 0) {
+        std::cerr << "Failed on container/container test\n";
+        return code;
     }
+    rtn = std::max (rtn, code);
 
     std::cout << "1000000 random numbers * 1000000 rns + 1000000 rns\n";
     std::cout << "macc      " << duration_cast<microseconds>((t1 - t0)).count() << " us\n";
