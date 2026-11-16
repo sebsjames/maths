@@ -496,7 +496,7 @@ export namespace sm::algo::hexgrid
      */
     template<typename F, sm::hexalign A>
     std::set<std::uint32_t> ellipse_indices (sm::hexgrid<F, A>& hg,
-                                             const F a, const F b, const F r, const sm::vec<F, 2> c = {})
+                                             const F a, const F b, const F r, const sm::vec<F, 2> c = {}, const bool filled = true)
     {
         std::set<std::uint32_t> indices = {};
 
@@ -552,16 +552,18 @@ export namespace sm::algo::hexgrid
             bpi++;
         }
 
-        // Initially, I tried hexgrid::mark_hexes_inside(). This works for most boundaries, but
-        // there's an edge case if the boundary on either size of a long thin ellipse touches at 1
-        // or more locations. In this case, we may have failed to fill in all the hexes. This led me
-        // to use an alternative algorithm that makes use of the winding number:
-        hg.mark_hexes_inside_winding (bhexpoints, sm::HEX_USER_FLAG_0, sm::HEX_USER_FLAG_1);
+        if (filled == true) {
+            // Initially, I tried hexgrid::mark_hexes_inside(). This works for most boundaries, but
+            // there's an edge case if the boundary on either size of a long thin ellipse touches at 1
+            // or more locations. In this case, we may have failed to fill in all the hexes. This led me
+            // to use an alternative algorithm that makes use of the winding number:
+            hg.mark_hexes_inside_winding (bhexpoints, sm::HEX_USER_FLAG_0, sm::HEX_USER_FLAG_1);
 
-        // Loop through hexes, and if USER_FLAG_1 is set, add the hex index (vi) to indices, then clear flags
-        for (auto& h : hg.hexen) {
-            if (h.test_flag (sm::HEX_USER_FLAG_1)) { indices.insert (h.vi); }
-            h.reset_user_flags();
+            // Loop through hexes, and if USER_FLAG_1 is set, add the hex index (vi) to indices, then clear flags
+            for (auto& h : hg.hexen) {
+                if (h.test_flag (sm::HEX_USER_FLAG_1)) { indices.insert (h.vi); }
+                h.reset_user_flags();
+            }
         }
 
         return indices;
