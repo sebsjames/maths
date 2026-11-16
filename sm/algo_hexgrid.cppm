@@ -208,8 +208,8 @@ export namespace sm::algo::hexgrid
         expr_resampled /= errange.span();
 
         // Shift back to match the range of input data
-        expr_resampled *= shiftedrange.max;
-        expr_resampled += drange.min;
+        // expr_resampled *= shiftedrange.max; expr_resampled += drange.min; // becomes:
+        expr_resampled.macc_inplace (shiftedrange.max, drange.min);
 
         return expr_resampled;
     }
@@ -499,10 +499,6 @@ export namespace sm::algo::hexgrid
                                              const F a, const F b, const F r, const sm::vec<F, 2> c = {})
     {
         std::set<std::uint32_t> indices = {};
-
-        if (a <= F{0.5} * hg.d || b <= F{0.5} * hg.d) {
-            throw std::runtime_error ("algo::hexgrid::ellipse_indices: choose ellipse radii (a and b) > 0.5 * hg.d");
-        }
 
         // Estimate a good delta_phi based on the larger of a and b. Compute the delta_phi
         // required to travel a fraction of one hex-to-hex distance.
