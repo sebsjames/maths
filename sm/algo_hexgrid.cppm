@@ -208,8 +208,8 @@ export namespace sm::algo::hexgrid
         expr_resampled /= errange.span();
 
         // Shift back to match the range of input data
-        expr_resampled *= shiftedrange.max;
-        expr_resampled += drange.min;
+        // expr_resampled *= shiftedrange.max; expr_resampled += drange.min; // becomes:
+        expr_resampled.macc_inplace (shiftedrange.max, drange.min);
 
         return expr_resampled;
     }
@@ -496,13 +496,9 @@ export namespace sm::algo::hexgrid
      */
     template<typename F, sm::hexalign A>
     std::set<std::uint32_t> ellipse_indices (sm::hexgrid<F, A>& hg,
-                                             const F a, const F b, const F r, const sm::vec<F, 2> c = {})
+                                             const F a, const F b, const F r, const sm::vec<F, 2> c = {}, const bool filled = true)
     {
         std::set<std::uint32_t> indices = {};
-
-        if (a <= F{0.5} * hg.d || b <= F{0.5} * hg.d) {
-            throw std::runtime_error ("algo::hexgrid::ellipse_indices: choose ellipse radii (a and b) > 0.5 * hg.d");
-        }
 
         // Estimate a good delta_phi based on the larger of a and b. Compute the delta_phi
         // required to travel a fraction of one hex-to-hex distance.
@@ -556,16 +552,18 @@ export namespace sm::algo::hexgrid
             bpi++;
         }
 
-        // Initially, I tried hexgrid::mark_hexes_inside(). This works for most boundaries, but
-        // there's an edge case if the boundary on either size of a long thin ellipse touches at 1
-        // or more locations. In this case, we may have failed to fill in all the hexes. This led me
-        // to use an alternative algorithm that makes use of the winding number:
-        hg.mark_hexes_inside_winding (bhexpoints, sm::HEX_USER_FLAG_0, sm::HEX_USER_FLAG_1);
+        if (filled == true) {
+            // Initially, I tried hexgrid::mark_hexes_inside(). This works for most boundaries, but
+            // there's an edge case if the boundary on either size of a long thin ellipse touches at 1
+            // or more locations. In this case, we may have failed to fill in all the hexes. This led me
+            // to use an alternative algorithm that makes use of the winding number:
+            hg.mark_hexes_inside_winding (bhexpoints, sm::HEX_USER_FLAG_0, sm::HEX_USER_FLAG_1);
 
-        // Loop through hexes, and if USER_FLAG_1 is set, add the hex index (vi) to indices, then clear flags
-        for (auto& h : hg.hexen) {
-            if (h.test_flag (sm::HEX_USER_FLAG_1)) { indices.insert (h.vi); }
-            h.reset_user_flags();
+            // Loop through hexes, and if USER_FLAG_1 is set, add the hex index (vi) to indices, then clear flags
+            for (auto& h : hg.hexen) {
+                if (h.test_flag (sm::HEX_USER_FLAG_1)) { indices.insert (h.vi); }
+                h.reset_user_flags();
+            }
         }
 
         return indices;
