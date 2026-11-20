@@ -695,8 +695,12 @@ export namespace sm
                 return this->compute_point_linear (t);
             } else if (order == 2) {
                 return this->compute_point_quadratic (t);
+#if 1 // FIXME: Remove use of compute_point_cubic as it is slower than compute_point_matrix, but with precision differences
+            } else if (order == 3) {
+                return this->compute_point_cubic (t);
+#endif
             } else {
-                // Default to matrix, as this is faster than compute_point_general and compute_point_cubic
+                // Default to matrix, as this is faster than compute_point_general (and compute_point_cubic)
                 return this->compute_point_matrix (t);
             }
         }
