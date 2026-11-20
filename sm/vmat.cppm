@@ -89,10 +89,29 @@ export namespace sm
             }
         }
 
+        //! Set a row with the passed-in vvec
+        void set_row (const std::uint32_t idx, const sm::vvec<F>& rowdata)
+        {
+            const std::uint32_t _Nc = rowdata.size();
+            for (std::uint32_t i = 0; i < Nc; ++i) {
+                this->arr[idx + Nr * i] = (i < _Nc ? rowdata[i] : F{0});
+            }
+        }
+
         //! Set a col with the passed-in vec
         template<std::uint32_t _Nr>
         void set_col (const std::uint32_t idx, const sm::vec<F, _Nr>& coldata) noexcept
         {
+            std::uint32_t arridx_start = idx * Nr;
+            for (std::uint32_t i = 0; i < Nr; ++i) {
+                this->arr[arridx_start + i] = (i < _Nr ? coldata[i] : F{0});
+            }
+        }
+
+        //! Set a col with the passed-in vvec
+        void set_col (const std::uint32_t idx, const sm::vvec<F>& coldata) noexcept
+        {
+            const std::uint32_t _Nr = coldata.size();
             std::uint32_t arridx_start = idx * Nr;
             for (std::uint32_t i = 0; i < Nr; ++i) {
                 this->arr[arridx_start + i] = (i < _Nr ? coldata[i] : F{0});
@@ -128,8 +147,79 @@ export namespace sm
         bool checksize() const { return this->size() == this->arr.size(); }
         std::uint32_t size() const { return this->Nr * this->Nc; }
         sm::vec<std::uint32_t, 2> shape() const { return sm::vec<std::uint32_t, 2>{ this->Nr, this->Nc }; }
+
+        //! Access a given row of the matrix
+        sm::vvec<F> row (const std::uint32_t idx) const
+        {
+            sm::vvec<F> r (this->Nc, F{0});
+            if (idx >= this->Nr) { return r; }
+            for (std::uint32_t i = 0; i < this->Nc; ++i) { r[i] = this->arr[idx + Nr * i]; }
+            return r;
+        }
         std::uint32_t rows() const { return this->Nr; }
+
+        //! Access a given column of the matrix
+        sm::vvec<F> col (const std::uint32_t idx) const
+        {
+            sm::vvec<F> c (this->Nr, F{0});
+            if (idx >= this->Nc) { return c; }
+            std::uint32_t arridx_start = idx * this->Nr;
+            for (std::uint32_t i = 0; i < this->Nr; ++i) { c[i] = this->arr[arridx_start++]; }
+            return c;
+        }
         std::uint32_t cols() const { return this->Nc; }
+
+        //! Transpose this matrix
+        void transpose_inplace()
+        {
+            if (Nr != Nc) { throw std::runtime_error ("vmat::transpose_inplace: valid only for square matrices"); }
+
+            const std::uint32_t N_diamond = ((Nr * Nc) - Nr ) / 2;
+
+            sm::vvec<F> a (N_diamond, F{0});
+
+            std::uint32_t i = 0;
+            for (std::uint32_t c = 0; c < (Nc / 2) + 1; ++c) {
+                for (std::uint32_t r = c + 1; r < Nr; ++r) {
+                    a[i++] = this->arr[c * Nr + r];
+                    this->arr[c * Nr + r] = this->arr[r * Nr + c];
+                }
+            }
+            i = 0;
+            for (std::uint32_t c = 0; c < (Nc / 2) + 1; ++c) {
+                for (std::uint32_t r = c + 1; r < Nr; ++r) {
+                    this->arr[r * Nr + c] = a[i++];
+                }
+            }
+        }
+
+        //! Return the matrix transposed
+        vmat<F> transpose() const
+        {
+            if (Nr != Nc) { throw std::runtime_error ("vmat::transpose: valid only for square matrices"); }
+
+            const std::uint32_t N_diamond = ((Nr * Nc) - Nr ) / 2;
+
+            sm::vvec<F> a (N_diamond, F{0});
+
+            vmat<F> m = *this;
+
+            std::uint32_t i = 0;
+            for (std::uint32_t c = 0; c < (Nc / 2) + 1; ++c) {
+                for (std::uint32_t r = c + 1; r < Nr; ++r) {
+                    a[i++] = this->arr[c * Nr + r];
+                    m[c * Nr + r] = this->arr[r * Nr + c];
+                }
+            }
+            i = 0;
+            for (std::uint32_t c = 0; c < (Nc / 2) + 1; ++c) {
+                for (std::uint32_t r = c + 1; r < Nr; ++r) {
+                    m[r * Nr + c] = a[i++];
+                }
+            }
+
+            return m;
+        }
 
         void inverse_inplace() { std::cout << "writeme\n"; }
 

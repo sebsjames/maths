@@ -505,7 +505,7 @@ export namespace sm
             // Note that you really need double precision in the matrices whilst
             // computing a Bezier best fit. If we use single precision, the fits are
             // only good up to Bezier order 4 or 5, rather than 8-10.
-            sm::vmat<double> P (n, 2)
+            sm::vmat<double> P (n, 2);
             for (auto p : points) {
                 P(i, 0) = p[0];
                 P(i++, 1) = p[1];
@@ -566,8 +566,6 @@ export namespace sm
             return deriv_cp;
         }
 
-        // GOT TO HERE
-
         /*!
          * Return (control points for) two Bezier curves that split up this one.
          *
@@ -576,15 +574,15 @@ export namespace sm
          *
          * See https://pomax.github.io/bezierinfo/#matrixsplit
          */
-        std::pair<sm::mat<F, order + 1u, 2u>, sm::mat<F, order + 1u, 2u>> split (F z) const
+        //std::pair<sm::mat<F, order + 1u, 2u>, sm::mat<F, order + 1u, 2u>> split (F z) const
+        std::pair<sm::vmat<F>, sm::vmat<F>> split (F z) const
         {
-            constexpr std::uint32_t n = order + 1u;
+            const std::uint32_t n = order + 1u;
             // 'z prime':
             F zp = z - F{1};
             F sign0 = F{1};
             F sign = sign0;
-            sm::mat<F, n, n> Q;
-            Q.set_zero();
+            sm::vmat<F> Q (n, n);
             for (std::uint32_t i = 0; i < n; ++i) {
                 sign = sign0;
                 for (std::uint32_t j = 0; j <= i; ++j) {
@@ -594,11 +592,11 @@ export namespace sm
                 }
                 sign0 = sign0 > F{0} ? F{-1} : F{1};
             }
-            sm::mat<F, n, 2u> C1 = Q * this->C;
+            sm::vmat<F> C1 = Q * this->C; // size (n, 2u)
             // Shift (or rotate) rows then flip
             for (std::uint32_t i = 0; i < n; ++i) {
                 // 'rotate row'
-                sm::vec<F, n> rw = Q.row (i);
+                sm::vvec<F> rw = Q.row (i);
                 std::int32_t rti = static_cast<std::int32_t>(n - 1 - i);
                 rw.rotate (-rti);
                 Q.set_row (i, rw);
@@ -753,26 +751,22 @@ export namespace sm
         }
 
         //! Compute the unit tangent and unit normal at t.
-        template<typename Fy> requires (order > 1)
+        template<typename Fy>
         std::pair<bezcoord<F>, bezcoord<F>> compute_tangent_normal (const Fy t) const
         {
-            auto deriv_cp = this->derivative<F>();
-            sm::bezcurve<F, order - 1u> deriv (deriv_cp);
-            bezcoord<F> tang = deriv.compute_point (static_cast<F>(t));
-            tang.normalize();
-            bezcoord<F> norm = tang; // copies the parameter
-            // rotate norm:
-            norm.coord = {-tang.y(), tang.x()};
-            return std::make_pair (tang, norm);
-        }
-
-        template<typename Fy> requires (order == 1)
-        std::pair<bezcoord<F>, bezcoord<F>> compute_tangent_normal (const Fy t) const
-        {
-            // Can't compute tangent using the derivative as derivative would be a
-            // curve with a single control point. The tangent to a line is
-            // simply the line:
-            bezcoord<F> tang = this->compute_point (static_cast<F>(t));
+            bezcoord<F> tang = {};
+            if (this->order == 0) {
+                throw std::runtime_error ("bezcurve::compute_tangent_normal: order must be >0");
+            } else if (this->order == 1) {
+                // Can't compute tangent using the derivative as derivative would be a
+                // curve with a single control point. The tangent to a line is
+                // simply the line:
+                tang = this->compute_point (static_cast<F>(t));
+            } else {
+                auto deriv_cp = this->derivative<F>();
+                sm::bezcurve<F> deriv = deriv_cp;
+                tang = deriv.compute_point (static_cast<F>(t));
+            }
             tang.normalize();
             bezcoord<F> norm = tang; // copies the parameter
             // rotate norm:
