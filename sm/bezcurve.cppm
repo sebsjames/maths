@@ -248,16 +248,20 @@ export namespace sm
 
             // Now we rotate each point by +/-phi
             // p0 is the point which joins the two curves:
-            sm::vec<F, 2> p0 = C.row (0);
+            sm::vvec<F> _p0 = C.row (0);
+            if (_p0.size() < 2u) { throw std::runtime_error ("bezcurve::fit: unexpected row length"); }
+            sm::vec<F, 2> p0 = { _p0[0], _p0[1] };
 
             // Rotate the vector 'va' in the rotmat_neg direction
-            sm::vec<F, 2> pm1 = prec_ctrl[len-2];
+            sm::vec<F, 2> pm1 = prec_ctrl[len - 2];
 
             // Offset so we rotate va about p0
             sm::vec<F, 2> pm1_r = pm1 - p0;
 
             // Rotate the vector vb in the opposing direction (rotmat_pos)
-            sm::vec<F, 2> pm2 = C.row (1);
+            sm::vvec<F> _pm2 = C.row (1);
+            if (_pm2.size() < 2u) { throw std::runtime_error ("bezcurve::fit: unexpected row length"); }
+            sm::vec<F, 2> pm2 = { _pm2[0], _pm2[1] };
 
             sm::vec<F, 2> pm2_r = pm2 - p0;
 
@@ -303,7 +307,7 @@ export namespace sm
             sm::vec<F, 2> pm1_r_final = pm1_r_after + p0;
             sm::vec<F, 2> pm2_r_final = pm2_r_after + p0;
 
-            C.set_row (1, pm2_r_final);
+            C.template set_row<2> (1, pm2_r_final);
 
             this->init();
 
