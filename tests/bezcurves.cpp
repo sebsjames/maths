@@ -28,7 +28,7 @@ int main()
     sm::bezcurvepath<float> bcp;
     bcp.name = "testbezcurves";
     bcp.add_curve (cc3);
-    bcp.add_curve (cc4); // Should soon be able to...
+    bcp.add_curve (cc4);
 
     unsigned int n_points = 201;
     bcp.compute_points (n_points);
