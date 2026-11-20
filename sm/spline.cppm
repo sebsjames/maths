@@ -20,13 +20,13 @@ import sm.constexpr_math; // constexpr math functions from Keith O'Hara
 export import sm.mathconst;
 export import sm.vec;
 export import sm.vvec;
-export import sm.vmat;
+export import sm.mat;
 
 export namespace sm
 {
     // (Natural) cubic spline for N 2D coordinates in (floating point) type F. Computes the
     // coefficients for N - 1 cubic curves, so the result is 4 * (N - 1) coefficients.
-    template<typename F>
+    template<typename F, std::uint32_t N>
     struct spline
     {
         spline() {}
@@ -36,22 +36,18 @@ export namespace sm
             this->compute_coefficients();
         }
 
-        // The spline will have N - 1 cubic curves
-        std::uint32_t N = 3;
         // Points
-        sm::vec<sm::vec<F, 2>, N> p; // to be vvec of vvec
+        sm::vec<sm::vec<F, 2>, N> p;
         // Coefficients. c[0][3] to c[0][0] are the coefficients for cubic function 0. c[0][3] is
         // the coefficient of x^3
-        sm::vec<sm::vec<F, 4>, (N - 1)> c; // to be vvec of vvec
+        sm::vec<sm::vec<F, 4>, (N - 1)> c;
 
         // Compute coefficients from points
         void compute_coefficients()
         {
             // A x = B
-            sm::vmat<F> A = {};
-            vmat.resize (4 * (N - 1), 4 * (N - 1));
-            sm::vvec<F> B = {};
-            B.resize (4 * (N - 1), F{0});;
+            sm::mat<F, 4 * (N - 1), 4 * (N - 1)> A = {{}};
+            sm::vec<F, 4 * (N - 1)> B = {};
 
             // Each row of A is coefficients of:
             // sm::vec<F, 4 * (N - 1)> x = { c[0][3] c[0][2] c[0][1] c[0][0] c[1][3] c[1][2] c[1][1] c[1][0] c[2][3] c[2][2] c[2][1] c[2][0] };
@@ -104,8 +100,7 @@ export namespace sm
             A(4 * (N - 1) - 1, (N - 1) * 4 - N + 1) = F{2};
 
             // Solve the above using the back substitution as in the mat::eigenvector function?
-            sm::vmat<F> Aug = {};
-            Aug.resize (4 * (N - 1), 4 * (N - 1) + 1);
+            sm::mat<F, 4 * (N - 1), 4 * (N - 1) + 1> Aug = {{}};
             for (std::uint32_t i = 0; i < 4 * (N - 1); ++i) {
                 for (std::uint32_t j = 0; j < 4 * (N - 1); ++j) {
                     Aug(i, j) = A(i, j);
@@ -117,7 +112,7 @@ export namespace sm
             // Convert augmented matrix to row echelon form...
             Aug.row_echelon_form_inplace();
             // and solve by back-substitution
-            sm::vvec<F> X = Aug.back_substitution(); // X should be 4 * (N - 1) in size
+            sm::vec<F, 4 * (N - 1)> X = Aug.back_substitution();
 
             // Copy X into c.
             for (std::uint32_t i = 0; i < N - 1; ++i) {
