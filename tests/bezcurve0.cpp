@@ -20,9 +20,10 @@ int main()
     // Make a curve
     sm::bezcurve<float> cc3(i, f, c1, c2);
 
+#if 0
     // Make a second quartic curve.
-    sm::vvec<sm::vec<float, 2>> quart = {f, {10.0f,10.0f}, {10.0f,0.0f},  {12.0f,-5.0f},  {14.0f,0.0f}};
+    sm::vvec<sm::vec<float, 2>> quart = {f, {10.0f,10.0f}, {10.0f,0.0f}, {12.0f,-5.0f}, {14.0f,0.0f}};
     sm::bezcurve<float> cc4(quart);
-
+#endif
     return rtn;
 }

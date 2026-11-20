@@ -365,6 +365,11 @@ if(NOT APPLE)
 endif()
 endif()
 
+add_executable(vmat_basic vmat_basic.cpp)
+target_link_libraries(vmat_basic PRIVATE sm)
+add_test(vmat_basic vmat_basic)
+
+
 # All the major compilers showed some trouble with std::complex
 # arithmetic around June 2026. Clang 22 required a workaround.  GCC 15
 # also had trouble; with operator/ and std::complex arguments, but GCC

@@ -55,7 +55,10 @@ export namespace sm
     struct bezcurve
     {
         //! Do-nothing constructor
-        bezcurve() { this->M = this->matrix_setup_M(); }
+        bezcurve() {
+            this->M = this->matrix_setup_M();
+            this->C = this->matrix_setup_C();
+        }
 
         /*!
          * Construct a Bezier curve of order cp.size()-1 **with the initial and final
@@ -63,20 +66,23 @@ export namespace sm
          */
         bezcurve (sm::vvec<sm::vec<F, 2>> cp)
         {
+            if (cp.size() < 2) {
+                throw std::runtime_error ("bezcurve(vvec<vec<>> cp): cp should contain at least 2 vecs");
+            }
+            this->order = cp.size() - 1u;
+
             this->M = this->matrix_setup_M();
+            this->C = this->matrix_setup_C();
 
             if ((this->C.rows() != cp.size()) || (this->C.cols() != 2u)) {
                 throw std::runtime_error (std::format("bezcurve constructor: size of control points ({}) does not match C.rows() ({}) OR C.cols() ({}) != 2",
                                                       cp.size(), this->C.rows(), this->C.cols()));
             }
 
-            if (order != cp.size() - 1u) {
-                throw std::runtime_error (std::format("bezcurve constructor: size of control points - 1 ({}) does not match order ({})", cp.size() - 1, order));
-            }
-
             for (std::uint32_t i = 0u; i < C.rows(); ++i) {
-                // Here is the location of the old cout that seemed at some point to be necessary to avoid segfault.
-                this->C.set_row (i, cp[i]);
+                sm::vvec<F> _cp (cp[i].size());
+                for (std::uint32_t j = 0; j < cp.size(); ++j) { _cp[j] = cp[i][j]; }
+                this->C.set_row (i, _cp);
             }
 
             this->init();
@@ -95,6 +101,7 @@ export namespace sm
             }
             this->order = _r - 1u;
             this->M = this->matrix_setup_M();
+            this->C = this->matrix_setup_C();
             this->C = cmat;
             this->init();
         }
@@ -109,6 +116,7 @@ export namespace sm
         {
             this->order = 3u;
             this->M = this->matrix_setup_M();
+            this->C = this->matrix_setup_C();
             this->C(0, 0) = ip[0];
             this->C(0, 1) = ip[1];
             this->C(1, 0) = c1[0];
@@ -129,6 +137,7 @@ export namespace sm
         {
             this->order = 2u;
             this->M = this->matrix_setup_M();
+            this->C = this->matrix_setup_C();
             this->C(0, 0) = ip[0];
             this->C(0, 1) = ip[1];
             this->C(1, 0) = c1[0];
@@ -144,6 +153,7 @@ export namespace sm
         {
             this->order = 1u;
             this->M = this->matrix_setup_M();
+            this->C = this->matrix_setup_C();
             this->C(0, 0) = ip[0];
             this->C(0, 1) = ip[1];
             this->C(1, 0) = fp[0];
@@ -157,6 +167,7 @@ export namespace sm
         {
             this->order = only_cp.size() + 1u;
             this->M = this->matrix_setup_M();
+            this->C = this->matrix_setup_C();
             std::uint32_t n_ctrls = only_cp.size() + 2u;
             this->C(0, 0) = ip[0];
             this->C(0, 1) = ip[1];
@@ -763,7 +774,7 @@ export namespace sm
                 // simply the line:
                 tang = this->compute_point (static_cast<F>(t));
             } else {
-                auto deriv_cp = this->derivative<F>();
+                auto deriv_cp = this->derivative();
                 sm::bezcurve<F> deriv = deriv_cp;
                 tang = deriv.compute_point (static_cast<F>(t));
             }
@@ -1177,7 +1188,8 @@ export namespace sm
         sm::vmat<F> matrix_setup_M() // return vmat size order + 1u, order + 1u
         {
             // Check order here
-            if (this->order < sm::pt_rows) {
+            if (this->order >= sm::pt_rows) {
+                std::cout << "this->order = " << this->order << " > pt_rows = " << sm::pt_rows << std::endl;
                 throw std::runtime_error ("This code is limited to Bezier Curves of order pt_rows - 1 "
                                           "by the current size of the sm::pt lookup table (hint: change pt_rows to allow this order)");
             }
@@ -1195,6 +1207,12 @@ export namespace sm
                 }
             }
             return _M;
+        }
+
+        sm::vmat<F> matrix_setup_C() // Setup the C matrix to be the right size
+        {
+            sm::vmat<F> _C (order + 1u, 2u);
+            return _C;
         }
 
         //! The coefficients. order + 1 square. It's order + 1, because although there are order -1

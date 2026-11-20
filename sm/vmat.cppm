@@ -169,6 +169,33 @@ export namespace sm
         }
         std::uint32_t cols() const { return this->Nc; }
 
+        //! Right multiply this->arr with m2.arr
+        template<typename Fy=F> requires (std::is_arithmetic_v<Fy> || (sm::is_complex<Fy>::value && sm::is_complex<F>::value))
+        constexpr vmat<F> operator* (const vmat<Fy>& m2) const
+        {
+            const std::uint32_t Nry = m2.Nr;
+            const std::uint32_t Ncy = m2.Nc;
+
+            if (Nc != Nry) {
+                std::cout << "m1.cols = Nc = " << Nc << " and m2.rows = Nry = " << Nry << std::endl;
+                throw std::runtime_error ("vmat::operator*: m1.cols != m2.rows in m1 * m2");
+            }
+
+            vmat<F> m (Nr, Ncy);
+
+            // General case left matrix is this->arr, right matrix is m2.arr
+            for (std::uint32_t r = 0; r < Nr; ++r) {         // row in result matrix
+                for (std::uint32_t cy = 0; cy < Ncy; ++cy) { // col in result matrix
+                    m.arr[(cy * Nr) + r] = F{0};
+                    for (std::uint32_t i = 0; i < Nc; ++i) { // i iterates along row in left matrix and down col in right matrix
+                        m.arr[(cy * Nr) + r] += this->arr[(i * Nr) + r] * m2.arr[(cy * Nry) + i];
+                    }
+                }
+            }
+
+            return m;
+        }
+
         //! Transpose this matrix
         void transpose_inplace()
         {
@@ -221,7 +248,399 @@ export namespace sm
             return m;
         }
 
-        void inverse_inplace() { std::cout << "writeme\n"; }
+        /*!
+         * Return the inverse matrix.
+         *
+         * Implement inversion using determinant method. inverse is (1/det) x adjugate
+         * matrix.
+         *
+         * 1. Compute determinant of this->arr (if 0, then there's no inverse)
+         * 2. Obtain the adjugate matrix
+         * 3. Get the inverse by multiplying 1/determinant by the adjugate
+         */
+        vmat<F> inverse() const
+        {
+            if (Nr != Nc) { throw std::runtime_error ("vmat::inverse: valid only for square matrices"); }
+
+            F det = this->determinant();
+            vmat<F> m (Nr, Nc);
+            if (det == F{0}) {
+                // The transform matrix has no inverse (determinant is 0)
+                m.arr.fill (F{0});
+            } else {
+                m.arr = this->adjugate();
+                m *= (F{1} / det);
+            }
+            return m;
+        }
+
+        /*!
+         * Turn the matrix into its inverse.
+         *
+         * Implement inversion using determinant method. inverse is (1/det) x adjugate
+         * matrix.
+         *
+         * 1. Compute determinant of this->arr (if 0, then there's no inverse)
+         * 2. Obtain the adjugate matrix
+         * 3. Get the inverse by multiplying 1/determinant by the adjugate
+         */
+        void inverse_inplace()
+        {
+            if (Nr != Nc) { throw std::runtime_error ("vmat::inverse_inplace: valid only for square matrices"); }
+
+            F det = this->determinant();
+            if (det == F{0}) {
+                // The transform matrix has no inverse (determinant is 0)
+                this->arr.fill (F{0});
+            } else {
+                this->arr = this->adjugate();
+                *this *= (F{1} / det);
+            }
+        }
+
+        //! Compute determinant for 3x3 or 4x4 matrix @cm
+        static F determinant_low_order (const sm::vvec<F>& cm, const std::uint32_t _Nr)
+        {
+            if (cm.size() != _Nr * _Nr) {
+                throw std::runtime_error ("vmat::determinant_low_order: cm.size() != Nr * Nr");
+            }
+
+            F det = F{0};
+
+            if (_Nr == 2) {
+                det = ((cm[0] * cm[3]) - (cm[1] * cm[2]));
+
+            } else if (_Nr == 3) {
+                det = (cm[0] * cm[4] * cm[8])
+                + (cm[3] * cm[7] * cm[2])
+                + (cm[6] * cm[1] * cm[5])
+                - (cm[6] * cm[4] * cm[2])
+                - (cm[0] * cm[7] * cm[5])
+                - (cm[3] * cm[1] * cm[8]);
+
+            } else if (_Nr == 4) {
+                // Configure the 3x3 matrices that have to be evaluated to get the 4x4 det.
+                sm::vvec<F> cm33 (9);
+
+                // First 3x3 matrix
+                cm33[0] = cm[5];
+                cm33[1] = cm[6];
+                cm33[2] = cm[7];
+                cm33[3] = cm[9];
+                cm33[4] = cm[10];
+                cm33[5] = cm[11];
+                cm33[6] = cm[13];
+                cm33[7] = cm[14];
+                cm33[8] = cm[15];
+
+                det = cm[0] * vmat<F>::determinant_low_order (cm33, 3u);
+
+                // Second 3x3
+                cm33[0] = cm[1];
+                cm33[1] = cm[2];
+                cm33[2] = cm[3];
+                cm33[3] = cm[9];
+                cm33[4] = cm[10];
+                cm33[5] = cm[11];
+                cm33[6] = cm[13];
+                cm33[7] = cm[14];
+                cm33[8] = cm[15];
+
+                det -= cm[4] * vmat<F>::determinant_low_order (cm33, 3u);
+
+                // Third 3x3
+                cm33[0] = cm[1];
+                cm33[1] = cm[2];
+                cm33[2] = cm[3];
+                cm33[3] = cm[5];
+                cm33[4] = cm[6];
+                cm33[5] = cm[7];
+                cm33[6] = cm[13];
+                cm33[7] = cm[14];
+                cm33[8] = cm[15];
+
+                det += cm[8] * vmat<F>::determinant_low_order (cm33, 3u);
+
+                // Final 3x3
+                cm33[0] = cm[1];
+                cm33[1] = cm[2];
+                cm33[2] = cm[3];
+                cm33[3] = cm[5];
+                cm33[4] = cm[6];
+                cm33[5] = cm[7];
+                cm33[6] = cm[9];
+                cm33[7] = cm[10];
+                cm33[8] = cm[11];
+
+                det -= cm[12] * vmat<F>::determinant_low_order (cm33, 3u);
+
+            } else {
+                throw std::runtime_error ("vmat::determinant_low_order implemented only for 2x2, 3x3, 4x4");
+            }
+
+            return det;
+        }
+
+        static F determinant_high_order ([[maybe_unused]] const sm::vvec<F>& cm, [[maybe_unused]] const std::uint32_t _Nr)
+        {
+            F det = F{0};
+            throw std::runtime_error ("vmat::determinant_high_order: write me");
+            return det;
+        }
+
+        static F determinant (const sm::vvec<F>& cm, const std::uint32_t _Nr)
+        {
+            if (cm.size() != _Nr * _Nr) {
+                throw std::runtime_error ("vmat::determinant_low_order: cm.size() != Nr * Nr");
+            }
+            if (_Nr < 4) {
+                return vmat<F>::determinant_low_order (cm, _Nr);
+            } else {
+                return vmat<F>::determinant_high_order (cm, _Nr);
+            }
+        }
+
+        //! Compute determinant for this->arr
+        F determinant() const
+        {
+            if (Nr != Nc) {
+                throw std::runtime_error ("vmat::determinant: valid only for square matrices");
+            }
+            return vmat<F>::determinant (this->arr, Nr);
+        }
+
+        /*!
+         * The adjugate is the transpose of the cofactor matrix. Recipe:
+         * 1. Get the cofactor matrix (with this->cofactor())
+         * 2. Obtain the adjugate matrix by transposing the cofactor matrix
+         */
+        sm::vvec<F> adjugate() const noexcept
+        {
+            sm::vvec<F> adj (Nr * Nc, F{0});
+            if (Nr == Nc && Nr == 2) {
+                // Simple recipe for 2x2:
+                adj = { this->arr[3], -this->arr[1], -this->arr[2], this->arr[0] };
+            } else {
+                adj = this->transpose (this->cofactor());
+            }
+            return adj;
+        }
+
+        /*!
+         * Compute the cofactor matrix of this->arr. Recipe:
+         * 1. Create matrix of minors
+         * 2. Multiply matrix of minors by a checkerboard pattern to give the cofactor matrix
+         */
+        sm::vvec<F> cofactor() const
+        {
+            if (Nr != Nc) { throw std::runtime_error ("vmat::cofactor: valid only for square matrices"); }
+
+            sm::vvec<F> cofac (Nr * Nc, F{0});
+
+            if (Nr == 3) {
+
+                // Keep to column-major format for all matrices. The elements of the matrix
+                // of minors is found, but the cofactor matrix is populated, applying the
+                // alternating pattern of +/- as we go.
+
+                // 0.
+                sm::vvec<F> minor_elem(4);
+                minor_elem[0] = this->arr[4];
+                minor_elem[1] = this->arr[5];
+                minor_elem[2] = this->arr[7];
+                minor_elem[3] = this->arr[8];
+                cofac[0] = vmat<F>::determinant (minor_elem, 2u);
+
+                // 3. Next minor elem matrix has only 2 elements changed
+                minor_elem[0] = this->arr[1];
+                minor_elem[1] = this->arr[2];
+                cofac[3] = -vmat<F>::determinant (minor_elem, 2u);
+
+                // 6.
+                minor_elem[2] = this->arr[4];
+                minor_elem[3] = this->arr[5];
+                cofac[6] = vmat<F>::determinant (minor_elem, 2u);
+
+                // 1.
+                minor_elem[0] = this->arr[3];
+                minor_elem[1] = this->arr[5];
+                minor_elem[2] = this->arr[6];
+                minor_elem[3] = this->arr[8];
+                cofac[1] = -vmat<F>::determinant (minor_elem, 2u);
+
+                // 4.
+                minor_elem[0] = this->arr[0];
+                minor_elem[1] = this->arr[2];
+                cofac[4] = vmat<F>::determinant (minor_elem, 2u);
+
+                // 7.
+                minor_elem[2] = this->arr[3];
+                minor_elem[3] = this->arr[5];
+                cofac[7] = -vmat<F>::determinant (minor_elem, 2u);
+
+                // 2.
+                minor_elem[0] = this->arr[3];
+                minor_elem[1] = this->arr[4];
+                minor_elem[2] = this->arr[6];
+                minor_elem[3] = this->arr[7];
+                cofac[2] = vmat<F>::determinant (minor_elem, 2u);
+
+                // 5.
+                minor_elem[0] = this->arr[0];
+                minor_elem[1] = this->arr[1];
+                cofac[5] = -vmat<F>::determinant (minor_elem, 2u);
+
+                // 8.
+                minor_elem[2] = this->arr[3];
+                minor_elem[3] = this->arr[4];
+                cofac[8] = vmat<F>::determinant (minor_elem, 2u);
+
+            } else if (Nr == 4) {
+
+                // Keep to column-major format for all matrices. The elements of the matrix
+                // of minors is found, but the cofactor matrix is populated, applying the
+                // alternating pattern of +/- as we go.
+
+                // 0.
+                sm::vvec<F> minor_elem(9);
+                minor_elem[0] = this->arr[5];
+                minor_elem[3] = this->arr[9];
+                minor_elem[6] = this->arr[13];
+
+                minor_elem[1] = this->arr[6];
+                minor_elem[4] = this->arr[10];
+                minor_elem[7] = this->arr[14];
+
+                minor_elem[2] = this->arr[7];
+                minor_elem[5] = this->arr[11];
+                minor_elem[8] = this->arr[15];
+
+                cofac[0] = vmat<F>::determinant (minor_elem, 3u);
+
+                // 1. Next minor elem matrix has only 3 elements changed
+                minor_elem[0] = this->arr[4];
+                minor_elem[3] = this->arr[8];
+                minor_elem[6] = this->arr[12];
+                cofac[1] = -vmat<F>::determinant (minor_elem, 3u);
+
+                // 2
+                minor_elem[1] = this->arr[5];
+                minor_elem[4] = this->arr[9];
+                minor_elem[7] = this->arr[13];
+                cofac[2] = vmat<F>::determinant (minor_elem, 3u);
+
+                // 3
+                minor_elem[2] = this->arr[6];
+                minor_elem[5] = this->arr[10];
+                minor_elem[8] = this->arr[14];
+                cofac[3] = -vmat<F>::determinant (minor_elem, 3u);
+
+                // 4.
+                minor_elem[0] = this->arr[1];
+                minor_elem[3] = this->arr[9];
+                minor_elem[6] = this->arr[13];
+
+                minor_elem[1] = this->arr[2];
+                minor_elem[4] = this->arr[10];
+                minor_elem[7] = this->arr[14];
+
+                minor_elem[2] = this->arr[3];
+                minor_elem[5] = this->arr[11];
+                minor_elem[8] = this->arr[15];
+
+                cofac[4] = -vmat<F>::determinant (minor_elem, 3u);
+
+                // 5.
+                minor_elem[0] = this->arr[0];
+                minor_elem[3] = this->arr[8];
+                minor_elem[6] = this->arr[12];
+                cofac[5] = vmat<F>::determinant (minor_elem, 3u);
+
+                // 6.
+                minor_elem[1] = this->arr[1];
+                minor_elem[4] = this->arr[9];
+                minor_elem[7] = this->arr[13];
+                cofac[6] = -vmat<F>::determinant (minor_elem, 3u);
+
+                // 7.
+                minor_elem[2] = this->arr[2];
+                minor_elem[5] = this->arr[10];
+                minor_elem[8] = this->arr[14];
+                cofac[7] = vmat<F>::determinant (minor_elem, 3u);
+
+                // 8.
+                minor_elem[0] = this->arr[1];
+                minor_elem[3] = this->arr[5];
+                minor_elem[6] = this->arr[13];
+
+                minor_elem[1] = this->arr[2];
+                minor_elem[4] = this->arr[6];
+                minor_elem[7] = this->arr[14];
+
+                minor_elem[2] = this->arr[3];
+                minor_elem[5] = this->arr[7];
+                minor_elem[8] = this->arr[15];
+
+                cofac[8] = vmat<F>::determinant (minor_elem, 3u);
+
+                // 9.
+                minor_elem[0] = this->arr[0];
+                minor_elem[3] = this->arr[4];
+                minor_elem[6] = this->arr[12];
+                cofac[9] = -vmat<F>::determinant (minor_elem, 3u);
+
+                // 10.
+                minor_elem[1] = this->arr[1];
+                minor_elem[4] = this->arr[5];
+                minor_elem[7] = this->arr[13];
+                cofac[10] = vmat<F>::determinant (minor_elem, 3u);
+
+                // 11.
+                minor_elem[2] = this->arr[2];
+                minor_elem[5] = this->arr[6];
+                minor_elem[8] = this->arr[14];
+                cofac[11] = -vmat<F>::determinant (minor_elem, 3u);
+
+                // 12.
+                minor_elem[0] = this->arr[1];
+                minor_elem[3] = this->arr[5];
+                minor_elem[6] = this->arr[9];
+
+                minor_elem[1] = this->arr[2];
+                minor_elem[4] = this->arr[6];
+                minor_elem[7] = this->arr[10];
+
+                minor_elem[2] = this->arr[3];
+                minor_elem[5] = this->arr[7];
+                minor_elem[8] = this->arr[11];
+
+                cofac[12] = -vmat<F>::determinant (minor_elem, 3u);
+
+                // 13.
+                minor_elem[0] = this->arr[0];
+                minor_elem[3] = this->arr[4];
+                minor_elem[6] = this->arr[8];
+                cofac[13] = vmat<F>::determinant (minor_elem, 3u);
+
+                // 14.
+                minor_elem[1] = this->arr[1];
+                minor_elem[4] = this->arr[5];
+                minor_elem[7] = this->arr[9];
+                cofac[14] = -vmat<F>::determinant (minor_elem, 3u);
+
+                // 15.
+                minor_elem[2] = this->arr[2];
+                minor_elem[5] = this->arr[6];
+                minor_elem[8] = this->arr[10];
+                cofac[15] = vmat<F>::determinant (minor_elem, 3u);
+
+            } else {
+                throw std::runtime_error ("vmat::cofactor is currently implemented only for 3x3 and 4x4 matrices");
+                // note: this limits vmat::inverse to 3x3 and 4x4 for now :(
+            }
+
+            return cofac;
+        }
 
         /*!
          * Return a string representation of the matrix
@@ -264,7 +683,7 @@ export namespace sm
         }
 
         //! Return a string representation of the matrix. Note choice of digits10 for the type float, regardless of the type F
-        std::string str (const std::uint32_t prec = std::numeric_limits<float>::digits10) const noexcept { return this->str (prec); }
+        std::string str (const std::uint32_t prec = std::numeric_limits<float>::digits10) const noexcept { return this->str<true> (prec); }
 
         // An array containing the matrix values, arranged (like sm::mat) in column major format
         sm::vvec<F> arr;

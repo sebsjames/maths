@@ -335,6 +335,9 @@ macro(setup_module_variables_for_maths base_directory)
   
   # All except SM_HDFDATA_MODULES, SM_ANNEAL_MODULES (avoiding need for library linking)
   set(SM_ALL_MODULES
+    ${SM_BASE64_MODULES}
+    ${SM_CRC32_MODULES}
+    ${SM_FLAGS_MODULES}
     ${SM_MATHCONST_MODULES}
     ${SM_CONSTEXPR_MATH_MODULES}
     ${SM_POLYSOLVE_MODULES}
@@ -364,15 +367,12 @@ macro(setup_module_variables_for_maths base_directory)
     ${SM_BOXFILTER_MODULES}
     ${SM_GEOMETRY_MODULES}
     ${SM_BEZCURVE_MODULES}
-    ${SM_BEZCURVEPATH_MODULES}
-    ${SM_HEXGRID_MODULES}
-    ${SM_HEXYHISTO_MODULES}
-    ${SM_HEXFFT_MODULES}
-    ${SM_CARTGRID_MODULES}
-    ${SM_BASE64_MODULES}
-    ${SM_CRC32_MODULES}
-    ${SM_FLAGS_MODULES}
-    ${SM_PCA_MODULES}    
+#    ${SM_BEZCURVEPATH_MODULES}
+#    ${SM_HEXGRID_MODULES}
+#    ${SM_HEXYHISTO_MODULES}
+#    ${SM_HEXFFT_MODULES}
+#    ${SM_CARTGRID_MODULES}
+#    ${SM_PCA_MODULES}    
   )
   list(REMOVE_DUPLICATES SM_ALL_MODULES)
 
