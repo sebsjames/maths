@@ -6,14 +6,13 @@ int main()
 {
     int rtn = 0;
 
-    sm::spline<float, 4> spl;
+    sm::vvec<sm::vec<float, 2>> _p(4);
+    _p[0] = {1, 2};
+    _p[1] = {3, 3};
+    _p[2] = {5, 9};
+    _p[3] = {8, 10};
 
-    spl.p[0] = {1, 2};
-    spl.p[1] = {3, 3};
-    spl.p[2] = {5, 9};
-    spl.p[3] = {8, 10};
-
-    spl.compute_coefficients();
+    sm::spline<float> spl (_p);
 
     sm::vvec<float> x;
     x.linspace (1, 8, 40);
