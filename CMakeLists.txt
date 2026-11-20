@@ -106,7 +106,6 @@ endif(WIN32)
 find_package(HDF5)
 if(HDF5_FOUND)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${HDF5_DEFINITIONS}")
-  include_directories(${HDF5_INCLUDE_DIR})
 endif()
 
 # Eigen is only used for a test/comparison program

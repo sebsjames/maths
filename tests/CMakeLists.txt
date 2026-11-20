@@ -236,6 +236,7 @@ if(HDF5_FOUND
   # Make an additional library that links in libhdf
   add_library (sm_hdfdata STATIC)
   target_sources_modules(sm_hdfdata MODULES ${SM_HDFDATA_MODULES})
+  target_include_directories(sm_hdfdata AFTER PRIVATE ${HDF5_INCLUDE_DIR})
   target_link_libraries(sm_hdfdata ${HDF5_C_LIBRARIES})
 
   # Test HDF file access
