@@ -20,6 +20,8 @@ module;
 #include <string>
 #include <format>
 
+#include <iostream> // only during debug
+
 export module sm.vmat;
 
 export import sm.mathconst;
@@ -59,10 +61,42 @@ export namespace sm
         //! Reset the whole matrix to zero
         void set_zero() { this->arr.zero(); }
 
+        void set_from (const F el) { this->arr.set_from (el); }
+
+        template <typename T> requires (std::is_floating_point_v<T> || sm::is_complex<T>::value == true)
+        sm::vmat<T> as() const
+        {
+            sm::vmat<T> rtn;
+            rtn.resize (this->Nr, this->Nc);
+            for (std::uint32_t i = 0; i < this->arr.size(); ++i) {
+                rtn.arr[i] = static_cast<T>(this->arr[i]);
+            }
+            return rtn;
+        }
+
         //! Set element at row r, column c to value val
         void set (const std::uint32_t r, const std::uint32_t c, const F& val)
         {
             if (r + (c * this->Nr) < this->size()) { this->arr[r + (c * this->Nr)] = val; }
+        }
+
+        //! Set a row with the passed-in vec
+        template<std::uint32_t _Nc>
+        void set_row (const std::uint32_t idx, const sm::vec<F, _Nc>& rowdata)
+        {
+            for (std::uint32_t i = 0; i < Nc; ++i) {
+                this->arr[idx + Nr * i] = (i < _Nc ? rowdata[i] : F{0});
+            }
+        }
+
+        //! Set a col with the passed-in vec
+        template<std::uint32_t _Nr>
+        void set_col (const std::uint32_t idx, const sm::vec<F, _Nr>& coldata) noexcept
+        {
+            std::uint32_t arridx_start = idx * Nr;
+            for (std::uint32_t i = 0; i < Nr; ++i) {
+                this->arr[arridx_start + i] = (i < _Nr ? coldata[i] : F{0});
+            }
         }
 
         /*!
@@ -96,6 +130,8 @@ export namespace sm
         sm::vec<std::uint32_t, 2> shape() const { return sm::vec<std::uint32_t, 2>{ this->Nr, this->Nc }; }
         std::uint32_t rows() const { return this->Nr; }
         std::uint32_t cols() const { return this->Nc; }
+
+        void inverse_inplace() { std::cout << "writeme\n"; }
 
         /*!
          * Return a string representation of the matrix

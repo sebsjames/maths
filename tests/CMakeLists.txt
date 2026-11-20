@@ -631,6 +631,10 @@ if((CMAKE_CXX_COMPILER_ID MATCHES "Clang") OR (CMAKE_CXX_COMPILER_ID STREQUAL "G
   target_link_libraries(bezcurves PRIVATE sm)
   add_test(bezcurves bezcurves)
 
+  add_executable(bezcurve0 bezcurve0.cpp)
+  target_link_libraries(bezcurve0 PRIVATE sm)
+  add_test(bezcurve0 bezcurve0)
+
   # Testing matrix representation of Bezier curves
   add_executable(bezmatrix bezmatrix.cpp)
   target_link_libraries(bezmatrix PRIVATE sm)
