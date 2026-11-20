@@ -1,6 +1,3 @@
-# All #includes in test programs have to be #include <sm/header>
-include_directories(BEFORE ${PROJECT_SOURCE_DIR})
-
 # Each C++ module file has to be listed here (as they don't have a .cppm or .ixx file suffix)
 set_source_files_properties (${SM_ALL_MODULES} PROPERTIES LANGUAGE CXX)
 
