@@ -81,7 +81,7 @@ export namespace sm
 
             for (std::uint32_t i = 0u; i < C.rows(); ++i) {
                 sm::vvec<F> _cp (cp[i].size());
-                for (std::uint32_t j = 0; j < cp.size(); ++j) { _cp[j] = cp[i][j]; }
+                for (std::uint32_t j = 0; j < cp[i].size(); ++j) { _cp[j] = cp[i][j]; }
                 this->C.set_row (i, _cp);
             }
 
@@ -1190,7 +1190,7 @@ export namespace sm
          * Representations.
          */
         // Set up M.
-        sm::vmat<F> matrix_setup_M() // return vmat size order + 1u, order + 1u
+        sm::vmat<F> matrix_setup_M()
         {
             // Check order here
             if (this->order >= sm::pt_rows) {
@@ -1222,13 +1222,13 @@ export namespace sm
 
         //! The coefficients. order + 1 square. It's order + 1, because although there are order -1
         //! actual control points, when you add start and end locations, that's order + 1.
-        sm::vmat<F> M = {}; // size order + 1u x order + 1u
+        sm::vmat<F> M = {};
 
-        //! The control points. Number of rows in C is order - 1, number of cols is 2
-        sm::vmat<F> C = {}; // size order + 1u, 2u
+        //! The control points. Number of rows in C is order + 1, number of cols is 2
+        sm::vmat<F> C = {};
 
-        //! M*C
-        sm::vmat<F> MC = {}; // size order + 1u, 2u
+        //! M*C. Number of rows: order + 1u, number of cols: 2
+        sm::vmat<F> MC = {};
 
         //! The order of this bezcurve.
         std::uint32_t order = 3;

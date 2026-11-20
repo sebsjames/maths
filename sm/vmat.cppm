@@ -20,8 +20,6 @@ module;
 #include <string>
 #include <format>
 
-#include <iostream> // only during debug
-
 export module sm.vmat;
 
 export import sm.mathconst;
@@ -177,7 +175,6 @@ export namespace sm
             const std::uint32_t Ncy = m2.Nc;
 
             if (Nc != Nry) {
-                std::cout << "m1.cols = Nc = " << Nc << " and m2.rows = Nry = " << Nry << std::endl;
                 throw std::runtime_error ("vmat::operator*: m1.cols != m2.rows in m1 * m2");
             }
 
@@ -428,10 +425,10 @@ export namespace sm
             return det;
         }
 
-        static F determinant_high_order ([[maybe_unused]] const sm::vvec<F>& cm, [[maybe_unused]] const std::uint32_t _Nr)
+        static F determinant_high_order (const sm::vvec<F>& cm, const std::uint32_t _Nr)
         {
             F det = F{0};
-            throw std::runtime_error ("vmat::determinant_high_order: write me");
+            throw std::runtime_error (std::format("vmat::determinant_high_order: write me for matrix {} with _Nr={}", cm.str(), _Nr));
             return det;
         }
 
