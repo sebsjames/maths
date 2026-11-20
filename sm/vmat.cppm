@@ -807,11 +807,10 @@ export namespace sm
             return ref;
         }
 
-#if 0 // Have queries about this in mat.cppm, so fix there before enabling
         // Divide each row, r,  of *this by the diagonal element (r, r)
         void divide_rows_by_diagonals_inplace()
         {
-            if (Nr < Nc) { throw std::runtime_error ("vmat::divide_rows_by_diagonals_inplace requires (Nc >= Nr)"); }
+            if (Nr > Nc) { throw std::runtime_error ("vmat::divide_rows_by_diagonals_inplace requires (Nc >= Nr)"); }
             using F_el = typename value_type_of<F>::type;
             for (std::uint32_t r = 0; r < Nr; ++r) {
                 F f = (*this)(r, r);
@@ -823,7 +822,7 @@ export namespace sm
         // Convert *this into reduced row echelon form
         void reduced_row_echelon_form_inplace()
         {
-            if (Nr < Nc) { throw std::runtime_error ("vmat::row_echelon_form_inplace requires (Nc >= Nr)"); }
+            if (Nr > Nc) { throw std::runtime_error ("vmat::row_echelon_form_inplace requires (Nc >= Nr)"); }
             this->row_echelon_form_inplace();
             this->divide_rows_by_diagonals_inplace();
         }
@@ -836,7 +835,7 @@ export namespace sm
             rref.divide_rows_by_diagonals_inplace();
             return rref;
         }
-#endif
+
         /*!
          * Using back-substitution, solve the equation Ax = B, where A and B are represented in
          * *this in the usual way, with A being a square matrix on the left and B the right-most
