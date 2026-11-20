@@ -632,9 +632,9 @@ export namespace sm
          * offsets the boundary so that when it is applied to the hexgrid, the centroid IS (0,0). If
          * \a loffset is false, then \a p is not translated in this way.
          */
-        void set_boundary (const bezcurvepath<F, 3>& p, bool loffset = true)
+        void set_boundary (const bezcurvepath<F>& p, bool loffset = true)
         {
-            if constexpr (debug_boundary) { std::cout << __FUNCTION__ << "(const bezcurvepath<F, 3>& p, bool loffset = true) called\n"; }
+            if constexpr (debug_boundary) { std::cout << __FUNCTION__ << "(const bezcurvepath<F>& p, bool loffset = true) called\n"; }
 
             this->boundary = p;
             if (!this->boundary.is_null()) {
@@ -1426,7 +1426,7 @@ export namespace sm
          * \return a vector of iterators to the hexes that make up the region.
          */
         std::vector<typename std::list<sm::hex<F, A>>::iterator> get_region (bezcurvepath<F>& p, sm::vec<F, 2>& region_centroid,
-                                                                          bool apply_original_boundary_centroid = true)
+                                                                             bool apply_original_boundary_centroid = true)
         {
             p.compute_points (this->d / 2.0f);
             std::vector<sm::bezcoord<F>> bpoints = p.get_points();
@@ -1437,7 +1437,7 @@ export namespace sm
          * The overload of get_region that does all the work on a vector of coordinates
          */
         std::vector<typename std::list<sm::hex<F, A>>::iterator> get_region (std::vector<bezcoord<F>>& bpoints, sm::vec<F, 2>& region_centroid,
-                                                                          bool apply_original_boundary_centroid = true)
+                                                                             bool apply_original_boundary_centroid = true)
         {
             // First clear all region boundary flags, as we'll be defining a new region boundary
             this->clear_region_boundary_flags();

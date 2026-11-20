@@ -17,7 +17,7 @@ int main()
         {-0.28f, 0.45f}
     };
 
-    sm::bezcurve<float, 3> cv;
+    sm::bezcurve<float> cv;
     cv.fit (c);
     std::cout << "Defined a " << cv.get_order() << " nd/rd/th order curve" <<  std::endl;
 

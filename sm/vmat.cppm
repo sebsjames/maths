@@ -196,6 +196,22 @@ export namespace sm
             return m;
         }
 
+        //! *= operator for a scalar value.
+        template <typename T=F> requires (std::is_arithmetic_v<T> || (sm::is_complex<T>::value && sm::is_complex<F>::value))
+        void operator*= (const T& f) noexcept
+        {
+            for (std::uint32_t i = 0; i < Nr * Nc; ++i) { this->arr[i] *= f; }
+        }
+
+        //! * operator for a scalar value.
+        template <typename T=F> requires (std::is_arithmetic_v<T> || (sm::is_complex<T>::value && sm::is_complex<F>::value))
+        vmat<F> operator* (const T& f) noexcept
+        {
+            vmat<F> m (Nr, Nc);
+            for (std::uint32_t i = 0; i < Nr * Nc; ++i) { m[i] = this->arr[i] * f; }
+            return m;
+        }
+
         //! Transpose this matrix
         void transpose_inplace()
         {
@@ -248,6 +264,37 @@ export namespace sm
             return m;
         }
 
+        //! Transpose the matrix @cm, returning the transposed version.
+        static sm::vvec<F> transpose (const sm::vvec<F>& cm, const std::uint32_t _Nr)
+        {
+            if (cm.size() != _Nr * _Nr) { throw std::runtime_error ("static transpose: cm has wrong size"); }
+
+            const std::uint32_t N_diamond = ((_Nr * _Nr) - _Nr ) / 2;
+
+            sm::vvec<F> a (N_diamond, F{0});
+
+            sm::vvec<F> m (_Nr * _Nr);
+
+            // Copy diagonal to m
+            for (std::uint32_t c = 0; c < _Nr; ++c) { m[c * _Nr + c] = cm[c * _Nr + c]; }
+
+            std::uint32_t i = 0;
+            for (std::uint32_t c = 0; c < (_Nr / 2) + 1; ++c) {
+                for (std::uint32_t r = c + 1; r < _Nr; ++r) {
+                    a[i++] = cm[c * _Nr + r];
+                    m[c * _Nr + r] = cm[r * _Nr + c];
+                }
+            }
+            i = 0;
+            for (std::uint32_t c = 0; c < (_Nr / 2) + 1; ++c) {
+                for (std::uint32_t r = c + 1; r < _Nr; ++r) {
+                    m[r * _Nr + c] = a[i++];
+                }
+            }
+
+            return m;
+        }
+
         /*!
          * Return the inverse matrix.
          *
@@ -266,7 +313,7 @@ export namespace sm
             vmat<F> m (Nr, Nc);
             if (det == F{0}) {
                 // The transform matrix has no inverse (determinant is 0)
-                m.arr.fill (F{0});
+                m.arr.set_from (F{0});
             } else {
                 m.arr = this->adjugate();
                 m *= (F{1} / det);
@@ -291,7 +338,7 @@ export namespace sm
             F det = this->determinant();
             if (det == F{0}) {
                 // The transform matrix has no inverse (determinant is 0)
-                this->arr.fill (F{0});
+                this->arr.set_from (F{0});
             } else {
                 this->arr = this->adjugate();
                 *this *= (F{1} / det);
@@ -421,7 +468,7 @@ export namespace sm
                 // Simple recipe for 2x2:
                 adj = { this->arr[3], -this->arr[1], -this->arr[2], this->arr[0] };
             } else {
-                adj = this->transpose (this->cofactor());
+                adj = this->transpose (this->cofactor(), Nr);
             }
             return adj;
         }
@@ -640,6 +687,34 @@ export namespace sm
             }
 
             return cofac;
+        }
+
+        // Return vmat with the order of the rows reversed
+        vmat<F> flipud() const noexcept
+        {
+            vmat<F> m (Nr, Nc);
+            for (std::uint32_t i = 0; i < Nr; ++i) { m.set_row (Nr - 1 - i, this->row (i)); }
+            return m;
+        }
+
+        void flipud_inplace() noexcept
+        {
+            vmat<F> m = this->flipud();
+            (*this) = m;
+        }
+
+        // Return vmat with the order of the cols reversed
+        vmat<F> fliplr() const noexcept
+        {
+            vmat<F> m (Nr, Nc);
+            for (std::uint32_t i = 0; i < Nc; ++i) { m.set_col (Nc - 1 - i, this->col (i)); }
+            return m;
+        }
+
+        void fliplr_inplace() noexcept
+        {
+            vmat<F> m = this->fliplr();
+            (*this) = m;
         }
 
         /*!

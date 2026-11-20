@@ -502,13 +502,14 @@ export namespace sm
         {
             // points must be right size, which is == order
             if (points.size() != order + 1) {
-                std::stringstream ee;
-                ee << "Need " << (order + 1) << " coordinates to fit a " << order << " order Bezier curve";
-                throw std::runtime_error (ee.str());
+                if (points.size() < 2u) {
+                    throw std::runtime_error ("bezcurve::fit: Need at least 2 points to define a 1st order Bezier curve");
+                }
+                this->order = points.size() - 1u;
             }
 
             // Set the order for the curve
-            constexpr std::uint32_t n = order + 1u; // points.size();
+            const std::uint32_t n = order + 1u; // points.size();
             // order = points.size() - 1; // checked
 
             std::uint32_t i = 0u;
@@ -612,7 +613,7 @@ export namespace sm
                 rw.rotate (-rti);
                 Q.set_row (i, rw);
             }
-            sm::mat<F, n, 2u> C2 = Q.flipud() * this->C;
+            sm::vmat<F> C2 = Q.flipud() * this->C;
 
             return std::make_pair(C1, C2);
         }
@@ -694,10 +695,8 @@ export namespace sm
                 return this->compute_point_linear (t);
             } else if (order == 2) {
                 return this->compute_point_quadratic (t);
-            } else if (order == 3) {
-                return this->compute_point_cubic (t);
             } else {
-                // Default to matrix, as this is faster than compute_point_general
+                // Default to matrix, as this is faster than compute_point_general and compute_point_cubic
                 return this->compute_point_matrix (t);
             }
         }

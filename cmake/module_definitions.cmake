@@ -248,6 +248,7 @@ macro(setup_module_variables_for_maths base_directory)
   set(SM_BEZCURVE_MODULES
     ${SM_BEZCOORD_MODULES}
     ${SM_MAT_MODULES}
+    ${SM_VMAT_MODULES}
     ${SM_NM_SIMPLEX_MODULES}
     ${base_directory}/sm/binomial.cppm
     ${base_directory}/sm/bezcurve.cppm
@@ -368,11 +369,11 @@ macro(setup_module_variables_for_maths base_directory)
     ${SM_GEOMETRY_MODULES}
     ${SM_BEZCURVE_MODULES}
     ${SM_BEZCURVEPATH_MODULES}
-#    ${SM_HEXGRID_MODULES}
-#    ${SM_HEXYHISTO_MODULES}
-#    ${SM_HEXFFT_MODULES}
-#    ${SM_CARTGRID_MODULES}
-#    ${SM_PCA_MODULES}    
+    ${SM_HEXGRID_MODULES}
+    ${SM_HEXYHISTO_MODULES}
+    ${SM_HEXFFT_MODULES}
+    ${SM_CARTGRID_MODULES}
+    ${SM_PCA_MODULES}    
   )
   list(REMOVE_DUPLICATES SM_ALL_MODULES)
 
