@@ -130,7 +130,6 @@ export namespace sm
 
         F compute (const F x)
         {
-            // Could/should check that c size is N - 1
             F y = F{0};
             // Find which curve to use
             for (std::uint32_t i = 1; i < p.size(); ++i) {
