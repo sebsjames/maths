@@ -38,10 +38,10 @@ int main()
         }
         std::cout << "\n";
 
-        if ((eigenvalues[0].real() - A[0]) > 1e-10
-            || (eigenvalues[1].real() - A[5]) > 1e-10
-            || (eigenvalues[2].real() - A[10]) > 1e-10
-            || (eigenvalues[3].real() - A[15]) > 1e-10) {
+        if (std::abs(eigenvalues[0].real() - A[0]) > 1e-10
+            || std::abs(eigenvalues[1].real() - A[5]) > 1e-10
+            || std::abs(eigenvalues[2].real() - A[10]) > 1e-10
+            || std::abs(eigenvalues[3].real() - A[15]) > 1e-10) {
             std::cout << "Eigenvalues do not seem to be correct\n";
             --rtn;
         }
@@ -157,8 +157,8 @@ int main()
                 for (int row = 0; row < 4; ++row) {
                     Av[row] = std::complex<double>(0.0, 0.0);
                     for (int col = 0; col < 4; ++col) {
-                        //std::cout << "A[col * 4 + row] =  " << A[col * 4 + row]
-                        //          << ", pairs[i].eigenvector[col] =  " << pairs[i].eigenvector[col] << std::endl;
+                        std::cout << "A[col * 4 + row] =  " << A[col * 4 + row]
+                                  << ", pairs[i].eigenvector[col] =  " << pairs[i].eigenvector[col] << std::endl;
                         Av[row] += (A[col * 4 + row] * pairs[i].eigenvector[col]);
                     }
                 }

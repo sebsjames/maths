@@ -26,6 +26,7 @@ export import sm.mathconst;
 export import sm.vvec;
 export import sm.vec;
 import sm.trait_tests;
+import sm.polysolve;
 
 export namespace sm
 {
@@ -54,6 +55,14 @@ export namespace sm
             this->arr.resize (r * c, F{0});
             this->Nc = c;
             this->Nr = r;
+        }
+
+        //! set_identity is self-explanatory
+        void set_identity()
+        {
+            if (Nr != Nc) { throw std::runtime_error ("vmat::set_identity: requires square matrix"); }
+            this->arr.zero();
+            for (std::uint32_t i = 0; i < Nr * Nc; i += Nr + 1) { this->arr[i] = F{1}; }
         }
 
         //! Reset the whole matrix to zero
@@ -684,6 +693,283 @@ export namespace sm
             }
 
             return cofac;
+        }
+
+        /*!
+         * Compute the complex eigenvalues of this square Nr x Nr matrix of real numbers.
+         *
+         * Returns a vector of Nr complex eigenvalues.
+         *
+         * Uses the Faddeev-LeVerrier algorithm to compute the characteristic polynomial det(A -
+         * lambda*I) = 0, then solves for roots using polysolve.
+         *
+         * The eigenvalues will be returned with lexicographic ordering, which is ensured in sm::polysolve::sort_roots:
+         *
+         * Sort complex roots in standard order:
+         * Lexicographic ordering by (real, imag) components.
+         * This places real roots first in ascending order, followed by complex roots.
+         * Complex conjugate pairs naturally appear adjacent.
+         */
+        template<typename Fy=F> requires std::is_floating_point_v<Fy>
+        sm::vvec<std::complex<F>> eigenvalues() const
+        {
+            if (!((Nr == Nc) && (Nr >= 2u))) {
+                throw std::runtime_error ("eigenvalues method is valid only for square matrices");
+            }
+
+            // Use Faddeev-LeVerrier algorithm to get characteristic polynomial
+            std::vector<F> coeffs(Nr + 1, F{0});
+            coeffs[Nr] = F{1};  // Leading coefficient
+
+            sm::vmat<F> M(Nr, Nr);
+            M.set_identity();
+
+            for (std::uint32_t k = 1u; k <= Nr; ++k) {
+                M = (*this) * M;  // M_k = A * M_{k-1}, where M_0 = I
+                coeffs[Nr - k] = -M.trace() / static_cast<F>(k);
+
+                if (k < Nr) {
+                    // M = M_k + c_{n-k} * I
+                    for (std::uint32_t d = 0u; d < (Nr * Nr); d += (Nr + 1)) { // accesses diagonal elements
+                        M[d] += coeffs[Nr - k];
+                    }
+                }
+            }
+
+            std::vector<std::complex<F>> roots_vector = sm::polysolve::solve<F> (coeffs);
+            return *(static_cast<sm::vvec<std::complex<F>>*>(&roots_vector));
+        }
+
+        // We could also have a specialization to compute Eigenvalues of a complex matrix:
+        template<typename Fy=F> requires sm::is_complex<Fy>::value
+        sm::vvec<F> eigenvalues() const noexcept
+        {
+            static_assert (false, "mat<>::eigenvalues for a complex matrix is not yet implemented");
+        }
+
+        // in row_echelon_form_inplace we need the underlying type of std::complex<T>
+        template<typename T> struct value_type_of { using type = T; };
+        template<typename T> struct value_type_of<std::complex<T>> { using type = typename std::complex<T>::value_type; };
+
+        // Convert *this to (unreduced) row echelon form using Gaussian elimination, updating *this
+        void row_echelon_form_inplace()
+        {
+            if (Nr > Nc) { throw std::runtime_error ("vmat::row_echelon_form_inplace requires (Nc >= Nr)"); }
+
+            std::uint32_t r = 0u; // Initialization of the pivot row
+            std::uint32_t c = 0u; // Initialization of the pivot column
+
+            std::uint32_t i_piv = 0u;
+            std::uint32_t r_piv = 0u;
+            sm::vvec<F> t_row(Nc, F{0}); // temp row
+
+            using F_el = typename value_type_of<F>::type;
+            sm::vvec<F_el> t_col(Nr, F_el{0}); // temp col for norms of values. This will be real whether F is real or std::complex
+
+            // Converted from the Pseudocode on https://en.wikipedia.org/wiki/Gaussian_elimination
+            while (r < Nr && c < Nc) {
+                // Find the pivot for col c - the row in column c that has the greated abs. value
+                for (std::uint32_t i = r; i < Nr; ++i) { t_col[i - r] = std::norm ((*this)(i, c)); }
+                i_piv = t_col.argmax (Nr - r); // find index of max element in first (Nr - r) elements of t_col
+                r_piv = i_piv + r;
+
+                if (t_col[i_piv] == F_el{0}) {
+                    // No pivot in this column, pass to next column
+                    c++;
+                } else {
+                    if (i_piv != 0u) { // and thus r_piv != r
+                        // swap rows (r, r_piv);
+                        t_row = this->row (r_piv);
+                        this->set_row (r_piv, this->row (r));
+                        this->set_row (r, t_row);
+                    } // else no need to swap rows
+
+                    // Do for all rows below pivot:
+                    for (std::uint32_t i = r + 1u; i < Nr; i++) {
+                        F f = (*this)(i, c) / (*this)(r, c);
+                        // Fill the lower part of pivot column with zeros:
+                        (*this)(i, c) = F{0};
+                        // Do for all remaining elements in current row:
+                        for (std::uint32_t j = c + 1u; j < Nc; j++) { (*this)(i, j) -= (*this)(r, j) * f; }
+                    }
+                    // Increase pivot row and column
+                    r++;
+                    c++;
+                }
+            }
+        }
+
+        // Convert a copy of this into (unreduced) row echelon form, using Gaussian elimination. Return the result.
+        sm::vmat<F> row_echelon_form() const
+        {
+            sm::vmat<F> ref = *this;
+            ref.row_echelon_form_inplace();
+            return ref;
+        }
+
+#if 0 // Have queries about this in mat.cppm, so fix there before enabling
+        // Divide each row, r,  of *this by the diagonal element (r, r)
+        void divide_rows_by_diagonals_inplace()
+        {
+            if (Nr < Nc) { throw std::runtime_error ("vmat::divide_rows_by_diagonals_inplace requires (Nc >= Nr)"); }
+            using F_el = typename value_type_of<F>::type;
+            for (std::uint32_t r = 0; r < Nr; ++r) {
+                F f = (*this)(r, r);
+                f = std::abs(f) > F_el{0} ? f : F{1};
+                for (std::uint32_t c = 0; c < Nc; ++c) { (*this)(r, c) /= f; }
+            }
+        }
+
+        // Convert *this into reduced row echelon form
+        void reduced_row_echelon_form_inplace()
+        {
+            if (Nr < Nc) { throw std::runtime_error ("vmat::row_echelon_form_inplace requires (Nc >= Nr)"); }
+            this->row_echelon_form_inplace();
+            this->divide_rows_by_diagonals_inplace();
+        }
+
+        // Convert a copy of *this into reduced row echelon form and return the result
+        sm::vmat<F> reduced_row_echelon_form() const
+        {
+            sm::vmat<F> rref = *this;
+            rref.row_echelon_form_inplace();
+            rref.divide_rows_by_diagonals_inplace();
+            return rref;
+        }
+#endif
+        /*!
+         * Using back-substitution, solve the equation Ax = B, where A and B are represented in
+         * *this in the usual way, with A being a square matrix on the left and B the right-most
+         * column. *this should thus be the 'augmented matrix'. This matrix should have been reduced
+         * to row_echelon_form before calling back_substitution().
+         *
+         * \return A vvec of the solutions, x. NaNs in result mean there was no solution.
+         */
+        sm::vvec<F> back_substitution() const
+        {
+            if (Nc != Nr + 1) { throw std::runtime_error ("vmat::back_substitution: requires (Nc == Nr + 1)"); }
+
+            using F_el = typename value_type_of<F>::type;
+            constexpr F_el eps = F_el{1e-14}; // needs to be F_el if F is complex
+
+            sm::vvec<F> x (Nr, F{0});
+
+            for (std::uint32_t i = (Nr - 1u); i != std::numeric_limits<std::uint32_t>::max(); i--) {
+                const std::uint32_t de = (i * Nr) + i;        // diagonal element A(r, r)
+                const std::uint32_t le = ((Nc - 1) * Nr) + i; // last element A(r, Nc - 1)
+                if (std::abs (this->arr[de]) > eps) { // std::abs not sm::cem::abs as F may be complex
+                    const std::uint32_t n = Nr - i - 1;
+                    x[i] = this->arr[le];
+                    for (std::uint32_t j = 0; j < n; ++j) {
+                        x[i] -= this->arr[(Nr - 1 - j) * Nr + i] * x[i + n - j]; // sum element is A(i, i + n - j)
+                    }
+                    x[i] /= this->arr[de];
+                } else {
+                    // arr[de] == 0. If the value in the right-most column is 0 AND the value in the
+                    // diagonal is 0, then we have a free value and x[i] remains 0. If the value in
+                    // the right most column is != 0, but arr[de] == 0, we have no solution.
+                    if constexpr (sm::is_complex<F>::value) {
+                        if (this->arr[le] != F{0}) { x[i] = F{std::numeric_limits<F_el>::quiet_NaN()}; }
+                    } else {
+                        if (this->arr[le] != F{0}) { x[i] = std::numeric_limits<F>::quiet_NaN(); } // else x[i] remains 0
+                    }
+                }
+            }
+
+            return x;
+        }
+
+        /*!
+         * Find the eigenvectors for the set of eigenvalues found for this matrix of real values.
+         * Returns a normalized eigenvector as a complex vector.
+         */
+        template<typename Fy=F> requires std::is_floating_point_v<Fy>
+        sm::vvec<std::complex<F>> eigenvector (const std::complex<F>& lambda) const
+        {
+            if (Nr != Nc || Nr < 2u) { throw std::runtime_error ("eigenvector method is valid only for square matrices"); }
+
+            // Let A = (*this)
+            // Find non-zero X that satisfies A X = lamba X;
+            // I.e. (A - lambda * I) X = 0
+
+            // Create augmented matrix. Here's (A...
+            sm::vmat<std::complex<F>> aug (Nr, Nc + 1);
+
+            for (std::uint32_t c = 0; c < Nc; ++c) {
+                for (std::uint32_t r = 0; r < Nr; ++r) {
+                    aug(r, c) = (*this)(r, c);
+                }
+            }
+            // ... and here's: - lambda I)
+            for (std::uint32_t d = 0u; d < (Nr * Nr); d += (Nr + 1)) { // accesses diagonal elements
+                aug[d] -= lambda;
+            }
+            // Last col of augmented matrix contains zeros
+            for (std::uint32_t r = 0; r < Nr; ++r) {
+                aug(r, Nc) = std::complex<F>{ F{0}, F{0} };
+            }
+
+            // Change the augmented matrix into row echelon form
+            aug.row_echelon_form_inplace();
+
+            // The row in the matrix for the lambda we've been passed will be all zeros and so that v is
+            // a 'free value'. It will be the bottom row, so set these two elements to the value 1:
+            aug(Nr - 1, Nc - 1) = F{1};
+            aug(Nr - 1, Nc) = F{1};
+
+            sm::vvec<std::complex<F>> v = aug.back_substitution();
+            if (v.size() != Nr) { throw std::runtime_error ("Unexpected result size form aug.back_substitution()"); }
+
+            // Normalize v
+            using F_el = typename value_type_of<F>::type;
+            constexpr F_el my_epsilon = F_el{1e-14}; // needs to be F_el if F is complex
+            F_el normsq = F_el{0};
+            for (std::uint32_t i = 0; i < Nr; ++i) { normsq += std::norm (v[i]); }
+            F_el norm = std::sqrt (normsq);
+            if (norm > my_epsilon) { v /= norm; }
+
+            return v;
+        }
+
+        // Get eigenvector of a complex matrix, given a complex eigenvalue (placeholder)
+        template<typename Fy=F> requires sm::is_complex<Fy>::value
+        sm::vvec<F> eigenvector ([[maybe_unused]] const F& lambda) const
+        {
+            static_assert(false, "vmat<>::eigenvector for a complex matrix is not yet implemented");
+        }
+
+        /*!
+         * Compute both eigenvalues and their corresponding eigenvectors.
+         * Returns a vector of 4 pairs, each containing an eigenvalue and its eigenvector.
+         */
+        struct eigenpair
+        {
+            std::complex<F> eigenvalue = {};
+            sm::vvec<std::complex<F>> eigenvector = {};
+        };
+
+        sm::vvec<eigenpair> eigenpairs() const
+        {
+            if (Nr != Nc || Nr < 2u) { throw std::runtime_error ("vmat::trace: valid only for square matrices"); }
+            sm::vvec<std::complex<F>> lambdas = this->eigenvalues();
+            sm::vvec<eigenpair> pairs (lambdas.size());
+            for (std::uint32_t i = 0; i < Nr; ++i) {
+                pairs[i].eigenvalue = lambdas[i];
+                pairs[i].eigenvector = this->eigenvector (lambdas[i]);
+            }
+            return pairs;
+        }
+
+        //! Compute the trace of the matrix (the sum of the diagonal elements)
+        F trace() const
+        {
+            if (Nr != Nc) { throw std::runtime_error ("vmat::trace: valid only for square matrices"); }
+
+            F tr = F{0};
+            for (std::uint32_t i = 0; i < Nr * Nc; i += Nr + 1) {
+                tr += this->arr[i];
+            }
+            return tr;
         }
 
         // Return vmat with the order of the rows reversed
