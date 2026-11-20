@@ -440,7 +440,7 @@ export namespace sm
             if (cm.size() != _Nr * _Nr) {
                 throw std::runtime_error ("vmat::determinant_low_order: cm.size() != Nr * Nr");
             }
-            if (_Nr < 4) {
+            if (_Nr < 5) {
                 return vmat<F>::determinant_low_order (cm, _Nr);
             } else {
                 return vmat<F>::determinant_high_order (cm, _Nr);
