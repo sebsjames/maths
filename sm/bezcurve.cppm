@@ -571,7 +571,7 @@ export namespace sm
             sm::vmat<F> deriv_cp (order, 2u);
             if (order <= 1u) { return deriv_cp; }
             for (std::uint32_t i = 0; i < order; ++i) {
-                sm::vec<F, 2> drow = (this->C.row(i + 1) - this->C.row(i)) * order;
+                sm::vvec<F> drow = (this->C.row(i + 1) - this->C.row(i)) * order;
                 deriv_cp.set_row (i, drow);
             }
             return deriv_cp;
@@ -690,11 +690,11 @@ export namespace sm
          */
         bezcoord<F> compute_point (F t) const
         {
-            if constexpr (order == 1) {
+            if (order == 1) {
                 return this->compute_point_linear (t);
-            } else if constexpr (order == 2) {
+            } else if (order == 2) {
                 return this->compute_point_quadratic (t);
-            } else if constexpr (order == 3) {
+            } else if (order == 3) {
                 return this->compute_point_cubic (t);
             } else {
                 // Default to matrix, as this is faster than compute_point_general
@@ -706,14 +706,16 @@ export namespace sm
         bezcoord<F> compute_point_matrix (F t) const
         {
             this->checkt(t);
-            constexpr std::int32_t mp = order + 1;
-            sm::mat<F, 1u, mp> T;
+            const std::int32_t mp = order + 1u;
+            sm::vmat<F> T(1u, mp);
             T.set_from (F{1});
             for (std::int32_t i = 1; i < mp; ++i) {
                 T(0, i) = std::pow (t, static_cast<double>(i));
             }
-            sm::mat<F, 1u, 2u> bp = T * this->MC;
-            sm::vec<F, 2> b = bp.row (0) * this->scale;
+            sm::vmat<F> bp = T * this->MC;
+            sm::vvec<F> bvv = bp.row(0) * this->scale;
+            if (bvv.size() != 2u) { throw std::runtime_error ("bezcurve::compute_point_matrix: bvv has unexpected size"); }
+            sm::vec<F, 2> b = { bvv[0], bvv[1] };
             return bezcoord<F> (t, b);
         }
 
@@ -754,7 +756,7 @@ export namespace sm
          */
         bezcoord<F> compute_point (F t, F l) const
         {
-            if constexpr (order == 1) {
+            if (order == 1) {
                 return this->compute_point_linear (t, l);
             } else {
                 return this->compute_point_by_search (t, l);

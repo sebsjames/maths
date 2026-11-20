@@ -367,7 +367,7 @@ macro(setup_module_variables_for_maths base_directory)
     ${SM_BOXFILTER_MODULES}
     ${SM_GEOMETRY_MODULES}
     ${SM_BEZCURVE_MODULES}
-#    ${SM_BEZCURVEPATH_MODULES}
+    ${SM_BEZCURVEPATH_MODULES}
 #    ${SM_HEXGRID_MODULES}
 #    ${SM_HEXYHISTO_MODULES}
 #    ${SM_HEXFFT_MODULES}
