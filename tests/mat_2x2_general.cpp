@@ -94,8 +94,8 @@ int main()
         throw std::runtime_error ("Uh oh identity matrix...");
     }
 
-    const sm::mat<double, 2> c1{}; // Yields identity matrix
-    for (int i = 0; i < 4; ++i) { if (idmat[i] != c1[i]) { ++rtn; } }
+    const sm::mat<double, 2> c1{}; // Yields zero matrix
+    for (int i = 0; i < 4; ++i) { if (zmat[i] != c1[i]) { ++rtn; } }
 
     const sm::mat<double, 2> c2{0.0}; // Yields zero matrix
     for (int i = 0; i < 4; ++i) { if (zmat[i] != c2[i]) { ++rtn; } }
@@ -106,8 +106,11 @@ int main()
     const sm::mat<double, 2> c4({}); // Yields zero matrix?
     for (int i = 0; i < 4; ++i) { if (zmat[i] != c4[i]) { ++rtn; } }
 
-    const sm::mat<double, 2> c5; // Yields id matrix?
-    for (int i = 0; i < 4; ++i) { if (idmat[i] != c5[i]) { ++rtn; } }
+    const sm::mat<double, 2> c5; // Yields zero matrix
+    for (int i = 0; i < 4; ++i) { if (zmat[i] != c5[i]) { ++rtn; } }
+
+    const sm::mat<double, 2> c6 = sm::mat<double, 2>::identity(); // Yields id matrix
+    for (int i = 0; i < 4; ++i) { if (idmat[i] != c6[i]) { ++rtn; } }
 
     std::cout << "zero matrix:\n" << sm::mat<double, 2>::zero() << std::endl;
 
@@ -116,6 +119,8 @@ int main()
     if (sm::mat<double, 8, 9>::zero().arr.size() != 72) { --rtn; }
 
     if (sm::mat<double, 3>::zero().arr.sum() != 0.0) { --rtn; }
+
+    std::cout << (rtn == 0 ? "Success" : "Failure") << std::endl;
 
     return rtn;
 }
