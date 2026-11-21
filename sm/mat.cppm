@@ -56,11 +56,7 @@ export namespace sm
     struct mat
     {
         //! Default constructor
-        constexpr mat() noexcept
-        {
-            if constexpr (Nr == Nc) { this->set_identity(); }
-            else { this->set_zero(); }
-        }
+        constexpr mat() noexcept { this->set_zero(); }
         //! Construct 4x4 matrix from a 3x3 rotation matrix
         template<typename Fy = F> requires (Nr == 4) && (Nc == 4)
         constexpr mat (const mat<Fy, 3>& other) noexcept
