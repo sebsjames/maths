@@ -87,11 +87,11 @@ int main()
     // test creation
     constexpr sm::mat<double, 2> zmat = {0.0};
     if constexpr (zmat[0] != 0.0 || zmat[1] != 0.0 || zmat[2] != 0.0 || zmat[3] != 0.0) {
-        throw std::runtime_error ("Uh oh");
+        throw std::runtime_error ("Uh oh zero matrix...");
     }
-    constexpr sm::mat<double, 2> idmat = {};
+    constexpr sm::mat<double, 2> idmat = sm::mat<double, 2>::identity();
     if constexpr (idmat[0] != 1.0 || idmat[1] != 0.0 || idmat[2] != 0.0 || idmat[3] != 1.0) {
-        throw std::runtime_error ("Uh oh");
+        throw std::runtime_error ("Uh oh identity matrix...");
     }
 
     const sm::mat<double, 2> c1{}; // Yields identity matrix
