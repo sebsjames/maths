@@ -36,7 +36,7 @@ int main()
     std::cout << "Area: (should be 0.5) " << area << std::endl;
     if (area != 0.5f) { --rtn; }
 
-    sm::mat<float, 4> tf;
+    auto tf = sm::mat<float, 4>::identity();
     tf.translate (sm::vec<>{0.2f, 0.4f, 0.6f});
     tf.rotate (sm::vec<>::uy(), 0.23f);
     t0 = (tf * t0).less_one_dim();
