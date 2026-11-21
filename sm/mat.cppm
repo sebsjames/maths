@@ -917,7 +917,7 @@ export namespace sm
             std::vector<F> coeffs(Nr + 1, F{0});
             coeffs[Nr] = F{1};  // Leading coefficient
 
-            sm::mat<F, Nr> M;
+            sm::mat<F, Nr> M = sm::mat<F, Nr>::identity();
 
             for (std::uint32_t k = 1u; k <= Nr; ++k) {
                 M = (*this) * M;  // M_k = A * M_{k-1}, where M_0 = I
@@ -1202,10 +1202,10 @@ export namespace sm
         static constexpr mat<F, Nr> reflection (const sm::vec<T, 3>& p, const sm::vec<T, 3> n) noexcept
         {
             // Order of operations: Translate -p (so that we reflect about 0), reflect about 0, untranslate.
-            sm::mat<F, Nr> tr1;
+            sm::mat<F, Nr> tr1 = sm::mat<F, Nr>::identity();
             tr1.translate (-p);
             sm::mat<F, Nr> refl (sm::mat<F, 3>::reflection (n));
-            sm::mat<F, Nr> tr2;
+            sm::mat<F, Nr> tr2 = sm::mat<F, Nr>::identity();
             tr2.translate (p);
             return /* tr1.inverse() or tr2 */ tr2 * refl * tr1;
         }
