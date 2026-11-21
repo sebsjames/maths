@@ -24,7 +24,7 @@ Module file: [sm/mat.cppm](https://github.com/sebsjames/maths/blob/main/sm/mat.c
 {:toc}
 
 ## Summary
-A general matrix class with a templated element type and dimensions. Fixed memory size and `constexpr` capable.
+A general matrix class with a templated element type and dimensions. Its memory size is fixed at compile time and the code is `constexpr` capable.
 
 Defined as:
 ```c++
@@ -45,18 +45,17 @@ With its compile-time fixed size, this class is ideal for transformation matrix 
 ## Create a mat
 
 When you create a `mat` with no constructor arguments, the matrix is
-initialized as the identity matrix if it is square or a null matrix
-otherwise.
+initialized as a null matrix.
 
 ```c++
 sm::mat<double, 4, 4> m;
-std::cout << "Initialized as the 4x4 identity matrix:\n" << m << std::endl;
+std::cout << "Initialized as a null/zero matrix:\n" << m << std::endl;
 ```
 
 You can create a square `mat` by omitting the `Nc` template argument, which is then set equal to `Nr`:
 ```c++
 sm::mat<double, 4> m;
-std::cout << "Initialized as the 4x4 identity matrix:\n" << m << std::endl;
+std::cout << "Initialized as a 4x4 null matrix:\n" << m << std::endl;
 ```
 
 You can create and assign an initializer list
@@ -101,19 +100,17 @@ Gives:
 |      0           0           0           0       |
 ```
 
-But **careful**: if you provide an empty brace list, you will cause the default constructor to be called and (if it is square) the matrix will be the identity matrix. If you want a null matrix, use `{ {} }` or `{0}`:
+If you provide an empty brace list, you will cause the default constructor to be called which sets zeros:
 
 ```c++
-sm::mat<double, 4> m1 = {};      // Yields the identity matrix, NOT the null matrix
+sm::mat<double, 4> m1 = {};      // Yields the the null matrix
 sm::mat<double, 4> m2 = { {} };  // Yields a null matrix
 sm::mat<double, 4> m3 = { 0.0 }; // Yields a null matrix
 ```
 
-If you'd rather avoid the initializer-list gotcha altogether, `set_zero()` (a method) and `zero()` (a static factory, for symmetry with the pre-existing `set_identity()`/`identity()`) give you a null matrix explicitly:
+To be get an identity matrix, use the static method `identity()`:
 ```c++
-sm::mat<double, 4> m4;
-m4.set_zero();                                      // m4 is now the null matrix
-sm::mat<double, 4> m5 = sm::mat<double, 4>::zero(); // equivalent, as a fresh object
+sm::mat<double, 4> m5 = sm::mat<double, 4>::identity();
 ```
 
 ### Constructing a 4x4 from a rotation

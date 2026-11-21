@@ -11,8 +11,8 @@ int main()
     // All code in same type, so define a using for math consts
     using mc = sm::mathconst<float>;
 
-    // A transformation matrix, which is initialized as the identity matrix
-    sm::mat<float, 4> T;
+    // A transformation matrix, which must be initialized as the identity matrix
+    auto T = sm::mat<float, 4>::identity();
 
     sm::vec<float> v1 = { 0, mc::one_over_root_2, mc::one_over_root_2 };
     sm::vec<float> v2 = { -1, 0, 0 };

@@ -14,7 +14,7 @@ int main()
 
     using mc = sm::mathconst<F>;
 
-    sm::mat<F, 4> rotate_from_axis_angle_method;
+    sm::mat<F, 4> rotate_from_axis_angle_method = sm::mat<F, 4>::identity();
     rotate_from_axis_angle_method.rotate (sm::vec<F>::uz(), mc::pi_over_2);
 
     sm::quaternion<F> qz (sm::vec<F>::uz(), mc::pi_over_2);

@@ -199,7 +199,7 @@ int main()
     if (mult4inv_copy != mult4inv) { ++rtn; }
 
     // Test scaling
-    sm::mat<double, 4> scaler;
+    sm::mat<double, 4> scaler = sm::mat<double, 4>::identity();
     sm::vec<double, 4> v4d = { 2.0, 3.0, 4.0, 1.0 };
     sm::vec<float, 3> scale_vec = { 2.0f, 2.0f, 2.0f };
     scaler.scale (scale_vec);
@@ -217,7 +217,7 @@ int main()
     std::cout << v4d << " scaled by " << scale_vec << " and then in all dims by " << second_scale << " and then by 0.025f, 0.025f, 0.025f = " << (scaler * v4d) << std::endl;
 
     // Test translate then rotate
-    sm::mat<float, 4> trmat;
+    sm::mat<float, 4> trmat = sm::mat<float, 4>::identity();
     sm::vec<float> trans = { 1, 0, 0 };
     sm::quaternion<float> rotn (sm::vec<float>{0, 0, 1}, sm::mathconst<float>::pi_over_4);
 
@@ -230,7 +230,7 @@ int main()
     std::cout << "translate-then-rotate vector = " << tr_res << std::endl;
 
     // Recapitulate old behaviour
-    sm::mat<float, 4> rot_then_trans;
+    sm::mat<float, 4> rot_then_trans = sm::mat<float, 4>::identity();
 
     // these two, applied to the same trmat used to do rotate-then-translate
     // NOW they do translate then rotate
@@ -241,7 +241,7 @@ int main()
     std::cout << "rotate-then-translate vector = " << tr_res << std::endl;
 
     // Test that array indexing of a const mat<> will compile
-    const sm::mat<float, 4> m1id;
+    const sm::mat<float, 4> m1id = sm::mat<float, 4>::identity();
     float m1id0 = m1id[0];
     std::cout << "m1id[0] = " << m1id0 << std::endl;
     // Row reduction...

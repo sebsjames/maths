@@ -56,11 +56,7 @@ export namespace sm
     struct mat
     {
         //! Default constructor
-        constexpr mat() noexcept
-        {
-            if constexpr (Nr == Nc) { this->set_identity(); }
-            else { this->set_zero(); }
-        }
+        constexpr mat() noexcept { this->set_zero(); }
         //! Construct 4x4 matrix from a 3x3 rotation matrix
         template<typename Fy = F> requires (Nr == 4) && (Nc == 4)
         constexpr mat (const mat<Fy, 3>& other) noexcept
@@ -236,7 +232,9 @@ export namespace sm
             if constexpr (Nr != Nc) {
                 []<bool flag = false>() { static_assert(flag, "this function applies to square matrices"); }();
             }
-            return sm::mat<F, Nr, Nc>{};
+            sm::mat<F, Nr, Nc> id;
+            id.set_identity();
+            return id;
         }
 
         static constexpr mat<F, Nr, Nc> zero() noexcept { return sm::mat<F, Nr, Nc>{{0}}; }
@@ -381,7 +379,7 @@ export namespace sm
         template<typename T, std::size_t N = 3> requires std::is_arithmetic_v<T> && (N == 3 || N == 4) && (Nr == 4) && (Nc == 4)
         constexpr void translate (const sm::vec<T, N>& dv) noexcept
         {
-            mat<T, Nr, Nc> transmat;
+            mat<T, Nr, Nc> transmat = mat<T, Nr, Nc>::identity();
             transmat[12] = dv[0];
             transmat[13] = dv[1];
             transmat[14] = dv[2];
@@ -394,7 +392,7 @@ export namespace sm
         template<typename T, std::size_t N = 3> requires std::is_arithmetic_v<T> && (N == 3 || N == 4) && (Nr == 4) && (Nc == 4)
         constexpr void translate (const std::array<T, N>& dv) noexcept
         {
-            mat<T, Nr, Nc> transmat;
+            mat<T, Nr, Nc> transmat = mat<T, Nr, Nc>::identity();
             transmat[12] = dv[0];
             transmat[13] = dv[1];
             transmat[14] = dv[2];
@@ -407,7 +405,7 @@ export namespace sm
         template<typename T> requires std::is_arithmetic_v<T> && (Nr == 4) && (Nc == 4)
         constexpr void translate (const T& dx, const T& dy, const T& dz) noexcept
         {
-            mat<T, Nr, Nc> transmat;
+            mat<T, Nr, Nc> transmat = mat<T, Nr, Nc>::identity();
             transmat[12] = dx;
             transmat[13] = dy;
             transmat[14] = dz;
@@ -919,7 +917,7 @@ export namespace sm
             std::vector<F> coeffs(Nr + 1, F{0});
             coeffs[Nr] = F{1};  // Leading coefficient
 
-            sm::mat<F, Nr> M;
+            sm::mat<F, Nr> M = sm::mat<F, Nr>::identity();
 
             for (std::uint32_t k = 1u; k <= Nr; ++k) {
                 M = (*this) * M;  // M_k = A * M_{k-1}, where M_0 = I
@@ -1204,10 +1202,10 @@ export namespace sm
         static constexpr mat<F, Nr> reflection (const sm::vec<T, 3>& p, const sm::vec<T, 3> n) noexcept
         {
             // Order of operations: Translate -p (so that we reflect about 0), reflect about 0, untranslate.
-            sm::mat<F, Nr> tr1;
+            sm::mat<F, Nr> tr1 = sm::mat<F, Nr>::identity();
             tr1.translate (-p);
             sm::mat<F, Nr> refl (sm::mat<F, 3>::reflection (n));
-            sm::mat<F, Nr> tr2;
+            sm::mat<F, Nr> tr2 = sm::mat<F, Nr>::identity();
             tr2.translate (p);
             return /* tr1.inverse() or tr2 */ tr2 * refl * tr1;
         }
@@ -1438,7 +1436,7 @@ export namespace sm
         static constexpr mat<F, 4> rotation (const sm::vec<Fy, 3>& axis, const Fy& theta)
         {
             if constexpr ((Nr != 4 && Nr != 3) || Nr != Nc) { []<bool flag = false>() { static_assert(flag, "valid only for a 3x3 or 4x4 matrix"); }(); }
-            sm::mat<F, 4> m;
+            sm::mat<F, 4> m = sm::mat<F, 4>::identity();
             m.rotate (axis, theta);
             return m;
         }
@@ -2001,7 +1999,7 @@ export namespace sm
         {
             if constexpr (Nr != Nc || Nr != 4) { []<bool flag = false>() { static_assert(flag, "valid only for 4x4 matrices"); }(); }
 
-            sm::mat<F, 4> m;
+            sm::mat<F, 4> m = sm::mat<F, 4>::identity();
 
             // Bail out if the projection volume is zero-sized.
             if (z_near == z_far || aspect == F{0}) { return m; }
@@ -2060,7 +2058,7 @@ export namespace sm
         {
             if constexpr (Nr != Nc || Nr != 4) { []<bool flag = false>() { static_assert(flag, "valid only for 4x4 matrices"); }(); }
 
-            sm::mat<F, 4> m;
+            sm::mat<F, 4> m = sm::mat<F, 4>::identity();
 
             if (z_near == z_far) { return m; }
 
