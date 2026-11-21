@@ -1436,7 +1436,7 @@ export namespace sm
         static constexpr mat<F, 4> rotation (const sm::vec<Fy, 3>& axis, const Fy& theta)
         {
             if constexpr ((Nr != 4 && Nr != 3) || Nr != Nc) { []<bool flag = false>() { static_assert(flag, "valid only for a 3x3 or 4x4 matrix"); }(); }
-            sm::mat<F, 4> m;
+            sm::mat<F, 4> m = sm::mat<F, 4>::identity();
             m.rotate (axis, theta);
             return m;
         }
