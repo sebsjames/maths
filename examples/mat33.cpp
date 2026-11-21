@@ -35,6 +35,10 @@ int main()
 
     sm::mat<float, 2> two_bi{};
     std::cout << "sm::mat<float, 2> two_bi{}; gives \n" << two_bi << std::endl;
+
+    auto two_identity = sm::mat<float, 2>::identity();
+    std::cout << "auto two_identity = sm::mat<float, 2>::identity(); gives \n" << two_identity << std::endl;
+
 #if 0
     constexpr sm::mat<float, 2> two_mi0 = { 1,2,3,4 };
     std::cout << "two_mi0 =\n" << two_mi0 << std::endl;

@@ -1999,7 +1999,7 @@ export namespace sm
         {
             if constexpr (Nr != Nc || Nr != 4) { []<bool flag = false>() { static_assert(flag, "valid only for 4x4 matrices"); }(); }
 
-            sm::mat<F, 4> m;
+            sm::mat<F, 4> m = sm::mat<F, 4>::identity();
 
             // Bail out if the projection volume is zero-sized.
             if (z_near == z_far || aspect == F{0}) { return m; }
@@ -2058,7 +2058,7 @@ export namespace sm
         {
             if constexpr (Nr != Nc || Nr != 4) { []<bool flag = false>() { static_assert(flag, "valid only for 4x4 matrices"); }(); }
 
-            sm::mat<F, 4> m;
+            sm::mat<F, 4> m = sm::mat<F, 4>::identity();
 
             if (z_near == z_far) { return m; }
 

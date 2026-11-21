@@ -15,7 +15,7 @@ int main()
     sm::quaternion<float> q1 (sm::vec<float>{0,1,0}, sm::mathconst<float>::pi_over_4);
 
     // A 4x4 transformation matrix, which is initialized as the identity matrix
-    sm::mat<float, 4> t; // sm::mat<float, 4, 4> is equivalent
+    sm::mat<float, 4> t = sm::mat<float, 4>::identity(); // sm::mat<float, 4, 4> is equivalent
 
     t.rotate (q1); // Rotate is not really constexpr capable // still nok
 
@@ -59,8 +59,8 @@ int main()
     std::cout << "mi3 reassigned =\n" << mi3 << std::endl;
 
     // Addition and multiplication of matrices
-    sm::mat<double, 4> m1;
-    sm::mat<double, 4> m2;
+    sm::mat<double, 4> m1 = sm::mat<double, 4>::identity();
+    sm::mat<double, 4> m2 = sm::mat<double, 4>::identity();
     sm::mat<double, 4> m3 = m1 + m2;
     sm::mat<double, 4> m4 = m1 - m2;
     sm::mat<double, 4> m5 = m1 * m2;
@@ -93,7 +93,7 @@ int main()
     // perspective
     sm::mat<double, 4> p1 = sm::mat<double, 4>::perspective (30, 1.33, 0.1, 100);
     std::cout << "\np1\n" << p1 << std::endl;
-    sm::mat<double, 4> p2;
+    sm::mat<double, 4> p2 = sm::mat<double, 4>::identity();
     p2.perspective_inplace (30, 1.33, 0.1, 100);
 
     // orthographic
@@ -101,6 +101,6 @@ int main()
     sm::vec<float, 2> ov2 = {2,2};
     sm::mat<float, 4> o1 = sm::mat<float, 4>::orthographic (ov1, ov2, 0.1, 100);
     std::cout << "\no1\n" << o1 << std::endl;
-    sm::mat<float, 4> o2;
+    sm::mat<float, 4> o2 = sm::mat<float, 4>::identity();
     o2.orthographic_inplace (ov1, ov2, 0.1, 100);
 }
