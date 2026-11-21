@@ -22,7 +22,7 @@ int main()
         //{110.0f,68.0f}
     };
 
-    sm::bezcurve<FLT, 3> cv (c);
+    sm::bezcurve<FLT> cv (c);
 
     std::cout << "Defined a " << cv.get_order() << " nd/rd/th order curve" << std::endl;
 
@@ -74,7 +74,7 @@ int main()
         }
         microseconds o_af = duration_cast<microseconds>(system_clock::now().time_since_epoch());
         microseconds opt_time = o_af - o_b4;
-        std::cout << "Computed " << (1.0f/tstep) << " bezier points (optimized method) in " << opt_time.count() << " us" << std::endl;
+        std::cout << "Computed " << (1.0f/tstep) << " bezier points ('optimized' method) in " << opt_time.count() << " us" << std::endl;
     }
 
     return rtn;

@@ -248,6 +248,7 @@ macro(setup_module_variables_for_maths base_directory)
   set(SM_BEZCURVE_MODULES
     ${SM_BEZCOORD_MODULES}
     ${SM_MAT_MODULES}
+    ${SM_VMAT_MODULES}
     ${SM_NM_SIMPLEX_MODULES}
     ${base_directory}/sm/binomial.cppm
     ${base_directory}/sm/bezcurve.cppm
@@ -335,6 +336,9 @@ macro(setup_module_variables_for_maths base_directory)
   
   # All except SM_HDFDATA_MODULES, SM_ANNEAL_MODULES (avoiding need for library linking)
   set(SM_ALL_MODULES
+    ${SM_BASE64_MODULES}
+    ${SM_CRC32_MODULES}
+    ${SM_FLAGS_MODULES}
     ${SM_MATHCONST_MODULES}
     ${SM_CONSTEXPR_MATH_MODULES}
     ${SM_POLYSOLVE_MODULES}
@@ -369,9 +373,6 @@ macro(setup_module_variables_for_maths base_directory)
     ${SM_HEXYHISTO_MODULES}
     ${SM_HEXFFT_MODULES}
     ${SM_CARTGRID_MODULES}
-    ${SM_BASE64_MODULES}
-    ${SM_CRC32_MODULES}
-    ${SM_FLAGS_MODULES}
     ${SM_PCA_MODULES}    
   )
   list(REMOVE_DUPLICATES SM_ALL_MODULES)

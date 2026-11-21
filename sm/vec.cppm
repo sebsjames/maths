@@ -788,7 +788,6 @@ namespace sm
             return idx;
         }
 
-
         //! Return the value of the minimum (smallest or most negative) component of the vector.
         constexpr S min() const noexcept
         {

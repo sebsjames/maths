@@ -34,7 +34,7 @@ export namespace sm
      * A class defining a path made up of Bezier curves. This has an initial position,
      * and then a list of curves that make up the path.
      */
-    template <typename F, std::uint32_t order = 3> requires std::is_floating_point_v<F>
+    template <typename F> requires std::is_floating_point_v<F>
     struct bezcurvepath
     {
         /*!
@@ -48,7 +48,7 @@ export namespace sm
         sm::vec<F, 2> initial_coordinate = { F{0}, F{0} };
 
         //! A list of the bezcurves that make up the full bezcurvepath.
-        std::list<bezcurve<F, order>> curves;
+        std::list<bezcurve<F>> curves;
 
         //! A scaling factor that's used to convert the path into mm.
         F scale = F{1};
@@ -96,7 +96,7 @@ export namespace sm
         {
             this->scale = s;
             this->initial_coordinate *= this->scale;
-            typename std::list<bezcurve<F, order>>::iterator i = this->curves.begin();
+            typename std::list<bezcurve<F>>::iterator i = this->curves.begin();
             while (i != this->curves.end()) {
                 i->set_scale (this->scale);
                 ++i;
@@ -104,7 +104,7 @@ export namespace sm
         }
 
         //! Add a curve to this->curves.
-        void add_curve (bezcurve<F, order>& c)
+        void add_curve (bezcurve<F>& c)
         {
             if (this->curves.empty()) {
                 this->initial_coordinate = c.get_initial_point_scaled();
@@ -126,7 +126,7 @@ export namespace sm
             std::cout << "Initial coord: (" << this->initial_coordinate.first
                       << "," << this->initial_coordinate.second << ")" << std::endl;
             std::cout << "Number of curves: " << this->curves.size() << std::endl;
-            typename std::list<bezcurve<F, order>>::const_iterator i = this->curves.begin();
+            typename std::list<bezcurve<F>>::const_iterator i = this->curves.begin();
             while (i != this->curves.end()) {
                 std::cout << i->output(static_cast<std::uint32_t>(20));
                 ++i;
@@ -145,7 +145,7 @@ export namespace sm
             std::string fname = this->name + ".csv";
             f.open (fname.c_str(), std::ios::out|std::ios::trunc);
             if (f.is_open()) {
-                typename std::list<bezcurve<F, order>>::const_iterator i = this->curves.begin();
+                typename std::list<bezcurve<F>>::const_iterator i = this->curves.begin();
                 // Don't forget to set the scaling factor in each
                 // bezcurve before generating points:
                 while (i != this->curves.end()) {
@@ -201,7 +201,7 @@ export namespace sm
             this->tangents.push_back (tn0.first);
             this->normals.push_back (tn0.second);
 
-            typename std::list<bezcurve<F, order>>::const_iterator i = this->curves.begin();
+            typename std::list<bezcurve<F>>::const_iterator i = this->curves.begin();
             // Don't forget to set the scaling factor in each
             // bezcurve before generating points:
             F firstl = F{0};

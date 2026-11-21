@@ -17,12 +17,12 @@ int main()
 
     // hexgrid requires order 3 curves
     //                       (ip, fp, c1,               c2)
-    sm::bezcurve<float, 3> c1(v1, v2, (v1 + v2) / 2.0f, (v1 + v2) / 2.0f);
-    sm::bezcurve<float, 3> c2(v2, v3, (v2 + v3) / 2.0f, (v2 + v3) / 2.0f);
-    sm::bezcurve<float, 3> c3(v3, v4, (v3 + v4) / 2.0f, (v3 + v4) / 2.0f);
-    sm::bezcurve<float, 3> c4(v4, v1, (v4 + v1) / 2.0f, (v4 + v1) / 2.0f);
+    sm::bezcurve<float> c1(v1, v2, (v1 + v2) / 2.0f, (v1 + v2) / 2.0f);
+    sm::bezcurve<float> c2(v2, v3, (v2 + v3) / 2.0f, (v2 + v3) / 2.0f);
+    sm::bezcurve<float> c3(v3, v4, (v3 + v4) / 2.0f, (v3 + v4) / 2.0f);
+    sm::bezcurve<float> c4(v4, v1, (v4 + v1) / 2.0f, (v4 + v1) / 2.0f);
     std::cout << "instanciated curves" << std::endl;
-    sm::bezcurvepath<float, 3> bound;
+    sm::bezcurvepath<float> bound;
     std::cout << "instanciated curvepath" << std::endl;
 
     bound.add_curve(c1);

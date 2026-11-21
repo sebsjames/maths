@@ -20,34 +20,39 @@ import sm.constexpr_math; // constexpr math functions from Keith O'Hara
 export import sm.mathconst;
 export import sm.vec;
 export import sm.vvec;
-export import sm.mat;
+export import sm.vmat;
 
 export namespace sm
 {
     // (Natural) cubic spline for N 2D coordinates in (floating point) type F. Computes the
     // coefficients for N - 1 cubic curves, so the result is 4 * (N - 1) coefficients.
-    template<typename F, std::uint32_t N>
+    template<typename F>
     struct spline
     {
         spline() {}
-        spline (const sm::vec<sm::vec<F, 2>, N>& _p)
+        spline (const sm::vvec<sm::vec<F, 2>>& _p) { this->init (_p); }
+
+        void init (const sm::vvec<sm::vec<F, 2>>& _p)
         {
+            N = _p.size();
             p = _p;
             this->compute_coefficients();
         }
 
+        // Initially there are N coordinates to interpolate between
+        std::uint32_t N = 0;
         // Points
-        sm::vec<sm::vec<F, 2>, N> p;
+        sm::vvec<sm::vec<F, 2>> p = {};
         // Coefficients. c[0][3] to c[0][0] are the coefficients for cubic function 0. c[0][3] is
         // the coefficient of x^3
-        sm::vec<sm::vec<F, 4>, (N - 1)> c;
+        sm::vvec<sm::vec<F, 4>> c; // will have size (N - 1)
 
         // Compute coefficients from points
         void compute_coefficients()
         {
             // A x = B
-            sm::mat<F, 4 * (N - 1), 4 * (N - 1)> A = {{}};
-            sm::vec<F, 4 * (N - 1)> B = {};
+            sm::vmat<F> A(4 * (N - 1), 4 * (N - 1));
+            sm::vvec<F> B(4 * (N - 1), F{0});
 
             // Each row of A is coefficients of:
             // sm::vec<F, 4 * (N - 1)> x = { c[0][3] c[0][2] c[0][1] c[0][0] c[1][3] c[1][2] c[1][1] c[1][0] c[2][3] c[2][2] c[2][1] c[2][0] };
@@ -100,7 +105,7 @@ export namespace sm
             A(4 * (N - 1) - 1, (N - 1) * 4 - N + 1) = F{2};
 
             // Solve the above using the back substitution as in the mat::eigenvector function?
-            sm::mat<F, 4 * (N - 1), 4 * (N - 1) + 1> Aug = {{}};
+            sm::vmat<F> Aug (4 * (N - 1), 4 * (N - 1) + 1);
             for (std::uint32_t i = 0; i < 4 * (N - 1); ++i) {
                 for (std::uint32_t j = 0; j < 4 * (N - 1); ++j) {
                     Aug(i, j) = A(i, j);
@@ -112,9 +117,12 @@ export namespace sm
             // Convert augmented matrix to row echelon form...
             Aug.row_echelon_form_inplace();
             // and solve by back-substitution
-            sm::vec<F, 4 * (N - 1)> X = Aug.back_substitution();
-
+            sm::vvec<F> X = Aug.back_substitution();
+            if (X.size() != 4 * (N - 1)) {
+                throw std::runtime_error ("Unexpected size for X");
+            }
             // Copy X into c.
+            this->c.resize (N - 1);
             for (std::uint32_t i = 0; i < N - 1; ++i) {
                 for (std::uint32_t j = 0; j < 4; ++j) { this->c[i][3 - j] = X[4 * i + j]; }
             }
@@ -143,15 +151,16 @@ export namespace sm
 
     /*
      * Place n additional elements between each element in v, computing a cubic spline
-     * interpolation. v must initially contain exactly N elements.
+     * interpolation. v must initially contain some elements to interpolate between.
      */
-    template <typename T, std::uint32_t N>
+    template <typename T>
     void cubic_spline_expansion (sm::vvec<T>& v, std::uint32_t n)
     {
-        if (v.size() != N) { throw std::runtime_error ("v.size != N!"); }
-        sm::vec<sm::vec<T, 2>, N> p;
+        std::uint32_t N = v.size();
+        if (v.size() < 2) { throw std::runtime_error ("v.size < 2!"); }
+        sm::vvec<sm::vec<T, 2>> p(N);
         for (std::uint32_t i = 0; i < N; ++i) { p[i] = { static_cast<T>(n) * i, v[i] }; }
-        sm::spline<T, N> spl (p);
+        sm::spline<T> spl (p);
         const std::uint64_t newsz = v.size() + (v.size() - 1) * n;
         v.resize (newsz, T{0});
         // The amount ti has to increment depends on the output size (n * [N-1]):

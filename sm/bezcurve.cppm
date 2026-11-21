@@ -30,6 +30,7 @@ export module sm.bezcurve;
 export import sm.mathconst;
 export import sm.bezcoord;
 export import sm.mat;
+export import sm.vmat;
 export import sm.vvec;
 export import sm.vec;
 import sm.nm_simplex;
@@ -50,11 +51,14 @@ export namespace sm
      * \tparam order The order of the Bezier curve. The value of the highest power of t. Thus 3 is a
      * cubic Bezier, 2 is a quadratic Bezier, etc. Note that 0th order Bezier curve does not exist
      */
-    template <typename F, std::uint32_t order> requires std::is_floating_point_v<F> && (order > 0u)
+    template <typename F> requires std::is_floating_point_v<F>
     struct bezcurve
     {
         //! Do-nothing constructor
-        bezcurve() { this->M = this->matrix_setup_M(); }
+        bezcurve() {
+            this->M = this->matrix_setup_M();
+            this->C = this->matrix_setup_C();
+        }
 
         /*!
          * Construct a Bezier curve of order cp.size()-1 **with the initial and final
@@ -62,29 +66,42 @@ export namespace sm
          */
         bezcurve (sm::vvec<sm::vec<F, 2>> cp)
         {
+            if (cp.size() < 2) {
+                throw std::runtime_error ("bezcurve(vvec<vec<>> cp): cp should contain at least 2 vecs");
+            }
+            this->order = cp.size() - 1u;
+
             this->M = this->matrix_setup_M();
+            this->C = this->matrix_setup_C();
 
             if ((this->C.rows() != cp.size()) || (this->C.cols() != 2u)) {
                 throw std::runtime_error (std::format("bezcurve constructor: size of control points ({}) does not match C.rows() ({}) OR C.cols() ({}) != 2",
                                                       cp.size(), this->C.rows(), this->C.cols()));
             }
 
-            if (order != cp.size() - 1u) {
-                throw std::runtime_error (std::format("bezcurve constructor: size of control points - 1 ({}) does not match order ({})", cp.size() - 1, order));
-            }
-
             for (std::uint32_t i = 0u; i < C.rows(); ++i) {
-                // Here is the location of the old cout that seemed at some point to be necessary to avoid segfault.
-                this->C.set_row (i, cp[i]);
+                sm::vvec<F> _cp (cp[i].size());
+                for (std::uint32_t j = 0; j < cp[i].size(); ++j) { _cp[j] = cp[i][j]; }
+                this->C.set_row (i, _cp);
             }
 
             this->init();
         }
 
         //! Construct a Bezier curve using the control points provided in the matrix @cmat.
-        bezcurve (const sm::mat<F, order + 1u, 2u>& cmat)
+        bezcurve (const sm::vmat<F>& cmat)
         {
+            // size expected: order + 1u, 2u
+            if (cmat.cols() != 2u) {
+                throw std::runtime_error ("bezcurve: Expect 2 cols in control point matrix");
+            }
+            const std::uint32_t _r = cmat.rows();
+            if (_r < 2u) {
+                throw std::runtime_error ("bezcurve: Expect >=2 rows in control point matrix");
+            }
+            this->order = _r - 1u;
             this->M = this->matrix_setup_M();
+            this->C = this->matrix_setup_C();
             this->C = cmat;
             this->init();
         }
@@ -93,11 +110,13 @@ export namespace sm
          * Construct a cubic Bezier curve with a specification of the curve as inital
          * and final position with two control points.
          */
-        template <typename Fy = F> requires (order == 3)
+        template <typename Fy = F>
         bezcurve (const sm::vec<Fy, 2>& ip, const sm::vec<Fy, 2>& fp,
                   const sm::vec<Fy, 2>& c1, const sm::vec<Fy, 2>& c2)
         {
+            this->order = 3u;
             this->M = this->matrix_setup_M();
+            this->C = this->matrix_setup_C();
             this->C(0, 0) = ip[0];
             this->C(0, 1) = ip[1];
             this->C(1, 0) = c1[0];
@@ -113,10 +132,12 @@ export namespace sm
          * Construct a quadratic Bezier curve with a specification of the curve as
          * inital and final position with a single control point
          */
-        template <typename Fy = F> requires (order == 2)
+        template <typename Fy = F>
         bezcurve (const sm::vec<Fy, 2>& ip, const sm::vec<Fy, 2>& fp, const sm::vec<Fy, 2>& c1)
         {
+            this->order = 2u;
             this->M = this->matrix_setup_M();
+            this->C = this->matrix_setup_C();
             this->C(0, 0) = ip[0];
             this->C(0, 1) = ip[1];
             this->C(1, 0) = c1[0];
@@ -127,10 +148,12 @@ export namespace sm
         }
 
         //! Construct a linear Bezier curve for production of straight lines.
-        template <typename Fy = F> requires (order == 1)
+        template <typename Fy = F>
         bezcurve (const sm::vec<Fy, 2>& ip, const sm::vec<Fy, 2>& fp)
         {
+            this->order = 1u;
             this->M = this->matrix_setup_M();
+            this->C = this->matrix_setup_C();
             this->C(0, 0) = ip[0];
             this->C(0, 1) = ip[1];
             this->C(1, 0) = fp[0];
@@ -142,12 +165,10 @@ export namespace sm
         bezcurve (const sm::vec<F, 2>& ip, const sm::vec<F, 2>& fp,
                   const sm::vvec<sm::vec<F, 2>>& only_cp)
         {
+            this->order = only_cp.size() + 1u;
             this->M = this->matrix_setup_M();
-            std::uint32_t n_ctrls = only_cp.size() + 2;
-            if (this->C.rows() != n_ctrls || this->C.cols() != 2) {
-                throw std::runtime_error (std::format ("bezcurve (vec, vec, vvec) constructor: size of control points ({}) does not match C.rows() ({}) OR C.cols() ({}) != 2",
-                                                       n_ctrls, this->C.rows(), this->C.cols()));
-            }
+            this->C = this->matrix_setup_C();
+            std::uint32_t n_ctrls = only_cp.size() + 2u;
             this->C(0, 0) = ip[0];
             this->C(0, 1) = ip[1];
             std::uint32_t i = 1;
@@ -181,7 +202,7 @@ export namespace sm
          * appends to the end of @preceding. *May also modify @preceding*. Set @optimize to true to try
          * out experimental fit improvements.
          */
-        void fit (const sm::vvec<sm::vec<F, 2>>& points, bezcurve<F, order>& preceding, bool optimize=false)
+        void fit (const sm::vvec<sm::vec<F, 2>>& points, bezcurve<F>& preceding, bool optimize=false)
         {
             constexpr bool debug_bezcurve = false;
 
@@ -191,7 +212,7 @@ export namespace sm
             // preceding control points.
             sm::vvec<sm::vec<F, 2>> prec_ctrl = preceding.get_controls();
             std::size_t len = prec_ctrl.size();
-            if (len < 3) { return; }
+            if (len < 3u) { return; }
 
             // va is vector from join to the previous ctrl
             sm::vec<F, 2> va = prec_ctrl[len - 2] - prec_ctrl[len - 1]; // "prev ctrl - join"
@@ -227,16 +248,20 @@ export namespace sm
 
             // Now we rotate each point by +/-phi
             // p0 is the point which joins the two curves:
-            sm::vec<F, 2> p0 = C.row (0);
+            sm::vvec<F> _p0 = C.row (0);
+            if (_p0.size() < 2u) { throw std::runtime_error ("bezcurve::fit: unexpected row length"); }
+            sm::vec<F, 2> p0 = { _p0[0], _p0[1] };
 
             // Rotate the vector 'va' in the rotmat_neg direction
-            sm::vec<F, 2> pm1 = prec_ctrl[len-2];
+            sm::vec<F, 2> pm1 = prec_ctrl[len - 2];
 
             // Offset so we rotate va about p0
             sm::vec<F, 2> pm1_r = pm1 - p0;
 
             // Rotate the vector vb in the opposing direction (rotmat_pos)
-            sm::vec<F, 2> pm2 = C.row (1);
+            sm::vvec<F> _pm2 = C.row (1);
+            if (_pm2.size() < 2u) { throw std::runtime_error ("bezcurve::fit: unexpected row length"); }
+            sm::vec<F, 2> pm2 = { _pm2[0], _pm2[1] };
 
             sm::vec<F, 2> pm2_r = pm2 - p0;
 
@@ -282,7 +307,7 @@ export namespace sm
             sm::vec<F, 2> pm1_r_final = pm1_r_after + p0;
             sm::vec<F, 2> pm2_r_final = pm2_r_after + p0;
 
-            C.set_row (1, pm2_r_final);
+            C.template set_row<2> (1, pm2_r_final);
 
             this->init();
 
@@ -314,7 +339,7 @@ export namespace sm
             if constexpr (debug_bezcurve == true) {
                 std::cout << "Objective with no optimization: " << startsos << std::endl;
             }
-            sm::mat<F, order + 1u, 2u> Copy = this->C;
+            sm::vmat<F> Copy = this->C;
 
             // Convert the middle rows of C to vector<F> to be the first NM vertex
             sm::vvec<F> v0;
@@ -481,13 +506,14 @@ export namespace sm
         {
             // points must be right size, which is == order
             if (points.size() != order + 1) {
-                std::stringstream ee;
-                ee << "Need " << (order + 1) << " coordinates to fit a " << order << " order Bezier curve";
-                throw std::runtime_error (ee.str());
+                if (points.size() < 2u) {
+                    throw std::runtime_error ("bezcurve::fit: Need at least 2 points to define a 1st order Bezier curve");
+                }
+                this->order = points.size() - 1u;
             }
 
             // Set the order for the curve
-            constexpr std::uint32_t n = order + 1u; // points.size();
+            const std::uint32_t n = order + 1u; // points.size();
             // order = points.size() - 1; // checked
 
             std::uint32_t i = 0u;
@@ -495,7 +521,7 @@ export namespace sm
             // Note that you really need double precision in the matrices whilst
             // computing a Bezier best fit. If we use single precision, the fits are
             // only good up to Bezier order 4 or 5, rather than 8-10.
-            sm::mat<double, n, 2> P;
+            sm::vmat<double> P (n, 2);
             for (auto p : points) {
                 P(i, 0) = p[0];
                 P(i++, 1) = p[1];
@@ -503,8 +529,8 @@ export namespace sm
 
             // Compute candidate t values for the points.
             i = 0u;
-            auto D = sm::mat<double, n, 1u>::zero();
-            auto S = sm::mat<double, n, 1u>::zero();
+            sm::vmat<double> D(n, 1u);
+            sm::vmat<double> S(n, 1u);
             double total_len = double{0};
             for (i = 1; i < n; ++i) {
                 double xdiff = P(i,0) - P(i - 1, 0u);
@@ -522,7 +548,7 @@ export namespace sm
             // https://pomax.github.io/bezierinfo/#curvefitting) This takes each t and
             // makes one column containing all the powers of t relevant to the order
             // that we're looking for.
-            sm::mat<double, n, n> TT;
+            sm::vmat<double> TT(n, n);
             TT.set_from (1.0);
             for (i = 0; i < n; ++i) {
                 for (std::uint32_t j = 0; j < n; ++j) {
@@ -532,10 +558,10 @@ export namespace sm
             }
 
             // Convert to double precision
-            sm::mat<double, n> Md = this->M.template as<double>();
+            sm::vmat<double> Md = this->M.template as<double>();
             // Magic matrix incantation to find the best set of coordinates:
             Md.inverse_inplace();
-            sm::mat<double, n, 2> Cd = Md * (TT.transpose() * TT).inverse() * TT.transpose() * P;
+            sm::vmat<double> Cd = Md * (TT.transpose() * TT).inverse() * TT.transpose() * P;
             // Cast back to Fs
             this->C = Cd.template as<F>();
 
@@ -544,12 +570,13 @@ export namespace sm
         }
 
         //! Obtain and return the derivative of this Bezier curve
-        template<typename Fy=F> requires (order > 1)
-        sm::mat<F, order, 2u> derivative() const
+        sm::vmat<F> derivative() const
         {
-            sm::mat<F, order, 2u> deriv_cp;
+            // check order > 1
+            sm::vmat<F> deriv_cp (order, 2u);
+            if (order <= 1u) { return deriv_cp; }
             for (std::uint32_t i = 0; i < order; ++i) {
-                sm::vec<F, 2> drow = (this->C.row(i + 1) - this->C.row(i)) * order;
+                sm::vvec<F> drow = (this->C.row(i + 1) - this->C.row(i)) * order;
                 deriv_cp.set_row (i, drow);
             }
             return deriv_cp;
@@ -563,15 +590,15 @@ export namespace sm
          *
          * See https://pomax.github.io/bezierinfo/#matrixsplit
          */
-        std::pair<sm::mat<F, order + 1u, 2u>, sm::mat<F, order + 1u, 2u>> split (F z) const
+        //std::pair<sm::mat<F, order + 1u, 2u>, sm::mat<F, order + 1u, 2u>> split (F z) const
+        std::pair<sm::vmat<F>, sm::vmat<F>> split (F z) const
         {
-            constexpr std::uint32_t n = order + 1u;
+            const std::uint32_t n = order + 1u;
             // 'z prime':
             F zp = z - F{1};
             F sign0 = F{1};
             F sign = sign0;
-            sm::mat<F, n, n> Q;
-            Q.set_zero();
+            sm::vmat<F> Q (n, n);
             for (std::uint32_t i = 0; i < n; ++i) {
                 sign = sign0;
                 for (std::uint32_t j = 0; j <= i; ++j) {
@@ -581,16 +608,16 @@ export namespace sm
                 }
                 sign0 = sign0 > F{0} ? F{-1} : F{1};
             }
-            sm::mat<F, n, 2u> C1 = Q * this->C;
+            sm::vmat<F> C1 = Q * this->C; // size (n, 2u)
             // Shift (or rotate) rows then flip
             for (std::uint32_t i = 0; i < n; ++i) {
                 // 'rotate row'
-                sm::vec<F, n> rw = Q.row (i);
+                sm::vvec<F> rw = Q.row (i);
                 std::int32_t rti = static_cast<std::int32_t>(n - 1 - i);
                 rw.rotate (-rti);
                 Q.set_row (i, rw);
             }
-            sm::mat<F, n, 2u> C2 = Q.flipud() * this->C;
+            sm::vmat<F> C2 = Q.flipud() * this->C;
 
             return std::make_pair(C1, C2);
         }
@@ -668,14 +695,16 @@ export namespace sm
          */
         bezcoord<F> compute_point (F t) const
         {
-            if constexpr (order == 1) {
+            if (order == 1) {
                 return this->compute_point_linear (t);
-            } else if constexpr (order == 2) {
+            } else if (order == 2) {
                 return this->compute_point_quadratic (t);
-            } else if constexpr (order == 3) {
+#if 1 // FIXME: Remove use of compute_point_cubic as it is slower than compute_point_matrix, but with precision differences
+            } else if (order == 3) {
                 return this->compute_point_cubic (t);
+#endif
             } else {
-                // Default to matrix, as this is faster than compute_point_general
+                // Default to matrix, as this is faster than compute_point_general (and compute_point_cubic)
                 return this->compute_point_matrix (t);
             }
         }
@@ -684,14 +713,16 @@ export namespace sm
         bezcoord<F> compute_point_matrix (F t) const
         {
             this->checkt(t);
-            constexpr std::int32_t mp = order + 1;
-            sm::mat<F, 1u, mp> T;
+            const std::int32_t mp = order + 1u;
+            sm::vmat<F> T(1u, mp);
             T.set_from (F{1});
             for (std::int32_t i = 1; i < mp; ++i) {
                 T(0, i) = std::pow (t, static_cast<double>(i));
             }
-            sm::mat<F, 1u, 2u> bp = T * this->MC;
-            sm::vec<F, 2> b = bp.row (0) * this->scale;
+            sm::vmat<F> bp = T * this->MC;
+            sm::vvec<F> bvv = bp.row(0) * this->scale;
+            if (bvv.size() != 2u) { throw std::runtime_error ("bezcurve::compute_point_matrix: bvv has unexpected size"); }
+            sm::vec<F, 2> b = { bvv[0], bvv[1] };
             return bezcoord<F> (t, b);
         }
 
@@ -732,7 +763,7 @@ export namespace sm
          */
         bezcoord<F> compute_point (F t, F l) const
         {
-            if constexpr (order == 1) {
+            if (order == 1) {
                 return this->compute_point_linear (t, l);
             } else {
                 return this->compute_point_by_search (t, l);
@@ -740,26 +771,22 @@ export namespace sm
         }
 
         //! Compute the unit tangent and unit normal at t.
-        template<typename Fy> requires (order > 1)
+        template<typename Fy>
         std::pair<bezcoord<F>, bezcoord<F>> compute_tangent_normal (const Fy t) const
         {
-            auto deriv_cp = this->derivative<F>();
-            sm::bezcurve<F, order - 1u> deriv (deriv_cp);
-            bezcoord<F> tang = deriv.compute_point (static_cast<F>(t));
-            tang.normalize();
-            bezcoord<F> norm = tang; // copies the parameter
-            // rotate norm:
-            norm.coord = {-tang.y(), tang.x()};
-            return std::make_pair (tang, norm);
-        }
-
-        template<typename Fy> requires (order == 1)
-        std::pair<bezcoord<F>, bezcoord<F>> compute_tangent_normal (const Fy t) const
-        {
-            // Can't compute tangent using the derivative as derivative would be a
-            // curve with a single control point. The tangent to a line is
-            // simply the line:
-            bezcoord<F> tang = this->compute_point (static_cast<F>(t));
+            bezcoord<F> tang = {};
+            if (this->order == 0) {
+                throw std::runtime_error ("bezcurve::compute_tangent_normal: order must be >0");
+            } else if (this->order == 1) {
+                // Can't compute tangent using the derivative as derivative would be a
+                // curve with a single control point. The tangent to a line is
+                // simply the line:
+                tang = this->compute_point (static_cast<F>(t));
+            } else {
+                auto deriv_cp = this->derivative();
+                sm::bezcurve<F> deriv = deriv_cp;
+                tang = deriv.compute_point (static_cast<F>(t));
+            }
             tang.normalize();
             bezcoord<F> norm = tang; // copies the parameter
             // rotate norm:
@@ -1167,13 +1194,16 @@ export namespace sm
          * Representations.
          */
         // Set up M.
-        sm::mat<F, order + 1u> matrix_setup_M()
+        sm::vmat<F> matrix_setup_M()
         {
             // Check order here
-            static_assert (order + 1u - 1 < sm::pt_rows, "This code is limited to Bezier Curves of order pt_rows - 1 "
-                           "by the current size of the sm::pt lookup table (hint: change pt_rows to allow this order)");
-            sm::mat<F, order + 1u> _M;
-            _M.set_zero();
+            if (this->order >= sm::pt_rows) {
+                std::cout << "this->order = " << this->order << " > pt_rows = " << sm::pt_rows << std::endl;
+                throw std::runtime_error ("This code is limited to Bezier Curves of order pt_rows - 1 "
+                                          "by the current size of the sm::pt lookup table (hint: change pt_rows to allow this order)");
+            }
+            sm::vmat<F> _M;
+            _M.resize (order + 1u, order + 1u); // sets 0
 
             std::uint32_t r = 0;
             for (std::uint32_t i = 0; i < order + 1u; ++i) { // i is column
@@ -1188,15 +1218,24 @@ export namespace sm
             return _M;
         }
 
+        sm::vmat<F> matrix_setup_C() // Setup the C matrix to be the right size
+        {
+            sm::vmat<F> _C (order + 1u, 2u);
+            return _C;
+        }
+
         //! The coefficients. order + 1 square. It's order + 1, because although there are order -1
         //! actual control points, when you add start and end locations, that's order + 1.
-        sm::mat<F, order + 1u> M = { {} };
+        sm::vmat<F> M = {};
 
-        //! The control points. Number of rows in C is order - 1, number of cols is 2
-        sm::mat<F, order + 1u, 2u> C = { {} };
+        //! The control points. Number of rows in C is order + 1, number of cols is 2
+        sm::vmat<F> C = {};
 
-        //! M*C
-        sm::mat<F, order + 1u, 2u> MC = { {} };
+        //! M*C. Number of rows: order + 1u, number of cols: 2
+        sm::vmat<F> MC = {};
+
+        //! The order of this bezcurve.
+        std::uint32_t order = 3;
     };
 
 } // namespace sm
