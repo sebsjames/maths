@@ -232,7 +232,9 @@ export namespace sm
             if constexpr (Nr != Nc) {
                 []<bool flag = false>() { static_assert(flag, "this function applies to square matrices"); }();
             }
-            return sm::mat<F, Nr, Nc>{};
+            sm::mat<F, Nr, Nc> id;
+            id.set_identity();
+            return id;
         }
 
         static constexpr mat<F, Nr, Nc> zero() noexcept { return sm::mat<F, Nr, Nc>{{0}}; }
