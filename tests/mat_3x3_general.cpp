@@ -143,7 +143,7 @@ int main()
             throw std::runtime_error ("zero mat not zero");
         }
     }
-    constexpr sm::mat<double, 3> idmat = {};
+    constexpr sm::mat<double, 3> idmat = sm::mat<double, 3>::identity();
     for (int i = 0; i < 9; ++i) {
         if ((i == 0 || i == 4 || i == 8) && idmat[i] != 1.0) {
             throw std::runtime_error ("id mat not id");
@@ -153,8 +153,8 @@ int main()
         }
     }
 
-    const sm::mat<double, 3> c1{}; // Yields identity matrix
-    if (c1 != idmat) { ++rtn; }
+    const sm::mat<double, 3> c1{}; // Yields zero matrix
+    if (c1 != zmat) { ++rtn; }
 
     const sm::mat<double, 3> c2{0.0}; // Yields zero matrix
     if (c2 != zmat) { ++rtn; }
@@ -162,11 +162,13 @@ int main()
     const sm::mat<double, 3> c3{{}}; // Yields zero matrix
     if (c3 != zmat) { ++rtn; }
 
-    const sm::mat<double, 3> c4({}); // Yields zero matrix?
+    const sm::mat<double, 3> c4({}); // Yields zero matrix
     if (c4 != zmat) { ++rtn; }
 
-    const sm::mat<double, 3> c5; // Yields id matrix?
-    if (c5 != idmat) { ++rtn; }
+    const sm::mat<double, 3> c5; // Yields zero matrix
+    if (c5 != zmat) { ++rtn; }
+
+    std::cout << (rtn == 0 ? "Success" : "Failure") << std::endl;
 
     return rtn;
 }
