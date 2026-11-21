@@ -27,9 +27,12 @@ int main()
 
     sm::mat<F, 4> truth_mat_tr = sm::mat<F, 4>::identity();
     truth_mat_tr.translate (ux);
+    std::cout << "truth_mat_tr =\n" << truth_mat_tr << std::endl;
     sm::mat<F, 4> truth_mat_rot = sm::mat<F, 4>::identity();
     truth_mat_rot.rotate (uz, sm::mathconst<F>::pi_over_2);
+    std::cout << "truth_mat_rot =\n" << truth_mat_rot << std::endl;
     sm::mat<F, 4> truth_mat = truth_mat_tr * truth_mat_rot;
+    std::cout << "truth_mat =\n" << truth_mat << std::endl;
 
     sm::vec<F> ux_about_z_truth_pretrans = (truth_mat * ux).less_one_dim(); //{ 0.0, 2.0, 0.0 };
     sm::vec<F> uy_about_z_truth_pretrans = (truth_mat * uy).less_one_dim(); //{-1.0, 1.0, 0.0 };

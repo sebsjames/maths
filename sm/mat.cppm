@@ -379,7 +379,7 @@ export namespace sm
         template<typename T, std::size_t N = 3> requires std::is_arithmetic_v<T> && (N == 3 || N == 4) && (Nr == 4) && (Nc == 4)
         constexpr void translate (const sm::vec<T, N>& dv) noexcept
         {
-            mat<T, Nr, Nc> transmat;
+            mat<T, Nr, Nc> transmat = mat<T, Nr, Nc>::identity();
             transmat[12] = dv[0];
             transmat[13] = dv[1];
             transmat[14] = dv[2];
@@ -392,7 +392,7 @@ export namespace sm
         template<typename T, std::size_t N = 3> requires std::is_arithmetic_v<T> && (N == 3 || N == 4) && (Nr == 4) && (Nc == 4)
         constexpr void translate (const std::array<T, N>& dv) noexcept
         {
-            mat<T, Nr, Nc> transmat;
+            mat<T, Nr, Nc> transmat = mat<T, Nr, Nc>::identity();
             transmat[12] = dv[0];
             transmat[13] = dv[1];
             transmat[14] = dv[2];
@@ -405,7 +405,7 @@ export namespace sm
         template<typename T> requires std::is_arithmetic_v<T> && (Nr == 4) && (Nc == 4)
         constexpr void translate (const T& dx, const T& dy, const T& dz) noexcept
         {
-            mat<T, Nr, Nc> transmat;
+            mat<T, Nr, Nc> transmat = mat<T, Nr, Nc>::identity();
             transmat[12] = dx;
             transmat[13] = dy;
             transmat[14] = dz;
