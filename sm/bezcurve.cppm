@@ -241,9 +241,9 @@ export namespace sm
             }
 
             // Construct rotn matrices (one for positive rotation, one for negative)
-            sm::mat<F, 2> rotmat_pos;
+            sm::mat<F, 2> rotmat_pos = sm::mat<F, 2>::identity();
             rotmat_pos.rotate (phi); // switched vs arma as I'll rotate vec as rmat * vec, not vmat * rmat
-            sm::mat<F, 2> rotmat_neg;
+            sm::mat<F, 2> rotmat_neg = sm::mat<F, 2>::identity();
             rotmat_neg.rotate (-phi);
 
             // Now we rotate each point by +/-phi
@@ -590,7 +590,6 @@ export namespace sm
          *
          * See https://pomax.github.io/bezierinfo/#matrixsplit
          */
-        //std::pair<sm::mat<F, order + 1u, 2u>, sm::mat<F, order + 1u, 2u>> split (F z) const
         std::pair<sm::vmat<F>, sm::vmat<F>> split (F z) const
         {
             const std::uint32_t n = order + 1u;
