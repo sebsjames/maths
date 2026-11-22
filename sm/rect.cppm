@@ -22,9 +22,6 @@ export module sm.rect;
 
 import sm.vec;
 import sm.bezcoord;
-//#ifdef CARTGRID_COMPILE_LOAD_AND_SAVE
-//import sm.hdfdata; // to go to cartgrid_hdf (cf hexgrid_hdf)
-//#endif
 
 export namespace sm
 {
@@ -148,10 +145,6 @@ export namespace sm
             this->compute_location();
         }
 
-#ifdef CARTGRID_COMPILE_LOAD_AND_SAVE
-        //! Construct using the passed in HDF5 file and path.
-        rect (hdfdata& h5data, const std::string& h5path) { this->load (h5data, h5path); }
-#endif
         //! Comparison operation to enable use of set<rect>
         bool operator< (const rect& rhs) const
         {
@@ -164,75 +157,6 @@ export namespace sm
             if (this->vi < rhs.vi) { return true; }
             return false;
         }
-
-#ifdef CARTGRID_COMPILE_LOAD_AND_SAVE
-        /*!
-         * Save the data for this rect into the already open hdfdata object \a h5data in
-         * the path \a h5path.
-         */
-        void save (hdfdata& h5data, const std::string& h5path) const
-        {
-            std::string dpath = h5path + "/vi";
-            h5data.add_val (dpath.c_str(), this->vi);
-            dpath = h5path + "/di";
-            h5data.add_val (dpath.c_str(), this->di);
-            dpath = h5path + "/x";
-            h5data.add_val (dpath.c_str(), this->x);
-            dpath = h5path + "/y";
-            h5data.add_val (dpath.c_str(), this->y);
-            dpath = h5path + "/z";
-            h5data.add_val (dpath.c_str(), this->z);
-            dpath = h5path + "/r";
-            h5data.add_val (dpath.c_str(), this->r);
-            dpath = h5path + "/phi";
-            h5data.add_val (dpath.c_str(), this->phi);
-            dpath = h5path + "/dx";
-            h5data.add_val (dpath.c_str(), this->dx);
-            dpath = h5path + "/dy";
-            h5data.add_val (dpath.c_str(), this->dy);
-            dpath = h5path + "/xi";
-            h5data.add_val (dpath.c_str(), this->xi);
-            dpath = h5path + "/yi";
-            h5data.add_val (dpath.c_str(), this->yi);
-            dpath = h5path + "/dist_to_boundary";
-            h5data.add_val (dpath.c_str(), this->dist_to_boundary);
-            dpath = h5path + "/flags";
-            h5data.add_val (dpath.c_str(), this->flags);
-        }
-
-        //! Load the data for this rect from a sm::hdfdata file
-        void load (hdfdata& h5data, const std::string& h5path)
-        {
-            std::string dpath = h5path + "/vi";
-            h5data.read_val (dpath.c_str(), this->vi);
-            dpath = h5path + "/di";
-            h5data.read_val (dpath.c_str(), this->di);
-            dpath = h5path + "/x";
-            h5data.read_val (dpath.c_str(), this->x);
-            dpath = h5path + "/y";
-            h5data.read_val (dpath.c_str(), this->y);
-            dpath = h5path + "/z";
-            h5data.read_val (dpath.c_str(), this->z);
-            dpath = h5path + "/r";
-            h5data.read_val (dpath.c_str(), this->r);
-            dpath = h5path + "/phi";
-            h5data.read_val (dpath.c_str(), this->phi);
-            dpath = h5path + "/dx";
-            h5data.read_val (dpath.c_str(), this->dx);
-            dpath = h5path + "/dy";
-            h5data.read_val (dpath.c_str(), this->dy);
-            dpath = h5path + "/xi";
-            h5data.read_val (dpath.c_str(), this->xi);
-            dpath = h5path + "/yi";
-            h5data.read_val (dpath.c_str(), this->yi);
-            dpath = h5path + "/dist_to_boundary";
-            h5data.read_val (dpath.c_str(), this->dist_to_boundary);
-            std::uint32_t flgs = 0;
-            dpath = h5path + "/flags";
-            h5data.read_val (dpath.c_str(), flgs);
-            this->flags = flgs;
-        }
-#endif
 
         /*!
          * Produce a string containing information about this rect, showing grid

@@ -18,6 +18,7 @@ install(
   bootstrap.cppm
   boxfilter.cppm
   cartgrid.cppm
+  cartgrid_hdf.cppm
   centroid.cppm
   constexpr_math.cppm
   crc32.cppm

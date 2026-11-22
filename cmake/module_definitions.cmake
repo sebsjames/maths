@@ -320,6 +320,12 @@ macro(setup_module_variables_for_maths base_directory)
   )
   list(REMOVE_DUPLICATES SM_CARTGRID_MODULES)
 
+  set(SM_CARTGRID_HDF_MODULES
+    ${SM_CARTGRID_MODULES}
+    ${base_directory}/sm/cartgrid_hdf.cppm    
+  )
+  list(REMOVE_DUPLICATES SM_CARTGRID_HDF_MODULES)
+  
   set(SM_BASE64_MODULES
     ${base_directory}/sm/base64.cppm
   )
