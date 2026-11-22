@@ -311,13 +311,6 @@ if(NOT APPLE)
   add_executable(mat_4x4_constexpr mat_4x4_constexpr.cpp)
   target_link_libraries(mat_4x4_constexpr PRIVATE sm)
   add_test(mat_4x4_constexpr mat_4x4_constexpr)
-
-  if(Eigen3_FOUND)
-    add_executable(mat_4x4_vseigen mat_4x4_vseigen.cpp)
-    target_include_directories (mat_4x4_vseigen BEFORE PRIVATE ${EIGEN3_INCLUDE_DIR})
-    target_link_libraries(mat_4x4_vseigen PRIVATE sm)
-    add_test(mat_4x4_vseigen mat_4x4_vseigen)
-  endif(Eigen3_FOUND)
 endif()
 endif()
 

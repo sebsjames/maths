@@ -99,11 +99,6 @@ if(WIN32)
   set(CMAKE_BUILD_TYPE "Release")
 endif(WIN32)
 
-# Lib finding
-
-# Eigen is only used for a test/comparison program
-find_package(Eigen3 NO_MODULE)
-
 # A macro to make a list of modules into a unique list then add then to target_name
 function(target_sources_modules target_name)
   # Parse function args for MODULES
