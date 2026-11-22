@@ -8,7 +8,6 @@ install(
   algo.cppm
   algo_hexgrid.cppm
   anneal.cppm
-  anneal_hdf.cppm
   base64.cppm
   bessel_i0.cppm
   bezcurvepath.cppm
@@ -18,7 +17,6 @@ install(
   bootstrap.cppm
   boxfilter.cppm
   cartgrid.cppm
-  cartgrid_hdf.cppm
   centroid.cppm
   constexpr_math.cppm
   crc32.cppm
@@ -29,11 +27,9 @@ install(
   geometry.cppm
   geometry_polyhedra.cppm
   grid.cppm
-  hdfdata.cppm
   hex.cppm
   hexfft.cppm
   hexgrid.cppm
-  hexgrid_hdf.cppm
   hexyhisto.cppm
   histo.cppm
   interval.cppm

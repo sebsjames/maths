@@ -101,13 +101,6 @@ endif(WIN32)
 
 # Lib finding
 
-# The HDF5 library is required only to use sm.hdfdata. To prefer the use of static linking
-# of HDF5, call set(HDF5_USE_STATIC_LIBRARIES ON)
-find_package(HDF5)
-if(HDF5_FOUND)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${HDF5_DEFINITIONS}")
-endif()
-
 # Eigen is only used for a test/comparison program
 find_package(Eigen3 NO_MODULE)
 
