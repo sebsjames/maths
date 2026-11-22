@@ -81,14 +81,6 @@ macro(setup_module_variables_for_maths base_directory)
   )
   list(REMOVE_DUPLICATES SM_UTIL_MODULES)
 
-  set(SM_HDFDATA_MODULES
-    ${SM_VEC_MODULES}
-    ${SM_VVEC_MODULES}
-    ${SM_UTIL_MODULES}
-    ${base_directory}/sm/hdfdata.cppm
-  )
-  list(REMOVE_DUPLICATES SM_HDFDATA_MODULES)
-
   set(SM_QUATERNION_MODULES
     ${SM_VEC_MODULES}
     ${base_directory}/sm/quaternion.cppm
@@ -207,7 +199,8 @@ macro(setup_module_variables_for_maths base_directory)
   list(REMOVE_DUPLICATES SM_NM_SIMPLEX_MODULES)
 
   set(SM_ANNEAL_MODULES
-    ${SM_HDFDATA_MODULES}
+    ${SM_VEC_MODULES}
+    ${SM_VVEC_MODULES}
     ${base_directory}/sm/anneal.cppm
   )
   list(REMOVE_DUPLICATES SM_ANNEAL_MODULES)
@@ -269,13 +262,6 @@ macro(setup_module_variables_for_maths base_directory)
   )
   list(REMOVE_DUPLICATES SM_HEXGRID_MODULES)
 
-  set(SM_HEXGRID_HDF_MODULES
-    ${SM_HEXGRID_MODULES}
-    ${SM_HDFDATA_MODULES}
-    ${base_directory}/sm/hexgrid_hdf.cppm
-  )
-  list(REMOVE_DUPLICATES SM_HEXGRID_HDF_MODULES)
-
   set(SM_ALGO_HEXGRID_MODULES
     ${SM_HEXGRID_MODULES}
     ${base_directory}/sm/algo_hexgrid.cppm
@@ -334,7 +320,6 @@ macro(setup_module_variables_for_maths base_directory)
   )
   list(REMOVE_DUPLICATES SM_PCA_MODULES)
   
-  # All except SM_HDFDATA_MODULES, SM_ANNEAL_MODULES (avoiding need for library linking)
   set(SM_ALL_MODULES
     ${SM_BASE64_MODULES}
     ${SM_CRC32_MODULES}

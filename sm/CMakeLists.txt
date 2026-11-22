@@ -27,11 +27,9 @@ install(
   geometry.cppm
   geometry_polyhedra.cppm
   grid.cppm
-  hdfdata.cppm
   hex.cppm
   hexfft.cppm
   hexgrid.cppm
-  hexgrid_hdf.cppm
   hexyhisto.cppm
   histo.cppm
   interval.cppm

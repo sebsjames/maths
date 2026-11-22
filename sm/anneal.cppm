@@ -29,7 +29,6 @@ export module sm.anneal;
 import sm.vvec;
 import sm.vec;
 import sm.random;
-import sm.hdfdata;
 
 export namespace sm
 {
@@ -71,11 +70,11 @@ export namespace sm
      * \tparam T The type for the numbers in the algorithm. Expected to be floating
      * point, so float or double.
      *
-     * \tparam debug Set true to show some text output
      */
-    template <typename T, bool debug=false>
+    template <typename T>
     class anneal
     {
+        static constexpr bool debug = false;
         // Use a short version of the numeric_limits epsilon
         static constexpr T eps = std::numeric_limits<T>::epsilon();
         // Used in reanneal_test(). A reanneal won't occur within 10 steps of the last reanneal.
@@ -325,57 +324,6 @@ export namespace sm
             } else {
                 this->state = anneal_state::need_to_compute;
             }
-        }
-
-        //! Save optimization info/history into an HDF5 file. Save the optimization
-        //! parameters too, along with the temperature histories.
-        void save (const std::string& path) const
-        {
-            sm::hdfdata data(path, std::ios::out | std::ios::trunc);
-            data.add_contained_vals ("/param_hist_accepted", this->param_hist_accepted);
-            data.add_contained_vals ("/f_param_hist_accepted", this->f_param_hist_accepted);
-            data.add_contained_vals ("/param_hist_rejected", this->param_hist_rejected);
-            data.add_contained_vals ("/f_param_hist_rejected", this->f_param_hist_rejected);
-            data.add_contained_vals ("/T_k_hist", this->T_k_hist);
-            data.add_contained_vals ("/T_cost_hist", this->T_cost_hist);
-            data.add_contained_vals ("/f_x_hist", this->f_x_hist);
-            data.add_contained_vals ("/f_x_best_hist", this->f_x_best_hist);
-            data.add_contained_vals ("/x_best", this->x_best);
-            std::int32_t i = 1;
-            for (auto pn : this->param_names) {
-                std::string s_name = "/param_name_" + std::to_string(i++);
-                data.add_string (s_name.c_str(), pn);
-            }
-            data.add_val ("/f_x_best", this->f_x_best);
-            data.add_val ("/num_generated", this->num_generated);
-            data.add_val ("/num_worse", this->num_worse);
-            data.add_val ("/num_worse_accepted", this->num_worse_accepted);
-            data.add_val ("/num_improved", this->num_improved);
-            data.add_val ("/num_generated_best", this->num_generated_best);
-            data.add_val ("/num_accepted", this->num_accepted);
-            data.add_val ("/num_accepted_best", this->num_accepted_best);
-
-            data.add_val ("/D", this->D);
-            data.add_contained_vals ("/T_0", this->T_0);
-            data.add_contained_vals ("/T_f", this->T_f);
-            data.add_contained_vals ("/m", this->m);
-            data.add_contained_vals ("/n", this->n);
-            data.add_contained_vals ("/c", this->c);
-
-            data.add_contained_vals ("/range_min", this->range_min);
-            data.add_contained_vals ("/range_max", this->range_max);
-
-            data.add_val ("/temperature_ratio_scale", this->temperature_ratio_scale);
-            data.add_val ("/temperature_anneal_scale", this->temperature_anneal_scale);
-            data.add_val ("/cost_parameter_scale_ratio", this->cost_parameter_scale_ratio);
-            data.add_val ("/acc_gen_reanneal_ratio", this->acc_gen_reanneal_ratio);
-            data.add_val ("/delta_param", this->delta_param);
-            data.add_val ("/objective_repeat_precision", this->objective_repeat_precision);
-            data.add_val ("/f_x_best_repeat_max", this->f_x_best_repeat_max);
-            data.add_val ("/enable_reanneal", this->enable_reanneal);
-            data.add_val ("/downhill", this->downhill);
-            data.add_val ("/reanneal_after_steps", this->reanneal_after_steps);
-            data.add_val ("/exit_at_T_f", this->exit_at_T_f);
         }
 
     protected: // Internal algorithm methods.

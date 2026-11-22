@@ -19,7 +19,7 @@ precision easily.
 It provides:
 
 * Static and dynamically sized vector templates that are `constexpr` capable
-* A matrix template (with static memory allocation) that provides comprehensive matrix operations for real and complex values
+* Matrix template classes (one with static memory allocation, the other dynamic) that provide comprehensive matrix operations for real and complex values
 * A quaternion template class
 * Scaling and mathematical interval templates
 * Random number, and string generation
@@ -27,7 +27,6 @@ It provides:
 * Bezier curves and cubic spline fits
 * A variety of algorithms (Nelder-Mead, simulated annealing, winding numbers, box filter)
 * Basic statistics including a histo class, a number of bootstrap methods and principal component analysis
-* A class that allows you to read and write to HDF5
 * A set of `constexpr` maths methods, derived from Keith O'Hara's GCEM project
 
 The vector classes are compatible with the standard library's C++ algorithms, and have their own built-in methods.
@@ -79,8 +78,7 @@ For example, rather than `glm::vec2` whose dimensionality is fixed to 2 and prec
 Because all of the class templates take precision as a template argument, you can build your algorithms using a `typedef` or `using`-defined type, leaving the choice of precision as one which can be modified at any stage of development.
 
 sebsjames/maths also provides some of the general matrix manipulation functionality offered by Armadillo and Eigen.
-However, it does not provide dynamically resizable matrices; all instances of `sm::mat` have a fixed size defined at compile-time.
-It does not pretend to be a comprehensive linear-algebra library, rather it provides a simple but flexible matrix class template for transformation matrix use and similar.
+It does not pretend to be a comprehensive linear-algebra library, but its static matrix class (`sm::mat<>`) supports the operations for use as transformation matrices, the dynamic class (sm::vmat<>) also provides a number of additional linear algebra algorithms.
 It was developed to build the 3D plotting library [mathplot](https://github.com/sebsjames/mathplot).
 
 ## Can I use the code header-only?
@@ -89,11 +87,7 @@ I decided to go fully modules-native with this code. However, there is a `header
 
 ## Dependencies
 
-The majority of the code depends *only* on the standard library. There is one exception:
-
-* `sm::hdfdata` is a wrapper around the HDF5 API and to use it you need the HDF5 libraries (headers at compile time and a link to the shared object files at runtime)
-
-There is also one test program (mat_4x4_vseigen.cpp) that will use the Eigen matrix headers if they are available. If Eigen is not available this test will be omitted.
+The code depends *only* on the standard library.
 
 ## Build requirements
 
