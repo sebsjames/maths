@@ -207,11 +207,19 @@ macro(setup_module_variables_for_maths base_directory)
   list(REMOVE_DUPLICATES SM_NM_SIMPLEX_MODULES)
 
   set(SM_ANNEAL_MODULES
-    ${SM_HDFDATA_MODULES}
+    ${SM_VEC_MODULES}
+    ${SM_VVEC_MODULES}
     ${base_directory}/sm/anneal.cppm
   )
   list(REMOVE_DUPLICATES SM_ANNEAL_MODULES)
 
+  set(SM_ANNEAL_HDF_MODULES
+    ${SM_ANNEAL_MODULES}
+    ${SM_HDFDATA_MODULES}
+    ${base_directory}/sm/anneal_hdf.cppm
+  )
+  list(REMOVE_DUPLICATES SM_ANNEAL_HDF_MODULES)
+  
   set(SM_HISTO_MODULES
     ${SM_VEC_MODULES}
     ${SM_VVEC_MODULES}
