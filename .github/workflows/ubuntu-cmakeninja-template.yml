@@ -40,8 +40,6 @@ jobs:
         sudo add-apt-repository ppa:ubuntu-toolchain-r/test
         ${{ inputs.COMPILER_INSTALL }}
         sudo apt-get update -y
-        # Install deps for sm::hdfdata and sm::config
-        sudo apt-get install libhdf5-dev
         # Install compiler
         sudo apt-get install ${{ inputs.COMPILER_PACKAGES }}
 

@@ -1,6 +1,4 @@
 {
     "name": "sebsjames-maths",
-    "dependencies": [
-        "hdf5"
-    ]
+    "dependencies": []
 }
