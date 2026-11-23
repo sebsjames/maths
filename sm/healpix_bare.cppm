@@ -30,12 +30,12 @@ module;
 #include <cassert>
 #include <algorithm>
 
-export module hp.bare;
+export module sm.healpix_bare;
 
 import sm.mathconst;
 
 // The healpix namespace contains code from the HEALPix C library, slightly modified.
-export namespace hp
+export namespace sm::hp
 {
     // Lookup tables
     constexpr std::int32_t jrll[] = { 2,2,2,2,3,3,3,3,4,4,4,4 };
