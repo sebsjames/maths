@@ -155,3 +155,20 @@ cd build
 CC=/opt/gcc-16/bin/gcc CXX=/opt/gcc-16/bin/g++ cmake .. -GNinja -DCMAKE_CXX_FLAGS="-static-libstdc++"
 ninja
 ```
+
+## Acknowledgements
+
+I have wrapped and modified third party code in some of these modules.
+
+The Voronoi (and Delaunay) code *jc_voronoi.cppm* is based on [Mathias Westerdahl's](https://github.com/JCash) [jcvoronoi](https://github.com/JCash/voronoi).
+
+I wrapped the [HEALPix implementation](https://healpix.sourceforge.io/html/intro_HEALPix_Software_Package.htm) from sourceforge to create *healpix_bare.cppm*.
+
+I copied code that computes the cylindrical Bessel function of order 0 from the Boost library into *bessel_i0.cppm*.
+This code was written by Xiaogang Zhang and John Maddock.
+
+I thank the authors of all of these codes.
+
+The vast majority of the code here was human-written and is human maintained.
+There are a couple of exceptions: the polysolve code was initially coded with Claude Code, although it took *extensive* rewriting by humans (Alex and Seb) before it was acceptable.
+The hexfft code was a second experiment that began as a query to Claude Code to see how well it would work. Again, it took a big rewrite before it was correct.

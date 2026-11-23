@@ -9,6 +9,12 @@ macro(setup_module_variables_for_maths base_directory)
   )
   list(REMOVE_DUPLICATES SM_MATHCONST_MODULES)
 
+  set(SM_HEALPIX_MODULES
+    ${SM_MATHCONST_MODULES}
+    ${base_directory}/sm/healpix_bare.cppm
+  )
+  list(REMOVE_DUPLICATES SM_HEALPIX_MODULES)
+
   set(SM_CONSTEXPR_MATH_MODULES
     ${SM_MATHCONST_MODULES}
     ${base_directory}/sm/constexpr_math.cppm
@@ -319,7 +325,7 @@ macro(setup_module_variables_for_maths base_directory)
     ${base_directory}/sm/pca.cppm
   )
   list(REMOVE_DUPLICATES SM_PCA_MODULES)
-  
+
   set(SM_ALL_MODULES
     ${SM_BASE64_MODULES}
     ${SM_CRC32_MODULES}
@@ -358,7 +364,8 @@ macro(setup_module_variables_for_maths base_directory)
     ${SM_HEXYHISTO_MODULES}
     ${SM_HEXFFT_MODULES}
     ${SM_CARTGRID_MODULES}
-    ${SM_PCA_MODULES}    
+    ${SM_PCA_MODULES}
+    ${SM_HEALPIX_MODULES}
   )
   list(REMOVE_DUPLICATES SM_ALL_MODULES)
 
