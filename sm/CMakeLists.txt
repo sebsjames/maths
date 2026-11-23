@@ -27,6 +27,7 @@ install(
   geometry.cppm
   geometry_polyhedra.cppm
   grid.cppm
+  healpix_bare.cppm
   hex.cppm
   hexfft.cppm
   hexgrid.cppm
