@@ -356,7 +356,7 @@ export namespace sm
         }
 
         // Does hex at index hi have a neighbour in direction ni?
-        std::int32_t has_neighbour (const std::uint32_t hi, const std::uint32_t ni) const
+        bool has_neighbour (const std::uint32_t hi, const std::uint32_t ni) const
         {
             if (ni == 0) { return has_n0 (hi); }
             else if (ni == 1) { return has_n1 (hi); }
@@ -370,27 +370,27 @@ export namespace sm
         // For hex hi, return the index of the neighbour in direction ni, or -1 if there is no neighbour.
         std::int32_t neighbour_hi (const std::uint32_t hi, const std::uint32_t ni) const
         {
-            if (ni == 0) { return has_n0(hi) == 0 ? -1 : this->d_n0[hi]; }
-            else if (ni == 1) { return has_n1(hi) == 0 ? -1 : this->d_n1[hi]; }
-            else if (ni == 2) { return has_n2(hi) == 0 ? -1 : this->d_n2[hi]; }
-            else if (ni == 3) { return has_n3(hi) == 0 ? -1 : this->d_n3[hi]; }
-            else if (ni == 4) { return has_n4(hi) == 0 ? -1 : this->d_n4[hi]; }
-            else if (ni == 5) { return has_n5(hi) == 0 ? -1 : this->d_n5[hi]; }
+            if (ni == 0) { return has_n0(hi) == false ? -1 : this->d_n0[hi]; }
+            else if (ni == 1) { return has_n1(hi) == false ? -1 : this->d_n1[hi]; }
+            else if (ni == 2) { return has_n2(hi) == false ? -1 : this->d_n2[hi]; }
+            else if (ni == 3) { return has_n3(hi) == false ? -1 : this->d_n3[hi]; }
+            else if (ni == 4) { return has_n4(hi) == false ? -1 : this->d_n4[hi]; }
+            else if (ni == 5) { return has_n5(hi) == false ? -1 : this->d_n5[hi]; }
             return -1;
         }
 
         std::int32_t n0 (const std::uint32_t hi) const { return this->d_n0[hi]; }
-        std::int32_t has_n0 (const std::uint32_t hi) const { return this->d_n0[hi] == -1 ? false : true; }
+        bool has_n0 (const std::uint32_t hi) const { return this->d_n0[hi] == -1 ? false : true; }
         std::int32_t n1 (const std::uint32_t hi) const { return this->d_n1[hi]; }
-        std::int32_t has_n1 (const std::uint32_t hi) const { return this->d_n1[hi] == -1 ? false : true; }
+        bool has_n1 (const std::uint32_t hi) const { return this->d_n1[hi] == -1 ? false : true; }
         std::int32_t n2 (const std::uint32_t hi) const { return this->d_n2[hi]; }
-        std::int32_t has_n2 (const std::uint32_t hi) const { return this->d_n2[hi] == -1 ? false : true; }
+        bool has_n2 (const std::uint32_t hi) const { return this->d_n2[hi] == -1 ? false : true; }
         std::int32_t n3 (const std::uint32_t hi) const { return this->d_n3[hi]; }
-        std::int32_t has_n3 (const std::uint32_t hi) const { return this->d_n3[hi] == -1 ? false : true; }
+        bool has_n3 (const std::uint32_t hi) const { return this->d_n3[hi] == -1 ? false : true; }
         std::int32_t n4 (const std::uint32_t hi) const { return this->d_n4[hi]; }
-        std::int32_t has_n4 (const std::uint32_t hi) const { return this->d_n4[hi] == -1 ? false : true; }
+        bool has_n4 (const std::uint32_t hi) const { return this->d_n4[hi] == -1 ? false : true; }
         std::int32_t n5 (const std::uint32_t hi) const { return this->d_n5[hi]; }
-        std::int32_t has_n5 (const std::uint32_t hi) const { return this->d_n5[hi] == -1 ? false : true; }
+        bool has_n5 (const std::uint32_t hi) const { return this->d_n5[hi] == -1 ? false : true; }
 
         /*!
          * What's the red direction 'step' vector? (same as dirn to neighbour(0), and size of the
