@@ -9,7 +9,7 @@ install(
   algo_hexgrid.cppm
   anneal.cppm
   base64.cppm
-  bessel_i0.cppm
+  bessel_i0.hpp
   bezcurvepath.cppm
   bezcoord.cppm
   bezcurve.cppm
@@ -18,7 +18,7 @@ install(
   boxfilter.cppm
   cartgrid.cppm
   centroid.cppm
-  constexpr_math.cppm
+  constexpr_math.hpp
   crc32.cppm
   edgeconv.cppm
   evenspacing.cppm
@@ -33,26 +33,26 @@ install(
   hexgrid.cppm
   hexyhisto.cppm
   histo.cppm
-  interval.cppm
+  interval.hpp
   jc_voronoi.cppm
   mat.cppm
-  mathconst.cppm
+  mathconst.hpp
   nm_simplex.cppm
   onoff.cppm
   pca.cppm
-  polysolve.cppm
+  polysolve.hpp
   quaternion.cppm
-  random.cppm
+  random.hpp
   random_walk.cppm
   rect.cppm
   rungekutta4.cppm
   scale.cppm
   spline.cppm
-  trait_tests.cppm
+  trait_tests.hpp
   util.cppm
-  vec.cppm
-  vmat.cppm
-  vvec.cppm
+  vec.hpp
+  vmat.hpp
+  vvec.hpp
   winder.cppm
 
   DESTINATION ${CMAKE_INSTALL_PREFIX}/share/sm
