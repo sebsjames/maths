@@ -5,7 +5,7 @@
 macro(setup_module_variables_for_maths base_directory)
 
   set(SM_MATHCONST_MODULES
-    ${base_directory}/sm/mathconst.cppm
+    ${base_directory}/modules/mathconst.cppm
   )
   list(REMOVE_DUPLICATES SM_MATHCONST_MODULES)
 
@@ -17,72 +17,72 @@ macro(setup_module_variables_for_maths base_directory)
 
   set(SM_CONSTEXPR_MATH_MODULES
     ${SM_MATHCONST_MODULES}
-    ${base_directory}/sm/constexpr_math.cppm
+    ${base_directory}/modules/constexpr_math.cppm
   )
   list(REMOVE_DUPLICATES SM_CONSTEXPR_MATH_MODULES)
 
   set(SM_POLYSOLVE_MODULES
     ${SM_CONSTEXPR_MATH_MODULES}
-    ${base_directory}/sm/polysolve.cppm
+    ${base_directory}/modules/polysolve.cppm
   )
   list(REMOVE_DUPLICATES SM_POLYSOLVE_MODULES)
 
   set(SM_BESSEL_I0_MODULES
     ${SM_POLYSOLVE_MODULES}
-    ${base_directory}/sm/bessel_i0.cppm
+    ${base_directory}/modules/bessel_i0.cppm
   )
   list(REMOVE_DUPLICATES SM_BESSEL_I0_MODULES)
 
   set(SM_TRAIT_TESTS_MODULES
-    ${base_directory}/sm/trait_tests.cppm
+    ${base_directory}/modules/trait_tests.cppm
   )
   list(REMOVE_DUPLICATES SM_TRAIT_TESTS_MODULES)
   
   set(SM_INTERVAL_MODULES
     ${SM_CONSTEXPR_MATH_MODULES}
     ${SM_TRAIT_TESTS_MODULES}
-    ${base_directory}/sm/interval.cppm
+    ${base_directory}/modules/interval.cppm
   )
   list(REMOVE_DUPLICATES SM_INTERVAL_MODULES)
 
   set(SM_RANDOM_MODULES
     ${SM_BESSEL_I0_MODULES}
     ${SM_INTERVAL_MODULES}
-    ${base_directory}/sm/random.cppm
+    ${base_directory}/modules/random.cppm
   )
   list(REMOVE_DUPLICATES SM_RANDOM_MODULES)
 
   set(SM_VEC_MODULES
     ${SM_INTERVAL_MODULES}
     ${SM_RANDOM_MODULES}
-    ${base_directory}/sm/vec.cppm
+    ${base_directory}/modules/vec.cppm
   )
   list(REMOVE_DUPLICATES SM_VEC_MODULES)
 
   set(SM_VVEC_MODULES
     ${SM_INTERVAL_MODULES}
     ${SM_RANDOM_MODULES}
-    ${base_directory}/sm/vvec.cppm
+    ${base_directory}/modules/vvec.cppm
   )
   list(REMOVE_DUPLICATES SM_VVEC_MODULES)
 
   set(SM_VMAT_MODULES
     ${SM_VEC_MODULES}
     ${SM_VVEC_MODULES}
-    ${base_directory}/sm/vmat.cppm
+    ${base_directory}/modules/vmat.cppm
   )
   list(REMOVE_DUPLICATES SM_VMAT_MODULES)
 
   set(SM_EVENSPACING_MODULES
     ${SM_VEC_MODULES}
     ${SM_VVEC_MODULES}
-    ${base_directory}/sm/evenspacing.cppm
+    ${base_directory}/modules/evenspacing.cppm
   )
   list(REMOVE_DUPLICATES SM_EVENSPACING_MODULES)
 
   set(SM_SCALE_MODULES
     ${SM_VVEC_MODULES}
-    ${base_directory}/sm/scale.cppm
+    ${base_directory}/modules/scale.cppm
   )
   list(REMOVE_DUPLICATES SM_SCALE_MODULES)
 

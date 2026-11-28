@@ -32,7 +32,7 @@
  * Date: June 2026
  */
 
-module;
+#pragma once
 
 #include <cstdint>
 #include <ostream>
@@ -42,12 +42,10 @@ module;
 #include <span>
 #include <type_traits>
 
-export module sm.interval;
+#include <sm/trait_tests.hpp>
+#include <sm/constexpr_math.hpp>
 
-import sm.trait_tests;
-export import sm.constexpr_math;
-
-export namespace sm
+namespace sm
 {
     // Different values to use to initialize a interval object with
     enum class interval_init { zeros, for_search };

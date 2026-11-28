@@ -30,18 +30,16 @@
  * \author Seb James
  * \date July 2026
  */
-module;
+#pragma once
 
 #include <cstdint>
 #include <functional>
 #include <cmath>
 
-export module sm.evenspacing;
+#include <sm/vec.hpp>
+#include <sm/vvec.hpp>
 
-export import sm.vec;
-export import sm.vvec;
-
-export namespace sm::evenspacing
+namespace sm::evenspacing
 {
     // Compute the approximate length of the path from f(x0) to f(x1) by summing n - 1 linear
     // sections, evenly spaced along the abscissa.

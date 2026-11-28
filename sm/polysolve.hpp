@@ -35,7 +35,7 @@
  *
  * Date Jan - Feb 2026
  */
-module;
+#pragma once
 
 #include <cstdint>
 #include <complex>
@@ -47,12 +47,10 @@ module;
 #include <array>
 #include <vector>
 
-export module sm.polysolve;
+#include <sm/mathconst.hpp>
+#include <sm/constexpr_math.hpp>
 
-import sm.mathconst;
-import sm.constexpr_math;
-
-export namespace sm::polysolve
+namespace sm::polysolve
 {
     /*
      * A helper to remove trailing zero and near-zero entries from a vvec of coefficients

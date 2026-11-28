@@ -40,7 +40,7 @@
  * \author Seb James
  * \date April 2020
  */
-module;
+#pragma once
 
 #include <stdexcept>
 #include <cmath>
@@ -51,13 +51,11 @@ module;
 #include <span>
 #include <complex>
 
-export module sm.scale;
+#include <sm/trait_tests.hpp>
+#include <sm/vvec.hpp>
+#include <sm/interval.hpp>
 
-import sm.trait_tests;
-export import sm.vvec;
-export import sm.interval;
-
-export namespace sm
+namespace sm
 {
     //! \brief A label for what kind of scaling transformation to make
     enum class scaling_function

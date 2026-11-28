@@ -3,6 +3,7 @@
 # Compile a library with all modules
 add_library(sm STATIC)
 target_sources_modules(sm MODULES ${SM_ALL_MODULES})
+target_include_directories(sm AFTER PRIVATE ${PROJECT_SOURCE_DIR})
 
 # sm::interval
 add_executable(interval_intersects_aabb interval_intersects_aabb.cpp)
@@ -354,7 +355,9 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR (CMAKE_CXX_COMPILER_ID STREQUAL "GNU
     ${PROJECT_SOURCE_DIR}/sm/pca.cppm
     ${PROJECT_SOURCE_DIR}/tests/sklearn_iris.cppm
   )
+  target_include_directories(pca_iris AFTER PRIVATE ${PROJECT_SOURCE_DIR})
   add_test(pca_iris pca_iris)
+
 endif()
 
 # Test quaternion and mat44 rotations in float and double precision

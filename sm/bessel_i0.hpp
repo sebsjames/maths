@@ -11,17 +11,15 @@
  * Use, modification and distribution are subject to the
  * Boost Software License, Version 1.0. (See http://www.boost.org/LICENSE_1_0.txt)
  */
-module;
+#pragma once
 
 #include <type_traits>
 #include <vector>
 #include <cmath>
 
-export module sm.bessel_i0;
+#include <sm/polysolve.hpp>
 
-import sm.polysolve;
-
-export namespace sm
+namespace sm
 {
     // I only require the 24 digit implementation from boost
     template <typename T> requires std::is_floating_point_v<T>

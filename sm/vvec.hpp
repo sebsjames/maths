@@ -10,8 +10,7 @@
  * \author Seb James
  * \date May 2020
  */
-
-module;
+#pragma once
 
 #include <cstdint>
 #include <cmath>
@@ -29,14 +28,12 @@ module;
 #include <cstddef>
 #include <random>
 
-export module sm.vvec;
+#include <sm/mathconst.hpp>
+#include <sm/trait_tests.hpp>
+#include <sm/interval.hpp>
+#include <sm/random.hpp>
 
-export import sm.mathconst;
-export import sm.interval;
-import sm.random;
-import sm.trait_tests;
-
-export namespace sm
+namespace sm
 {
     /*!
      * \brief N-D vector class deriving from std::vector

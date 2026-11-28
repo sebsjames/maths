@@ -1,6 +1,8 @@
 #include <iostream>
 
 import sm.mathconst;
+import sm.vec;
+import sm.vvec;
 import sm.evenspacing;
 
 // Define some 1D function

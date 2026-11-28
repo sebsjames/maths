@@ -11,7 +11,7 @@
  * \author Seb James
  * \date 2026
  */
-module;
+#pragma once
 
 #include <cstdint>
 #include <limits>
@@ -20,15 +20,14 @@ module;
 #include <string>
 #include <format>
 
-export module sm.vmat;
+#include <sm/mathconst.hpp>
+#include <sm/trait_tests.hpp>
+#include <sm/constexpr_math.hpp>
+#include <sm/polysolve.hpp>
+#include <sm/vvec.hpp>
+#include <sm/vec.hpp>
 
-export import sm.mathconst;
-export import sm.vvec;
-export import sm.vec;
-import sm.trait_tests;
-import sm.polysolve;
-
-export namespace sm
+namespace sm
 {
     // Forward declare class and stream operator
     template <typename F>
