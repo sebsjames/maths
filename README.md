@@ -8,7 +8,7 @@
 ![Clang 20](https://github.com/sebsjames/maths/actions/workflows/ubuntu-cmakeninja-clang20.yml/badge.svg)
 ![Clang 22](https://github.com/sebsjames/maths/actions/workflows/ubuntu-cmakeninja-clang22.yml/badge.svg)
 
-## A modules-native mathematics library for modern C++
+## A modules and header-only mathematics library for modern C++
 
 This library provides vector and matrix maths with *templated
 precision* for numerical/simulation programs written in C++20. It is
@@ -83,7 +83,7 @@ It was developed to build the 3D plotting library [mathplot](https://github.com/
 
 ## Can I use the code header-only?
 
-I decided to go fully modules-native with this code. However, there is a `header-only` branch that contains the code in its last header-only form.
+Yes, you can use the library as header-only or as modules.
 
 ## Dependencies
 
