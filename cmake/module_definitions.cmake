@@ -29,7 +29,7 @@ macro(setup_module_variables_for_maths base_directory)
 
   set(SM_BESSEL_I0_MODULES
     ${SM_POLYSOLVE_MODULES}
-    ${base_directory}/sm/bessel_i0.cppm
+    ${base_directory}/modules/bessel_i0.cppm
   )
   list(REMOVE_DUPLICATES SM_BESSEL_I0_MODULES)
 
