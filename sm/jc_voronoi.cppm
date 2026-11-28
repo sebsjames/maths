@@ -31,6 +31,7 @@ export import sm.mathconst;
 export import sm.vec;
 import sm.geometry;
 import sm.winder;
+import sm.interval;
 
 export namespace sm::jcv
 {
