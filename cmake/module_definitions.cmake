@@ -23,7 +23,7 @@ macro(setup_module_variables_for_maths base_directory)
 
   set(SM_POLYSOLVE_MODULES
     ${SM_CONSTEXPR_MATH_MODULES}
-    ${base_directory}/sm/polysolve.cppm
+    ${base_directory}/modules/polysolve.cppm
   )
   list(REMOVE_DUPLICATES SM_POLYSOLVE_MODULES)
 
