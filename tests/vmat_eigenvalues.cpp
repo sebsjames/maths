@@ -4,6 +4,8 @@
 #include <complex>
 #include <vector>
 
+import sm.mathconst;
+import sm.vvec;
 import sm.vmat;
 
 int main()
@@ -143,7 +145,7 @@ int main()
         std::cout << "  Matrix: diag(1, 2, 3, 4)\n";
 
         sm::vvec<sm::vmat<double>::eigenpair> pairs = A.eigenpairs();
-        
+
         // For diagonal matrix, check a specific eigenvalue
         bool found_valid = false;
         for (size_t i = 0; i < pairs.size(); ++i) {

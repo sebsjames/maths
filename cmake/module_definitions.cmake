@@ -69,7 +69,7 @@ macro(setup_module_variables_for_maths base_directory)
   set(SM_VMAT_MODULES
     ${SM_VEC_MODULES}
     ${SM_VVEC_MODULES}
-    ${base_directory}/sm/vmat.cppm
+    ${base_directory}/modules/vmat.cppm
   )
   list(REMOVE_DUPLICATES SM_VMAT_MODULES)
 
