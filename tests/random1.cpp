@@ -2,6 +2,7 @@
 #include <random> // to refer to std::mt19937 here
 
 import sm.random;
+import sm.interval;
 
 int main()
 {

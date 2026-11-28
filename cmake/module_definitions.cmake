@@ -48,7 +48,7 @@ macro(setup_module_variables_for_maths base_directory)
   set(SM_RANDOM_MODULES
     ${SM_BESSEL_I0_MODULES}
     ${SM_INTERVAL_MODULES}
-    ${base_directory}/sm/random.cppm
+    ${base_directory}/modules/random.cppm
   )
   list(REMOVE_DUPLICATES SM_RANDOM_MODULES)
 

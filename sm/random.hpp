@@ -51,7 +51,7 @@
  * standard as yet, but they're short and could probably be implemented easily here,
  * another day.
  */
-module;
+#pragma once
 
 #include <random>
 #include <vector>
@@ -64,11 +64,9 @@ module;
 #include <cstddef>
 #include <memory>
 
-export module sm.random;
-
-import sm.mathconst;
-import sm.bessel_i0;
-export import sm.interval;
+#include <sm/mathconst.hpp>
+#include <sm/bessel_i0.hpp>
+#include <sm/interval.hpp>
 
 namespace sm
 {
@@ -90,216 +88,213 @@ namespace sm
      *  providing both T and E parameters when instantiating your randuniform objects
      *  (similar for rand_normal etc, too).
      */
-    export
+    template <typename T = float, typename E = std::mt19937, bool = std::is_integral<std::decay_t<T>>::value>
+    class rand_uniform {};
+
+    //! Floating-point number specialization of rand_unifom.
+    template <typename T, typename E> requires std::is_floating_point_v<std::decay_t<T>>
+    class rand_uniform<T, E, false>
     {
-        template <typename T = float, typename E = std::mt19937, bool = std::is_integral<std::decay_t<T>>::value>
-        class rand_uniform {};
-
-        //! Floating-point number specialization of rand_unifom.
-        template <typename T, typename E> requires std::is_floating_point_v<std::decay_t<T>>
-        class rand_uniform<T, E, false>
+    private:
+        //! random device to provide a seed for the generator
+        std::random_device rd{};
+        //! Pseudo random number generator engine. NB: 32 bit one is faster.
+        E generator{rd()};
+        //std::minstd_rand generator{rd()}; // No slower than mt19937, apparently
+        //! Our distribution
+        std::uniform_real_distribution<T> dist;
+    public:
+        //! Default constructor gives RN generator which works in range [0,1)
+        rand_uniform () noexcept
         {
-        private:
-            //! random device to provide a seed for the generator
-            std::random_device rd{};
-            //! Pseudo random number generator engine. NB: 32 bit one is faster.
-            E generator{rd()};
-            //std::minstd_rand generator{rd()}; // No slower than mt19937, apparently
-            //! Our distribution
-            std::uniform_real_distribution<T> dist;
-        public:
-            //! Default constructor gives RN generator which works in range [0,1)
-            rand_uniform () noexcept
-            {
-                typename std::uniform_real_distribution<T>::param_type prms (T{0}, T{1});
-                this->dist.param (prms);
-            }
-            //! This constructor gives RN generator which works in range [0,1) and sets a
-            //! fixed seed
-            rand_uniform (std::uint32_t _seed) noexcept
-            {
-                this->generator.seed (_seed);
-                typename std::uniform_real_distribution<T>::param_type prms (T{0}, T{1});
-                this->dist.param (prms);
-            }
-            //! This constructor gives RN generator which works in range [a,b)
-            rand_uniform (T a, T b) noexcept
-            {
-                typename std::uniform_real_distribution<T>::param_type prms (a, b);
-                this->dist.param (prms);
-            }
-            //! This constructor gives RN generator which works in range [a,b)
-            rand_uniform (T a, T b, std::uint32_t _seed) noexcept
-            {
-                this->generator.seed (_seed);
-                typename std::uniform_real_distribution<T>::param_type prms (a, b);
-                this->dist.param (prms);
-            }
-            //! This constructor gives RN generator which works in with the given semi open interval [a,b)
-            rand_uniform (const sm::interval<T, sm::interval_endpoint::closed, sm::interval_endpoint::open>& ab) noexcept
-            {
-                typename std::uniform_real_distribution<T>::param_type prms (ab.min, ab.max);
-                this->dist.param (prms);
-            }
-            //! This constructor gives RN generator which works in with the given semi open interval [a,b)
-            rand_uniform (const sm::interval<T, sm::interval_endpoint::closed, sm::interval_endpoint::open>& ab,
-                          std::uint32_t _seed) noexcept
-            {
-                this->generator.seed (_seed);
-                typename std::uniform_real_distribution<T>::param_type prms (ab.min, ab.max);
-                this->dist.param (prms);
-            }
-            //! Copy constructor copies the parameters of the distribution
-            rand_uniform (const rand_uniform<T>& rng) noexcept { this->param (rng.param()); }
-            //! Copy assignment operator needs to be explicitly defined
-            rand_uniform& operator= (const rand_uniform<T>& rng) noexcept
-            {
-                if (&rng == static_cast<const rand_uniform<T>*>(this)) { return *this; }
-                this->param (rng.param());
-                return *this;
-            }
-            //! Reveal the distribution param methods
-            typename std::uniform_real_distribution<T>::param_type param() const noexcept { return dist.param(); }
-            void param (const typename std::uniform_real_distribution<T>::param_type& prms) noexcept { this->dist.param(prms); }
-            //! Get 1 random number from the generator
-            T get() noexcept { return this->dist (this->generator); }
-            //! Get n random numbers from the generator
-            std::vector<T> get (std::size_t n) noexcept
-            {
-                std::vector<T> rtn (n, T{0});
-                for (std::size_t i = 0; i < n; ++i) {
-                    rtn[i] = this->dist (this->generator);
-                }
-                return rtn;
-            }
-            //! Place n random numbers in the array rtn
-            template<std::size_t n>
-            void get (std::array<T, n>& rtn) noexcept
-            {
-                for (std::size_t i = 0; i < n; ++i) { rtn[i] = this->dist (this->generator); }
-            }
-            T min() noexcept { return this->dist.min(); }
-            T max() noexcept { return this->dist.max(); }
-            //! Change the max/min of the distribution to be in range [a,b)
-            void setparams (T a, T b) noexcept
-            {
-                typename std::uniform_real_distribution<T>::param_type prms (a, b);
-                this->dist.param (prms);
-            }
-            //! Return probability density function value, P(x)
-            T prob_density ([[maybe_unused]] const T x) const noexcept
-            {
-                return T{1} / (this->dist.b() - this->dist.a());
-            }
-        };
-
-        //! Integer specialization: Generate uniform random numbers in a integer format
-        template<typename T, typename E>
-        class rand_uniform<T, E, true>
+            typename std::uniform_real_distribution<T>::param_type prms (T{0}, T{1});
+            this->dist.param (prms);
+        }
+        //! This constructor gives RN generator which works in range [0,1) and sets a
+        //! fixed seed
+        rand_uniform (std::uint32_t _seed) noexcept
         {
+            this->generator.seed (_seed);
+            typename std::uniform_real_distribution<T>::param_type prms (T{0}, T{1});
+            this->dist.param (prms);
+        }
+        //! This constructor gives RN generator which works in range [a,b)
+        rand_uniform (T a, T b) noexcept
+        {
+            typename std::uniform_real_distribution<T>::param_type prms (a, b);
+            this->dist.param (prms);
+        }
+        //! This constructor gives RN generator which works in range [a,b)
+        rand_uniform (T a, T b, std::uint32_t _seed) noexcept
+        {
+            this->generator.seed (_seed);
+            typename std::uniform_real_distribution<T>::param_type prms (a, b);
+            this->dist.param (prms);
+        }
+        //! This constructor gives RN generator which works in with the given semi open interval [a,b)
+        rand_uniform (const sm::interval<T, sm::interval_endpoint::closed, sm::interval_endpoint::open>& ab) noexcept
+        {
+            typename std::uniform_real_distribution<T>::param_type prms (ab.min, ab.max);
+            this->dist.param (prms);
+        }
+        //! This constructor gives RN generator which works in with the given semi open interval [a,b)
+        rand_uniform (const sm::interval<T, sm::interval_endpoint::closed, sm::interval_endpoint::open>& ab,
+                      std::uint32_t _seed) noexcept
+        {
+            this->generator.seed (_seed);
+            typename std::uniform_real_distribution<T>::param_type prms (ab.min, ab.max);
+            this->dist.param (prms);
+        }
+        //! Copy constructor copies the parameters of the distribution
+        rand_uniform (const rand_uniform<T>& rng) noexcept { this->param (rng.param()); }
+        //! Copy assignment operator needs to be explicitly defined
+        rand_uniform& operator= (const rand_uniform<T>& rng) noexcept
+        {
+            if (&rng == static_cast<const rand_uniform<T>*>(this)) { return *this; }
+            this->param (rng.param());
+            return *this;
+        }
+        //! Reveal the distribution param methods
+        typename std::uniform_real_distribution<T>::param_type param() const noexcept { return dist.param(); }
+        void param (const typename std::uniform_real_distribution<T>::param_type& prms) noexcept { this->dist.param(prms); }
+        //! Get 1 random number from the generator
+        T get() noexcept { return this->dist (this->generator); }
+        //! Get n random numbers from the generator
+        std::vector<T> get (std::size_t n) noexcept
+        {
+            std::vector<T> rtn (n, T{0});
+            for (std::size_t i = 0; i < n; ++i) {
+                rtn[i] = this->dist (this->generator);
+            }
+            return rtn;
+        }
+        //! Place n random numbers in the array rtn
+        template<std::size_t n>
+        void get (std::array<T, n>& rtn) noexcept
+        {
+            for (std::size_t i = 0; i < n; ++i) { rtn[i] = this->dist (this->generator); }
+        }
+        T min() noexcept { return this->dist.min(); }
+        T max() noexcept { return this->dist.max(); }
+        //! Change the max/min of the distribution to be in range [a,b)
+        void setparams (T a, T b) noexcept
+        {
+            typename std::uniform_real_distribution<T>::param_type prms (a, b);
+            this->dist.param (prms);
+        }
+        //! Return probability density function value, P(x)
+        T prob_density ([[maybe_unused]] const T x) const noexcept
+        {
+            return T{1} / (this->dist.b() - this->dist.a());
+        }
+    };
+
+    //! Integer specialization: Generate uniform random numbers in a integer format
+    template<typename T, typename E>
+    class rand_uniform<T, E, true>
+    {
 #ifndef __GNUC__
-            static_assert (sizeof(T) > 1); // disallow single byte integers unless in gcc
+        static_assert (sizeof(T) > 1); // disallow single byte integers unless in gcc
 #endif
-        private:
-            //! random device to provide a seed for the generator
-            std::random_device rd{};
-            //! Pseudo random number generator engine
-            E generator{rd()};
-            //! Our distribution
-            std::uniform_int_distribution<T> dist;
-        public:
-            //! Default constructor gives an integer random number generator which works
-            //! in range [(type min),(type max)]
-            rand_uniform () noexcept
-            {
-                typename std::uniform_int_distribution<T>::param_type prms (std::numeric_limits<T>::min(),
-                                                                            std::numeric_limits<T>::max());
-                this->dist.param (prms);
+    private:
+        //! random device to provide a seed for the generator
+        std::random_device rd{};
+        //! Pseudo random number generator engine
+        E generator{rd()};
+        //! Our distribution
+        std::uniform_int_distribution<T> dist;
+    public:
+        //! Default constructor gives an integer random number generator which works
+        //! in range [(type min),(type max)]
+        rand_uniform () noexcept
+        {
+            typename std::uniform_int_distribution<T>::param_type prms (std::numeric_limits<T>::min(),
+                                                                        std::numeric_limits<T>::max());
+            this->dist.param (prms);
+        }
+        //! This constructor gives an integer random number generator which works
+        //! in range [(type min),(type max)] with fixed seed \a _seed.
+        rand_uniform (std::uint32_t _seed) noexcept
+        {
+            this->generator.seed (_seed);
+            typename std::uniform_int_distribution<T>::param_type prms (std::numeric_limits<T>::min(),
+                                                                        std::numeric_limits<T>::max());
+            this->dist.param (prms);
+        }
+        //! This constructor gives RN generator which works in range [a,b]
+        rand_uniform (T a, T b) noexcept
+        {
+            typename std::uniform_int_distribution<T>::param_type prms (a, b);
+            this->dist.param (prms);
+        }
+        //! This constructor gives RN generator which works in range [a,b] and sets a
+        //! fixed seed.
+        rand_uniform (T a, T b, std::uint32_t _seed) noexcept
+        {
+            this->generator.seed (_seed);
+            typename std::uniform_int_distribution<T>::param_type prms (a, b);
+            this->dist.param (prms);
+        }
+        //! This constructor gives RN generator which works in with the given closed interval [a,b]
+        rand_uniform (const sm::interval<T>& ab) noexcept
+        {
+            typename std::uniform_real_distribution<T>::param_type prms (ab.min, ab.max);
+            this->dist.param (prms);
+        }
+        //! This constructor gives RN generator which works in with the given closed interval [a,b]
+        rand_uniform (const sm::interval<T>& ab, std::uint32_t _seed) noexcept
+        {
+            this->generator.seed (_seed);
+            typename std::uniform_int_distribution<T>::param_type prms (ab.min, ab.max);
+            this->dist.param (prms);
+        }
+        //! Copy constructor copies the distribution parameters
+        rand_uniform (const rand_uniform<T>& rng) noexcept { this->param (rng.param()); }
+        //! Copy assignment operator needs to be explicitly defined
+        rand_uniform& operator= (const rand_uniform<T>& rng) noexcept
+        {
+            if (&rng == static_cast<const rand_uniform<T>*>(this)) { return *this; }
+            this->param (rng.param());
+            return *this;
+        }
+        //! Reveal the distribution's param getter
+        typename std::uniform_int_distribution<T>::param_type param() const noexcept { return dist.param(); }
+        //! Reveal the distribution's param setter
+        void param (const typename std::uniform_int_distribution<T>::param_type& prms) noexcept { this->dist.param(prms); }
+        //! Get 1 random number from the generator
+        T get() noexcept { return this->dist (this->generator); }
+        //! Get n random numbers from the generator
+        std::vector<T> get (std::size_t n) noexcept
+        {
+            std::vector<T> rtn (n, T{0});
+            for (std::size_t i = 0; i < n; ++i) {
+                rtn[i] = this->dist (this->generator);
             }
-            //! This constructor gives an integer random number generator which works
-            //! in range [(type min),(type max)] with fixed seed \a _seed.
-            rand_uniform (std::uint32_t _seed) noexcept
-            {
-                this->generator.seed (_seed);
-                typename std::uniform_int_distribution<T>::param_type prms (std::numeric_limits<T>::min(),
-                                                                            std::numeric_limits<T>::max());
-                this->dist.param (prms);
-            }
-            //! This constructor gives RN generator which works in range [a,b]
-            rand_uniform (T a, T b) noexcept
-            {
-                typename std::uniform_int_distribution<T>::param_type prms (a, b);
-                this->dist.param (prms);
-            }
-            //! This constructor gives RN generator which works in range [a,b] and sets a
-            //! fixed seed.
-            rand_uniform (T a, T b, std::uint32_t _seed) noexcept
-            {
-                this->generator.seed (_seed);
-                typename std::uniform_int_distribution<T>::param_type prms (a, b);
-                this->dist.param (prms);
-            }
-            //! This constructor gives RN generator which works in with the given closed interval [a,b]
-            rand_uniform (const sm::interval<T>& ab) noexcept
-            {
-                typename std::uniform_real_distribution<T>::param_type prms (ab.min, ab.max);
-                this->dist.param (prms);
-            }
-            //! This constructor gives RN generator which works in with the given closed interval [a,b]
-            rand_uniform (const sm::interval<T>& ab, std::uint32_t _seed) noexcept
-            {
-                this->generator.seed (_seed);
-                typename std::uniform_int_distribution<T>::param_type prms (ab.min, ab.max);
-                this->dist.param (prms);
-            }
-            //! Copy constructor copies the distribution parameters
-            rand_uniform (const rand_uniform<T>& rng) noexcept { this->param (rng.param()); }
-            //! Copy assignment operator needs to be explicitly defined
-            rand_uniform& operator= (const rand_uniform<T>& rng) noexcept
-            {
-                if (&rng == static_cast<const rand_uniform<T>*>(this)) { return *this; }
-                this->param (rng.param());
-                return *this;
-            }
-            //! Reveal the distribution's param getter
-            typename std::uniform_int_distribution<T>::param_type param() const noexcept { return dist.param(); }
-            //! Reveal the distribution's param setter
-            void param (const typename std::uniform_int_distribution<T>::param_type& prms) noexcept { this->dist.param(prms); }
-            //! Get 1 random number from the generator
-            T get() noexcept { return this->dist (this->generator); }
-            //! Get n random numbers from the generator
-            std::vector<T> get (std::size_t n) noexcept
-            {
-                std::vector<T> rtn (n, T{0});
-                for (std::size_t i = 0; i < n; ++i) {
-                    rtn[i] = this->dist (this->generator);
-                }
-                return rtn;
-            }
-            //! Place n random numbers in the array rtn
-            template<std::size_t n>
-            void get (std::array<T, n>& rtn) noexcept
-            {
-                for (std::size_t i = 0; i < n; ++i) { rtn[i] = this->dist (this->generator); }
-            }
-            //! min wrapper
-            T min() noexcept { return this->dist.min(); }
-            //! max wrapper
-            T max() noexcept { return this->dist.max(); }
-            //! Change the max/min of the distribution to range [a,b]
-            void setparams (T a, T b) noexcept
-            {
-                typename std::uniform_int_distribution<T>::param_type prms (a, b);
-                this->dist.param (prms);
-            }
-            //! Return probability density function value, P(x), in floating point format
-            template <typename F=float> requires std::is_floating_point_v<F>
-            F prob_density ([[maybe_unused]] const T x) const noexcept
-            {
-                return F{1} / (this->dist.b() - this->dist.a());
-            }
-        };
-    }
+            return rtn;
+        }
+        //! Place n random numbers in the array rtn
+        template<std::size_t n>
+        void get (std::array<T, n>& rtn) noexcept
+        {
+            for (std::size_t i = 0; i < n; ++i) { rtn[i] = this->dist (this->generator); }
+        }
+        //! min wrapper
+        T min() noexcept { return this->dist.min(); }
+        //! max wrapper
+        T max() noexcept { return this->dist.max(); }
+        //! Change the max/min of the distribution to range [a,b]
+        void setparams (T a, T b) noexcept
+        {
+            typename std::uniform_int_distribution<T>::param_type prms (a, b);
+            this->dist.param (prms);
+        }
+        //! Return probability density function value, P(x), in floating point format
+        template <typename F=float> requires std::is_floating_point_v<F>
+        F prob_density ([[maybe_unused]] const T x) const noexcept
+        {
+            return F{1} / (this->dist.b() - this->dist.a());
+        }
+    };
 
     /*!
      * Generate numbers drawn from a random normal distribution.
@@ -308,7 +303,7 @@ namespace sm
      *
      * \tparam E The pseudo-random number generator engine.
      */
-    export template <typename T = double, typename E = std::mt19937_64> requires std::is_floating_point_v<std::decay_t<T>>
+    template <typename T = double, typename E = std::mt19937_64> requires std::is_floating_point_v<std::decay_t<T>>
     class rand_normal
     {
     private:
@@ -395,7 +390,7 @@ namespace sm
      *
      * \tparam E The pseudo-random number generator engine.
      */
-    export template <typename T = double, typename E = std::mt19937_64> requires std::is_floating_point_v<std::decay_t<T>>
+    template <typename T = double, typename E = std::mt19937_64> requires std::is_floating_point_v<std::decay_t<T>>
     class rand_lognormal
     {
     private:
@@ -501,7 +496,7 @@ namespace sm
      *
      * \tparam E The pseudo-random number generator engine.
      */
-    export template <typename T = std::int32_t, typename E = std::mt19937> requires std::is_integral_v<std::decay_t<T>>
+    template <typename T = std::int32_t, typename E = std::mt19937> requires std::is_integral_v<std::decay_t<T>>
     class rand_poisson
     {
     private:
@@ -594,7 +589,7 @@ namespace sm
      *
      * \tparam E The pseudo-random number generator engine.
      */
-    export template <typename T = double, typename E = std::mt19937> requires std::is_floating_point_v<std::decay_t<T>>
+    template <typename T = double, typename E = std::mt19937> requires std::is_floating_point_v<std::decay_t<T>>
     class rand_exponential
     {
     protected:
@@ -683,7 +678,7 @@ namespace sm
      *
      * \tparam E The pseudo-random number generator engine.
      */
-    export template <typename T = double, typename E = std::mt19937> requires std::is_floating_point_v<T>
+    template <typename T = double, typename E = std::mt19937> requires std::is_floating_point_v<T>
     class rand_pareto : public sm::rand_exponential<T, E>
     {
     public:
@@ -746,7 +741,7 @@ namespace sm
     };
 
     //! Generate samples from the von Mises distribution on the circle.
-    export template <typename T = double, typename E = std::mt19937> requires std::is_floating_point_v<T>
+    template <typename T = double, typename E = std::mt19937> requires std::is_floating_point_v<T>
     class rand_vonmises
     {
     public:
@@ -866,7 +861,7 @@ namespace sm
 
     //! Enumerated class defining groups of characters, such as alphanumericuppercase,
     //! alphanumericlowercase etc.
-    export enum class chargroup
+    enum class chargroup
     {
         alphanumeric,          // 0-9A-Za-z                   62 chars
         alpha,                 // A-Za-z                      52 chars
@@ -882,7 +877,7 @@ namespace sm
     };
 
     //! Generate strings of random characters
-    export class rand_string
+    class rand_string
     {
     public:
         //! Default constructor gives a string generator that generates 8 hexlowercase characters
