@@ -46,7 +46,7 @@ install(
   random_walk.cppm
   rect.cppm
   rungekutta4.cppm
-  scale.cppm
+  scale.hpp
   spline.cppm
   trait_tests.hpp
   util.cppm

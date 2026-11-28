@@ -82,7 +82,7 @@ macro(setup_module_variables_for_maths base_directory)
 
   set(SM_SCALE_MODULES
     ${SM_VVEC_MODULES}
-    ${base_directory}/sm/scale.cppm
+    ${base_directory}/modules/scale.cppm
   )
   list(REMOVE_DUPLICATES SM_SCALE_MODULES)
 
