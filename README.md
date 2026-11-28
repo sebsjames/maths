@@ -42,11 +42,11 @@ The namespace is just `sm` (I like short namespaces for frequently used types).
 Here's an example
 
 ```c++
-#include <iostream> // possibly import std; in the future.
-import sm.mathconst;
-import sm.vec;
-import sm.quaternion;
-import sm.mat;
+#include <iostream>    // possibly import std; in the future.
+import sm.mathconst;   // or #include <sm/mathconst.hpp>
+import sm.vec;         // or #include <sm/vec.hpp>
+import sm.quaternion;  // or #include <sm/quaternion.hpp>
+import sm.mat;         // or #include <sm/mat.hpp>
 
 int main()
 {
