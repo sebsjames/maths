@@ -17,7 +17,7 @@ macro(setup_module_variables_for_maths base_directory)
 
   set(SM_CONSTEXPR_MATH_MODULES
     ${SM_MATHCONST_MODULES}
-    ${base_directory}/sm/constexpr_math.cppm
+    ${base_directory}/modules/constexpr_math.cppm
   )
   list(REMOVE_DUPLICATES SM_CONSTEXPR_MATH_MODULES)
 
