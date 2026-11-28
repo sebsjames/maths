@@ -62,7 +62,7 @@ macro(setup_module_variables_for_maths base_directory)
   set(SM_VVEC_MODULES
     ${SM_INTERVAL_MODULES}
     ${SM_RANDOM_MODULES}
-    ${base_directory}/sm/vvec.cppm
+    ${base_directory}/modules/vvec.cppm
   )
   list(REMOVE_DUPLICATES SM_VVEC_MODULES)
 
