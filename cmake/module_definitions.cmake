@@ -33,10 +33,15 @@ macro(setup_module_variables_for_maths base_directory)
   )
   list(REMOVE_DUPLICATES SM_BESSEL_I0_MODULES)
 
+  set(SM_TRAIT_TESTS_MODULES
+    ${base_directory}/modules/trait_tests.cppm
+  )
+  list(REMOVE_DUPLICATES SM_TRAIT_TESTS_MODULES)
+  
   set(SM_INTERVAL_MODULES
     ${SM_CONSTEXPR_MATH_MODULES}
-    ${base_directory}/sm/trait_tests.cppm
-    ${base_directory}/sm/interval.cppm
+    ${SM_TRAIT_TESTS_MODULES}
+    ${base_directory}/modules/interval.cppm
   )
   list(REMOVE_DUPLICATES SM_INTERVAL_MODULES)
 
@@ -82,7 +87,7 @@ macro(setup_module_variables_for_maths base_directory)
   list(REMOVE_DUPLICATES SM_SCALE_MODULES)
 
   set(SM_UTIL_MODULES
-    ${base_directory}/sm/trait_tests.cppm
+    ${SM_TRAIT_TESTS_MODULES}
     ${base_directory}/sm/util.cppm
   )
   list(REMOVE_DUPLICATES SM_UTIL_MODULES)
@@ -160,7 +165,7 @@ macro(setup_module_variables_for_maths base_directory)
   set(SM_ALGO_MODULES
     ${SM_VEC_MODULES}
     ${SM_VVEC_MODULES}
-    ${base_directory}/sm/trait_tests.cppm
+    ${SM_TRAIT_TESTS_MODULES}
     ${base_directory}/sm/algo.cppm
     ${base_directory}/sm/centroid.cppm
     ${base_directory}/sm/boxfilter.cppm
@@ -172,7 +177,7 @@ macro(setup_module_variables_for_maths base_directory)
   set(SM_CENTROID_MODULES
     ${SM_VEC_MODULES}
     ${SM_VVEC_MODULES}
-    ${base_directory}/sm/trait_tests.cppm
+    ${SM_TRAIT_TESTS_MODULES}
     ${base_directory}/sm/centroid.cppm
   )
   list(REMOVE_DUPLICATES SM_CENTROID_MODULES)

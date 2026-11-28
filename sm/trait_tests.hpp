@@ -15,13 +15,11 @@
  * \author Seb James
  * \date May 2020
  */
-module;
+#pragma once
 
 #include <type_traits>
 
-export module sm.trait_tests;
-
-export namespace sm
+namespace sm
 {
     //! Traits approach to testing for possibility of a-b. Could also make a class which used
     //! std::is_arithmetic here.

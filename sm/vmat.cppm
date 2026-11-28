@@ -27,6 +27,7 @@ export import sm.vvec;
 export import sm.vec;
 import sm.trait_tests;
 import sm.polysolve;
+import sm.constexpr_math;
 
 export namespace sm
 {
