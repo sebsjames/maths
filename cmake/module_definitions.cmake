@@ -76,7 +76,7 @@ macro(setup_module_variables_for_maths base_directory)
   set(SM_EVENSPACING_MODULES
     ${SM_VEC_MODULES}
     ${SM_VVEC_MODULES}
-    ${base_directory}/sm/evenspacing.cppm
+    ${base_directory}/modules/evenspacing.cppm
   )
   list(REMOVE_DUPLICATES SM_EVENSPACING_MODULES)
 

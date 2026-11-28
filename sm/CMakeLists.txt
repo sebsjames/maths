@@ -21,7 +21,7 @@ install(
   constexpr_math.hpp
   crc32.cppm
   edgeconv.cppm
-  evenspacing.cppm
+  evenspacing.hpp
   fft.cppm
   flags.cppm
   geometry.cppm
