@@ -5,7 +5,7 @@
 macro(setup_module_variables_for_maths base_directory)
 
   set(SM_MATHCONST_MODULES
-    ${base_directory}/sm/mathconst.cppm
+    ${base_directory}/modules/mathconst.cppm
   )
   list(REMOVE_DUPLICATES SM_MATHCONST_MODULES)
 
